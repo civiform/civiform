@@ -22,6 +22,7 @@ import * as questionBank from './questionBank'
 import * as preview from './preview'
 import * as enumerator from './enumerator'
 import * as phoneNumber from './phone'
+import * as adminQuestionEdit from './admin_question_edit'
 import htmx from 'htmx.org'
 
 declare global {
@@ -53,4 +54,5 @@ window.addEventListener('load', () => {
   preview.init()
   enumerator.init()
   phoneNumber.init()
+  adminQuestionEdit.init()
 })

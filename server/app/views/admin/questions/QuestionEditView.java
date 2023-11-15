@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
@@ -16,8 +17,10 @@ import com.google.inject.Inject;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.InputTag;
 import java.util.Locale;
 import java.util.Optional;
 import models.QuestionTag;
@@ -44,10 +47,12 @@ import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.components.Modal;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 
 /** Renders a page for editing a question. */
 public final class QuestionEditView extends BaseHtmlView {
@@ -110,14 +115,16 @@ public final class QuestionEditView extends BaseHtmlView {
         buildQuestionContainer(title)
             .with(
                 buildNewQuestionForm(questionForm, enumeratorQuestionDefinitions, request)
-                    .with(makeCsrfTokenInputTag(request)));
+                    .with(
+                        makeCsrfTokenInputTag(
+                            request))); // it adds the tag here... do i need to do that earlier?
 
     message
         .map(m -> m.setDismissible(true))
         .map(ToastMessage::getContainerTag)
         .ifPresent(formContent::with);
 
-    return renderWithPreview(request, formContent, questionType, title);
+    return renderWithPreview(request, formContent, questionType, title, Optional.empty());
   }
 
   /** Render a fresh Edit Question Form. */
@@ -152,6 +159,13 @@ public final class QuestionEditView extends BaseHtmlView {
       QuestionForm questionForm,
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
       Optional<ToastMessage> message) {
+    System.out.println(request.body().toString());
+
+    InputTag csrfTag = makeCsrfTokenInputTag(request);
+
+    Modal modal = buildModal(csrfTag);
+    // how can we get the current values into the modal submit button?
+    System.out.println(questionForm.isUniversal()); // this is how we know the current status
 
     QuestionType questionType = questionForm.getQuestionType();
     String title =
@@ -162,15 +176,16 @@ public final class QuestionEditView extends BaseHtmlView {
     DivTag formContent =
         buildQuestionContainer(title)
             .with(
-                buildEditQuestionForm(id, questionForm, maybeEnumerationQuestionDefinition, request)
-                    .with(makeCsrfTokenInputTag(request)));
+                buildEditQuestionForm(
+                        id, questionForm, maybeEnumerationQuestionDefinition, request, modal)
+                    .with(csrfTag));
 
     message
         .map(m -> m.setDismissible(true))
         .map(ToastMessage::getContainerTag)
         .ifPresent(formContent::with);
 
-    return renderWithPreview(request, formContent, questionType, title);
+    return renderWithPreview(request, formContent, questionType, title, Optional.of(modal));
   }
 
   /** Render a read-only non-submittable question form. */
@@ -190,16 +205,20 @@ public final class QuestionEditView extends BaseHtmlView {
         buildQuestionContainer(title)
             .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption, request));
 
-    return renderWithPreview(request, formContent, questionType, title);
+    return renderWithPreview(request, formContent, questionType, title, Optional.empty());
   }
 
   private Content renderWithPreview(
-      Request request, DivTag formContent, QuestionType type, String title) {
+      Request request, DivTag formContent, QuestionType type, String title, Optional<Modal> modal) {
     DivTag previewContent =
         QuestionPreview.renderQuestionPreview(type, messages, fileUploadViewStrategy);
 
     HtmlBundle htmlBundle =
-        layout.getBundle(request).setTitle(title).addMainContent(formContent, previewContent);
+        layout
+            .getBundle(request)
+            .setTitle(title)
+            .addMainContent(formContent, previewContent)
+            .addModals(modal.get());
     return layout.render(htmlBundle);
   }
 
@@ -283,20 +302,53 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private FormTag buildEditQuestionForm(
-      long id,
+      Long id,
       QuestionForm questionForm,
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
-      Request request) {
+      Request request,
+      Modal modal) {
     SelectWithLabel enumeratorOption =
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
     FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOption, false, request);
-    formTag
-        .withAction(
-            controllers.admin.routes.AdminQuestionController.update(
-                    id, questionForm.getQuestionType().toString())
-                .url())
-        .with(submitButton("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE));
+    formTag.withAction(
+        controllers.admin.routes.AdminQuestionController.update(
+                id, questionForm.getQuestionType().toString())
+            .url());
+    formTag.with(modal.getButton());
+    // This button would trigger the modal
+    // So I think we would be returning a modal here
+
     return formTag;
+  }
+
+  private Modal buildModal(InputTag csrfTag) {
+    // awesome, now I just need to only include this if the toggle was in the on position
+    // and is now in the off position
+
+    // oh i understand!!! the submit button needs to be on the form with all the data...
+    // how can we do that without having the form be the content
+
+    FormTag acceptUpdatesForm = form(csrfTag); // maybe don't need csrfTag?
+    // why is this deleting everything out of the form now?
+
+    // need to add a trigger button
+    ButtonTag triggerModalButton = button("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE);
+    acceptUpdatesForm.with(
+        div(
+            h1("Are you sure you want to remove this question from the universal questions set?")
+                .withClasses("text-base", "mb-4")),
+        submitButton("Remove from universal questions")
+            .withId("accept-question-updates-button") // do i need this id?
+            .attr("form", "full-edit-form")
+            .withClasses("my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
+    return Modal.builder()
+        .setModalId("confirm-question-updates-modal")
+        .setLocation(Modal.Location.ADMIN_FACING)
+        .setContent(acceptUpdatesForm)
+        .setModalTitle("Title")
+        .setTriggerButtonContent(triggerModalButton)
+        .setWidth(Modal.Width.THIRD)
+        .build();
   }
 
   private FormTag buildQuestionForm(
@@ -308,6 +360,7 @@ public final class QuestionEditView extends BaseHtmlView {
     QuestionType questionType = questionForm.getQuestionType();
     FormTag formTag =
         form()
+            .withId("full-edit-form")
             .withMethod("POST")
             .with(
                 // Hidden input indicating the type of question to be created.
