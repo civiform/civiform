@@ -119,7 +119,6 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setId("program-display-description-textarea")
             .setFieldName("localizedDisplayDescription")
             .setLabelText("Describe this program for the public")
-            .setRequired(true)
             .setValue(displayDescription)
             .getTextareaTag(),
         programUrlField(adminName, editExistingProgram),
