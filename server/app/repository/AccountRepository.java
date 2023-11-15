@@ -446,8 +446,8 @@ public final class AccountRepository {
   /**
    * Stores applicant id in user profile.
    *
-   * <p>This allows us to know the applicant id instead of having to specify it in the URL path,
-   * or looking up the account each time and finding the corresponding applicant id.
+   * <p>This allows us to know the applicant id instead of having to specify it in the URL path, or
+   * looking up the account each time and finding the corresponding applicant id.
    */
   public void populateApplicantIdInProfile(AccountModel account, CiviFormProfileData profileData) {
     // Accounts correspond to a single applicant.
