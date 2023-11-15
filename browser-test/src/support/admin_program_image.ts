@@ -1,7 +1,5 @@
 import {Page} from 'playwright'
-import {
-  waitForPageJsLoad,
-} from './wait'
+import {waitForPageJsLoad} from './wait'
 
 export class AdminProgramImage {
   private imageDescriptionLocator = 'input[name="summaryImageDescription"]'
