@@ -100,8 +100,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
     ImmutableList<Modal> statusUpdateConfirmationModals =
         statusDefinitions.getStatuses().stream()
             .map(
-                status -> // i do not understand how this connects to the new status
-                renderStatusUpdateConfirmationModal(
+                status ->
+                    renderStatusUpdateConfirmationModal(
                         programId,
                         programName,
                         application,

@@ -115,9 +115,7 @@ public final class QuestionEditView extends BaseHtmlView {
         buildQuestionContainer(title)
             .with(
                 buildNewQuestionForm(questionForm, enumeratorQuestionDefinitions, request)
-                    .with(
-                        makeCsrfTokenInputTag(
-                            request))); // it adds the tag here... do i need to do that earlier?
+                    .with(makeCsrfTokenInputTag(request)));
 
     message
         .map(m -> m.setDismissible(true))
@@ -159,7 +157,6 @@ public final class QuestionEditView extends BaseHtmlView {
       QuestionForm questionForm,
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
       Optional<ToastMessage> message) {
-    System.out.println(request.body().toString());
 
     InputTag csrfTag = makeCsrfTokenInputTag(request);
 
@@ -318,32 +315,25 @@ public final class QuestionEditView extends BaseHtmlView {
     } else {
       formTag.with(submitButton("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE));
     }
-    // This button would trigger the modal
-    // So I think we would be returning a modal here
 
     return formTag;
   }
 
   private Modal buildModal(InputTag csrfTag) {
-    // awesome, now I just need to only include this if the toggle was in the on position
-    // and is now in the off position
 
-    // oh i understand!!! the submit button needs to be on the form with all the data...
-    // how can we do that without having the form be the content
-
-    FormTag acceptUpdatesForm = form(csrfTag); // maybe don't need csrfTag?
-    // why is this deleting everything out of the form now?
-
-    // need to add a trigger button
     ButtonTag triggerModalButton = button("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE);
-    acceptUpdatesForm.with(
-        div(
-            h1("Are you sure you want to remove this question from the universal questions set?")
-                .withClasses("text-base", "mb-4")),
-        submitButton("Remove from universal questions")
-            .withId("accept-question-updates-button") // do i need this id?
-            .attr("form", "full-edit-form")
-            .withClasses("my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
+    FormTag acceptUpdatesForm =
+        form(csrfTag) // maybe don't need csrfTag?
+            .with(
+                div(
+                    h1("Are you sure you want to remove this question from the universal questions"
+                           + " set?")
+                        .withClasses("text-base", "mb-4")),
+                submitButton("Remove from universal questions")
+                    .withId("accept-question-updates-button") // do i need this id?
+                    .attr("form", "full-edit-form")
+                    .withClasses(
+                        "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
     return Modal.builder()
         .setModalId("confirm-question-updates-modal")
         .setLocation(Modal.Location.ADMIN_FACING)

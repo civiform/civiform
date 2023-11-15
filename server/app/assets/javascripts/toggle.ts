@@ -1,7 +1,7 @@
 /** This class controls the toggling of toggle components. */
 import {addEventListenerToElements} from './util'
 
-export class ToggleController {
+class ToggleController {
   static toggleClass = '.cf-toggle'
   static toggleBackgroundClass = '.cf-toggle-background'
   static toggleNubClass = '.cf-toggle-nub'
