@@ -36,17 +36,12 @@ public final class AdminStyles {
       StyleUtils.joinStyles("bg-gradient-to-r", "from-gray-100", "via-white", "to-gray-100");
 
   public static final String NAV_STYLES =
+      StyleUtils.joinStyles("h-18", "fixed", "top-0", "w-screen");
+
+  // These are for the portion of the nav bar that excludes the super banner
+  public static final String INNER_NAV_STYLES =
       StyleUtils.joinStyles(
-          "shadow",
-          "z-10",
-          "bg-white",
-          "text-gray-700",
-          "h-12",
-          "fixed",
-          "top-0",
-          "w-screen",
-          "px-4",
-          "py-3");
+          "shadow", "relative", "z-10", "bg-white", "text-gray-700", "px-4", "py-3");
 
   public static final String MOVE_BLOCK_BUTTON =
       StyleUtils.joinStyles(

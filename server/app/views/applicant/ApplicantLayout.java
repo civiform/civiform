@@ -13,16 +13,11 @@ import static j2html.TagCreator.nav;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
-import static j2html.TagCreator.strong;
-import static j2html.TagCreator.button;
-import static j2html.TagCreator.header;
-import static j2html.TagCreator.rawHtml;
-import static j2html.TagCreator.section;
-import static j2html.TagCreator.title;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import controllers.AssetsFinder;
 import controllers.routes;
 import io.jsonwebtoken.lang.Strings;
 import j2html.TagCreator;
@@ -34,8 +29,6 @@ import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.NavTag;
 import j2html.tags.specialized.SelectTag;
-import j2html.tags.specialized.SectionTag;
-import j2html.tags.specialized.SpanTag;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Locale;
@@ -96,8 +89,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
       LanguageSelector languageSelector,
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
-      DebugContent debugContent) {
-    super(viewUtils, settingsManifest, deploymentType);
+      DebugContent debugContent,
+      AssetsFinder assetsFinder) {
+    super(viewUtils, settingsManifest, deploymentType, assetsFinder);
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
@@ -211,7 +205,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     return nav()
         .with(
-            makeGovBanner(messages),
+            getGovBanner(Optional.of(messages)),
             div()
                 .withClasses(
                     "bg-white", "border-b", "align-middle", "p-1", "flex", "flex-row", "flex-wrap")
@@ -357,127 +351,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
             .setStyles(ApplicantStyles.LINK);
 
     return link.asAnchorText();
-  }
-
-  /**
-   * Creates the banner which indicates that CiviForm is an official goverment
-   * website.  This banner will be at the top of every page.  It is a USWDS component:
-   * https://designsystem.digital.gov/components/banner/
-   * @return  an html section tag
-   */
-  private SectionTag makeGovBanner(Messages messages) {
-    SpanTag lockIcon = new SpanTag()
-      .withClass("icon-lock")
-      .with(
-        Icons.svg(Icons.LOCK)
-          .withClasses("inline", "align-baseline", "usa-banner__lock-image")
-          .attr("viewBox", "0 0 52 64")
-          .attr("role", "img")
-          .attr("aria-label", "Locked padlock icon")
-          .attr("focusable", false)
-          .with(
-            title("Lock")
-              .withId("banner-lock-title-default")
-          )
-      );
-    return
-      section()
-      .withClass("usa-banner")
-      .attr("aria-label", messages.at(MessageKey.BANNER_TITLE.getKeyName()))
-      .with(
-        div()
-          .withClass("usa-accordion")
-          .with(
-            header()
-              .withClass("usa-banner__header")
-              .with(
-                div()
-                  .withClass("usa-banner__inner")
-                  .with(
-                    div()
-                      .withClass("grid-col-auto")
-                      .with(
-                        img()
-                          .attr("aria-hidden", true)
-                          .withClass("usa-banner__header-flag")
-                          .withSrc("img/us_flag_small.png")
-                          .withAlt("")
-                      )
-                  ).with(
-                    div()
-                      .withClasses("grid-col-fill","tablet:grid-col-auto")
-                      .attr("aria-hidden", true)
-                      .with(
-                        p(messages.at(MessageKey.BANNER_TITLE.getKeyName()))
-                          .withClass("usa-banner__header-text"),
-                        p(messages.at(MessageKey.BANNER_LINK.getKeyName()))
-                          .withClass("usa-banner__header-action")
-                      )
-                  ).with(
-                    button()
-                      .withType("button")
-                      .withClasses("usa-accordion__button", "usa-banner__button")
-                      .attr("aria-expanded", false)
-                      .attr("aria-controls", "gov-banner-default-default")
-                      .with(
-                        span("Here’s how you know")
-                          .withClass("usa-banner__button-text")
-                      )
-                  )
-              )
-          ),
-        div()
-          .withClasses("usa-banner__content", "usa-accordion__content")
-          .withId("gov-banner-default-default")
-          .with(
-            div()
-              .withClasses("grid-row", "grid-gap-lg")
-              .with(
-                div()
-                  .withClasses("usa-banner__guidance", "tablet:grid-col-6")
-                  .with(
-                    img()
-                      .withClasses("usa-banner__icon", "usa-media-block__img")
-                      .withSrc("/assets/img/icon-dot-gov.svg")
-                      .withAlt("")
-                      .attr("role", "img")
-                      .attr("aria-hidden", true),
-                    div()
-                      .withClass("usa-media-block__body")
-                      .with(
-                        p()
-                          .with(
-                            strong(messages.at(MessageKey.BANNER_GOV_WEBSITE_SECTION_HEADER.getKeyName())),
-                            br(),
-                            span(messages.at(MessageKey.BANNER_GOV_WEBSITE_SECTION_CONTENT.getKeyName()))
-                          )
-                      )
-                  )
-              )
-              .with(
-                div()
-                  .withClasses("usa-banner__guidance", "tablet:grid-col-6")
-                  .with(
-                    img()
-                      .withClasses("usa-banner__icon", "usa-media-block__img")
-                      .withSrc("/assets/img/icon-https.svg")
-                      .withAlt("")
-                      .attr("role", "img")
-                      .attr("aria-hidden", true),
-                    div()
-                      .withClass("usa-media-block__body")
-                      .with(
-                        p()
-                          .with(
-                            strong(messages.at(MessageKey.BANNER_HTTPS_SECTION_HEADER.getKeyName())),
-                            br(),
-                            rawHtml(messages.at(MessageKey.BANNER_HTTPS_SECTION_CONTENT.getKeyName(), lockIcon))
-                          )
-                      )
-                  )
-              )
-          )
-      );
   }
 
   /**
