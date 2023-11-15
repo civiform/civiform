@@ -27,25 +27,33 @@ describe('Admin can manage program image', () => {
   })
 
   describe('description', () => {
+
     const programName = 'Test program'
 
+/*
     beforeAll(async () => {
       const {page, adminPrograms} = ctx
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'program_card_images')
       await adminPrograms.addProgram(programName)
     })
+    */
 
     beforeEach(async () => {
+    const {page, adminPrograms} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_card_images')
+      await adminPrograms.addProgram(programName)
       await ctx.adminPrograms.goToProgramImagePage(programName)
     })
 
-    afterAll(async () => {
+    afterEach(async () => {
       await disableFeatureFlag(ctx.page, 'program_card_images')
     })
 
     it('sets new description', async () => {
       const {page, adminProgramImage} = ctx
+      //await page.pause()
 
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
