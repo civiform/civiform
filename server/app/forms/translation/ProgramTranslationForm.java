@@ -29,6 +29,7 @@ public final class ProgramTranslationForm {
   public static final String DISPLAY_NAME_FORM_NAME = "displayName";
   public static final String DISPLAY_DESCRIPTION_FORM_NAME = "displayDescription";
   public static final String CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME = "confirmationMessage";
+  public static final String IMAGE_DESCRIPTION_FORM_NAME = "imageDescription";
 
   private final DynamicForm form;
   private final int maxStatusTranslations;
@@ -50,7 +51,16 @@ public final class ProgramTranslationForm {
                 new String[] {program.localizedDescription().maybeGet(locale).orElse("")})
             .put(
                 CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME,
-                new String[] {program.localizedConfirmationMessage().maybeGet(locale).orElse("")});
+                new String[] {program.localizedConfirmationMessage().maybeGet(locale).orElse("")})
+            .put(
+                IMAGE_DESCRIPTION_FORM_NAME,
+                new String[] {
+                  program
+                      .localizedSummaryImageDescription()
+                      .map(desc -> desc.maybeGet(locale).orElse(""))
+                      .orElse("")
+                });
+
     ImmutableList<StatusDefinitions.Status> statuses = program.statusDefinitions().getStatuses();
     for (int i = 0; i < statuses.size(); i++) {
       StatusDefinitions.Status status = statuses.get(i);
@@ -97,7 +107,8 @@ public final class ProgramTranslationForm {
             .add(
                 DISPLAY_NAME_FORM_NAME,
                 DISPLAY_DESCRIPTION_FORM_NAME,
-                CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME);
+                CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME,
+                IMAGE_DESCRIPTION_FORM_NAME);
     for (int i = 0; i < maxStatusTranslations; i++) {
       builder.add(
           statusKeyToUpdateFieldName(i), localizedStatusFieldName(i), localizedEmailFieldName(i));
@@ -116,6 +127,8 @@ public final class ProgramTranslationForm {
             getStringFormField(DISPLAY_DESCRIPTION_FORM_NAME).orElse(""))
         .setLocalizedConfirmationMessage(
             getStringFormField(CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME).orElse(""))
+        .setLocalizedSummaryImageDescription(
+            getStringFormField(IMAGE_DESCRIPTION_FORM_NAME).orElse(""))
         .setStatuses(parseStatusUpdatesFromRequest())
         .build();
   }

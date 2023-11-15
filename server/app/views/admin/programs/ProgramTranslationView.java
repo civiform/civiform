@@ -17,6 +17,7 @@ import java.util.OptionalLong;
 import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.LocalizedStrings;
 import services.TranslationLocales;
 import services.program.LocalizationUpdate;
 import services.program.ProgramDefinition;
@@ -119,7 +120,17 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 .setLabelText("Custom Confirmation Screen Message")
                                 .setValue(updateData.localizedConfirmationMessage())
                                 .getInputTag(),
-                            program.localizedConfirmationMessage()))));
+                            program.localizedConfirmationMessage()),
+                        // TODO(#5676): Hide field if no image is set.
+                        fieldWithDefaultLocaleTextHint(
+                            FieldWithLabel.input()
+                                .setFieldName(ProgramTranslationForm.IMAGE_DESCRIPTION_FORM_NAME)
+                                .setLabelText("Program image description")
+                                .setValue(updateData.localizedSummaryImageDescription())
+                                .getInputTag(),
+                            program
+                                .localizedSummaryImageDescription()
+                                .orElse(LocalizedStrings.empty())))));
     // Add Status Tracking messages.
     String programStatusesLink =
         controllers.admin.routes.AdminProgramStatusesController.index(program.id()).url();

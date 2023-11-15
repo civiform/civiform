@@ -660,6 +660,11 @@ public final class ProgramService {
                 programDefinition
                     .localizedConfirmationMessage()
                     .updateTranslation(locale, localizationUpdate.localizedConfirmationMessage()))
+            .setLocalizedSummaryImageDescription(
+                getUpdatedSummaryImageDescription(
+                    programDefinition,
+                    locale,
+                    localizationUpdate.localizedSummaryImageDescription()))
             .setStatusDefinitions(
                 programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()))
             .build()
