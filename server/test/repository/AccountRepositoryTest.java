@@ -2,11 +2,15 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.PlainJWT;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
 import models.AccountModel;
@@ -14,6 +18,7 @@ import models.Applicant;
 import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
+import org.pac4j.oidc.profile.OidcProfile;
 import services.CiviFormError;
 import services.Path;
 import services.program.ProgramDefinition;
@@ -251,6 +256,46 @@ public class AccountRepositoryTest extends ResetPostgres {
 
     assertThat(numberDeleted).isEqualTo(1);
     assertThat(remainingApplicants).hasSize(3);
+  }
+
+  @Test
+  public void updateSerializedIdTokens() {
+    AccountModel account = new AccountModel();
+    String fakeEmail = "fake email";
+    account.setEmailAddress(fakeEmail);
+    account.save();
+    long accountId = account.id;
+
+    // Create a JWT that just expired.
+    LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
+    Instant timeInPast = now.minus(1, ChronoUnit.SECONDS).toInstant(ZoneOffset.UTC);
+    JWT expiredJwt = getJwtWithExpirationTime(timeInPast);
+    OidcProfile expiredOidcProfile = new OidcProfile();
+    expiredOidcProfile.setIdTokenString(expiredJwt.serialize());
+
+    repo.updateSerializedIdTokens(account, "sessionId1", expiredOidcProfile);
+
+    // Create a JWT that won't expire for an hour.
+    Instant timeInFuture = now.plus(1, ChronoUnit.HOURS).toInstant(ZoneOffset.UTC);
+    JWT validJwt = getJwtWithExpirationTime(timeInFuture);
+    OidcProfile validOidcProfile = new OidcProfile();
+    validOidcProfile.setIdTokenString(validJwt.serialize());
+
+    repo.updateSerializedIdTokens(account, "sessionId2", validOidcProfile);
+
+    Optional<AccountModel> retrievedAccount = repo.lookupAccount(accountId);
+    assertThat(retrievedAccount).isNotEmpty();
+    // Expired token
+    assertThat(retrievedAccount.get().getSerializedIdTokens().get("sessionId1")).isNull();
+    // Valid token
+    assertThat(retrievedAccount.get().getSerializedIdTokens().get("sessionId2"))
+        .isEqualTo(validJwt.serialize());
+  }
+
+  private JWT getJwtWithExpirationTime(Instant expirationTime) {
+    JWTClaimsSet claims =
+        new JWTClaimsSet.Builder().expirationTime(Date.from(expirationTime)).build();
+    return new PlainJWT(claims);
   }
 
   private Applicant saveApplicantWithDob(String name, String dob) {

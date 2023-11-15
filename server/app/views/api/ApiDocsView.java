@@ -42,7 +42,7 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
-import views.components.Accordion;
+import views.components.AccordionFactory;
 
 public class ApiDocsView extends BaseHtmlView {
   private static final Logger logger = LoggerFactory.getLogger(ApiDocsView.class);
@@ -278,9 +278,7 @@ public class ApiDocsView extends BaseHtmlView {
                 + " Static content questions are not shown on the API Response Preview because"
                 + " they do not include answers to questions."));
 
-    Accordion accordion = new Accordion().setTitle("How does this work?");
-    accordion.addContent(notesTag);
-
-    return accordion.getContainer();
+    return AccordionFactory.buildAccordion(
+        Optional.of("How does this work?"), Optional.of(notesTag));
   }
 }

@@ -4,7 +4,6 @@
  */
 
 import * as main from './main'
-import * as accordion from './accordion'
 import * as enumerator from './enumerator'
 import * as radio from './radio'
 import * as toast from './toast'
@@ -17,7 +16,6 @@ import * as apiDocs from './api_docs'
 
 window.addEventListener('load', () => {
   main.init()
-  accordion.init()
   enumerator.init()
   radio.init()
   toast.init()
