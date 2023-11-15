@@ -48,8 +48,7 @@ public final class ProgramImageView extends BaseHtmlView {
     HtmlBundle htmlBundle =
         layout.getBundle(request).setTitle(title).addMainContent(headerDiv, imageDescriptionForm);
 
-    // TODO(#5676): This toast code is shared across multiple controllers. Can we write a helper
-    // method for it?
+    // TODO(#5676): This toast code is re-implemented across multiple controllers. Can we write a helper method for it?
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(flash.get("error").get()));
@@ -67,9 +66,9 @@ public final class ProgramImageView extends BaseHtmlView {
             .localizedSummaryImageDescription()
             .map(LocalizedStrings::getDefault)
             .orElse("");
-    ProgramImageDescriptionForm form = new ProgramImageDescriptionForm(existingDescription);
-    Form<ProgramImageDescriptionForm> programImageForm =
-        formFactory.form(ProgramImageDescriptionForm.class).fill(form);
+    ProgramImageDescriptionForm existingDescriptionForm = new ProgramImageDescriptionForm(existingDescription);
+    Form<ProgramImageDescriptionForm> form =
+        formFactory.form(ProgramImageDescriptionForm.class).fill(existingDescriptionForm);
 
     return form()
         .withMethod("POST")
@@ -80,7 +79,7 @@ public final class ProgramImageView extends BaseHtmlView {
             FieldWithLabel.input()
                 .setFieldName(ProgramImageDescriptionForm.SUMMARY_IMAGE_DESCRIPTION)
                 .setLabelText("Image description")
-                .setValue(programImageForm.value().get().getSummaryImageDescription())
+                .setValue(form.value().get().getSummaryImageDescription())
                 .getInputTag())
         .with(submitButton("Save description").withClass(ButtonStyles.SOLID_BLUE));
   }

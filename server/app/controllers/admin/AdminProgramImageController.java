@@ -51,7 +51,6 @@ public final class AdminProgramImageController extends CiviFormController {
   public Result updateDescription(Http.Request request, long programId)
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
-    ProgramDefinition program = programService.getProgramDefinition(programId);
     Form<ProgramImageDescriptionForm> form =
         formFactory
             .form(ProgramImageDescriptionForm.class)
@@ -60,7 +59,7 @@ public final class AdminProgramImageController extends CiviFormController {
     String newDescription = form.get().getSummaryImageDescription();
 
     programService.setSummaryImageDescription(
-        program.id(), LocalizedStrings.DEFAULT_LOCALE, newDescription);
+      programId, LocalizedStrings.DEFAULT_LOCALE, newDescription);
 
     String toastMessage;
     if (newDescription.isBlank()) {

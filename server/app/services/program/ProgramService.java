@@ -879,12 +879,17 @@ public final class ProgramService {
         .getProgramDefinition();
   }
 
+  /**
+   * Sets what the summary image description should be for the given locale.
+   *
+   * If the {@code locale} is the default locale and the {@code summaryImageDescription} is empty or blank, then the description for *all* locales will be erased.
+   */
   public ProgramDefinition setSummaryImageDescription(
       long programId, Locale locale, String summaryImageDescription)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     Optional<LocalizedStrings> newStrings =
-        updateSummaryImageDescription(programDefinition, locale, summaryImageDescription);
+        getUpdatedSummaryImageDescription(programDefinition, locale, summaryImageDescription);
     programDefinition =
         programDefinition.toBuilder().setLocalizedSummaryImageDescription(newStrings).build();
     return programRepository
@@ -892,13 +897,10 @@ public final class ProgramService {
         .getProgramDefinition();
   }
 
-  /**
-   * When an admin deletes a summary image description, we want to also clear out all associated
-   * translations.
-   */
-  private Optional<LocalizedStrings> updateSummaryImageDescription(
+  private Optional<LocalizedStrings> getUpdatedSummaryImageDescription(
       ProgramDefinition programDefinition, Locale locale, String summaryImageDescription) {
     if (locale.equals(DEFAULT_LOCALE) && summaryImageDescription.isBlank()) {
+      // Clear out all associated translations when the admin deletes a description.
       return Optional.empty();
     }
 
