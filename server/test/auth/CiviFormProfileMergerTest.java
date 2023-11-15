@@ -79,7 +79,7 @@ public class CiviFormProfileMergerTest {
     var merged =
         civiFormProfileMerger.mergeProfiles(
             /* applicantInDatabase = */ Optional.empty(),
-            /* guestProfile = */ Optional.empty(),
+            /* existingProfile = */ Optional.empty(),
             oidcProfile,
             (civiFormProfile, profile) -> {
               assertThat(civiFormProfile).isEmpty();
@@ -94,7 +94,7 @@ public class CiviFormProfileMergerTest {
     var merged =
         civiFormProfileMerger.mergeProfiles(
             Optional.of(applicant),
-            /* guestProfile = */ Optional.empty(),
+            /* existingProfile = */ Optional.empty(),
             oidcProfile,
             (civiFormProfile, profile) -> {
               var profileData = civiFormProfile.orElseThrow().getProfileData();

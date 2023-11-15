@@ -10,20 +10,27 @@ import auth.Role;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import filters.SessionIdFilter;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import javax.inject.Provider;
 import models.Applicant;
+import org.apache.commons.lang3.NotImplementedException;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.profile.UserProfile;
+import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.oidc.profile.creator.OidcProfileCreator;
+import org.pac4j.play.PlayWebContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.mvc.Http;
 import repository.AccountRepository;
+import services.settings.SettingsManifest;
 
 /**
  * This class ensures that the OidcProfileCreator that both the AD and IDCS clients use will
@@ -38,6 +45,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   protected final ProfileFactory profileFactory;
   protected final Provider<AccountRepository> accountRepositoryProvider;
   protected final CiviFormProfileMerger civiFormProfileMerger;
+  protected final SettingsManifest settingsManifest;
 
   public CiviformOidcProfileCreator(
       OidcConfiguration configuration, OidcClient client, OidcClientProviderParams params) {
@@ -46,6 +54,8 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     this.accountRepositoryProvider = Preconditions.checkNotNull(params.accountRepositoryProvider());
     this.civiFormProfileMerger =
         new CiviFormProfileMerger(profileFactory, accountRepositoryProvider);
+    this.settingsManifest =
+        new SettingsManifest(Preconditions.checkNotNull(params.configuration()));
   }
 
   protected abstract String emailAttributeName();
@@ -97,19 +107,19 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
    */
   @VisibleForTesting
   public CiviFormProfileData mergeCiviFormProfile(
-      Optional<CiviFormProfile> maybeCiviFormProfile, OidcProfile oidcProfile) {
+      Optional<CiviFormProfile> maybeCiviFormProfile, OidcProfile oidcProfile, WebContext context) {
     var civiformProfile =
         maybeCiviFormProfile.orElseGet(
             () -> {
               LOGGER.debug("Found no existing profile in session cookie.");
               return createEmptyCiviFormProfile(oidcProfile);
             });
-    return mergeCiviFormProfile(civiformProfile, oidcProfile);
+    return mergeCiviFormProfile(civiformProfile, oidcProfile, context);
   }
 
   /** Merge the two provided profiles into a new CiviFormProfileData. */
   protected CiviFormProfileData mergeCiviFormProfile(
-      CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
+      CiviFormProfile civiformProfile, OidcProfile oidcProfile, WebContext context) {
 
     // Meaning: whatever you signed in with most recently is the role you have.
     ImmutableSet<Role> roles = roles(civiformProfile, oidcProfile);
@@ -141,7 +151,29 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
     civiformProfile.setAuthorityId(authorityId).join();
 
+    civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
+
+    Optional<String> sessionId = getSessionId(context);
+    if (sessionId.isPresent() && enhancedLogoutEnabled(context)) {
+      // Save the id_token from the returned OidcProfile in the account so that it can be
+      // retrieved at logout time.
+      civiformProfile
+          .getAccount()
+          .thenAccept(
+              account -> {
+                accountRepositoryProvider
+                    .get()
+                    .updateSerializedIdTokens(account, sessionId.get(), oidcProfile);
+              })
+          .join();
+    }
+
     return civiformProfile.getProfileData();
+  }
+
+  private Optional<String> getSessionId(WebContext context) {
+    PlayWebContext playWebContext = (PlayWebContext) context;
+    return playWebContext.getNativeSession().get(SessionIdFilter.SESSION_ID);
   }
 
   @Override
@@ -166,8 +198,12 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     Optional<Applicant> existingApplicant = getExistingApplicant(profile);
     Optional<CiviFormProfile> guestProfile = profileUtils.currentUserProfile(context);
 
+    // The merge function signature specifies the two profiles as parameters.
+    // We need to supply an extra parameter (context), so bind it here.
+    BiFunction<Optional<CiviFormProfile>, OidcProfile, UserProfile> mergeFunction =
+        (cProfile, oProfile) -> this.mergeCiviFormProfile(cProfile, oProfile, context);
     return civiFormProfileMerger.mergeProfiles(
-        existingApplicant, guestProfile, profile, this::mergeCiviFormProfile);
+        existingApplicant, guestProfile, profile, mergeFunction);
   }
 
   @VisibleForTesting
@@ -206,5 +242,21 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
   protected final boolean isTrustedIntermediary(CiviFormProfile profile) {
     return profile.getAccount().join().getMemberOfGroup().isPresent();
+  }
+
+  private boolean enhancedLogoutEnabled(WebContext context) {
+    PlayWebContext playWebContext = (PlayWebContext) context;
+    Http.RequestHeader request = playWebContext.getNativeJavaRequest();
+    // Sigh. This would be much nicer with switch expressions (Java 12) and exhaustive switch (Java
+    // 17).
+    switch (identityProviderType()) {
+      case ADMIN_IDENTITY_PROVIDER:
+        return settingsManifest.getAdminOidcEnhancedLogoutEnabled(request);
+      case APPLICANT_IDENTITY_PROVIDER:
+        return settingsManifest.getApplicantOidcEnhancedLogoutEnabled(request);
+      default:
+        throw new NotImplementedException(
+            "Identity provider type not handled: " + identityProviderType());
+    }
   }
 }

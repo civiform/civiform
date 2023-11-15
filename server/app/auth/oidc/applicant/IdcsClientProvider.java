@@ -8,7 +8,6 @@ import java.util.Optional;
 import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
-import play.mvc.Http;
 
 /** This class customized the OIDC provider to a specific provider, allowing overrides to be set. */
 public final class IdcsClientProvider extends OidcClientProvider {
@@ -88,10 +87,5 @@ public final class IdcsClientProvider extends OidcClientProvider {
   @Override
   protected boolean getUseCsrf() {
     return false;
-  }
-
-  @Override
-  protected boolean enhancedLogoutEnabled(Http.RequestHeader requestHeader) {
-    return settingsManifest.getApplicantOidcEnhancedLogoutEnabled(requestHeader);
   }
 }

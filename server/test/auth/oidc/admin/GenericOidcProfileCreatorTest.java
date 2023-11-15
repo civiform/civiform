@@ -1,10 +1,12 @@
 package auth.oidc.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static play.test.Helpers.fakeRequest;
 
 import auth.CiviFormProfileData;
 import auth.IdentityProviderType;
 import auth.ProfileFactory;
+import auth.oidc.IdTokensFactory;
 import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -16,6 +18,7 @@ import org.junit.Test;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
+import org.pac4j.play.PlayWebContext;
 import repository.AccountRepository;
 import repository.ResetPostgres;
 import support.CfTestHelpers;
@@ -23,12 +26,14 @@ import support.CfTestHelpers;
 public class GenericOidcProfileCreatorTest extends ResetPostgres {
   private GenericOidcProfileCreator genericOidcProfileCreator;
   private ProfileFactory profileFactory;
+  private IdTokensFactory idTokensFactory;
   private static AccountRepository accountRepository;
 
   @Before
   public void setup() {
     accountRepository = instanceOf(AccountRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
+    idTokensFactory = instanceOf(IdTokensFactory.class);
     OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
     Config serverConfig =
@@ -44,6 +49,7 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
             OidcClientProviderParams.create(
                 serverConfig,
                 profileFactory,
+                idTokensFactory,
                 CfTestHelpers.userRepositoryProvider(accountRepository)));
   }
 
@@ -56,8 +62,9 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
     profile.addAttribute("iss", "issuer");
     profile.setId("subject");
 
+    PlayWebContext context = new PlayWebContext(fakeRequest().build());
     CiviFormProfileData profileData =
-        genericOidcProfileCreator.mergeCiviFormProfile(Optional.empty(), profile);
+        genericOidcProfileCreator.mergeCiviFormProfile(Optional.empty(), profile, context);
 
     assertThat(profileData.getRoles()).contains("ROLE_CIVIFORM_ADMIN");
   }
@@ -71,8 +78,9 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
     profile.addAttribute("iss", "issuer");
     profile.setId("subject");
 
+    PlayWebContext context = new PlayWebContext(fakeRequest().build());
     CiviFormProfileData profileData =
-        genericOidcProfileCreator.mergeCiviFormProfile(Optional.empty(), profile);
+        genericOidcProfileCreator.mergeCiviFormProfile(Optional.empty(), profile, context);
 
     assertThat(profileData.getRoles()).doesNotContain("ROLE_CIVIFORM_ADMIN");
   }
