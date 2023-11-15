@@ -86,7 +86,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 controller.updateDescription(
-                    addCSRFToken(fakeRequest().method("GET")).build(), program.id))
+                    addCSRFToken(fakeRequest().method("POST")).build(), program.id))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -95,7 +95,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 controller.updateDescription(
-                    addCSRFToken(fakeRequest().method("GET")).build(), Long.MAX_VALUE))
+                    addCSRFToken(fakeRequest().method("POST")).build(), Long.MAX_VALUE))
         .isInstanceOf(NotChangeableException.class);
   }
 
