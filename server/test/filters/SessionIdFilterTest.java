@@ -20,7 +20,7 @@ import services.settings.SettingsSection;
 
 public class SessionIdFilterTest extends WithApplication {
 
-  private SettingsManifest createSettingsManifest(boolean oidcLogoutEnabled) {
+  private SettingsManifest createSettingsManifest(boolean adminOidcEnhancedLogoutEnabled) {
     return new SettingsManifest(
         ImmutableMap.of(
             "section1",
@@ -30,12 +30,13 @@ public class SessionIdFilterTest extends WithApplication {
                 ImmutableList.of(),
                 ImmutableList.of(
                     SettingDescription.create(
-                        "ENHANCED_OIDC_LOGOUT_ENABLED",
-                        "Enhanced OIDC Logout logic enabled",
+                        "ADMIN_OIDC_ENHANCED_LOGOUT_ENABLED",
+                        "Enhanced OIDC Logout logic enabled for admin identity provider",
                         false,
                         SettingType.BOOLEAN,
                         SettingMode.ADMIN_WRITEABLE)))),
-        ConfigFactory.parseMap(ImmutableMap.of("enhanced_oidc_logout_enabled", oidcLogoutEnabled)));
+        ConfigFactory.parseMap(
+            ImmutableMap.of("admin_oidc_enhanced_logout_enabled", adminOidcEnhancedLogoutEnabled)));
   }
 
   @Test

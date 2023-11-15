@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
+import play.mvc.Http;
 
 public class GenericOidcClientProvider extends OidcClientProvider {
 
@@ -102,5 +103,10 @@ public class GenericOidcClientProvider extends OidcClientProvider {
   protected boolean getUseCsrf() {
     // In the future, we may wish to make this configurable, since this is a generic provider.
     return false;
+  }
+
+  @Override
+  protected boolean enhancedLogoutEnabled(Http.RequestHeader requestHeader) {
+    return settingsManifest.getApplicantOidcEnhancedLogoutEnabled(requestHeader);
   }
 }

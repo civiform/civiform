@@ -31,7 +31,10 @@ public final class SessionIdFilter extends Filter {
   }
 
   private boolean shouldApplyThisFilter(Http.RequestHeader requestHeader) {
-    return settingsManifestProvider.get().getEnhancedOidcLogoutEnabled()
+    // The session ID needs to be set to use as a key for the map of id tokens if we are using the
+    // enhanced logout method for either admins or applicants.
+    return (settingsManifestProvider.get().getAdminOidcEnhancedLogoutEnabled(requestHeader)
+            || settingsManifestProvider.get().getApplicantOidcEnhancedLogoutEnabled(requestHeader))
         && excludedPrefixes.stream().noneMatch(prefix -> requestHeader.uri().startsWith(prefix))
         // Since we are using redirects, we only apply this filter for a GET request.
         && requestHeader.method().equals("GET")

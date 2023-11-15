@@ -713,9 +713,14 @@
         "description": "Enables caching for questions and their associated data.",
         "type": "bool"
       },
-      "ENHANCED_OIDC_LOGOUT_ENABLED": {
-        "mode": "HIDDEN",
-        "description": "Enables logic to populate more fields in OIDC logout requests.",
+      "ADMIN_OIDC_ENHANCED_LOGOUT_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables populating more fields in OIDC logout requests to admin identity provider.",
+        "type": "bool"
+      },
+      "APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables populating more fields in OIDC logout requests to applicant identity provider.",
         "type": "bool"
       },
       "UNIVERSAL_QUESTIONS": {
