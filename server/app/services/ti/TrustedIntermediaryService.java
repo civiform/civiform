@@ -213,4 +213,31 @@ public final class TrustedIntermediaryService {
     }
     return form;
   }
+
+  public Form<EditTiClientInfoForm> updateClientInfo(Form<EditTiClientInfoForm> form, TrustedIntermediaryGroup tiGroup, Long accountId) throws ApplicantNotFoundException {
+    // validate functions return the form w/ validation errors if applicable
+    form = validateFirstName(form);
+    form = validateMiddleName(form);
+    form = validateLastName(form);
+    form = validatePhoneNumber(form);
+    form = validateDateofBirthForUpdateDob(form);
+    form = validateEmail(form);
+    form = validateNote(form);
+    if (form.hasErrors()) {
+      return form;
+    }
+    Optional<Account> account =
+      tiGroup.getManagedAccounts().stream()
+        .filter(account -> account.id.equals(accountId))
+        .findAny();
+    if (account.isEmpty() || account.get().newestApplicant().isEmpty()) {
+      throw new ApplicantNotFoundException(accountId);
+    }
+    Applicant applicant = account.get().newestApplicant().get();
+    AccountRepository.updateApplicantInfoForTrustedIntermediaryGroup(form, applicant);
+    if(checkEmailChange(form, account)) {
+      AccountRepository.updateApplicantEmail(form, tiGroup, applicant).toCompletableFuture().join();
+    }
+    return form;
+  }
 }

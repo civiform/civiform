@@ -9,6 +9,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
+import forms.EditTiClientInfoForm;
 import io.ebean.DB;
 import io.ebean.Database;
 import java.util.Comparator;
@@ -21,6 +22,7 @@ import javax.inject.Inject;
 import models.Account;
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
+import play.api.data.Form;
 import services.CiviFormError;
 import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
@@ -249,6 +251,16 @@ public final class AccountRepository {
     applicantData.setDateOfBirth(form.getDob());
     applicant.save();
   }
+
+  public void updateApplicantInfoForTrustedIntermediaryGroup(Form<EditTiClientInfoForm> form, Applicant applicant) {
+    EditTiClientInfoForm theForm = form.get();
+    ApplicantData applicantData = applicant.getApplicantData();
+    applicantData.setUserName(theForm.getFirstName(), theForm.getMiddleName(), theForm.getLastName());
+    applicantData.setDateOfBirth(theForm.getDob());
+    applicantData.setNote(theForm.getNote());
+    applicant.save();
+  }
+
 
   /**
    * Adds the given program as an administered program by the given account. If the account does not
