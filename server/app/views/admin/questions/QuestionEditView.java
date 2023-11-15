@@ -164,8 +164,6 @@ public final class QuestionEditView extends BaseHtmlView {
     InputTag csrfTag = makeCsrfTokenInputTag(request);
 
     Modal modal = buildModal(csrfTag);
-    // how can we get the current values into the modal submit button?
-    System.out.println(questionForm.isUniversal()); // this is how we know the current status
 
     QuestionType questionType = questionForm.getQuestionType();
     String title =
@@ -314,7 +312,12 @@ public final class QuestionEditView extends BaseHtmlView {
         controllers.admin.routes.AdminQuestionController.update(
                 id, questionForm.getQuestionType().toString())
             .url());
-    formTag.with(modal.getButton());
+    
+    if (settingsManifest.getUniversalQuestions(request)) {
+        formTag.with(modal.getButton());
+    } else {
+        formTag.with(submitButton("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE));
+    }
     // This button would trigger the modal
     // So I think we would be returning a modal here
 
