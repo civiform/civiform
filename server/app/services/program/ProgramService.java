@@ -882,7 +882,8 @@ public final class ProgramService {
   /**
    * Sets what the summary image description should be for the given locale.
    *
-   * If the {@code locale} is the default locale and the {@code summaryImageDescription} is empty or blank, then the description for *all* locales will be erased.
+   * <p>If the {@code locale} is the default locale and the {@code summaryImageDescription} is empty
+   * or blank, then the description for *all* locales will be erased.
    */
   public ProgramDefinition setSummaryImageDescription(
       long programId, Locale locale, String summaryImageDescription)
