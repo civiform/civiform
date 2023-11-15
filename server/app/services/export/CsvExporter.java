@@ -8,17 +8,22 @@ import com.google.common.hash.Hashing;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import models.Application;
 import models.TrustedIntermediaryGroup;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import services.DateConverter;
 import services.Path;
+import services.applicant.AnswerData;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.export.enums.MultiOptionSelectionExportType;
 import services.export.enums.SubmitterType;
 import services.program.Column;
+import services.question.types.QuestionType;
 
 /**
  * CsvExporter takes a list of {@link Column}s and exports the data specified. A column contains a
@@ -35,14 +40,20 @@ public final class CsvExporter implements AutoCloseable {
   private final String secret;
   private final CSVPrinter printer;
   private final DateConverter dateConverter;
+  private final ImmutableMap<String, ImmutableList<String>> checkboxQuestionNameToOptionsMap;
 
   /** Provide a secret if you will need to use OPAQUE_ID type columns. */
   public CsvExporter(
-      ImmutableList<Column> columns, String secret, Writer writer, DateConverter dateConverter)
+      ImmutableList<Column> columns,
+      String secret,
+      Writer writer,
+      DateConverter dateConverter,
+      ImmutableMap<String, ImmutableList<String>> checkboxQuestionNameToOptionsMap)
       throws IOException {
     this.columns = checkNotNull(columns);
     this.secret = checkNotNull(secret);
     this.dateConverter = dateConverter;
+    this.checkboxQuestionNameToOptionsMap = checkNotNull(checkboxQuestionNameToOptionsMap);
 
     CSVFormat format =
         CSVFormat.DEFAULT
@@ -58,11 +69,53 @@ public final class CsvExporter implements AutoCloseable {
       ReadOnlyApplicantProgramService roApplicantService,
       Optional<Boolean> optionalEligibilityStatus)
       throws IOException {
-    ImmutableMap<Path, String> answerMap =
-        roApplicantService.getSummaryData().stream()
-            .flatMap(data -> data.scalarAnswersInDefaultLocale().entrySet().stream())
-            .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+    ImmutableMap.Builder<Path, String> answerMapBuilder = new ImmutableMap.Builder<>();
+    for (AnswerData answerData : roApplicantService.getSummaryData()) {
+      if (answerData.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX)) {
+        String questionName = answerData.questionDefinition().getName();
+        // If the question isn't present in the scalar map, it means, its demographic export and
+        // this question was flagged not to be included in demographic export
+        if (!checkboxQuestionNameToOptionsMap.containsKey(questionName)) {
+          continue;
+        }
+        List<String> optionHeaders = checkboxQuestionNameToOptionsMap.get(questionName);
 
+        List<String> selectedList =
+            answerData
+                .applicantQuestion()
+                .createMultiSelectQuestion()
+                .getSelectedOptionAdminNames()
+                .map(selectedOptions -> selectedOptions.stream().collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
+        List<String> allOptionsShownInQuestion =
+            answerData.applicantQuestion().createMultiSelectQuestion().getOptions().stream()
+                .map(o -> o.adminName())
+                .collect(Collectors.toList());
+
+        optionHeaders.forEach(
+            option -> {
+              String valueToWrite = MultiOptionSelectionExportType.NOT_ANSWERED.toString();
+              if (answerData.isAnswered()) {
+                valueToWrite =
+                    MultiOptionSelectionExportType.NOT_AN_OPTION_AT_PROGRAM_VERSION.toString();
+              }
+              if (allOptionsShownInQuestion.contains(option)) {
+                valueToWrite = MultiOptionSelectionExportType.NOT_SELECTED.toString();
+              }
+              if (selectedList.contains(option)) {
+                valueToWrite = MultiOptionSelectionExportType.SELECTED.toString();
+              }
+              answerMapBuilder.put(
+                  answerData.contextualizedPath().join(String.valueOf(option)), valueToWrite);
+            });
+
+      } else {
+        for (Path p : answerData.scalarAnswersInDefaultLocale().keySet()) {
+          answerMapBuilder.put(p, answerData.scalarAnswersInDefaultLocale().get(p));
+        }
+      }
+    }
+    ImmutableMap<Path, String> answerMap = answerMapBuilder.build();
     for (Column column : columns) {
       switch (column.columnType()) {
         case APPLICANT_ANSWER:
