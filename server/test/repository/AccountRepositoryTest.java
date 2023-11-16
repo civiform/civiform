@@ -10,8 +10,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import models.AccountModel;
@@ -277,7 +277,8 @@ public class AccountRepositoryTest extends ResetPostgres {
     assertThat(applicants.size()).isEqualTo(1);
     assertThat(applicants.get(0).getApplicantData().getApplicantName().get()).isEqualTo("Bar");
   }
-    public void updateSerializedIdTokens() {
+
+  public void updateSerializedIdTokens() {
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
     account.setEmailAddress(fakeEmail);

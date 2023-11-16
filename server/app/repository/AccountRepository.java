@@ -421,9 +421,9 @@ public final class AccountRepository {
             + " NULL";
     return database.findNative(Applicant.class, sql);
   }
-  
-/**
-    * Associates the ID token from the profile with the provided session id and persists this
+
+  /**
+   * Associates the ID token from the profile with the provided session id and persists this
    * association to the provided account.
    *
    * <p>Also purges any expired ID tokens as a side effect.
