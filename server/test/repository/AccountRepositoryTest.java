@@ -278,6 +278,7 @@ public class AccountRepositoryTest extends ResetPostgres {
     assertThat(applicants.get(0).getApplicantData().getApplicantName().get()).isEqualTo("Bar");
   }
 
+  @Test
   public void updateSerializedIdTokens() {
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
