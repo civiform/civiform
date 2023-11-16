@@ -1,6 +1,7 @@
 package filters;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 import static play.test.Helpers.fakeRequest;
 
 import akka.stream.testkit.NoMaterializer$;
@@ -10,22 +11,46 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
+import services.settings.SettingsManifest;
 
 public class RecordCookieSizeFilterTest {
+
+  private final SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+
   @Before
   public void clearRegistry() {
     CollectorRegistry.defaultRegistry.clear();
   }
 
+  private Result runFilterWithCookieSize(RecordCookieSizeFilter filter, int cookieSize)
+      throws Exception {
+    Http.Cookie playSessionCookie =
+        Http.Cookie.builder("PLAY_SESSION", "*".repeat(cookieSize)).build();
+    Http.Request request = fakeRequest().cookie(playSessionCookie).build();
+    return filter
+        .apply(EssentialAction.of(r -> Accumulator.done(Results.ok("OK"))))
+        .apply(request)
+        .run(NoMaterializer$.MODULE$)
+        .toCompletableFuture()
+        .get();
+  }
+
+  private double samplesBelowUpperBound(List<Integer> sizes, double upperBound) {
+    return sizes.stream().filter(n -> n <= upperBound).count();
+  }
+
   @Test
   public void testCookieSizesAreRecorded() throws Exception {
+    when(mockSettingsManifest.getCiviformServerMetricsEnabled()).thenReturn(true);
+    RecordCookieSizeFilter filter = new RecordCookieSizeFilter(() -> mockSettingsManifest);
+
     // Run filter with several requests with various cookie sizes.
-    RecordCookieSizeFilter filter = new RecordCookieSizeFilter();
     List<Integer> cookieSizes = ImmutableList.of(1000, 2000, 2000, 3000, 3500, 4000);
     for (int cookieSize : cookieSizes) {
       assertThat(runFilterWithCookieSize(filter, cookieSize).status()).isEqualTo(200);
@@ -69,20 +94,18 @@ public class RecordCookieSizeFilterTest {
     }
   }
 
-  private Result runFilterWithCookieSize(RecordCookieSizeFilter filter, int cookieSize)
-      throws Exception {
-    Http.Cookie playSessionCookie =
-        Http.Cookie.builder("PLAY_SESSION", "*".repeat(cookieSize)).build();
-    Http.Request request = fakeRequest().cookie(playSessionCookie).build();
-    return filter
-        .apply(EssentialAction.of(r -> Accumulator.done(Results.ok("OK"))))
-        .apply(request)
-        .run(NoMaterializer$.MODULE$)
-        .toCompletableFuture()
-        .get();
-  }
+  @Test
+  public void testCookieSizesAreNotRecordedIfMetricsAreNotEnabled() throws Exception {
+    when(mockSettingsManifest.getCiviformServerMetricsEnabled()).thenReturn(false);
+    RecordCookieSizeFilter filter = new RecordCookieSizeFilter(() -> mockSettingsManifest);
 
-  private double samplesBelowUpperBound(List<Integer> sizes, double upperBound) {
-    return sizes.stream().filter(n -> n <= upperBound).count();
+    assertThat(runFilterWithCookieSize(filter, 1000).status()).isEqualTo(200);
+
+    var metricFamilySamplesEnumeration = CollectorRegistry.defaultRegistry.metricFamilySamples();
+    assertThat(metricFamilySamplesEnumeration.hasMoreElements()).isTrue();
+    var metricFamilySamples = metricFamilySamplesEnumeration.nextElement();
+    assertThat(metricFamilySamples.name).isEqualTo("play_session_cookie_size_bytes");
+
+    assertThat(metricFamilySamples.samples.isEmpty()).isTrue();
   }
 }
