@@ -5,11 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import java.time.Instant;
 import java.util.Optional;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.Application;
 import models.ApplicationEvent;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import services.application.ApplicationEventDetails;
@@ -27,8 +27,8 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
   @Test
   public void insert() {
     Instant startInstant = Instant.now();
-    Program program = resourceCreator.insertActiveProgram("Program");
-    Account actor = resourceCreator.insertAccount();
+    ProgramModel program = resourceCreator.insertActiveProgram("Program");
+    AccountModel actor = resourceCreator.insertAccount();
     Applicant applicant = resourceCreator.insertApplicantWithAccount();
     Application application = resourceCreator.insertActiveApplication(applicant, program);
 
@@ -53,7 +53,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
   @Test
   public void insertAsync() {
     Instant startInstant = Instant.now();
-    Program program = resourceCreator.insertActiveProgram("Program");
+    ProgramModel program = resourceCreator.insertActiveProgram("Program");
     Applicant applicant = resourceCreator.insertApplicantWithAccount();
     Application application = resourceCreator.insertActiveApplication(applicant, program);
 
@@ -78,8 +78,8 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
   @Test
   public void insertMultipleEventsOnApplication() {
     Instant startInstant = Instant.now();
-    Program program = resourceCreator.insertActiveProgram("Program");
-    Account actor = resourceCreator.insertAccount();
+    ProgramModel program = resourceCreator.insertActiveProgram("Program");
+    AccountModel actor = resourceCreator.insertAccount();
     Applicant applicant = resourceCreator.insertApplicantWithAccount();
     Application application = resourceCreator.insertActiveApplication(applicant, program);
 
@@ -113,8 +113,8 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
   public void getEvents() {
     // Setup
     Instant startInstant = Instant.now();
-    Program program = resourceCreator.insertActiveProgram("Program");
-    Account actor = resourceCreator.insertAccount();
+    ProgramModel program = resourceCreator.insertActiveProgram("Program");
+    AccountModel actor = resourceCreator.insertAccount();
     Applicant applicant = resourceCreator.insertApplicantWithAccount();
     Application application = resourceCreator.insertActiveApplication(applicant, program);
 

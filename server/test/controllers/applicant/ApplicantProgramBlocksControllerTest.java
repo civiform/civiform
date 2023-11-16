@@ -17,9 +17,9 @@ import controllers.WithMockedProfiles;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
-import models.Program;
+import models.ProgramModel;
 import models.StoredFile;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +34,7 @@ import support.ProgramBuilder;
 public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   private ApplicantProgramBlocksController subject;
-  private Program program;
+  private ProgramModel program;
   private Applicant applicant;
 
   @Before
@@ -72,7 +72,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void edit_applicantAccessToDraftProgram_returnsUnauthorized() {
-    Program draftProgram =
+    ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -95,9 +95,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void edit_civiformAdminAccessToDraftProgram_isOk() {
-    Account adminAccount = createGlobalAdminWithMockedProfile();
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
-    Program draftProgram =
+    ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -120,7 +120,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void edit_obsoleteProgram_isOk() {
-    Program obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+    ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
 
     Request request =
         addCSRFToken(
@@ -236,7 +236,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void previous_applicantAccessToDraftProgram_returnsUnauthorized() {
-    Program draftProgram =
+    ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -259,9 +259,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void previous_civiformAdminAccessToDraftProgram_isOk() {
-    Account adminAccount = createGlobalAdminWithMockedProfile();
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
-    Program draftProgram =
+    ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -284,7 +284,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void previous_obsoleteProgram_isOk() {
-    Program obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+    ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
 
     Request request =
         addCSRFToken(
@@ -327,7 +327,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void update_applicantAccessToDraftProgram_returnsUnauthorized() {
-    Program draftProgram =
+    ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -350,9 +350,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void update_civiformAdminAccessToDraftProgram_isOk() {
-    Account adminAccount = createGlobalAdminWithMockedProfile();
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
-    Program draftProgram =
+    ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -375,7 +375,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void update_obsoleteProgram_isOk() {
-    Program obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+    ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
 
     Request request =
         addCSRFToken(
@@ -645,7 +645,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void updateFile_applicantAccessToDraftProgram_returnsUnauthorized() {
-    Program draftProgram =
+    ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -668,9 +668,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void updateFile_civiformAdminAccessToDraftProgram_isOk() {
-    Account adminAccount = createGlobalAdminWithMockedProfile();
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
-    Program draftProgram =
+    ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -693,7 +693,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void updateFile_obsoleteProgram_isOk() {
-    Program obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+    ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
 
     Request request =
         addCSRFToken(

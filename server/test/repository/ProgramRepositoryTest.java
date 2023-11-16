@@ -15,12 +15,12 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.Application;
 import models.ApplicationEvent;
 import models.DisplayMode;
-import models.Program;
+import models.ProgramModel;
 import models.Version;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,7 +70,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void lookupProgram_returnsEmptyOptionalWhenProgramNotFound() {
-    Optional<Program> found = repo.lookupProgram(1L).toCompletableFuture().join();
+    Optional<ProgramModel> found = repo.lookupProgram(1L).toCompletableFuture().join();
 
     assertThat(found).isEmpty();
   }
@@ -78,9 +78,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
   @Test
   public void lookupProgram_findsCorrectProgram() {
     resourceCreator.insertActiveProgram("one");
-    Program two = resourceCreator.insertActiveProgram("two");
+    ProgramModel two = resourceCreator.insertActiveProgram("two");
 
-    Optional<Program> found = repo.lookupProgram(two.id).toCompletableFuture().join();
+    Optional<ProgramModel> found = repo.lookupProgram(two.id).toCompletableFuture().join();
 
     assertThat(found).hasValue(two);
   }
@@ -90,11 +90,11 @@ public class ProgramRepositoryTest extends ResetPostgres {
     Mockito.when(mockSettingsManifest.getProgramCacheEnabled()).thenReturn(true);
 
     resourceCreator.insertActiveProgram("one");
-    Program two = resourceCreator.insertActiveProgram("two");
+    ProgramModel two = resourceCreator.insertActiveProgram("two");
 
     assertThat(programCache.get(String.valueOf(two.id))).isEmpty();
 
-    Optional<Program> found = repo.lookupProgram(two.id).toCompletableFuture().join();
+    Optional<ProgramModel> found = repo.lookupProgram(two.id).toCompletableFuture().join();
 
     assertThat(found).hasValue(two);
     assertThat(programCache.get(String.valueOf(two.id))).hasValue(found);
@@ -114,7 +114,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 + "(select id from programs where name = 'Old Schema Entry'));")
         .execute();
 
-    Program found =
+    ProgramModel found =
         versionRepo.getActiveVersion().getPrograms().stream()
             .filter(
                 program -> program.getProgramDefinition().adminName().equals("Old Schema Entry"))
@@ -144,7 +144,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 + "(select id from programs where name = 'Status Default'));")
         .execute();
 
-    Program found =
+    ProgramModel found =
         versionRepo.getActiveVersion().getPrograms().stream()
             .filter(program -> program.getProgramDefinition().adminName().equals("Status Default"))
             .findFirst()
@@ -156,9 +156,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void getForSlug_findsCorrectProgram() {
-    Program program = resourceCreator.insertActiveProgram("Something With A Name");
+    ProgramModel program = resourceCreator.insertActiveProgram("Something With A Name");
 
-    Program found =
+    ProgramModel found =
         repo.getActiveProgramFromSlug("something-with-a-name").toCompletableFuture().join();
 
     assertThat(found).isEqualTo(program);
@@ -170,11 +170,11 @@ public class ProgramRepositoryTest extends ResetPostgres {
     var versionRepo = instanceOf(VersionRepository.class);
     var draftVersion = versionRepo.getDraftVersionOrCreate();
 
-    Program program = resourceCreator.insertActiveProgram("test");
+    ProgramModel program = resourceCreator.insertActiveProgram("test");
     assertThat(program.id).isNotNull();
 
     var draftOne =
-        new Program(
+        new ProgramModel(
             "test-program",
             "desc",
             "test-program",
@@ -189,7 +189,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     draftOne.save();
 
     var draftTwo =
-        new Program(
+        new ProgramModel(
             "test-program",
             "desc",
             "test-program",
@@ -209,8 +209,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void insertProgramSync() throws Exception {
-    Program program =
-        new Program(
+    ProgramModel program =
+        new ProgramModel(
             "ProgramRepository",
             "desc",
             "name",
@@ -222,22 +222,22 @@ public class ProgramRepositoryTest extends ResetPostgres {
             versionRepo.getDraftVersionOrCreate(),
             ProgramType.DEFAULT,
             new ProgramAcls());
-    Program withId = repo.insertProgramSync(program);
+    ProgramModel withId = repo.insertProgramSync(program);
 
-    Program found = repo.lookupProgram(withId.id).toCompletableFuture().join().get();
+    ProgramModel found = repo.lookupProgram(withId.id).toCompletableFuture().join().get();
     assertThat(found.getProgramDefinition().localizedName().get(Locale.US)).isEqualTo("name");
   }
 
   @Test
   public void updateProgramSync() {
-    Program existing = resourceCreator.insertActiveProgram("old name");
-    Program updates =
-        new Program(
+    ProgramModel existing = resourceCreator.insertActiveProgram("old name");
+    ProgramModel updates =
+        new ProgramModel(
             existing.getProgramDefinition().toBuilder()
                 .setLocalizedName(LocalizedStrings.of(Locale.US, "new name"))
                 .build());
 
-    Program updated = repo.updateProgramSync(updates);
+    ProgramModel updated = repo.updateProgramSync(updates);
 
     assertThat(updated.getProgramDefinition().id()).isEqualTo(existing.id);
     assertThat(updated.getProgramDefinition().localizedName())
@@ -257,7 +257,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void getVersionsForProgram() {
-    Program program = resourceCreator.insertActiveProgram("old name");
+    ProgramModel program = resourceCreator.insertActiveProgram("old name");
 
     ImmutableList<Version> versions = repo.getVersionsForProgram(program);
 
@@ -267,7 +267,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
   @Test
   public void getVersionsForProgram_usesCacheWhenEnabled() {
     Mockito.when(mockSettingsManifest.getProgramCacheEnabled()).thenReturn(true);
-    Program program = resourceCreator.insertActiveProgram("old name");
+    ProgramModel program = resourceCreator.insertActiveProgram("old name");
 
     ImmutableList<Version> versions = repo.getVersionsForProgram(program);
 
@@ -276,8 +276,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void returnsAllAdmins() throws ProgramNotFoundException {
-    Program withAdmins = resourceCreator.insertActiveProgram("with admins");
-    Account admin = new Account();
+    ProgramModel withAdmins = resourceCreator.insertActiveProgram("with admins");
+    AccountModel admin = new AccountModel();
     admin.save();
     assertThat(repo.getProgramAdministrators(withAdmins.id)).isEmpty();
     admin.addAdministeredProgram(withAdmins.getProgramDefinition());
@@ -286,13 +286,13 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
     // This draft, despite not existing when the admin association happened, should
     // still have the same admin associated.
-    Program newDraft = repo.createOrUpdateDraft(withAdmins);
+    ProgramModel newDraft = repo.createOrUpdateDraft(withAdmins);
     assertThat(repo.getProgramAdministrators(newDraft.id)).containsExactly(admin);
   }
 
   @Test
   public void getApplicationsForAllProgramVersions_searchById() {
-    Program program = resourceCreator.insertActiveProgram("test program");
+    ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
     Applicant bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
     Application bobApp = makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe");
@@ -358,7 +358,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
   @Parameters(method = "getSearchByNameOrEmailData")
   public void getApplicationsForAllProgramVersions_searchByNameOrEmail(
       String searchFragment, ImmutableSet<String> wantEmails) {
-    Program program = resourceCreator.insertActiveProgram("test program");
+    ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
     Applicant bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
     makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe")
@@ -392,7 +392,11 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   private Application makeApplicationWithName(
-      Applicant applicant, Program program, String firstName, String middleName, String lastName) {
+      Applicant applicant,
+      ProgramModel program,
+      String firstName,
+      String middleName,
+      String lastName) {
     Application application = resourceCreator.insertActiveApplication(applicant, program);
     ApplicantData applicantData = application.getApplicantData();
     QuestionAnswerer.answerNameQuestion(
@@ -422,13 +426,13 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void getApplicationsForAllProgramVersions_filterByStatus() throws Exception {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram("test program", "description")
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(FIRST_STATUS, SECOND_STATUS, THIRD_STATUS)))
             .build();
 
-    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
 
     Application firstStatusApplication =
         resourceCreator.insertActiveApplication(
@@ -524,7 +528,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   private ImmutableSet<Long> applicationIdsForProgramAndFilter(
-      Program program, SubmittedApplicationFilter filter) {
+      ProgramModel program, SubmittedApplicationFilter filter) {
     PaginationResult<Application> result =
         repo.getApplicationsForAllProgramVersions(
             program.id,
@@ -537,7 +541,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   private void createStatusEvents(
-      Account actorAccount,
+      AccountModel actorAccount,
       Application application,
       ImmutableList<Optional<StatusDefinitions.Status>> statuses)
       throws InterruptedException {
@@ -564,7 +568,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void getApplicationsForAllProgramVersions_withDateRange() {
-    Program program = resourceCreator.insertActiveProgram("test program");
+    ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
     Applicant applicantTwo =
         resourceCreator.insertApplicantWithAccount(Optional.of("two@example.com"));
@@ -621,11 +625,11 @@ public class ProgramRepositoryTest extends ResetPostgres {
   public void getApplicationsForAllProgramVersions_multipleVersions_pageNumberBasedPagination() {
     Applicant applicantOne =
         resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
-    Program originalVersion = resourceCreator.insertActiveProgram("test program");
+    ProgramModel originalVersion = resourceCreator.insertActiveProgram("test program");
 
     resourceCreator.insertActiveApplication(applicantOne, originalVersion);
 
-    Program nextVersion = resourceCreator.insertDraftProgram("test program");
+    ProgramModel nextVersion = resourceCreator.insertDraftProgram("test program");
     resourceCreator.publishNewSynchronizedVersion();
 
     Applicant applicantTwo =
@@ -664,11 +668,11 @@ public class ProgramRepositoryTest extends ResetPostgres {
   public void getApplicationsForAllProgramVersions_multipleVersions_offsetBasedPagination() {
     Applicant applicantOne =
         resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
-    Program originalVersion = resourceCreator.insertActiveProgram("test program");
+    ProgramModel originalVersion = resourceCreator.insertActiveProgram("test program");
 
     resourceCreator.insertActiveApplication(applicantOne, originalVersion);
 
-    Program nextVersion = resourceCreator.insertDraftProgram("test program");
+    ProgramModel nextVersion = resourceCreator.insertDraftProgram("test program");
     resourceCreator.publishNewSynchronizedVersion();
 
     Applicant applicantTwo =

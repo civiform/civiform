@@ -58,7 +58,7 @@ public class HtmlBundleTest extends ResetPostgres {
                 + " w-screen bg-gray-400 opacity-75\"></div></div><footer><script"
                 + " src=\"/assets/dist/[a-z0-9]+-applicant.bundle.js\""
                 + " type=\"text/javascript\"></script><script"
-                + " src=\"/assets/dist/891c7b7b3c1bf0d2bf33ea8e2216a1dc-uswds.bundle.js\""
+                + " src=\"/assets/dist/[a-z0-9]+-uswds.bundle.js\""
                 + " type=\"text/javascript\"></script></footer></body>");
   }
 

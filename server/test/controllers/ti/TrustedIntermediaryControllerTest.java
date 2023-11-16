@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import java.util.Optional;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
 import org.junit.Before;
@@ -105,7 +105,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     TrustedIntermediaryGroup trustedIntermediaryGroup =
         repo.getTrustedIntermediaryGroup(profileUtils.currentUserProfile(request).get()).get();
     repo.createNewApplicantForTrustedIntermediaryGroup(form, trustedIntermediaryGroup);
-    Optional<Account> account = repo.lookupAccountByEmail("sample3@example.com");
+    Optional<AccountModel> account = repo.lookupAccountByEmail("sample3@example.com");
     Result result = tiController.updateDateOfBirth(account.get().id, request);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     Optional<Applicant> applicant =

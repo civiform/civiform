@@ -16,11 +16,11 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -105,7 +105,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void test_deduplicate_inProgressPrograms() {
     versionRepository = instanceOf(VersionRepository.class);
     String programName = "In Progress Program";
-    Program program = resourceCreator().insertActiveProgram(programName);
+    ProgramModel program = resourceCreator().insertActiveProgram(programName);
 
     Application app = new Application(currentApplicant, program, LifecycleStage.DRAFT);
     app.save();
@@ -136,7 +136,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void index_withProgram_includesApplyButtonWithRedirect() {
-    Program program = resourceCreator().insertActiveProgram("program");
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
 
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
@@ -148,7 +148,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void index_withCommonIntakeform_includesStartHereButtonWithRedirect() {
-    Program program = resourceCreator().insertActiveCommonIntakeForm("benefits");
+    ProgramModel program = resourceCreator().insertActiveCommonIntakeForm("benefits");
 
     Request request =
         addCSRFToken(requestBuilderWithSettings("INTAKE_FORM_ENABLED", "true")).build();
@@ -193,7 +193,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void view_includesApplyButton() {
-    Program program = resourceCreator().insertActiveProgram("program");
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
 
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
@@ -218,7 +218,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void view_applicantWithoutProfile_redirectsToHome() {
-    Program program = resourceCreator().insertActiveProgram("program");
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
 
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
@@ -251,7 +251,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void edit_applicantAccessToDraftProgram_redirectsToHome() {
-    Program draftProgram = ProgramBuilder.newDraftProgram().build();
+    ProgramModel draftProgram = ProgramBuilder.newDraftProgram().build();
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
         controller.edit(request, currentApplicant.id, draftProgram.id).toCompletableFuture().join();
@@ -262,9 +262,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void edit_civiformAdminAccessToDraftProgram_isOk() {
-    Account adminAccount = createGlobalAdminWithMockedProfile();
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     long adminApplicantId = adminAccount.newestApplicant().orElseThrow().id;
-    Program draftProgram = ProgramBuilder.newDraftProgram().build();
+    ProgramModel draftProgram = ProgramBuilder.newDraftProgram().build();
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
         controller.edit(request, adminApplicantId, draftProgram.id).toCompletableFuture().join();
@@ -285,7 +285,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void edit_applicantAccessToObsoleteProgram_isOk() {
-    Program obsoleteProgram = ProgramBuilder.newObsoleteProgram("name").build();
+    ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("name").build();
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
         controller
@@ -298,7 +298,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void edit_withNewProgram_redirectsToFirstBlock() {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -320,7 +320,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void edit_redirectsToFirstIncompleteBlock() {
     QuestionDefinition colorQuestion =
         testQuestionBank().applicantFavoriteColor().getQuestionDefinition();
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestionDefinition(colorQuestion)
@@ -350,7 +350,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   //  end of program submission.
   @Ignore
   public void edit_whenNoMoreIncompleteBlocks_redirectsToListOfPrograms() {
-    Program program = resourceCreator().insertActiveProgram("My Program");
+    ProgramModel program = resourceCreator().insertActiveProgram("My Program");
 
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =

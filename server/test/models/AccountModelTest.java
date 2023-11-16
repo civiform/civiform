@@ -2,6 +2,9 @@ package models;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import auth.oidc.SerializedIdTokens;
+import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import repository.AccountRepository;
@@ -9,7 +12,7 @@ import repository.ResetPostgres;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
-public class AccountTest extends ResetPostgres {
+public class AccountModelTest extends ResetPostgres {
 
   private AccountRepository repository;
 
@@ -20,7 +23,7 @@ public class AccountTest extends ResetPostgres {
 
   @Test
   public void canAddAdministeredProgram() {
-    Account account = new Account();
+    AccountModel account = new AccountModel();
     String email = "fake email";
     account.setEmailAddress(email);
 
@@ -31,13 +34,13 @@ public class AccountTest extends ResetPostgres {
 
     account.save();
 
-    Account found = repository.lookupAccountByEmail(email).get();
+    AccountModel found = repository.lookupAccountByEmail(email).get();
     assertThat(found.getAdministeredProgramNames()).containsExactly("one", "two");
   }
 
   @Test
   public void addDuplicateProgram_doesNotAddToList() {
-    Account account = new Account();
+    AccountModel account = new AccountModel();
     String programName = "duplicate";
     ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
 
@@ -51,7 +54,7 @@ public class AccountTest extends ResetPostgres {
 
   @Test
   public void removeAdministeredProgram() {
-    Account account = new Account();
+    AccountModel account = new AccountModel();
     String programName = "remove";
     ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
 
@@ -60,5 +63,24 @@ public class AccountTest extends ResetPostgres {
 
     account.removeAdministeredProgram(program);
     assertThat(account.getAdministeredProgramNames()).isEmpty();
+  }
+
+  @Test
+  public void manageSerializedIdTokens() {
+    AccountModel accountToSave = new AccountModel();
+    String email = "fake email";
+    accountToSave.setEmailAddress(email);
+
+    SerializedIdTokens serializedIdTokens =
+        new SerializedIdTokens(ImmutableMap.of("session1", "token1", "session2", "token2"));
+    accountToSave.setSerializedIdTokens(serializedIdTokens);
+    accountToSave.save();
+
+    Optional<AccountModel> restoredAccount = repository.lookupAccountByEmail(email);
+    assertThat(restoredAccount).isNotEmpty();
+
+    assertThat(restoredAccount.get().getSerializedIdTokens().size()).isEqualTo(2);
+    assertThat(restoredAccount.get().getSerializedIdTokens().get("session1")).isEqualTo("token1");
+    assertThat(restoredAccount.get().getSerializedIdTokens().get("session2")).isEqualTo("token2");
   }
 }

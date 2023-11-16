@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Account;
+import models.AccountModel;
 import models.Application;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
@@ -96,7 +96,7 @@ public final class UpsellController extends CiviFormController {
     CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
         applicantService.getPersonalInfo(applicantId).toCompletableFuture();
 
-    CompletableFuture<Account> account =
+    CompletableFuture<AccountModel> account =
         applicantPersonalInfo
             .thenComposeAsync(
                 v -> checkApplicantAuthorization(request, applicantId), httpContext.current())

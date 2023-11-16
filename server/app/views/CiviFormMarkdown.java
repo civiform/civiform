@@ -1,12 +1,19 @@
 package views;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import org.commonmark.Extension;
+import org.commonmark.ext.autolink.AutolinkExtension;
+import org.commonmark.node.BulletList;
 import org.commonmark.node.Link;
 import org.commonmark.node.Node;
+import org.commonmark.node.OrderedList;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.AttributeProvider;
 import org.commonmark.renderer.html.HtmlRenderer;
-import views.style.BaseStyles;
+import views.style.ApplicantStyles;
+import views.style.StyleUtils;
 
 /** Renders markdown to HTML with styles consistent with CiviForm's UI. */
 public final class CiviFormMarkdown {
@@ -17,11 +24,15 @@ public final class CiviFormMarkdown {
     return RENDERER.render(markdownRootNode);
   }
 
-  private static final Parser PARSER = Parser.builder().build();
+  private static final List<Extension> extensions = Arrays.asList(AutolinkExtension.create());
+
+  private static final Parser PARSER = Parser.builder().extensions(extensions).build();
 
   private static final HtmlRenderer RENDERER =
       HtmlRenderer.builder()
+          .extensions(extensions)
           .attributeProviderFactory(context -> new CiviFormAttributeProvider())
+          .softbreak("<br/>")
           .build();
 
   /** Customizes HTML element attributes for the CiviForm UI. */
@@ -30,8 +41,12 @@ public final class CiviFormMarkdown {
     @Override
     public void setAttributes(Node node, String tagName, Map<String, String> attributes) {
       if (node instanceof Link) {
-        attributes.put("class", BaseStyles.LINK_TEXT);
+        attributes.put("class", StyleUtils.removeStyles(ApplicantStyles.LINK, "text-sm"));
         attributes.put("target", "_blank");
+      } else if (node instanceof BulletList) {
+        attributes.put("class", "list-disc mx-8");
+      } else if (node instanceof OrderedList) {
+        attributes.put("class", "list-decimal mx-8");
       }
     }
   }

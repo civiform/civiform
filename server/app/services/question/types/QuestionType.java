@@ -21,21 +21,21 @@ import services.question.exceptions.InvalidQuestionTypeException;
 
 /** Defines types of questions supported. */
 public enum QuestionType {
-  ADDRESS("Address Field", AddressQuestion.class),
+  ADDRESS("Address", AddressQuestion.class),
   CHECKBOX("Checkbox", MultiSelectQuestion.class),
-  CURRENCY("Currency Field", CurrencyQuestion.class),
-  DATE("Date Picker", DateQuestion.class),
+  CURRENCY("Currency", CurrencyQuestion.class),
+  DATE("Date", DateQuestion.class),
   DROPDOWN("Dropdown", SingleSelectQuestion.class),
-  EMAIL("Email Field", EmailQuestion.class),
+  EMAIL("Email", EmailQuestion.class),
   ENUMERATOR("Enumerator", EnumeratorQuestion.class),
   FILEUPLOAD("File Upload", FileUploadQuestion.class),
-  ID("ID Field", IdQuestion.class),
-  NAME("Name Field", NameQuestion.class),
-  NUMBER("Number Field", NumberQuestion.class),
+  ID("ID", IdQuestion.class),
+  NAME("Name", NameQuestion.class),
+  NUMBER("Number", NumberQuestion.class),
   RADIO_BUTTON("Radio Button", SingleSelectQuestion.class),
   STATIC("Static Text", StaticContentQuestion.class),
-  TEXT("Text Field", TextQuestion.class),
-  PHONE("Phone Field", PhoneQuestion.class),
+  TEXT("Text", TextQuestion.class),
+  PHONE("Phone Number", PhoneQuestion.class),
   NULL_QUESTION("Missing Question", NullQuestion.class);
 
   private final String label;

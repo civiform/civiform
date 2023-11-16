@@ -2,19 +2,24 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.PlainJWT;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
+import org.pac4j.oidc.profile.OidcProfile;
 import services.CiviFormError;
 import services.Path;
 import services.WellKnownPaths;
@@ -70,7 +75,7 @@ public class AccountRepositoryTest extends ResetPostgres {
   @Test
   public void lookupByAuthorityId() {
 
-    new Account().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
+    new AccountModel().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
 
     assertThat(repo.lookupAccountByAuthorityId(AUTHORITY_ID).get().getEmailAddress())
         .isEqualTo(EMAIL);
@@ -78,14 +83,14 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   @Test
   public void lookupByEmailAddress() {
-    new Account().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
+    new AccountModel().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
 
     assertThat(repo.lookupAccountByEmail(EMAIL).get().getAuthorityId()).isEqualTo(AUTHORITY_ID);
   }
 
   @Test
   public void lookupByEmailAddressAsync() {
-    new Account().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
+    new AccountModel().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
 
     assertThat(
             repo.lookupAccountByEmailAsync(EMAIL)
@@ -146,7 +151,7 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   @Test
   public void addAdministeredProgram_existingAccount_succeeds() {
-    Account account = new Account();
+    AccountModel account = new AccountModel();
     account.setEmailAddress(EMAIL);
     account.save();
 
@@ -191,7 +196,7 @@ public class AccountRepositoryTest extends ResetPostgres {
   public void removeAdministeredProgram_succeeds() {
     ProgramDefinition program = ProgramBuilder.newDraftProgram(PROGRAM_NAME).buildDefinition();
 
-    Account account = new Account();
+    AccountModel account = new AccountModel();
     account.setEmailAddress(EMAIL);
     account.addAdministeredProgram(program);
     account.save();
@@ -207,7 +212,7 @@ public class AccountRepositoryTest extends ResetPostgres {
   public void removeAdministeredProgram_accountNotAdminForProgram_doesNothing() {
     ProgramDefinition program = ProgramBuilder.newDraftProgram(PROGRAM_NAME).buildDefinition();
 
-    Account account = new Account();
+    AccountModel account = new AccountModel();
     account.setEmailAddress(EMAIL);
     account.save();
     assertThat(account.getAdministeredProgramNames()).doesNotContain(PROGRAM_NAME);
@@ -271,6 +276,44 @@ public class AccountRepositoryTest extends ResetPostgres {
     // Only the applicant with the incorrect path should be returned
     assertThat(applicants.size()).isEqualTo(1);
     assertThat(applicants.get(0).getApplicantData().getApplicantName().get()).isEqualTo("Bar");
+  }
+    public void updateSerializedIdTokens() {
+    AccountModel account = new AccountModel();
+    String fakeEmail = "fake email";
+    account.setEmailAddress(fakeEmail);
+    account.save();
+    long accountId = account.id;
+
+    // Create a JWT that just expired.
+    LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
+    Instant timeInPast = now.minus(1, ChronoUnit.SECONDS).toInstant(ZoneOffset.UTC);
+    JWT expiredJwt = getJwtWithExpirationTime(timeInPast);
+    OidcProfile expiredOidcProfile = new OidcProfile();
+    expiredOidcProfile.setIdTokenString(expiredJwt.serialize());
+
+    repo.updateSerializedIdTokens(account, "sessionId1", expiredOidcProfile);
+
+    // Create a JWT that won't expire for an hour.
+    Instant timeInFuture = now.plus(1, ChronoUnit.HOURS).toInstant(ZoneOffset.UTC);
+    JWT validJwt = getJwtWithExpirationTime(timeInFuture);
+    OidcProfile validOidcProfile = new OidcProfile();
+    validOidcProfile.setIdTokenString(validJwt.serialize());
+
+    repo.updateSerializedIdTokens(account, "sessionId2", validOidcProfile);
+
+    Optional<AccountModel> retrievedAccount = repo.lookupAccount(accountId);
+    assertThat(retrievedAccount).isNotEmpty();
+    // Expired token
+    assertThat(retrievedAccount.get().getSerializedIdTokens().get("sessionId1")).isNull();
+    // Valid token
+    assertThat(retrievedAccount.get().getSerializedIdTokens().get("sessionId2"))
+        .isEqualTo(validJwt.serialize());
+  }
+
+  private JWT getJwtWithExpirationTime(Instant expirationTime) {
+    JWTClaimsSet claims =
+        new JWTClaimsSet.Builder().expirationTime(Date.from(expirationTime)).build();
+    return new PlainJWT(claims);
   }
 
   private Applicant saveApplicantWithDob(String name, String dob) {

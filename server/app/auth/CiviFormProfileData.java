@@ -3,7 +3,7 @@ package auth;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.definition.CommonProfileDefinition;
@@ -61,7 +61,7 @@ public class CiviFormProfileData extends CommonProfile {
     // asynchronous because the security code that executes it is entirely synchronous.
     supplyAsync(
             () -> {
-              Account acc = new Account();
+              AccountModel acc = new AccountModel();
               acc.save();
               Applicant newA = new Applicant();
               newA.setAccount(acc);

@@ -1,11 +1,14 @@
 package filters;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import io.prometheus.client.Histogram;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
 import play.mvc.Http;
 import play.routing.HandlerDef;
 import play.routing.Router;
+import services.settings.SettingsManifest;
 
 /**
  * Filter that exports the size of the PLAY_SESSION cookie to prometheus, parameterized by
@@ -14,6 +17,12 @@ import play.routing.Router;
 public final class RecordCookieSizeFilter extends EssentialFilter {
   public static int BUCKET_SIZE = 512;
   public static int NUM_BUCKETS = 10;
+  private final boolean metricsEnabled;
+
+  @Inject
+  public RecordCookieSizeFilter(Provider<SettingsManifest> settingsManifest) {
+    this.metricsEnabled = settingsManifest.get().getCiviformServerMetricsEnabled();
+  }
 
   private Histogram PLAY_SESSION_COOKIE_SIZE =
       Histogram.build()
@@ -25,6 +34,13 @@ public final class RecordCookieSizeFilter extends EssentialFilter {
 
   @Override
   public EssentialAction apply(EssentialAction next) {
+    if (!metricsEnabled) {
+      return EssentialAction.of(
+          requestHeader -> {
+            return next.apply(requestHeader);
+          });
+    }
+
     return EssentialAction.of(
         requestHeader -> {
           String controllerMethod = getControllerMethod(requestHeader);
