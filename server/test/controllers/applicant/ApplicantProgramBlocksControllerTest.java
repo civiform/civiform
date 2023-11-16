@@ -583,7 +583,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     // assert that the corrected address is saved
     applicant.refresh();
-    applicant.expireApplicantDataCache();
     assertThat(applicant.getApplicantData().asJsonString()).contains("Corrected");
   }
 

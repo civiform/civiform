@@ -115,6 +115,12 @@ public class Applicant extends BaseModel {
     return this;
   }
 
+  @Override
+  public void refresh() {
+    expireApplicantDataCache();
+    super.refresh();
+  }
+
   /**
    * Clears {@code applicantData} so that a new {@link ApplicantData} object will be returned from
    * {@code getApplicantData}.

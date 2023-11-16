@@ -92,7 +92,8 @@ public final class DurableJobModule extends AbstractModule {
 
     durableJobRegistry.register(
         DurableJobName.FIX_APPLICANT_DOB_DATA_PATH,
-        persistedDurableJob -> new FixApplicantDobDataPathJob(persistedDurableJob),
+        persistedDurableJob ->
+            new FixApplicantDobDataPathJob(accountRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.Nightly2Am());
 
     return durableJobRegistry;

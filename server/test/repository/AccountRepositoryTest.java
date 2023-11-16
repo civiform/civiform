@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import models.Account;
@@ -16,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 import services.CiviFormError;
 import services.Path;
+import services.WellKnownPaths;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
@@ -251,6 +253,25 @@ public class AccountRepositoryTest extends ResetPostgres {
 
     assertThat(numberDeleted).isEqualTo(1);
     assertThat(remainingApplicants).hasSize(3);
+  }
+
+  @Test
+  public void findApplicantsWithIncorrectDobPath() {
+    // Save an applicant with the correct path for dob
+    saveApplicantWithDob("Foo", "2001-11-01");
+
+    // Save an applicant with the incorrect path for dob
+    Applicant applicantWithDeprecatedPath = saveApplicant("Bar");
+    applicantWithDeprecatedPath
+        .getApplicantData()
+        .putDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED, "2002-12-02");
+    applicantWithDeprecatedPath.save();
+
+    List<Applicant> applicants = repo.findApplicantsWithIncorrectDobPath().findList();
+
+    // Only the applicant with the incorrect path should be returned
+    assertThat(applicants.size()).isEqualTo(1);
+    assertThat(applicants.get(0).getApplicantData().getApplicantName().get()).isEqualTo("Bar");
   }
 
   private Applicant saveApplicantWithDob(String name, String dob) {
