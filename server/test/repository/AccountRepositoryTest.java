@@ -99,7 +99,7 @@ public class AccountRepositoryTest extends ResetPostgres {
   @Test
   public void insertApplicant() {
     Applicant applicant = new Applicant();
-    String path = "$.applicant.applicant_date_of_birth";
+    String path = "$." + WellKnownPaths.APPLICANT_DOB.toString();
     applicant.getApplicantData().putDate(Path.create(path), "2021-01-01");
 
     repo.insertApplicant(applicant).toCompletableFuture().join();
@@ -114,7 +114,7 @@ public class AccountRepositoryTest extends ResetPostgres {
   public void updateApplicant() {
     Applicant applicant = new Applicant();
     repo.insertApplicant(applicant).toCompletableFuture().join();
-    String path = "$.applicant.applicant_date_of_birth";
+    String path = "$." + WellKnownPaths.APPLICANT_DOB.toString();
     applicant.getApplicantData().putString(Path.create(path), "1/1/2021");
 
     repo.updateApplicant(applicant).toCompletableFuture().join();
@@ -268,7 +268,6 @@ public class AccountRepositoryTest extends ResetPostgres {
     applicantWithDeprecatedPath.save();
 
     List<Applicant> applicants = repo.findApplicantsWithIncorrectDobPath().findList();
-
     // Only the applicant with the incorrect path should be returned
     assertThat(applicants.size()).isEqualTo(1);
     assertThat(applicants.get(0).getApplicantData().getApplicantName().get()).isEqualTo("Bar");
@@ -276,7 +275,9 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   private Applicant saveApplicantWithDob(String name, String dob) {
     Applicant applicant = new Applicant();
-    applicant.getApplicantData().putString(Path.create("$.applicant.name"), name);
+    applicant
+        .getApplicantData()
+        .putString(Path.create("$." + WellKnownPaths.APPLICANT_FIRST_NAME.toString()), name);
     applicant.getApplicantData().setDateOfBirth(dob);
     applicant.save();
     return applicant;
@@ -284,7 +285,9 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   private Applicant saveApplicant(String name) {
     Applicant applicant = new Applicant();
-    applicant.getApplicantData().putString(Path.create("$.applicant.name"), name);
+    applicant
+        .getApplicantData()
+        .putString(Path.create("$." + WellKnownPaths.APPLICANT_FIRST_NAME.toString()), name);
     applicant.save();
     return applicant;
   }
