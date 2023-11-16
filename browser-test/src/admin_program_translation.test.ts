@@ -1,5 +1,7 @@
 import {
   createTestContext,
+  disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   selectApplicantLanguage,
@@ -146,6 +148,113 @@ describe('Admin can manage translations', () => {
       configuredStatusText: statusWithNoEmailName,
       expectStatusText: `${statusWithNoEmailName}-spanish`,
     })
+  })
+
+  it('creates a program with summary image description and adds translations', async () => {
+    const {page, adminPrograms, adminProgramImage, adminTranslations} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Program with summary image description'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramImagePage(programName)
+    await adminProgramImage.setImageDescriptionAndSubmit(
+      'Fake image description',
+    )
+
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    // By default, non-English translations are not filled in.
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.expectProgramImageDescriptionTranslation('')
+
+    // Now add a Spanish translation
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.editProgramTranslations({
+      name: 'Spanish name',
+      description: 'Spanish description',
+      imageDescription: 'Spanish image description',
+    })
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.expectProgramImageDescriptionTranslation(
+      'Spanish image description',
+    )
+    await validateScreenshot(page, 'program-translation-with-image-description')
+
+    // Very other translations are still not filled in
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Tagalog')
+    await adminTranslations.expectProgramImageDescriptionTranslation('')
+
+    await disableFeatureFlag(page, 'program_card_images')
+  })
+
+  it('editing summary image description does not clobber translations', async () => {
+    const {page, adminPrograms, adminProgramImage, adminTranslations} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Program with summary image description'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramImagePage(programName)
+    await adminProgramImage.setImageDescriptionAndSubmit(
+      'Fake image description',
+    )
+
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.editProgramTranslations({
+      name: 'Spanish name',
+      description: 'Spanish description',
+      imageDescription: 'Spanish image description',
+    })
+
+    // Update the original description
+    await adminPrograms.goToProgramImagePage(programName)
+    await adminProgramImage.setImageDescriptionAndSubmit(
+      'New image description',
+    )
+
+    // Verify the Spanish translations are still there
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.expectProgramImageDescriptionTranslation(
+      'Spanish image description',
+    )
+
+    await disableFeatureFlag(page, 'program_card_images')
+  })
+
+  it('deleting summary image description deletes all translations', async () => {
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Program with summary image description'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramImagePage(programName)
+    await adminProgramImage.setImageDescriptionAndSubmit(
+      'Fake image description',
+    )
+
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.editProgramTranslations({
+      name: 'Spanish name',
+      description: 'Spanish description',
+      imageDescription: 'Spanish image description',
+    })
+
+    // Remove the original description
+    await adminPrograms.goToProgramImagePage(programName)
+    await adminProgramImage.setImageDescriptionAndSubmit('')
+
+    // Verify the Spanish translation is no longer there
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.expectProgramImageDescriptionTranslation('')
+
+    await disableFeatureFlag(page, 'program_card_images')
   })
 
   it('creates a question and adds translations', async () => {

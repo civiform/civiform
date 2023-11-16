@@ -17,7 +17,6 @@ import java.util.OptionalLong;
 import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.LocalizedStrings;
 import services.TranslationLocales;
 import services.program.LocalizationUpdate;
 import services.program.ProgramDefinition;
@@ -86,6 +85,7 @@ public final class ProgramTranslationView extends TranslationFormView {
     LocalizationUpdate updateData = translationForm.getUpdateData();
     String programDetailsLink =
         controllers.admin.routes.AdminProgramController.edit(program.id()).url();
+
     ImmutableList.Builder<DomContent> result =
         ImmutableList.<DomContent>builder()
             .add(
@@ -98,39 +98,8 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 .setHref(programDetailsLink)
                                 .setStyles("ml-2")
                                 .asAnchorText()),
-                    ImmutableList.of(
-                        fieldWithDefaultLocaleTextHint(
-                            FieldWithLabel.input()
-                                .setFieldName(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME)
-                                .setLabelText("Program name")
-                                .setValue(updateData.localizedDisplayName())
-                                .getInputTag(),
-                            program.localizedName()),
-                        fieldWithDefaultLocaleTextHint(
-                            FieldWithLabel.input()
-                                .setFieldName(ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME)
-                                .setLabelText("Program description")
-                                .setValue(updateData.localizedDisplayDescription())
-                                .getInputTag(),
-                            program.localizedDescription()),
-                        fieldWithDefaultLocaleTextHint(
-                            FieldWithLabel.input()
-                                .setFieldName(
-                                    ProgramTranslationForm.CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME)
-                                .setLabelText("Custom Confirmation Screen Message")
-                                .setValue(updateData.localizedConfirmationMessage())
-                                .getInputTag(),
-                            program.localizedConfirmationMessage()),
-                        // TODO(#5676): Hide field if no image is set.
-                        fieldWithDefaultLocaleTextHint(
-                            FieldWithLabel.input()
-                                .setFieldName(ProgramTranslationForm.IMAGE_DESCRIPTION_FORM_NAME)
-                                .setLabelText("Program image description")
-                                .setValue(updateData.localizedSummaryImageDescription())
-                                .getInputTag(),
-                            program
-                                .localizedSummaryImageDescription()
-                                .orElse(LocalizedStrings.empty())))));
+                    getApplicantVisibleProgramDetailFields(program, updateData)));
+
     // Add Status Tracking messages.
     String programStatusesLink =
         controllers.admin.routes.AdminProgramStatusesController.index(program.id()).url();
@@ -186,5 +155,46 @@ public final class ProgramTranslationView extends TranslationFormView {
               fieldsBuilder.build()));
     }
     return result.build();
+  }
+
+  private ImmutableList<DomContent> getApplicantVisibleProgramDetailFields(
+      ProgramDefinition program, LocalizationUpdate updateData) {
+    ImmutableList.Builder<DomContent> applicantVisibleDetails =
+        ImmutableList.<DomContent>builder()
+            .add(
+                fieldWithDefaultLocaleTextHint(
+                    FieldWithLabel.input()
+                        .setFieldName(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME)
+                        .setLabelText("Program name")
+                        .setValue(updateData.localizedDisplayName())
+                        .getInputTag(),
+                    program.localizedName()),
+                fieldWithDefaultLocaleTextHint(
+                    FieldWithLabel.input()
+                        .setFieldName(ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME)
+                        .setLabelText("Program description")
+                        .setValue(updateData.localizedDisplayDescription())
+                        .getInputTag(),
+                    program.localizedDescription()),
+                fieldWithDefaultLocaleTextHint(
+                    FieldWithLabel.input()
+                        .setFieldName(ProgramTranslationForm.CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME)
+                        .setLabelText("Custom Confirmation Screen Message")
+                        .setValue(updateData.localizedConfirmationMessage())
+                        .getInputTag(),
+                    program.localizedConfirmationMessage()));
+
+    // Only add the summary image description to the page if it exists.
+    if (program.localizedSummaryImageDescription().isPresent()) {
+      applicantVisibleDetails.add(
+          fieldWithDefaultLocaleTextHint(
+              FieldWithLabel.input()
+                  .setFieldName(ProgramTranslationForm.IMAGE_DESCRIPTION_FORM_NAME)
+                  .setLabelText("Program image description")
+                  .setValue(updateData.localizedSummaryImageDescription())
+                  .getInputTag(),
+              program.localizedSummaryImageDescription().get()));
+    }
+    return applicantVisibleDetails.build();
   }
 }

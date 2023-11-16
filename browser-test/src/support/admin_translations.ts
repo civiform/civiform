@@ -23,14 +23,17 @@ export class AdminTranslations {
   async editProgramTranslations({
     name,
     description,
+    imageDescription = '',
     statuses = [],
   }: {
     name: string
     description: string
+    imageDescription: string
     statuses: ProgramStatusTranslationParams[]
   }) {
     await this.page.fill('text=Program name', name)
     await this.page.fill('text=Program description', description)
+    await this.page.fill('text=Program image description', imageDescription)
 
     for (const status of statuses) {
       await this.page.fill(
@@ -110,6 +113,15 @@ export class AdminTranslations {
       this.statusEmailFieldSelector(configuredStatusText),
     )
     expect(isStatusEmailVisible).toBe(false)
+  }
+
+  async expectProgramImageDescriptionTranslation(
+    expectImageDescription: string,
+  ) {
+    const imageDescriptionValue = await this.page.inputValue(
+      'text=Program image description',
+    )
+    expect(imageDescriptionValue).toEqual(expectImageDescription)
   }
 
   async editQuestionTranslations(

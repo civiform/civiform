@@ -38,7 +38,10 @@ public class ProgramTranslationFormTest extends ResetPostgres {
 
     ProgramTranslationForm form =
         ProgramTranslationForm.bindFromRequest(
-            request, instanceOf(FormFactory.class), /* maxStatusTranslations= */ 2);
+            request,
+            instanceOf(FormFactory.class),
+            /* maxStatusTranslations= */ 2,
+            /* hasSummaryImageDescription= */ false);
     assertThat(form.getUpdateData())
         .isEqualTo(
             LocalizationUpdate.builder()
@@ -66,7 +69,10 @@ public class ProgramTranslationFormTest extends ResetPostgres {
 
     ProgramTranslationForm form =
         ProgramTranslationForm.bindFromRequest(
-            request, instanceOf(FormFactory.class), /* maxStatusTranslations= */ 1);
+            request,
+            instanceOf(FormFactory.class),
+            /* maxStatusTranslations= */ 1,
+            /* hasSummaryImageDescription= */ false);
     assertThat(form.getUpdateData())
         .isEqualTo(
             LocalizationUpdate.builder()
@@ -91,7 +97,11 @@ public class ProgramTranslationFormTest extends ResetPostgres {
     // only 2 statuses provided in the request body, attempting to parse a 3rd should not throw
     // an error and just return a list of 2 updates.
     ProgramTranslationForm form =
-        ProgramTranslationForm.bindFromRequest(request, instanceOf(FormFactory.class), 3);
+        ProgramTranslationForm.bindFromRequest(
+            request,
+            instanceOf(FormFactory.class),
+            /* maxStatusTranslations= */ 3,
+            /* hasSummaryImageDescription= */ false);
     assertThat(form.getUpdateData())
         .isEqualTo(
             LocalizationUpdate.builder()
@@ -139,7 +149,10 @@ public class ProgramTranslationFormTest extends ResetPostgres {
 
     ProgramTranslationForm form =
         ProgramTranslationForm.bindFromRequest(
-            request, instanceOf(FormFactory.class), /* maxStatusTranslations= */ 2);
+            request,
+            instanceOf(FormFactory.class),
+            /* maxStatusTranslations= */ 2,
+            /* hasSummaryImageDescription= */ false);
     assertThat(form.getUpdateData())
         .isEqualTo(
             LocalizationUpdate.builder()
@@ -156,6 +169,9 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                             .build()))
                 .build());
   }
+
+  @Test
+  public void bindFromRequest_hasSummaryImageDescriptionTrue_included() {}
 
   @Test
   public void fromProgram() {

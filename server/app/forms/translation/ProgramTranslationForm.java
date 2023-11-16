@@ -51,15 +51,15 @@ public final class ProgramTranslationForm {
                 new String[] {program.localizedDescription().maybeGet(locale).orElse("")})
             .put(
                 CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME,
-                new String[] {program.localizedConfirmationMessage().maybeGet(locale).orElse("")})
-            .put(
-                IMAGE_DESCRIPTION_FORM_NAME,
-                new String[] {
-                  program
-                      .localizedSummaryImageDescription()
-                      .map(desc -> desc.maybeGet(locale).orElse(""))
-                      .orElse("")
-                });
+                new String[] {program.localizedConfirmationMessage().maybeGet(locale).orElse("")});
+    boolean hasSummaryImageDescription = program.localizedSummaryImageDescription().isPresent();
+    if (hasSummaryImageDescription) {
+      formValuesBuilder.put(
+          IMAGE_DESCRIPTION_FORM_NAME,
+          new String[] {
+            program.localizedSummaryImageDescription().get().maybeGet(locale).orElse("")
+          });
+    }
 
     ImmutableList<StatusDefinitions.Status> statuses = program.statusDefinitions().getStatuses();
     for (int i = 0; i < statuses.size(); i++) {
@@ -86,29 +86,38 @@ public final class ProgramTranslationForm {
                 TypedMap.empty(),
                 formValuesBuilder.build(),
                 ImmutableMap.of(),
-                allFieldNames(statuses.size()).toArray(new String[0]));
+                allFieldNames(statuses.size(), hasSummaryImageDescription).toArray(new String[0]));
     return new ProgramTranslationForm(form, program.statusDefinitions().getStatuses().size());
   }
 
   public static ProgramTranslationForm bindFromRequest(
-      Http.Request request, FormFactory formFactory, int maxStatusTranslations) {
+      Http.Request request,
+      FormFactory formFactory,
+      int maxStatusTranslations,
+      boolean hasSummaryImageDescription) {
     // We limit the number of status entries read from the form data to that of the
     // current configured set of statuses.
     DynamicForm form =
         formFactory
             .form()
-            .bindFromRequest(request, allFieldNames(maxStatusTranslations).toArray(new String[0]));
+            .bindFromRequest(
+                request,
+                allFieldNames(maxStatusTranslations, hasSummaryImageDescription)
+                    .toArray(new String[0]));
     return new ProgramTranslationForm(form, maxStatusTranslations);
   }
 
-  private static ImmutableList<String> allFieldNames(int maxStatusTranslations) {
+  private static ImmutableList<String> allFieldNames(
+      int maxStatusTranslations, boolean hasSummaryImageDescription) {
     ImmutableList.Builder<String> builder =
         ImmutableList.<String>builder()
             .add(
                 DISPLAY_NAME_FORM_NAME,
                 DISPLAY_DESCRIPTION_FORM_NAME,
-                CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME,
-                IMAGE_DESCRIPTION_FORM_NAME);
+                CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME);
+    if (hasSummaryImageDescription) {
+      builder.add(IMAGE_DESCRIPTION_FORM_NAME);
+    }
     for (int i = 0; i < maxStatusTranslations; i++) {
       builder.add(
           statusKeyToUpdateFieldName(i), localizedStatusFieldName(i), localizedEmailFieldName(i));
