@@ -62,6 +62,7 @@ public final class RecurringJobExecutionTimeResolvers {
     @Override
     public Instant resolveExecutionTime(Clock clock) {
       return LocalDate.now(clock)
+          .plusDays(1)
           .atStartOfDay(clock.getZone())
           .plus(2, ChronoUnit.HOURS)
           .toInstant();
