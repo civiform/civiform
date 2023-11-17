@@ -317,7 +317,7 @@ email.tiApplicationUpdateBody=Ang status para sa aplikanteng si {0} sa programan
 #------------------------------------------------------------------------------#
 
 banner.title=This is an official government website.
-banner.link=Here's how you know
+banner.link=Here''s how you know
 banner.govWebsiteSectionHeader=Official websites use .gov
 banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
 banner.httpsSectionHeader=Secure .gov websites use HTTPS
