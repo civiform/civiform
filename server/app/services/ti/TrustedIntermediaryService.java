@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
-import forms.UpdateApplicantDobForm;
 import forms.EditTiClientInfoForm;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -69,7 +68,7 @@ public final class TrustedIntermediaryService {
   }
 
   private Form<AddApplicantToTrustedIntermediaryGroupForm> validateFirstName(
-    Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
+      Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
     if (Strings.isNullOrEmpty(form.value().get().getFirstName())) {
       return form.withError(FORM_FIELD_NAME_FIRST_NAME, "First name required");
     }
@@ -84,8 +83,7 @@ public final class TrustedIntermediaryService {
     return form;
   }
 
-  private Form<EditTiClientInfoForm> validateMiddleName(
-    Form<EditTiClientInfoForm> form) {
+  private Form<EditTiClientInfoForm> validateMiddleName(Form<EditTiClientInfoForm> form) {
     return form;
   }
 
@@ -98,7 +96,7 @@ public final class TrustedIntermediaryService {
   }
 
   private Form<EditTiClientInfoForm> validateLastNameForEditClient(
-    Form<EditTiClientInfoForm> form) {
+      Form<EditTiClientInfoForm> form) {
     if (Strings.isNullOrEmpty(form.value().get().getLastName())) {
       return form.withError(FORM_FIELD_NAME_LAST_NAME, "Last name required");
     }
@@ -201,46 +199,47 @@ public final class TrustedIntermediaryService {
         .collect(ImmutableList.toImmutableList());
   }
 
-//  /**
-//   * This function updates the Applicant's date of birth by calling the UpdateApplicant() on the
-//   * Account Repository.
-//   *
-//   * @param trustedIntermediaryGroup - the TIGroup who manages the account whose Dob needs to be
-//   *     updated.
-//   * @param accountId - the account Id of the applicant whose Dob should be updated
-//   * @param form - this contains the dob field which would be parsed into local date and updated for
-//   *     the applicant
-//   * @return form - the form object is always returned. If the form contains error, the controller
-//   *     will handle the flash messages If the account is not found for the given AccountId, a
-//   *     runtime exception is raised.
-//   */
-//  public Form<UpdateApplicantDobForm> updateApplicantDateOfBirth(
-//      TrustedIntermediaryGroup trustedIntermediaryGroup,
-//      Long accountId,
-//      Form<UpdateApplicantDobForm> form)
-//      throws ApplicantNotFoundException {
-//
-//    form = validateDateOfBirthForUpdateDob(form);
-//
-//    if (form.hasErrors()) {
-//      return form;
-//    }
-//    Optional<Account> optionalAccount =
-//        trustedIntermediaryGroup.getManagedAccounts().stream()
-//            .filter(account -> account.id.equals(accountId))
-//            .findAny();
-//
-//    if (optionalAccount.isEmpty() || optionalAccount.get().newestApplicant().isEmpty()) {
-//      throw new ApplicantNotFoundException(accountId);
-//    }
-//    Applicant applicant = optionalAccount.get().newestApplicant().get();
-//    applicant.getApplicantData().setDateOfBirth(form.get().getDob());
-//    accountRepository.updateApplicant(applicant).toCompletableFuture().join();
-//    return form;
-//  }
+  //  /**
+  //   * This function updates the Applicant's date of birth by calling the UpdateApplicant() on the
+  //   * Account Repository.
+  //   *
+  //   * @param trustedIntermediaryGroup - the TIGroup who manages the account whose Dob needs to be
+  //   *     updated.
+  //   * @param accountId - the account Id of the applicant whose Dob should be updated
+  //   * @param form - this contains the dob field which would be parsed into local date and updated
+  // for
+  //   *     the applicant
+  //   * @return form - the form object is always returned. If the form contains error, the
+  // controller
+  //   *     will handle the flash messages If the account is not found for the given AccountId, a
+  //   *     runtime exception is raised.
+  //   */
+  //  public Form<UpdateApplicantDobForm> updateApplicantDateOfBirth(
+  //      TrustedIntermediaryGroup trustedIntermediaryGroup,
+  //      Long accountId,
+  //      Form<UpdateApplicantDobForm> form)
+  //      throws ApplicantNotFoundException {
+  //
+  //    form = validateDateOfBirthForUpdateDob(form);
+  //
+  //    if (form.hasErrors()) {
+  //      return form;
+  //    }
+  //    Optional<Account> optionalAccount =
+  //        trustedIntermediaryGroup.getManagedAccounts().stream()
+  //            .filter(account -> account.id.equals(accountId))
+  //            .findAny();
+  //
+  //    if (optionalAccount.isEmpty() || optionalAccount.get().newestApplicant().isEmpty()) {
+  //      throw new ApplicantNotFoundException(accountId);
+  //    }
+  //    Applicant applicant = optionalAccount.get().newestApplicant().get();
+  //    applicant.getApplicantData().setDateOfBirth(form.get().getDob());
+  //    accountRepository.updateApplicant(applicant).toCompletableFuture().join();
+  //    return form;
+  //  }
 
-  private Form<EditTiClientInfoForm> validateDateOfBirth(
-      Form<EditTiClientInfoForm> form) {
+  private Form<EditTiClientInfoForm> validateDateOfBirth(Form<EditTiClientInfoForm> form) {
     Optional<String> errorMessage = validateDateOfBirth(form.value().get().getDob());
     if (errorMessage.isPresent()) {
       return form.withError(FORM_FIELD_NAME_DOB, errorMessage.get());
@@ -248,7 +247,9 @@ public final class TrustedIntermediaryService {
     return form;
   }
 
-  public Form<EditTiClientInfoForm> updateClientInfo(Form<EditTiClientInfoForm> form, TrustedIntermediaryGroup tiGroup, Long accountId) throws ApplicantNotFoundException {
+  public Form<EditTiClientInfoForm> updateClientInfo(
+      Form<EditTiClientInfoForm> form, TrustedIntermediaryGroup tiGroup, Long accountId)
+      throws ApplicantNotFoundException {
     // validate functions return the form w/ validation errors if applicable
     form = validateFirstNameForEditClient(form);
     form = validateMiddleName(form);
@@ -261,16 +262,16 @@ public final class TrustedIntermediaryService {
       return form;
     }
     Optional<Account> accountMaybe =
-      tiGroup.getManagedAccounts().stream()
-        .filter(account -> account.id.equals(accountId))
-        .findAny();
+        tiGroup.getManagedAccounts().stream()
+            .filter(account -> account.id.equals(accountId))
+            .findAny();
     if (accountMaybe.isEmpty() || accountMaybe.get().newestApplicant().isEmpty()) {
       throw new ApplicantNotFoundException(accountId);
     }
     Applicant applicant = accountMaybe.get().newestApplicant().get();
     accountRepository.updateApplicantInfoForTrustedIntermediaryGroup(form, applicant);
     String email = form.get().getEmailAddress();
-    if(checkEmailChange(email, accountMaybe.get())) {
+    if (checkEmailChange(email, accountMaybe.get())) {
       accountRepository.updateApplicantEmail(email, accountId);
     }
     return form;

@@ -12,6 +12,7 @@ import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import forms.EditTiClientInfoForm;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.Transaction;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -19,8 +20,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-
-import io.ebean.Transaction;
 import models.Account;
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
@@ -258,10 +257,12 @@ public final class AccountRepository {
     applicant.save();
   }
 
-  public void updateApplicantInfoForTrustedIntermediaryGroup(Form<EditTiClientInfoForm> form, Applicant applicant) {
+  public void updateApplicantInfoForTrustedIntermediaryGroup(
+      Form<EditTiClientInfoForm> form, Applicant applicant) {
     EditTiClientInfoForm theForm = form.get();
     ApplicantData applicantData = applicant.getApplicantData();
-    applicantData.setUserName(theForm.getFirstName(), theForm.getMiddleName(), theForm.getLastName());
+    applicantData.setUserName(
+        theForm.getFirstName(), theForm.getMiddleName(), theForm.getLastName());
     applicantData.setDateOfBirth(theForm.getDob());
     applicant.getAccount().setTiNote(theForm.getNote());
     applicant.save();

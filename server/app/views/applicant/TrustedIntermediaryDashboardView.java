@@ -42,6 +42,7 @@ import views.admin.ti.TrustedIntermediaryGroupListView;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
+// import views.components.Modal;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -52,6 +53,14 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final DateConverter dateConverter;
   public static final String OPTIONAL_INDICATOR = " (optional)";
+  //  public Modal clientModal =
+  //      Modal.builder()
+  //          .setModalId("modal")
+  //          .setLocation(Modal.Location.DEBUG)
+  //          .setContent(renderEditClientModal())
+  //          .setModalTitle("Applicant")
+  //          .setWidth(Modal.Width.THIRD)
+  //          .build();
 
   @Inject
   public TrustedIntermediaryDashboardView(ApplicantLayout layout, DateConverter dateConverter) {
@@ -275,8 +284,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             form()
                 .withClass("flex")
                 .withMethod("POST")
-                .withAction(
-                    routes.TrustedIntermediaryController.updateClientInfo(account.id).url())
+                .withAction(routes.TrustedIntermediaryController.updateClientInfo(account.id).url())
                 .with(
                     input()
                         .withId("date-of-birth-update")
@@ -286,6 +294,21 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                     makeCsrfTokenInputTag(request),
                     submitButton("Edit").withClasses("text-xs", "ml-3")));
   }
+
+  //  private FormTag renderEditClientModal() {
+  //    return form()
+  //        .withClass("flex")
+  //        .withMethod("POST")
+  //        .withAction(routes.TrustedIntermediaryController.updateClientInfo(0).url())
+  //        .with(
+  //            input()
+  //                .withId("date-of-birth-update")
+  //                .withName("dob")
+  //                .withType("date")
+  //                .withValue("currentDob"),
+  //            makeCsrfTokenInputTag(null),
+  //            submitButton("Edit").withClasses("text-xs", "ml-3"));
+  //  }
 
   private TdTag renderApplicantInfoCell(Account applicantAccount) {
     int applicationCount =
