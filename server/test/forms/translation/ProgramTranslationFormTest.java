@@ -201,7 +201,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                     .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
                     .put(
                         ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
-                    // WHEN the form sets an image description
+                    // When the form sets an image description...
                     .put(
                         ProgramTranslationForm.IMAGE_DESCRIPTION_FORM_NAME,
                         "fake image description")
@@ -213,10 +213,10 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             request,
             instanceOf(FormFactory.class),
             /* maxStatusTranslations= */ 0,
-            // But the form is set up to not have a description
+            // ... But the form is set up to not have a description...
             /* hasSummaryImageDescription= */ false);
 
-    // THEN the localization update doesn't contain the form data
+    // ... Then the localization update doesn't contain the image description from the form.
     assertThat(form.getUpdateData().localizedSummaryImageDescription().isPresent()).isFalse();
   }
 
@@ -249,7 +249,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
 
   @Test
   public void bindFromRequest_missingSummaryImageDescriptionIsOmitted() {
-    // WHEN the request doesn't have an image description set...
+    // When the request doesn't have an image description set...
     Request request =
         fakeRequest()
             .bodyForm(
@@ -260,7 +260,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                     .build())
             .build();
 
-    // ...even though the form says there is an image description
+    // ...even though the form says there is an image description...
     ProgramTranslationForm form =
         ProgramTranslationForm.bindFromRequest(
             request,
@@ -268,14 +268,14 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             /* maxStatusTranslations= */ 0,
             /* hasSummaryImageDescription= */ true);
 
-    // THEN the form should still parse successfully
+    // ... Then the form should still parse successfully.
     assertThat(form.getUpdateData().localizedDisplayName()).isEqualTo("display name");
     assertThat(form.getUpdateData().localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(form.getUpdateData().localizedSummaryImageDescription().get()).isEqualTo("");
   }
 
   @Test
-  public void bindFromRequest_emptyImageDescriptionConsideredNotProvided() {
+  public void bindFromRequest_emptyImageDescriptionUsed() {
     Request request =
         fakeRequest()
             .bodyForm(

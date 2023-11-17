@@ -2322,7 +2322,8 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void updateLocalizations_imageDescriptionProvidedWithNoImageConfigured_throws() {
+  public void updateLocalizations_imageDescriptionProvidedWithNoImageConfigured_notUsed()
+      throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("English name", "English description").build();
 
@@ -2335,8 +2336,14 @@ public class ProgramServiceTest extends ResetPostgres {
             .setStatuses(ImmutableList.of())
             .build();
 
-    assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
-        .isInstanceOf(OutOfDateImageDescriptionException.class);
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+
+    assertThat(result.isError()).isFalse();
+    ProgramDefinition definition = result.getResult();
+    // Verify we didn't save the French image description because we don't have any image
+    // description.
+    assertThat(definition.localizedSummaryImageDescription().isPresent()).isFalse();
   }
 
   @Test
