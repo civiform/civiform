@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import models.AccountModel;
@@ -21,6 +22,7 @@ import org.junit.Test;
 import org.pac4j.oidc.profile.OidcProfile;
 import services.CiviFormError;
 import services.Path;
+import services.WellKnownPaths;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
@@ -102,7 +104,7 @@ public class AccountRepositoryTest extends ResetPostgres {
   @Test
   public void insertApplicant() {
     Applicant applicant = new Applicant();
-    String path = "$.applicant.applicant_date_of_birth";
+    String path = "$." + WellKnownPaths.APPLICANT_DOB.toString();
     applicant.getApplicantData().putDate(Path.create(path), "2021-01-01");
 
     repo.insertApplicant(applicant).toCompletableFuture().join();
@@ -117,7 +119,7 @@ public class AccountRepositoryTest extends ResetPostgres {
   public void updateApplicant() {
     Applicant applicant = new Applicant();
     repo.insertApplicant(applicant).toCompletableFuture().join();
-    String path = "$.applicant.applicant_date_of_birth";
+    String path = "$." + WellKnownPaths.APPLICANT_DOB.toString();
     applicant.getApplicantData().putString(Path.create(path), "1/1/2021");
 
     repo.updateApplicant(applicant).toCompletableFuture().join();
@@ -259,6 +261,24 @@ public class AccountRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void findApplicantsWithIncorrectDobPath() {
+    // Save an applicant with the correct path for dob
+    saveApplicantWithDob("Foo", "2001-11-01");
+
+    // Save an applicant with the incorrect path for dob
+    Applicant applicantWithDeprecatedPath = saveApplicant("Bar");
+    applicantWithDeprecatedPath
+        .getApplicantData()
+        .putDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED, "2002-12-02");
+    applicantWithDeprecatedPath.save();
+
+    List<Applicant> applicants = repo.findApplicantsWithIncorrectDobPath().findList();
+    // Only the applicant with the incorrect path should be returned
+    assertThat(applicants.size()).isEqualTo(1);
+    assertThat(applicants.get(0).getApplicantData().getApplicantName().get()).isEqualTo("Bar");
+  }
+
+  @Test
   public void updateSerializedIdTokens() {
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
@@ -300,7 +320,9 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   private Applicant saveApplicantWithDob(String name, String dob) {
     Applicant applicant = new Applicant();
-    applicant.getApplicantData().putString(Path.create("$.applicant.name"), name);
+    applicant
+        .getApplicantData()
+        .putString(Path.create("$." + WellKnownPaths.APPLICANT_FIRST_NAME.toString()), name);
     applicant.getApplicantData().setDateOfBirth(dob);
     applicant.save();
     return applicant;
@@ -308,7 +330,9 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   private Applicant saveApplicant(String name) {
     Applicant applicant = new Applicant();
-    applicant.getApplicantData().putString(Path.create("$.applicant.name"), name);
+    applicant
+        .getApplicantData()
+        .putString(Path.create("$." + WellKnownPaths.APPLICANT_FIRST_NAME.toString()), name);
     applicant.save();
     return applicant;
   }

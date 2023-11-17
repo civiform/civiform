@@ -4,7 +4,6 @@
  */
 
 import * as main from './main'
-import * as accordion from './accordion'
 import * as radio from './radio'
 import * as toast from './toast'
 import * as toggle from './toggle'
@@ -35,7 +34,6 @@ window.htmx = htmx
 
 window.addEventListener('load', () => {
   main.init()
-  accordion.init()
   radio.init()
   toast.init()
   toggle.init()
