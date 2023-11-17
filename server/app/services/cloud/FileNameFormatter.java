@@ -14,8 +14,11 @@ public final class FileNameFormatter {
    */
   public static String formatFileUploadQuestionFilename(
       long applicantId, long programId, String blockId) {
-
     return String.format(
         "applicant-%d/program-%d/block-%s/${filename}", applicantId, programId, blockId);
+  }
+
+  public static String formatProgramImageFilename(long programId) {
+    return String.format("program-card-images/program-%d/${filename}", programId);
   }
 }

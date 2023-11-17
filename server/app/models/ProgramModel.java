@@ -109,6 +109,8 @@ public class ProgramModel extends BaseModel {
    */
   @Constraints.Required private Boolean eligibilityIsGating;
 
+  @Nullable private String summaryImageFileKey;
+
   /**
    * A localized description of the summary image (used as alt text).
    *
@@ -173,6 +175,7 @@ public class ProgramModel extends BaseModel {
     this.acls = definition.acls();
     this.localizedSummaryImageDescription =
         definition.localizedSummaryImageDescription().orElse(null);
+    this.summaryImageFileKey = definition.summaryImageFileKey().orElse(null);
 
     orderBlockDefinitionsBeforeUpdate();
 
@@ -232,6 +235,7 @@ public class ProgramModel extends BaseModel {
     acls = programDefinition.acls();
     localizedSummaryImageDescription =
         programDefinition.localizedSummaryImageDescription().orElse(null);
+    summaryImageFileKey = programDefinition.summaryImageFileKey().orElse(null);
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -260,6 +264,7 @@ public class ProgramModel extends BaseModel {
     setLocalizedDescription(builder);
     setLocalizedConfirmationMessage(builder);
     setLocalizedSummaryImageDescription(builder);
+    setSummaryImageFileKey(builder);
     this.programDefinition = builder.build();
   }
 
@@ -302,6 +307,14 @@ public class ProgramModel extends BaseModel {
       // See docs on `this.localizedSummaryImageDescription` -- a null field here means an
       // Optional.empty field for the program definition.
       builder.setLocalizedSummaryImageDescription(Optional.empty());
+    }
+  }
+
+  private void setSummaryImageFileKey(ProgramDefinition.Builder builder) {
+    if (summaryImageFileKey != null) {
+      builder.setSummaryImageFileKey(Optional.of(summaryImageFileKey));
+    } else {
+      builder.setSummaryImageFileKey(Optional.empty());
     }
   }
 

@@ -22,7 +22,7 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  protected ImmutableList<InputTag> fileUploadFields(
+  public ImmutableList<InputTag> fileUploadFields(
       Optional<StorageUploadRequest> request,
       String fileInputId,
       ImmutableList<String> ariaDescribedByIds,
@@ -73,7 +73,7 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  protected String getUploadFormClass() {
+  public String getUploadFormClass() {
     return "azure-upload";
   }
 }

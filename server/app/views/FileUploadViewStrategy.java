@@ -89,7 +89,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     return result;
   }
 
-  protected abstract ImmutableList<InputTag> fileUploadFields(
+  public abstract ImmutableList<InputTag> fileUploadFields(
       Optional<StorageUploadRequest> request,
       String fileInputId,
       ImmutableList<String> ariaDescribedByIds,
@@ -99,7 +99,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    * Returns strategy-specific class to add to the <form> element. It helps to distinguish
    * client-side different strategies (AWS or Azure).
    */
-  protected abstract String getUploadFormClass();
+  public abstract String getUploadFormClass();
 
   /**
    * Method to render the UI for uploading a file.
@@ -132,7 +132,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
             .setErrorDisplayMode(params.errorDisplayMode())
             .build();
 
-    FormTag uploadForm = renderFileUploadFormElement(params, signedRequest);
+    FormTag uploadForm = renderFileUploadFormElement(Optional.of(params), signedRequest);
     Preconditions.checkState("form".equals(uploadForm.getTagName()), "must be of type form");
     uploadForm.with(
         each(
@@ -146,13 +146,16 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     return div(uploadForm, skipForms, buttons).with(each(extraScriptTags(), tag -> footer(tag)));
   }
 
-  protected FormTag renderFileUploadFormElement(Params params, StorageUploadRequest request) {
-    return form()
+  public FormTag renderFileUploadFormElement(Optional<Params> params, StorageUploadRequest request) {
+    FormTag form = form()
         .withId(BLOCK_FORM_ID)
         .withEnctype("multipart/form-data")
         .withMethod(HttpVerbs.POST)
-        .withClasses(getUploadFormClass())
-        .with(this.requiredFieldsExplanationContent(params.messages()));
+        .withClasses(getUploadFormClass());
+    if (params.isPresent()) {
+      form = form.with(this.requiredFieldsExplanationContent(params.get().messages()));
+    }
+     return form;
   }
 
   protected ImmutableList<ScriptTag> extraScriptTags() {
@@ -219,11 +222,6 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
         routes.ApplicantProgramBlocksController.update(
                 params.applicantId(), params.programId(), params.block().getId(), params.inReview())
             .url();
-    ApplicantQuestionRendererParams rendererParams =
-        ApplicantQuestionRendererParams.builder()
-            .setMessages(params.messages())
-            .setErrorDisplayMode(params.errorDisplayMode())
-            .build();
 
     FormTag continueForm =
         form()
@@ -234,7 +232,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
             .with(
                 each(
                     params.block().getQuestions(),
-                    question -> renderFileKeyField(question, rendererParams)));
+                  this::renderFileKeyField));
     FormTag deleteForm =
         form()
             .withId(FILEUPLOAD_DELETE_FORM_ID)
@@ -244,7 +242,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
             .with(
                 each(
                     params.block().getQuestions(),
-                    question -> renderEmptyFileKeyField(question, rendererParams)));
+                  this::renderEmptyFileKeyField));
     return div(continueForm, deleteForm).withClasses("hidden");
   }
 
@@ -260,13 +258,13 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
   }
 
   private DivTag renderFileKeyField(
-      ApplicantQuestion question, ApplicantQuestionRendererParams params) {
-    return FileUploadQuestionRenderer.renderFileKeyField(question, params, false);
+      ApplicantQuestion question) {
+    return FileUploadQuestionRenderer.renderFileKeyField(question, false);
   }
 
   private DivTag renderEmptyFileKeyField(
-      ApplicantQuestion question, ApplicantQuestionRendererParams params) {
-    return FileUploadQuestionRenderer.renderFileKeyField(question, params, true);
+      ApplicantQuestion question) {
+    return FileUploadQuestionRenderer.renderFileKeyField(question, true);
   }
 
   private boolean hasUploadedFile(Params params) {

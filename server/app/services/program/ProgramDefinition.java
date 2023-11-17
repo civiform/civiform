@@ -97,6 +97,8 @@ public abstract class ProgramDefinition {
 
   public abstract ProgramAcls acls();
 
+  public abstract Optional<String> summaryImageFileKey();
+
   /** A description of the program's summary image, used for alt text. */
   public abstract Optional<LocalizedStrings> localizedSummaryImageDescription();
 
@@ -758,6 +760,8 @@ public abstract class ProgramDefinition {
 
     public abstract Builder setLocalizedSummaryImageDescription(
         Optional<LocalizedStrings> localizedSummaryImageDescription);
+
+    public abstract Builder setSummaryImageFileKey(Optional<String> fileKey);
 
     public abstract ProgramDefinition build();
 

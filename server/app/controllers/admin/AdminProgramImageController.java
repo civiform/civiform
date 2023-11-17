@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.concurrent.CompletableFuture.failedFuture;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
@@ -17,6 +18,8 @@ import services.LocalizedStrings;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.admin.programs.ProgramImageView;
+
+import java.util.Optional;
 
 /** Controller for displaying and modifying the image (and alt text) associated with a program. */
 public final class AdminProgramImageController extends CiviFormController {
@@ -72,5 +75,26 @@ public final class AdminProgramImageController extends CiviFormController {
 
     final String indexUrl = routes.AdminProgramImageController.index(programId).url();
     return redirect(indexUrl).flashing("success", toastMessage);
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result updateImageFile(Http.Request request, long programId)
+    throws ProgramNotFoundException {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    // From ApplicantProgramBlocksController#updateFile
+    Optional<String> bucket = request.queryString("bucket");
+    Optional<String> key = request.queryString("key");
+    // TODO: There's some azure stuff here
+
+    if (bucket.isEmpty() || key.isEmpty()) {
+      throw new IllegalArgumentException(); // TODO
+     // return failedFuture(
+    //    new IllegalArgumentException("missing file key and bucket names"));
+    }
+
+    programService.setSummaryImageFileKey(programId, key.get());
+    final String indexUrl = routes.AdminProgramImageController.index(programId).url();
+    return redirect(indexUrl).flashing("success", "Image set");
   }
 }

@@ -33,7 +33,7 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
   private final String fileInputId;
 
   public static DivTag renderFileKeyField(
-      ApplicantQuestion question, ApplicantQuestionRendererParams params, boolean clearData) {
+      ApplicantQuestion question, boolean clearData) {
     FileUploadQuestion fileUploadQuestion = question.createFileUploadQuestion();
     String value = fileUploadQuestion.getFileKeyValue().orElse("");
     if (clearData) {

@@ -13,7 +13,7 @@ import services.cloud.aws.SignedS3UploadRequest;
 public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
-  protected ImmutableList<InputTag> fileUploadFields(
+  public ImmutableList<InputTag> fileUploadFields(
       Optional<StorageUploadRequest> request,
       String fileInputId,
       ImmutableList<String> ariaDescribedByIds,
@@ -70,7 +70,7 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  protected FormTag renderFileUploadFormElement(Params params, StorageUploadRequest request) {
+  public FormTag renderFileUploadFormElement(Optional<Params> params, StorageUploadRequest request) {
     SignedS3UploadRequest signedRequest = castStorageRequest(request);
     return super.renderFileUploadFormElement(params, request)
         .withAction(signedRequest.actionLink());
@@ -85,7 +85,7 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  protected String getUploadFormClass() {
+  public String getUploadFormClass() {
     return "aws-upload";
   }
 }

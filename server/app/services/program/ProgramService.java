@@ -886,6 +886,18 @@ public final class ProgramService {
         .getProgramDefinition();
   }
 
+  /** TODO */
+  public ProgramDefinition setSummaryImageFileKey(long programId, String fileKey)
+  throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    // TODO: Handle deletion
+    // TODO: Warning if image description not set first
+    programDefinition = programDefinition.toBuilder().setSummaryImageFileKey(Optional.of(fileKey)).build();
+    return programRepository
+      .updateProgramSync(programDefinition.toProgram())
+      .getProgramDefinition();
+  }
+
   /**
    * Sets what the summary image description should be for the given locale.
    *
