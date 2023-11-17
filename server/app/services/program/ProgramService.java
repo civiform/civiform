@@ -597,15 +597,19 @@ public final class ProgramService {
    * @throws ProgramNotFoundException if the programId does not correspond to a valid program
    * @throws OutOfDateStatusesException if the program's status definitions are out of sync with
    *     those in the provided update
+   * @throws OutOfDateImageDescriptionException if the localization update contains an update for
+   *     the image description but the program doesn't have an image.
    */
   public ErrorAnd<ProgramDefinition, CiviFormError> updateLocalization(
       long programId, Locale locale, LocalizationUpdate localizationUpdate)
-      throws ProgramNotFoundException, OutOfDateStatusesException {
+      throws ProgramNotFoundException, OutOfDateStatusesException,
+          OutOfDateImageDescriptionException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     validateProgramText(errorsBuilder, "display name", localizationUpdate.localizedDisplayName());
     validateProgramText(
         errorsBuilder, "display description", localizationUpdate.localizedDisplayDescription());
+    validateLocalizationSummaryImageDescription(localizationUpdate, programDefinition);
     validateLocalizationStatuses(localizationUpdate, programDefinition);
 
     // We iterate the existing statuses along with the provided statuses since they were verified
@@ -682,6 +686,16 @@ public final class ProgramService {
       ImmutableSet.Builder<CiviFormError> builder, String fieldName, String text) {
     if (text.isBlank()) {
       builder.add(CiviFormError.of("program " + fieldName.trim() + " cannot be blank"));
+    }
+  }
+
+  private void validateLocalizationSummaryImageDescription(
+      LocalizationUpdate localizationUpdate, ProgramDefinition program)
+      throws OutOfDateImageDescriptionException {
+
+    if (program.localizedSummaryImageDescription().isEmpty()
+        && localizationUpdate.localizedSummaryImageDescription().isPresent()) {
+      throw new OutOfDateImageDescriptionException();
     }
   }
 

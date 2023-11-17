@@ -18,6 +18,7 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.TranslationLocales;
+import services.program.OutOfDateImageDescriptionException;
 import services.program.OutOfDateStatusesException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -139,6 +140,9 @@ public class AdminProgramTranslationsController extends CiviFormController {
       result =
           service.updateLocalization(program.id(), localeToUpdate, translationForm.getUpdateData());
     } catch (OutOfDateStatusesException e) {
+      return redirect(routes.AdminProgramTranslationsController.edit(programName, locale))
+          .flashing("error", e.userFacingMessage());
+    } catch (OutOfDateImageDescriptionException e) {
       return redirect(routes.AdminProgramTranslationsController.edit(programName, locale))
           .flashing("error", e.userFacingMessage());
     }

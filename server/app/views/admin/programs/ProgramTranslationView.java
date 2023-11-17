@@ -85,7 +85,6 @@ public final class ProgramTranslationView extends TranslationFormView {
     LocalizationUpdate updateData = translationForm.getUpdateData();
     String programDetailsLink =
         controllers.admin.routes.AdminProgramController.edit(program.id()).url();
-
     ImmutableList.Builder<DomContent> result =
         ImmutableList.<DomContent>builder()
             .add(
@@ -184,9 +183,8 @@ public final class ProgramTranslationView extends TranslationFormView {
                         .getInputTag(),
                     program.localizedConfirmationMessage()));
 
-    System.out.println("program localized desc = " + program.localizedSummaryImageDescription());
-
-    // Only add the summary image description to the page if it exists.
+    // Only add the summary image description input to the page if a summary image description is
+    // actually set.
     if (program.localizedSummaryImageDescription().isPresent()) {
       applicantVisibleDetails.add(
           fieldWithDefaultLocaleTextHint(

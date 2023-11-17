@@ -112,6 +112,7 @@ export class AdminTranslations {
     expect(isStatusEmailVisible).toBe(false)
   }
 
+  /** Note that the program name and description must be translated using {@link editProgramTranslations} before calling this method. */
   async editProgramImageDescription(imageDescription: string) {
     await this.page.fill('text=Program image description', imageDescription)
     await this.page.click('#update-localizations-button')

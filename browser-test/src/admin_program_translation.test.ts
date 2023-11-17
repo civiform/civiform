@@ -165,11 +165,10 @@ describe('Admin can manage translations', () => {
     )
 
     await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
-    // By default, non-English translations are not filled in.
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.expectProgramImageDescriptionTranslation('')
 
-    // Now add a Spanish translation
+    // Add a Spanish translation
     await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.editProgramTranslations({
@@ -180,6 +179,7 @@ describe('Admin can manage translations', () => {
     await adminTranslations.editProgramImageDescription(
       'Spanish image description',
     )
+
     await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.expectProgramImageDescriptionTranslation(
@@ -187,7 +187,7 @@ describe('Admin can manage translations', () => {
     )
     await validateScreenshot(page, 'program-translation-with-image-description')
 
-    // Very other translations are still not filled in
+    // Verify other translations are still not filled in
     await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
     await adminTranslations.selectLanguage('Tagalog')
     await adminTranslations.expectProgramImageDescriptionTranslation('')
@@ -261,7 +261,7 @@ describe('Admin can manage translations', () => {
     await adminPrograms.goToProgramImagePage(programName)
     await adminProgramImage.setImageDescriptionAndSubmit('')
 
-    // Verify there isn't even an option to translate the description
+    // Verify there's no longer an option to translate the description
     await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.expectNoProgramImageDescription()
