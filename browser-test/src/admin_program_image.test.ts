@@ -34,7 +34,7 @@ describe('Admin can manage program image', () => {
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'program_card_images')
       await adminPrograms.addProgram(programName)
-      await ctx.adminPrograms.goToProgramImagePage(programName)
+      await adminPrograms.goToProgramImagePage(programName)
     })
 
     afterEach(async () => {
