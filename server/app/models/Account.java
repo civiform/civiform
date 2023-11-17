@@ -49,6 +49,7 @@ public class Account extends BaseModel {
 
   private String authorityId;
   private String emailAddress;
+  private String ti_note;
 
   public ImmutableList<Long> ownedApplicantIds() {
     return getApplicants().stream().map(applicant -> applicant.id).collect(toImmutableList());
@@ -83,6 +84,15 @@ public class Account extends BaseModel {
 
   public String getEmailAddress() {
     return this.emailAddress;
+  }
+
+  public Account setTiNote(String ti_note) {
+    this.ti_note = ti_note;
+    return this;
+  }
+
+  public String getTiNote() {
+    return this.ti_note;
   }
 
   public Account setMemberOfGroup(TrustedIntermediaryGroup group) {

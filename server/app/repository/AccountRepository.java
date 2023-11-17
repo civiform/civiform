@@ -19,10 +19,12 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+
+import io.ebean.Transaction;
 import models.Account;
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
-import play.api.data.Form;
+import play.data.Form;
 import services.CiviFormError;
 import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
@@ -50,6 +52,10 @@ public final class AccountRepository {
   public CompletionStage<Optional<Applicant>> lookupApplicant(long id) {
     return supplyAsync(
         () -> database.find(Applicant.class).setId(id).findOneOrEmpty(), executionContext);
+  }
+
+  public Optional<Account> lookupAccountById(Long accountId) {
+    return database.find(Account.class).setId(accountId).findOneOrEmpty();
   }
 
   public Optional<Account> lookupAccountByAuthorityId(String authorityId) {
@@ -257,10 +263,20 @@ public final class AccountRepository {
     ApplicantData applicantData = applicant.getApplicantData();
     applicantData.setUserName(theForm.getFirstName(), theForm.getMiddleName(), theForm.getLastName());
     applicantData.setDateOfBirth(theForm.getDob());
-    applicantData.setNote(theForm.getNote());
+    applicant.getAccount().setTiNote(theForm.getNote());
     applicant.save();
   }
 
+  public void updateApplicantEmail(String email, Long accountId) {
+    if (!Strings.isNullOrEmpty(email)) {
+      try (Transaction transaction = database.beginTransaction()) {
+        Account currentAccount = lookupAccountById(accountId).get();
+        currentAccount.setEmailAddress(email);
+        currentAccount.save();
+        transaction.commit();
+      }
+    }
+  }
 
   /**
    * Adds the given program as an administered program by the given account. If the account does not

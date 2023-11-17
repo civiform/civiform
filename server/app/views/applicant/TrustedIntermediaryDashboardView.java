@@ -276,7 +276,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 .withClass("flex")
                 .withMethod("POST")
                 .withAction(
-                    routes.TrustedIntermediaryController.updateDateOfBirth(account.id).url())
+                    routes.TrustedIntermediaryController.updateClientInfo(account.id).url())
                 .with(
                     input()
                         .withId("date-of-birth-update")
@@ -284,7 +284,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         .withType("date")
                         .withValue(currentDob),
                     makeCsrfTokenInputTag(request),
-                    submitButton("Update DOB").withClasses("text-xs", "ml-3")));
+                    submitButton("Edit").withClasses("text-xs", "ml-3")));
   }
 
   private TdTag renderApplicantInfoCell(Account applicantAccount) {

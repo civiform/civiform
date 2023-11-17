@@ -112,38 +112,38 @@ public final class TrustedIntermediaryController {
             civiformProfile.get().getApplicant().toCompletableFuture().join().id));
   }
 
-  @Secure(authorizers = Authorizers.Labels.TI)
-  public Result updateDateOfBirth(Long accountId, Http.Request request)
-      throws ApplicantNotFoundException {
-    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
-    if (civiformProfile.isEmpty()) {
-      return unauthorized();
-    }
-
-    Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
-        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
-    if (trustedIntermediaryGroup.isEmpty()) {
-      return notFound();
-    }
-    final Form<UpdateApplicantDobForm> form;
-    form =
-        tiService.updateApplicantDateOfBirth(
-            trustedIntermediaryGroup.get(),
-            accountId,
-            formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(request));
-
-    if (!form.hasErrors()) {
-      return redirect(
-              routes.TrustedIntermediaryController.dashboard(
-                      /* nameQuery= */ Optional.empty(),
-                      /* dateQuery= */ Optional.empty(),
-                      /* page= */ Optional.empty())
-                  .url())
-          .flashing("success", "Date of Birth is updated");
-    }
-
-    return redirectToDashboardWithUpdateDateOfBirthError(getValidationErrors(form.errors()));
-  }
+//  @Secure(authorizers = Authorizers.Labels.TI)
+//  public Result updateDateOfBirth(Long accountId, Http.Request request)
+//      throws ApplicantNotFoundException {
+//    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
+//    if (civiformProfile.isEmpty()) {
+//      return unauthorized();
+//    }
+//
+//    Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
+//        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+//    if (trustedIntermediaryGroup.isEmpty()) {
+//      return notFound();
+//    }
+//    final Form<UpdateApplicantDobForm> form;
+//    form =
+//        tiService.updateApplicantDateOfBirth(
+//            trustedIntermediaryGroup.get(),
+//            accountId,
+//            formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(request));
+//
+//    if (!form.hasErrors()) {
+//      return redirect(
+//              routes.TrustedIntermediaryController.dashboard(
+//                      /* nameQuery= */ Optional.empty(),
+//                      /* dateQuery= */ Optional.empty(),
+//                      /* page= */ Optional.empty())
+//                  .url())
+//          .flashing("success", "Date of Birth is updated");
+//    }
+//
+//    return redirectToDashboardWithUpdateDateOfBirthError(getValidationErrors(form.errors()));
+//  }
 
   @Secure(authorizers = Authorizers.Labels.TI)
   public Result updateClientInfo(Long accountId, Http.Request request)
@@ -167,7 +167,7 @@ public final class TrustedIntermediaryController {
             /* dateQuery= */ Optional.empty(),
             /* page= */ Optional.empty())
           .url())
-        .flashing("success", "Date of Birth is updated");
+        .flashing("success", "Applicant Info is updated");
     }
 
     return redirectToDashboardWithUpdateClientInfoError(getValidationErrors(form.errors()));
@@ -231,18 +231,18 @@ public final class TrustedIntermediaryController {
         .flashing("providedDateOfBirth", form.value().get().getDob());
   }
 
-  private Result redirectToDashboardWithUpdateDateOfBirthError(String errorMessage) {
-    return redirect(
-            routes.TrustedIntermediaryController.dashboard(
-                    /* paramName=  nameQuery */
-                    Optional.empty(),
-                    /* paramName=  searchDate */
-                    Optional.empty(),
-                    /* paramName=  page */
-                    Optional.of(1))
-                .url())
-        .flashing("error", errorMessage);
-  }
+//  private Result redirectToDashboardWithUpdateDateOfBirthError(String errorMessage) {
+//    return redirect(
+//            routes.TrustedIntermediaryController.dashboard(
+//                    /* paramName=  nameQuery */
+//                    Optional.empty(),
+//                    /* paramName=  searchDate */
+//                    Optional.empty(),
+//                    /* paramName=  page */
+//                    Optional.of(1))
+//                .url())
+//        .flashing("error", errorMessage);
+//  }
 
   // temp
   private Result redirectToDashboardWithUpdateClientInfoError(String errorMessage) {
