@@ -53,7 +53,7 @@ public final class AdminStyles {
           StyleUtils.hover("bg-gray-200", "text-gray-900"));
 
   public static final String BODY =
-      StyleUtils.joinStyles(BODY_GRADIENT_STYLE, "box-border", "flex", "min-h-screen");
+      StyleUtils.joinStyles(BODY_GRADIENT_STYLE, "box-border", "flex", "min-h-screen", "mt-6");
 
   public static final String MAIN_CENTERED =
       StyleUtils.joinStyles("px-2", "max-w-screen-2xl", "mx-auto");
