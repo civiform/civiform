@@ -30,6 +30,23 @@ public final class BaseStyles {
   public static final String BG_CIVIFORM_PURPLE_LIGHT = "bg-civiform-purple-light";
   public static final String TEXT_CIVIFORM_YELLOW = "text-civiform-yellow";
   public static final String BG_CIVIFORM_YELLOW_LIGHT = "bg-civiform-yellow-light";
+  public static final String BG_CIVIFORM_TEAL = "bg-civiform-teal";
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // USWDS component classes
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // https://designsystem.digital.gov/components/alert/
+  public static final String USWDS_ALERT = "usa-alert";
+  public static final String USWDS_ALERT_INFO = "usa-alert--info";
+  public static final String USWDS_ALERT_WARNING = "usa-alert--warning";
+  public static final String USWDS_ALERT_ERROR = "usa-alert--error";
+  public static final String USWDS_ALERT_SUCCESS = "usa-alert--success";
+  public static final String USWDS_ALERT_SLIM = "usa-alert--slim";
+  public static final String USWDS_ALERT_NO_ICON = "usa-alert--no-icon";
+  public static final String USWDS_ALERT_BODY = "usa-alert__body";
+  public static final String USWDS_ALERT_HEADING = "usa-alert__heading";
+  public static final String USWDS_ALERT_TEXT = "usa-alert__text";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Form style classes

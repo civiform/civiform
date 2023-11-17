@@ -322,7 +322,7 @@ public final class ViewUtils {
             "py-1",
             "space-x-1",
             "text-white",
-            "bg-civiform-teal",
+            BaseStyles.BG_CIVIFORM_TEAL,
             String.join(" ", classes))
         .with(Icons.svg(icon).withClasses("flex", "h-6", "w-4"), span(text));
   }
@@ -343,5 +343,21 @@ public final class ViewUtils {
         Icons.STAR,
         String.format("Universal %s Question", questionDefinition.getQuestionType().getLabel()),
         Lists.asList("cf-universal-badge", classes).toArray(new String[0]));
+  }
+
+  /**
+   * Makes a USWDS Alert component, Slim variant, Info icon, with the given text.
+   *
+   * @param text The text to include in the alert.
+   * @return DivTag containing the alert.
+   */
+  public static DivTag makeAlertInfoSlim(String text) {
+    return div()
+        .withClasses(
+            BaseStyles.USWDS_ALERT, BaseStyles.USWDS_ALERT_INFO, BaseStyles.USWDS_ALERT_SLIM)
+        .with(
+            div()
+                .withClass(BaseStyles.USWDS_ALERT_BODY)
+                .with(p().withClass(BaseStyles.USWDS_ALERT_TEXT).withText(text)));
   }
 }
