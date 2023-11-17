@@ -10,10 +10,7 @@ import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import services.LocalizedStrings;
-<<<<<<< HEAD
 import services.MultiOptionQuestionBuilder;
-=======
->>>>>>> main
 import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.types.MultiOptionQuestionDefinition;
