@@ -5,6 +5,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import forms.UpdateApplicantDobForm;
+import forms.EditTiClientInfoForm;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
@@ -16,8 +17,10 @@ import models.TrustedIntermediaryGroup;
 import play.data.Form;
 import repository.AccountRepository;
 import repository.SearchParameters;
+import services.Address;
 import services.DateConverter;
 import services.applicant.exception.ApplicantNotFoundException;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 /**
  * Service Class for TrustedIntermediaryController.
@@ -68,7 +71,15 @@ public final class TrustedIntermediaryService {
   }
 
   private Form<AddApplicantToTrustedIntermediaryGroupForm> validateFirstName(
-      Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
+    Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
+    if (Strings.isNullOrEmpty(form.value().get().getFirstName())) {
+      return form.withError(FORM_FIELD_NAME_FIRST_NAME, "First name required");
+    }
+    return form;
+  }
+
+  private Form<EditTiClientInfoForm> validateFirstNameForEditClient(
+      Form<EditTiClientInfoForm> form) {
     if (Strings.isNullOrEmpty(form.value().get().getFirstName())) {
       return form.withError(FORM_FIELD_NAME_FIRST_NAME, "First name required");
     }
@@ -77,6 +88,14 @@ public final class TrustedIntermediaryService {
 
   private Form<AddApplicantToTrustedIntermediaryGroupForm> validateLastName(
       Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
+    if (Strings.isNullOrEmpty(form.value().get().getLastName())) {
+      return form.withError(FORM_FIELD_NAME_LAST_NAME, "Last name required");
+    }
+    return form;
+  }
+
+  private Form<EditTiClientInfoForm> validateLastNameForEditClient(
+    Form<EditTiClientInfoForm> form) {
     if (Strings.isNullOrEmpty(form.value().get().getLastName())) {
       return form.withError(FORM_FIELD_NAME_LAST_NAME, "Last name required");
     }
@@ -205,8 +224,8 @@ public final class TrustedIntermediaryService {
     return form;
   }
 
-  private Form<UpdateApplicantDobForm> validateDateOfBirthForUpdateDob(
-      Form<UpdateApplicantDobForm> form) {
+  private Form<EditTiClientInfoForm> validateDateOfBirth(
+      Form<EditTiClientInfoForm> form) {
     Optional<String> errorMessage = validateDateOfBirth(form.value().get().getDob());
     if (errorMessage.isPresent()) {
       return form.withError(FORM_FIELD_NAME_DOB, errorMessage.get());
@@ -216,28 +235,32 @@ public final class TrustedIntermediaryService {
 
   public Form<EditTiClientInfoForm> updateClientInfo(Form<EditTiClientInfoForm> form, TrustedIntermediaryGroup tiGroup, Long accountId) throws ApplicantNotFoundException {
     // validate functions return the form w/ validation errors if applicable
-    form = validateFirstName(form);
+    form = validateFirstNameForEditClient(form);
     form = validateMiddleName(form);
-    form = validateLastName(form);
+    form = validateLastNameForEditClient(form);
     form = validatePhoneNumber(form);
-    form = validateDateofBirthForUpdateDob(form);
+    form = validateDateOfBirth(form);
     form = validateEmail(form);
     form = validateNote(form);
     if (form.hasErrors()) {
       return form;
     }
-    Optional<Account> account =
+    Optional<Account> accountMaybe =
       tiGroup.getManagedAccounts().stream()
         .filter(account -> account.id.equals(accountId))
         .findAny();
-    if (account.isEmpty() || account.get().newestApplicant().isEmpty()) {
+    if (accountMaybe.isEmpty() || accountMaybe.get().newestApplicant().isEmpty()) {
       throw new ApplicantNotFoundException(accountId);
     }
-    Applicant applicant = account.get().newestApplicant().get();
+    Applicant applicant = accountMaybe.get().newestApplicant().get();
     AccountRepository.updateApplicantInfoForTrustedIntermediaryGroup(form, applicant);
-    if(checkEmailChange(form, account)) {
+    if(checkEmailChange(form, accountMaybe.get())) {
       AccountRepository.updateApplicantEmail(form, tiGroup, applicant).toCompletableFuture().join();
     }
     return form;
+  }
+
+  private Boolean checkEmailChange(Form<EditTiClientInfoForm> form, Account account) {
+    return !form.get().getEmailAddress().equals(account.getEmailAddress());
   }
 }
