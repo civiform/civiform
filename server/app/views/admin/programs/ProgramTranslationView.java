@@ -184,6 +184,8 @@ public final class ProgramTranslationView extends TranslationFormView {
                         .getInputTag(),
                     program.localizedConfirmationMessage()));
 
+    System.out.println("program localized desc = " + program.localizedSummaryImageDescription());
+
     // Only add the summary image description to the page if it exists.
     if (program.localizedSummaryImageDescription().isPresent()) {
       applicantVisibleDetails.add(

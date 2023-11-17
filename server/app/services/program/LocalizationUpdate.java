@@ -17,7 +17,7 @@ public abstract class LocalizationUpdate {
 
   public abstract String localizedConfirmationMessage();
 
-  public abstract String localizedSummaryImageDescription();
+  public abstract Optional<String> localizedSummaryImageDescription();
 
   public abstract ImmutableList<StatusUpdate> statuses();
 

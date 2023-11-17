@@ -646,7 +646,7 @@ public final class ProgramService {
       return ErrorAnd.error(errors);
     }
 
-    ProgramModel program =
+    ProgramDefinition.Builder newProgram =
         programDefinition.toBuilder()
             .setLocalizedName(
                 programDefinition
@@ -659,19 +659,21 @@ public final class ProgramService {
             .setLocalizedConfirmationMessage(
                 programDefinition
                     .localizedConfirmationMessage()
-                    .updateTranslation(locale, localizationUpdate.localizedConfirmationMessage()))
-            .setLocalizedSummaryImageDescription(
-                getUpdatedSummaryImageDescription(
-                    programDefinition,
-                    locale,
-                    localizationUpdate.localizedSummaryImageDescription()))
-            .setStatusDefinitions(
-                programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()))
-            .build()
-            .toProgram();
+                    .updateTranslation(locale, localizationUpdate.localizedConfirmationMessage()));
+    if (localizationUpdate.localizedSummaryImageDescription().isPresent()) {
+      newProgram.setLocalizedSummaryImageDescription(
+          getUpdatedSummaryImageDescription(
+              programDefinition,
+              locale,
+              localizationUpdate.localizedSummaryImageDescription().get()));
+    }
+    newProgram.setStatusDefinitions(
+        programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()));
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
-                programRepository.updateProgramSync(program).getProgramDefinition())
+                programRepository
+                    .updateProgramSync(newProgram.build().toProgram())
+                    .getProgramDefinition())
             .toCompletableFuture()
             .join());
   }

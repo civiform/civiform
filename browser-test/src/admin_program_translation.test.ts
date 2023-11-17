@@ -31,6 +31,7 @@ describe('Admin can manage translations', () => {
       expectProgramDescription: '',
     })
     await adminTranslations.expectNoProgramStatusTranslations()
+    await adminTranslations.expectNoProgramImageDescription()
     const publicName = 'Spanish name'
     const publicDescription = 'Spanish description'
     await adminTranslations.editProgramTranslations({
@@ -45,6 +46,7 @@ describe('Admin can manage translations', () => {
       expectProgramDescription: publicDescription,
     })
     await adminTranslations.expectNoProgramStatusTranslations()
+    await adminTranslations.expectNoProgramImageDescription()
     await adminPrograms.publishProgram(programName)
 
     // View the applicant program page in Spanish and check that the translations are present
@@ -173,8 +175,11 @@ describe('Admin can manage translations', () => {
     await adminTranslations.editProgramTranslations({
       name: 'Spanish name',
       description: 'Spanish description',
-      imageDescription: 'Spanish image description',
+      statuses: [],
     })
+    await adminTranslations.editProgramImageDescription(
+      'Spanish image description',
+    )
     await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.expectProgramImageDescriptionTranslation(
@@ -207,8 +212,11 @@ describe('Admin can manage translations', () => {
     await adminTranslations.editProgramTranslations({
       name: 'Spanish name',
       description: 'Spanish description',
-      imageDescription: 'Spanish image description',
+      statuses: [],
     })
+    await adminTranslations.editProgramImageDescription(
+      'Spanish image description',
+    )
 
     // Update the original description
     await adminPrograms.goToProgramImagePage(programName)
@@ -227,6 +235,7 @@ describe('Admin can manage translations', () => {
   })
 
   it('deleting summary image description deletes all translations', async () => {
+    const {page, adminPrograms, adminProgramImage, adminTranslations} = ctx
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_card_images')
 
@@ -242,17 +251,20 @@ describe('Admin can manage translations', () => {
     await adminTranslations.editProgramTranslations({
       name: 'Spanish name',
       description: 'Spanish description',
-      imageDescription: 'Spanish image description',
+      statuses: [],
     })
+    await adminTranslations.editProgramImageDescription(
+      'Spanish image description',
+    )
 
     // Remove the original description
     await adminPrograms.goToProgramImagePage(programName)
     await adminProgramImage.setImageDescriptionAndSubmit('')
 
-    // Verify the Spanish translation is no longer there
+    // Verify there isn't even an option to translate the description
     await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
     await adminTranslations.selectLanguage('Spanish')
-    await adminTranslations.expectProgramImageDescriptionTranslation('')
+    await adminTranslations.expectNoProgramImageDescription()
 
     await disableFeatureFlag(page, 'program_card_images')
   })
