@@ -23,7 +23,6 @@ import javax.inject.Inject;
 import models.Account;
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
-import play.data.Form;
 import services.CiviFormError;
 import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
@@ -258,13 +257,12 @@ public final class AccountRepository {
   }
 
   public void updateApplicantInfoForTrustedIntermediaryGroup(
-      Form<EditTiClientInfoForm> form, Applicant applicant) {
-    EditTiClientInfoForm theForm = form.get();
+      EditTiClientInfoForm form, Applicant applicant) {
     ApplicantData applicantData = applicant.getApplicantData();
-    applicantData.setUserName(
-        theForm.getFirstName(), theForm.getMiddleName(), theForm.getLastName());
-    applicantData.setDateOfBirth(theForm.getDob());
-    applicant.getAccount().setTiNote(theForm.getNote());
+    applicantData.setUserName(form.getFirstName(), form.getMiddleName(), form.getLastName());
+    applicantData.setDateOfBirth(form.getDob());
+    applicantData.setPhoneNumber(form.getPhoneNumber());
+    applicant.getAccount().setTiNote(form.getNote());
     applicant.save();
   }
 

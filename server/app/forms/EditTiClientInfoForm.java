@@ -8,6 +8,7 @@ public class EditTiClientInfoForm {
   private String dob;
   private String emailAddress;
   private String note;
+  private String phoneNumber;
 
   public String getFirstName() {
     return firstName;
@@ -55,5 +56,13 @@ public class EditTiClientInfoForm {
 
   public void setNote(String note) {
     this.note = note;
+  }
+
+  public String getPhoneNumber() {
+    return phoneNumber;
+  }
+
+  public void setPhoneNumber(String phoneNumber) {
+    this.phoneNumber = phoneNumber;
   }
 }

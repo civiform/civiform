@@ -269,8 +269,9 @@ public final class TrustedIntermediaryService {
       throw new ApplicantNotFoundException(accountId);
     }
     Applicant applicant = accountMaybe.get().newestApplicant().get();
-    accountRepository.updateApplicantInfoForTrustedIntermediaryGroup(form, applicant);
-    String email = form.get().getEmailAddress();
+    EditTiClientInfoForm theForm = form.get();
+    accountRepository.updateApplicantInfoForTrustedIntermediaryGroup(theForm, applicant);
+    String email = theForm.getEmailAddress();
     if (checkEmailChange(email, accountMaybe.get())) {
       accountRepository.updateApplicantEmail(email, accountId);
     }

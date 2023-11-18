@@ -78,6 +78,25 @@ public class ApplicantData extends CfJsonDocumentContext {
     return Optional.of(firstName);
   }
 
+  public Optional<String> getApplicantNameWithMiddle() {
+    if (!hasPath(WellKnownPaths.APPLICANT_FIRST_NAME)) {
+      return Optional.empty();
+    }
+    StringBuilder sb = new StringBuilder();
+    sb.append(readString(WellKnownPaths.APPLICANT_FIRST_NAME).get());
+    if (hasPath(WellKnownPaths.APPLICANT_MIDDLE_NAME)) {
+      sb.append(", ");
+      sb.append(readString(WellKnownPaths.APPLICANT_MIDDLE_NAME).get());
+    } else {
+      sb.append(", ");
+    }
+    if (hasPath(WellKnownPaths.APPLICANT_LAST_NAME)) {
+      sb.append(", ");
+      sb.append(readString(WellKnownPaths.APPLICANT_LAST_NAME).get());
+    }
+    return Optional.of(sb.toString());
+  }
+
   public void setUserName(String displayName) {
     String firstName;
     String lastName = null;
@@ -152,6 +171,14 @@ public class ApplicantData extends CfJsonDocumentContext {
 
   public void setDateOfBirth(String dateOfBirth) {
     putDate(WellKnownPaths.APPLICANT_DOB, dateOfBirth);
+  }
+
+  public Optional<String> getPhoneNumber() {
+    return readString(WellKnownPaths.APPLICANT_PHONE_NUMBER);
+  }
+
+  public void setPhoneNumber(String phoneNumber) {
+    putPhoneNumber(WellKnownPaths.APPLICANT_PHONE_NUMBER, phoneNumber);
   }
 
   /**
