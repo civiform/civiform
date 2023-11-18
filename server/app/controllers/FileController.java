@@ -13,7 +13,7 @@ import javax.inject.Inject;
 import models.AccountModel;
 import models.StoredFile;
 import org.pac4j.play.java.Secure;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
@@ -22,19 +22,19 @@ import services.cloud.StorageClient;
 
 /** Controller for handling methods for admins and applicants accessing uploaded files. */
 public class FileController extends CiviFormController {
-  private final HttpExecutionContext httpExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final StorageClient storageClient;
   private final StoredFileRepository storedFileRepository;
 
   @Inject
   public FileController(
-      HttpExecutionContext httpExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       StoredFileRepository storedFileRepository,
       StorageClient storageClient,
       ProfileUtils profileUtils,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.storageClient = checkNotNull(storageClient);
     this.storedFileRepository = checkNotNull(storedFileRepository);
   }
@@ -53,7 +53,7 @@ public class FileController extends CiviFormController {
               String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
               return redirect(storageClient.getPresignedUrlString(decodedFileKey));
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {

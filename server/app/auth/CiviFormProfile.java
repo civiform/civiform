@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 import javax.persistence.EntityNotFoundException;
 import models.AccountModel;
 import models.Applicant;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import repository.DatabaseExecutionContext;
 import services.settings.SettingsManifest;
@@ -27,13 +27,13 @@ import services.settings.SettingsManifest;
  */
 public class CiviFormProfile {
   private final DatabaseExecutionContext dbContext;
-  private final HttpExecutionContext httpContext;
+  private final ClassLoaderExecutionContext httpContext;
   private final CiviFormProfileData profileData;
   private final SettingsManifest settingsManifest;
 
   public CiviFormProfile(
       DatabaseExecutionContext dbContext,
-      HttpExecutionContext httpContext,
+      ClassLoaderExecutionContext httpContext,
       CiviFormProfileData profileData,
       SettingsManifest settingsManifest) {
     this.dbContext = Preconditions.checkNotNull(dbContext);

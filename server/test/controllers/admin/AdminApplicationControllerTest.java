@@ -35,7 +35,7 @@ import org.junit.Test;
 import org.pac4j.core.context.session.SessionStore;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -581,7 +581,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ProfileTester profileTester =
         new ProfileTester(
             instanceOf(DatabaseExecutionContext.class),
-            instanceOf(HttpExecutionContext.class),
+            instanceOf(ClassLoaderExecutionContext.class),
             instanceOf(CiviFormProfileData.class),
             instanceOf(SettingsManifest.class),
             adminAccount);
@@ -629,7 +629,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
       public ProfileTester(
           DatabaseExecutionContext dbContext,
-          HttpExecutionContext httpContext,
+          ClassLoaderExecutionContext httpContext,
           CiviFormProfileData profileData,
           SettingsManifest settingsManifest,
           Optional<AccountModel> adminAccount) {

@@ -16,7 +16,7 @@ import java.util.concurrent.CompletionStage;
 import javax.annotation.Nullable;
 import models.Application;
 import play.libs.F;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.SubmittedApplicationFilter;
@@ -37,7 +37,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
   public static final String UNTIL_DATE_PARAM_NAME = "toDate";
   private final DateConverter dateConverter;
   private final ProgramService programService;
-  private final HttpExecutionContext httpContext;
+  private final ClassLoaderExecutionContext httpContext;
   private final JsonExporter jsonExporter;
   private final int maxPageSize;
 
@@ -48,7 +48,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
       DateConverter dateConverter,
       ProfileUtils profileUtils,
       JsonExporter jsonExporter,
-      HttpExecutionContext httpContext,
+      ClassLoaderExecutionContext httpContext,
       ProgramService programService,
       VersionRepository versionRepository,
       Config config) {

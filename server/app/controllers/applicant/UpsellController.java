@@ -16,7 +16,7 @@ import models.AccountModel;
 import models.Application;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -38,7 +38,7 @@ import views.components.ToastMessage;
 /** Controller for handling methods for upselling applicants. */
 public final class UpsellController extends CiviFormController {
 
-  private final HttpExecutionContext httpContext;
+  private final ClassLoaderExecutionContext httpContext;
   private final ApplicantService applicantService;
   private final ApplicationService applicationService;
   private final ProgramService programService;
@@ -50,7 +50,7 @@ public final class UpsellController extends CiviFormController {
 
   @Inject
   public UpsellController(
-      HttpExecutionContext httpContext,
+      ClassLoaderExecutionContext httpContext,
       ApplicantService applicantService,
       ApplicationService applicationService,
       ProfileUtils profileUtils,

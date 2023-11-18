@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
@@ -71,7 +71,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
-  private final HttpExecutionContext httpExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final ApplicantProgramBlockEditView editView;
   private final FormFactory formFactory;
   private final StorageClient storageClient;
@@ -89,7 +89,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   public ApplicantProgramBlocksController(
       ApplicantService applicantService,
       MessagesApi messagesApi,
-      HttpExecutionContext httpExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       ApplicantProgramBlockEditViewFactory editViewFactory,
       FormFactory formFactory,
       StorageClient storageClient,
@@ -106,7 +106,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.formFactory = checkNotNull(formFactory);
     this.storageClient = checkNotNull(storageClient);
     this.storedFileRepository = checkNotNull(storedFileRepository);
@@ -193,7 +193,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             v ->
                 applicantService.getCorrectedAddress(
                     applicantId, programId, blockId, selectedAddress, suggestions),
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .thenComposeAsync(
             questionPathToValueMap ->
                 applicantService.stageAndUpdateIfValid(
@@ -202,7 +202,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     blockId,
                     cleanForm(questionPathToValueMap),
                     settingsManifest.getEsriAddressServiceAreaValidationEnabled(request)),
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService -> {
               removeAddressJsonFromSession(request);
@@ -215,7 +215,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   inReview,
                   roApplicantProgramService);
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             throwable -> {
               removeAddressJsonFromSession(request);
@@ -242,7 +242,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         applicantStage
             .thenComposeAsync(
                 v -> checkApplicantAuthorization(request, applicantId),
-                httpExecutionContext.current())
+                classLoaderExecutionContext.current())
             .toCompletableFuture();
 
     CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
@@ -250,7 +250,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
             .thenComposeAsync(
                 v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
-                httpExecutionContext.current())
+                classLoaderExecutionContext.current())
             .toCompletableFuture();
 
     return CompletableFuture.allOf(
@@ -281,7 +281,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 return notFound();
               }
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -314,11 +314,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     return applicantStage
         .thenComposeAsync(
-            v -> checkApplicantAuthorization(request, applicantId), httpExecutionContext.current())
+            v -> checkApplicantAuthorization(request, applicantId),
+            classLoaderExecutionContext.current())
         .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
               Optional<Block> block = roApplicantProgramService.getBlock(blockId);
@@ -344,7 +345,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 return notFound();
               }
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -375,11 +376,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     return applicantStage
         .thenComposeAsync(
-            v -> checkApplicantAuthorization(request, applicantId), httpExecutionContext.current())
+            v -> checkApplicantAuthorization(request, applicantId),
+            classLoaderExecutionContext.current())
         .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .thenComposeAsync(
             (roApplicantProgramService) -> {
               Optional<Block> block = roApplicantProgramService.getBlock(blockId);
@@ -431,7 +433,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                               settingsManifest.getEsriAddressServiceAreaValidationEnabled(
                                   request)));
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .thenComposeAsync(
             (roApplicantProgramService) ->
                 renderErrorOrRedirectToNextBlock(
@@ -442,7 +444,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     applicantStage.toCompletableFuture().join(),
                     inReview,
                     roApplicantProgramService),
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
   }
 
@@ -466,7 +468,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     return applicantStage
         .thenComposeAsync(
-            v -> checkApplicantAuthorization(request, applicantId), httpExecutionContext.current())
+            v -> checkApplicantAuthorization(request, applicantId),
+            classLoaderExecutionContext.current())
         .thenComposeAsync(
             v -> {
               DynamicForm form = formFactory.form().bindFromRequest(request);
@@ -474,7 +477,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               return applicantService.resetAddressCorrectionWhenAddressChanged(
                   applicantId, programId, blockId, formData);
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .thenComposeAsync(
             formData ->
                 applicantService.stageAndUpdateIfValid(
@@ -483,7 +486,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     blockId,
                     formData,
                     settingsManifest.getEsriAddressServiceAreaValidationEnabled(request)),
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService ->
                 renderErrorOrRedirectToNextBlock(
@@ -494,7 +497,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     applicantStage.toCompletableFuture().join(),
                     inReview,
                     roApplicantProgramService),
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
   }
 
@@ -777,7 +780,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
               return storedFileRepository.insert(storedFile);
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   private Result handleUpdateExceptions(Throwable throwable) {
