@@ -47,7 +47,8 @@ abstract class ProgramBaseView extends BaseHtmlView {
    * Returns the header buttons used for editing various parts of the program (details, image,
    * etc.).
    *
-   * @param isEditingAllowed true if the program currently allows editing and false otherwise.
+   * @param isEditingAllowed true if the view allows editing and false otherwise. (Typically, a view
+   *     only allows editing if a program is in draft mode.)
    */
   protected final ImmutableList<ProgramHeaderButton> getEditHeaderButtons(
       Http.Request request, SettingsManifest settingsManifest, boolean isEditingAllowed) {

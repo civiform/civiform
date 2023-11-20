@@ -24,6 +24,8 @@ public final class ProgramImageView {
   /**
    * Renders the image currently associated with the program and a form to add / edit / delete the
    * image (and its alt text).
+   *
+   * <p>TODO(#5676): Implement the forms to add an image and alt text.
    */
   public Content render(Http.Request request, ProgramDefinition programDefinition) {
     String title =
