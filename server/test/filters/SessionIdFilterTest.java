@@ -35,8 +35,8 @@ public class SessionIdFilterTest extends WithApplication {
   public void testSessionIdIsNotCreatedForExcludedRoute() throws Exception {
     SessionIdFilter filter = new SessionIdFilter(mat);
 
-    // The request is for an API route and has no session id.
-    Http.RequestBuilder request = fakeRequest("GET", "/api/v1/admin");
+    // The request is for /playIndex and has no session id.
+    Http.RequestBuilder request = fakeRequest("GET", "/playIndex");
     assertThat(request.session().containsKey(SessionIdFilter.SESSION_ID)).isFalse();
 
     CompletionStage<Result> stage =
