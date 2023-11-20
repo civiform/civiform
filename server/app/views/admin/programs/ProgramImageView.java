@@ -8,6 +8,7 @@ import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import controllers.admin.routes;
 import forms.admin.ProgramImageDescriptionForm;
 import j2html.tags.specialized.DivTag;
@@ -38,6 +39,7 @@ import java.util.Optional;
 /** A view for admins to update the image associated with a particular program. */
 public final class ProgramImageView extends BaseHtmlView {
   private final AdminLayout layout;
+  private final String baseUrl;
   private final FormFactory formFactory;
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final StorageClient storageClient;
@@ -46,10 +48,13 @@ public final class ProgramImageView extends BaseHtmlView {
   private final String fileInputId;
 
   @Inject
-  public ProgramImageView(AdminLayoutFactory layoutFactory, FormFactory formFactory,
+  public ProgramImageView(AdminLayoutFactory layoutFactory,
+                          Config config,
+                          FormFactory formFactory,
                           FileUploadViewStrategy fileUploadViewStrategy,
                           StorageClient storageClient) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
+    this.baseUrl = checkNotNull(config).getString("base_url");
     this.formFactory = checkNotNull(formFactory);
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
     this.storageClient = storageClient;
@@ -117,47 +122,47 @@ public final class ProgramImageView extends BaseHtmlView {
       program.id()
     );
     // TODO: Does the filename get auto populated here?
-    String onSuccessRedirectUrl = routes.AdminProgramImageController.updateImageFile(program.id()).url();
+    String onSuccessRedirectUrl = baseUrl + routes.AdminProgramImageController.updateImageFile(program.id()).url();
     StorageUploadRequest storageUploadRequest =
       storageClient.getSignedUploadRequest(key, onSuccessRedirectUrl);
 
     // Copied from FileUploadViewStrategy#renderFileUploadFormElement
     String formId = "program-image-file-form";
 
-    FormTag form = fileUploadViewStrategy.renderFileUploadFormElement(Optional.empty(), storageUploadRequest);
-
-
-    // Copied from FileUploadQuestionRenderer
-    return div()
-      .with(form)
+    FormTag form = fileUploadViewStrategy.renderFileUploadFormElement(Optional.empty(), storageUploadRequest,
+      formId)
+           // TODO: #*signed*FileUploadFields adds additional stuff like the already upload file name,
+    // error about it being required, and mobile file upload helptext4.
+      .with(
+      fileUploadViewStrategy.fileUploadFields(
+        Optional.of(storageUploadRequest),
+        fileInputId,
+        /* ariaDescribedByIds= */ ImmutableList.of(),
+        /* hasErrors= */ false
+      )
+    )
+      .with(
+        label()
+          .withFor(fileInputId)
+          .with(
+            span()
+              .attr("role", "button")
+              .attr("tabindex", 0)
+              .withText("Choose program image")
+              .withClasses(
+                ButtonStyles.OUTLINED_TRANSPARENT, "w-44", "mt-2", "cursor-pointer")))
       .with(
         label()
           .withFor(fileInputId)
           .withClass("sr-only")
           .withText("Upload a program image for the program card displayed on the homepage.")
-      )
+      );
 
 
-      // TODO: #*signed*FileUploadFields adds additional stuff like the already upload file name,
-      // error about it being required, and mobile file upload helptext4.
-      .with(
-        fileUploadViewStrategy.fileUploadFields(
-          Optional.of(storageUploadRequest),
-          fileInputId,
-          /* ariaDescribedByIds= */ ImmutableList.of(),
-          /* hasErrors= */ false
-        )
-      )
-        .with(
-    label()
-      .withFor(fileInputId)
-      .with(
-        span()
-          .attr("role", "button")
-          .attr("tabindex", 0)
-          .withText("Choose program image")
-          .withClasses(
-            ButtonStyles.OUTLINED_TRANSPARENT, "w-44", "mt-2", "cursor-pointer")))
+    // Copied from FileUploadQuestionRenderer
+    return div()
+      .with(form)
+
       .with(submitButton("Save image")
         .withForm(formId).withClass(ButtonStyles.SOLID_BLUE));
   }

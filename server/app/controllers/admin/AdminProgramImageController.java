@@ -85,6 +85,7 @@ public final class AdminProgramImageController extends CiviFormController {
     // From ApplicantProgramBlocksController#updateFile
     Optional<String> bucket = request.queryString("bucket");
     Optional<String> key = request.queryString("key");
+    System.out.println("bucket = " + bucket + "  key=" + key);
     // TODO: There's some azure stuff here
 
     if (bucket.isEmpty() || key.isEmpty()) {

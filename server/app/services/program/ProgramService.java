@@ -908,6 +908,7 @@ public final class ProgramService {
       long programId, Locale locale, String summaryImageDescription)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
+    System.out.println("existing file key = " + programDefinition.summaryImageFileKey());
     Optional<LocalizedStrings> newStrings =
         getUpdatedSummaryImageDescription(programDefinition, locale, summaryImageDescription);
     programDefinition =

@@ -37,7 +37,7 @@ import views.style.ReferenceClasses;
 public abstract class FileUploadViewStrategy extends ApplicationBaseView {
 
   protected static final String MIME_TYPES_IMAGES_AND_PDF = "image/*,.pdf";
-  private static final String BLOCK_FORM_ID = "cf-block-form";
+  public static final String BLOCK_FORM_ID = "cf-block-form";
   private static final String FILEUPLOAD_CONTINUE_FORM_ID = "cf-fileupload-continue-form";
   private static final String FILEUPLOAD_DELETE_FORM_ID = "cf-fileupload-delete-form";
   private static final String FILEUPLOAD_SUBMIT_FORM_ID = "cf-block-submit";
@@ -132,7 +132,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
             .setErrorDisplayMode(params.errorDisplayMode())
             .build();
 
-    FormTag uploadForm = renderFileUploadFormElement(Optional.of(params), signedRequest);
+    FormTag uploadForm = renderFileUploadFormElement(Optional.of(params), signedRequest, BLOCK_FORM_ID);
     Preconditions.checkState("form".equals(uploadForm.getTagName()), "must be of type form");
     uploadForm.with(
         each(
@@ -146,9 +146,10 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     return div(uploadForm, skipForms, buttons).with(each(extraScriptTags(), tag -> footer(tag)));
   }
 
-  public FormTag renderFileUploadFormElement(Optional<Params> params, StorageUploadRequest request) {
+  public FormTag renderFileUploadFormElement(
+    Optional<Params> params, StorageUploadRequest request, String id) {
     FormTag form = form()
-        .withId(BLOCK_FORM_ID)
+        .withId(id)
         .withEnctype("multipart/form-data")
         .withMethod(HttpVerbs.POST)
         .withClasses(getUploadFormClass());
