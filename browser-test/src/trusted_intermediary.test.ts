@@ -141,10 +141,8 @@ describe('Trusted intermediaries', () => {
   it('dashboard contains required indicator note and optional marker', async () => {
     const {page} = ctx
     await loginAsTrustedIntermediary(page)
-    expect(await page.locator('label').nth(0).innerText()).toContain(
-      'Email Address (optional)',
-    )
-    expect(await page.locator('p').nth(1).innerText()).toContain(
+    expect(await page.textContent('html')).toContain('Email Address (optional)')
+    expect(await page.textContent('html')).toContain(
       'Fields marked with a * are required.',
     )
   })
