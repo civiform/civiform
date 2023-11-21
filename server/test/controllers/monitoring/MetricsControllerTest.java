@@ -24,8 +24,6 @@ public class MetricsControllerTest extends WithMockedProfiles {
   @Before
   public void setUp() {
     resetDatabase();
-    CollectorRegistry.defaultRegistry.clear();
-    // TODO(#5933) initializing counters causes the test to fail in bin/sbt-test
     MetricsController.initializeCounters();
   }
 
