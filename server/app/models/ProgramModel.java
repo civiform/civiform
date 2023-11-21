@@ -108,7 +108,7 @@ public class ProgramModel extends BaseModel {
    */
   @Constraints.Required private Boolean eligibilityIsGating;
 
-  @ManyToMany
+  @ManyToMany(mappedBy = "programs")
   @JoinTable(
       name = "versions_programs",
       joinColumns = @JoinColumn(name = "programs_id"),
