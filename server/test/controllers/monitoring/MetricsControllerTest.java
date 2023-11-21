@@ -10,7 +10,7 @@ import com.typesafe.config.ConfigFactory;
 import controllers.WithMockedProfiles;
 import io.prometheus.client.CollectorRegistry;
 import java.util.Locale;
-import models.Applicant;
+import models.ApplicantModel;
 import models.Application;
 import models.LifecycleStage;
 import org.junit.Before;
@@ -43,7 +43,7 @@ public class MetricsControllerTest extends WithMockedProfiles {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
     applicant.save();
     Application app =

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,24 +40,24 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   @Test
   public void listApplicants_empty() {
-    Set<Applicant> allApplicants = repo.listApplicants().toCompletableFuture().join();
+    Set<ApplicantModel> allApplicants = repo.listApplicants().toCompletableFuture().join();
 
     assertThat(allApplicants).isEmpty();
   }
 
   @Test
   public void listApplicants() {
-    Applicant one = saveApplicant("one");
-    Applicant two = saveApplicant("two");
+    ApplicantModel one = saveApplicant("one");
+    ApplicantModel two = saveApplicant("two");
 
-    Set<Applicant> allApplicants = repo.listApplicants().toCompletableFuture().join();
+    Set<ApplicantModel> allApplicants = repo.listApplicants().toCompletableFuture().join();
 
     assertThat(allApplicants).containsExactly(one, two);
   }
 
   @Test
   public void lookupApplicant_returnsEmptyOptionalWhenApplicantNotFound() {
-    Optional<Applicant> found = repo.lookupApplicant(1L).toCompletableFuture().join();
+    Optional<ApplicantModel> found = repo.lookupApplicant(1L).toCompletableFuture().join();
 
     assertThat(found).isEmpty();
   }
@@ -65,9 +65,9 @@ public class AccountRepositoryTest extends ResetPostgres {
   @Test
   public void lookupApplicant_findsCorrectApplicant() {
     saveApplicant("Alice");
-    Applicant two = saveApplicant("Bob");
+    ApplicantModel two = saveApplicant("Bob");
 
-    Optional<Applicant> found = repo.lookupApplicant(two.id).toCompletableFuture().join();
+    Optional<ApplicantModel> found = repo.lookupApplicant(two.id).toCompletableFuture().join();
 
     assertThat(found).hasValue(two);
   }
@@ -103,21 +103,21 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   @Test
   public void insertApplicant() {
-    Applicant applicant = new Applicant();
+    ApplicantModel applicant = new ApplicantModel();
     String path = "$." + WellKnownPaths.APPLICANT_DOB.toString();
     applicant.getApplicantData().putDate(Path.create(path), "2021-01-01");
 
     repo.insertApplicant(applicant).toCompletableFuture().join();
 
     long id = applicant.id;
-    Applicant a = repo.lookupApplicant(id).toCompletableFuture().join().get();
+    ApplicantModel a = repo.lookupApplicant(id).toCompletableFuture().join().get();
     assertThat(a.id).isEqualTo(id);
     assertThat(a.getApplicantData().getDateOfBirth().get().toString()).isEqualTo("2021-01-01");
   }
 
   @Test
   public void updateApplicant() {
-    Applicant applicant = new Applicant();
+    ApplicantModel applicant = new ApplicantModel();
     repo.insertApplicant(applicant).toCompletableFuture().join();
     String path = "$." + WellKnownPaths.APPLICANT_DOB.toString();
     applicant.getApplicantData().putString(Path.create(path), "1/1/2021");
@@ -125,14 +125,14 @@ public class AccountRepositoryTest extends ResetPostgres {
     repo.updateApplicant(applicant).toCompletableFuture().join();
 
     long id = applicant.id;
-    Applicant a = repo.lookupApplicant(id).toCompletableFuture().join().get();
+    ApplicantModel a = repo.lookupApplicant(id).toCompletableFuture().join().get();
     assertThat(a.id).isEqualTo(id);
     assertThat(a.getApplicantData().readString(Path.create(path))).hasValue("1/1/2021");
   }
 
   @Test
   public void lookupApplicantSync_returnsEmptyOptionalWhenApplicantNotFound() {
-    Optional<Applicant> found = repo.lookupApplicantSync(1L);
+    Optional<ApplicantModel> found = repo.lookupApplicantSync(1L);
 
     assertThat(found).isEmpty();
   }
@@ -140,9 +140,9 @@ public class AccountRepositoryTest extends ResetPostgres {
   @Test
   public void lookupApplicantSync_findsCorrectApplicant() {
     saveApplicant("Alice");
-    Applicant two = saveApplicantWithDob("Bob", "2022-07-07");
+    ApplicantModel two = saveApplicantWithDob("Bob", "2022-07-07");
 
-    Optional<Applicant> found = repo.lookupApplicantSync(two.id);
+    Optional<ApplicantModel> found = repo.lookupApplicantSync(two.id);
 
     assertThat(found).hasValue(two);
     assertThat(found.get().getApplicantData().getDateOfBirth().get().toString())
@@ -229,11 +229,11 @@ public class AccountRepositoryTest extends ResetPostgres {
     LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
     Instant timeInPast = now.minus(10, ChronoUnit.DAYS).toInstant(ZoneOffset.UTC);
 
-    Applicant newUnusedGuest = resourceCreator.insertApplicantWithAccount();
-    Applicant oldUnusedGuest = resourceCreator.insertApplicantWithAccount();
-    Applicant oldUsedGuest = resourceCreator.insertApplicantWithAccount();
+    ApplicantModel newUnusedGuest = resourceCreator.insertApplicantWithAccount();
+    ApplicantModel oldUnusedGuest = resourceCreator.insertApplicantWithAccount();
+    ApplicantModel oldUsedGuest = resourceCreator.insertApplicantWithAccount();
     resourceCreator.insertApplication(oldUsedGuest, testProgram, LifecycleStage.DRAFT);
-    Applicant oldUnusedAuthenticated =
+    ApplicantModel oldUnusedAuthenticated =
         resourceCreator.insertApplicantWithAccount(Optional.of("registered-user@example.com"));
 
     oldUnusedGuest.setWhenCreated(timeInPast).save();
@@ -266,13 +266,13 @@ public class AccountRepositoryTest extends ResetPostgres {
     saveApplicantWithDob("Foo", "2001-11-01");
 
     // Save an applicant with the incorrect path for dob
-    Applicant applicantWithDeprecatedPath = saveApplicant("Bar");
+    ApplicantModel applicantWithDeprecatedPath = saveApplicant("Bar");
     applicantWithDeprecatedPath
         .getApplicantData()
         .putDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED, "2002-12-02");
     applicantWithDeprecatedPath.save();
 
-    List<Applicant> applicants = repo.findApplicantsWithIncorrectDobPath().findList();
+    List<ApplicantModel> applicants = repo.findApplicantsWithIncorrectDobPath().findList();
     // Only the applicant with the incorrect path should be returned
     assertThat(applicants.size()).isEqualTo(1);
     assertThat(applicants.get(0).getApplicantData().getApplicantName().get()).isEqualTo("Bar");
@@ -318,8 +318,8 @@ public class AccountRepositoryTest extends ResetPostgres {
     return new PlainJWT(claims);
   }
 
-  private Applicant saveApplicantWithDob(String name, String dob) {
-    Applicant applicant = new Applicant();
+  private ApplicantModel saveApplicantWithDob(String name, String dob) {
+    ApplicantModel applicant = new ApplicantModel();
     applicant
         .getApplicantData()
         .putString(Path.create("$." + WellKnownPaths.APPLICANT_FIRST_NAME.toString()), name);
@@ -328,8 +328,8 @@ public class AccountRepositoryTest extends ResetPostgres {
     return applicant;
   }
 
-  private Applicant saveApplicant(String name) {
-    Applicant applicant = new Applicant();
+  private ApplicantModel saveApplicant(String name) {
+    ApplicantModel applicant = new ApplicantModel();
     applicant
         .getApplicantData()
         .putString(Path.create("$." + WellKnownPaths.APPLICANT_FIRST_NAME.toString()), name);

@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableList;
 import java.time.Instant;
 import java.util.Optional;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import models.Application;
 import models.ApplicationEvent;
 import models.ProgramModel;
@@ -29,7 +29,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     Instant startInstant = Instant.now();
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
     AccountModel actor = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     Application application = resourceCreator.insertActiveApplication(applicant, program);
 
     ApplicationEventDetails details =
@@ -54,7 +54,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
   public void insertAsync() {
     Instant startInstant = Instant.now();
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     Application application = resourceCreator.insertActiveApplication(applicant, program);
 
     ApplicationEventDetails details =
@@ -80,7 +80,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     Instant startInstant = Instant.now();
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
     AccountModel actor = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     Application application = resourceCreator.insertActiveApplication(applicant, program);
 
     ApplicationEventDetails details =
@@ -115,7 +115,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     Instant startInstant = Instant.now();
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
     AccountModel actor = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     Application application = resourceCreator.insertActiveApplication(applicant, program);
 
     ApplicationEventDetails details =

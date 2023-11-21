@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
 import java.util.Optional;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import models.Application;
 import models.DisplayMode;
 import models.LifecycleStage;
@@ -42,7 +42,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
   @Test
   public void submitApplication_updatesOtherApplicationVersions() {
-    Applicant applicant = saveApplicant("Alice");
+    ApplicantModel applicant = saveApplicant("Alice");
     ProgramModel program = createDraftProgram("Program");
 
     Application appOne =
@@ -80,8 +80,8 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
   @Test
   public void submitApplication_doesNotUpdateOtherProgramApplications() {
-    Applicant applicant1 = saveApplicant("Alice");
-    Applicant applicant2 = saveApplicant("Bob");
+    ApplicantModel applicant1 = saveApplicant("Alice");
+    ApplicantModel applicant2 = saveApplicant("Bob");
 
     ProgramModel program1 = createDraftProgram("Program");
     ProgramModel program2 = createDraftProgram("OtherProgram");
@@ -100,7 +100,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
   @Test
   public void createOrUpdateDraftApplication_updatesExistingDraft() {
-    Applicant applicant = saveApplicant("Alice");
+    ApplicantModel applicant = saveApplicant("Alice");
     ProgramModel program = createActiveProgram("Program");
     Application appDraft1 =
         repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
@@ -124,7 +124,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
   @Test
   public void submitApplication_twoDraftsThrowsException() {
-    Applicant applicant = saveApplicant("Alice");
+    ApplicantModel applicant = saveApplicant("Alice");
     ProgramModel program = createDraftProgram("Program");
     Application appDraft1 = Application.create(applicant, program, LifecycleStage.DRAFT);
     appDraft1.save();
@@ -158,7 +158,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
   @Test
   public void submitApplication_noDrafts() {
-    Applicant applicant = saveApplicant("Alice");
+    ApplicantModel applicant = saveApplicant("Alice");
     ProgramModel program = createDraftProgram("Program");
     Application app =
         repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
@@ -168,7 +168,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
   @Test
   public void submitApplication_duplicateSubmissionsThrowsException() {
-    Applicant applicant = saveApplicant("Alice");
+    ApplicantModel applicant = saveApplicant("Alice");
     ProgramModel program = createDraftProgram("Program");
 
     repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
@@ -184,7 +184,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   private Application createSubmittedAppAtInstant(ProgramModel program, Instant submitTime) {
     // Use a distinct applicant for each application since it's not possible to create multiple
     // submitted applications for the same program for a given applicant.
-    Applicant applicant = saveApplicant("Alice");
+    ApplicantModel applicant = saveApplicant("Alice");
     Application app = repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
     CfTestHelpers.withMockedInstantNow(
         submitTime.toString(),
@@ -252,7 +252,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
   @Test
   public void getApplicationsForApplicant() throws Exception {
-    Applicant applicant = saveApplicant("Applicant");
+    ApplicantModel applicant = saveApplicant("Applicant");
 
     ProgramModel program = createDraftProgram("Program");
     Application appDraft1 = Application.create(applicant, program, LifecycleStage.DRAFT);
@@ -300,8 +300,8 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
   @Test
   public void getApplicationsForApplicant_filtersById() throws Exception {
-    Applicant primaryApplicant = saveApplicant("Applicant");
-    Applicant otherApplicant = saveApplicant("Other");
+    ApplicantModel primaryApplicant = saveApplicant("Applicant");
+    ApplicantModel otherApplicant = saveApplicant("Other");
 
     ProgramModel program = createDraftProgram("Program");
     Application primaryApplicantDraftApp =
@@ -342,9 +342,9 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     assertThat(result).isEmpty();
   }
 
-  private Applicant saveApplicant(String name) {
+  private ApplicantModel saveApplicant(String name) {
     AccountModel account = new AccountModel();
-    Applicant applicant = new Applicant();
+    ApplicantModel applicant = new ApplicantModel();
     applicant.getApplicantData().setUserName(name);
     applicant.setAccount(account);
     applicant.save();

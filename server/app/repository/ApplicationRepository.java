@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import javax.inject.Inject;
-import models.Applicant;
+import models.ApplicantModel;
 import models.Application;
 import models.LifecycleStage;
 import models.ProgramModel;
@@ -51,7 +51,7 @@ public final class ApplicationRepository {
 
   @VisibleForTesting
   public CompletionStage<Application> submitApplication(
-      Applicant applicant, ProgramModel program, Optional<String> tiSubmitterEmail) {
+      ApplicantModel applicant, ProgramModel program, Optional<String> tiSubmitterEmail) {
     return supplyAsync(
         () -> submitApplicationInternal(applicant, program, tiSubmitterEmail),
         executionContext.current());
@@ -72,7 +72,7 @@ public final class ApplicationRepository {
   }
 
   private Application submitApplicationInternal(
-      Applicant applicant, ProgramModel program, Optional<String> tiSubmitterEmail) {
+      ApplicantModel applicant, ProgramModel program, Optional<String> tiSubmitterEmail) {
     database.beginTransaction();
     try {
       List<Application> oldApplications =
@@ -166,7 +166,7 @@ public final class ApplicationRepository {
    */
   private CompletionStage<Optional<Application>> perform(
       long applicantId, long programId, Function<ApplicationArguments, Application> fn) {
-    CompletionStage<Optional<Applicant>> applicantDb =
+    CompletionStage<Optional<ApplicantModel>> applicantDb =
         accountRepository.lookupApplicant(applicantId);
     CompletionStage<Optional<ProgramModel>> programDb = programRepository.lookupProgram(programId);
     return applicantDb
@@ -223,16 +223,16 @@ public final class ApplicationRepository {
   // Not useful in the API, not needed more broadly.
   private static final class ApplicationArguments {
     public ProgramModel program;
-    public Applicant applicant;
+    public ApplicantModel applicant;
 
-    public ApplicationArguments(ProgramModel program, Applicant applicant) {
+    public ApplicationArguments(ProgramModel program, ApplicantModel applicant) {
       this.program = program;
       this.applicant = applicant;
     }
   }
 
   private Application createOrUpdateDraftApplicationInternal(
-      Applicant applicant, ProgramModel program) {
+      ApplicantModel applicant, ProgramModel program) {
     database.beginTransaction();
     try {
       Optional<Application> existingDraft =
@@ -257,7 +257,7 @@ public final class ApplicationRepository {
   }
 
   @VisibleForTesting
-  CompletionStage<Application> createOrUpdateDraft(Applicant applicant, ProgramModel program) {
+  CompletionStage<Application> createOrUpdateDraft(ApplicantModel applicant, ProgramModel program) {
     return supplyAsync(
         () -> createOrUpdateDraftApplicationInternal(applicant, program),
         executionContext.current());

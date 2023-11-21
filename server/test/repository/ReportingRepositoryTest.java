@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
-import models.Applicant;
+import models.ApplicantModel;
 import models.Application;
 import models.LifecycleStage;
 import models.ProgramModel;
@@ -21,7 +21,7 @@ import support.ProgramBuilder;
 public class ReportingRepositoryTest extends ResetPostgres {
 
   private ReportingRepository repo;
-  private Applicant applicant;
+  private ApplicantModel applicant;
   private ProgramModel programA;
   private ProgramModel programB;
 

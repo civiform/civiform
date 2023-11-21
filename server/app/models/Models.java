@@ -11,7 +11,7 @@ public final class Models {
       ImmutableList.of(
           AccountModel.class,
           ApiKey.class,
-          Applicant.class,
+          ApplicantModel.class,
           Application.class,
           ApplicationEvent.class,
           PersistedDurableJob.class,

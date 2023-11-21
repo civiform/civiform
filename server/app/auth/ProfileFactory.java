@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import models.AccountModel;
 import models.ApiKey;
-import models.Applicant;
+import models.ApplicantModel;
 import models.TrustedIntermediaryGroup;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.libs.concurrent.HttpExecutionContext;
@@ -105,7 +105,7 @@ public final class ProfileFactory {
     return wrapProfileData(new CiviFormProfileData(account.id));
   }
 
-  public CiviFormProfile wrap(Applicant applicant) {
+  public CiviFormProfile wrap(ApplicantModel applicant) {
     return wrapProfileData(new CiviFormProfileData(applicant.getAccount().id));
   }
 
@@ -193,7 +193,7 @@ public final class ProfileFactory {
             })
         .join();
 
-    Applicant tiApplicant = tiProfile.getApplicant().join();
+    ApplicantModel tiApplicant = tiProfile.getApplicant().join();
     // The name for a fake TI must not be unique so that screenshot tests stay consistent. Use an
     // underscore so that the name parser doesn't display "TI, Fake".
     tiApplicant.getApplicantData().setUserName("Fake_TI");

@@ -1,7 +1,9 @@
 package services.applicant.exception;
 
+import models.ApplicantModel;
+
 /**
- * ApplicantNotFoundException is thrown when the {@link models.Applicant} cannot be found by the
+ * ApplicantNotFoundException is thrown when the {@link ApplicantModel} cannot be found by the
  * specified ID.
  */
 public final class ApplicantNotFoundException extends Exception {

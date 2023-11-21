@@ -10,7 +10,7 @@ import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import auth.ProfileFactory;
 import controllers.WithMockedProfiles;
-import models.Applicant;
+import models.ApplicantModel;
 import models.Application;
 import models.Question;
 import org.junit.Before;
@@ -42,7 +42,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
   public void considerRegister_redirectsToUpsellViewForDefaultProgramType() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     Application application =
         resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
     String redirectLocation = "someUrl";
@@ -85,7 +85,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
             .withEligibilityDefinition(eligibility)
             .buildDefinition();
 
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
 
     // Answer the color question with an ineligible response
     Path colorPath = ApplicantData.APPLICANT_PATH.join("applicant_favorite_color");
@@ -143,7 +143,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
             .withEligibilityDefinition(eligibility)
             .buildDefinition();
 
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
 
     // Answer the color question with an eligible response
     Path colorPath = ApplicantData.APPLICANT_PATH.join("applicant_favorite_color");
@@ -181,7 +181,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
   public void download_authenticatedApplicant() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     Application application =
         resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
 
@@ -204,7 +204,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    Applicant managedApplicant = createApplicant();
+    ApplicantModel managedApplicant = createApplicant();
     createTIWithMockedProfile(managedApplicant);
     profileFactory.createFakeTrustedIntermediary();
     Application application =
@@ -231,8 +231,8 @@ public class UpsellControllerTest extends WithMockedProfiles {
     ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    Applicant unmanagedApplicant = createApplicant();
-    Applicant managedApplicant = createApplicant();
+    ApplicantModel unmanagedApplicant = createApplicant();
+    ApplicantModel managedApplicant = createApplicant();
     createTIWithMockedProfile(managedApplicant);
     profileFactory.createFakeTrustedIntermediary();
     Application application =
@@ -258,7 +258,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
   public void download_invalidApplicantID() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     Application application =
         resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
 
@@ -279,7 +279,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
   public void download_invalidApplicationID() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
 
     Result result;

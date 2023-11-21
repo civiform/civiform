@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import models.Applicant;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,14 +40,14 @@ public class EnumeratorQuestionTest extends ResetPostgres {
               .build(),
           LocalizedStrings.empty());
 
-  private Applicant applicant;
+  private ApplicantModel applicant;
   private ApplicantData applicantData;
 
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
 
   @Before
   public void setUp() {
-    applicant = new Applicant();
+    applicant = new ApplicantModel();
     applicantData = applicant.getApplicantData();
     testQuestionBank.reset();
   }

@@ -27,7 +27,7 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import models.TrustedIntermediaryGroup;
 import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
@@ -259,7 +259,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   private TdTag renderDateOfBirthCell(AccountModel account, Http.Request request) {
-    Optional<Applicant> newestApplicant = account.newestApplicant();
+    Optional<ApplicantModel> newestApplicant = account.newestApplicant();
     if (newestApplicant.isEmpty()) {
       return td().withClasses(BaseStyles.TABLE_CELL_STYLES);
     }
@@ -299,7 +299,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   private TdTag renderActionsCell(AccountModel applicant) {
-    Optional<Applicant> newestApplicant = applicant.newestApplicant();
+    Optional<ApplicantModel> newestApplicant = applicant.newestApplicant();
     if (newestApplicant.isEmpty()) {
       return td().withClasses(BaseStyles.TABLE_CELL_STYLES);
     }

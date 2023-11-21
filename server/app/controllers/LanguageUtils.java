@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import models.Applicant;
+import models.ApplicantModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.i18n.Lang;
@@ -32,7 +32,7 @@ public final class LanguageUtils {
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
-  public Applicant maybeSetDefaultLocale(Applicant applicant) {
+  public ApplicantModel maybeSetDefaultLocale(ApplicantModel applicant) {
     ApplicantData data = applicant.getApplicantData();
     if (data.hasPreferredLocale() || langs.availables().size() > 1) {
       return applicant;

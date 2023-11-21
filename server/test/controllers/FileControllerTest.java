@@ -8,7 +8,7 @@ import static play.test.Helpers.fakeRequest;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import models.Applicant;
+import models.ApplicantModel;
 import models.ProgramModel;
 import models.StoredFile;
 import org.junit.Before;
@@ -30,7 +30,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void show_differentApplicant_returnsUnauthorizedResult() {
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     String fileKey = fakeFileKey(applicant.id, 1L);
     Result result =
         controller.show(request, applicant.id + 1, fileKey).toCompletableFuture().join();
@@ -39,7 +39,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void show_differentFileKey_returnsNotFound() {
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     String fileKey = fakeFileKey(applicant.id + 1, 1L);
     Result result = controller.show(request, applicant.id, fileKey).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -47,7 +47,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void show_TIManagedApplicant_redirects() {
-    Applicant managedApplicant = createApplicant();
+    ApplicantModel managedApplicant = createApplicant();
     createTIWithMockedProfile(managedApplicant);
     String fileKey = fakeFileKey(managedApplicant.id, 1L);
     Result result =
@@ -57,7 +57,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void show_redirects() {
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     String fileKey = fakeFileKey(applicant.id, 1L);
     Result result = controller.show(request, applicant.id, fileKey).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
