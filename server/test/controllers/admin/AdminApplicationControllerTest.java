@@ -26,7 +26,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.ApplicationEvent;
+import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.LifecycleStage;
 import models.ProgramModel;
@@ -424,7 +424,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     application.refresh();
     assertThat(application.getApplicationEvents()).hasSize(1);
-    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    ApplicationEventModel gotEvent = application.getApplicationEvents().get(0);
     assertThat(gotEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
     assertThat(gotEvent.getDetails().statusEvent()).isPresent();
     assertThat(gotEvent.getDetails().statusEvent().get().statusText())
@@ -470,7 +470,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     application.refresh();
     assertThat(application.getApplicationEvents()).hasSize(1);
-    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    ApplicationEventModel gotEvent = application.getApplicationEvents().get(0);
     assertThat(gotEvent.getDetails().statusEvent()).isPresent();
     assertThat(gotEvent.getDetails().statusEvent().get().emailSent()).isFalse();
   }
@@ -541,7 +541,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     application.refresh();
     assertThat(application.getApplicationEvents()).hasSize(1);
-    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    ApplicationEventModel gotEvent = application.getApplicationEvents().get(0);
     assertThat(gotEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.NOTE_CHANGE);
     assertThat(gotEvent.getDetails().noteEvent()).isPresent();
     assertThat(gotEvent.getDetails().noteEvent().get().note()).isEqualTo(noteText);
@@ -571,7 +571,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     application.refresh();
     assertThat(application.getApplicationEvents()).hasSize(1);
-    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    ApplicationEventModel gotEvent = application.getApplicationEvents().get(0);
     assertThat(gotEvent.getDetails().noteEvent()).isPresent();
     assertThat(gotEvent.getDetails().noteEvent().get().note()).isEqualTo(noteText);
   }

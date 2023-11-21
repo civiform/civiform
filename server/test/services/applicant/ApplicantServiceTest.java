@@ -21,7 +21,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.ApplicationEvent;
+import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.DisplayMode;
 import models.LifecycleStage;
@@ -947,7 +947,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     assertThat(application.getLatestStatus().get()).isEqualTo("Approved");
     assertThat(application.getApplicationEvents().size()).isEqualTo(1);
-    ApplicationEvent event = application.getApplicationEvents().get(0);
+    ApplicationEventModel event = application.getApplicationEvents().get(0);
     assertThat(event.getEventType().name()).isEqualTo("STATUS_CHANGE");
     assertThat(event.getDetails().statusEvent()).isNotEmpty();
     assertThat(event.getDetails().statusEvent().get().statusText()).isEqualTo("Approved");
@@ -2825,7 +2825,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setEmailSent(false)
                     .build())
             .build();
-    ApplicationEvent event = new ApplicationEvent(application, Optional.of(actorAccount), details);
+    ApplicationEventModel event =
+        new ApplicationEventModel(application, Optional.of(actorAccount), details);
     event.save();
     application.refresh();
   }

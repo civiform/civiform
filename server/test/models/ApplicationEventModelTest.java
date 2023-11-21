@@ -10,7 +10,7 @@ import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.NoteEvent;
 import services.application.ApplicationEventDetails.StatusEvent;
 
-public class ApplicationEventTest extends ResetPostgres {
+public class ApplicationEventModelTest extends ResetPostgres {
   @Test
   public void createNonStatusEventDoesNothing() {
     ProgramModel program = resourceCreator.insertActiveProgram("test program");
@@ -21,8 +21,8 @@ public class ApplicationEventTest extends ResetPostgres {
             resourceCreator.insertApplicantWithAccount(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
-    ApplicationEvent event =
-        new ApplicationEvent(
+    ApplicationEventModel event =
+        new ApplicationEventModel(
             application,
             Optional.of(adminAccount),
             ApplicationEventDetails.builder()
@@ -45,7 +45,7 @@ public class ApplicationEventTest extends ResetPostgres {
             resourceCreator.insertApplicantWithAccount(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
-    new ApplicationEvent(
+    new ApplicationEventModel(
             application,
             Optional.of(adminAccount),
             ApplicationEventDetails.builder()
@@ -59,7 +59,7 @@ public class ApplicationEventTest extends ResetPostgres {
     assertThat(application.getLatestStatus()).isEqualTo(Optional.of("approved"));
 
     // Create another event transitioning to empty and ensure that the result is empty.
-    new ApplicationEvent(
+    new ApplicationEventModel(
             application,
             Optional.of(adminAccount),
             ApplicationEventDetails.builder()
@@ -81,7 +81,7 @@ public class ApplicationEventTest extends ResetPostgres {
             resourceCreator.insertApplicantWithAccount(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
-    new ApplicationEvent(
+    new ApplicationEventModel(
             application,
             Optional.empty(),
             ApplicationEventDetails.builder()
@@ -105,8 +105,8 @@ public class ApplicationEventTest extends ResetPostgres {
             resourceCreator.insertApplicantWithAccount(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
-    ApplicationEvent firstEvent =
-        new ApplicationEvent(
+    ApplicationEventModel firstEvent =
+        new ApplicationEventModel(
             application,
             Optional.of(adminAccount),
             ApplicationEventDetails.builder()
@@ -123,8 +123,8 @@ public class ApplicationEventTest extends ResetPostgres {
     // update would have a distinct timestamp.
     TimeUnit.MILLISECONDS.sleep(5);
 
-    ApplicationEvent secondEvent =
-        new ApplicationEvent(
+    ApplicationEventModel secondEvent =
+        new ApplicationEventModel(
             application,
             Optional.of(adminAccount),
             ApplicationEventDetails.builder()
