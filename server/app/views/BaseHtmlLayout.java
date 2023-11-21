@@ -210,13 +210,7 @@ public class BaseHtmlLayout {
                     .withClasses("usa-banner__inner", "ml-0", "pl-4")
                     .with(
                         div()
-                            .withClass("grid-col-auto")
-                            .with(
-                                img()
-                                    .attr("aria-hidden", true)
-                                    .withClass("usa-banner__header-flag")
-                                    .withSrc(assetsFinder.path("Images/uswds/us_flag_small.png"))
-                                    .withAlt("")))
+                            .withClass("grid-col-auto"))
                     .with(
                         div()
                             .withClasses("grid-col-fill", "tablet:grid-col-auto")
