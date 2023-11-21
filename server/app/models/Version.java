@@ -32,7 +32,9 @@ public final class Version extends BaseModel {
   @Constraints.Required private LifecycleStage lifecycleStage;
 
   @ManyToMany(mappedBy = "versions")
-  @JoinTable(name = "versions_questions")
+  @JoinTable(name = "versions_questions",
+    joinColumns = @JoinColumn(name = "versions_id"),
+    inverseJoinColumns = @JoinColumn(name = "questions_id"))
   private List<Question> questions;
 
   /**
