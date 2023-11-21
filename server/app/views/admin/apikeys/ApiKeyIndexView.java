@@ -26,7 +26,7 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.StringJoiner;
 import java.util.function.Function;
-import models.ApiKey;
+import models.ApiKeyModel;
 import modules.MainModule;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -43,7 +43,7 @@ import views.components.LinkElement;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 
-/** Renders a page that lists the system's {@link models.ApiKey}s. */
+/** Renders a page that lists the system's {@link ApiKeyModel}s. */
 public final class ApiKeyIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final DateConverter dateConverter;
@@ -67,7 +67,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
   public Content render(
       Http.Request request,
       String selectedStatus,
-      ImmutableList<ApiKey> apiKeys,
+      ImmutableList<ApiKeyModel> apiKeys,
       ImmutableSet<String> allProgramNames) {
     String title = "API Keys";
     ButtonTag newKeyButton =
@@ -125,7 +125,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
   }
 
   private DivTag renderApiKey(
-      Http.Request request, ApiKey apiKey, ImmutableMap<String, String> programSlugToName) {
+          Http.Request request, ApiKeyModel apiKey, ImmutableMap<String, String> programSlugToName) {
     String keyNameSlugified = MainModule.SLUGIFIER.slugify(apiKey.getName());
 
     DivTag statsDiv =

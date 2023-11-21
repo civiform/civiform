@@ -7,9 +7,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import models.ApiKeyModel;
 
 /**
- * Stores permissions for {@link models.ApiKey}s.
+ * Stores permissions for {@link ApiKeyModel}s.
  *
  * <p>Permissions are represented as a resource identifier paired with an ability. E.g.
  * "utility-discount" program with "read" ability. Multiple permissions may be stored for the same

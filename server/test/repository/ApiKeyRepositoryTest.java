@@ -7,7 +7,7 @@ import auth.ApiKeyGrants;
 import io.ebean.DataIntegrityException;
 import java.time.Instant;
 import java.util.concurrent.CompletionException;
-import models.ApiKey;
+import models.ApiKeyModel;
 import org.junit.Before;
 import org.junit.Test;
 import services.PageNumberBasedPaginationSpec;
@@ -27,8 +27,8 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
     ApiKeyGrants grants = new ApiKeyGrants();
     grants.grantProgramPermission("program-a", ApiKeyGrants.Permission.READ);
     for (int i = 0; i < 3; i++) {
-      ApiKey apiKey =
-          new ApiKey(grants)
+      ApiKeyModel apiKey =
+          new ApiKeyModel(grants)
               .setName(String.format("key name %s", i))
               .setKeyId(String.format("key-id-%s", i))
               .setCreatedBy("test@example.com")
@@ -39,8 +39,8 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
     }
 
     for (int i = 0; i < 3; i++) {
-      ApiKey apiKey =
-          new ApiKey(grants)
+      ApiKeyModel apiKey =
+          new ApiKeyModel(grants)
               .setName(String.format("retired key name %s", i))
               .setKeyId(String.format("retired-key-id-%s", i))
               .setCreatedBy("test@example.com")
@@ -52,8 +52,8 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
     }
 
     for (int i = 0; i < 3; i++) {
-      ApiKey apiKey =
-          new ApiKey(grants)
+      ApiKeyModel apiKey =
+          new ApiKeyModel(grants)
               .setName(String.format("expired key name %s", i))
               .setKeyId(String.format("expired-id-%s", i))
               .setCreatedBy("test@example.com")
@@ -65,16 +65,16 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
 
     PageNumberBasedPaginationSpec paginationSpec =
         new PageNumberBasedPaginationSpec(/* pageSize= */ 2);
-    PaginationResult<ApiKey> result = repo.listActiveApiKeys(paginationSpec);
+    PaginationResult<ApiKeyModel> result = repo.listActiveApiKeys(paginationSpec);
     assertThat(result.getNumPages()).isEqualTo(2);
-    assertThat(result.getPageContents().stream().map(ApiKey::getName))
+    assertThat(result.getPageContents().stream().map(ApiKeyModel::getName))
         .containsExactly("key name 2", "key name 1");
     assertThat(result.hasMorePages()).isTrue();
 
     result =
         repo.listActiveApiKeys(
             new PageNumberBasedPaginationSpec(/* pageSize= */ 2, /* currentPage= */ 2));
-    assertThat(result.getPageContents().stream().map(ApiKey::getName))
+    assertThat(result.getPageContents().stream().map(ApiKeyModel::getName))
         .containsExactly("key name 0");
     assertThat(result.hasMorePages()).isFalse();
   }
@@ -84,8 +84,8 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
     ApiKeyGrants grants = new ApiKeyGrants();
     grants.grantProgramPermission("program-a", ApiKeyGrants.Permission.READ);
     for (int i = 0; i < 3; i++) {
-      ApiKey apiKey =
-          new ApiKey(grants)
+      ApiKeyModel apiKey =
+          new ApiKeyModel(grants)
               .setName(String.format("key name %s", i))
               .setKeyId(String.format("key-id-%s", i))
               .setCreatedBy("test@example.com")
@@ -96,8 +96,8 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
     }
 
     for (int i = 0; i < 3; i++) {
-      ApiKey apiKey =
-          new ApiKey(grants)
+      ApiKeyModel apiKey =
+          new ApiKeyModel(grants)
               .setName(String.format("retired key name %s", i))
               .setKeyId(String.format("retired-key-id-%s", i))
               .setCreatedBy("test@example.com")
@@ -109,8 +109,8 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
     }
 
     for (int i = 0; i < 3; i++) {
-      ApiKey apiKey =
-          new ApiKey(grants)
+      ApiKeyModel apiKey =
+          new ApiKeyModel(grants)
               .setName(String.format("expired key name %s", i))
               .setKeyId(String.format("expired-id-%s", i))
               .setCreatedBy("test@example.com")
@@ -122,16 +122,16 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
 
     PageNumberBasedPaginationSpec paginationSpec =
         new PageNumberBasedPaginationSpec(/* pageSize= */ 2);
-    PaginationResult<ApiKey> result = repo.listRetiredApiKeys(paginationSpec);
+    PaginationResult<ApiKeyModel> result = repo.listRetiredApiKeys(paginationSpec);
     assertThat(result.getNumPages()).isEqualTo(2);
-    assertThat(result.getPageContents().stream().map(ApiKey::getName))
+    assertThat(result.getPageContents().stream().map(ApiKeyModel::getName))
         .containsExactly("retired key name 2", "retired key name 1");
     assertThat(result.hasMorePages()).isTrue();
 
     result =
         repo.listRetiredApiKeys(
             new PageNumberBasedPaginationSpec(/* pageSize= */ 2, /* currentPage= */ 2));
-    assertThat(result.getPageContents().stream().map(ApiKey::getName))
+    assertThat(result.getPageContents().stream().map(ApiKeyModel::getName))
         .containsExactly("retired key name 0");
     assertThat(result.hasMorePages()).isFalse();
   }
@@ -141,8 +141,8 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
     ApiKeyGrants grants = new ApiKeyGrants();
     grants.grantProgramPermission("program-a", ApiKeyGrants.Permission.READ);
     for (int i = 0; i < 3; i++) {
-      ApiKey apiKey =
-          new ApiKey(grants)
+      ApiKeyModel apiKey =
+          new ApiKeyModel(grants)
               .setName(String.format("key name %s", i))
               .setKeyId(String.format("key-id-%s", i))
               .setCreatedBy("test@example.com")
@@ -153,8 +153,8 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
     }
 
     for (int i = 0; i < 3; i++) {
-      ApiKey apiKey =
-          new ApiKey(grants)
+      ApiKeyModel apiKey =
+          new ApiKeyModel(grants)
               .setName(String.format("retired key name %s", i))
               .setKeyId(String.format("retired-key-id-%s", i))
               .setCreatedBy("test@example.com")
@@ -166,8 +166,8 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
     }
 
     for (int i = 0; i < 3; i++) {
-      ApiKey apiKey =
-          new ApiKey(grants)
+      ApiKeyModel apiKey =
+          new ApiKeyModel(grants)
               .setName(String.format("expired key name %s", i))
               .setKeyId(String.format("expired-id-%s", i))
               .setCreatedBy("test@example.com")
@@ -179,16 +179,16 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
 
     PageNumberBasedPaginationSpec paginationSpec =
         new PageNumberBasedPaginationSpec(/* pageSize= */ 2);
-    PaginationResult<ApiKey> result = repo.listExpiredApiKeys(paginationSpec);
+    PaginationResult<ApiKeyModel> result = repo.listExpiredApiKeys(paginationSpec);
     assertThat(result.getNumPages()).isEqualTo(2);
-    assertThat(result.getPageContents().stream().map(ApiKey::getName))
+    assertThat(result.getPageContents().stream().map(ApiKeyModel::getName))
         .containsExactly("expired key name 2", "expired key name 1");
     assertThat(result.hasMorePages()).isTrue();
 
     result =
         repo.listExpiredApiKeys(
             new PageNumberBasedPaginationSpec(/* pageSize= */ 2, /* currentPage= */ 2));
-    assertThat(result.getPageContents().stream().map(ApiKey::getName))
+    assertThat(result.getPageContents().stream().map(ApiKeyModel::getName))
         .containsExactly("expired key name 0");
     assertThat(result.hasMorePages()).isFalse();
   }
@@ -198,8 +198,8 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
     ApiKeyGrants grants = new ApiKeyGrants();
     grants.grantProgramPermission("program-a", ApiKeyGrants.Permission.READ);
     // Key is both retired and expired.
-    ApiKey apiKey =
-        new ApiKey(grants)
+    ApiKeyModel apiKey =
+        new ApiKeyModel(grants)
             .setName("key name")
             .setKeyId("key-id")
             .setCreatedBy("test@example.com")
@@ -219,16 +219,16 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
                 .listRetiredApiKeys(new PageNumberBasedPaginationSpec(/* pageSize= */ 1))
                 .getPageContents()
                 .stream()
-                .map(ApiKey::getName))
+                .map(ApiKeyModel::getName))
         .containsExactly("key name");
   }
 
   @Test
   public void insert_persistsANewKey() {
-    ApiKey foundKey;
+    ApiKeyModel foundKey;
     ApiKeyGrants grants = new ApiKeyGrants();
     grants.grantProgramPermission("program-a", ApiKeyGrants.Permission.READ);
-    ApiKey apiKey = new ApiKey(grants);
+    ApiKeyModel apiKey = new ApiKeyModel(grants);
 
     apiKey
         .setName("key name")
@@ -259,7 +259,7 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
   @Test
   public void insert_missingRequiredAttributes_raisesAnException() {
     ApiKeyGrants grants = new ApiKeyGrants();
-    ApiKey apiKey = new ApiKey(grants);
+    ApiKeyModel apiKey = new ApiKeyModel(grants);
 
     assertThatThrownBy(() -> repo.insert(apiKey).toCompletableFuture().join())
         .isInstanceOf(CompletionException.class)

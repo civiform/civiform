@@ -11,12 +11,12 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.ApiKey;
+import models.ApiKeyModel;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 
 /**
- * Provides an asynchronous API for persistence and query of {@link ApiKey} instances. Uses {@code
+ * Provides an asynchronous API for persistence and query of {@link ApiKeyModel} instances. Uses {@code
  * DatabaseExecutionContext} for scheduling code to be executed using the database interaction
  * thread pool.
  */
@@ -33,13 +33,13 @@ public final class ApiKeyRepository {
   }
 
   /**
-   * List active, i.e. unexpired and unretired, {@link ApiKey}s ordered by creation time descending.
+   * List active, i.e. unexpired and unretired, {@link ApiKeyModel}s ordered by creation time descending.
    */
-  public PaginationResult<ApiKey> listActiveApiKeys(PageNumberBasedPaginationSpec paginationSpec) {
+  public PaginationResult<ApiKeyModel> listActiveApiKeys(PageNumberBasedPaginationSpec paginationSpec) {
     Instant now = Instant.now();
-    PagedList<ApiKey> pagedList =
+    PagedList<ApiKeyModel> pagedList =
         database
-            .find(ApiKey.class)
+            .find(ApiKeyModel.class)
             .where()
             .isNull("retired_time")
             .and()
@@ -49,7 +49,7 @@ public final class ApiKeyRepository {
             .order("id desc")
             .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
             .setMaxRows(paginationSpec.getPageSize())
-            .setLabel("ApiKey.findList")
+            .setLabel("ApiKeyModel.findList")
             .setProfileLocation(queryProfileLocationBuilder.create("listActiveApiKeys"))
             .findPagedList();
 
@@ -61,11 +61,11 @@ public final class ApiKeyRepository {
         ImmutableList.copyOf(pagedList.getList()));
   }
 
-  /** List retired {@link ApiKey}s ordered by creation time descending. */
-  public PaginationResult<ApiKey> listRetiredApiKeys(PageNumberBasedPaginationSpec paginationSpec) {
-    PagedList<ApiKey> pagedList =
+  /** List retired {@link ApiKeyModel}s ordered by creation time descending. */
+  public PaginationResult<ApiKeyModel> listRetiredApiKeys(PageNumberBasedPaginationSpec paginationSpec) {
+    PagedList<ApiKeyModel> pagedList =
         database
-            .find(ApiKey.class)
+            .find(ApiKeyModel.class)
             .where()
             .isNotNull("retired_time")
             // This is a proxy for creation time descending. Both get the desired ordering
@@ -73,7 +73,7 @@ public final class ApiKeyRepository {
             .order("id desc")
             .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
             .setMaxRows(paginationSpec.getPageSize())
-            .setLabel("ApiKey.findList")
+            .setLabel("ApiKeyModel.findList")
             .setProfileLocation(queryProfileLocationBuilder.create("listRetiredApiKeys"))
             .findPagedList();
 
@@ -86,14 +86,14 @@ public final class ApiKeyRepository {
   }
 
   /**
-   * List expired {@link ApiKey}s ordered by creation time descending. Note that if a key is both
+   * List expired {@link ApiKeyModel}s ordered by creation time descending. Note that if a key is both
    * retired and expired, it will not be returned here.
    */
-  public PaginationResult<ApiKey> listExpiredApiKeys(PageNumberBasedPaginationSpec paginationSpec) {
+  public PaginationResult<ApiKeyModel> listExpiredApiKeys(PageNumberBasedPaginationSpec paginationSpec) {
     Instant now = Instant.now();
-    PagedList<ApiKey> pagedList =
+    PagedList<ApiKeyModel> pagedList =
         database
-            .find(ApiKey.class)
+            .find(ApiKeyModel.class)
             .where()
             .lt("EXTRACT(EPOCH FROM expiration) * 1000", now.toEpochMilli())
             .and()
@@ -103,7 +103,7 @@ public final class ApiKeyRepository {
             .order("id desc")
             .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
             .setMaxRows(paginationSpec.getPageSize())
-            .setLabel("ApiKey.findList")
+            .setLabel("ApiKeyModel.findList")
             .setProfileLocation(queryProfileLocationBuilder.create("listExpiredApiKeys"))
             .findPagedList();
 
@@ -117,12 +117,12 @@ public final class ApiKeyRepository {
 
   /** Increment an API key's call count and set its last call IP address to the one provided. */
   public void recordApiKeyUsage(String apiKeyId, String remoteAddress) {
-    ApiKey apiKey =
+    ApiKeyModel apiKey =
         database
-            .find(ApiKey.class)
+            .find(ApiKeyModel.class)
             .where()
             .eq("key_id", apiKeyId)
-            .setLabel("ApiKey.findById")
+            .setLabel("ApiKeyModel.findById")
             .setProfileLocation(queryProfileLocationBuilder.create("recordApiKeyUsage"))
             .findOne();
 
@@ -132,8 +132,8 @@ public final class ApiKeyRepository {
     apiKey.save();
   }
 
-  /** Insert a new {@link ApiKey} record asynchronously. */
-  public CompletionStage<ApiKey> insert(ApiKey apiKey) {
+  /** Insert a new {@link ApiKeyModel} record asynchronously. */
+  public CompletionStage<ApiKeyModel> insert(ApiKeyModel apiKey) {
     return supplyAsync(
         () -> {
           database.insert(apiKey);
@@ -143,29 +143,29 @@ public final class ApiKeyRepository {
   }
 
   /** Find an ApiKey record by database primary ID asynchronously. */
-  public CompletionStage<Optional<ApiKey>> lookupApiKey(long id) {
+  public CompletionStage<Optional<ApiKeyModel>> lookupApiKey(long id) {
     return supplyAsync(
         () ->
             Optional.ofNullable(
                 database
-                    .find(ApiKey.class)
+                    .find(ApiKeyModel.class)
                     .setId(id)
-                    .setLabel("ApiKey.findById")
+                    .setLabel("ApiKeyModel.findById")
                     .setProfileLocation(queryProfileLocationBuilder.create("lookupApiKey"))
                     .findOne()),
         executionContext);
   }
 
   /** Find an ApiKey record by the key's string ID asynchronously. */
-  public CompletionStage<Optional<ApiKey>> lookupApiKey(String keyId) {
+  public CompletionStage<Optional<ApiKeyModel>> lookupApiKey(String keyId) {
     return supplyAsync(
         () ->
             Optional.ofNullable(
                 database
-                    .find(ApiKey.class)
+                    .find(ApiKeyModel.class)
                     .where()
                     .eq("key_id", keyId)
-                    .setLabel("ApiKey.findById")
+                    .setLabel("ApiKeyModel.findById")
                     .setProfileLocation(queryProfileLocationBuilder.create("lookupApiKey"))
                     .findOne()),
         executionContext);

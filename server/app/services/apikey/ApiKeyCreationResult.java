@@ -3,13 +3,13 @@ package services.apikey;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
-import models.ApiKey;
+import models.ApiKeyModel;
 import play.data.DynamicForm;
 
 /**
- * Holds state relevant to the result of attempting to create an {@link ApiKey}.
+ * Holds state relevant to the result of attempting to create an {@link ApiKeyModel}.
  *
- * <p>If the creation attempt was successful, contains an {@link ApiKey} and the base64 encoded
+ * <p>If the creation attempt was successful, contains an {@link ApiKeyModel} and the base64 encoded
  * credentials string that allows an API consumer to use the key. Attempting to access either of
  * these values when {@code isSuccessful()} is false will throw a runtime exception.
  *
@@ -18,13 +18,13 @@ import play.data.DynamicForm;
  * throw a runtime exception.
  */
 public final class ApiKeyCreationResult {
-  private final Optional<ApiKey> apiKey;
+  private final Optional<ApiKeyModel> apiKey;
   private final Optional<String> keyId;
   private final Optional<String> keySecret;
   private final Optional<DynamicForm> form;
 
   /** Constructs an instance in the case of success. */
-  public static ApiKeyCreationResult success(ApiKey apiKey, String keyId, String keySecret) {
+  public static ApiKeyCreationResult success(ApiKeyModel apiKey, String keyId, String keySecret) {
     return new ApiKeyCreationResult(
         Optional.of(apiKey),
         Optional.of(keyId),
@@ -42,7 +42,7 @@ public final class ApiKeyCreationResult {
   }
 
   private ApiKeyCreationResult(
-      Optional<ApiKey> apiKey,
+      Optional<ApiKeyModel> apiKey,
       Optional<String> keyId,
       Optional<String> keySecret,
       Optional<DynamicForm> form) {
@@ -58,7 +58,7 @@ public final class ApiKeyCreationResult {
   }
 
   /** Returns the API key if creation was successful. */
-  public ApiKey getApiKey() {
+  public ApiKeyModel getApiKey() {
     return apiKey.get();
   }
 

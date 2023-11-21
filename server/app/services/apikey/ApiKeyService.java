@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.crypto.KeyGenerator;
-import models.ApiKey;
+import models.ApiKeyModel;
 import org.apache.commons.net.util.SubnetUtils;
 import play.Environment;
 import play.cache.NamedCache;
@@ -34,7 +34,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 
 /**
- * Service management of the resource backed by {@link ApiKey}.
+ * Service management of the resource backed by {@link ApiKeyModel}.
  *
  * <p>CiviForm uses API keys to implement HTTP basic auth
  * (https://en.wikipedia.org/wiki/Basic_access_authentication) for authenticating API requests, as
@@ -97,31 +97,31 @@ public final class ApiKeyService {
   }
 
   /**
-   * Lists all active, i.e. unexpired and unretired, {@link ApiKey}s in order of creation time
+   * Lists all active, i.e. unexpired and unretired, {@link ApiKeyModel}s in order of creation time
    * descending.
    */
-  public ImmutableList<ApiKey> listActiveApiKeys() {
-    PaginationResult<ApiKey> apiKeys =
+  public ImmutableList<ApiKeyModel> listActiveApiKeys() {
+    PaginationResult<ApiKeyModel> apiKeys =
         repository.listActiveApiKeys(PageNumberBasedPaginationSpec.MAX_PAGE_SIZE_SPEC);
     return apiKeys.getPageContents();
   }
 
-  /** Lists all retired {@link ApiKey}s in order of creation time descending. */
-  public ImmutableList<ApiKey> listRetiredApiKeys() {
-    PaginationResult<ApiKey> apiKeys =
+  /** Lists all retired {@link ApiKeyModel}s in order of creation time descending. */
+  public ImmutableList<ApiKeyModel> listRetiredApiKeys() {
+    PaginationResult<ApiKeyModel> apiKeys =
         repository.listRetiredApiKeys(PageNumberBasedPaginationSpec.MAX_PAGE_SIZE_SPEC);
     return apiKeys.getPageContents();
   }
 
-  /** Lists all expired {@link ApiKey}s in order of creation time descending. */
-  public ImmutableList<ApiKey> listExpiredApiKeys() {
-    PaginationResult<ApiKey> apiKeys =
+  /** Lists all expired {@link ApiKeyModel}s in order of creation time descending. */
+  public ImmutableList<ApiKeyModel> listExpiredApiKeys() {
+    PaginationResult<ApiKeyModel> apiKeys =
         repository.listExpiredApiKeys(PageNumberBasedPaginationSpec.MAX_PAGE_SIZE_SPEC);
     return apiKeys.getPageContents();
   }
 
   /** Finds an API key by its key ID (not the database ID) directly from the database. */
-  public Optional<ApiKey> findByKeyId(String keyId) {
+  public Optional<ApiKeyModel> findByKeyId(String keyId) {
     return repository.lookupApiKey(keyId).toCompletableFuture().join();
   }
 
@@ -130,7 +130,7 @@ public final class ApiKeyService {
    * queries the database if the key isn't cache. Lookups for invalid key IDs are cached with a
    * value of Optional.empty() to relieve database pressure caused by repeated invalid requests.
    */
-  public Optional<ApiKey> findByKeyIdWithCache(String keyId) {
+  public Optional<ApiKeyModel> findByKeyIdWithCache(String keyId) {
     return apiKeyCache.getOrElseUpdate(
         keyId, () -> findByKeyId(keyId), CACHE_EXPIRATION_TIME_SECONDS);
   }
@@ -141,17 +141,17 @@ public final class ApiKeyService {
   }
 
   /**
-   * Marks an {@link ApiKey} as retired, resulting in all requests that use it to fail
+   * Marks an {@link ApiKeyModel} as retired, resulting in all requests that use it to fail
    * authentication. Retiring is permanent.
    */
-  public ApiKey retireApiKey(Long apiKeyId, CiviFormProfile profile) {
-    Optional<ApiKey> maybeApiKey = repository.lookupApiKey(apiKeyId).toCompletableFuture().join();
+  public ApiKeyModel retireApiKey(Long apiKeyId, CiviFormProfile profile) {
+    Optional<ApiKeyModel> maybeApiKey = repository.lookupApiKey(apiKeyId).toCompletableFuture().join();
 
     if (maybeApiKey.isEmpty()) {
       throw new RuntimeException(new ApiKeyNotFoundException(apiKeyId));
     }
 
-    ApiKey apiKey = maybeApiKey.get();
+    ApiKeyModel apiKey = maybeApiKey.get();
 
     if (apiKey.isRetired()) {
       throw new NotChangeableException(String.format("ApiKey %s is already retired", apiKey));
@@ -164,7 +164,7 @@ public final class ApiKeyService {
   }
 
   /**
-   * Creates a new {@link ApiKey} with the data in {@code form} if it passes validation.
+   * Creates a new {@link ApiKeyModel} with the data in {@code form} if it passes validation.
    *
    * @param form Stores data specified by the user for creation of the key, as well as validation
    *     errors
@@ -179,7 +179,7 @@ public final class ApiKeyService {
     }
 
     ApiKeyGrants grants = resolveGrants(form);
-    ApiKey apiKey = new ApiKey(grants);
+    ApiKeyModel apiKey = new ApiKeyModel(grants);
 
     // apiKey is an ebean entity/model and is mutable. form is play form object and is immutable.
     // adding validation error messages using form.withError returns a new form object with the
@@ -207,7 +207,7 @@ public final class ApiKeyService {
 
   // {@code apiKey} is mutable and modified here, {@code form} is immutable so a new instance is
   // returned.
-  private DynamicForm resolveKeyName(DynamicForm form, ApiKey apiKey) {
+  private DynamicForm resolveKeyName(DynamicForm form, ApiKeyModel apiKey) {
     String keyName = form.rawData().getOrDefault(FORM_FIELD_NAME_KEY_NAME, "");
 
     if (!keyName.isBlank()) {
@@ -220,7 +220,7 @@ public final class ApiKeyService {
   }
 
   // apiKey is mutable and modified here, form is immutable so a new instance is returned
-  private DynamicForm resolveExpiration(DynamicForm form, ApiKey apiKey) {
+  private DynamicForm resolveExpiration(DynamicForm form, ApiKeyModel apiKey) {
     String expirationString = form.rawData().getOrDefault(FORM_FIELD_NAME_EXPIRATION, "");
 
     if (expirationString.isBlank()) {
@@ -239,7 +239,7 @@ public final class ApiKeyService {
   }
 
   // apiKey is mutable and modified here, form is immutable so a new instance is returned
-  private DynamicForm resolveSubnet(DynamicForm form, ApiKey apiKey) {
+  private DynamicForm resolveSubnet(DynamicForm form, ApiKeyModel apiKey) {
     String subnetInputString = form.rawData().getOrDefault(FORM_FIELD_NAME_SUBNET, "");
     subnetInputString = subnetInputString.trim();
 
