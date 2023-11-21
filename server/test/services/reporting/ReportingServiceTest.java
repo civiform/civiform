@@ -8,7 +8,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import models.ApplicantModel;
-import models.Application;
+import models.ApplicationModel;
 import models.LifecycleStage;
 import models.ProgramModel;
 import org.apache.commons.csv.CSVFormat;
@@ -136,9 +136,9 @@ public class ReportingServiceTest extends ResetPostgres {
     instanceOf(ReportingRepository.class).refreshMonthlyReportingView();
   }
 
-  private Application createFakeApplication(
+  private ApplicationModel createFakeApplication(
       ProgramModel program, Instant createTime, Instant submitTime) {
-    Application application = new Application(applicant, program, LifecycleStage.ACTIVE);
+    ApplicationModel application = new ApplicationModel(applicant, program, LifecycleStage.ACTIVE);
     application.setApplicantData(applicant.getApplicantData());
     application.save();
 

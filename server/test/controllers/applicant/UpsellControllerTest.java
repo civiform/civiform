@@ -11,7 +11,7 @@ import static support.CfTestHelpers.requestBuilderWithSettings;
 import auth.ProfileFactory;
 import controllers.WithMockedProfiles;
 import models.ApplicantModel;
-import models.Application;
+import models.ApplicationModel;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     ApplicantModel applicant = createApplicantWithMockedProfile();
-    Application application =
+    ApplicationModel application =
         resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
     String redirectLocation = "someUrl";
 
@@ -98,7 +98,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(predicateQuestion)
             .buildDefinition();
-    Application application =
+    ApplicationModel application =
         resourceCreator.insertActiveApplication(applicant, commonIntakeForm.toProgram());
 
     String redirectLocation = "someUrl";
@@ -156,7 +156,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(predicateQuestion)
             .buildDefinition();
-    Application application =
+    ApplicationModel application =
         resourceCreator.insertActiveApplication(applicant, commonIntakeForm.toProgram());
 
     String redirectLocation = "someUrl";
@@ -182,7 +182,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     ApplicantModel applicant = createApplicantWithMockedProfile();
-    Application application =
+    ApplicationModel application =
         resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
 
     Result result;
@@ -207,7 +207,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     ApplicantModel managedApplicant = createApplicant();
     createTIWithMockedProfile(managedApplicant);
     profileFactory.createFakeTrustedIntermediary();
-    Application application =
+    ApplicationModel application =
         resourceCreator.insertActiveApplication(managedApplicant, programDefinition.toProgram());
 
     Result result;
@@ -235,7 +235,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     ApplicantModel managedApplicant = createApplicant();
     createTIWithMockedProfile(managedApplicant);
     profileFactory.createFakeTrustedIntermediary();
-    Application application =
+    ApplicationModel application =
         resourceCreator.insertActiveApplication(managedApplicant, programDefinition.toProgram());
 
     Result result;
@@ -259,7 +259,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     ApplicantModel applicant = createApplicantWithMockedProfile();
-    Application application =
+    ApplicationModel application =
         resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
 
     Result result;

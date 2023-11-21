@@ -30,8 +30,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import models.ApplicantModel;
-import models.Application;
 import models.ApplicationEvent;
+import models.ApplicationModel;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
@@ -189,7 +189,7 @@ public final class ApplicantService {
 
   /** Get a {@link ReadOnlyApplicantProgramService} from an application. */
   public CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
-      Application application) {
+      ApplicationModel application) {
     try {
       return CompletableFuture.completedFuture(
           new ReadOnlyApplicantProgramServiceImpl(
@@ -204,7 +204,7 @@ public final class ApplicantService {
 
   /** Get a {@link ReadOnlyApplicantProgramService} from an application and program definition. */
   public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
-      Application application, ProgramDefinition programDefinition) {
+      ApplicationModel application, ProgramDefinition programDefinition) {
     return new ReadOnlyApplicantProgramServiceImpl(
         jsonPathPredicateGeneratorFactory,
         application.getApplicantData(),
@@ -381,17 +381,17 @@ public final class ApplicantService {
   }
 
   /**
-   * Create a new active {@link Application} for the applicant applying to the program.
+   * Create a new active {@link ApplicationModel} for the applicant applying to the program.
    *
    * <p>An application is a snapshot of all the answers the applicant has filled in so far, along
    * with association with the applicant and a program that the applicant is applying to.
    *
    * @param submitterProfile the user that submitted the application, if it is a TI the application
    *     is associated with this profile too.
-   * @return the saved {@link Application}. If the submission failed, a {@link
+   * @return the saved {@link ApplicationModel}. If the submission failed, a {@link
    *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
-  public CompletionStage<Application> submitApplication(
+  public CompletionStage<ApplicationModel> submitApplication(
       long applicantId, long programId, CiviFormProfile submitterProfile) {
     if (submitterProfile.isTrustedIntermediary()) {
       return getReadOnlyApplicantProgramService(applicantId, programId)
@@ -425,7 +425,7 @@ public final class ApplicantService {
    * @param status the status to set the application to
    */
   private CompletionStage<ApplicationEvent> setApplicationStatus(
-      Application application, StatusDefinitions.Status status) {
+      ApplicationModel application, StatusDefinitions.Status status) {
     // Set the status for the application automatically to the default status
     ApplicationEventDetails.StatusEvent statusEvent =
         ApplicationEventDetails.StatusEvent.builder()
@@ -443,24 +443,24 @@ public final class ApplicantService {
   }
 
   @VisibleForTesting
-  CompletionStage<Application> submitApplication(
+  CompletionStage<ApplicationModel> submitApplication(
       long applicantId, long programId, Optional<String> tiSubmitterEmail) {
     CompletableFuture<ApplicantPersonalInfo> applicantLabelFuture =
         getPersonalInfo(applicantId).toCompletableFuture();
-    CompletableFuture<Optional<Application>> applicationFuture =
+    CompletableFuture<Optional<ApplicationModel>> applicationFuture =
         applicationRepository
             .submitApplication(applicantId, programId, tiSubmitterEmail)
             .toCompletableFuture();
     return CompletableFuture.allOf(applicantLabelFuture, applicationFuture)
         .thenComposeAsync(
             (v) -> {
-              Optional<Application> applicationMaybe = applicationFuture.join();
+              Optional<ApplicationModel> applicationMaybe = applicationFuture.join();
               if (applicationMaybe.isEmpty()) {
                 return CompletableFuture.failedFuture(
                     new ApplicationSubmissionException(applicantId, programId));
               }
 
-              Application application = applicationMaybe.get();
+              ApplicationModel application = applicationMaybe.get();
               ProgramModel applicationProgram = application.getProgram();
               ProgramDefinition programDefinition = applicationProgram.getProgramDefinition();
               String programName = programDefinition.adminName();
@@ -811,7 +811,7 @@ public final class ApplicantService {
    * program, applicant, and account associations eager loaded. Results are ordered by application
    * ID in ascending order.
    */
-  public ImmutableList<Application> getApplications(TimeFilter submitTimeFilter) {
+  public ImmutableList<ApplicationModel> getApplications(TimeFilter submitTimeFilter) {
     return applicationRepository.getApplications(submitTimeFilter);
   }
 
@@ -828,7 +828,7 @@ public final class ApplicantService {
   public CompletionStage<ApplicationPrograms> relevantProgramsForApplicant(
       long applicantId, CiviFormProfile requesterProfile) {
     // Note: The Program model associated with the application is eagerly loaded.
-    CompletableFuture<ImmutableSet<Application>> applicationsFuture =
+    CompletableFuture<ImmutableSet<ApplicationModel>> applicationsFuture =
         applicationRepository
             .getApplicationsForApplicant(
                 applicantId, ImmutableSet.of(LifecycleStage.DRAFT, LifecycleStage.ACTIVE))
@@ -848,7 +848,7 @@ public final class ApplicantService {
     return applicationsFuture
         .thenComposeAsync(
             v -> {
-              ImmutableSet<Application> applications = applicationsFuture.join();
+              ImmutableSet<ApplicationModel> applications = applicationsFuture.join();
               if (applications.isEmpty()) {
                 return CompletableFuture.completedFuture(activeProgramDefinitions);
               }
@@ -862,7 +862,7 @@ public final class ApplicantService {
             })
         .thenApplyAsync(
             allPrograms -> {
-              ImmutableSet<Application> applications = applicationsFuture.join();
+              ImmutableSet<ApplicationModel> applications = applicationsFuture.join();
               logDuplicateDrafts(applications);
               return relevantProgramsForApplicantInternal(
                   activeProgramDefinitions, applications, allPrograms);
@@ -920,7 +920,7 @@ public final class ApplicantService {
    * if there are no eligibility conditions for the program.
    */
   public Optional<Boolean> getApplicationEligibilityStatus(
-      Application application, ProgramDefinition programDefinition) {
+      ApplicationModel application, ProgramDefinition programDefinition) {
     ReadOnlyApplicantProgramService roAppProgramService =
         getReadOnlyApplicantProgramService(application, programDefinition);
     return programDefinition.hasEligibilityEnabled()
@@ -930,7 +930,7 @@ public final class ApplicantService {
 
   private ApplicationPrograms relevantProgramsForApplicantInternal(
       ImmutableList<ProgramDefinition> activePrograms,
-      ImmutableSet<Application> applications,
+      ImmutableSet<ApplicationModel> applications,
       ImmutableList<ProgramDefinition> allPrograms) {
     // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
     // provided active programs contains duplicate entries with the same adminName. In this
@@ -945,7 +945,7 @@ public final class ApplicantService {
     // When new revisions of Programs are created, they have distinct IDs but retain the
     // same adminName. In order to find the most recent draft / active application,
     // we first group by the unique program name rather than the ID.
-    Map<String, Map<LifecycleStage, Optional<Application>>> mostRecentApplicationsByProgram =
+    Map<String, Map<LifecycleStage, Optional<ApplicationModel>>> mostRecentApplicationsByProgram =
         applications.stream()
             .collect(
                 Collectors.groupingBy(
@@ -953,18 +953,18 @@ public final class ApplicantService {
                       return a.getProgram().getProgramDefinition().adminName();
                     },
                     Collectors.groupingBy(
-                        Application::getLifecycleStage,
+                        ApplicationModel::getLifecycleStage,
                         // In practice, we don't expect an applicant to have multiple
                         // DRAFT or ACTIVE applications for a given program. Grabbing the latest
                         // application here guards against that case, should it occur.
                         Collectors.maxBy(
-                            Comparator.<Application, Instant>comparing(
+                            Comparator.<ApplicationModel, Instant>comparing(
                                     a -> {
                                       return a.getSubmitTime() != null
                                           ? a.getSubmitTime()
                                           : Instant.ofEpochMilli(0);
                                     })
-                                .thenComparing(Application::getCreateTime)))));
+                                .thenComparing(ApplicationModel::getCreateTime)))));
 
     ImmutableList.Builder<ApplicantProgramData> inProgressPrograms = ImmutableList.builder();
     ImmutableList.Builder<ApplicantProgramData> submittedPrograms = ImmutableList.builder();
@@ -974,14 +974,14 @@ public final class ApplicantService {
     Set<String> programNamesWithApplications = Sets.newHashSet();
     mostRecentApplicationsByProgram.forEach(
         (programName, appByStage) -> {
-          Optional<Application> maybeDraftApp =
+          Optional<ApplicationModel> maybeDraftApp =
               appByStage.getOrDefault(LifecycleStage.DRAFT, Optional.empty());
-          Optional<Application> maybeSubmittedApp =
+          Optional<ApplicationModel> maybeSubmittedApp =
               appByStage.getOrDefault(LifecycleStage.ACTIVE, Optional.empty());
           Optional<Instant> latestSubmittedApplicationTime =
-              maybeSubmittedApp.map(Application::getSubmitTime);
+              maybeSubmittedApp.map(ApplicationModel::getSubmitTime);
           if (maybeDraftApp.isPresent()) {
-            Application draftApp = maybeDraftApp.get();
+            ApplicationModel draftApp = maybeDraftApp.get();
             // Get the program definition from the all programs list, since that has the
             // associated question data.
             ProgramDefinition programDefinition =
@@ -1080,18 +1080,18 @@ public final class ApplicantService {
    * programs for which they had draft applications. We can remove this logging once we determine
    * and resolve the root cause of the duplicate draft applications.
    */
-  private void logDuplicateDrafts(ImmutableSet<Application> applications) {
-    Collection<Map<LifecycleStage, List<Application>>> groupedByStatus =
+  private void logDuplicateDrafts(ImmutableSet<ApplicationModel> applications) {
+    Collection<Map<LifecycleStage, List<ApplicationModel>>> groupedByStatus =
         applications.stream()
             .collect(
                 Collectors.groupingBy(
                     a -> {
                       return a.getProgram().getProgramDefinition().adminName();
                     },
-                    Collectors.groupingBy(Application::getLifecycleStage)))
+                    Collectors.groupingBy(ApplicationModel::getLifecycleStage)))
             .values();
-    for (Map<LifecycleStage, List<Application>> programAppsMap : groupedByStatus) {
-      List<Application> draftApplications =
+    for (Map<LifecycleStage, List<ApplicationModel>> programAppsMap : groupedByStatus) {
+      List<ApplicationModel> draftApplications =
           programAppsMap.getOrDefault(LifecycleStage.DRAFT, Lists.newArrayList());
       if (draftApplications.size() > 1) {
         String joinedProgramIds =

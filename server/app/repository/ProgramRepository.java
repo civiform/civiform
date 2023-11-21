@@ -21,7 +21,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.AccountModel;
-import models.Application;
+import models.ApplicationModel;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.VersionModel;
@@ -290,15 +290,15 @@ public final class ProgramRepository {
    * the caller may pass either a {@link IdentifierBasedPaginationSpec <Long>} or {@link
    * PageNumberBasedPaginationSpec} using play's {@link F.Either} wrapper.
    */
-  public PaginationResult<Application> getApplicationsForAllProgramVersions(
+  public PaginationResult<ApplicationModel> getApplicationsForAllProgramVersions(
       long programId,
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
       SubmittedApplicationFilter filters) {
-    ExpressionList<Application> query =
+    ExpressionList<ApplicationModel> query =
         database
-            .find(Application.class)
-            .setLabel("Application.findList")
+            .find(ApplicationModel.class)
+            .setLabel("ApplicationModel.findList")
             .setProfileLocation(
                 queryProfileLocationBuilder.create("getApplicationsForAllProgramVersions"))
             .fetch("program")
@@ -347,7 +347,7 @@ public final class ProgramRepository {
       }
     }
 
-    PagedList<Application> pagedQuery;
+    PagedList<ApplicationModel> pagedQuery;
 
     if (paginationSpecEither.left.isPresent()) {
       IdentifierBasedPaginationSpec<Long> paginationSpec = paginationSpecEither.left.get();
@@ -368,7 +368,7 @@ public final class ProgramRepository {
 
     pagedQuery.loadCount();
 
-    return new PaginationResult<Application>(
+    return new PaginationResult<ApplicationModel>(
         pagedQuery.hasNext(),
         pagedQuery.getTotalPageCount(),
         pagedQuery.getList().stream().collect(ImmutableList.toImmutableList()));

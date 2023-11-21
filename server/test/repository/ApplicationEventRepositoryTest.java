@@ -7,8 +7,8 @@ import java.time.Instant;
 import java.util.Optional;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.Application;
 import models.ApplicationEvent;
+import models.ApplicationModel;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
     AccountModel actor = resourceCreator.insertAccount();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
-    Application application = resourceCreator.insertActiveApplication(applicant, program);
+    ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
 
     ApplicationEventDetails details =
         ApplicationEventDetails.builder()
@@ -55,7 +55,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     Instant startInstant = Instant.now();
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
-    Application application = resourceCreator.insertActiveApplication(applicant, program);
+    ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
 
     ApplicationEventDetails details =
         ApplicationEventDetails.builder()
@@ -81,7 +81,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
     AccountModel actor = resourceCreator.insertAccount();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
-    Application application = resourceCreator.insertActiveApplication(applicant, program);
+    ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
 
     ApplicationEventDetails details =
         ApplicationEventDetails.builder()
@@ -116,7 +116,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
     AccountModel actor = resourceCreator.insertAccount();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
-    Application application = resourceCreator.insertActiveApplication(applicant, program);
+    ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
 
     ApplicationEventDetails details =
         ApplicationEventDetails.builder()

@@ -21,8 +21,8 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.Application;
 import models.ApplicationEvent;
+import models.ApplicationModel;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
@@ -798,7 +798,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Application application =
+    ApplicationModel application =
         subject
             .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
@@ -891,7 +891,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Application oldApplication =
+    ApplicationModel oldApplication =
         subject
             .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
@@ -903,7 +903,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Application newApplication =
+    ApplicationModel newApplication =
         subject
             .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
@@ -938,7 +938,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Application application =
+    ApplicationModel application =
         subject
             .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
@@ -970,7 +970,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Application application =
+    ApplicationModel application =
         subject
             .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
@@ -1048,7 +1048,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Application application =
+    ApplicationModel application =
         subject
             .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
@@ -1121,7 +1121,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Application application =
+    ApplicationModel application =
         subject
             .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
@@ -1179,7 +1179,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Application application =
+    ApplicationModel application =
         subject
             .submitApplication(applicant.id, programDefinition.id(), applicantProfile)
             .toCompletableFuture()
@@ -1218,7 +1218,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Application application =
+    ApplicationModel application =
         subject
             .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
@@ -1295,7 +1295,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    Application application =
+    ApplicationModel application =
         subject
             .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
@@ -2198,7 +2198,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantName())
             .build();
-    Optional<Application> firstApp =
+    Optional<ApplicationModel> firstApp =
         applicationRepository
             .submitApplication(applicant.id, programForDraftApp.id, Optional.empty())
             .toCompletableFuture()
@@ -2208,7 +2208,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .createOrUpdateDraft(applicant.id, programForDraftApp.id)
         .toCompletableFuture()
         .join();
-    Optional<Application> secondApp =
+    Optional<ApplicationModel> secondApp =
         applicationRepository
             .submitApplication(applicant.id, programForSubmittedApp.id, Optional.empty())
             .toCompletableFuture()
@@ -2251,7 +2251,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // Create multiple submitted applications and ensure the most recently submitted
     // version's timestamp is chosen.
-    Application firstSubmitted =
+    ApplicationModel firstSubmitted =
         applicationRepository
             .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
             .toCompletableFuture()
@@ -2281,7 +2281,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // being created. Below, we'll manually set the lifecycle stage to DRAFT. This simulates
     // a bad state where we have multiple draft apps and the lower database ID has a later
     // creation time.
-    Application firstDraft =
+    ApplicationModel firstDraft =
         applicationRepository
             .submitApplication(applicant.id, programForDraft.id, Optional.empty())
             .toCompletableFuture()
@@ -2330,7 +2330,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
-    Application submittedApplication =
+    ApplicationModel submittedApplication =
         applicationRepository
             .submitApplication(applicant.id, program.id, Optional.empty())
             .toCompletableFuture()
@@ -2369,7 +2369,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .save();
 
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
-    Application submittedApplication =
+    ApplicationModel submittedApplication =
         applicationRepository
             .submitApplication(applicant.id, originalProgram.id, Optional.empty())
             .toCompletableFuture()
@@ -2815,7 +2815,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   private static void addStatusEvent(
-      Application application, StatusDefinitions.Status status, AccountModel actorAccount) {
+      ApplicationModel application, StatusDefinitions.Status status, AccountModel actorAccount) {
     ApplicationEventDetails details =
         ApplicationEventDetails.builder()
             .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
@@ -3493,7 +3493,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
-    Application ineligibleApplication =
+    ApplicationModel ineligibleApplication =
         subject
             .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
@@ -3509,7 +3509,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
-    Application eligibleApplication =
+    ApplicationModel eligibleApplication =
         subject
             .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
