@@ -209,11 +209,11 @@ public final class QuestionEditView extends BaseHtmlView {
         QuestionPreview.renderQuestionPreview(type, messages, fileUploadViewStrategy);
 
     HtmlBundle htmlBundle =
-        layout
-            .getBundle(request)
-            .setTitle(title)
-            .addMainContent(formContent, previewContent)
-            .addModals(modal.get());
+        layout.getBundle(request).setTitle(title).addMainContent(formContent, previewContent);
+
+    if (modal.isPresent()) {
+      htmlBundle.addModals(modal.get());
+    }
     return layout.render(htmlBundle);
   }
 
@@ -327,7 +327,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .with(
                 div(
                     h1("Are you sure you want to remove this question from the universal questions"
-                           + " set?")
+                            + " set?")
                         .withClasses("text-base", "mb-4")),
                 submitButton("Remove from universal questions")
                     .withId("accept-question-updates-button") // do i need this id?
