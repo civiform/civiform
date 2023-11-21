@@ -85,7 +85,7 @@ public final class ProgramRepository {
   private Optional<ProgramModel> lookupProgramSync(long id) {
     return database
         .find(ProgramModel.class)
-        .setLabel("Program.findById")
+        .setLabel("ProgramModel.findById")
         .setProfileLocation(queryProfileLocationBuilder.create("lookupProgramSync"))
         .where()
         .eq("id", id)
@@ -247,7 +247,7 @@ public final class ProgramRepository {
     Optional<ProgramModel> program =
         database
             .find(ProgramModel.class)
-            .setLabel("Program.findById")
+            .setLabel("ProgramModel.findById")
             .setProfileLocation(queryProfileLocationBuilder.create("getProgramAdministrators"))
             .setId(programId)
             .findOneOrEmpty();
@@ -261,7 +261,7 @@ public final class ProgramRepository {
     Query<ProgramModel> programNameQuery =
         database
             .find(ProgramModel.class)
-            .setLabel("Program.findById")
+            .setLabel("ProgramModel.findById")
             .setProfileLocation(queryProfileLocationBuilder.create("getAllProgramVersions"))
             .select("name")
             .where()
@@ -271,7 +271,7 @@ public final class ProgramRepository {
 
     return database
         .find(ProgramModel.class)
-        .setLabel("Program.findList")
+        .setLabel("ProgramModel.findList")
         .setProfileLocation(queryProfileLocationBuilder.create("getAllProgramVersions"))
         .where()
         .in("name", programNameQuery)
@@ -379,7 +379,7 @@ public final class ProgramRepository {
         database
             .find(ProgramModel.class)
             .select("name")
-            .setLabel("Program.findByName")
+            .setLabel("ProgramModel.findByName")
             .setProfileLocation(queryProfileLocationBuilder.create("allProgramVersionsQuery"))
             .where()
             .eq("id", programId)
@@ -388,7 +388,7 @@ public final class ProgramRepository {
     return database
         .find(ProgramModel.class)
         .select("id")
-        .setLabel("Program.findById")
+        .setLabel("ProgramModel.findById")
         .setProfileLocation(queryProfileLocationBuilder.create("allProgramVersionsQuery"))
         .where()
         .in("name", programNameQuery)
