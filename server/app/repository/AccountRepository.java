@@ -84,7 +84,7 @@ public final class AccountRepository {
         .find(AccountModel.class)
         .where()
         .eq("authority_id", authorityId)
-        .setLabel("Account.findById")
+        .setLabel("AccountModel.findById")
         .setProfileLocation(queryProfileLocationBuilder.create("lookupAccountByAuthorityId"))
         .findOneOrEmpty();
   }
@@ -96,7 +96,7 @@ public final class AccountRepository {
         .find(AccountModel.class)
         .where()
         .eq("email_address", emailAddress)
-        .setLabel("Account.findByEmail")
+        .setLabel("AccountModel.findByEmail")
         .setProfileLocation(queryProfileLocationBuilder.create("lookupAccountByEmail"))
         .findOneOrEmpty();
   }
@@ -114,7 +114,7 @@ public final class AccountRepository {
                 .find(AccountModel.class)
                 .where()
                 .eq("email_address", emailAddress)
-                .setLabel("Account.findByEmail")
+                .setLabel("AccountModel.findByEmail")
                 .setProfileLocation(queryProfileLocationBuilder.create("lookupAccountByEmailAsync"))
                 .findOneOrEmpty(),
         executionContext);
@@ -278,7 +278,7 @@ public final class AccountRepository {
     return database
         .find(AccountModel.class)
         .setId(accountId)
-        .setLabel("Account.findById")
+        .setLabel("AccountModel.findById")
         .setProfileLocation(queryProfileLocationBuilder.create("lookupAccount"))
         .findOneOrEmpty();
   }
@@ -368,7 +368,7 @@ public final class AccountRepository {
             .find(AccountModel.class)
             .where()
             .eq("global_admin", true)
-            .setLabel("Account.findList")
+            .setLabel("AccountModel.findList")
             .setProfileLocation(queryProfileLocationBuilder.create("getGlobalAdmins"))
             .findList());
   }
@@ -378,7 +378,7 @@ public final class AccountRepository {
     return ImmutableSet.copyOf(
         database
             .find(AccountModel.class)
-            .setLabel("Account.findSet")
+            .setLabel("AccountModel.findSet")
             .setProfileLocation(queryProfileLocationBuilder.create("listAccounts"))
             .findSet());
   }
