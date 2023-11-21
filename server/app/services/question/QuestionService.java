@@ -11,7 +11,7 @@ import com.google.inject.Provider;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import models.Question;
+import models.QuestionModel;
 import models.QuestionTag;
 import models.VersionModel;
 import repository.QuestionRepository;
@@ -63,7 +63,7 @@ public final class QuestionService {
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
-    Question question = new Question(questionDefinition);
+    QuestionModel question = new QuestionModel(questionDefinition);
     question.addVersion(versionRepositoryProvider.get().getDraftVersionOrCreate());
     questionRepository.insertQuestionSync(question);
     return ErrorAnd.of(question.getQuestionDefinition());
@@ -126,13 +126,13 @@ public final class QuestionService {
     }
     ImmutableSet<CiviFormError> validationErrors = questionDefinition.validate();
 
-    Optional<Question> maybeQuestion =
+    Optional<QuestionModel> maybeQuestion =
         questionRepository.lookupQuestion(questionDefinition.getId()).toCompletableFuture().join();
     if (maybeQuestion.isEmpty()) {
       throw new InvalidUpdateException(
           String.format("question with id %d does not exist", questionDefinition.getId()));
     }
-    Question question = maybeQuestion.get();
+    QuestionModel question = maybeQuestion.get();
     ImmutableSet<CiviFormError> immutableMemberErrors =
         validateQuestionImmutableMembers(question.getQuestionDefinition(), questionDefinition);
 
@@ -151,7 +151,7 @@ public final class QuestionService {
 
   /** If this question is archived but a new version has not been published yet, un-archive it. */
   public void restoreQuestion(Long id) throws InvalidUpdateException {
-    Optional<Question> question =
+    Optional<QuestionModel> question =
         questionRepository.lookupQuestion(id).toCompletableFuture().join();
     if (question.isEmpty()) {
       throw new InvalidUpdateException("Did not find question.");
@@ -172,7 +172,7 @@ public final class QuestionService {
 
   /** If this question is not used in any program, archive it. */
   public void archiveQuestion(Long id) throws InvalidUpdateException {
-    Optional<Question> question =
+    Optional<QuestionModel> question =
         questionRepository.lookupQuestion(id).toCompletableFuture().join();
     if (question.isEmpty()) {
       throw new InvalidUpdateException("Did not find question.");
@@ -185,7 +185,7 @@ public final class QuestionService {
       throw new InvalidUpdateException("Question is not archivable.");
     }
 
-    Question draftQuestion =
+    QuestionModel draftQuestion =
         questionRepository.createOrUpdateDraft(question.get().getQuestionDefinition());
     VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     try {
@@ -203,7 +203,7 @@ public final class QuestionService {
 
   /** If this is a draft question, remove it from the draft version and update all programs. */
   public void discardDraft(Long draftId) throws InvalidUpdateException {
-    Question question =
+    QuestionModel question =
         questionRepository
             .lookupQuestion(draftId)
             .toCompletableFuture()
@@ -258,12 +258,12 @@ public final class QuestionService {
   /** Set the export state of the question provided. */
   public void setExportState(QuestionDefinition questionDefinition, QuestionTag questionExportState)
       throws QuestionNotFoundException, InvalidUpdateException {
-    Optional<Question> questionMaybe =
+    Optional<QuestionModel> questionMaybe =
         questionRepository.lookupQuestion(questionDefinition.getId()).toCompletableFuture().join();
     if (questionMaybe.isEmpty()) {
       throw new QuestionNotFoundException(questionDefinition.getId());
     }
-    Question question = questionMaybe.get();
+    QuestionModel question = questionMaybe.get();
     if (CsvExporterService.NON_EXPORTED_QUESTION_TYPES.contains(
         questionDefinition.getQuestionType())) {
       question.removeTag(QuestionTag.DEMOGRAPHIC_PII);
@@ -303,10 +303,10 @@ public final class QuestionService {
    * segment.
    */
   private ImmutableSet<CiviFormError> checkConflicts(QuestionDefinition questionDefinition) {
-    Optional<Question> maybeConflict =
+    Optional<QuestionModel> maybeConflict =
         questionRepository.findConflictingQuestion(questionDefinition);
     if (maybeConflict.isPresent()) {
-      Question conflict = maybeConflict.get();
+      QuestionModel conflict = maybeConflict.get();
       String errorMessage;
       if (questionDefinition.getEnumeratorId().isEmpty()) {
         errorMessage =

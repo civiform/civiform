@@ -8,7 +8,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Optional;
 import java.util.function.Function;
-import models.Question;
+import models.QuestionModel;
 import models.VersionModel;
 import repository.VersionRepository;
 import services.DeletionStatus;
@@ -49,13 +49,13 @@ public final class ActiveAndDraftQuestions {
     VersionModel withDraftEdits = repository.previewPublishNewSynchronizedVersion();
     ImmutableMap<String, QuestionDefinition> activeNameToQuestion =
         repository.getQuestionsForVersion(active).stream()
-            .map(Question::getQuestionDefinition)
+            .map(QuestionModel::getQuestionDefinition)
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, Function.identity()));
     this.activeQuestions = activeNameToQuestion.values().asList();
 
     ImmutableMap<String, QuestionDefinition> draftNameToQuestion =
         repository.getQuestionsForVersion(draft).stream()
-            .map(Question::getQuestionDefinition)
+            .map(QuestionModel::getQuestionDefinition)
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, Function.identity()));
     this.draftQuestions = draftNameToQuestion.values().asList();
 

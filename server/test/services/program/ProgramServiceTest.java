@@ -29,7 +29,7 @@ import junitparams.Parameters;
 import models.AccountModel;
 import models.DisplayMode;
 import models.ProgramModel;
-import models.Question;
+import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -1487,7 +1487,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void setBlockPredicate_updatesBlock() throws Exception {
-    Question question = testQuestionBank.applicantAddress();
+    QuestionModel question = testQuestionBank.applicantAddress();
     ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
@@ -1600,7 +1600,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void setBlockEligibilityDefinition_updatesBlock() throws Exception {
-    Question question = testQuestionBank.applicantAddress();
+    QuestionModel question = testQuestionBank.applicantAddress();
     ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withBlock()

@@ -12,7 +12,7 @@ import models.ApplicantModel;
 import models.ApplicationModel;
 import models.LifecycleStage;
 import models.ProgramModel;
-import models.Question;
+import models.QuestionModel;
 import org.junit.Before;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
@@ -55,7 +55,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   protected ProgramModel fakeProgramWithEligibility;
   protected ProgramModel fakeProgramWithOptionalFileUpload;
   protected ProgramModel fakeProgram;
-  protected ImmutableList<Question> fakeQuestions;
+  protected ImmutableList<QuestionModel> fakeQuestions;
   protected ApplicantModel applicantOne;
   protected ApplicantModel applicantFive;
   protected ApplicantModel applicantSix;
@@ -74,7 +74,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
 
   protected void answerQuestion(
       QuestionType questionType,
-      Question question,
+      QuestionModel question,
       ApplicantData applicantDataOne,
       ApplicantData applicantDataTwo) {
     Path answerPath =
@@ -236,8 +236,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   }
 
   protected void createFakeProgramWithOptionalQuestion() {
-    Question fileQuestion = testQuestionBank.applicantFile();
-    Question nameQuestion = testQuestionBank.applicantName();
+    QuestionModel fileQuestion = testQuestionBank.applicantFile();
+    QuestionModel nameQuestion = testQuestionBank.applicantName();
 
     fakeProgramWithOptionalFileUpload =
         ProgramBuilder.newActiveProgram()
@@ -296,8 +296,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
    * The applications have submission times one month apart starting on 2022-01-01.
    */
   protected void createFakeProgramWithEligibilityPredicate() {
-    Question nameQuestion = testQuestionBank.applicantName();
-    Question colorQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel nameQuestion = testQuestionBank.applicantName();
+    QuestionModel colorQuestion = testQuestionBank.applicantFavoriteColor();
 
     PredicateDefinition colorPredicate =
         PredicateDefinition.create(
@@ -373,13 +373,13 @@ public abstract class AbstractExporterTest extends ResetPostgres {
    * applications. The applications have submission times one month apart starting on 2022-01-01.
    */
   protected void createFakeProgramWithEnumeratorAndAnswerQuestions() {
-    Question nameQuestion = testQuestionBank.applicantName();
-    Question colorQuestion = testQuestionBank.applicantFavoriteColor();
-    Question monthlyIncomeQuestion = testQuestionBank.applicantMonthlyIncome();
-    Question householdMembersQuestion = testQuestionBank.applicantHouseholdMembers();
-    Question hmNameQuestion = testQuestionBank.applicantHouseholdMemberName();
-    Question hmJobsQuestion = testQuestionBank.applicantHouseholdMemberJobs();
-    Question hmNumberDaysWorksQuestion = testQuestionBank.applicantHouseholdMemberDaysWorked();
+    QuestionModel nameQuestion = testQuestionBank.applicantName();
+    QuestionModel colorQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel monthlyIncomeQuestion = testQuestionBank.applicantMonthlyIncome();
+    QuestionModel householdMembersQuestion = testQuestionBank.applicantHouseholdMembers();
+    QuestionModel hmNameQuestion = testQuestionBank.applicantHouseholdMemberName();
+    QuestionModel hmJobsQuestion = testQuestionBank.applicantHouseholdMemberJobs();
+    QuestionModel hmNumberDaysWorksQuestion = testQuestionBank.applicantHouseholdMemberDaysWorked();
     fakeProgramWithEnumerator =
         ProgramBuilder.newActiveProgram()
             .withName("Fake Program With Enumerator")
@@ -530,7 +530,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    FakeProgramBuilder withQuestion(Question question) {
+    FakeProgramBuilder withQuestion(QuestionModel question) {
       fakeProgramBuilder.withBlock().withRequiredQuestion(question).build();
       return this;
     }

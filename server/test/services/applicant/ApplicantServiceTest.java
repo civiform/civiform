@@ -26,7 +26,7 @@ import models.ApplicationModel;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
-import models.Question;
+import models.QuestionModel;
 import models.StoredFile;
 import models.TrustedIntermediaryGroup;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -258,20 +258,20 @@ public class ApplicantServiceTest extends ResetPostgres {
         .contains(programDefinition.id());
   }
 
-  private Path applicantPathForQuestion(Question question) {
+  private Path applicantPathForQuestion(QuestionModel question) {
     return ApplicantData.APPLICANT_PATH.join(
         question.getQuestionDefinition().getQuestionPathSegment());
   }
 
   @Test
   public void stageAndUpdateIfvalid_invalidInputsForQuestionTypes() {
-    Question dateQuestion = testQuestionBank.applicantDate();
+    QuestionModel dateQuestion = testQuestionBank.applicantDate();
     Path datePath = applicantPathForQuestion(dateQuestion).join(Scalar.DATE);
-    Question currencyQuestion = testQuestionBank.applicantMonthlyIncome();
+    QuestionModel currencyQuestion = testQuestionBank.applicantMonthlyIncome();
     Path currencyPath = applicantPathForQuestion(currencyQuestion).join(Scalar.CURRENCY_CENTS);
-    Question numberQuestion = testQuestionBank.applicantJugglingNumber();
+    QuestionModel numberQuestion = testQuestionBank.applicantJugglingNumber();
     Path numberPath = applicantPathForQuestion(numberQuestion).join(Scalar.NUMBER);
-    Question phoneQuestion = testQuestionBank.applicantPhone();
+    QuestionModel phoneQuestion = testQuestionBank.applicantPhone();
     Path phonePath = applicantPathForQuestion(phoneQuestion).join(Scalar.PHONE_NUMBER);
     createProgram(
         dateQuestion.getQuestionDefinition(),
@@ -3004,7 +3004,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
-    Question question = testQuestionBank.applicantAddress();
+    QuestionModel question = testQuestionBank.applicantAddress();
 
     ProgramModel program =
         ProgramBuilder.newActiveProgram("program")
@@ -3111,7 +3111,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
-    Question question = testQuestionBank.applicantAddress();
+    QuestionModel question = testQuestionBank.applicantAddress();
 
     ProgramModel program =
         ProgramBuilder.newActiveProgram("program")
@@ -3200,7 +3200,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
-    Question question = testQuestionBank.applicantAddress();
+    QuestionModel question = testQuestionBank.applicantAddress();
 
     ProgramModel program =
         ProgramBuilder.newActiveProgram("program")
@@ -3288,7 +3288,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
-    Question question = testQuestionBank.applicantAddress();
+    QuestionModel question = testQuestionBank.applicantAddress();
 
     ProgramModel program =
         ProgramBuilder.newActiveProgram("program")
@@ -3325,7 +3325,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
-    Question question = testQuestionBank.applicantAddress();
+    QuestionModel question = testQuestionBank.applicantAddress();
 
     ProgramModel program =
         ProgramBuilder.newActiveProgram("program")
@@ -3358,7 +3358,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
-    Question question = testQuestionBank.applicantAddress();
+    QuestionModel question = testQuestionBank.applicantAddress();
 
     ProgramModel program =
         ProgramBuilder.newActiveProgram("program")

@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Set;
-import models.Question;
+import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ProgramRepository;
@@ -61,7 +61,7 @@ public class DevDatabaseSeedTaskTest extends ResetPostgres {
         .containsExactlyInAnyOrder("comprehensive-sample-program", "minimal-sample-program");
   }
 
-  private Set<Question> getAllQuestions() {
+  private Set<QuestionModel> getAllQuestions() {
     return questionRepository.listQuestions().toCompletableFuture().join();
   }
 }

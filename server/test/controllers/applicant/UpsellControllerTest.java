@@ -12,7 +12,7 @@ import auth.ProfileFactory;
 import controllers.WithMockedProfiles;
 import models.ApplicantModel;
 import models.ApplicationModel;
-import models.Question;
+import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Result;
@@ -65,7 +65,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
   @Test
   public void
       considerRegister_redirectsToUpsellViewForCommonIntakeWithNoRecommendedProgramsFound() {
-    Question predicateQuestion = testQuestionBank().applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank().applicantFavoriteColor();
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()
             .setPredicate(
@@ -123,7 +123,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
 
   @Test
   public void considerRegister_redirectsToUpsellViewForCommonIntakeWithRecommendedPrograms() {
-    Question predicateQuestion = testQuestionBank().applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank().applicantFavoriteColor();
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()
             .setPredicate(

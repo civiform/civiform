@@ -2,7 +2,7 @@ package services;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import models.Question;
+import models.QuestionModel;
 import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,12 +18,12 @@ public class ProgramBlockValidationTest extends ResetPostgres {
 
   private ProgramBlockValidation programBlockValidation;
   private VersionRepository versionRepository;
-  private Question questionForTombstone;
+  private QuestionModel questionForTombstone;
   private QuestionService questionService;
-  private Question questionForEligible;
+  private QuestionModel questionForEligible;
   private VersionModel version;
-  private Question householdMemberQuestion;
-  private Question householdMemberNameQuestion;
+  private QuestionModel householdMemberQuestion;
+  private QuestionModel householdMemberNameQuestion;
 
   @Before
   public void setProgramBlockValidation()

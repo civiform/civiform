@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import models.LifecycleStage;
-import models.Question;
+import models.QuestionModel;
 import models.VersionModel;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
@@ -34,23 +34,23 @@ import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
 /**
- * A cached {@link Question} bank for testing.
+ * A cached {@link QuestionModel} bank for testing.
  *
- * <p>The {@link Question}s in this question bank should be treated as constants, but they need to
- * be persisted in the database for some tests so they are persisted and cached. When used with
+ * <p>The {@link QuestionModel}s in this question bank should be treated as constants, but they need
+ * to be persisted in the database for some tests so they are persisted and cached. When used with
  * tests that do not have a database available (see {@link #maybeSave(QuestionDefinition)}), the
  * question IDs may not be reliable since in production, the IDs are set by the database.
  *
  * <p>The properties of these questions (e.g. question help text) are not canonical and may not be
  * representative of the properties defined by CiviForm administrators.
  *
- * <p>To add a new {@link Question} to the question bank: create a {@link QuestionEnum} for it,
+ * <p>To add a new {@link QuestionModel} to the question bank: create a {@link QuestionEnum} for it,
  * create a private method to construct the question, and create a public method to retrieve the
  * cached question. Add new methods in alphabetical order by {@link QuestionType}, grouping those
  * methods with the same type together.
  */
 public class TestQuestionBank {
-  private final Map<QuestionEnum, Question> questionCache = new ConcurrentHashMap<>();
+  private final Map<QuestionEnum, QuestionModel> questionCache = new ConcurrentHashMap<>();
   private final AtomicLong nextId = new AtomicLong(1L);
 
   private final boolean canSave;
@@ -74,8 +74,8 @@ public class TestQuestionBank {
    *
    * @return an ImmutableMap of QuestionType to Questions
    */
-  public ImmutableMap<QuestionType, Question> getSampleQuestionsForAllTypes() {
-    return new ImmutableMap.Builder<QuestionType, Question>()
+  public ImmutableMap<QuestionType, QuestionModel> getSampleQuestionsForAllTypes() {
+    return new ImmutableMap.Builder<QuestionType, QuestionModel>()
         .put(QuestionType.ADDRESS, applicantAddress())
         .put(QuestionType.CHECKBOX, applicantKitchenTools())
         .put(QuestionType.CURRENCY, applicantMonthlyIncome())
@@ -94,82 +94,82 @@ public class TestQuestionBank {
         .build();
   }
 
-  public Question applicantPhone() {
+  public QuestionModel applicantPhone() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_PHONE, this::applicantPhone);
   }
 
   // Address
-  public Question applicantAddress() {
+  public QuestionModel applicantAddress() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ADDRESS, this::applicantAddress);
   }
 
   // Address
-  public Question applicantSecondaryAddress() {
+  public QuestionModel applicantSecondaryAddress() {
     return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_SECONDARY_ADDRESS, this::applicantSecondaryAddress);
   }
 
   // Checkbox
-  public Question applicantKitchenTools() {
+  public QuestionModel applicantKitchenTools() {
     return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_KITCHEN_TOOLS, this::applicantKitchenTools);
   }
 
   // Date
-  public Question applicantDate() {
+  public QuestionModel applicantDate() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_BIRTHDATE, this::applicantDate);
   }
 
   // Dropdown
-  public Question applicantIceCream() {
+  public QuestionModel applicantIceCream() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ICE_CREAM, this::applicantIceCream);
   }
 
   // Email
-  public Question applicantEmail() {
+  public QuestionModel applicantEmail() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_EMAIL, this::applicantEmail);
   }
 
   // Enumerator
-  public Question applicantHouseholdMembers() {
+  public QuestionModel applicantHouseholdMembers() {
     return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_HOUSEHOLD_MEMBERS, this::applicantHouseholdMembers);
   }
 
   // Nested Enumerator
-  public Question applicantHouseholdMemberJobs() {
+  public QuestionModel applicantHouseholdMemberJobs() {
     return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_JOBS, this::applicantHouseholdMemberJobs);
   }
 
   // File upload
-  public Question applicantFile() {
+  public QuestionModel applicantFile() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_FILE, this::applicantFile);
   }
 
   // Currency
-  public Question applicantMonthlyIncome() {
+  public QuestionModel applicantMonthlyIncome() {
     return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_MONTHLY_INCOME, this::applicantMonthlyIncome);
   }
 
   // Id
-  public Question applicantId() {
+  public QuestionModel applicantId() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ID, this::applicantId);
   }
 
   // Name
-  public Question applicantName() {
+  public QuestionModel applicantName() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_NAME, this::applicantName);
   }
 
   // Name
-  public Question nullQuestion() {
+  public QuestionModel nullQuestion() {
     return questionCache.computeIfAbsent(QuestionEnum.NULL_QUESTION, this::nullQuestion);
   }
 
   // Repeated name
-  public Question applicantHouseholdMemberName() {
+  public QuestionModel applicantHouseholdMemberName() {
     // Make sure the next call will have the question ready
     applicantHouseholdMembers();
     return questionCache.computeIfAbsent(
@@ -177,7 +177,7 @@ public class TestQuestionBank {
   }
 
   // Repeated test
-  public Question applicantHouseholdMemberFavoriteShape() {
+  public QuestionModel applicantHouseholdMemberFavoriteShape() {
     // Make sure the next call will have the question ready
     applicantHouseholdMembers();
     return questionCache.computeIfAbsent(
@@ -186,36 +186,36 @@ public class TestQuestionBank {
   }
 
   // Number
-  public Question applicantJugglingNumber() {
+  public QuestionModel applicantJugglingNumber() {
     return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_JUGGLING_NUMBER, this::applicantJugglingNumber);
   }
 
   // Deeply nested Number
-  public Question applicantHouseholdMemberDaysWorked() {
+  public QuestionModel applicantHouseholdMemberDaysWorked() {
     return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_DAYS_WORKED,
         this::applicantHouseholdMemberDaysWorked);
   }
 
   // Radio button
-  public Question applicantSeason() {
+  public QuestionModel applicantSeason() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_SEASON, this::applicantSeason);
   }
 
   // Text
-  public Question applicantFavoriteColor() {
+  public QuestionModel applicantFavoriteColor() {
     return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_FAVORITE_COLOR, this::applicantFavoriteColor);
   }
 
   // Text
-  public Question staticContent() {
+  public QuestionModel staticContent() {
     return questionCache.computeIfAbsent(QuestionEnum.STATIC_CONTENT, this::staticContent);
   }
 
   // Address
-  private Question applicantAddress(QuestionEnum ignore) {
+  private QuestionModel applicantAddress(QuestionEnum ignore) {
     QuestionDefinition definition =
         new AddressQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -227,7 +227,7 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
-  private Question applicantPhone(QuestionEnum ignore) {
+  private QuestionModel applicantPhone(QuestionEnum ignore) {
     QuestionDefinition definition =
         new PhoneQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -240,7 +240,7 @@ public class TestQuestionBank {
   }
 
   // Address
-  private Question applicantSecondaryAddress(QuestionEnum ignore) {
+  private QuestionModel applicantSecondaryAddress(QuestionEnum ignore) {
     QuestionDefinition definition =
         new AddressQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -253,7 +253,7 @@ public class TestQuestionBank {
   }
 
   // Checkbox
-  private Question applicantKitchenTools(QuestionEnum ignore) {
+  private QuestionModel applicantKitchenTools(QuestionEnum ignore) {
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()
             .setName("kitchen tools")
@@ -277,7 +277,7 @@ public class TestQuestionBank {
   }
 
   // Dropdown
-  private Question applicantIceCream(QuestionEnum ignore) {
+  private QuestionModel applicantIceCream(QuestionEnum ignore) {
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()
             .setName("applicant ice cream")
@@ -301,7 +301,7 @@ public class TestQuestionBank {
   }
 
   // Enumerator
-  private Question applicantHouseholdMembers(QuestionEnum ignore) {
+  private QuestionModel applicantHouseholdMembers(QuestionEnum ignore) {
     QuestionDefinition definition =
         new EnumeratorQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -315,8 +315,8 @@ public class TestQuestionBank {
   }
 
   // Nested Enumerator
-  private Question applicantHouseholdMemberJobs(QuestionEnum ignore) {
-    Question householdMembers = applicantHouseholdMembers();
+  private QuestionModel applicantHouseholdMemberJobs(QuestionEnum ignore) {
+    QuestionModel householdMembers = applicantHouseholdMembers();
     QuestionDefinition definition =
         new EnumeratorQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -331,7 +331,7 @@ public class TestQuestionBank {
   }
 
   // File upload
-  private Question applicantFile(QuestionEnum ignore) {
+  private QuestionModel applicantFile(QuestionEnum ignore) {
     QuestionDefinition definition =
         new FileUploadQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -345,7 +345,7 @@ public class TestQuestionBank {
   }
 
   // Currency
-  private Question applicantMonthlyIncome(QuestionEnum ignore) {
+  private QuestionModel applicantMonthlyIncome(QuestionEnum ignore) {
     QuestionDefinition definition =
         new CurrencyQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -358,7 +358,7 @@ public class TestQuestionBank {
   }
 
   // Id
-  private Question applicantId(QuestionEnum ignore) {
+  private QuestionModel applicantId(QuestionEnum ignore) {
     QuestionDefinition definition =
         new IdQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -371,7 +371,7 @@ public class TestQuestionBank {
   }
 
   // Name
-  private Question applicantName(QuestionEnum ignore) {
+  private QuestionModel applicantName(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NameQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -383,14 +383,14 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
-  private Question nullQuestion(QuestionEnum ignore) {
+  private QuestionModel nullQuestion(QuestionEnum ignore) {
     QuestionDefinition definition = new NullQuestionDefinition(9999L);
-    return new Question(definition);
+    return new QuestionModel(definition);
   }
 
   // Repeated name
-  private Question applicantHouseholdMemberName(QuestionEnum ignore) {
-    Question householdMembers = applicantHouseholdMembers();
+  private QuestionModel applicantHouseholdMemberName(QuestionEnum ignore) {
+    QuestionModel householdMembers = applicantHouseholdMembers();
     QuestionDefinition definition =
         new NameQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -406,8 +406,8 @@ public class TestQuestionBank {
   }
 
   // Repeated text
-  private Question applicantHouseholdMemberFavoriteShape(QuestionEnum ignore) {
-    Question householdMembers = applicantHouseholdMembers();
+  private QuestionModel applicantHouseholdMemberFavoriteShape(QuestionEnum ignore) {
+    QuestionModel householdMembers = applicantHouseholdMembers();
     QuestionDefinition definition =
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -421,7 +421,7 @@ public class TestQuestionBank {
   }
 
   // Number
-  private Question applicantJugglingNumber(QuestionEnum ignore) {
+  private QuestionModel applicantJugglingNumber(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NumberQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -435,7 +435,7 @@ public class TestQuestionBank {
   }
 
   // Date
-  private Question applicantDate(QuestionEnum ignore) {
+  private QuestionModel applicantDate(QuestionEnum ignore) {
     QuestionDefinition definition =
         new DateQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -448,7 +448,7 @@ public class TestQuestionBank {
   }
 
   // Email
-  private Question applicantEmail(QuestionEnum ignore) {
+  private QuestionModel applicantEmail(QuestionEnum ignore) {
     QuestionDefinition definition =
         new EmailQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -461,8 +461,8 @@ public class TestQuestionBank {
   }
 
   // Deeply Nested Number
-  private Question applicantHouseholdMemberDaysWorked(QuestionEnum ignore) {
-    Question householdMemberJobs = applicantHouseholdMemberJobs();
+  private QuestionModel applicantHouseholdMemberDaysWorked(QuestionEnum ignore) {
+    QuestionModel householdMemberJobs = applicantHouseholdMemberJobs();
     QuestionDefinition definition =
         new NumberQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -481,7 +481,7 @@ public class TestQuestionBank {
   }
 
   // Radio button
-  private Question applicantSeason(QuestionEnum ignore) {
+  private QuestionModel applicantSeason(QuestionEnum ignore) {
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()
             .setName("applicant favorite season")
@@ -502,7 +502,7 @@ public class TestQuestionBank {
   }
 
   // Static
-  private Question staticContent(QuestionEnum ignore) {
+  private QuestionModel staticContent(QuestionEnum ignore) {
     QuestionDefinition definition =
         new StaticContentQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -514,7 +514,7 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
   // Text
-  private Question applicantFavoriteColor(QuestionEnum ignore) {
+  private QuestionModel applicantFavoriteColor(QuestionEnum ignore) {
     QuestionDefinition definition =
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -526,12 +526,13 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
-  private Question maybeSave(QuestionDefinition questionDefinition) {
+  private QuestionModel maybeSave(QuestionDefinition questionDefinition) {
     return maybeSave(questionDefinition, LifecycleStage.ACTIVE);
   }
 
-  public Question maybeSave(QuestionDefinition questionDefinition, LifecycleStage desiredStage) {
-    Question question = new Question(questionDefinition);
+  public QuestionModel maybeSave(
+      QuestionDefinition questionDefinition, LifecycleStage desiredStage) {
+    QuestionModel question = new QuestionModel(questionDefinition);
     if (canSave) {
       // This odd way of finding the active version is because this class
       // doesn't have access to the Version repository, because it needs to

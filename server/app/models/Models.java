@@ -16,7 +16,7 @@ public final class Models {
           ApplicationEventModel.class,
           PersistedDurableJobModel.class,
           ProgramModel.class,
-          Question.class,
+          QuestionModel.class,
           StoredFile.class,
           TrustedIntermediaryGroup.class,
           VersionModel.class,

@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
-import models.Question;
+import models.QuestionModel;
 import models.VersionModel;
 import play.inject.Injector;
 import repository.VersionRepository;
@@ -332,7 +332,7 @@ public class ProgramBuilder {
     }
 
     /** Add a required question to the block. */
-    public BlockBuilder withRequiredQuestion(Question question) {
+    public BlockBuilder withRequiredQuestion(QuestionModel question) {
       blockDefBuilder.addQuestion(
           ProgramQuestionDefinition.create(
               question.getQuestionDefinition(), Optional.of(programBuilder.programDefinitionId)));
@@ -340,7 +340,7 @@ public class ProgramBuilder {
     }
 
     /** Add a required address question that has correction enabled to the block. */
-    public BlockBuilder withRequiredCorrectedAddressQuestion(Question question) {
+    public BlockBuilder withRequiredCorrectedAddressQuestion(QuestionModel question) {
       if (!(question.getQuestionDefinition() instanceof AddressQuestionDefinition)) {
         throw new IllegalArgumentException("Only address questions can be address corrected.");
       }
@@ -354,7 +354,7 @@ public class ProgramBuilder {
       return this;
     }
 
-    public BlockBuilder withOptionalQuestion(Question question) {
+    public BlockBuilder withOptionalQuestion(QuestionModel question) {
       return withOptionalQuestion(question.getQuestionDefinition());
     }
 
@@ -379,14 +379,14 @@ public class ProgramBuilder {
       return this;
     }
 
-    public BlockBuilder withRequiredQuestions(Question... questions) {
+    public BlockBuilder withRequiredQuestions(QuestionModel... questions) {
       return withRequiredQuestions(ImmutableList.copyOf(questions));
     }
 
-    public BlockBuilder withRequiredQuestions(ImmutableList<Question> questions) {
+    public BlockBuilder withRequiredQuestions(ImmutableList<QuestionModel> questions) {
       return withRequiredQuestionDefinitions(
           questions.stream()
-              .map(Question::getQuestionDefinition)
+              .map(QuestionModel::getQuestionDefinition)
               .collect(ImmutableList.toImmutableList()));
     }
 

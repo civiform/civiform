@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
 import models.DisplayMode;
-import models.Question;
+import models.QuestionModel;
 import org.junit.Test;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
@@ -764,7 +764,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void moveBlock_up_withVisibilityPredicate() throws Exception {
-    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
     // Trying to move a block with a predicate before the block it depends on throws.
     PredicateDefinition predicate =
         PredicateDefinition.create(
@@ -795,7 +795,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void moveBlock_up_withVisibilityPredicate_throwsForIllegalMove() {
-    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
     // Trying to move a block with a predicate before the block it depends on throws.
     PredicateDefinition predicate =
         PredicateDefinition.create(
@@ -825,7 +825,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void moveBlock_up_withEligibilityPredicate() throws Exception {
-    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
     // Trying to move a block with a predicate before the block it depends on throws.
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()
@@ -863,7 +863,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void moveBlock_up_withEligibilityPredicate_throwsForIllegalMove() {
-    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
     // Trying to move a block with a predicate before the block it depends on throws.
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()
@@ -896,7 +896,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void moveBlock_up_withEligibilityPredicateAndQuestionInSameBlock() throws Exception {
-    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
     // Trying to move a block with a predicate before the block it depends on throws.
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()
@@ -934,7 +934,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void moveBlockDown_throwsForIllegalMove() {
-    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
     // Trying to move a block after a block that depends on it throws.
     PredicateDefinition predicate =
         PredicateDefinition.create(
@@ -964,7 +964,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void hasValidPredicateOrdering() {
-    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -1000,7 +1000,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
   @Test
   public void hasValidPredicateOrdering_returnsFalseIfQuestionsAreInSameBlockAsPredicate() {
-    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(

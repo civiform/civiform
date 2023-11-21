@@ -13,7 +13,7 @@ import models.ApplicationModel;
 import models.LifecycleStage;
 import models.Models;
 import models.ProgramModel;
-import models.Question;
+import models.QuestionModel;
 import models.TrustedIntermediaryGroup;
 import play.inject.Injector;
 import services.LocalizedStrings;
@@ -61,7 +61,7 @@ public class ResourceCreator {
     injector.instanceOf(repository.VersionRepository.class).publishNewSynchronizedVersion();
   }
 
-  public Question insertQuestion(String name) {
+  public QuestionModel insertQuestion(String name) {
     QuestionDefinition definition =
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -70,12 +70,12 @@ public class ResourceCreator {
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .build());
-    Question question = new Question(definition);
+    QuestionModel question = new QuestionModel(definition);
     question.save();
     return question;
   }
 
-  public Question insertEnum(String name) {
+  public QuestionModel insertEnum(String name) {
     QuestionDefinition enumDefinition =
         new services.question.types.EnumeratorQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -85,12 +85,12 @@ public class ResourceCreator {
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
                 .build(),
             LocalizedStrings.empty());
-    Question enumQuestion = new Question(enumDefinition);
+    QuestionModel enumQuestion = new QuestionModel(enumDefinition);
     enumQuestion.save();
     return enumQuestion;
   }
 
-  public Question insertEnumQuestion(String enumName, Question question) {
+  public QuestionModel insertEnumQuestion(String enumName, QuestionModel question) {
     QuestionDefinition enumDefinition =
         new services.question.types.EnumeratorQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -101,12 +101,12 @@ public class ResourceCreator {
                 .setEnumeratorId(Optional.of(question.id))
                 .build(),
             LocalizedStrings.empty());
-    Question enumQuestion = new Question(enumDefinition);
+    QuestionModel enumQuestion = new QuestionModel(enumDefinition);
     enumQuestion.save();
     return enumQuestion;
   }
 
-  public Question insertQuestion() {
+  public QuestionModel insertQuestion() {
     String name = UUID.randomUUID().toString();
     QuestionDefinition definition =
         new TextQuestionDefinition(
@@ -116,7 +116,7 @@ public class ResourceCreator {
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .build());
-    Question question = new Question(definition);
+    QuestionModel question = new QuestionModel(definition);
     question.save();
     return question;
   }

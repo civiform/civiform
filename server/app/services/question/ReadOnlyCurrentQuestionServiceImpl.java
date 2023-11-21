@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-import models.Question;
+import models.QuestionModel;
 import models.VersionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestio
     Set<String> namesFoundInDraft = new HashSet<>();
     for (QuestionDefinition qd :
         repository.getQuestionsForVersion(draftVersion).stream()
-            .map(Question::getQuestionDefinition)
+            .map(QuestionModel::getQuestionDefinition)
             .collect(Collectors.toList())) {
       if (!draftVersion.getTombstonedQuestionNames().contains(qd.getName())) {
         // If the question is about to be deleted, it is not "up to date."
@@ -49,7 +49,7 @@ public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestio
     }
     for (QuestionDefinition qd :
         repository.getQuestionsForVersion(activeVersion).stream()
-            .map(Question::getQuestionDefinition)
+            .map(QuestionModel::getQuestionDefinition)
             .collect(Collectors.toList())) {
 
       questionIdMap.put(qd.getId(), qd);

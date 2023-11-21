@@ -31,7 +31,7 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.RollbackException;
 import models.LifecycleStage;
 import models.ProgramModel;
-import models.Question;
+import models.QuestionModel;
 import models.VersionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,7 +127,7 @@ public final class VersionRepository {
       Predicate<ProgramModel> programIsDeletedInDraft =
           program -> draft.programIsTombstoned(program.getProgramDefinition().adminName());
       // Is a question being deleted in the draft version?
-      Predicate<Question> questionIsDeletedInDraft =
+      Predicate<QuestionModel> questionIsDeletedInDraft =
           question -> draft.questionIsTombstoned(question.getQuestionDefinition().getName());
 
       // Associate any active programs that aren't present in the draft with the draft.
@@ -428,7 +428,7 @@ public final class VersionRepository {
    * @return true if the question was successfully marked as tombstoned, false otherwise.
    * @throws QuestionNotFoundException if the question cannot be found in this version.
    */
-  public boolean addTombstoneForQuestionInVersion(Question question, VersionModel version)
+  public boolean addTombstoneForQuestionInVersion(QuestionModel question, VersionModel version)
       throws QuestionNotFoundException {
     String name = question.getQuestionDefinition().getName();
     if (!getQuestionNamesForVersion(version).contains(name)) {
@@ -440,7 +440,7 @@ public final class VersionRepository {
   /** Returns the names of all the questions for a particular version. */
   public ImmutableSet<String> getQuestionNamesForVersion(VersionModel version) {
     return getQuestionsForVersion(version).stream()
-        .map(Question::getQuestionDefinition)
+        .map(QuestionModel::getQuestionDefinition)
         .map(QuestionDefinition::getName)
         .collect(ImmutableSet.toImmutableSet());
   }
@@ -449,7 +449,7 @@ public final class VersionRepository {
    * If a question by the given name exists, return it. A maximum of one question by a given name
    * can exist in a version.
    */
-  public Optional<Question> getQuestionByNameForVersion(String name, VersionModel version) {
+  public Optional<QuestionModel> getQuestionByNameForVersion(String name, VersionModel version) {
     return getQuestionsForVersion(version).stream()
         .filter(q -> q.getQuestionDefinition().getName().equals(name))
         .findAny();
@@ -461,7 +461,7 @@ public final class VersionRepository {
    * <p>If the cache is enabled, we will get the data from the cache and set it if it is not
    * present.
    */
-  public ImmutableList<Question> getQuestionsForVersion(VersionModel version) {
+  public ImmutableList<QuestionModel> getQuestionsForVersion(VersionModel version) {
     // Only set the version cache for active and obsolete versions
     if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
       return questionsByVersionCache.getOrElseUpdate(
@@ -471,7 +471,7 @@ public final class VersionRepository {
   }
 
   /** Returns the questions for a version without using the cache. */
-  public ImmutableList<Question> getQuestionsForVersionWithoutCache(VersionModel version) {
+  public ImmutableList<QuestionModel> getQuestionsForVersionWithoutCache(VersionModel version) {
     return version.getQuestions();
   }
 
@@ -535,16 +535,16 @@ public final class VersionRepository {
    * Given any revision of a question, return the most recent conceptual version of it. Will return
    * the current DRAFT version if present then the current ACTIVE version.
    */
-  public Optional<Question> getLatestVersionOfQuestion(long questionId) {
+  public Optional<QuestionModel> getLatestVersionOfQuestion(long questionId) {
     String questionName =
         database
-            .find(Question.class)
+            .find(QuestionModel.class)
             .setId(questionId)
             .select("name")
-            .setLabel("Question.findLatest")
+            .setLabel("QuestionModel.findLatest")
             .setProfileLocation(profileLocationBuilder.create("getLatestVersionOfQuestion"))
             .findSingleAttribute();
-    Optional<Question> draftQuestion =
+    Optional<QuestionModel> draftQuestion =
         getQuestionsForVersion(getDraftVersionOrCreate()).stream()
             .filter(question -> question.getQuestionDefinition().getName().equals(questionName))
             .findFirst();
@@ -578,7 +578,7 @@ public final class VersionRepository {
     draftProgram.refresh();
   }
 
-  public boolean isInactive(Question question) {
+  public boolean isInactive(QuestionModel question) {
     return !getQuestionsForVersion(getActiveVersion()).stream()
         .anyMatch(activeQuestion -> activeQuestion.id.equals(question.id));
   }
@@ -588,7 +588,7 @@ public final class VersionRepository {
         .anyMatch(activeProgram -> activeProgram.id.equals(program.id));
   }
 
-  public boolean isDraft(Question question) {
+  public boolean isDraft(QuestionModel question) {
     return getQuestionsForVersion(getDraftVersionOrCreate()).stream()
         .anyMatch(draftQuestion -> draftQuestion.id.equals(question.id));
   }
@@ -673,7 +673,7 @@ public final class VersionRepository {
         block.toBuilder().setProgramQuestionDefinitions(ImmutableList.of());
     // Update questions contained in this block.
     for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
-      Optional<Question> updatedQuestion = getLatestVersionOfQuestion(question.id());
+      Optional<QuestionModel> updatedQuestion = getLatestVersionOfQuestion(question.id());
       logger.trace(
           "Updating question ID {} to new ID {}.", question.id(), updatedQuestion.orElseThrow().id);
       updatedBlock.addQuestion(
@@ -732,12 +732,13 @@ public final class VersionRepository {
         return PredicateExpressionNode.create(OrNode.create(updatedOrChildren));
       case LEAF_OPERATION:
         LeafOperationExpressionNode leaf = node.getLeafOperationNode();
-        Optional<Question> updated = getLatestVersionOfQuestion(leaf.questionId());
+        Optional<QuestionModel> updated = getLatestVersionOfQuestion(leaf.questionId());
         return PredicateExpressionNode.create(
             leaf.toBuilder().setQuestionId(updated.orElseThrow().id).build());
       case LEAF_ADDRESS_SERVICE_AREA:
         LeafAddressServiceAreaExpressionNode leafAddress = node.getLeafAddressNode();
-        Optional<Question> updatedQuestion = getLatestVersionOfQuestion(leafAddress.questionId());
+        Optional<QuestionModel> updatedQuestion =
+            getLatestVersionOfQuestion(leafAddress.questionId());
         return PredicateExpressionNode.create(
             leafAddress.toBuilder().setQuestionId(updatedQuestion.orElseThrow().id).build());
     }
@@ -820,7 +821,7 @@ public final class VersionRepository {
    */
   private ImmutableMap<Long, String> getQuestionIdToNameMap(VersionModel version) {
     return getQuestionsForVersion(version).stream()
-        .map(Question::getQuestionDefinition)
+        .map(QuestionModel::getQuestionDefinition)
         .collect(
             ImmutableMap.toImmutableMap(QuestionDefinition::getId, QuestionDefinition::getName));
   }

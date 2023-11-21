@@ -4,6 +4,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import models.ProgramModel;
+import models.QuestionModel;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Question;
@@ -40,7 +41,7 @@ public abstract class AnswerData {
   /** The repeated entity if this is an answer to a repeated question. Otherwise, empty. */
   public abstract Optional<RepeatedEntity> repeatedEntity();
 
-  /** The index of the {@link models.Question} this is an answer for in the block it appeared in. */
+  /** The index of the {@link QuestionModel} this is an answer for in the block it appeared in. */
   public abstract int questionIndex();
 
   /** The localized question text */
