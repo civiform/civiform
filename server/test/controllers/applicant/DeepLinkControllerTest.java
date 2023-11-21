@@ -12,7 +12,7 @@ import controllers.LanguageUtils;
 import controllers.WithMockedProfiles;
 import java.util.Locale;
 import models.ApplicantModel;
-import models.Application;
+import models.ApplicationModel;
 import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,8 +44,8 @@ public class DeepLinkControllerTest extends WithMockedProfiles {
     ApplicantModel applicant = createApplicantWithMockedProfile();
     applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
     applicant.save();
-    Application app =
-        new Application(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
+    ApplicationModel app =
+        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
     app.save();
     resourceCreator().insertDraftProgram(programDefinition.adminName());
     versionRepository.publishNewSynchronizedVersion();

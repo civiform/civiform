@@ -17,8 +17,8 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.Application;
 import models.ApplicationEvent;
+import models.ApplicationModel;
 import models.DisplayMode;
 import models.ProgramModel;
 import models.VersionModel;
@@ -295,12 +295,12 @@ public class ProgramRepositoryTest extends ResetPostgres {
     ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
     ApplicantModel bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
-    Application bobApp = makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe");
+    ApplicationModel bobApp = makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe");
     ApplicantModel jane =
         resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
     makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe");
 
-    PaginationResult<Application> paginationResult =
+    PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             program.id,
             F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
@@ -377,7 +377,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
         resourceCreator.insertApplicantWithAccount(Optional.of("other@example.com"));
     resourceCreator.insertDraftApplication(otherApplicant, program);
 
-    PaginationResult<Application> paginationResult =
+    PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             program.id,
             F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
@@ -394,13 +394,13 @@ public class ProgramRepositoryTest extends ResetPostgres {
     assertThat(paginationResult.getNumPages()).isEqualTo(wantEmails.isEmpty() ? 0 : 1);
   }
 
-  private Application makeApplicationWithName(
+  private ApplicationModel makeApplicationWithName(
       ApplicantModel applicant,
       ProgramModel program,
       String firstName,
       String middleName,
       String lastName) {
-    Application application = resourceCreator.insertActiveApplication(applicant, program);
+    ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
     ApplicantData applicantData = application.getApplicantData();
     QuestionAnswerer.answerNameQuestion(
         applicantData, WellKnownPaths.APPLICANT_NAME, firstName, middleName, lastName);
@@ -437,19 +437,19 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
 
-    Application firstStatusApplication =
+    ApplicationModel firstStatusApplication =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
     createStatusEvents(
         adminAccount, firstStatusApplication, ImmutableList.of(Optional.of(FIRST_STATUS)));
 
-    Application secondStatusApplication =
+    ApplicationModel secondStatusApplication =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
     createStatusEvents(
         adminAccount, secondStatusApplication, ImmutableList.of(Optional.of(SECOND_STATUS)));
 
-    Application thirdStatusApplication =
+    ApplicationModel thirdStatusApplication =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
     // Create a few status events before-hand to ensure that the latest status is used.
@@ -459,11 +459,11 @@ public class ProgramRepositoryTest extends ResetPostgres {
         ImmutableList.of(
             Optional.of(FIRST_STATUS), Optional.of(SECOND_STATUS), Optional.of(THIRD_STATUS)));
 
-    Application noStatusApplication =
+    ApplicationModel noStatusApplication =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
 
-    Application backToNoStatusApplication =
+    ApplicationModel backToNoStatusApplication =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
     // Application has transitioned through statuses and arrived back at an unset status.
@@ -532,7 +532,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   private ImmutableSet<Long> applicationIdsForProgramAndFilter(
       ProgramModel program, SubmittedApplicationFilter filter) {
-    PaginationResult<Application> result =
+    PaginationResult<ApplicationModel> result =
         repo.getApplicationsForAllProgramVersions(
             program.id,
             F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
@@ -545,7 +545,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   private void createStatusEvents(
       AccountModel actorAccount,
-      Application application,
+      ApplicationModel application,
       ImmutableList<Optional<StatusDefinitions.Status>> statuses)
       throws InterruptedException {
     for (Optional<StatusDefinitions.Status> status : statuses) {
@@ -604,7 +604,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
           applicationThree.save();
         });
 
-    PaginationResult<Application> paginationResult =
+    PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             program.id,
             F.Either.Right(new PageNumberBasedPaginationSpec(/* pageSize= */ 10)),
@@ -642,7 +642,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     resourceCreator.insertActiveApplication(applicantTwo, nextVersion);
     resourceCreator.insertActiveApplication(applicantThree, nextVersion);
 
-    PaginationResult<Application> paginationResult =
+    PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
             F.Either.Right(new PageNumberBasedPaginationSpec(/* pageSize= */ 2)),
@@ -685,7 +685,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     resourceCreator.insertActiveApplication(applicantTwo, nextVersion);
     resourceCreator.insertActiveApplication(applicantThree, nextVersion);
 
-    PaginationResult<Application> paginationResult =
+    PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
             F.Either.Left(new IdentifierBasedPaginationSpec<>(2, Long.MAX_VALUE)),

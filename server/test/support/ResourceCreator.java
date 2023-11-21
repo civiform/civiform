@@ -9,7 +9,7 @@ import java.util.UUID;
 import models.AccountModel;
 import models.ApiKeyModel;
 import models.ApplicantModel;
-import models.Application;
+import models.ApplicationModel;
 import models.LifecycleStage;
 import models.Models;
 import models.ProgramModel;
@@ -137,17 +137,17 @@ public class ResourceCreator {
     return ProgramBuilder.newDraftProgram(name, "description").build();
   }
 
-  public Application insertActiveApplication(ApplicantModel applicant, ProgramModel program) {
-    return Application.create(applicant, program, LifecycleStage.ACTIVE);
+  public ApplicationModel insertActiveApplication(ApplicantModel applicant, ProgramModel program) {
+    return ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE);
   }
 
-  public Application insertDraftApplication(ApplicantModel applicant, ProgramModel program) {
-    return Application.create(applicant, program, LifecycleStage.DRAFT);
+  public ApplicationModel insertDraftApplication(ApplicantModel applicant, ProgramModel program) {
+    return ApplicationModel.create(applicant, program, LifecycleStage.DRAFT);
   }
 
-  public Application insertApplication(
+  public ApplicationModel insertApplication(
       ApplicantModel applicant, ProgramModel program, LifecycleStage lifecycleStage) {
-    return Application.create(applicant, program, lifecycleStage);
+    return ApplicationModel.create(applicant, program, lifecycleStage);
   }
 
   public ApplicantModel insertApplicant() {

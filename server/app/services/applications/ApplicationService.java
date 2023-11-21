@@ -5,7 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Application;
+import models.ApplicationModel;
 import repository.ApplicationRepository;
 
 /** The service responsible for mediating access to the Application resource. */
@@ -19,7 +19,7 @@ public final class ApplicationService {
   }
 
   /** Retrieves the application with the given ID. */
-  public CompletionStage<Optional<Application>> getApplicationAsync(long applicationId) {
+  public CompletionStage<Optional<ApplicationModel>> getApplicationAsync(long applicationId) {
     return applicationRepository.getApplication(applicationId);
   }
 }

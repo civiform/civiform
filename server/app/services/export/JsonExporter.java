@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import models.Application;
+import models.ApplicationModel;
 import models.LifecycleStage;
 import models.TrustedIntermediaryGroup;
 import org.apache.commons.lang3.NotImplementedException;
@@ -65,7 +65,7 @@ public final class JsonExporter {
       ProgramDefinition programDefinition,
       IdentifierBasedPaginationSpec<Long> paginationSpec,
       SubmittedApplicationFilter filters) {
-    PaginationResult<Application> paginationResult =
+    PaginationResult<ApplicationModel> paginationResult =
         programService.getSubmittedProgramApplicationsAllVersions(
             programDefinition.id(), F.Either.Left(paginationSpec), filters);
 
@@ -81,8 +81,8 @@ public final class JsonExporter {
    * @return a JSON string representing a list of applications
    */
   public String exportPage(
-      ProgramDefinition programDefinition, PaginationResult<Application> paginationResult) {
-    ImmutableList<Application> applications = paginationResult.getPageContents();
+      ProgramDefinition programDefinition, PaginationResult<ApplicationModel> paginationResult) {
+    ImmutableList<ApplicationModel> applications = paginationResult.getPageContents();
 
     DocumentContext jsonData =
         applications.stream()
@@ -113,7 +113,7 @@ public final class JsonExporter {
   }
 
   private ApplicationExportData buildApplicationExportData(
-      Application application, ProgramDefinition programDefinition) {
+      ApplicationModel application, ProgramDefinition programDefinition) {
     ReadOnlyApplicantProgramService roApplicantProgramService =
         applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
 

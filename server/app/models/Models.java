@@ -12,7 +12,7 @@ public final class Models {
           AccountModel.class,
           ApiKeyModel.class,
           ApplicantModel.class,
-          Application.class,
+          ApplicationModel.class,
           ApplicationEvent.class,
           PersistedDurableJob.class,
           ProgramModel.class,

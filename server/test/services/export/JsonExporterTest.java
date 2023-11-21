@@ -3,7 +3,7 @@ package services.export;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import models.Application;
+import models.ApplicationModel;
 import models.ProgramModel;
 import org.junit.Test;
 import repository.SubmittedApplicationFilter;
@@ -166,7 +166,7 @@ public class JsonExporterTest extends AbstractExporterTest {
   private void testApplicationTopLevelAnswers(
       ProgramModel program,
       ResultAsserter resultAsserter,
-      Application application,
+      ApplicationModel application,
       int resultIndex) {
     resultAsserter.assertValueAtPath(
         "$[" + resultIndex + "].program_name", program.getProgramDefinition().adminName());

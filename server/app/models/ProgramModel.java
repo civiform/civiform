@@ -117,7 +117,7 @@ public class ProgramModel extends BaseModel {
 
   @OneToMany(mappedBy = "program")
   @OrderBy("id desc")
-  private List<Application> applications;
+  private List<ApplicationModel> applications;
 
   public ImmutableList<VersionModel> getVersions() {
     return ImmutableList.copyOf(versions);
@@ -285,7 +285,7 @@ public class ProgramModel extends BaseModel {
    * obsolete if the applicant submitted the application more than once, but are included since all
    * submitted applications should be shown.
    */
-  public ImmutableList<Application> getSubmittedApplications() {
+  public ImmutableList<ApplicationModel> getSubmittedApplications() {
     return applications.stream()
         .filter(
             application ->

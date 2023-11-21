@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.Optional;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.Application;
+import models.ApplicationModel;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
@@ -45,11 +45,11 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     ApplicantModel applicant = saveApplicant("Alice");
     ProgramModel program = createDraftProgram("Program");
 
-    Application appOne =
+    ApplicationModel appOne =
         repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
     Instant initialSubmitTime = appOne.getSubmitTime();
 
-    Application appTwoDraft =
+    ApplicationModel appTwoDraft =
         repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
 
     assertThat(
@@ -70,7 +70,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
         .isEqualTo(LifecycleStage.OBSOLETE);
     assertThat(appOne.getSubmitTime()).isEqualTo(initialSubmitTime);
 
-    Application appTwoSubmitted =
+    ApplicationModel appTwoSubmitted =
         repo.getApplication(appTwoDraft.id).toCompletableFuture().join().get();
     assertThat(appTwoSubmitted.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     assertThat(appTwoSubmitted.getApplicantData().getApplicantName().get()).isEqualTo("Alice");
@@ -88,7 +88,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
     repo.createOrUpdateDraft(applicant1, program1).toCompletableFuture().join();
 
-    Application app2 =
+    ApplicationModel app2 =
         repo.submitApplication(applicant2, program2, Optional.empty()).toCompletableFuture().join();
     Instant appTwoInitialSubmitTime = app2.getSubmitTime();
 
@@ -102,7 +102,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   public void createOrUpdateDraftApplication_updatesExistingDraft() {
     ApplicantModel applicant = saveApplicant("Alice");
     ProgramModel program = createActiveProgram("Program");
-    Application appDraft1 =
+    ApplicationModel appDraft1 =
         repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
 
     // If the applicant already has an application to a different version of
@@ -111,7 +111,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
     assertThat(program.id).isNotEqualTo(programV2.id);
 
-    Application appDraft2 =
+    ApplicationModel appDraft2 =
         repo.createOrUpdateDraft(applicant, programV2).toCompletableFuture().join();
 
     assertThat(appDraft1.id).isEqualTo(appDraft2.id);
@@ -126,9 +126,9 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   public void submitApplication_twoDraftsThrowsException() {
     ApplicantModel applicant = saveApplicant("Alice");
     ProgramModel program = createDraftProgram("Program");
-    Application appDraft1 = Application.create(applicant, program, LifecycleStage.DRAFT);
+    ApplicationModel appDraft1 = ApplicationModel.create(applicant, program, LifecycleStage.DRAFT);
     appDraft1.save();
-    Application appDraft2 = Application.create(applicant, program, LifecycleStage.DRAFT);
+    ApplicationModel appDraft2 = ApplicationModel.create(applicant, program, LifecycleStage.DRAFT);
     appDraft2.save();
 
     assertThatThrownBy(
@@ -160,7 +160,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   public void submitApplication_noDrafts() {
     ApplicantModel applicant = saveApplicant("Alice");
     ProgramModel program = createDraftProgram("Program");
-    Application app =
+    ApplicationModel app =
         repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
     assertThat(repo.getApplication(app.id).toCompletableFuture().join().get().getLifecycleStage())
         .isEqualTo(LifecycleStage.ACTIVE);
@@ -181,11 +181,12 @@ public class ApplicationRepositoryTest extends ResetPostgres {
         .isInstanceOf(DuplicateApplicationException.class);
   }
 
-  private Application createSubmittedAppAtInstant(ProgramModel program, Instant submitTime) {
+  private ApplicationModel createSubmittedAppAtInstant(ProgramModel program, Instant submitTime) {
     // Use a distinct applicant for each application since it's not possible to create multiple
     // submitted applications for the same program for a given applicant.
     ApplicantModel applicant = saveApplicant("Alice");
-    Application app = repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
+    ApplicationModel app =
+        repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
     CfTestHelpers.withMockedInstantNow(
         submitTime.toString(),
         () -> {
@@ -207,12 +208,12 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     Instant tomorrow = dateConverter.parseIso8601DateToStartOfDateInstant("2022-01-04");
 
     // Create applications at each instant in each program.
-    Application programOneYesterday = createSubmittedAppAtInstant(programOne, yesterday);
-    Application programOneToday = createSubmittedAppAtInstant(programOne, today);
-    Application programOneTomorrow = createSubmittedAppAtInstant(programOne, tomorrow);
-    Application programTwoYesterday = createSubmittedAppAtInstant(programTwo, yesterday);
-    Application programTwoToday = createSubmittedAppAtInstant(programTwo, today);
-    Application programTwoTomorrow = createSubmittedAppAtInstant(programTwo, tomorrow);
+    ApplicationModel programOneYesterday = createSubmittedAppAtInstant(programOne, yesterday);
+    ApplicationModel programOneToday = createSubmittedAppAtInstant(programOne, today);
+    ApplicationModel programOneTomorrow = createSubmittedAppAtInstant(programOne, tomorrow);
+    ApplicationModel programTwoYesterday = createSubmittedAppAtInstant(programTwo, yesterday);
+    ApplicationModel programTwoToday = createSubmittedAppAtInstant(programTwo, today);
+    ApplicationModel programTwoTomorrow = createSubmittedAppAtInstant(programTwo, tomorrow);
 
     // No filters. Includes all.
     assertThat(repo.getApplications(TimeFilter.EMPTY).stream().map(a -> a.id))
@@ -255,20 +256,24 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     ApplicantModel applicant = saveApplicant("Applicant");
 
     ProgramModel program = createDraftProgram("Program");
-    Application appDraft1 = Application.create(applicant, program, LifecycleStage.DRAFT);
+    ApplicationModel appDraft1 = ApplicationModel.create(applicant, program, LifecycleStage.DRAFT);
     appDraft1.save();
-    Application appDraft2 = Application.create(applicant, program, LifecycleStage.DRAFT);
+    ApplicationModel appDraft2 = ApplicationModel.create(applicant, program, LifecycleStage.DRAFT);
     appDraft2.save();
-    Application appActive1 = Application.create(applicant, program, LifecycleStage.ACTIVE);
+    ApplicationModel appActive1 =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE);
     appActive1.save();
-    Application appActive2 = Application.create(applicant, program, LifecycleStage.ACTIVE);
+    ApplicationModel appActive2 =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE);
     appActive2.save();
-    Application appObsolete1 = Application.create(applicant, program, LifecycleStage.OBSOLETE);
+    ApplicationModel appObsolete1 =
+        ApplicationModel.create(applicant, program, LifecycleStage.OBSOLETE);
     appObsolete1.save();
-    Application appObsolete2 = Application.create(applicant, program, LifecycleStage.OBSOLETE);
+    ApplicationModel appObsolete2 =
+        ApplicationModel.create(applicant, program, LifecycleStage.OBSOLETE);
     appObsolete2.save();
 
-    ImmutableSet<Application> result =
+    ImmutableSet<ApplicationModel> result =
         repo.getApplicationsForApplicant(
                 applicant.id,
                 ImmutableSet.of(
@@ -304,14 +309,14 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     ApplicantModel otherApplicant = saveApplicant("Other");
 
     ProgramModel program = createDraftProgram("Program");
-    Application primaryApplicantDraftApp =
-        Application.create(primaryApplicant, program, LifecycleStage.DRAFT);
+    ApplicationModel primaryApplicantDraftApp =
+        ApplicationModel.create(primaryApplicant, program, LifecycleStage.DRAFT);
     primaryApplicantDraftApp.save();
-    Application otherApplicantActiveApp =
-        Application.create(otherApplicant, program, LifecycleStage.ACTIVE);
+    ApplicationModel otherApplicantActiveApp =
+        ApplicationModel.create(otherApplicant, program, LifecycleStage.ACTIVE);
     otherApplicantActiveApp.save();
 
-    ImmutableSet<Application> result =
+    ImmutableSet<ApplicationModel> result =
         repo.getApplicationsForApplicant(
                 otherApplicant.id,
                 ImmutableSet.of(

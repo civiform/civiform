@@ -18,7 +18,7 @@ import services.application.ApplicationEventDetails;
 public final class ApplicationEvent extends BaseModel {
 
   // The Application the event is on.
-  @ManyToOne private Application application;
+  @ManyToOne private ApplicationModel application;
   // The {@code ApplicationEventDetails.Type} of the event.
   @Constraints.Required private ApplicationEventDetails.Type eventType;
   // The Account that triggered the event.
@@ -38,18 +38,20 @@ public final class ApplicationEvent extends BaseModel {
    * @param creator the Account that created the event.
    */
   public ApplicationEvent(
-      Application application, Optional<AccountModel> creator, ApplicationEventDetails details) {
+      ApplicationModel application,
+      Optional<AccountModel> creator,
+      ApplicationEventDetails details) {
     this.application = checkNotNull(application);
     this.creator = checkNotNull(creator).orElse(null);
     this.details = checkNotNull(details);
     this.eventType = details.eventType();
   }
 
-  public Application getApplication() {
+  public ApplicationModel getApplication() {
     return application;
   }
 
-  public ApplicationEvent setApplication(Application application) {
+  public ApplicationEvent setApplication(ApplicationModel application) {
     this.application = checkNotNull(application);
     return this;
   }

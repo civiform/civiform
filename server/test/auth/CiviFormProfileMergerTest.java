@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.Optional;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.Application;
+import models.ApplicationModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +40,7 @@ public class CiviFormProfileMergerTest {
   private OidcProfile oidcProfile;
   private CiviFormProfileData civiFormProfileData;
   private AccountModel account;
-  private Application dummyApplication;
+  private ApplicationModel dummyApplication;
 
   private CiviFormProfileMerger civiFormProfileMerger;
 
@@ -64,7 +64,7 @@ public class CiviFormProfileMergerTest {
 
     when(applicant.getAccount()).thenReturn(account);
 
-    dummyApplication = new Application(applicant, null, null);
+    dummyApplication = new ApplicationModel(applicant, null, null);
 
     when(applicant.getApplications()).thenReturn(ImmutableList.of(dummyApplication));
     when(civiFormProfile.getProfileData()).thenReturn(civiFormProfileData);

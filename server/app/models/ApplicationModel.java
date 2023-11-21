@@ -28,7 +28,7 @@ import services.applicant.ApplicantData;
  */
 @Entity
 @Table(name = "applications")
-public class Application extends BaseModel {
+public class ApplicationModel extends BaseModel {
 
   @ManyToOne private ApplicantModel applicant;
 
@@ -52,7 +52,7 @@ public class Application extends BaseModel {
   private String latestStatus;
   private boolean isAdmin;
 
-  public Application(
+  public ApplicationModel(
       ApplicantModel applicant, ProgramModel program, LifecycleStage lifecycleStage) {
     this.applicant = applicant;
     this.program = program;
@@ -63,9 +63,9 @@ public class Application extends BaseModel {
             || !applicant.getAccount().getAdministeredProgramNames().isEmpty();
   }
 
-  public static Application create(
+  public static ApplicationModel create(
       ApplicantModel applicant, ProgramModel program, LifecycleStage lifecycleStage) {
-    Application application = new Application(applicant, program, lifecycleStage);
+    ApplicationModel application = new ApplicationModel(applicant, program, lifecycleStage);
     application.save();
     return application;
   }
@@ -81,7 +81,7 @@ public class Application extends BaseModel {
    * @param submitterEmail The email address of the TI that submitted the application.
    * @return this Application
    */
-  public Application setSubmitterEmail(String submitterEmail) {
+  public ApplicationModel setSubmitterEmail(String submitterEmail) {
     this.submitterEmail = submitterEmail;
     return this;
   }
@@ -108,7 +108,7 @@ public class Application extends BaseModel {
     return new ApplicantData(Optional.of(Locale.forLanguageTag(preferredLocale)), this.object);
   }
 
-  public Application setApplicantData(ApplicantData data) {
+  public ApplicationModel setApplicantData(ApplicantData data) {
     this.preferredLocale =
         data.hasPreferredLocale() ? data.preferredLocale().toLanguageTag() : null;
     this.object = data.asJsonString();
@@ -135,24 +135,24 @@ public class Application extends BaseModel {
     return this.isAdmin;
   }
 
-  public Application setLifecycleStage(LifecycleStage stage) {
+  public ApplicationModel setLifecycleStage(LifecycleStage stage) {
     this.lifecycleStage = stage;
     return this;
   }
 
-  public Application setSubmitTimeToNow() {
+  public ApplicationModel setSubmitTimeToNow() {
     this.submitTime = Instant.now();
     return this;
   }
 
   @VisibleForTesting
-  public Application setSubmitTimeForTest(Instant v) {
+  public ApplicationModel setSubmitTimeForTest(Instant v) {
     this.submitTime = v;
     return this;
   }
 
   @VisibleForTesting
-  public Application setCreateTimeForTest(Instant v) {
+  public ApplicationModel setCreateTimeForTest(Instant v) {
     this.createTime = v;
     return this;
   }

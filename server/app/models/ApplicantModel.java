@@ -46,7 +46,7 @@ public class ApplicantModel extends BaseModel {
   @ManyToOne private AccountModel account;
 
   @OneToMany(mappedBy = "applicant")
-  private List<Application> applications;
+  private List<ApplicationModel> applications;
 
   public ApplicantModel() {
     super();
@@ -95,7 +95,7 @@ public class ApplicantModel extends BaseModel {
     return this;
   }
 
-  public ImmutableList<Application> getApplications() {
+  public ImmutableList<ApplicationModel> getApplications() {
     return ImmutableList.copyOf(this.applications);
   }
 

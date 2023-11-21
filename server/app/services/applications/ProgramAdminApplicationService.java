@@ -9,8 +9,8 @@ import java.util.Locale;
 import java.util.Optional;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.Application;
 import models.ApplicationEvent;
+import models.ApplicationModel;
 import models.ProgramModel;
 import play.i18n.Lang;
 import play.i18n.Messages;
@@ -81,7 +81,8 @@ public final class ProgramAdminApplicationService {
    *
    * @param admin The Account that instigated the change.
    */
-  public void setStatus(Application application, StatusEvent newStatusEvent, AccountModel admin)
+  public void setStatus(
+      ApplicationModel application, StatusEvent newStatusEvent, AccountModel admin)
       throws StatusEmailNotFoundException, StatusNotFoundException, AccountHasNoEmailException {
     ProgramModel program = application.getProgram();
     ApplicantModel applicant = application.getApplicant();
@@ -200,7 +201,7 @@ public final class ProgramAdminApplicationService {
    *
    * @param admin The Account that instigated the change.
    */
-  public void setNote(Application application, NoteEvent note, AccountModel admin) {
+  public void setNote(ApplicationModel application, NoteEvent note, AccountModel admin) {
     ApplicationEventDetails details =
         ApplicationEventDetails.builder()
             .setEventType(ApplicationEventDetails.Type.NOTE_CHANGE)
@@ -211,7 +212,7 @@ public final class ProgramAdminApplicationService {
   }
 
   /** Returns the note content for {@code application}. */
-  public Optional<String> getNote(Application application) {
+  public Optional<String> getNote(ApplicationModel application) {
     // The most recent note event is the current value for the note.
     return application.getApplicationEvents().stream()
         .filter(app -> app.getEventType().equals(ApplicationEventDetails.Type.NOTE_CHANGE))
@@ -223,7 +224,7 @@ public final class ProgramAdminApplicationService {
    * Retrieves the application with the given ID and validates that it is associated with the given
    * program.
    */
-  public Optional<Application> getApplication(long applicationId, ProgramDefinition program) {
+  public Optional<ApplicationModel> getApplication(long applicationId, ProgramDefinition program) {
     try {
       return validateProgram(
           applicationRepository.getApplication(applicationId).toCompletableFuture().join(),
@@ -234,8 +235,8 @@ public final class ProgramAdminApplicationService {
   }
 
   /** Validates that the given application is part of the given program. */
-  private Optional<Application> validateProgram(
-      Optional<Application> application, ProgramDefinition program)
+  private Optional<ApplicationModel> validateProgram(
+      Optional<ApplicationModel> application, ProgramDefinition program)
       throws ProgramNotFoundException {
     if (application.isEmpty()
         || application.get().getProgramName().isEmpty()

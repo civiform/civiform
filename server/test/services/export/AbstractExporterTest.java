@@ -9,7 +9,7 @@ import java.util.Optional;
 import junitparams.converters.Nullable;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.Application;
+import models.ApplicationModel;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.Question;
@@ -60,12 +60,12 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   protected ApplicantModel applicantFive;
   protected ApplicantModel applicantSix;
   protected ApplicantModel applicantTwo;
-  protected Application applicationOne;
-  protected Application applicationTwo;
-  protected Application applicationThree;
-  protected Application applicationFour;
-  protected Application applicationFive;
-  protected Application applicationSix;
+  protected ApplicationModel applicationOne;
+  protected ApplicationModel applicationTwo;
+  protected ApplicationModel applicationThree;
+  protected ApplicationModel applicationFour;
+  protected ApplicationModel applicationFive;
+  protected ApplicationModel applicationSix;
 
   @Before
   public void setup() {
@@ -181,14 +181,14 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         createFakeApplication(applicantTwo, null, fakeProgram, LifecycleStage.ACTIVE, null);
   }
 
-  private Application createFakeApplication(
+  private ApplicationModel createFakeApplication(
       ApplicantModel applicant,
       @Nullable AccountModel admin,
       ProgramModel program,
       LifecycleStage lifecycleStage,
       @Nullable String status)
       throws Exception {
-    Application application = new Application(applicant, program, lifecycleStage);
+    ApplicationModel application = new ApplicationModel(applicant, program, lifecycleStage);
     application.setApplicantData(applicant.getApplicantData());
     application.save();
 
@@ -265,7 +265,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     QuestionAnswerer.answerFileQuestion(
         applicantFive.getApplicantData(), answerPath, "my-file-key");
     applicationFive =
-        new Application(applicantFive, fakeProgramWithOptionalFileUpload, LifecycleStage.ACTIVE);
+        new ApplicationModel(
+            applicantFive, fakeProgramWithOptionalFileUpload, LifecycleStage.ACTIVE);
     applicantFive.save();
     CfTestHelpers.withMockedInstantNow(
         "2022-01-01T00:00:00Z", () -> applicationFive.setSubmitTimeToNow());
@@ -281,7 +282,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         "",
         "Six");
     applicationSix =
-        new Application(applicantSix, fakeProgramWithOptionalFileUpload, LifecycleStage.ACTIVE);
+        new ApplicationModel(
+            applicantSix, fakeProgramWithOptionalFileUpload, LifecycleStage.ACTIVE);
     applicantSix.save();
     CfTestHelpers.withMockedInstantNow(
         "2022-01-01T00:00:00Z", () -> applicationSix.setSubmitTimeToNow());
@@ -330,7 +332,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         "coquelicot");
     applicantOne.save();
     applicationOne =
-        new Application(applicantOne, fakeProgramWithEligibility, LifecycleStage.ACTIVE);
+        new ApplicationModel(applicantOne, fakeProgramWithEligibility, LifecycleStage.ACTIVE);
     applicationOne.setApplicantData(applicantOne.getApplicantData());
 
     CfTestHelpers.withMockedInstantNow(
@@ -353,14 +355,14 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         "blue");
     applicantTwo.save();
     applicationTwo =
-        new Application(applicantTwo, fakeProgramWithEligibility, LifecycleStage.ACTIVE);
+        new ApplicationModel(applicantTwo, fakeProgramWithEligibility, LifecycleStage.ACTIVE);
     applicationTwo.setApplicantData(applicantTwo.getApplicantData());
     CfTestHelpers.withMockedInstantNow(
         "2022-02-01T00:00:00Z", () -> applicationTwo.setSubmitTimeToNow());
     applicationTwo.save();
 
     applicationThree =
-        new Application(applicantTwo, fakeProgramWithEligibility, LifecycleStage.OBSOLETE);
+        new ApplicationModel(applicantTwo, fakeProgramWithEligibility, LifecycleStage.OBSOLETE);
     applicationThree.setApplicantData(applicantTwo.getApplicantData());
     CfTestHelpers.withMockedInstantNow(
         "2022-03-01T00:00:00Z", () -> applicationThree.setSubmitTimeToNow());
@@ -439,7 +441,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         100);
     applicantOne.save();
     applicationOne =
-        new Application(applicantOne, fakeProgramWithEnumerator, LifecycleStage.ACTIVE);
+        new ApplicationModel(applicantOne, fakeProgramWithEnumerator, LifecycleStage.ACTIVE);
     applicationOne.setApplicantData(applicantOne.getApplicantData());
 
     CfTestHelpers.withMockedInstantNow(
@@ -498,14 +500,14 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         333);
     applicantTwo.save();
     applicationTwo =
-        new Application(applicantTwo, fakeProgramWithEnumerator, LifecycleStage.ACTIVE);
+        new ApplicationModel(applicantTwo, fakeProgramWithEnumerator, LifecycleStage.ACTIVE);
     applicationTwo.setApplicantData(applicantTwo.getApplicantData());
     CfTestHelpers.withMockedInstantNow(
         "2022-02-01T00:00:00Z", () -> applicationTwo.setSubmitTimeToNow());
     applicationTwo.save();
 
     applicationThree =
-        new Application(applicantTwo, fakeProgramWithEnumerator, LifecycleStage.OBSOLETE);
+        new ApplicationModel(applicantTwo, fakeProgramWithEnumerator, LifecycleStage.OBSOLETE);
     applicationThree.setApplicantData(applicantTwo.getApplicantData());
     CfTestHelpers.withMockedInstantNow(
         "2022-03-01T00:00:00Z", () -> applicationThree.setSubmitTimeToNow());
@@ -574,7 +576,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     ApplicantModel applicant;
     ProgramModel program;
     Optional<AccountModel> trustedIntermediary = Optional.empty();
-    Application application;
+    ApplicationModel application;
 
     public FakeApplicationFiller(ProgramModel program) {
       this.program = program;
@@ -793,7 +795,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     }
 
     public FakeApplicationFiller submit() {
-      application = new Application(applicant, program, LifecycleStage.ACTIVE);
+      application = new ApplicationModel(applicant, program, LifecycleStage.ACTIVE);
       application.setApplicantData(applicant.getApplicantData());
       trustedIntermediary.ifPresent(
           account -> application.setSubmitterEmail(account.getEmailAddress()));

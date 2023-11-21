@@ -25,7 +25,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import models.AccountModel;
-import models.Application;
+import models.ApplicationModel;
 import models.DisplayMode;
 import models.ProgramModel;
 import models.VersionModel;
@@ -1516,7 +1516,7 @@ public final class ProgramService {
    *
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
-  public ImmutableList<Application> getSubmittedProgramApplications(long programId)
+  public ImmutableList<ApplicationModel> getSubmittedProgramApplications(long programId)
       throws ProgramNotFoundException {
     Optional<ProgramModel> programMaybe =
         programRepository.lookupProgram(programId).toCompletableFuture().join();
@@ -1534,7 +1534,7 @@ public final class ProgramService {
    *     pagination spec to use for a given call.
    * @param filters a set of filters to apply to the examined applications.
    */
-  public PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
+  public PaginationResult<ApplicationModel> getSubmittedProgramApplicationsAllVersions(
       long programId,
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
