@@ -107,7 +107,14 @@ public class ProgramModel extends BaseModel {
    */
   @Constraints.Required private Boolean eligibilityIsGating;
 
-  /** A localized description of the summary image (used as alt text). */
+  /**
+   * A localized description of the summary image (used as alt text).
+   *
+   * <p>Note: If the program doesn't have a summary image, the field here will be null but the
+   * corresponding field in {@link ProgramDefinition} will be {@code Optional.empty}. (Ebean doesn't
+   * support optional fields, which is why it's null instead of Optional in this model.) Be sure to
+   * convert between null and Optional when going between this model and {@link ProgramDefinition}.
+   */
   @DbJsonB @Nullable private LocalizedStrings localizedSummaryImageDescription;
 
   @ManyToMany(mappedBy = "programs")
@@ -286,6 +293,8 @@ public class ProgramModel extends BaseModel {
     if (localizedSummaryImageDescription != null) {
       builder.setLocalizedSummaryImageDescription(Optional.of(localizedSummaryImageDescription));
     } else {
+      // See docs on `this.localizedSummaryImageDescription` -- a null field here means an
+      // Optional.empty field for the program definition.
       builder.setLocalizedSummaryImageDescription(Optional.empty());
     }
   }
