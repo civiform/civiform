@@ -16,7 +16,7 @@ import play.mvc.Http;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
-import services.cloud.StorageClient;
+import services.cloud.ApplicantStorageClient;
 import views.components.ButtonStyles;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererParams;
@@ -83,7 +83,7 @@ public class ApplicationBaseView extends BaseHtmlView {
 
     public abstract boolean preferredLanguageSupported();
 
-    public abstract StorageClient storageClient();
+    public abstract ApplicantStorageClient storageClient();
 
     public abstract String baseUrl();
 
@@ -117,7 +117,7 @@ public class ApplicationBaseView extends BaseHtmlView {
 
       public abstract Builder setPreferredLanguageSupported(boolean preferredLanguageSupported);
 
-      public abstract Builder setStorageClient(StorageClient storageClient);
+      public abstract Builder setStorageClient(ApplicantStorageClient applicantStorageClient);
 
       public abstract Builder setBaseUrl(String baseUrl);
 

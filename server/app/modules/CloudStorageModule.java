@@ -7,7 +7,7 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import play.Environment;
-import services.cloud.StorageClient;
+import services.cloud.ApplicantStorageClient;
 import services.cloud.StorageServiceName;
 import views.AwsFileUploadViewStrategy;
 import views.AzureFileUploadViewStrategy;
@@ -43,9 +43,9 @@ public class CloudStorageModule extends AbstractModule {
     }
 
     try {
-      Class<? extends StorageClient> boundClass =
-          environment.classLoader().loadClass(className).asSubclass(StorageClient.class);
-      bind(StorageClient.class).to(boundClass);
+      Class<? extends ApplicantStorageClient> boundClass =
+          environment.classLoader().loadClass(className).asSubclass(ApplicantStorageClient.class);
+      bind(ApplicantStorageClient.class).to(boundClass);
     } catch (ClassNotFoundException ex) {
       throw new RuntimeException(
           String.format("Failed to load storage client class: %s", className));
