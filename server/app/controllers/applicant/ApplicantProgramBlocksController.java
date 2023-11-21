@@ -41,7 +41,7 @@ import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.FileUploadQuestion;
-import services.cloud.StorageClient;
+import services.cloud.ApplicantStorageClient;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
 import services.program.PathNotInBlockException;
@@ -74,7 +74,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final HttpExecutionContext httpExecutionContext;
   private final ApplicantProgramBlockEditView editView;
   private final FormFactory formFactory;
-  private final StorageClient storageClient;
+  private final ApplicantStorageClient applicantStorageClient;
   private final StoredFileRepository storedFileRepository;
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
@@ -92,7 +92,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       HttpExecutionContext httpExecutionContext,
       ApplicantProgramBlockEditViewFactory editViewFactory,
       FormFactory formFactory,
-      StorageClient storageClient,
+      ApplicantStorageClient applicantStorageClient,
       StoredFileRepository storedFileRepository,
       ProfileUtils profileUtils,
       Config configuration,
@@ -108,7 +108,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.formFactory = checkNotNull(formFactory);
-    this.storageClient = checkNotNull(storageClient);
+    this.applicantStorageClient = checkNotNull(applicantStorageClient);
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -728,7 +728,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setTotalBlockCount(roApplicantProgramService.getAllActiveBlocks().size())
         .setApplicantPersonalInfo(personalInfo)
         .setPreferredLanguageSupported(roApplicantProgramService.preferredLanguageSupported())
-        .setStorageClient(storageClient)
+        .setStorageClient(applicantStorageClient)
         .setBaseUrl(baseUrl)
         .setErrorDisplayMode(errorDisplayMode)
         .setQuestionName(questionName);

@@ -2,13 +2,26 @@ package services.cloud;
 
 import java.util.Optional;
 
-/** Interface for working with cloud file storage backends. */
-public interface StorageClient {
+/**
+ * Interface for working with cloud file storage backends. This:
+ *
+ * <p>(1) Allows applicants to upload files as part of their application -- see {@link
+ * #getSignedUploadRequest(String, String)}.
+ *
+ * <p>(2) Allows applicants to re-download files they've previously uploaded -- see {@link
+ * #getPresignedUrlString(String)}.
+ *
+ * <p>(3) Allows program admins to view applicant-uploaded files only for programs they have
+ * permissions to view -- see {@link #getPresignedUrlString(String)}. {@link
+ * controllers.FileController} is responsible for checking the file ACLs before allowing access to
+ * the files.
+ */
+public interface ApplicantStorageClient {
 
   /**
    * Returns the string version of a URL that gives users temporary access to file storage. This URL
    * is used to access and download the users' files from cloud storage. This calls {@link
-   * getPresignedUrlString} (below) with an empty Optional.
+   * #getPresignedUrlString(String, Optional)} (below) with an empty Optional.
    *
    * @param fileKey The file key to be accessed from cloud storage.
    */
