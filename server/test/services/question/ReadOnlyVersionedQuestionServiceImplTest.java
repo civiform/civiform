@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import models.LifecycleStage;
-import models.Question;
+import models.QuestionModel;
 import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,10 +21,10 @@ public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
       new ReadOnlyVersionedQuestionServiceImpl(
           new VersionModel(LifecycleStage.OBSOLETE), instanceOf(VersionRepository.class));
   private TestQuestionBank testQuestionBank;
-  private Question nameQuestion;
-  private Question addressQuestion;
-  private Question basicQuestion;
-  private ImmutableList<Question> questions;
+  private QuestionModel nameQuestion;
+  private QuestionModel addressQuestion;
+  private QuestionModel basicQuestion;
+  private ImmutableList<QuestionModel> questions;
   private ReadOnlyQuestionService service;
 
   @Before
@@ -74,7 +74,7 @@ public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
 
   @Test
   public void getEnumeratorQuestions() {
-    Question enumeratorQuestion = testQuestionBank.applicantHouseholdMembers();
+    QuestionModel enumeratorQuestion = testQuestionBank.applicantHouseholdMembers();
 
     VersionModel version = new VersionModel(LifecycleStage.OBSOLETE);
     addQuestionsToVersion(version, questions);
@@ -100,7 +100,7 @@ public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
   }
 
   private static void addQuestionsToVersion(
-      VersionModel version, ImmutableList<Question> questions) {
+      VersionModel version, ImmutableList<QuestionModel> questions) {
     questions.stream().forEach(version::addQuestion);
     version.save();
   }
