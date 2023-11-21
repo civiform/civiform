@@ -10,7 +10,7 @@ public final class Models {
   private static final ImmutableList<Class<? extends BaseModel>> MODELS =
       ImmutableList.of(
           AccountModel.class,
-          ApiKey.class,
+          ApiKeyModel.class,
           Applicant.class,
           Application.class,
           ApplicationEvent.class,

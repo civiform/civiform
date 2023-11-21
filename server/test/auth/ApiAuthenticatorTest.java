@@ -15,7 +15,7 @@ import com.typesafe.config.ConfigFactory;
 import io.ebean.DB;
 import java.time.Instant;
 import java.util.Optional;
-import models.ApiKey;
+import models.ApiKeyModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class ApiAuthenticatorTest {
   private static final String secret = "secret";
   private static final String validRawCredentials = keyId + ":" + secret;
   private static final SessionStore MOCK_SESSION_STORE = Mockito.mock(SessionStore.class);
-  private ApiKey apiKey;
+  private ApiKeyModel apiKey;
   private Injector injector;
 
   @Before
@@ -106,8 +106,8 @@ public class ApiAuthenticatorTest {
             new FakeRequestBuilder().withRawCredentials(validRawCredentials).build()),
         MOCK_SESSION_STORE);
 
-    Optional<Optional<ApiKey>> cacheEntry = cacheApi.get(keyId);
-    Optional<ApiKey> cachedMaybeKey = cacheEntry.get();
+    Optional<Optional<ApiKeyModel>> cacheEntry = cacheApi.get(keyId);
+    Optional<ApiKeyModel> cachedMaybeKey = cacheEntry.get();
     assertThat(cachedMaybeKey.get().id).isEqualTo(apiKey.id);
   }
 
@@ -131,8 +131,8 @@ public class ApiAuthenticatorTest {
                 .build()),
         MOCK_SESSION_STORE);
 
-    Optional<Optional<ApiKey>> cacheEntry = cacheApi.get(keyId);
-    Optional<ApiKey> cachedMaybeKey = cacheEntry.get();
+    Optional<Optional<ApiKeyModel>> cacheEntry = cacheApi.get(keyId);
+    Optional<ApiKeyModel> cachedMaybeKey = cacheEntry.get();
     assertThat(cachedMaybeKey.get().id).isEqualTo(apiKey.id);
   }
 
