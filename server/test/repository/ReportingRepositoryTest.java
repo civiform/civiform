@@ -32,13 +32,13 @@ public class ReportingRepositoryTest extends ResetPostgres {
   @Before
   public void setUp() {
     versionRepository = instanceOf(VersionRepository.class);
-    versionRepositoryProvider = CfTestHelpers.versionRepositoryProvider(versionRepository);
-    repo = new ReportingRepository(testClock, versionRepositoryProvider);
     applicant = resourceCreator.insertApplicantWithAccount();
     programA =
         ProgramBuilder.newActiveProgramWithDisplayName("fake-program-a", "Fake Program A").build();
     programB =
         ProgramBuilder.newActiveProgramWithDisplayName("fake-program-b", "Fake Program B").build();
+    versionRepositoryProvider = CfTestHelpers.versionRepositoryProvider(versionRepository);
+    repo = new ReportingRepository(testClock, versionRepositoryProvider);
   }
 
   @Test
