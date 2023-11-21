@@ -261,7 +261,9 @@ describe('Admin can manage translations', () => {
     await adminPrograms.goToProgramImagePage(programName)
     await adminProgramImage.setImageDescriptionAndSubmit('')
 
-    // Verify there's no longer an option to translate the description
+    // Verify there's no longer an option to translate the description.
+    // (The image description translation field will only appear in the UI if
+    // an original description exists.)
     await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.expectNoProgramImageDescription()
