@@ -31,6 +31,7 @@ public final class Version extends BaseModel {
   @Constraints.Required private LifecycleStage lifecycleStage;
 
   @ManyToMany(mappedBy = "versions")
+  @JoinTable(name = "versions_questions")
   private List<Question> questions;
 
   /**
