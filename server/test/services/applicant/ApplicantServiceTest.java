@@ -27,7 +27,7 @@ import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.QuestionModel;
-import models.StoredFile;
+import models.StoredFileModel;
 import models.TrustedIntermediaryGroup;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Before;
@@ -855,7 +855,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    var storedFile = new StoredFile().setName(fileKey);
+    var storedFile = new StoredFileModel().setName(fileKey);
     storedFile.save();
 
     subject

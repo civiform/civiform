@@ -17,7 +17,7 @@ public final class Models {
           PersistedDurableJobModel.class,
           ProgramModel.class,
           QuestionModel.class,
-          StoredFile.class,
+          StoredFileModel.class,
           TrustedIntermediaryGroup.class,
           VersionModel.class,
           SettingsGroupModel.class);

@@ -10,7 +10,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import models.ApplicantModel;
 import models.ProgramModel;
-import models.StoredFile;
+import models.StoredFileModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
@@ -186,7 +186,7 @@ public class FileControllerTest extends WithMockedProfiles {
   }
 
   private void createStoredFileWithProgramAccess(String fileKey, ProgramModel program) {
-    var file = new StoredFile().setName(fileKey);
+    var file = new StoredFileModel().setName(fileKey);
     file.getAcls().addProgramToReaders(program.getProgramDefinition());
     file.save();
   }
