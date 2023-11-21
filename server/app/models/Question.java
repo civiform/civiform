@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.PostLoad;
@@ -106,7 +107,10 @@ public class Question extends BaseModel {
   @WhenModified private Instant lastModifiedTime;
 
   @ManyToMany
-  @JoinTable(name = "versions_questions")
+  @JoinTable(
+      name = "versions_questions",
+      joinColumns = @JoinColumn(name = "questions_id"),
+      inverseJoinColumns = @JoinColumn(name = "versions_id"))
   private List<VersionModel> versions;
 
   public Question(QuestionDefinition questionDefinition) {

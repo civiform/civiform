@@ -5,12 +5,17 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
+import auth.oidc.IdTokens;
+import auth.oidc.IdTokensFactory;
+import auth.oidc.SerializedIdTokens;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import durablejobs.jobs.FixApplicantDobDataPathJob;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.Query;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +26,7 @@ import javax.inject.Inject;
 import models.AccountModel;
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
+import org.pac4j.oidc.profile.OidcProfile;
 import services.CiviFormError;
 import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
@@ -38,11 +44,14 @@ public final class AccountRepository {
 
   private final Database database;
   private final DatabaseExecutionContext executionContext;
+  private final IdTokensFactory idTokensFactory;
 
   @Inject
-  public AccountRepository(DatabaseExecutionContext executionContext) {
+  public AccountRepository(
+      DatabaseExecutionContext executionContext, IdTokensFactory idTokensFactory) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
+    this.idTokensFactory = checkNotNull(idTokensFactory);
   }
 
   public CompletionStage<Set<Applicant>> listApplicants() {
@@ -265,7 +274,7 @@ public final class AccountRepository {
     }
   }
 
-  private Optional<AccountModel> lookupAccount(long accountId) {
+  public Optional<AccountModel> lookupAccount(long accountId) {
     return database
         .find(AccountModel.class)
         .setId(accountId)
@@ -396,5 +405,39 @@ public final class AccountRepository {
             + "WHERE accounts.id IN (SELECT account_id FROM unused_accounts);";
 
     return database.sqlUpdate(sql).execute();
+  }
+
+  /**
+   * For use in {@link FixApplicantDobDataPathJob}. This will return applicants who have the
+   * incorrect path for applicant_date_of_birth where applicant_date_of_birth points directly to a
+   * number. eg. {applicant:{applicant_date_of_birth: 1038787200000}}
+   */
+  public Query<Applicant> findApplicantsWithIncorrectDobPath() {
+    String sql =
+        "WITH temp_json_table AS (SELECT * , ((object#>>'{}')::jsonb)::json AS parsed_object FROM"
+            + " applicants) select temp_json_table.* FROM temp_json_table WHERE"
+            + " temp_json_table.parsed_object#>'{applicant,applicant_date_of_birth}' IS NOT NULL"
+            + " AND temp_json_table.parsed_object#>'{applicant,applicant_date_of_birth,date}' IS"
+            + " NULL";
+    return database.findNative(Applicant.class, sql);
+  }
+
+  /**
+   * Associates the ID token from the profile with the provided session id and persists this
+   * association to the provided account.
+   *
+   * <p>Also purges any expired ID tokens as a side effect.
+   */
+  public void updateSerializedIdTokens(
+      AccountModel account, String sessionId, OidcProfile oidcProfile) {
+    SerializedIdTokens serializedIdTokens = account.getSerializedIdTokens();
+    if (serializedIdTokens == null) {
+      serializedIdTokens = new SerializedIdTokens();
+      account.setSerializedIdTokens(serializedIdTokens);
+    }
+    IdTokens idTokens = idTokensFactory.create(serializedIdTokens);
+    idTokens.purgeExpiredIdTokens();
+    idTokens.storeIdToken(sessionId, oidcProfile.getIdTokenString());
+    account.save();
   }
 }

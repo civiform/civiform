@@ -16,6 +16,8 @@ import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
@@ -106,7 +108,11 @@ public class ProgramModel extends BaseModel {
    */
   @Constraints.Required private Boolean eligibilityIsGating;
 
-  @ManyToMany(mappedBy = "programs")
+  @ManyToMany
+  @JoinTable(
+      name = "versions_programs",
+      joinColumns = @JoinColumn(name = "programs_id"),
+      inverseJoinColumns = @JoinColumn(name = "versions_id"))
   private List<VersionModel> versions;
 
   @OneToMany(mappedBy = "program")

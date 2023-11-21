@@ -2,11 +2,16 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.PlainJWT;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import models.AccountModel;
@@ -14,8 +19,10 @@ import models.Applicant;
 import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
+import org.pac4j.oidc.profile.OidcProfile;
 import services.CiviFormError;
 import services.Path;
+import services.WellKnownPaths;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
@@ -97,7 +104,7 @@ public class AccountRepositoryTest extends ResetPostgres {
   @Test
   public void insertApplicant() {
     Applicant applicant = new Applicant();
-    String path = "$.applicant.applicant_date_of_birth";
+    String path = "$." + WellKnownPaths.APPLICANT_DOB.toString();
     applicant.getApplicantData().putDate(Path.create(path), "2021-01-01");
 
     repo.insertApplicant(applicant).toCompletableFuture().join();
@@ -112,7 +119,7 @@ public class AccountRepositoryTest extends ResetPostgres {
   public void updateApplicant() {
     Applicant applicant = new Applicant();
     repo.insertApplicant(applicant).toCompletableFuture().join();
-    String path = "$.applicant.applicant_date_of_birth";
+    String path = "$." + WellKnownPaths.APPLICANT_DOB.toString();
     applicant.getApplicantData().putString(Path.create(path), "1/1/2021");
 
     repo.updateApplicant(applicant).toCompletableFuture().join();
@@ -253,9 +260,69 @@ public class AccountRepositoryTest extends ResetPostgres {
     assertThat(remainingApplicants).hasSize(3);
   }
 
+  @Test
+  public void findApplicantsWithIncorrectDobPath() {
+    // Save an applicant with the correct path for dob
+    saveApplicantWithDob("Foo", "2001-11-01");
+
+    // Save an applicant with the incorrect path for dob
+    Applicant applicantWithDeprecatedPath = saveApplicant("Bar");
+    applicantWithDeprecatedPath
+        .getApplicantData()
+        .putDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED, "2002-12-02");
+    applicantWithDeprecatedPath.save();
+
+    List<Applicant> applicants = repo.findApplicantsWithIncorrectDobPath().findList();
+    // Only the applicant with the incorrect path should be returned
+    assertThat(applicants.size()).isEqualTo(1);
+    assertThat(applicants.get(0).getApplicantData().getApplicantName().get()).isEqualTo("Bar");
+  }
+
+  @Test
+  public void updateSerializedIdTokens() {
+    AccountModel account = new AccountModel();
+    String fakeEmail = "fake email";
+    account.setEmailAddress(fakeEmail);
+    account.save();
+    long accountId = account.id;
+
+    // Create a JWT that just expired.
+    LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
+    Instant timeInPast = now.minus(1, ChronoUnit.SECONDS).toInstant(ZoneOffset.UTC);
+    JWT expiredJwt = getJwtWithExpirationTime(timeInPast);
+    OidcProfile expiredOidcProfile = new OidcProfile();
+    expiredOidcProfile.setIdTokenString(expiredJwt.serialize());
+
+    repo.updateSerializedIdTokens(account, "sessionId1", expiredOidcProfile);
+
+    // Create a JWT that won't expire for an hour.
+    Instant timeInFuture = now.plus(1, ChronoUnit.HOURS).toInstant(ZoneOffset.UTC);
+    JWT validJwt = getJwtWithExpirationTime(timeInFuture);
+    OidcProfile validOidcProfile = new OidcProfile();
+    validOidcProfile.setIdTokenString(validJwt.serialize());
+
+    repo.updateSerializedIdTokens(account, "sessionId2", validOidcProfile);
+
+    Optional<AccountModel> retrievedAccount = repo.lookupAccount(accountId);
+    assertThat(retrievedAccount).isNotEmpty();
+    // Expired token
+    assertThat(retrievedAccount.get().getSerializedIdTokens().get("sessionId1")).isNull();
+    // Valid token
+    assertThat(retrievedAccount.get().getSerializedIdTokens().get("sessionId2"))
+        .isEqualTo(validJwt.serialize());
+  }
+
+  private JWT getJwtWithExpirationTime(Instant expirationTime) {
+    JWTClaimsSet claims =
+        new JWTClaimsSet.Builder().expirationTime(Date.from(expirationTime)).build();
+    return new PlainJWT(claims);
+  }
+
   private Applicant saveApplicantWithDob(String name, String dob) {
     Applicant applicant = new Applicant();
-    applicant.getApplicantData().putString(Path.create("$.applicant.name"), name);
+    applicant
+        .getApplicantData()
+        .putString(Path.create("$." + WellKnownPaths.APPLICANT_FIRST_NAME.toString()), name);
     applicant.getApplicantData().setDateOfBirth(dob);
     applicant.save();
     return applicant;
@@ -263,7 +330,9 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   private Applicant saveApplicant(String name) {
     Applicant applicant = new Applicant();
-    applicant.getApplicantData().putString(Path.create("$.applicant.name"), name);
+    applicant
+        .getApplicantData()
+        .putString(Path.create("$." + WellKnownPaths.APPLICANT_FIRST_NAME.toString()), name);
     applicant.save();
     return applicant;
   }
