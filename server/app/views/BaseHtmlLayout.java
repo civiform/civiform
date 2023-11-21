@@ -248,7 +248,7 @@ public class BaseHtmlLayout {
 
     DivTag bannerContent =
         div()
-            .withClasses("usa-banner__content", "usa-accordion__content", "mx-6")
+            .withClasses("usa-banner__content", "usa-accordion__content")
             .withId("gov-banner-default-default")
             .with(
                 div()
