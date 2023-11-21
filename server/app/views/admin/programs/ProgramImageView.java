@@ -51,9 +51,7 @@ public final class ProgramImageView extends BaseHtmlView {
     // TODO(#5676): This toast code is re-implemented across multiple controllers. Can we write a
     // helper method for it?
     Http.Flash flash = request.flash();
-    if (flash.get("error").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(flash.get("error").get()));
-    } else if (flash.get("success").isPresent()) {
+    if (flash.get("success").isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()));
     }
 
