@@ -9,7 +9,7 @@ import java.util.Locale;
 import java.util.Optional;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.ApplicationEvent;
+import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.ProgramModel;
 import play.i18n.Lang;
@@ -105,7 +105,8 @@ public final class ProgramAdminApplicationService {
             .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
             .setStatusEvent(newStatusEvent)
             .build();
-    ApplicationEvent event = new ApplicationEvent(application, Optional.of(admin), details);
+    ApplicationEventModel event =
+        new ApplicationEventModel(application, Optional.of(admin), details);
 
     // Send email if requested and present.
     if (sendEmail) {
@@ -207,7 +208,8 @@ public final class ProgramAdminApplicationService {
             .setEventType(ApplicationEventDetails.Type.NOTE_CHANGE)
             .setNoteEvent(note)
             .build();
-    ApplicationEvent event = new ApplicationEvent(application, Optional.of(admin), details);
+    ApplicationEventModel event =
+        new ApplicationEventModel(application, Optional.of(admin), details);
     eventRepository.insertSync(event);
   }
 

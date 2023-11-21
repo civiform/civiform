@@ -8,12 +8,12 @@ import io.ebean.DB;
 import io.ebean.Database;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.ApplicationEvent;
+import models.ApplicationEventModel;
 import models.ApplicationModel;
 
 /**
- * ApplicationEventRepository performs operations on {@link ApplicationEvent} that often involve
- * other EBean models or asynchronous handling.
+ * ApplicationEventRepository performs operations on {@link ApplicationEventModel} that often
+ * involve other EBean models or asynchronous handling.
  */
 public final class ApplicationEventRepository {
   private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
@@ -27,15 +27,15 @@ public final class ApplicationEventRepository {
     this.executionContext = checkNotNull(executionContext);
   }
 
-  /** Insert a new {@link ApplicationEvent} record synchronously. */
-  public ApplicationEvent insertSync(ApplicationEvent event) {
+  /** Insert a new {@link ApplicationEventModel} record synchronously. */
+  public ApplicationEventModel insertSync(ApplicationEventModel event) {
     database.insert(event);
     event.refresh();
     return event;
   }
 
-  /** Insert a new {@link ApplicationEvent} record asynchronously. */
-  public CompletionStage<ApplicationEvent> insertAsync(ApplicationEvent event) {
+  /** Insert a new {@link ApplicationEventModel} record asynchronously. */
+  public CompletionStage<ApplicationEventModel> insertAsync(ApplicationEventModel event) {
     return supplyAsync(
         () -> {
           database.insert(event);
@@ -46,18 +46,18 @@ public final class ApplicationEventRepository {
   }
 
   /**
-   * Returns all {@link ApplicationEvent} records for the {@link ApplicationModel} with id {@code
-   * applicationId} synchronously.
+   * Returns all {@link ApplicationEventModel} records for the {@link ApplicationModel} with id
+   * {@code applicationId} synchronously.
    */
-  public ImmutableList<ApplicationEvent> getEventsOrderByCreateTimeDesc(Long applicationId) {
+  public ImmutableList<ApplicationEventModel> getEventsOrderByCreateTimeDesc(Long applicationId) {
     return ImmutableList.copyOf(
         database
-            .find(ApplicationEvent.class)
+            .find(ApplicationEventModel.class)
             .where()
             .eq("application_id", applicationId)
             .orderBy()
             .desc("create_time")
-            .setLabel("ApplicationEvent.findSet")
+            .setLabel("ApplicationEventModel.findSet")
             .setProfileLocation(
                 queryProfileLocationBuilder.create("getEventsOrderByCreateTimeDesc"))
             .findList());

@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 import junitparams.JUnitParamsRunner;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.ApplicationEvent;
+import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.LifecycleStage;
 import org.junit.Before;
@@ -222,7 +222,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
     application.refresh();
     assertThat(application.getApplicationEvents()).hasSize(1);
-    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    ApplicationEventModel gotEvent = application.getApplicationEvents().get(0);
     assertThat(gotEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
     assertThat(gotEvent.getDetails().statusEvent()).isPresent();
     assertThat(gotEvent.getDetails().statusEvent().get().statusText())
@@ -519,7 +519,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
     application.refresh();
     assertThat(application.getApplicationEvents()).hasSize(1);
-    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    ApplicationEventModel gotEvent = application.getApplicationEvents().get(0);
     assertThat(gotEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
     assertThat(gotEvent.getDetails().statusEvent()).isPresent();
     assertThat(gotEvent.getDetails().statusEvent().get().statusText()).isEqualTo(status);

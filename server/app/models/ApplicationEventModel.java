@@ -15,7 +15,7 @@ import services.application.ApplicationEventDetails;
 
 @Entity
 @Table(name = "application_events")
-public final class ApplicationEvent extends BaseModel {
+public final class ApplicationEventModel extends BaseModel {
 
   // The Application the event is on.
   @ManyToOne private ApplicationModel application;
@@ -37,7 +37,7 @@ public final class ApplicationEvent extends BaseModel {
    *
    * @param creator the Account that created the event.
    */
-  public ApplicationEvent(
+  public ApplicationEventModel(
       ApplicationModel application,
       Optional<AccountModel> creator,
       ApplicationEventDetails details) {
@@ -51,7 +51,7 @@ public final class ApplicationEvent extends BaseModel {
     return application;
   }
 
-  public ApplicationEvent setApplication(ApplicationModel application) {
+  public ApplicationEventModel setApplication(ApplicationModel application) {
     this.application = checkNotNull(application);
     return this;
   }
@@ -60,7 +60,7 @@ public final class ApplicationEvent extends BaseModel {
     return eventType;
   }
 
-  public ApplicationEvent setEventType(ApplicationEventDetails.Type eventType) {
+  public ApplicationEventModel setEventType(ApplicationEventDetails.Type eventType) {
     this.eventType = checkNotNull(eventType);
     return this;
   }
@@ -69,7 +69,7 @@ public final class ApplicationEvent extends BaseModel {
     return Optional.ofNullable(creator);
   }
 
-  public ApplicationEvent setCreator(AccountModel creator) {
+  public ApplicationEventModel setCreator(AccountModel creator) {
     this.creator = checkNotNull(creator);
     return this;
   }
@@ -78,7 +78,7 @@ public final class ApplicationEvent extends BaseModel {
     return details;
   }
 
-  public ApplicationEvent setDetails(ApplicationEventDetails details) {
+  public ApplicationEventModel setDetails(ApplicationEventDetails details) {
     this.details = checkNotNull(details);
     return this;
   }

@@ -7,7 +7,7 @@ import java.time.Instant;
 import java.util.Optional;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.ApplicationEvent;
+import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.ProgramModel;
 import org.junit.Before;
@@ -38,8 +38,9 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
             .setStatusEvent(
                 StatusEvent.builder().setStatusText("Status").setEmailSent(true).build())
             .build();
-    ApplicationEvent event = new ApplicationEvent(application, Optional.of(actor), details);
-    ApplicationEvent insertedEvent = repo.insertSync(event);
+    ApplicationEventModel event =
+        new ApplicationEventModel(application, Optional.of(actor), details);
+    ApplicationEventModel insertedEvent = repo.insertSync(event);
     // Generated values.
     assertThat(insertedEvent.id).isNotNull();
     assertThat(insertedEvent.getCreateTime()).isAfter(startInstant);
@@ -63,8 +64,8 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
             .setStatusEvent(
                 StatusEvent.builder().setStatusText("Status").setEmailSent(false).build())
             .build();
-    ApplicationEvent event = new ApplicationEvent(application, Optional.empty(), details);
-    ApplicationEvent insertedEvent = repo.insertAsync(event).toCompletableFuture().join();
+    ApplicationEventModel event = new ApplicationEventModel(application, Optional.empty(), details);
+    ApplicationEventModel insertedEvent = repo.insertAsync(event).toCompletableFuture().join();
     // Generated values.
     assertThat(insertedEvent.id).isNotNull();
     assertThat(insertedEvent.getCreateTime()).isAfter(startInstant);
@@ -90,12 +91,14 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
                 StatusEvent.builder().setStatusText("Status").setEmailSent(true).build())
             .build();
 
-    ApplicationEvent event1 = new ApplicationEvent(application, Optional.of(actor), details);
-    ApplicationEvent insertedEvent1 = repo.insertSync(event1);
+    ApplicationEventModel event1 =
+        new ApplicationEventModel(application, Optional.of(actor), details);
+    ApplicationEventModel insertedEvent1 = repo.insertSync(event1);
 
-    ApplicationEvent event2 = new ApplicationEvent(application, Optional.of(actor), details);
+    ApplicationEventModel event2 =
+        new ApplicationEventModel(application, Optional.of(actor), details);
 
-    ApplicationEvent insertedEvent2 = repo.insertSync(event2);
+    ApplicationEventModel insertedEvent2 = repo.insertSync(event2);
 
     // Evaluate.
     assertThat(insertedEvent1.id).isNotEqualTo(insertedEvent2.id);
@@ -124,15 +127,17 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
             .setStatusEvent(
                 StatusEvent.builder().setStatusText("Status").setEmailSent(true).build())
             .build();
-    ApplicationEvent event = new ApplicationEvent(application, Optional.of(actor), details);
+    ApplicationEventModel event =
+        new ApplicationEventModel(application, Optional.of(actor), details);
     repo.insertSync(event);
 
     // Execute
-    ImmutableList<ApplicationEvent> gotEvents = repo.getEventsOrderByCreateTimeDesc(application.id);
+    ImmutableList<ApplicationEventModel> gotEvents =
+        repo.getEventsOrderByCreateTimeDesc(application.id);
 
     // Verify
     assertThat(gotEvents).hasSize(1);
-    ApplicationEvent gotEvent = gotEvents.get(0);
+    ApplicationEventModel gotEvent = gotEvents.get(0);
     // Generated values.
     assertThat(gotEvent.id).isNotNull();
     assertThat(gotEvent.getCreateTime()).isAfter(startInstant);

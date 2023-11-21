@@ -38,7 +38,7 @@ public class ApplicationModel extends BaseModel {
   // it and expect the number of results to be small.
   @OneToMany(mappedBy = "application")
   @OrderBy("createTime desc")
-  private List<ApplicationEvent> applicationEvents;
+  private List<ApplicationEventModel> applicationEvents;
 
   @Constraints.Required private LifecycleStage lifecycleStage;
 
@@ -115,7 +115,7 @@ public class ApplicationModel extends BaseModel {
     return this;
   }
 
-  public List<ApplicationEvent> getApplicationEvents() {
+  public List<ApplicationEventModel> getApplicationEvents() {
     return applicationEvents;
   }
 

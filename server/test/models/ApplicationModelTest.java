@@ -36,8 +36,8 @@ public class ApplicationModelTest extends ResetPostgres {
             resourceCreator.insertApplicantWithAccount(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
-    ApplicationEvent event =
-        new ApplicationEvent(
+    ApplicationEventModel event =
+        new ApplicationEventModel(
             application,
             Optional.of(adminAccount),
             ApplicationEventDetails.builder()
