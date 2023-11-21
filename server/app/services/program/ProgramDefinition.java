@@ -403,7 +403,7 @@ public abstract class ProgramDefinition {
             .map(QuestionDefinition::getSupportedLocales)
             .collect(toImmutableSet());
 
-    // TODO(#5676): Should this also include localizedConfigurationMessage and/or
+    // TODO(#5995): Should this also include localizedConfirmationMessage and/or
     // localizedSummaryImageDescription?
     Set<Locale> intersection =
         Sets.intersection(localizedName().locales(), localizedDescription().locales());
