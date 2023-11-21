@@ -2,8 +2,11 @@ import {
   AdminPrograms,
   AdminQuestions,
   createTestContext,
+  disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
+  waitForPageJsLoad,
 } from './support'
 describe('Admin question list', () => {
   const ctx = createTestContext()
@@ -232,6 +235,129 @@ describe('Admin question list', () => {
       questionOne,
       questionThreeToBeArchived,
     ])
+  })
+
+  it('persists universal state and orders questions correctly', async () => {
+    const {page, adminQuestions} = ctx
+
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'universal_questions')
+
+    // Navigate to the new question page and ensure that the universal toggle is unset
+    await adminQuestions.gotoAdminQuestionsPage()
+    await adminQuestions.page.click('#create-question-button')
+    await adminQuestions.page.click('#create-text-question')
+    await waitForPageJsLoad(adminQuestions.page)
+    expect(await adminQuestions.getUniversalToggleValue()).toEqual('false')
+
+    const question1Name = 'universalTestQuestionOne'
+    await adminQuestions.addTextQuestion({
+      questionName: question1Name,
+      questionText: question1Name,
+      universal: true,
+    })
+    const question2Name = 'universalTestQuestionTwo'
+    await adminQuestions.addTextQuestion({
+      questionName: question2Name,
+      questionText: question2Name,
+      universal: true,
+    })
+    const question3Name = 'universalTestQuestionThree'
+    await adminQuestions.addTextQuestion({
+      questionName: question3Name,
+      questionText: question3Name,
+      universal: false,
+    })
+    const question4Name = 'universalTestQuestionFour'
+    await adminQuestions.addTextQuestion({
+      questionName: question4Name,
+      questionText: question4Name,
+      universal: false,
+    })
+
+    // Confirm that the previously selected universal option was saved.
+    await adminQuestions.gotoQuestionEditPage(question1Name)
+    expect(await adminQuestions.getUniversalToggleValue()).toEqual('true')
+    await adminQuestions.gotoQuestionEditPage(question2Name)
+    expect(await adminQuestions.getUniversalToggleValue()).toEqual('true')
+    await validateScreenshot(page, 'question-edit-universal-set')
+    await adminQuestions.gotoQuestionEditPage(question3Name)
+    expect(await adminQuestions.getUniversalToggleValue()).toEqual('false')
+    await adminQuestions.gotoQuestionEditPage(question4Name)
+    expect(await adminQuestions.getUniversalToggleValue()).toEqual('false')
+    await validateScreenshot(page, 'question-edit-universal-unset')
+
+    // Ensure ordering is correct
+    await adminQuestions.gotoAdminQuestionsPage()
+    expect(await adminQuestions.universalQuestionNames()).toEqual([
+      question2Name,
+      question1Name,
+    ])
+    expect(await adminQuestions.nonUniversalQuestionNames()).toEqual([
+      question4Name,
+      question3Name,
+    ])
+    await validateScreenshot(page, 'universal-questions-1')
+
+    // Update question1 and question 3 and ensure they now appears at the top of the list
+    await adminQuestions.gotoQuestionEditPage(question1Name)
+    await adminQuestions.clickSubmitButtonAndNavigate('Update')
+    await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+    await adminQuestions.gotoQuestionEditPage(question3Name)
+    await adminQuestions.clickSubmitButtonAndNavigate('Update')
+    await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+    expect(await adminQuestions.universalQuestionNames()).toEqual([
+      question1Name,
+      question2Name,
+    ])
+    expect(await adminQuestions.nonUniversalQuestionNames()).toEqual([
+      question3Name,
+      question4Name,
+    ])
+
+    // Make question1 non-universal and question3 universal and confirm that the new values are saved.
+    await adminQuestions.gotoQuestionEditPage(question1Name)
+    await adminQuestions.clickUniversalToggle()
+    await adminQuestions.clickSubmitButtonAndNavigate('Update')
+    await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+    await adminQuestions.gotoQuestionEditPage(question1Name)
+    expect(await adminQuestions.getUniversalToggleValue()).toEqual('false')
+    await adminQuestions.gotoQuestionEditPage(question3Name)
+    await adminQuestions.clickUniversalToggle()
+    await adminQuestions.clickSubmitButtonAndNavigate('Update')
+    await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+    expect(await adminQuestions.universalQuestionNames()).toEqual([
+      question3Name,
+      question2Name,
+    ])
+    expect(await adminQuestions.nonUniversalQuestionNames()).toEqual([
+      question1Name,
+      question4Name,
+    ])
+    await validateScreenshot(page, 'universal-questions-2')
+
+    // Ensure sorting by Admin ID works correctly
+    await adminQuestions.sortQuestions('adminname-asc')
+    expect(await adminQuestions.universalQuestionNames()).toEqual([
+      question3Name,
+      question2Name,
+    ])
+    expect(await adminQuestions.nonUniversalQuestionNames()).toEqual([
+      question4Name,
+      question1Name,
+    ])
+
+    await adminQuestions.sortQuestions('adminname-desc')
+    expect(await adminQuestions.universalQuestionNames()).toEqual([
+      question2Name,
+      question3Name,
+    ])
+    expect(await adminQuestions.nonUniversalQuestionNames()).toEqual([
+      question1Name,
+      question4Name,
+    ])
+
+    await disableFeatureFlag(page, 'universal_questions')
   })
 
   async function expectQuestionListElements(
