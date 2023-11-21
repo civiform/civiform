@@ -13,7 +13,7 @@ import models.AccountModel;
 import models.ApplicantModel;
 import models.LifecycleStage;
 import models.ProgramModel;
-import models.TrustedIntermediaryGroup;
+import models.TrustedIntermediaryGroupModel;
 import models.VersionModel;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -100,7 +100,7 @@ public class WithMockedProfiles {
   protected AccountModel createTIWithMockedProfile(ApplicantModel managedApplicant) {
     AccountModel ti = resourceCreator.insertAccount();
 
-    TrustedIntermediaryGroup group = resourceCreator.insertTrustedIntermediaryGroup();
+    TrustedIntermediaryGroupModel group = resourceCreator.insertTrustedIntermediaryGroup();
     AccountModel managedAccount = managedApplicant.getAccount();
     managedAccount.setManagedByGroup(group);
     managedAccount.save();

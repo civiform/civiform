@@ -25,7 +25,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.TrustedIntermediaryGroup;
+import models.TrustedIntermediaryGroupModel;
 import org.pac4j.oidc.profile.OidcProfile;
 import services.CiviFormError;
 import services.applicant.ApplicantData;
@@ -197,32 +197,32 @@ public final class AccountRepository {
     return right;
   }
 
-  public List<TrustedIntermediaryGroup> listTrustedIntermediaryGroups() {
+  public List<TrustedIntermediaryGroupModel> listTrustedIntermediaryGroups() {
     return database
-        .find(TrustedIntermediaryGroup.class)
+        .find(TrustedIntermediaryGroupModel.class)
         .setLabel("TrustedIntermediaryGroup.findList")
         .setProfileLocation(queryProfileLocationBuilder.create("listTrustedIntermediaryGroups"))
         .findList();
   }
 
-  public TrustedIntermediaryGroup createNewTrustedIntermediaryGroup(
+  public TrustedIntermediaryGroupModel createNewTrustedIntermediaryGroup(
       String name, String description) {
-    TrustedIntermediaryGroup tiGroup = new TrustedIntermediaryGroup(name, description);
+    TrustedIntermediaryGroupModel tiGroup = new TrustedIntermediaryGroupModel(name, description);
     tiGroup.save();
     return tiGroup;
   }
 
   public void deleteTrustedIntermediaryGroup(long id) {
-    Optional<TrustedIntermediaryGroup> tiGroup = getTrustedIntermediaryGroup(id);
+    Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
     if (tiGroup.isEmpty()) {
       throw new NoSuchTrustedIntermediaryGroupError();
     }
     database.delete(tiGroup.get());
   }
 
-  public Optional<TrustedIntermediaryGroup> getTrustedIntermediaryGroup(long id) {
+  public Optional<TrustedIntermediaryGroupModel> getTrustedIntermediaryGroup(long id) {
     return database
-        .find(TrustedIntermediaryGroup.class)
+        .find(TrustedIntermediaryGroupModel.class)
         .setId(id)
         .setLabel("TrustedIntermediaryGroup.findById")
         .setProfileLocation(queryProfileLocationBuilder.create("getTrustedIntermediaryGroup"))
@@ -235,7 +235,7 @@ public final class AccountRepository {
    * signs in for the first time.
    */
   public void addTrustedIntermediaryToGroup(long id, String emailAddress) {
-    Optional<TrustedIntermediaryGroup> tiGroup = getTrustedIntermediaryGroup(id);
+    Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
     if (tiGroup.isEmpty()) {
       throw new NoSuchTrustedIntermediaryGroupError();
     }
@@ -258,7 +258,7 @@ public final class AccountRepository {
   }
 
   public void removeTrustedIntermediaryFromGroup(long id, long accountId) {
-    Optional<TrustedIntermediaryGroup> tiGroup = getTrustedIntermediaryGroup(id);
+    Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
     if (tiGroup.isEmpty()) {
       throw new NoSuchTrustedIntermediaryGroupError();
     }
@@ -285,7 +285,7 @@ public final class AccountRepository {
         .findOneOrEmpty();
   }
 
-  public Optional<TrustedIntermediaryGroup> getTrustedIntermediaryGroup(
+  public Optional<TrustedIntermediaryGroupModel> getTrustedIntermediaryGroup(
       CiviFormProfile civiformProfile) {
     return civiformProfile.getAccount().join().getMemberOfGroup();
   }
@@ -298,7 +298,7 @@ public final class AccountRepository {
    * @throws EmailAddressExistsException if the provided email address already exists.
    */
   public void createNewApplicantForTrustedIntermediaryGroup(
-      AddApplicantToTrustedIntermediaryGroupForm form, TrustedIntermediaryGroup tiGroup) {
+      AddApplicantToTrustedIntermediaryGroupForm form, TrustedIntermediaryGroupModel tiGroup) {
     AccountModel newAccount = new AccountModel();
     if (!Strings.isNullOrEmpty(form.getEmailAddress())) {
       if (lookupAccountByEmail(form.getEmailAddress()).isPresent()) {

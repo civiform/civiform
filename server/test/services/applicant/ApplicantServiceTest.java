@@ -28,7 +28,7 @@ import models.LifecycleStage;
 import models.ProgramModel;
 import models.QuestionModel;
 import models.StoredFileModel;
-import models.TrustedIntermediaryGroup;
+import models.TrustedIntermediaryGroupModel;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -1520,7 +1520,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void getPersonalInfo_applicantNoAuthorityIdIsManaged_isTiPartiallyCreated() {
     ApplicantModel applicant = resourceCreator.insertApplicant();
     AccountModel account = resourceCreator.insertAccount();
-    TrustedIntermediaryGroup group = resourceCreator.insertTrustedIntermediaryGroup();
+    TrustedIntermediaryGroupModel group = resourceCreator.insertTrustedIntermediaryGroup();
     account.setManagedByGroup(group);
     applicant.setAccount(account);
     applicant.save();
@@ -2022,8 +2022,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = createTestApplicant();
     ApplicantModel ti = resourceCreator.insertApplicant();
     AccountModel tiAccount = resourceCreator.insertAccount();
-    TrustedIntermediaryGroup tiGroup =
-        new TrustedIntermediaryGroup("Super Cool CBO", "Description");
+    TrustedIntermediaryGroupModel tiGroup =
+        new TrustedIntermediaryGroupModel("Super Cool CBO", "Description");
     tiGroup.save();
     tiAccount.setMemberOfGroup(tiGroup);
     tiAccount.save();
