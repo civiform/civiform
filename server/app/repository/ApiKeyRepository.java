@@ -16,9 +16,9 @@ import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 
 /**
- * Provides an asynchronous API for persistence and query of {@link ApiKeyModel} instances. Uses {@code
- * DatabaseExecutionContext} for scheduling code to be executed using the database interaction
- * thread pool.
+ * Provides an asynchronous API for persistence and query of {@link ApiKeyModel} instances. Uses
+ * {@code DatabaseExecutionContext} for scheduling code to be executed using the database
+ * interaction thread pool.
  */
 public final class ApiKeyRepository {
   private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
@@ -33,9 +33,11 @@ public final class ApiKeyRepository {
   }
 
   /**
-   * List active, i.e. unexpired and unretired, {@link ApiKeyModel}s ordered by creation time descending.
+   * List active, i.e. unexpired and unretired, {@link ApiKeyModel}s ordered by creation time
+   * descending.
    */
-  public PaginationResult<ApiKeyModel> listActiveApiKeys(PageNumberBasedPaginationSpec paginationSpec) {
+  public PaginationResult<ApiKeyModel> listActiveApiKeys(
+      PageNumberBasedPaginationSpec paginationSpec) {
     Instant now = Instant.now();
     PagedList<ApiKeyModel> pagedList =
         database
@@ -62,7 +64,8 @@ public final class ApiKeyRepository {
   }
 
   /** List retired {@link ApiKeyModel}s ordered by creation time descending. */
-  public PaginationResult<ApiKeyModel> listRetiredApiKeys(PageNumberBasedPaginationSpec paginationSpec) {
+  public PaginationResult<ApiKeyModel> listRetiredApiKeys(
+      PageNumberBasedPaginationSpec paginationSpec) {
     PagedList<ApiKeyModel> pagedList =
         database
             .find(ApiKeyModel.class)
@@ -86,10 +89,11 @@ public final class ApiKeyRepository {
   }
 
   /**
-   * List expired {@link ApiKeyModel}s ordered by creation time descending. Note that if a key is both
-   * retired and expired, it will not be returned here.
+   * List expired {@link ApiKeyModel}s ordered by creation time descending. Note that if a key is
+   * both retired and expired, it will not be returned here.
    */
-  public PaginationResult<ApiKeyModel> listExpiredApiKeys(PageNumberBasedPaginationSpec paginationSpec) {
+  public PaginationResult<ApiKeyModel> listExpiredApiKeys(
+      PageNumberBasedPaginationSpec paginationSpec) {
     Instant now = Instant.now();
     PagedList<ApiKeyModel> pagedList =
         database

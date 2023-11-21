@@ -145,7 +145,8 @@ public final class ApiKeyService {
    * authentication. Retiring is permanent.
    */
   public ApiKeyModel retireApiKey(Long apiKeyId, CiviFormProfile profile) {
-    Optional<ApiKeyModel> maybeApiKey = repository.lookupApiKey(apiKeyId).toCompletableFuture().join();
+    Optional<ApiKeyModel> maybeApiKey =
+        repository.lookupApiKey(apiKeyId).toCompletableFuture().join();
 
     if (maybeApiKey.isEmpty()) {
       throw new RuntimeException(new ApiKeyNotFoundException(apiKeyId));

@@ -125,7 +125,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
   }
 
   private DivTag renderApiKey(
-          Http.Request request, ApiKeyModel apiKey, ImmutableMap<String, String> programSlugToName) {
+      Http.Request request, ApiKeyModel apiKey, ImmutableMap<String, String> programSlugToName) {
     String keyNameSlugified = MainModule.SLUGIFIER.slugify(apiKey.getName());
 
     DivTag statsDiv =
