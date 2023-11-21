@@ -283,6 +283,14 @@ export class AdminPrograms {
     await this.expectProgramManageTranslationsPage(programName)
   }
 
+  async goToProgramImagePage(programName: string) {
+    await this.gotoAdminProgramsPage()
+    await this.expectDraftProgram(programName)
+    await this.gotoEditDraftProgramPage(programName)
+    await this.page.click('button:has-text("Edit program image")')
+    await this.expectProgramImagePage(programName)
+  }
+
   async gotoManageProgramAdminsPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
@@ -426,6 +434,12 @@ export class AdminPrograms {
   async expectProgramManageTranslationsPage(programName: string) {
     expect(await this.page.innerText('h1')).toContain(
       `Manage program translations: ${programName}`,
+    )
+  }
+
+  async expectProgramImagePage(programName: string) {
+    expect(await this.page.innerText('h1')).toContain(
+      `Manage program image for ${programName}`,
     )
   }
 

@@ -27,6 +27,7 @@ import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.HtmlBundle;
 import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
@@ -43,6 +44,7 @@ import views.style.ReferenceClasses;
 public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
 
   private final AdminLayout layout;
+  private final SettingsManifest settingsManifest;
 
   // The functionality type of the predicate editor.
   public enum ViewType {
@@ -51,8 +53,10 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
   }
 
   @Inject
-  public ProgramPredicatesEditViewV2(AdminLayoutFactory layoutFactory) {
+  public ProgramPredicatesEditViewV2(
+      AdminLayoutFactory layoutFactory, SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -244,7 +248,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
             .addMainContent(
                 renderProgramInfoHeader(
                     programDefinition,
-                    ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM_DETAILS),
+                    getEditHeaderButtons(request, settingsManifest, /* isEditingAllowed= */ true),
                     request),
                 content);
 
