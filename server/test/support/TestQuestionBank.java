@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import models.LifecycleStage;
 import models.Question;
-import models.Version;
+import models.VersionModel;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
@@ -536,16 +536,16 @@ public class TestQuestionBank {
       // This odd way of finding the active version is because this class
       // doesn't have access to the Version repository, because it needs to
       // work without the database.
-      Version versionToAdd;
-      Optional<Version> existingVersion =
+      VersionModel versionToAdd;
+      Optional<VersionModel> existingVersion =
           question
               .db()
-              .find(Version.class)
+              .find(VersionModel.class)
               .where()
               .eq("lifecycle_stage", desiredStage)
               .findOneOrEmpty();
       if (existingVersion.isEmpty()) {
-        versionToAdd = new Version(desiredStage);
+        versionToAdd = new VersionModel(desiredStage);
         versionToAdd.save();
       } else {
         versionToAdd = existingVersion.get();

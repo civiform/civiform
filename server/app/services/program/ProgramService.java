@@ -28,7 +28,7 @@ import models.AccountModel;
 import models.Application;
 import models.DisplayMode;
 import models.ProgramModel;
-import models.Version;
+import models.VersionModel;
 import modules.MainModule;
 import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
@@ -226,7 +226,8 @@ public final class ProgramService {
     }
 
     // Any version that the program is in has all the questions the program has.
-    Version version = programRepository.getVersionsForProgram(program).stream().findAny().get();
+    VersionModel version =
+        programRepository.getVersionsForProgram(program).stream().findAny().get();
     ProgramDefinition programDefinition =
         syncProgramDefinitionQuestions(program.getProgramDefinition(), version);
 
@@ -1312,7 +1313,8 @@ public final class ProgramService {
       p.refresh();
       // We only need to get the question data if the program has eligibility conditions.
       if (programDef.hasEligibilityEnabled()) {
-        Version v = programRepository.getVersionsForProgram(p).stream().findAny().orElseThrow();
+        VersionModel v =
+            programRepository.getVersionsForProgram(p).stream().findAny().orElseThrow();
         ReadOnlyQuestionService questionServiceForVersion = versionToQuestionService.get(v.id);
         if (questionServiceForVersion == null) {
           questionServiceForVersion =
@@ -1594,7 +1596,7 @@ public final class ProgramService {
   }
 
   private ProgramDefinition syncProgramDefinitionQuestions(
-      ProgramDefinition programDefinition, Version version) {
+      ProgramDefinition programDefinition, VersionModel version) {
     try {
       return syncProgramDefinitionQuestions(
           programDefinition,

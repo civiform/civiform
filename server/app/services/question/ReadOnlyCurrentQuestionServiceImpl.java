@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import models.Question;
-import models.Version;
+import models.VersionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.VersionRepository;
@@ -31,8 +31,8 @@ public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestio
       LoggerFactory.getLogger(ReadOnlyCurrentQuestionServiceImpl.class);
 
   public ReadOnlyCurrentQuestionServiceImpl(VersionRepository repository) {
-    Version activeVersion = repository.getActiveVersion();
-    Version draftVersion = repository.getDraftVersionOrCreate();
+    VersionModel activeVersion = repository.getActiveVersion();
+    VersionModel draftVersion = repository.getDraftVersionOrCreate();
     ImmutableMap.Builder<Long, QuestionDefinition> questionIdMap = ImmutableMap.builder();
     ImmutableSet.Builder<QuestionDefinition> upToDateBuilder = ImmutableSet.builder();
     Set<String> namesFoundInDraft = new HashSet<>();

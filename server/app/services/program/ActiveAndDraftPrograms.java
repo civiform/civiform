@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Optional;
 import java.util.function.Function;
-import models.Version;
+import models.VersionModel;
 import repository.VersionRepository;
 
 /**
@@ -46,8 +46,8 @@ public final class ActiveAndDraftPrograms {
   }
 
   private ActiveAndDraftPrograms(VersionRepository repository, Optional<ProgramService> service) {
-    Version active = repository.getActiveVersion();
-    Version draft = repository.getDraftVersionOrCreate();
+    VersionModel active = repository.getActiveVersion();
+    VersionModel draft = repository.getDraftVersionOrCreate();
     // Note: Building this lookup has N+1 query behavior since a call to getProgramDefinition does
     // an additional database lookup in order to sync the set of questions associated with the
     // program.

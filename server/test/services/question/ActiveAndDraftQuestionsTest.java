@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import models.ProgramModel;
 import models.Question;
-import models.Version;
+import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
@@ -391,7 +391,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     return ActiveAndDraftQuestions.buildFromCurrentVersions(versionRepository);
   }
 
-  private void addTombstoneToVersion(Version version, Question question) throws Exception {
+  private void addTombstoneToVersion(VersionModel version, Question question) throws Exception {
     assertThat(versionRepository.addTombstoneForQuestionInVersion(question, version)).isTrue();
     version.save();
   }

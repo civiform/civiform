@@ -20,7 +20,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import models.Question;
 import models.QuestionTag;
-import models.Version;
+import models.VersionModel;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -74,7 +74,7 @@ public final class QuestionRepository {
    * DRAFT if there isn't one.
    */
   public Question createOrUpdateDraft(QuestionDefinition definition) {
-    Version draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
+    VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     try (Transaction transaction =
         database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
       Optional<Question> existingDraft =
@@ -184,7 +184,7 @@ public final class QuestionRepository {
 
   /** Get the questions with the specified tag which are in the active version. */
   public ImmutableList<QuestionDefinition> getAllQuestionsForTag(QuestionTag tag) {
-    Version active = versionRepositoryProvider.get().getActiveVersion();
+    VersionModel active = versionRepositoryProvider.get().getActiveVersion();
     ImmutableSet<Long> activeQuestionIds =
         versionRepositoryProvider.get().getQuestionsForVersion(active).stream()
             .map(q -> q.id)

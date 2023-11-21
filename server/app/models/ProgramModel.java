@@ -113,13 +113,13 @@ public class ProgramModel extends BaseModel {
       name = "versions_programs",
       joinColumns = @JoinColumn(name = "programs_id"),
       inverseJoinColumns = @JoinColumn(name = "versions_id"))
-  private List<Version> versions;
+  private List<VersionModel> versions;
 
   @OneToMany(mappedBy = "program")
   @OrderBy("id desc")
   private List<Application> applications;
 
-  public ImmutableList<Version> getVersions() {
+  public ImmutableList<VersionModel> getVersions() {
     return ImmutableList.copyOf(versions);
   }
 
@@ -141,11 +141,11 @@ public class ProgramModel extends BaseModel {
     this(definition, Optional.empty());
   }
 
-  public ProgramModel(ProgramDefinition definition, Version version) {
+  public ProgramModel(ProgramDefinition definition, VersionModel version) {
     this(definition, Optional.of(version));
   }
 
-  private ProgramModel(ProgramDefinition definition, Optional<Version> version) {
+  private ProgramModel(ProgramDefinition definition, Optional<VersionModel> version) {
     this.programDefinition = definition;
     this.id = definition.id();
     this.name = definition.adminName();
@@ -180,7 +180,7 @@ public class ProgramModel extends BaseModel {
       String externalLink,
       String displayMode,
       ImmutableList<BlockDefinition> blockDefinitions,
-      Version associatedVersion,
+      VersionModel associatedVersion,
       ProgramType programType,
       ProgramAcls programAcls) {
     this.name = adminName;

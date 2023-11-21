@@ -3,7 +3,7 @@ package services;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Optional;
-import models.Version;
+import models.VersionModel;
 import services.program.BlockDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
@@ -14,11 +14,11 @@ import services.question.types.QuestionDefinition;
 /** Helper class for performing validation related to creating or modifying program blocks. */
 public final class ProgramBlockValidation {
 
-  private final Version version;
+  private final VersionModel version;
   private final ActiveAndDraftQuestions activeAndDraftQuestions;
 
   public ProgramBlockValidation(
-      models.Version version, ActiveAndDraftQuestions activeAndDraftQuestions) {
+      VersionModel version, ActiveAndDraftQuestions activeAndDraftQuestions) {
     this.version = checkNotNull(version);
     this.activeAndDraftQuestions = checkNotNull(activeAndDraftQuestions);
   }
