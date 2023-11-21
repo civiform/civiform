@@ -3,6 +3,7 @@ package services.cloud;
 import java.util.Optional;
 
 /** Interface for working with cloud file storage backends. TODO: More */
+// TODO: Re-name to be ApplicantStorageClient
 public interface StorageClient {
 
   /**
