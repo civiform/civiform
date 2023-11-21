@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import durablejobs.DurableJobName;
 import java.time.Instant;
 import models.ApplicantModel;
-import models.PersistedDurableJob;
+import models.PersistedDurableJobModel;
 import org.junit.Test;
 import repository.AccountRepository;
 import repository.ResetPostgres;
@@ -33,8 +33,8 @@ public class FixApplicantDobDataPathJobTest extends ResetPostgres {
 
     // Run the job
     AccountRepository accountRepository = instanceOf(AccountRepository.class);
-    PersistedDurableJob job =
-        new PersistedDurableJob(
+    PersistedDurableJobModel job =
+        new PersistedDurableJobModel(
             DurableJobName.FIX_APPLICANT_DOB_DATA_PATH.toString(), Instant.ofEpochMilli(1000));
     FixApplicantDobDataPathJob fixApplicantDobDataPathJob =
         new FixApplicantDobDataPathJob(accountRepository, job);
