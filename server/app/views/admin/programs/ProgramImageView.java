@@ -3,6 +3,7 @@ package views.admin.programs;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.img;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.span;
 
@@ -14,6 +15,7 @@ import forms.admin.ProgramImageDescriptionForm;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
+import j2html.tags.specialized.ImgTag;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.data.Form;
 import play.data.FormFactory;
@@ -22,6 +24,7 @@ import play.twirl.api.Content;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.cloud.FileNameFormatter;
+import services.cloud.PublicStorageClient;
 import services.cloud.StorageClient;
 import services.cloud.StorageUploadRequest;
 import services.program.ProgramDefinition;
@@ -42,7 +45,7 @@ public final class ProgramImageView extends BaseHtmlView {
   private final String baseUrl;
   private final FormFactory formFactory;
   private final FileUploadViewStrategy fileUploadViewStrategy;
-  private final StorageClient storageClient;
+  private final PublicStorageClient publicStorageClient;
 
   // The ID used to associate the file input field with its screen reader label.
   private final String fileInputId;
@@ -52,12 +55,12 @@ public final class ProgramImageView extends BaseHtmlView {
                           Config config,
                           FormFactory formFactory,
                           FileUploadViewStrategy fileUploadViewStrategy,
-                          StorageClient storageClient) {
+                          PublicStorageClient storageClient) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.formFactory = checkNotNull(formFactory);
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
-    this.storageClient = storageClient;
+    this.publicStorageClient = storageClient;
     this.fileInputId = RandomStringUtils.randomAlphabetic(8);
   }
 
@@ -75,7 +78,7 @@ public final class ProgramImageView extends BaseHtmlView {
     FormTag imageDescriptionForm = createImageDescriptionForm(request, programDefinition);
     DivTag imageFileUploadForm = createImageUploadForm(programDefinition);
     HtmlBundle htmlBundle =
-        layout.getBundle(request).setTitle(title).addMainContent(headerDiv, imageDescriptionForm, imageFileUploadForm);
+        layout.getBundle(request).setTitle(title).addMainContent(headerDiv, imageDescriptionForm, imageFileUploadForm, renderCurrentImage(programDefinition));
 
     // TODO(#5676): This toast code is re-implemented across multiple controllers. Can we write a
     // helper method for it?
@@ -124,7 +127,7 @@ public final class ProgramImageView extends BaseHtmlView {
     // TODO: Does the filename get auto populated here?
     String onSuccessRedirectUrl = baseUrl + routes.AdminProgramImageController.updateImageFile(program.id()).url();
     StorageUploadRequest storageUploadRequest =
-      storageClient.getSignedUploadRequest(key, onSuccessRedirectUrl);
+      publicStorageClient.getSignedUploadRequest(key, onSuccessRedirectUrl);
 
     // Copied from FileUploadViewStrategy#renderFileUploadFormElement
     String formId = "program-image-file-form";
@@ -132,7 +135,7 @@ public final class ProgramImageView extends BaseHtmlView {
     FormTag form = fileUploadViewStrategy.renderFileUploadFormElement(Optional.empty(), storageUploadRequest,
       formId)
            // TODO: #*signed*FileUploadFields adds additional stuff like the already upload file name,
-    // error about it being required, and mobile file upload helptext4.
+    // error about it being required, and mobile file upload helptext.
       .with(
       fileUploadViewStrategy.fileUploadFields(
         Optional.of(storageUploadRequest),
@@ -165,5 +168,15 @@ public final class ProgramImageView extends BaseHtmlView {
 
       .with(submitButton("Save image")
         .withForm(formId).withClass(ButtonStyles.SOLID_BLUE));
+  }
+
+  private DivTag renderCurrentImage(ProgramDefinition program) {
+    if (program.summaryImageFileKey().isEmpty()) {
+      return div();
+    }
+    // TODO: Assert format of key is correct
+    ImgTag image = img()
+      .withSrc(publicStorageClient.getDisplayUrl(program.summaryImageFileKey().get()));
+    return div().with(image);
   }
 }

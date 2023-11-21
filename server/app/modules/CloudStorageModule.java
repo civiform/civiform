@@ -7,6 +7,7 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import play.Environment;
+import services.cloud.PublicStorageClient;
 import services.cloud.StorageClient;
 import services.cloud.StorageServiceName;
 import views.AwsFileUploadViewStrategy;
@@ -20,7 +21,9 @@ import views.applicant.ApplicantProgramBlockEditViewFactory;
 public class CloudStorageModule extends AbstractModule {
 
   private static final String AZURE_STORAGE_CLASS_NAME = "services.cloud.azure.BlobStorage";
+  private static final String AZURE_PUBLIC_STORAGE_CLASS_NAME = "services.cloud.azure.PublicBlocStorage";
   private static final String AWS_STORAGE_CLASS_NAME = "services.cloud.aws.SimpleStorage";
+  private static final String AWS_PUBLIC_STORAGE_CLASS_NAME = "services.cloud.aws.PublicSimpleStorage";
 
   private final Environment environment;
   private final Config config;
@@ -33,11 +36,13 @@ public class CloudStorageModule extends AbstractModule {
   @Override
   protected void configure() {
     String className = AWS_STORAGE_CLASS_NAME;
+    String publicClassName = AWS_PUBLIC_STORAGE_CLASS_NAME;
 
     try {
       String storageProvider = checkNotNull(config).getString("cloud.storage");
       className = getStorageProviderClassName(storageProvider);
       bindCloudStorageStrategy(storageProvider);
+      publicClassName = getPublicCloudStorageStrategyClassName(storageProvider);
     } catch (ConfigException ex) {
       // Ignore missing config and default to S3 for now
     }
@@ -49,6 +54,15 @@ public class CloudStorageModule extends AbstractModule {
     } catch (ClassNotFoundException ex) {
       throw new RuntimeException(
           String.format("Failed to load storage client class: %s", className));
+    }
+
+    try {
+      Class<? extends PublicStorageClient> boundPublicClass =
+        environment.classLoader().loadClass(publicClassName).asSubclass(PublicStorageClient.class);
+      bind(PublicStorageClient.class).to(boundPublicClass);
+    } catch (ClassNotFoundException ex) {
+      throw new RuntimeException(
+        String.format("Failed to load public storage client class: %s", className));
     }
 
     install(
@@ -79,6 +93,18 @@ public class CloudStorageModule extends AbstractModule {
       case AWS_S3:
       default:
         return AWS_STORAGE_CLASS_NAME;
+    }
+  }
+
+  private String getPublicCloudStorageStrategyClassName(String storageProvider) {
+    StorageServiceName storageServiceName = StorageServiceName.forString(storageProvider).get();
+
+    switch (storageServiceName) {
+      case AZURE_BLOB:
+        return AZURE_PUBLIC_STORAGE_CLASS_NAME;
+      case AWS_S3:
+      default:
+        return AWS_PUBLIC_STORAGE_CLASS_NAME;
     }
   }
 }

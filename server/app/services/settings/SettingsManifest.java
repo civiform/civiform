@@ -501,6 +501,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("AWS_S3_BUCKET_NAME");
   }
 
+  public Optional<String> getAwsPublicS3BucketName() {
+    return getString("AWS_S3_PUBLIC_BUCKET_NAME");
+    // TODO: Azure
+  }
+
   /** The max size (in Mb) of files uploaded to s3. */
   public Optional<String> getAwsS3FileLimitMb() {
     return getString("AWS_S3_FILE_LIMIT_MB");
@@ -1441,6 +1446,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
+                        SettingDescription.create(
+                          "AWS_S3_PUBLIC_BUCKET_NAME",
+                          "s3 bucket to store **publicly accessible** files in, like program images.",
+                          /* isRequired= */ false,
+                          SettingType.STRING,
+                          SettingMode.HIDDEN),
                           SettingDescription.create(
                               "AWS_S3_FILE_LIMIT_MB",
                               "The max size (in Mb) of files uploaded to s3.",
