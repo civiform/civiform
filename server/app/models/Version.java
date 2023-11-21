@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
@@ -31,6 +32,10 @@ public final class Version extends BaseModel {
   @Constraints.Required private LifecycleStage lifecycleStage;
 
   @ManyToMany(mappedBy = "versions")
+  @JoinTable(
+      name = "versions_questions",
+      joinColumns = @JoinColumn(name = "versions_id"),
+      inverseJoinColumns = @JoinColumn(name = "questions_id"))
   private List<Question> questions;
 
   /**
@@ -39,8 +44,11 @@ public final class Version extends BaseModel {
    */
   @DbArray private List<String> tombstonedQuestionNames = new ArrayList<>();
 
-  @ManyToMany
-  @JoinTable(name = "versions_programs")
+  @ManyToMany(mappedBy = "versions")
+  @JoinTable(
+      name = "versions_programs",
+      joinColumns = @JoinColumn(name = "versions_id"),
+      inverseJoinColumns = @JoinColumn(name = "programs_id"))
   private List<ProgramModel> programs;
 
   /**

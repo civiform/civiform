@@ -30,14 +30,12 @@ describe('Viewing API docs', () => {
       '"program_name" : "comprehensive-sample-program"',
     )
 
-    await page.waitForTimeout(300) // ms
     await validateScreenshot(page, 'comprehensive-program-active-version')
 
     await page.selectOption('#select-slug', {value: 'minimal-sample-program'})
     expect(await page.textContent('html')).toContain(
       '"program_name" : "minimal-sample-program"',
     )
-    await page.waitForTimeout(300) // ms
     await validateScreenshot(page, 'minimal-program-active-version')
   })
 
@@ -60,7 +58,6 @@ describe('Viewing API docs', () => {
     expect(await freshPage.textContent('html')).toContain(
       '"program_name" : "comprehensive-sample-program"',
     )
-    await freshPage.waitForTimeout(300) // ms
     await validateScreenshot(
       freshPage,
       'comprehensive-program-active-version-logged-out',
@@ -72,7 +69,6 @@ describe('Viewing API docs', () => {
     expect(await freshPage.textContent('html')).toContain(
       '"program_name" : "minimal-sample-program"',
     )
-    await freshPage.waitForTimeout(300) // ms
     await validateScreenshot(
       freshPage,
       'minimal-program-active-version-logged-out',
@@ -91,7 +87,6 @@ describe('Viewing API docs', () => {
     expect(await page.textContent('html')).toContain(
       '"program_name" : "minimal-sample-program"',
     )
-    await page.waitForTimeout(300) // ms
     await validateScreenshot(page, 'draft-available')
   })
 
@@ -108,11 +103,10 @@ describe('Viewing API docs', () => {
     expect(await page.textContent('html')).toContain(
       'Program and version not found',
     )
-    await page.waitForTimeout(300) // ms
     await validateScreenshot(page, 'draft-not-available')
   })
 
-  it('Opens help accordion', async () => {
+  it('Opens help accordion with a click', async () => {
     const {page, adminPrograms} = ctx
 
     await page.goto(BASE_URL)
@@ -124,10 +118,8 @@ describe('Viewing API docs', () => {
     // Select minimal sample program so the screenshot will be smaller.
     await page.selectOption('#select-slug', {value: 'minimal-sample-program'})
 
+    // Opening the accordion
     await page.click('text=How does this work?')
-    // Wait for the accordion to open, so we don't screenshot during the opening,
-    // causing inconsistent screenshots.
-    await page.waitForTimeout(300) // ms
 
     await validateScreenshot(page, 'api-docs-page-accordion-open')
   })

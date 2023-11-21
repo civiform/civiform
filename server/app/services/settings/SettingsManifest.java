@@ -842,9 +842,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("QUESTION_CACHE_ENABLED");
   }
 
-  /** Enables logic to populate more fields in OIDC logout requests. */
-  public boolean getEnhancedOidcLogoutEnabled() {
-    return getBool("ENHANCED_OIDC_LOGOUT_ENABLED");
+  /** Enables populating more fields in OIDC logout requests to admin identity provider. */
+  public boolean getAdminOidcEnhancedLogoutEnabled(RequestHeader request) {
+    return getBool("ADMIN_OIDC_ENHANCED_LOGOUT_ENABLED", request);
+  }
+
+  /** Enables populating more fields in OIDC logout requests to applicant identity provider. */
+  public boolean getApplicantOidcEnhancedLogoutEnabled(RequestHeader request) {
+    return getBool("APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED", request);
   }
 
   /**
@@ -1772,11 +1777,19 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
-                      "ENHANCED_OIDC_LOGOUT_ENABLED",
-                      "Enables logic to populate more fields in OIDC logout requests.",
+                      "ADMIN_OIDC_ENHANCED_LOGOUT_ENABLED",
+                      "Enables populating more fields in OIDC logout requests to admin identity"
+                          + " provider.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.HIDDEN),
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED",
+                      "Enables populating more fields in OIDC logout requests to applicant"
+                          + " identity provider.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "UNIVERSAL_QUESTIONS",
                       "Enables setting and displaying the universal question state on questions."
