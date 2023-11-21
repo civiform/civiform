@@ -208,9 +208,7 @@ public class BaseHtmlLayout {
             .with(
                 div()
                     .withClasses("usa-banner__inner", "ml-0", "pl-4")
-                    .with(
-                        div()
-                            .withClass("grid-col-auto"))
+                    .with(div().withClass("grid-col-auto"))
                     .with(
                         div()
                             .withClasses("grid-col-fill", "tablet:grid-col-auto")
