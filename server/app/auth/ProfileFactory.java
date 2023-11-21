@@ -9,7 +9,6 @@ import javax.inject.Provider;
 import models.AccountModel;
 import models.ApiKeyModel;
 import models.ApplicantModel;
-import models.Applicant;
 import models.TrustedIntermediaryGroup;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.libs.concurrent.HttpExecutionContext;
