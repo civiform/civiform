@@ -659,17 +659,15 @@ public final class ProgramService {
             .setLocalizedConfirmationMessage(
                 programDefinition
                     .localizedConfirmationMessage()
-                    .updateTranslation(locale, localizationUpdate.localizedConfirmationMessage()));
-    if (programDefinition.localizedSummaryImageDescription().isPresent()
-        && localizationUpdate.localizedSummaryImageDescription().isPresent()) {
-      newProgram.setLocalizedSummaryImageDescription(
-          getUpdatedSummaryImageDescription(
-              programDefinition,
-              locale,
-              localizationUpdate.localizedSummaryImageDescription().get()));
-    }
-    newProgram.setStatusDefinitions(
-        programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()));
+                    .updateTranslation(locale, localizationUpdate.localizedConfirmationMessage()))
+            .setStatusDefinitions(
+                programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()));
+    updateSummaryImageDescriptionLocalization(
+        programDefinition,
+        newProgram,
+        localizationUpdate.localizedSummaryImageDescription(),
+        locale);
+
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
                 programRepository
@@ -904,6 +902,20 @@ public final class ProgramService {
     return programRepository
         .updateProgramSync(programDefinition.toProgram())
         .getProgramDefinition();
+  }
+
+  private void updateSummaryImageDescriptionLocalization(
+      ProgramDefinition currentProgram,
+      ProgramDefinition.Builder newProgram,
+      Optional<String> newDescription,
+      Locale locale) {
+    // Only update the localization if the current program has an image description set.
+    if (currentProgram.localizedSummaryImageDescription().isPresent()
+        && newDescription.isPresent()) {
+      Optional<LocalizedStrings> newDescriptionStrings =
+          getUpdatedSummaryImageDescription(currentProgram, locale, newDescription.get());
+      newProgram.setLocalizedSummaryImageDescription(newDescriptionStrings);
+    }
   }
 
   private Optional<LocalizedStrings> getUpdatedSummaryImageDescription(
