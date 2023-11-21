@@ -92,6 +92,7 @@ POST    /admin/questions/:questionName/translations/:locale       controllers.ad
 
 # Routes for a CiviForm admin to manage program image
 GET     /admin/programs/:programId/image             controllers.admin.AdminProgramImageController.index(request: Request, programId: Long)
+POST    /admin/programs/:programId/image/description controllers.admin.AdminProgramImageController.updateDescription(request: Request, programId: Long)
 
 # Trusted Intermediary routes
 GET     /admin/tiGroups                    controllers.admin.TrustedIntermediaryManagementController.index(request: Request)
