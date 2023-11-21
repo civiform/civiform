@@ -60,8 +60,10 @@
     @apply opacity-0;
   }
 
-  /* When expanded, the banner was moving to the center because of margin-auto */
-  .usa-banner__header--expanded .usa-banner__inner {
-    margin-left: 0px;
+  @media screen and (min-width: 640px) {
+    /* When expanded, the banner header was moving to the center because of margin-auto */
+    .usa-banner__header--expanded .usa-banner__inner {
+      margin-left: 0px;
+    }
   }
 }
