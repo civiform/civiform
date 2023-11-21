@@ -334,7 +334,7 @@ public final class VersionRepository {
         .find(VersionModel.class)
         .where()
         .eq("lifecycle_stage", LifecycleStage.DRAFT)
-        .setLabel("Version.findDraft")
+        .setLabel("VersionModel.findDraft")
         .setProfileLocation(profileLocationBuilder.create("getDraftVersion"))
         .findOneOrEmpty();
   }
@@ -366,7 +366,7 @@ public final class VersionRepository {
           .forUpdate()
           .where()
           .eq("lifecycle_stage", LifecycleStage.DRAFT)
-          .setLabel("Version.findDraft")
+          .setLabel("VersionModel.findDraft")
           .setProfileLocation(profileLocationBuilder.create("getDraftVersionOrCreate"))
           .findOne();
       transaction.commit();
@@ -392,7 +392,7 @@ public final class VersionRepository {
         .find(VersionModel.class)
         .where()
         .eq("lifecycle_stage", LifecycleStage.ACTIVE)
-        .setLabel("Version.findActive")
+        .setLabel("VersionModel.findActive")
         .setProfileLocation(profileLocationBuilder.create("getActiveVersion"))
         .findOne();
   }
@@ -414,7 +414,7 @@ public final class VersionRepository {
             .orderBy()
             .desc("id")
             .setMaxRows(1)
-            .setLabel("Version.findPrevious")
+            .setLabel("VersionModel.findPrevious")
             .setProfileLocation(profileLocationBuilder.create("getPreviousVersion"))
             .findOne();
 

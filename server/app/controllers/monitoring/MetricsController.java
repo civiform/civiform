@@ -76,11 +76,10 @@ public final class MetricsController extends CiviFormController {
                 String className = metric.getType().toString().substring(CLASS_SUBSTRING_INDEX);
                 String location = metric.getLocation() != null ? metric.getLocation() : "";
                 // When we use JPA in the model to get the data, we often see incorrect information
-                // when there is more than one underscore. In these cases, we set the model class
-                // for the name and
+                // after the underscore. In these cases, we set the model class for the name and
                 // location.
                 // TODO(#5934) remove reliance on JPA for database queries
-                if (name.indexOf("_") != name.lastIndexOf("_")) {
+                if (name.contains("_")) {
                   name = className;
                   location = className;
                 }
