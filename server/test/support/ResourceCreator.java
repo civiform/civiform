@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 import models.AccountModel;
 import models.ApiKeyModel;
-import models.Applicant;
+import models.ApplicantModel;
 import models.Application;
 import models.LifecycleStage;
 import models.Models;
@@ -137,21 +137,21 @@ public class ResourceCreator {
     return ProgramBuilder.newDraftProgram(name, "description").build();
   }
 
-  public Application insertActiveApplication(Applicant applicant, ProgramModel program) {
+  public Application insertActiveApplication(ApplicantModel applicant, ProgramModel program) {
     return Application.create(applicant, program, LifecycleStage.ACTIVE);
   }
 
-  public Application insertDraftApplication(Applicant applicant, ProgramModel program) {
+  public Application insertDraftApplication(ApplicantModel applicant, ProgramModel program) {
     return Application.create(applicant, program, LifecycleStage.DRAFT);
   }
 
   public Application insertApplication(
-      Applicant applicant, ProgramModel program, LifecycleStage lifecycleStage) {
+      ApplicantModel applicant, ProgramModel program, LifecycleStage lifecycleStage) {
     return Application.create(applicant, program, lifecycleStage);
   }
 
-  public Applicant insertApplicant() {
-    Applicant applicant = new Applicant();
+  public ApplicantModel insertApplicant() {
+    ApplicantModel applicant = new ApplicantModel();
     applicant.save();
     return applicant;
   }
@@ -169,7 +169,7 @@ public class ResourceCreator {
     return tiGroup;
   }
 
-  public Applicant insertApplicantWithAccount() {
+  public ApplicantModel insertApplicantWithAccount() {
     return insertApplicantWithAccount(/* accountEmail= */ Optional.empty());
   }
 
@@ -180,8 +180,8 @@ public class ResourceCreator {
    *     also don't populate the authority ID, which makes this test user a guest.
    * @return the applicant
    */
-  public Applicant insertApplicantWithAccount(Optional<String> accountEmail) {
-    Applicant applicant = insertApplicant();
+  public ApplicantModel insertApplicantWithAccount(Optional<String> accountEmail) {
+    ApplicantModel applicant = insertApplicant();
     AccountModel account = insertAccount();
 
     accountEmail.ifPresent(account::setEmailAddress);

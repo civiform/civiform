@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import durablejobs.DurableJobName;
 import java.time.Instant;
-import models.Applicant;
+import models.ApplicantModel;
 import models.PersistedDurableJob;
 import org.junit.Test;
 import repository.AccountRepository;
@@ -17,7 +17,7 @@ public class FixApplicantDobDataPathJobTest extends ResetPostgres {
   @Test
   public void run_correctlyFixesDobPaths() {
     // Add applicant with the correct dob path
-    Applicant applicantWithCorrectPath = new Applicant();
+    ApplicantModel applicantWithCorrectPath = new ApplicantModel();
     ApplicantData applicantDataWithCorrectPath = applicantWithCorrectPath.getApplicantData();
     applicantDataWithCorrectPath.setUserName("Foo");
     applicantDataWithCorrectPath.setDateOfBirth("2001-11-01");
@@ -25,7 +25,7 @@ public class FixApplicantDobDataPathJobTest extends ResetPostgres {
     String applicantDataWithCorrectPathJson = applicantDataWithCorrectPath.asJsonString();
 
     // Add applicant with the incorrect dob path
-    Applicant applicantWithDeprecatedPath = new Applicant();
+    ApplicantModel applicantWithDeprecatedPath = new ApplicantModel();
     ApplicantData applicantDataWithDeprecatedPath = applicantWithDeprecatedPath.getApplicantData();
     applicantDataWithDeprecatedPath.setUserName("Bar");
     applicantDataWithDeprecatedPath.putDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED, "2002-12-02");

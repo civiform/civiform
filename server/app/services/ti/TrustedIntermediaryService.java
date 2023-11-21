@@ -11,7 +11,7 @@ import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import models.TrustedIntermediaryGroup;
 import play.data.Form;
 import repository.AccountRepository;
@@ -199,7 +199,7 @@ public final class TrustedIntermediaryService {
     if (optionalAccount.isEmpty() || optionalAccount.get().newestApplicant().isEmpty()) {
       throw new ApplicantNotFoundException(accountId);
     }
-    Applicant applicant = optionalAccount.get().newestApplicant().get();
+    ApplicantModel applicant = optionalAccount.get().newestApplicant().get();
     applicant.getApplicantData().setDateOfBirth(form.get().getDob());
     accountRepository.updateApplicant(applicant).toCompletableFuture().join();
     return form;

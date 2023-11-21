@@ -8,7 +8,7 @@ import java.util.Locale;
 import java.util.Optional;
 import junitparams.converters.Nullable;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import models.Application;
 import models.LifecycleStage;
 import models.ProgramModel;
@@ -56,10 +56,10 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   protected ProgramModel fakeProgramWithOptionalFileUpload;
   protected ProgramModel fakeProgram;
   protected ImmutableList<Question> fakeQuestions;
-  protected Applicant applicantOne;
-  protected Applicant applicantFive;
-  protected Applicant applicantSix;
-  protected Applicant applicantTwo;
+  protected ApplicantModel applicantOne;
+  protected ApplicantModel applicantFive;
+  protected ApplicantModel applicantSix;
+  protected ApplicantModel applicantTwo;
   protected Application applicationOne;
   protected Application applicationTwo;
   protected Application applicationThree;
@@ -156,8 +156,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
    */
   protected void createFakeApplications() throws Exception {
     AccountModel admin = resourceCreator.insertAccount();
-    Applicant applicantOne = resourceCreator.insertApplicantWithAccount();
-    Applicant applicantTwo = resourceCreator.insertApplicantWithAccount();
+    ApplicantModel applicantOne = resourceCreator.insertApplicantWithAccount();
+    ApplicantModel applicantTwo = resourceCreator.insertApplicantWithAccount();
     testQuestionBank.getSampleQuestionsForAllTypes().entrySet().stream()
         .forEach(
             entry ->
@@ -182,7 +182,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   }
 
   private Application createFakeApplication(
-      Applicant applicant,
+      ApplicantModel applicant,
       @Nullable AccountModel admin,
       ProgramModel program,
       LifecycleStage lifecycleStage,
@@ -571,7 +571,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   /** A "Builder" to fill a fake application one question at a time. */
   static class FakeApplicationFiller {
     AccountModel admin;
-    Applicant applicant;
+    ApplicantModel applicant;
     ProgramModel program;
     Optional<AccountModel> trustedIntermediary = Optional.empty();
     Application application;

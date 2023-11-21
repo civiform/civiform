@@ -18,7 +18,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import models.ProgramModel;
 import models.StoredFile;
 import org.junit.Before;
@@ -35,7 +35,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   private ApplicantProgramBlocksController subject;
   private ProgramModel program;
-  private Applicant applicant;
+  private ApplicantModel applicant;
 
   @Before
   public void setUpWithFreshApplicant() {

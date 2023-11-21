@@ -12,7 +12,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.WithMockedProfiles;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import models.Application;
 import models.LifecycleStage;
 import models.ProgramModel;
@@ -32,8 +32,8 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   private ApplicantProgramReviewController subject;
   private ApplicantProgramBlocksController blockController;
   private ProgramModel activeProgram;
-  public Applicant applicant;
-  public Applicant applicantWithoutProfile;
+  public ApplicantModel applicant;
+  public ApplicantModel applicantWithoutProfile;
 
   @Before
   public void setUpWithFreshApplicants() {

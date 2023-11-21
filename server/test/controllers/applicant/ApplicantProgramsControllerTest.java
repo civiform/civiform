@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import models.Application;
 import models.LifecycleStage;
 import models.ProgramModel;
@@ -37,8 +37,8 @@ import support.ProgramBuilder;
 
 public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
-  private Applicant currentApplicant;
-  private Applicant applicantWithoutProfile;
+  private ApplicantModel currentApplicant;
+  private ApplicantModel applicantWithoutProfile;
   private ApplicantProgramsController controller;
   private VersionRepository versionRepository;
 

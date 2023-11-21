@@ -7,7 +7,7 @@ import static play.test.Helpers.fakeRequest;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
-import models.Applicant;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -28,7 +28,7 @@ public class HomeControllerWithProfileTest extends WithMockedProfiles {
 
   @Test
   public void testLanguageSelectorShown() {
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     HomeController controller = instanceOf(HomeController.class);
     Result result = controller.index(fakeRequest().build()).toCompletableFuture().join();
     assertThat(result.redirectLocation())
@@ -40,7 +40,7 @@ public class HomeControllerWithProfileTest extends WithMockedProfiles {
 
   @Test
   public void testLanguageSelectorNotShownOneLanguage() {
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);

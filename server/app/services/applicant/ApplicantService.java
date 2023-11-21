@@ -29,7 +29,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
-import models.Applicant;
+import models.ApplicantModel;
 import models.Application;
 import models.ApplicationEvent;
 import models.DisplayMode;
@@ -151,10 +151,10 @@ public final class ApplicantService {
     this.esriClient = checkNotNull(esriClient);
   }
 
-  /** Create a new {@link Applicant}. */
-  public CompletionStage<Applicant> createApplicant() {
+  /** Create a new {@link ApplicantModel}. */
+  public CompletionStage<ApplicantModel> createApplicant() {
 
-    Applicant applicant = new Applicant();
+    ApplicantModel applicant = new ApplicantModel();
     return accountRepository.insertApplicant(applicant).thenApply((unused) -> applicant);
   }
 
@@ -167,7 +167,7 @@ public final class ApplicantService {
    */
   public CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
       long applicantId, long programId) {
-    CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
+    CompletableFuture<Optional<ApplicantModel>> applicantCompletableFuture =
         accountRepository.lookupApplicant(applicantId).toCompletableFuture();
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
         programService.getProgramDefinitionAsync(programId).toCompletableFuture();
@@ -175,7 +175,7 @@ public final class ApplicantService {
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
         .thenApplyAsync(
             (v) -> {
-              Applicant applicant = applicantCompletableFuture.join().get();
+              ApplicantModel applicant = applicantCompletableFuture.join().get();
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
               return new ReadOnlyApplicantProgramServiceImpl(
@@ -276,7 +276,7 @@ public final class ApplicantService {
       ImmutableMap<String, String> updateMap,
       ImmutableSet<Update> updates,
       boolean addressServiceAreaValidationEnabled) {
-    CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
+    CompletableFuture<Optional<ApplicantModel>> applicantCompletableFuture =
         accountRepository.lookupApplicant(applicantId).toCompletableFuture();
 
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
@@ -285,11 +285,11 @@ public final class ApplicantService {
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
         .thenComposeAsync(
             (v) -> {
-              Optional<Applicant> applicantMaybe = applicantCompletableFuture.join();
+              Optional<ApplicantModel> applicantMaybe = applicantCompletableFuture.join();
               if (applicantMaybe.isEmpty()) {
                 return CompletableFuture.failedFuture(new ApplicantNotFoundException(applicantId));
               }
-              Applicant applicant = applicantMaybe.get();
+              ApplicantModel applicant = applicantMaybe.get();
 
               // Create a ReadOnlyApplicantProgramService and get the current block.
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
@@ -341,7 +341,7 @@ public final class ApplicantService {
   }
 
   private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
-      Applicant applicant,
+      ApplicantModel applicant,
       String baseUrl,
       Block blockBeforeUpdate,
       ProgramDefinition programDefinition,
@@ -784,7 +784,7 @@ public final class ApplicantService {
         .lookupApplicant(applicantId)
         .thenApplyAsync(
             applicant ->
-                applicant.map(Applicant::getApplicantData).map(ApplicantData::preferredLocale),
+                applicant.map(ApplicantModel::getApplicantData).map(ApplicantData::preferredLocale),
             httpExecutionContext.current());
   }
 
@@ -798,8 +798,10 @@ public final class ApplicantService {
                 return Optional.empty();
               }
               // There's really only one applicant per account. See notes in Account.java.
-              Optional<Applicant> applicant = account.get().newestApplicant();
-              return applicant.map(Applicant::getApplicantData).map(ApplicantData::preferredLocale);
+              Optional<ApplicantModel> applicant = account.get().newestApplicant();
+              return applicant
+                  .map(ApplicantModel::getApplicantData)
+                  .map(ApplicantData::preferredLocale);
             },
             httpExecutionContext.current());
   }
@@ -904,7 +906,7 @@ public final class ApplicantService {
    * empty if there are no eligibility conditions for the program.
    */
   public Optional<Boolean> getApplicantMayBeEligibleStatus(
-      Applicant applicant, ProgramDefinition programDefinition) {
+      ApplicantModel applicant, ProgramDefinition programDefinition) {
     ReadOnlyApplicantProgramService roAppProgramService =
         getReadOnlyApplicantProgramService(applicant.getApplicantData(), programDefinition);
     return programDefinition.hasEligibilityEnabled()
@@ -1042,7 +1044,7 @@ public final class ApplicantService {
               findProgramWithId(allPrograms, activeProgramNames.get(programName).id());
 
           if (!mostRecentApplicationsByProgram.isEmpty()) {
-            Applicant applicant = applications.stream().findFirst().get().getApplicant();
+            ApplicantModel applicant = applications.stream().findFirst().get().getApplicant();
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
                 getApplicantMayBeEligibleStatus(applicant, program));
           }

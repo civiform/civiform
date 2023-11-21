@@ -96,7 +96,7 @@ public class ApplicationTest extends ResetPostgres {
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
 
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     applicant.getAccount().setGlobalAdmin(true);
 
     Application application = resourceCreator.insertActiveApplication(applicant, program);
@@ -110,7 +110,7 @@ public class ApplicationTest extends ResetPostgres {
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
 
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     applicant.getAccount().addAdministeredProgram(program.getProgramDefinition());
 
     Application application = resourceCreator.insertActiveApplication(applicant, program);

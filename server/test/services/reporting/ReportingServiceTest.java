@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import models.Applicant;
+import models.ApplicantModel;
 import models.Application;
 import models.LifecycleStage;
 import models.ProgramModel;
@@ -26,7 +26,7 @@ import support.ProgramBuilder;
 public class ReportingServiceTest extends ResetPostgres {
 
   private ReportingService service;
-  private Applicant applicant;
+  private ApplicantModel applicant;
   private ProgramModel programA;
   private ProgramModel programB;
 

@@ -4,7 +4,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import repository.DatabaseExecutionContext;
@@ -63,7 +63,7 @@ public class CiviFormProfileData extends CommonProfile {
             () -> {
               AccountModel acc = new AccountModel();
               acc.save();
-              Applicant newA = new Applicant();
+              ApplicantModel newA = new ApplicantModel();
               newA.setAccount(acc);
               newA.save();
 

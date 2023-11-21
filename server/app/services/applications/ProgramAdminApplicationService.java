@@ -8,7 +8,7 @@ import com.typesafe.config.Config;
 import java.util.Locale;
 import java.util.Optional;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import models.Application;
 import models.ApplicationEvent;
 import models.ProgramModel;
@@ -84,7 +84,7 @@ public final class ProgramAdminApplicationService {
   public void setStatus(Application application, StatusEvent newStatusEvent, AccountModel admin)
       throws StatusEmailNotFoundException, StatusNotFoundException, AccountHasNoEmailException {
     ProgramModel program = application.getProgram();
-    Applicant applicant = application.getApplicant();
+    ApplicantModel applicant = application.getApplicant();
     String newStatusText = newStatusEvent.statusText();
     // The send/sent phrasing is a little weird as the service layer is converting between intent
     // and reality.
@@ -137,7 +137,7 @@ public final class ProgramAdminApplicationService {
 
   private void sendApplicantEmail(
       ProgramDefinition programDef,
-      Applicant applicant,
+      ApplicantModel applicant,
       Status statusDef,
       Optional<String> applicantEmail) {
     String civiformLink = baseUrl;
@@ -158,7 +158,7 @@ public final class ProgramAdminApplicationService {
 
   private void sendAdminSubmitterEmail(
       ProgramDefinition programDef,
-      Applicant applicant,
+      ApplicantModel applicant,
       Status statusDef,
       Optional<String> adminSubmitterEmail) {
     String programName = programDef.localizedName().getDefault();
@@ -177,7 +177,7 @@ public final class ProgramAdminApplicationService {
         accountRepository
             .lookupAccountByEmail(adminSubmitterEmail.get())
             .flatMap(AccountModel::newestApplicant)
-            .map(Applicant::getApplicantData)
+            .map(ApplicantModel::getApplicantData)
             .map(ApplicantData::preferredLocale)
             .orElse(LocalizedStrings.DEFAULT_LOCALE);
     Messages messages =

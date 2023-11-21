@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import models.Application;
 import models.ApplicationEvent;
 import models.DisplayMode;
@@ -294,9 +294,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
   public void getApplicationsForAllProgramVersions_searchById() {
     ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
-    Applicant bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
+    ApplicantModel bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
     Application bobApp = makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe");
-    Applicant jane = resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
+    ApplicantModel jane =
+        resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
     makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe");
 
     PaginationResult<Application> paginationResult =
@@ -360,17 +361,19 @@ public class ProgramRepositoryTest extends ResetPostgres {
       String searchFragment, ImmutableSet<String> wantEmails) {
     ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
-    Applicant bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
+    ApplicantModel bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
     makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe")
         .setSubmitterEmail("bobs_ti@example.com")
         .save();
-    Applicant jane = resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
+    ApplicantModel jane =
+        resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
     makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe");
     // Note: The mixed casing on the email is intentional for tests of case insensitivity.
-    Applicant chris = resourceCreator.insertApplicantWithAccount(Optional.of("chris@exAMPLE.com"));
+    ApplicantModel chris =
+        resourceCreator.insertApplicantWithAccount(Optional.of("chris@exAMPLE.com"));
     makeApplicationWithName(chris, program, "Chris", "MiddleName", "Person");
 
-    Applicant otherApplicant =
+    ApplicantModel otherApplicant =
         resourceCreator.insertApplicantWithAccount(Optional.of("other@example.com"));
     resourceCreator.insertDraftApplication(otherApplicant, program);
 
@@ -392,7 +395,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   private Application makeApplicationWithName(
-      Applicant applicant,
+      ApplicantModel applicant,
       ProgramModel program,
       String firstName,
       String middleName,
@@ -570,11 +573,11 @@ public class ProgramRepositoryTest extends ResetPostgres {
   public void getApplicationsForAllProgramVersions_withDateRange() {
     ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
-    Applicant applicantTwo =
+    ApplicantModel applicantTwo =
         resourceCreator.insertApplicantWithAccount(Optional.of("two@example.com"));
-    Applicant applicantThree =
+    ApplicantModel applicantThree =
         resourceCreator.insertApplicantWithAccount(Optional.of("three@example.com"));
-    Applicant applicantOne =
+    ApplicantModel applicantOne =
         resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
 
     var applicationOne = resourceCreator.insertActiveApplication(applicantOne, program);
@@ -623,7 +626,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void getApplicationsForAllProgramVersions_multipleVersions_pageNumberBasedPagination() {
-    Applicant applicantOne =
+    ApplicantModel applicantOne =
         resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
     ProgramModel originalVersion = resourceCreator.insertActiveProgram("test program");
 
@@ -632,9 +635,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
     ProgramModel nextVersion = resourceCreator.insertDraftProgram("test program");
     resourceCreator.publishNewSynchronizedVersion();
 
-    Applicant applicantTwo =
+    ApplicantModel applicantTwo =
         resourceCreator.insertApplicantWithAccount(Optional.of("two@example.com"));
-    Applicant applicantThree =
+    ApplicantModel applicantThree =
         resourceCreator.insertApplicantWithAccount(Optional.of("three@example.com"));
     resourceCreator.insertActiveApplication(applicantTwo, nextVersion);
     resourceCreator.insertActiveApplication(applicantThree, nextVersion);
@@ -666,7 +669,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void getApplicationsForAllProgramVersions_multipleVersions_offsetBasedPagination() {
-    Applicant applicantOne =
+    ApplicantModel applicantOne =
         resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
     ProgramModel originalVersion = resourceCreator.insertActiveProgram("test program");
 
@@ -675,9 +678,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
     ProgramModel nextVersion = resourceCreator.insertDraftProgram("test program");
     resourceCreator.publishNewSynchronizedVersion();
 
-    Applicant applicantTwo =
+    ApplicantModel applicantTwo =
         resourceCreator.insertApplicantWithAccount(Optional.of("two@example.com"));
-    Applicant applicantThree =
+    ApplicantModel applicantThree =
         resourceCreator.insertApplicantWithAccount(Optional.of("three@example.com"));
     resourceCreator.insertActiveApplication(applicantTwo, nextVersion);
     resourceCreator.insertActiveApplication(applicantThree, nextVersion);

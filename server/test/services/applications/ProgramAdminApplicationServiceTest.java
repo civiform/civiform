@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import junitparams.JUnitParamsRunner;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import models.Application;
 import models.ApplicationEvent;
 import models.LifecycleStage;
@@ -93,7 +93,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   public void getApplication() {
     ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
 
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     Application application =
         Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
@@ -113,7 +113,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   public void getApplication_programMismatch() {
     ProgramDefinition firstProgram =
         ProgramBuilder.newActiveProgram("first-program").buildDefinition();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     Application firstProgramApplication =
         Application.create(applicant, firstProgram.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
@@ -128,7 +128,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   public void getApplication_emptyAdminName() {
     ProgramDefinition program = ProgramBuilder.newActiveProgram("").buildDefinition();
 
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     Application application =
         Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
@@ -140,7 +140,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   public void getNote_noNotes_empty() {
     ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
 
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     Application application =
         Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
@@ -155,7 +155,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
 
     AccountModel account = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     Application application =
         Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
@@ -195,7 +195,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
     AccountModel account = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
     Application application =
         Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
@@ -255,7 +255,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
     AccountModel account = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
     // Set the user to Korean.
     applicant.getApplicantData().setPreferredLocale(userLocale);
     applicant.save();
@@ -307,7 +307,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
     AccountModel account = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
     Application application =
         Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow()
@@ -367,8 +367,8 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
     AccountModel account = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
-    Applicant tiApplicant = resourceCreator.insertApplicantWithAccount(Optional.of(tiEmail));
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
+    ApplicantModel tiApplicant = resourceCreator.insertApplicantWithAccount(Optional.of(tiEmail));
     tiApplicant.getApplicantData().setPreferredLocale(Locale.KOREA);
     tiApplicant.save();
     Application application =
@@ -418,7 +418,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
     AccountModel account = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
     Application application =
         Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
@@ -439,7 +439,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
     AccountModel account = resourceCreator.insertAccount();
-    Applicant applicant =
+    ApplicantModel applicant =
         resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
     Application application =
         Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
@@ -465,7 +465,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
     AccountModel account = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.empty());
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.empty());
     Application application =
         Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
@@ -504,7 +504,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
     AccountModel account = resourceCreator.insertAccount();
-    Applicant applicant =
+    ApplicantModel applicant =
         resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
     Application application =
         Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
