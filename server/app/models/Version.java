@@ -32,9 +32,10 @@ public final class Version extends BaseModel {
   @Constraints.Required private LifecycleStage lifecycleStage;
 
   @ManyToMany(mappedBy = "versions")
-  @JoinTable(name = "versions_questions",
-    joinColumns = @JoinColumn(name = "versions_id"),
-    inverseJoinColumns = @JoinColumn(name = "questions_id"))
+  @JoinTable(
+      name = "versions_questions",
+      joinColumns = @JoinColumn(name = "versions_id"),
+      inverseJoinColumns = @JoinColumn(name = "questions_id"))
   private List<Question> questions;
 
   /**
@@ -44,9 +45,10 @@ public final class Version extends BaseModel {
   @DbArray private List<String> tombstonedQuestionNames = new ArrayList<>();
 
   @ManyToMany(mappedBy = "versions")
-  @JoinTable(name = "versions_programs",
-    joinColumns = @JoinColumn(name = "versions_id"),
-    inverseJoinColumns = @JoinColumn(name = "programs_id"))
+  @JoinTable(
+      name = "versions_programs",
+      joinColumns = @JoinColumn(name = "versions_id"),
+      inverseJoinColumns = @JoinColumn(name = "programs_id"))
   private List<ProgramModel> programs;
 
   /**

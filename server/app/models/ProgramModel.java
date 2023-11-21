@@ -109,9 +109,10 @@ public class ProgramModel extends BaseModel {
   @Constraints.Required private Boolean eligibilityIsGating;
 
   @ManyToMany(mappedBy = "programs")
-  @JoinTable(name = "versions_programs",
-    joinColumns = @JoinColumn(name = "programs_id"),
-    inverseJoinColumns = @JoinColumn(name = "versions_id"))
+  @JoinTable(
+      name = "versions_programs",
+      joinColumns = @JoinColumn(name = "programs_id"),
+      inverseJoinColumns = @JoinColumn(name = "versions_id"))
   private List<Version> versions;
 
   @OneToMany(mappedBy = "program")

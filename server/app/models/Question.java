@@ -107,9 +107,10 @@ public class Question extends BaseModel {
   @WhenModified private Instant lastModifiedTime;
 
   @ManyToMany
-  @JoinTable(name = "versions_questions",
-    joinColumns = @JoinColumn(name = "questions_id"),
-    inverseJoinColumns = @JoinColumn(name = "versions_id"))
+  @JoinTable(
+      name = "versions_questions",
+      joinColumns = @JoinColumn(name = "questions_id"),
+      inverseJoinColumns = @JoinColumn(name = "versions_id"))
   private List<Version> versions;
 
   public Question(QuestionDefinition questionDefinition) {
