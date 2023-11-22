@@ -3,7 +3,7 @@ package services.cloud;
 import java.util.Optional;
 
 /**
- * Interface for working with cloud file storage backends. This:
+ * Interface for working with cloud file storage backends for applicant files. This:
  *
  * <p>(1) Allows applicants to upload files as part of their application -- see {@link
  * #getSignedUploadRequest(String, String)}.
@@ -43,10 +43,10 @@ public interface ApplicantStorageClient {
   /**
    * Creates and returns a request to upload a file to cloud storage.
    *
-   * @param fileName The file to upload to cloud storage
+   * @param fileKey The file key to use when uploading to cloud storage
    * @param successRedirectActionLink Where a user should be redirected upon successful file upload.
    */
-  StorageUploadRequest getSignedUploadRequest(String fileName, String successRedirectActionLink);
+  StorageUploadRequest getSignedUploadRequest(String fileKey, String successRedirectActionLink);
 
   /** Gets the {@link StorageServiceName} for the current storage client. */
   StorageServiceName getStorageServiceName();
