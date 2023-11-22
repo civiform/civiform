@@ -83,7 +83,7 @@ public class ApplicationBaseView extends BaseHtmlView {
 
     public abstract boolean preferredLanguageSupported();
 
-    public abstract ApplicantStorageClient storageClient();
+    public abstract ApplicantStorageClient applicantStorageClient();
 
     public abstract String baseUrl();
 
@@ -117,7 +117,8 @@ public class ApplicationBaseView extends BaseHtmlView {
 
       public abstract Builder setPreferredLanguageSupported(boolean preferredLanguageSupported);
 
-      public abstract Builder setStorageClient(ApplicantStorageClient applicantStorageClient);
+      public abstract Builder setApplicantStorageClient(
+          ApplicantStorageClient applicantStorageClient);
 
       public abstract Builder setBaseUrl(String baseUrl);
 

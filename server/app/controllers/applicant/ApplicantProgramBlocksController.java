@@ -725,7 +725,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setTotalBlockCount(roApplicantProgramService.getAllActiveBlocks().size())
         .setApplicantPersonalInfo(personalInfo)
         .setPreferredLanguageSupported(roApplicantProgramService.preferredLanguageSupported())
-        .setStorageClient(applicantStorageClient)
+        .setApplicantStorageClient(applicantStorageClient)
         .setBaseUrl(baseUrl)
         .setErrorDisplayMode(errorDisplayMode)
         .setApplicantSelectedQuestionName(questionName);

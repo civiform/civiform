@@ -27,10 +27,7 @@ import play.Environment;
 import services.cloud.ApplicantStorageClient;
 import services.cloud.StorageServiceName;
 
-/**
- * Provides methods to create federated links for applicants to upload and download files directly
- * to and from Azure Blob Storage.
- */
+/** An Azure Blob Storage implementation of {@link ApplicantStorageClient}. */
 @Singleton
 public class ApplicantBlobStorage implements ApplicantStorageClient {
 
