@@ -16,6 +16,8 @@ import com.google.common.collect.ImmutableMap;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
+
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.OptionalInt;
 import javax.inject.Inject;
@@ -172,12 +174,14 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
     container.with(settingsContainer);
     settingsSection.settings().stream()
         .filter(SettingDescription::shouldDisplay)
+      .sorted(Comparator.comparing(SettingDescription::variableName))
         .forEach(
             settingDescription ->
                 settingsContainer.with(renderSetting(request, errorMessages, settingDescription)));
 
     settingsSection.subsections().stream()
         .filter(SettingsSection::shouldDisplay)
+        .sorted(Comparator.comparing(SettingsSection::sectionName))
         .forEach(
             subsection -> container.with(renderSubSection(request, errorMessages, subsection)));
 
