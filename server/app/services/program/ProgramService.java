@@ -1350,8 +1350,7 @@ public final class ProgramService {
    *     they exist, or a QuestionNotFoundException is thrown when the future completes and a
    *     question is not found.
    */
-  public CompletionStage<ImmutableList<ProgramDefinition
-    syncQuestionsToProgramDefinitions(
+  public CompletionStage<ImmutableList<ProgramDefinition syncQuestionsToProgramDefinitions(
       ImmutableList<ProgramDefinition> programDefinitions) {
 
     /* TEMP BUG FIX
