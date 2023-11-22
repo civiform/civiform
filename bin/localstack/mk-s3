@@ -18,3 +18,21 @@ create_s3_bucket="s3api create-bucket
 # prior to trying to create it.
 localstack::run_command "${check_bucket}" \
   || localstack::run_command "${create_s3_bucket}"
+
+# NEW PUBLIC BUCKET
+# TODO: Make this a function
+# TODO: Update the purge file too
+
+PUBLIC_BUCKET_NAME="civiform-local-s3-public"
+
+check_public_bucket="s3api get-bucket-location --bucket ${PUBLIC_BUCKET_NAME}"
+
+create_public_s3_bucket="s3api create-bucket
+  --bucket ${PUBLIC_BUCKET_NAME}
+  --region us-west-2
+  --create-bucket-configuration LocationConstraint=us-west-2"
+
+# We first check to see if the desired bucket already exists
+# prior to trying to create it.
+localstack::run_command "${check_public_bucket}" \
+  || localstack::run_command "${create_public_s3_bucket}"

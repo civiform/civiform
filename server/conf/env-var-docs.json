@@ -421,6 +421,16 @@
             "description": "The max size (in Mb) of files uploaded to s3.",
             "type": "string"
           },
+          "AWS_S3_PUBLIC_BUCKET_NAME": {
+            "mode": "HIDDEN",
+            "description": "s3 bucket to store **publicly accessible** files in.",
+            "type": "string"
+          },
+          "AWS_S3_PUBLIC_FILE_LIMIT_MB": {
+            "mode": "HIDDEN",
+            "description": "The max size (in Mb) of **publicly accessible** files uploaded to s3.",
+            "type": "string"
+          },
           "AZURE_STORAGE_ACCOUNT_NAME": {
             "mode": "HIDDEN",
             "description": "The azure account name where the blob storage service exists.",
