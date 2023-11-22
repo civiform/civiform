@@ -37,12 +37,18 @@ public abstract class ApplicantQuestionRendererParams {
 
   public abstract AutoFocusTarget autofocus();
 
-  /** True if autofocus is FIRST_FIELD. */
+  /**
+   * True if autofocus is FIRST_FIELD, meaning the first field of the first question on the page
+   * should have the autofocus attribute.
+   */
   public boolean autofocusFirstField() {
     return AutoFocusTarget.FIRST_FIELD.equals(autofocus());
   }
 
-  /** True if autofocus is FIRST_ERROR. */
+  /**
+   * True if autofocus is FIRST_ERROR, meaning the first field on the page that has an validation
+   * error message should have the autofocus attribute.
+   */
   public boolean autofocusFirstError() {
     return AutoFocusTarget.FIRST_ERROR.equals(autofocus());
   }
@@ -71,9 +77,9 @@ public abstract class ApplicantQuestionRendererParams {
   public enum AutoFocusTarget {
     // Question should not autofocus
     NONE,
-    // Autofocus the first field that has a validation error message
+    // Autofocus the first field on the page that has a validation error message
     FIRST_ERROR,
-    // Autofocus first field in the question
+    // Autofocus first field in the question on the page
     FIRST_FIELD;
   }
 }
