@@ -28,10 +28,7 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
-/**
- * SimpleStorage provides methods to create federated links for users of CiviForm to upload and
- * download files directly to and from AWS Simple Storage Service (S3).
- */
+/** An AWS Simple Storage Service (S3) implementation of {@link ApplicantStorageClient}. */
 @Singleton
 public class ApplicantSimpleStorage implements ApplicantStorageClient {
 
