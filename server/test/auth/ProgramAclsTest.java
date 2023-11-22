@@ -6,7 +6,7 @@ import controllers.WithMockedProfiles;
 import java.util.HashSet;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.TrustedIntermediaryGroup;
+import models.TrustedIntermediaryGroupModel;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,7 +23,8 @@ public class ProgramAclsTest extends WithMockedProfiles {
     profileFactory = instanceOf(ProfileFactory.class);
     tiProfileOne = profileFactory.wrapProfileData(profileFactory.createFakeTrustedIntermediary());
     tiProfileTwo = profileFactory.wrapProfileData(profileFactory.createFakeTrustedIntermediary());
-    TrustedIntermediaryGroup tiGroupTwo = new TrustedIntermediaryGroup("CBO2", "Food shelter");
+    TrustedIntermediaryGroupModel tiGroupTwo =
+        new TrustedIntermediaryGroupModel("CBO2", "Food shelter");
     AccountModel tiTwo = tiProfileTwo.getAccount().join();
     tiTwo.setMemberOfGroup(tiGroupTwo);
     tiTwo.save();

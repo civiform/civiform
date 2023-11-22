@@ -14,7 +14,7 @@ import models.LifecycleStage;
 import models.Models;
 import models.ProgramModel;
 import models.QuestionModel;
-import models.TrustedIntermediaryGroup;
+import models.TrustedIntermediaryGroupModel;
 import play.inject.Injector;
 import services.LocalizedStrings;
 import services.apikey.ApiKeyService;
@@ -162,9 +162,9 @@ public class ResourceCreator {
     return account;
   }
 
-  public TrustedIntermediaryGroup insertTiGroup(String groupName) {
-    TrustedIntermediaryGroup tiGroup =
-        new TrustedIntermediaryGroup(groupName, "A TI group for all your TI needs!");
+  public TrustedIntermediaryGroupModel insertTiGroup(String groupName) {
+    TrustedIntermediaryGroupModel tiGroup =
+        new TrustedIntermediaryGroupModel(groupName, "A TI group for all your TI needs!");
     tiGroup.save();
     return tiGroup;
   }
@@ -211,12 +211,12 @@ public class ResourceCreator {
     return account;
   }
 
-  public TrustedIntermediaryGroup insertTrustedIntermediaryGroup() {
+  public TrustedIntermediaryGroupModel insertTrustedIntermediaryGroup() {
     return insertTrustedIntermediaryGroup("");
   }
 
-  public TrustedIntermediaryGroup insertTrustedIntermediaryGroup(String name) {
-    TrustedIntermediaryGroup group = new TrustedIntermediaryGroup(name, "description");
+  public TrustedIntermediaryGroupModel insertTrustedIntermediaryGroup(String name) {
+    TrustedIntermediaryGroupModel group = new TrustedIntermediaryGroupModel(name, "description");
     group.save();
     return group;
   }

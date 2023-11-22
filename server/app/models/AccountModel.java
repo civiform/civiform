@@ -42,8 +42,8 @@ public class AccountModel extends BaseModel {
   @OneToMany(mappedBy = "account")
   private List<ApplicantModel> applicants;
 
-  @ManyToOne private TrustedIntermediaryGroup memberOfGroup;
-  @ManyToOne private TrustedIntermediaryGroup managedByGroup;
+  @ManyToOne private TrustedIntermediaryGroupModel memberOfGroup;
+  @ManyToOne private TrustedIntermediaryGroupModel managedByGroup;
   private boolean globalAdmin;
 
   // This must be a mutable collection so we can add to the list later.
@@ -90,21 +90,21 @@ public class AccountModel extends BaseModel {
     return this.emailAddress;
   }
 
-  public AccountModel setMemberOfGroup(TrustedIntermediaryGroup group) {
+  public AccountModel setMemberOfGroup(TrustedIntermediaryGroupModel group) {
     this.memberOfGroup = group;
     return this;
   }
 
-  public AccountModel setManagedByGroup(TrustedIntermediaryGroup group) {
+  public AccountModel setManagedByGroup(TrustedIntermediaryGroupModel group) {
     this.managedByGroup = group;
     return this;
   }
 
-  public Optional<TrustedIntermediaryGroup> getMemberOfGroup() {
+  public Optional<TrustedIntermediaryGroupModel> getMemberOfGroup() {
     return Optional.ofNullable(this.memberOfGroup);
   }
 
-  public Optional<TrustedIntermediaryGroup> getManagedByGroup() {
+  public Optional<TrustedIntermediaryGroupModel> getManagedByGroup() {
     return Optional.ofNullable(this.managedByGroup);
   }
 
