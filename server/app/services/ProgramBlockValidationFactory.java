@@ -25,6 +25,7 @@ public final class ProgramBlockValidationFactory {
     this.versionRepository = checkNotNull(versionRepository);
     this.questionService = checkNotNull(questionService);
   }
+
   /** Creating a ProgramBlockValidation object with version(DB object) as its member variable */
   public ProgramBlockValidation create() {
     VersionModel version = versionRepository.getDraftVersionOrCreate();

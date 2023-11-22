@@ -333,7 +333,9 @@ public final class AdminApplicationController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result updateStatus(Http.Request request, long programId, long applicationId)
-      throws ProgramNotFoundException, StatusEmailNotFoundException, StatusNotFoundException,
+      throws ProgramNotFoundException,
+          StatusEmailNotFoundException,
+          StatusNotFoundException,
           AccountHasNoEmailException {
     ProgramDefinition program = programService.getProgramDefinition(programId);
     String programName = program.adminName();
