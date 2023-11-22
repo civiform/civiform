@@ -924,6 +924,19 @@ public final class ProgramService {
     return Optional.of(newStrings);
   }
 
+  /** TODO */
+  public ProgramDefinition setSummaryImageFileKey(long programId, String fileKey)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    // TODO: Handle deletion
+    // TODO: Warning if image description not set first
+    programDefinition =
+        programDefinition.toBuilder().setSummaryImageFileKey(Optional.of(fileKey)).build();
+    return programRepository
+        .updateProgramSync(programDefinition.toProgram())
+        .getProgramDefinition();
+  }
+
   /**
    * Adds an empty {@link BlockDefinition} to the end of a given program.
    *

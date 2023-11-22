@@ -7,7 +7,7 @@ import j2html.tags.specialized.DivTag;
 import play.i18n.Messages;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
-import views.FileUploadViewStrategy;
+import views.applicant.fileupload.FileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;

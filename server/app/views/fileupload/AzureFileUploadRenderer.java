@@ -1,4 +1,4 @@
-package views;
+package views.fileupload;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.input;
@@ -11,19 +11,21 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import services.cloud.StorageUploadRequest;
 import services.cloud.azure.BlobStorageUploadRequest;
+import views.ViewUtils;
 
-public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
+public final class AzureFileUploadRenderer extends FileUploadRenderer {
 
   private final ViewUtils viewUtils;
 
   @Inject
-  AzureFileUploadViewStrategy(ViewUtils viewUtils) {
+  AzureFileUploadRenderer(ViewUtils viewUtils) {
     this.viewUtils = checkNotNull(viewUtils);
   }
 
   @Override
-  protected ImmutableList<InputTag> fileUploadFields(
+  public ImmutableList<InputTag> fileUploadFields(
       Optional<StorageUploadRequest> request,
+      String acceptedMimeTypes,
       String fileInputId,
       ImmutableList<String> ariaDescribedByIds,
       boolean hasErrors) {
@@ -55,7 +57,7 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
             .withType("file")
             .withName("file")
             .withClass("hidden")
-            .withAccept(MIME_TYPES_IMAGES_AND_PDF));
+            .withAccept(acceptedMimeTypes));
     return builder.build();
   }
 
@@ -68,7 +70,7 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  protected ImmutableList<ScriptTag> extraScriptTags() {
+  public ImmutableList<ScriptTag> extraScriptTags() {
     return ImmutableList.of(viewUtils.makeAzureBlobStoreScriptTag());
   }
 

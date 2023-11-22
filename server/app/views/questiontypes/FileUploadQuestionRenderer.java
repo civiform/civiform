@@ -15,7 +15,7 @@ import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
-import views.FileUploadViewStrategy;
+import views.applicant.fileupload.FileUploadViewStrategy;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
