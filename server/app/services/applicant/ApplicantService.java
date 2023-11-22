@@ -35,7 +35,7 @@ import models.ApplicationModel;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
-import models.StoredFile;
+import models.StoredFileModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.i18n.Lang;
@@ -560,7 +560,7 @@ public final class ApplicantService {
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
         programService.getProgramDefinitionAsync(programId).toCompletableFuture();
 
-    CompletableFuture<List<StoredFile>> storedFilesFuture =
+    CompletableFuture<List<StoredFileModel>> storedFilesFuture =
         getReadOnlyApplicantProgramService(applicantId, programId)
             .thenApplyAsync(
                 ReadOnlyApplicantProgramService::getStoredFileKeys, httpExecutionContext.current())
@@ -570,11 +570,11 @@ public final class ApplicantService {
     return CompletableFuture.allOf(programDefinitionCompletableFuture, storedFilesFuture)
         .thenComposeAsync(
             (ignoreVoid) -> {
-              List<StoredFile> storedFiles = storedFilesFuture.join();
+              List<StoredFileModel> storedFiles = storedFilesFuture.join();
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
               CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
 
-              for (StoredFile file : storedFiles) {
+              for (StoredFileModel file : storedFiles) {
                 file.getAcls().addProgramToReaders(programDefinition);
                 future =
                     CompletableFuture.allOf(

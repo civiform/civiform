@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ProgramModel;
-import models.StoredFile;
+import models.StoredFileModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
@@ -879,7 +879,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
 
     var fileKey = "fake-key";
-    var storedFile = new StoredFile();
+    var storedFile = new StoredFileModel();
     storedFile.setName(fileKey);
     storedFile.save();
 
