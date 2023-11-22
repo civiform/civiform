@@ -7,17 +7,17 @@ import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
 import services.cloud.StorageServiceName;
-import services.cloud.azure.ApplicantBlobStorage.Client;
-import services.cloud.azure.ApplicantBlobStorage.NullClient;
+import services.cloud.azure.AzureApplicantStorage.Client;
+import services.cloud.azure.AzureApplicantStorage.NullClient;
 
-public class ApplicantBlobStorageTest extends ResetPostgres {
+public class AzureApplicantStorageTest extends ResetPostgres {
 
   private static final String TEST_FILE_NAME = "fileName";
-  private ApplicantBlobStorage blobStorage;
+  private AzureApplicantStorage blobStorage;
 
   @Before
   public void setUp() {
-    this.blobStorage = instanceOf(ApplicantBlobStorage.class);
+    this.blobStorage = instanceOf(AzureApplicantStorage.class);
   }
 
   @Test

@@ -30,7 +30,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 
 /** An AWS Simple Storage Service (S3) implementation of {@link ApplicantStorageClient}. */
 @Singleton
-public class ApplicantSimpleStorage implements ApplicantStorageClient {
+public class AwsApplicantStorage implements ApplicantStorageClient {
 
   public static final String AWS_S3_BUCKET_CONF_PATH = "aws.s3.bucket";
   public static final Duration AWS_PRESIGNED_URL_DURATION = Duration.ofMinutes(10);
@@ -43,7 +43,7 @@ public class ApplicantSimpleStorage implements ApplicantStorageClient {
   private final Client client;
 
   @Inject
-  public ApplicantSimpleStorage(
+  public AwsApplicantStorage(
       AwsRegion region,
       Credentials credentials,
       Config config,

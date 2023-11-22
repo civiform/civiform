@@ -29,7 +29,7 @@ import services.cloud.StorageServiceName;
 
 /** An Azure Blob Storage implementation of {@link ApplicantStorageClient}. */
 @Singleton
-public class ApplicantBlobStorage implements ApplicantStorageClient {
+public class AzureApplicantStorage implements ApplicantStorageClient {
 
   public static final String AZURE_STORAGE_ACCT_CONF_PATH = "azure.blob.account";
   public static final String AZURE_CONTAINER_CONF_PATH = "azure.blob.container";
@@ -49,7 +49,7 @@ public class ApplicantBlobStorage implements ApplicantStorageClient {
   private final ZoneId zoneId;
 
   @Inject
-  public ApplicantBlobStorage(
+  public AzureApplicantStorage(
       Credentials credentials, Config config, Environment environment, ZoneId zoneId) {
 
     this.credentials = checkNotNull(credentials);
