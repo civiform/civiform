@@ -1993,6 +1993,8 @@ public class ProgramServiceTest extends ResetPostgres {
   public void updateLocalizations_addsNewLocale() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram()
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.withDefaultValue("default image description"))
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
@@ -2002,6 +2004,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedDisplayName("German Name")
             .setLocalizedDisplayDescription("German Description")
             .setLocalizedConfirmationMessage("")
+            .setLocalizedSummaryImageDescription("German Image Description")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
@@ -2022,6 +2025,9 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(definition.localizedName().get(Locale.GERMAN)).isEqualTo("German Name");
     assertThat(definition.localizedDescription().get(Locale.GERMAN))
         .isEqualTo("German Description");
+    assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(definition.localizedSummaryImageDescription().get().get(Locale.GERMAN))
+        .isEqualTo("German Image Description");
     assertThat(definition.statusDefinitions().getStatuses())
         .isEqualTo(
             ImmutableList.of(
@@ -2054,6 +2060,12 @@ public class ProgramServiceTest extends ResetPostgres {
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
             .withLocalizedConfirmationMessage(Locale.FRENCH, "")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English image description",
+                    Locale.FRENCH,
+                    "existing French image description"))
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
@@ -2062,6 +2074,7 @@ public class ProgramServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedSummaryImageDescription("new French image description")
             .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
@@ -2086,6 +2099,9 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(definition.localizedName().get(Locale.FRENCH)).isEqualTo("new French name");
     assertThat(definition.localizedDescription().get(Locale.FRENCH))
         .isEqualTo("new French description");
+    assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(definition.localizedSummaryImageDescription().get().get(Locale.FRENCH))
+        .isEqualTo("new French image description");
     assertThat(definition.statusDefinitions().getStatuses())
         .isEqualTo(
             ImmutableList.of(
@@ -2303,6 +2319,31 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
         .isInstanceOf(OutOfDateStatusesException.class);
+  }
+
+  @Test
+  public void updateLocalizations_imageDescriptionProvidedWithNoImageConfigured_notUsed()
+      throws Exception {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("English name", "English description").build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("new French name")
+            .setLocalizedDisplayDescription("new French description")
+            .setLocalizedConfirmationMessage("")
+            .setLocalizedSummaryImageDescription("invalid French image description")
+            .setStatuses(ImmutableList.of())
+            .build();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+
+    assertThat(result.isError()).isFalse();
+    ProgramDefinition definition = result.getResult();
+    // Verify we didn't save the French image description because we don't have any image
+    // description.
+    assertThat(definition.localizedSummaryImageDescription().isPresent()).isFalse();
   }
 
   @Test
