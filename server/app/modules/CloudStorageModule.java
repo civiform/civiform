@@ -20,8 +20,8 @@ import views.applicant.ApplicantProgramBlockEditViewFactory;
 public class CloudStorageModule extends AbstractModule {
 
   private static final String AZURE_STORAGE_CLASS_NAME =
-      "services.cloud.azure.ApplicantBlobStorage";
-  private static final String AWS_STORAGE_CLASS_NAME = "services.cloud.aws.ApplicantSimpleStorage";
+      "services.cloud.azure.AzureApplicantStorage";
+  private static final String AWS_STORAGE_CLASS_NAME = "services.cloud.aws.AwsApplicantStorage";
 
   private final Environment environment;
   private final Config config;
