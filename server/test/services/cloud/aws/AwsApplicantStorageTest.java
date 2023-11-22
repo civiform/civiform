@@ -14,12 +14,12 @@ import repository.ResetPostgres;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 
-public class ApplicantSimpleStorageTest extends ResetPostgres {
+public class AwsApplicantStorageTest extends ResetPostgres {
 
   @Test
   public void getSignedUploadRequest_prodEnv_actionLinkIsProdAws() {
-    ApplicantSimpleStorage applicantSimpleStorage =
-        new ApplicantSimpleStorage(
+    AwsApplicantStorage awsApplicantStorage =
+        new AwsApplicantStorage(
             instanceOf(AwsRegion.class),
             instanceOf(Credentials.class),
             instanceOf(Config.class),
@@ -27,15 +27,15 @@ public class ApplicantSimpleStorageTest extends ResetPostgres {
             instanceOf(ApplicationLifecycle.class));
 
     SignedS3UploadRequest uploadRequest =
-        applicantSimpleStorage.getSignedUploadRequest("fileKey", "redirect");
+      awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
     assertThat(uploadRequest.actionLink()).contains("amazonaws.com");
   }
 
   @Test
   public void getSignedUploadRequest_devEnv_actionLinkIsLocalStack() {
-    ApplicantSimpleStorage applicantSimpleStorage =
-        new ApplicantSimpleStorage(
+    AwsApplicantStorage awsApplicantStorage =
+      new AwsApplicantStorage(
             instanceOf(AwsRegion.class),
             instanceOf(Credentials.class),
             instanceOf(Config.class),
@@ -43,7 +43,7 @@ public class ApplicantSimpleStorageTest extends ResetPostgres {
             instanceOf(ApplicationLifecycle.class));
 
     SignedS3UploadRequest uploadRequest =
-        applicantSimpleStorage.getSignedUploadRequest("fileKey", "redirect");
+      awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
     assertThat(uploadRequest.actionLink()).contains("localstack");
     assertThat(uploadRequest.actionLink()).doesNotContain("amazonaws.com");
@@ -53,8 +53,8 @@ public class ApplicantSimpleStorageTest extends ResetPostgres {
   public void getSignedUploadRequest_hasCredentialsAndRegion() {
     AwsRegion region = instanceOf(AwsRegion.class);
     Credentials credentials = instanceOf(Credentials.class);
-    ApplicantSimpleStorage applicantSimpleStorage =
-        new ApplicantSimpleStorage(
+    AwsApplicantStorage awsApplicantStorage =
+      new AwsApplicantStorage(
             region,
             credentials,
             instanceOf(Config.class),
@@ -62,7 +62,7 @@ public class ApplicantSimpleStorageTest extends ResetPostgres {
             instanceOf(ApplicationLifecycle.class));
 
     SignedS3UploadRequest uploadRequest =
-        applicantSimpleStorage.getSignedUploadRequest("fileKey", "redirect");
+      awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
     assertThat(uploadRequest.accessKey()).isEqualTo(credentials.getCredentials().accessKeyId());
     assertThat(uploadRequest.secretKey()).isEqualTo(credentials.getCredentials().secretAccessKey());
@@ -71,20 +71,20 @@ public class ApplicantSimpleStorageTest extends ResetPostgres {
 
   @Test
   public void getSignedUploadRequest_hasFileKey() {
-    ApplicantSimpleStorage applicantSimpleStorage = instanceOf(ApplicantSimpleStorage.class);
+    AwsApplicantStorage awsApplicantStorage = instanceOf(AwsApplicantStorage.class);
 
     SignedS3UploadRequest uploadRequest =
-        applicantSimpleStorage.getSignedUploadRequest("test/fake/fakeFile.png", "redirect");
+      awsApplicantStorage.getSignedUploadRequest("test/fake/fakeFile.png", "redirect");
 
     assertThat(uploadRequest.key()).isEqualTo("test/fake/fakeFile.png");
   }
 
   @Test
   public void getSignedUploadRequest_hasSuccessRedirect() {
-    ApplicantSimpleStorage applicantSimpleStorage = instanceOf(ApplicantSimpleStorage.class);
+    AwsApplicantStorage awsApplicantStorage = instanceOf(AwsApplicantStorage.class);
 
     SignedS3UploadRequest uploadRequest =
-        applicantSimpleStorage.getSignedUploadRequest("fileKey", "http://redirect.to.here");
+      awsApplicantStorage.getSignedUploadRequest("fileKey", "http://redirect.to.here");
 
     assertThat(uploadRequest.successActionRedirect()).isEqualTo("http://redirect.to.here");
   }
@@ -98,8 +98,8 @@ public class ApplicantSimpleStorageTest extends ResetPostgres {
 
     when(credentials.getCredentials()).thenReturn(sessionCredentials);
     when(sessionCredentials.sessionToken()).thenReturn("testSessionToken");
-    ApplicantSimpleStorage applicantSimpleStorage =
-        new ApplicantSimpleStorage(
+    AwsApplicantStorage awsApplicantStorage =
+      new AwsApplicantStorage(
             instanceOf(AwsRegion.class),
             credentials,
             instanceOf(Config.class),
@@ -107,7 +107,7 @@ public class ApplicantSimpleStorageTest extends ResetPostgres {
             instanceOf(ApplicationLifecycle.class));
 
     SignedS3UploadRequest uploadRequest =
-        applicantSimpleStorage.getSignedUploadRequest("fileKey", "redirect");
+      awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
     assertThat(uploadRequest.securityToken()).isEqualTo("testSessionToken");
   }
@@ -120,8 +120,8 @@ public class ApplicantSimpleStorageTest extends ResetPostgres {
     when(notSessionCredentials.secretAccessKey()).thenReturn("secretKey");
     when(credentials.getCredentials()).thenReturn(notSessionCredentials);
 
-    ApplicantSimpleStorage applicantSimpleStorage =
-        new ApplicantSimpleStorage(
+    AwsApplicantStorage awsApplicantStorage =
+        new AwsApplicantStorage(
             instanceOf(AwsRegion.class),
             credentials,
             instanceOf(Config.class),
@@ -129,7 +129,7 @@ public class ApplicantSimpleStorageTest extends ResetPostgres {
             instanceOf(ApplicationLifecycle.class));
 
     SignedS3UploadRequest uploadRequest =
-        applicantSimpleStorage.getSignedUploadRequest("fileKey", "redirect");
+      awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
     assertThat(uploadRequest.securityToken()).isEmpty();
   }
