@@ -13,16 +13,16 @@ import services.cloud.azure.AzureApplicantStorage.NullClient;
 public class AzureApplicantStorageTest extends ResetPostgres {
 
   private static final String TEST_FILE_NAME = "fileName";
-  private AzureApplicantStorage blobStorage;
+  private AzureApplicantStorage azureApplicantStorage;
 
   @Before
   public void setUp() {
-    this.blobStorage = instanceOf(AzureApplicantStorage.class);
+    this.azureApplicantStorage = instanceOf(AzureApplicantStorage.class);
   }
 
   @Test
   public void getClient_instanceOfNullClient() {
-    Client client = blobStorage.getClient();
+    Client client = azureApplicantStorage.getClient();
 
     assertThat(client).isInstanceOf(NullClient.class);
     assertThat(client).isInstanceOf(Client.class);
@@ -30,34 +30,36 @@ public class AzureApplicantStorageTest extends ResetPostgres {
 
   @Test
   public void getBlobUrl() {
-    String blobUrl = blobStorage.getClient().getBlobUrl(TEST_FILE_NAME);
+    String blobUrl = azureApplicantStorage.getClient().getBlobUrl(TEST_FILE_NAME);
 
     assertThat(blobUrl).isEqualTo("http://www.blobUrl.com");
   }
 
   @Test
   public void getSasToken_originalFileNameNotSet() {
-    String sasToken = blobStorage.getClient().getSasToken(TEST_FILE_NAME, Optional.empty());
+    String sasToken =
+        azureApplicantStorage.getClient().getSasToken(TEST_FILE_NAME, Optional.empty());
 
     assertThat(sasToken).isEqualTo("sasToken");
   }
 
   @Test
   public void getSasToken_originalFileNameSet() {
-    String sasToken = blobStorage.getClient().getSasToken(TEST_FILE_NAME, Optional.of("file.pdf"));
+    String sasToken =
+        azureApplicantStorage.getClient().getSasToken(TEST_FILE_NAME, Optional.of("file.pdf"));
     assertThat(sasToken).isEqualTo("sasTokenWithContentHeaders");
   }
 
   @Test
   public void getPresignedUrl() {
-    String url = blobStorage.getPresignedUrlString(TEST_FILE_NAME, Optional.empty());
+    String url = azureApplicantStorage.getPresignedUrlString(TEST_FILE_NAME, Optional.empty());
 
     assertThat(url).isEqualTo("http://www.blobUrl.com?sasToken");
   }
 
   @Test
   public void getStorageServiceName() {
-    StorageServiceName storageServiceName = blobStorage.getStorageServiceName();
+    StorageServiceName storageServiceName = azureApplicantStorage.getStorageServiceName();
 
     assertThat(storageServiceName).isEqualTo(StorageServiceName.AZURE_BLOB);
   }
@@ -76,7 +78,7 @@ public class AzureApplicantStorageTest extends ResetPostgres {
             .build();
 
     BlobStorageUploadRequest blobStorageUploadRequest =
-        blobStorage.getSignedUploadRequest(
+        azureApplicantStorage.getSignedUploadRequest(
             TEST_FILE_NAME, /* successActionRedirect= */ "www.redirectlink.com");
 
     assertThat(blobStorageUploadRequest).isEqualTo(expectedRequest);
