@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import models.Applicant;
-import models.Application;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import models.LifecycleStage;
 import models.ProgramModel;
 import org.apache.commons.csv.CSVFormat;
@@ -26,7 +26,7 @@ import support.ProgramBuilder;
 public class ReportingServiceTest extends ResetPostgres {
 
   private ReportingService service;
-  private Applicant applicant;
+  private ApplicantModel applicant;
   private ProgramModel programA;
   private ProgramModel programB;
 
@@ -136,9 +136,9 @@ public class ReportingServiceTest extends ResetPostgres {
     instanceOf(ReportingRepository.class).refreshMonthlyReportingView();
   }
 
-  private Application createFakeApplication(
+  private ApplicationModel createFakeApplication(
       ProgramModel program, Instant createTime, Instant submitTime) {
-    Application application = new Application(applicant, program, LifecycleStage.ACTIVE);
+    ApplicationModel application = new ApplicationModel(applicant, program, LifecycleStage.ACTIVE);
     application.setApplicantData(applicant.getApplicantData());
     application.save();
 

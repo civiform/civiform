@@ -18,7 +18,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import models.TrustedIntermediaryGroup;
 import org.junit.Before;
 import org.junit.Test;
@@ -99,7 +99,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreator();
 
     // Execute.
-    Optional<Applicant> applicant = oidcProfileAdapter.getExistingApplicant(profile);
+    Optional<ApplicantModel> applicant = oidcProfileAdapter.getExistingApplicant(profile);
 
     // Verify.
     assertThat(applicant).isPresent();
@@ -127,7 +127,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreator();
 
     // Execute.
-    Optional<Applicant> applicant = oidcProfileAdapter.getExistingApplicant(profile);
+    Optional<ApplicantModel> applicant = oidcProfileAdapter.getExistingApplicant(profile);
 
     // Verify.
     assertThat(applicant).isPresent();
@@ -154,7 +154,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     // one.
     assertThat(profileData.getEmail()).isEqualTo(EMAIL);
 
-    Optional<Applicant> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
     assertThat(maybeApplicant).isPresent();
 
     ApplicantData applicantData = maybeApplicant.get().getApplicantData();
@@ -184,7 +184,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     // one.
     assertThat(profileData.getEmail()).isEqualTo(EMAIL);
 
-    Optional<Applicant> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
     assertThat(maybeApplicant).isPresent();
 
     ApplicantData applicantData = maybeApplicant.get().getApplicantData();
@@ -210,7 +210,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     when(trustedIntermediary.getAccount())
         .thenReturn(CompletableFuture.completedFuture(accountWithTiGroup));
     when(trustedIntermediary.getApplicant())
-        .thenReturn(CompletableFuture.completedFuture(new Applicant()));
+        .thenReturn(CompletableFuture.completedFuture(new ApplicantModel()));
 
     CiviFormProfileData fakeProfileData = new CiviFormProfileData(123L);
     when(trustedIntermediary.getProfileData()).thenReturn(fakeProfileData);
@@ -231,7 +231,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     assertThat(profileData.getEmail()).isEqualTo(EMAIL);
     assertThat(profileData.getDisplayName()).isNull();
 
-    Optional<Applicant> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
     assertThat(maybeApplicant).isNotPresent();
   }
 }

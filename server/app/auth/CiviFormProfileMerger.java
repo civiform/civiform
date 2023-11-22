@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import javax.inject.Provider;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.profile.UserProfile;
 import repository.AccountRepository;
@@ -32,7 +32,7 @@ public final class CiviFormProfileMerger {
    *     provides one if it doesn't exist
    */
   public <T> Optional<UserProfile> mergeProfiles(
-      Optional<Applicant> applicantInDatabase,
+      Optional<ApplicantModel> applicantInDatabase,
       Optional<CiviFormProfile> existingProfile,
       T authProviderProfile,
       BiFunction<Optional<CiviFormProfile>, T, UserProfile> mergeFunction) {
@@ -56,7 +56,7 @@ public final class CiviFormProfileMerger {
    *     provides one if it doesn't exist
    */
   public <T> Optional<UserProfile> mergeProfiles(
-      Optional<Applicant> applicantInDatabase,
+      Optional<ApplicantModel> applicantInDatabase,
       Optional<CiviFormProfile> existingProfile,
       T authProviderProfile,
       WebContext context,
@@ -70,7 +70,7 @@ public final class CiviFormProfileMerger {
   }
 
   private Optional<CiviFormProfile> mergeApplicantAndGuestProfile(
-      Optional<Applicant> applicantInDatabase, Optional<CiviFormProfile> guestProfile) {
+      Optional<ApplicantModel> applicantInDatabase, Optional<CiviFormProfile> guestProfile) {
     if (applicantInDatabase.isPresent()) {
       if (guestProfile.isEmpty()
           || guestProfile.get().getApplicant().join().getApplications().isEmpty()) {
@@ -86,11 +86,11 @@ public final class CiviFormProfileMerger {
   }
 
   private CiviFormProfile mergeProfiles(
-      Applicant applicantInDatabase, CiviFormProfile sessionGuestProfile) {
+      ApplicantModel applicantInDatabase, CiviFormProfile sessionGuestProfile) {
     // Merge guest applicant data into already existing account in database
-    Applicant guestApplicant = sessionGuestProfile.getApplicant().join();
+    ApplicantModel guestApplicant = sessionGuestProfile.getApplicant().join();
     AccountModel existingAccount = applicantInDatabase.getAccount();
-    Applicant mergedApplicant =
+    ApplicantModel mergedApplicant =
         applicantRepositoryProvider
             .get()
             .mergeApplicants(guestApplicant, applicantInDatabase, existingAccount)

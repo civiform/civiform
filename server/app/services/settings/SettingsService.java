@@ -15,7 +15,7 @@ import controllers.BadRequestException;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
-import models.SettingsGroup;
+import models.SettingsGroupModel;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -26,7 +26,7 @@ import play.mvc.Http;
 import repository.SettingsGroupRepository;
 
 /**
- * Service management of the resource backed by {@link models.SettingsGroup}.
+ * Service management of the resource backed by {@link SettingsGroupModel}.
  *
  * <p>Each time an admin updates the server settings using the admin UI, a SettingsGroup is saved.
  * The latest snapshot is used to provide settings for a given request to the server.
@@ -60,7 +60,7 @@ public final class SettingsService {
   public CompletionStage<Optional<ImmutableMap<String, String>>> loadSettings() {
     return settingsGroupRepository
         .getCurrentSettings()
-        .thenApply(maybeSettingsGroup -> maybeSettingsGroup.map(SettingsGroup::getSettings));
+        .thenApply(maybeSettingsGroup -> maybeSettingsGroup.map(SettingsGroupModel::getSettings));
   }
 
   /**
@@ -91,9 +91,9 @@ public final class SettingsService {
   }
 
   /**
-   * Store a new {@link SettingsGroup} in the DB and returns {@code true} if the new settings are
-   * different from the current settings. Otherwise returns {@code false} and does NOT insert a new
-   * row.
+   * Store a new {@link SettingsGroupModel} in the DB and returns {@code true} if the new settings
+   * are different from the current settings. Otherwise returns {@code false} and does NOT insert a
+   * new row.
    */
   public SettingsGroupUpdateResult updateSettings(
       ImmutableMap<String, String> newSettings, String papertrail) {
@@ -111,7 +111,7 @@ public final class SettingsService {
       }
     }
 
-    var newSettingsGroup = new SettingsGroup(newSettings, papertrail);
+    var newSettingsGroup = new SettingsGroupModel(newSettings, papertrail);
     newSettingsGroup.save();
 
     return SettingsGroupUpdateResult.success();
@@ -238,14 +238,14 @@ public final class SettingsService {
   }
 
   /**
-   * Inserts a new {@link SettingsGroup} if it finds admin writeable settings in the {@link
-   * SettingsManifest} that are not in the current {@link SettingsGroup}.
+   * Inserts a new {@link SettingsGroupModel} if it finds admin writeable settings in the {@link
+   * SettingsManifest} that are not in the current {@link SettingsGroupModel}.
    */
-  public SettingsGroup migrateConfigValuesToSettingsGroup() {
-    Optional<SettingsGroup> maybeExistingSettingsGroup =
+  public SettingsGroupModel migrateConfigValuesToSettingsGroup() {
+    Optional<SettingsGroupModel> maybeExistingSettingsGroup =
         settingsGroupRepository.getCurrentSettings().toCompletableFuture().join();
     Optional<ImmutableMap<String, String>> maybeExistingSettings =
-        maybeExistingSettingsGroup.map(SettingsGroup::getSettings);
+        maybeExistingSettingsGroup.map(SettingsGroupModel::getSettings);
 
     ImmutableMap.Builder<String, String> settingsBuilder = ImmutableMap.builder();
 
@@ -267,7 +267,7 @@ public final class SettingsService {
       return maybeExistingSettingsGroup.get();
     }
 
-    var group = new SettingsGroup(settings, "system");
+    var group = new SettingsGroupModel(settings, "system");
     group.save();
 
     LOGGER.info("Migrated {} settings from config to database.", settings.size());
@@ -296,15 +296,17 @@ public final class SettingsService {
   @AutoValue
   public abstract static class SettingsGroupUpdateResult {
 
-    /** Creates a result representing success, where a new {@link SettingsGroup} was inserted. */
+    /**
+     * Creates a result representing success, where a new {@link SettingsGroupModel} was inserted.
+     */
     public static SettingsGroupUpdateResult success() {
       return new AutoValue_SettingsService_SettingsGroupUpdateResult(
           /* errorMessages= */ Optional.empty(), /* updated= */ true);
     }
 
     /**
-     * Creates a result representing validation failure, where a new {@link SettingsGroup} was NOT
-     * inserted and the admin should address the errors.
+     * Creates a result representing validation failure, where a new {@link SettingsGroupModel} was
+     * NOT inserted and the admin should address the errors.
      */
     public static SettingsGroupUpdateResult withErrors(
         ImmutableMap<String, UpdateError> errorMessages) {
@@ -313,8 +315,8 @@ public final class SettingsService {
     }
 
     /**
-     * Creates a result representing failure where a new {@link SettingsGroup} was NOT inserted due
-     * to the admin not changing any values.
+     * Creates a result representing failure where a new {@link SettingsGroupModel} was NOT inserted
+     * due to the admin not changing any values.
      */
     public static SettingsGroupUpdateResult noChange() {
       return new AutoValue_SettingsService_SettingsGroupUpdateResult(
@@ -324,7 +326,7 @@ public final class SettingsService {
     /** Validation error messages for the attempted update. */
     public abstract Optional<ImmutableMap<String, UpdateError>> errorMessages();
 
-    /** True if the update completed successfully, inserting a new {@link SettingsGroup}. */
+    /** True if the update completed successfully, inserting a new {@link SettingsGroupModel}. */
     public abstract boolean updated();
 
     /** True if there are validation error messages. */

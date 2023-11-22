@@ -17,8 +17,8 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import models.AccountModel;
-import models.Applicant;
-import models.Application;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import models.LifecycleStage;
 import models.ProgramModel;
 import org.junit.Before;
@@ -37,8 +37,8 @@ import support.ProgramBuilder;
 
 public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
-  private Applicant currentApplicant;
-  private Applicant applicantWithoutProfile;
+  private ApplicantModel currentApplicant;
+  private ApplicantModel applicantWithoutProfile;
   private ApplicantProgramsController controller;
   private VersionRepository versionRepository;
 
@@ -107,7 +107,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     String programName = "In Progress Program";
     ProgramModel program = resourceCreator().insertActiveProgram(programName);
 
-    Application app = new Application(currentApplicant, program, LifecycleStage.DRAFT);
+    ApplicationModel app = new ApplicationModel(currentApplicant, program, LifecycleStage.DRAFT);
     app.save();
 
     resourceCreator().insertDraftProgram(programName);

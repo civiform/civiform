@@ -11,8 +11,8 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.Optional;
 import models.AccountModel;
-import models.Applicant;
-import models.Application;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,13 +34,13 @@ public class CiviFormProfileMergerTest {
   @Mock private AccountRepository repository;
   @Mock private ProfileFactory profileFactory;
   @Mock private CiviFormProfile civiFormProfile;
-  @Mock private Applicant applicant;
+  @Mock private ApplicantModel applicant;
 
   private UserProfile userProfile;
   private OidcProfile oidcProfile;
   private CiviFormProfileData civiFormProfileData;
   private AccountModel account;
-  private Application dummyApplication;
+  private ApplicationModel dummyApplication;
 
   private CiviFormProfileMerger civiFormProfileMerger;
 
@@ -64,11 +64,11 @@ public class CiviFormProfileMergerTest {
 
     when(applicant.getAccount()).thenReturn(account);
 
-    dummyApplication = new Application(applicant, null, null);
+    dummyApplication = new ApplicationModel(applicant, null, null);
 
     when(applicant.getApplications()).thenReturn(ImmutableList.of(dummyApplication));
     when(civiFormProfile.getProfileData()).thenReturn(civiFormProfileData);
-    when(profileFactory.wrap(any(Applicant.class))).thenReturn(civiFormProfile);
+    when(profileFactory.wrap(any(ApplicantModel.class))).thenReturn(civiFormProfile);
     when(civiFormProfile.getApplicant()).thenReturn(completedFuture(applicant));
     when(repository.mergeApplicants(applicant, applicant, account))
         .thenReturn(completedFuture(applicant));

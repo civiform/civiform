@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 import javax.persistence.EntityNotFoundException;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import repository.DatabaseExecutionContext;
@@ -42,13 +42,13 @@ public class CiviFormProfile {
     this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
   }
 
-  /** Get the latest {@link Applicant} associated with the profile. */
-  public CompletableFuture<Applicant> getApplicant() {
+  /** Get the latest {@link ApplicantModel} associated with the profile. */
+  public CompletableFuture<ApplicantModel> getApplicant() {
     return this.getAccount()
         .thenApplyAsync(
             (a) ->
                 a.getApplicants().stream()
-                    .min(Comparator.comparing(Applicant::getWhenCreated))
+                    .min(Comparator.comparing(ApplicantModel::getWhenCreated))
                     .orElseThrow(),
             httpContext.current());
   }

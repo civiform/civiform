@@ -26,10 +26,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import models.AccountModel;
-import models.Application;
+import models.ApplicationModel;
 import models.DisplayMode;
 import models.ProgramModel;
-import models.Version;
+import models.VersionModel;
 import modules.MainModule;
 import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
@@ -227,7 +227,8 @@ public final class ProgramService {
     }
 
     // Any version that the program is in has all the questions the program has.
-    Version version = programRepository.getVersionsForProgram(program).stream().findAny().get();
+    VersionModel version =
+        programRepository.getVersionsForProgram(program).stream().findAny().get();
     ProgramDefinition programDefinition =
         syncProgramDefinitionQuestions(program.getProgramDefinition(), version);
 
@@ -1349,7 +1350,8 @@ public final class ProgramService {
    *     they exist, or a QuestionNotFoundException is thrown when the future completes and a
    *     question is not found.
    */
-  public CompletionStage<ImmutableList<ProgramDefinition>> syncQuestionsToProgramDefinitions(
+  public CompletionStage<ImmutableList<ProgramDefinition
+    syncQuestionsToProgramDefinitions(
       ImmutableList<ProgramDefinition> programDefinitions) {
 
     /* TEMP BUG FIX
@@ -1370,7 +1372,8 @@ public final class ProgramService {
       p.refresh();
       // We only need to get the question data if the program has eligibility conditions.
       if (programDef.hasEligibilityEnabled()) {
-        Version v = programRepository.getVersionsForProgram(p).stream().findAny().orElseThrow();
+        VersionModel v =
+            programRepository.getVersionsForProgram(p).stream().findAny().orElseThrow();
         ReadOnlyQuestionService questionServiceForVersion = versionToQuestionService.get(v.id);
         if (questionServiceForVersion == null) {
           questionServiceForVersion =
@@ -1572,7 +1575,7 @@ public final class ProgramService {
    *
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
-  public ImmutableList<Application> getSubmittedProgramApplications(long programId)
+  public ImmutableList<ApplicationModel> getSubmittedProgramApplications(long programId)
       throws ProgramNotFoundException {
     Optional<ProgramModel> programMaybe =
         programRepository.lookupProgram(programId).toCompletableFuture().join();
@@ -1590,7 +1593,7 @@ public final class ProgramService {
    *     pagination spec to use for a given call.
    * @param filters a set of filters to apply to the examined applications.
    */
-  public PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
+  public PaginationResult<ApplicationModel> getSubmittedProgramApplicationsAllVersions(
       long programId,
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
@@ -1652,7 +1655,7 @@ public final class ProgramService {
   }
 
   private ProgramDefinition syncProgramDefinitionQuestions(
-      ProgramDefinition programDefinition, Version version) {
+      ProgramDefinition programDefinition, VersionModel version) {
     try {
       return syncProgramDefinitionQuestions(
           programDefinition,

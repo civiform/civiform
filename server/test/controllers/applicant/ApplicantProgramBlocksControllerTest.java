@@ -18,9 +18,9 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import models.ProgramModel;
-import models.StoredFile;
+import models.StoredFileModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
@@ -35,7 +35,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   private ApplicantProgramBlocksController subject;
   private ProgramModel program;
-  private Applicant applicant;
+  private ApplicantModel applicant;
 
   @Before
   public void setUpWithFreshApplicant() {
@@ -879,7 +879,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
 
     var fileKey = "fake-key";
-    var storedFile = new StoredFile();
+    var storedFile = new StoredFileModel();
     storedFile.setName(fileKey);
     storedFile.save();
 

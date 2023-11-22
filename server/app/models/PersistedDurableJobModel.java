@@ -19,7 +19,7 @@ import play.data.validation.Constraints;
  */
 @Entity
 @Table(name = "persisted_durable_jobs")
-public final class PersistedDurableJob extends BaseModel {
+public final class PersistedDurableJobModel extends BaseModel {
 
   @Constraints.Required private String jobName;
   @Constraints.Required private Instant executionTime;
@@ -32,7 +32,7 @@ public final class PersistedDurableJob extends BaseModel {
 
   private String errorMessage;
 
-  public PersistedDurableJob(String jobName, Instant executionTime) {
+  public PersistedDurableJobModel(String jobName, Instant executionTime) {
     this.jobName = Preconditions.checkNotNull(jobName);
     this.executionTime = Preconditions.checkNotNull(executionTime);
     this.remainingAttempts = 3;
@@ -54,7 +54,7 @@ public final class PersistedDurableJob extends BaseModel {
     return Optional.ofNullable(successTime);
   }
 
-  public PersistedDurableJob setSuccessTime(Instant time) {
+  public PersistedDurableJobModel setSuccessTime(Instant time) {
     this.successTime = time;
     return this;
   }
@@ -67,7 +67,7 @@ public final class PersistedDurableJob extends BaseModel {
     return remainingAttempts;
   }
 
-  public PersistedDurableJob decrementRemainingAttempts() {
+  public PersistedDurableJobModel decrementRemainingAttempts() {
     this.remainingAttempts--;
     return this;
   }
@@ -76,7 +76,7 @@ public final class PersistedDurableJob extends BaseModel {
     return Optional.ofNullable(errorMessage);
   }
 
-  public PersistedDurableJob appendErrorMessage(String newMessage) {
+  public PersistedDurableJobModel appendErrorMessage(String newMessage) {
     this.errorMessage =
         this.errorMessage == null
             ? newMessage

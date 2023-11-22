@@ -5,7 +5,7 @@ import com.google.inject.Provider;
 import durablejobs.DurableJob;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import models.PersistedDurableJob;
+import models.PersistedDurableJobModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.AccountRepository;
@@ -17,19 +17,19 @@ public final class UnusedAccountCleanupJob extends DurableJob {
 
   private final AccountRepository accountRepository;
   private final Provider<LocalDateTime> nowProvider;
-  private final PersistedDurableJob persistedDurableJob;
+  private final PersistedDurableJobModel persistedDurableJob;
 
   public UnusedAccountCleanupJob(
       AccountRepository accountRepository,
       Provider<LocalDateTime> nowProvider,
-      PersistedDurableJob persistedDurableJob) {
+      PersistedDurableJobModel persistedDurableJob) {
     this.accountRepository = Preconditions.checkNotNull(accountRepository);
     this.nowProvider = Preconditions.checkNotNull(nowProvider);
     this.persistedDurableJob = Preconditions.checkNotNull(persistedDurableJob);
   }
 
   @Override
-  public PersistedDurableJob getPersistedDurableJob() {
+  public PersistedDurableJobModel getPersistedDurableJob() {
     return persistedDurableJob;
   }
 

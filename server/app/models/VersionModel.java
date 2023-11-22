@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
@@ -26,12 +27,16 @@ import play.data.validation.Constraints;
  */
 @Entity
 @Table(name = "versions")
-public final class Version extends BaseModel {
+public final class VersionModel extends BaseModel {
 
   @Constraints.Required private LifecycleStage lifecycleStage;
 
   @ManyToMany(mappedBy = "versions")
-  private List<Question> questions;
+  @JoinTable(
+      name = "versions_questions",
+      joinColumns = @JoinColumn(name = "versions_id"),
+      inverseJoinColumns = @JoinColumn(name = "questions_id"))
+  private List<QuestionModel> questions;
 
   /**
    * A tombstoned question is a question that will not be copied to the next version published. It
@@ -39,8 +44,11 @@ public final class Version extends BaseModel {
    */
   @DbArray private List<String> tombstonedQuestionNames = new ArrayList<>();
 
-  @ManyToMany
-  @JoinTable(name = "versions_programs")
+  @ManyToMany(mappedBy = "versions")
+  @JoinTable(
+      name = "versions_programs",
+      joinColumns = @JoinColumn(name = "versions_id"),
+      inverseJoinColumns = @JoinColumn(name = "programs_id"))
   private List<ProgramModel> programs;
 
   /**
@@ -51,11 +59,11 @@ public final class Version extends BaseModel {
 
   @WhenModified private Instant submitTime;
 
-  public Version() {
+  public VersionModel() {
     this(LifecycleStage.DRAFT);
   }
 
-  public Version(LifecycleStage lifecycleStage) {
+  public VersionModel(LifecycleStage lifecycleStage) {
     this.lifecycleStage = lifecycleStage;
   }
 
@@ -63,7 +71,7 @@ public final class Version extends BaseModel {
     return lifecycleStage;
   }
 
-  public Version setLifecycleStage(LifecycleStage lifecycleStage) {
+  public VersionModel setLifecycleStage(LifecycleStage lifecycleStage) {
     this.lifecycleStage = lifecycleStage;
     return this;
   }
@@ -72,7 +80,7 @@ public final class Version extends BaseModel {
     return this.submitTime;
   }
 
-  public Version addProgram(ProgramModel program) {
+  public VersionModel addProgram(ProgramModel program) {
     this.programs.add(program);
     return this;
   }
@@ -81,12 +89,12 @@ public final class Version extends BaseModel {
     return this.programs.remove(program);
   }
 
-  public Version addQuestion(Question question) {
+  public VersionModel addQuestion(QuestionModel question) {
     this.questions.add(question);
     return this;
   }
 
-  public boolean removeQuestion(Question question) {
+  public boolean removeQuestion(QuestionModel question) {
     return this.questions.remove(question);
   }
 
@@ -102,7 +110,7 @@ public final class Version extends BaseModel {
    * Returns all questions of a given version. Instead of calling this function directly,
    * getQuestionsForVersion should be called, since that will implement caching.
    */
-  public ImmutableList<Question> getQuestions() {
+  public ImmutableList<QuestionModel> getQuestions() {
     return ImmutableList.copyOf(questions);
   }
 
@@ -150,7 +158,7 @@ public final class Version extends BaseModel {
    *
    * @return true if the question previously was tombstoned and false otherwise.
    */
-  public boolean removeTombstoneForQuestion(Question question) {
+  public boolean removeTombstoneForQuestion(QuestionModel question) {
     if (this.tombstonedQuestionNames == null) {
       this.tombstonedQuestionNames = new ArrayList<>();
     }

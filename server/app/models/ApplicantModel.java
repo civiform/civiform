@@ -33,7 +33,7 @@ import services.applicant.ApplicantData;
  */
 @Entity
 @Table(name = "applicants")
-public class Applicant extends BaseModel {
+public class ApplicantModel extends BaseModel {
 
   private static final long serialVersionUID = 1L;
   private ApplicantData applicantData;
@@ -46,9 +46,9 @@ public class Applicant extends BaseModel {
   @ManyToOne private AccountModel account;
 
   @OneToMany(mappedBy = "applicant")
-  private List<Application> applications;
+  private List<ApplicationModel> applications;
 
-  public Applicant() {
+  public ApplicantModel() {
     super();
   }
 
@@ -90,12 +90,12 @@ public class Applicant extends BaseModel {
     return account;
   }
 
-  public Applicant setAccount(AccountModel account) {
+  public ApplicantModel setAccount(AccountModel account) {
     this.account = account;
     return this;
   }
 
-  public ImmutableList<Application> getApplications() {
+  public ImmutableList<ApplicationModel> getApplications() {
     return ImmutableList.copyOf(this.applications);
   }
 
@@ -104,13 +104,13 @@ public class Applicant extends BaseModel {
   }
 
   @VisibleForTesting
-  public Applicant setWhenCreated(Instant whenCreated) {
+  public ApplicantModel setWhenCreated(Instant whenCreated) {
     this.whenCreated = whenCreated;
     return this;
   }
 
   /** Convenience to save the model and return it. */
-  public Applicant saveAndReturn() {
+  public ApplicantModel saveAndReturn() {
     save();
     return this;
   }

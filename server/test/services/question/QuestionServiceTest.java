@@ -7,7 +7,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.LifecycleStage;
-import models.Question;
+import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
@@ -181,7 +181,7 @@ public class QuestionServiceTest extends ResetPostgres {
     testQuestionBank.maybeSave(toUpdate, LifecycleStage.DRAFT);
 
     // Verify the draft is there.
-    Optional<Question> draftQuestion =
+    Optional<QuestionModel> draftQuestion =
         versionRepository.getQuestionByNameForVersion(
             nameQuestion.getName(), versionRepository.getDraftVersionOrCreate());
     assertThat(draftQuestion).isPresent();
@@ -223,7 +223,7 @@ public class QuestionServiceTest extends ResetPostgres {
     questionService.discardDraft(enumeratorDraftId);
 
     // Verify.
-    Optional<Question> dependentDraft =
+    Optional<QuestionModel> dependentDraft =
         versionRepository.getQuestionByNameForVersion(
             dependentQuestion.getName(), versionRepository.getDraftVersionOrCreate());
     assertThat(dependentDraft).isPresent();
@@ -233,7 +233,7 @@ public class QuestionServiceTest extends ResetPostgres {
 
   @Test
   public void archiveQuestion_notReferencedSucceeds() throws Exception {
-    Question addressQuestion = testQuestionBank.applicantAddress();
+    QuestionModel addressQuestion = testQuestionBank.applicantAddress();
 
     assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
         .doesNotContain(addressQuestion.getQuestionDefinition().getName());
@@ -244,7 +244,7 @@ public class QuestionServiceTest extends ResetPostgres {
 
   @Test
   public void archiveQuestion_referencedFails() {
-    Question addressQuestion = testQuestionBank.applicantAddress();
+    QuestionModel addressQuestion = testQuestionBank.applicantAddress();
     // Create a program that references the question.
     ProgramBuilder.newDraftProgram()
         .withBlock()
@@ -262,7 +262,7 @@ public class QuestionServiceTest extends ResetPostgres {
 
   @Test
   public void archiveQuestion_alreadyArchivedFails() throws Exception {
-    Question addressQuestion = testQuestionBank.applicantAddress();
+    QuestionModel addressQuestion = testQuestionBank.applicantAddress();
     questionService.archiveQuestion(addressQuestion.id);
 
     assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
@@ -283,7 +283,7 @@ public class QuestionServiceTest extends ResetPostgres {
 
   @Test
   public void archiveQuestion_createsDraftIfNoneExists() throws Exception {
-    Question addressQuestion = testQuestionBank.applicantAddress();
+    QuestionModel addressQuestion = testQuestionBank.applicantAddress();
 
     assertThat(
             versionRepository.getQuestionNamesForVersion(
@@ -304,7 +304,7 @@ public class QuestionServiceTest extends ResetPostgres {
 
   @Test
   public void restoreQuestion_pendingDeletionSucceeds() throws Exception {
-    Question addressQuestion = testQuestionBank.applicantAddress();
+    QuestionModel addressQuestion = testQuestionBank.applicantAddress();
     questionService.archiveQuestion(addressQuestion.id);
 
     assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
@@ -316,7 +316,7 @@ public class QuestionServiceTest extends ResetPostgres {
 
   @Test
   public void restoreQuestion_notArchivedFails() {
-    Question addressQuestion = testQuestionBank.applicantAddress();
+    QuestionModel addressQuestion = testQuestionBank.applicantAddress();
 
     assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames()).isEmpty();
     assertThatThrownBy(() -> questionService.restoreQuestion(addressQuestion.id))
