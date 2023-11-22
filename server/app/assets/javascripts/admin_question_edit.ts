@@ -3,19 +3,17 @@ import {ModalController} from './modal'
 
 class AdminQuestionEdit {
   constructor() {
-    // Check for the universal questions toggle button to confirm we are on the question edit page with the UNIVERSAL_QUESTIONS feature flag turned on
-    const toggleElement = document.getElementById(
-      'universal-toggle-input',
-    ) as HTMLInputElement
-    if (toggleElement === null) {
+    // Check for the modal to confirm we are on the question edit page with the UNIVERSAL_QUESTIONS feature flag turned on
+    const modal = document.getElementById('confirm-question-updates-modal')
+    if (modal === null) {
       return
     }
 
+    const toggleElement = assertNotNull(
+      document.getElementById('universal-toggle-input'),
+    ) as HTMLInputElement
     const modalContainer = assertNotNull(
       document.getElementById('modal-container'),
-    )
-    const modal = assertNotNull(
-      document.getElementById('confirm-question-updates-modal'),
     )
     const modalTriggerButton = assertNotNull(
       document.getElementById('confirm-question-updates-modal-button'),

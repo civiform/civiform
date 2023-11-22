@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
@@ -160,7 +159,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
     InputTag csrfTag = makeCsrfTokenInputTag(request);
 
-    Modal modal = buildModal(csrfTag);
+    Modal modal = buildModal(csrfTag, questionForm);
 
     QuestionType questionType = questionForm.getQuestionType();
     String title =
@@ -211,7 +210,7 @@ public final class QuestionEditView extends BaseHtmlView {
     HtmlBundle htmlBundle =
         layout.getBundle(request).setTitle(title).addMainContent(formContent, previewContent);
 
-    if (modal.isPresent()) {
+    if (settingsManifest.getUniversalQuestions(request) && modal.isPresent()) {
       htmlBundle.addModals(modal.get());
     }
     return layout.render(htmlBundle);
@@ -319,28 +318,29 @@ public final class QuestionEditView extends BaseHtmlView {
     return formTag;
   }
 
-  private Modal buildModal(InputTag csrfTag) {
+  private Modal buildModal(InputTag csrfTag, QuestionForm questionForm) {
 
     ButtonTag triggerModalButton = button("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE);
     FormTag acceptUpdatesForm =
         form(csrfTag) // maybe don't need csrfTag?
             .with(
-                div(
-                    h1("Are you sure you want to remove this question from the universal questions"
-                            + " set?")
-                        .withClasses("text-base", "mb-4")),
-                submitButton("Remove from universal questions")
-                    .withId("accept-question-updates-button") // do i need this id?
-                    .attr("form", "full-edit-form")
-                    .withClasses(
-                        "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
+                div("This question will no longer be as the displayed as a recommended "
+                        + questionForm.getQuestionType().toString()
+                        + " question")
+                    .withClasses("mb-8"),
+                div(submitButton("Remove from universal questions")
+                        .withId("accept-question-updates-button") // do i need this id?
+                        .attr("form", "full-edit-form")
+                        .withClasses(ButtonStyles.SOLID_BLUE))
+                    .withClasses("flex", "flex-col", StyleUtils.responsiveMedium("flex-row")));
     return Modal.builder()
         .setModalId("confirm-question-updates-modal")
         .setLocation(Modal.Location.ADMIN_FACING)
         .setContent(acceptUpdatesForm)
-        .setModalTitle("Title")
+        .setModalTitle(
+            "Are you sure you want to remove this question from the universal questions" + " set?")
         .setTriggerButtonContent(triggerModalButton)
-        .setWidth(Modal.Width.THIRD)
+        .setWidth(Modal.Width.HALF)
         .build();
   }
 
