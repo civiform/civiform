@@ -19,8 +19,8 @@ import views.applicant.ApplicantProgramBlockEditViewFactory;
 /** Configures and initializes the classes for interacting with file storage backends. */
 public class CloudStorageModule extends AbstractModule {
 
-  private static final String AZURE_STORAGE_CLASS_NAME = "services.cloud.azure.BlobStorage";
-  private static final String AWS_STORAGE_CLASS_NAME = "services.cloud.aws.SimpleStorage";
+  private static final String AZURE_STORAGE_CLASS_NAME = "services.cloud.azure.ApplicantBlobStorage";
+  private static final String AWS_STORAGE_CLASS_NAME = "services.cloud.aws.ApplicantSimpleStorage";
 
   private final Environment environment;
   private final Config config;
