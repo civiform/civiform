@@ -3,7 +3,7 @@ package services.cloud.aws;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static services.cloud.aws.SimpleStorageHelpers.AWS_PRESIGNED_URL_DURATION;
+import static services.cloud.aws.AwsStorageHelpers.AWS_PRESIGNED_URL_DURATION;
 
 import com.typesafe.config.Config;
 import java.net.URI;
@@ -87,12 +87,12 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
   @Override
   public SignedS3UploadRequest getSignedUploadRequest(
       String fileKey, String successActionRedirect) {
-    return SimpleStorageHelpers.getSignedUploadRequest(
-      credentials,
-      region,
-      fileLimitMb,
-      bucket,
-      /* actionLink= */ client.bucketAddress(),
+    return AwsStorageHelpers.getSignedUploadRequest(
+        credentials,
+        region,
+        fileLimitMb,
+        bucket,
+        /* actionLink= */ client.actionLink(),
         fileKey,
         successActionRedirect);
   }
@@ -106,7 +106,7 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
 
     S3Presigner getPresigner();
 
-    String bucketAddress();
+    String actionLink();
 
     void close();
   }
@@ -136,8 +136,8 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
     }
 
     @Override
-    public String bucketAddress() {
-      return "fake-bucket-address";
+    public String actionLink() {
+      return "fake-action-link";
     }
 
     @Override
@@ -158,8 +158,8 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
     }
 
     @Override
-    public String bucketAddress() {
-      return SimpleStorageHelpers.awsActionLink(bucket, region);
+    public String actionLink() {
+      return AwsStorageHelpers.awsActionLink(bucket, region);
     }
 
     @Override
@@ -174,7 +174,7 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
 
     LocalStackClient(Config config) {
       this.config = config;
-      String localS3Endpoint = SimpleStorageHelpers.localStackEndpoint(config);
+      String localS3Endpoint = AwsStorageHelpers.localStackEndpoint(config);
       try {
         URI localS3Uri = new URI(localS3Endpoint);
         presigner = S3Presigner.builder().endpointOverride(localS3Uri).region(region).build();
@@ -189,8 +189,8 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
     }
 
     @Override
-    public String bucketAddress() {
-      return SimpleStorageHelpers.localStackActionLink(config, bucket, region);
+    public String actionLink() {
+      return AwsStorageHelpers.localStackActionLink(config, bucket, region);
     }
 
     @Override

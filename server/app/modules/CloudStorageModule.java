@@ -34,7 +34,8 @@ public class CloudStorageModule extends AbstractModule {
     StorageServiceName storageServiceName;
     try {
       String storageProvider = checkNotNull(config).getString("cloud.storage");
-      storageServiceName = StorageServiceName.forString(storageProvider).orElse(StorageServiceName.AWS_S3);
+      storageServiceName =
+          StorageServiceName.forString(storageProvider).orElse(StorageServiceName.AWS_S3);
     } catch (ConfigException ex) {
       // Default to S3 if nothing is configured
       storageServiceName = StorageServiceName.AWS_S3;

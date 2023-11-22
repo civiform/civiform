@@ -12,13 +12,11 @@ import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.endpoints.S3EndpointProvider;
 
-/**
- * Class providing helper methods for working with AWS Simple Storage Service (S3).
- */
-public class SimpleStorageHelpers {
+/** Class providing helper methods for working with AWS Simple Storage Service (S3). */
+public class AwsStorageHelpers {
   /**
-   * The duration that a signed upload or download request from {@link #getSignedUploadRequest} is
-   * valid for use.
+   * The duration that a signed upload or download request URL from {@link #getSignedUploadRequest}
+   * is valid for use.
    */
   public static final Duration AWS_PRESIGNED_URL_DURATION = Duration.ofMinutes(10);
 
@@ -33,25 +31,26 @@ public class SimpleStorageHelpers {
    * {@code bucketName}.
    */
   public static SignedS3UploadRequest getSignedUploadRequest(
-    Credentials credentials,
-    Region region,
-    int fileLimitMb,
-    String bucketName,
-    String actionLink,
+      Credentials credentials,
+      Region region,
+      int fileLimitMb,
+      String bucketName,
+      String actionLink,
       String fileKey,
       String successRedirectActionLink) {
     AwsCredentials awsCredentials = credentials.getCredentials();
     SignedS3UploadRequest.Builder builder =
         SignedS3UploadRequest.builder()
-            .setActionLink(actionLink)
-            .setKey(fileKey)
-            .setSuccessActionRedirect(successRedirectActionLink)
-            .setAccessKey(awsCredentials.accessKeyId())
             .setExpirationDuration(AWS_PRESIGNED_URL_DURATION)
-            .setBucket(bucketName)
+            .setAccessKey(awsCredentials.accessKeyId())
             .setSecretKey(awsCredentials.secretAccessKey())
             .setRegionName(region.id())
-            .setFileLimitMb(fileLimitMb);
+            .setFileLimitMb(fileLimitMb)
+            .setBucket(bucketName)
+            .setActionLink(actionLink)
+            .setKey(fileKey)
+            .setSuccessActionRedirect(successRedirectActionLink);
+
     if (awsCredentials instanceof AwsSessionCredentials) {
       AwsSessionCredentials sessionCredentials = (AwsSessionCredentials) awsCredentials;
       builder.setSecurityToken(sessionCredentials.sessionToken());

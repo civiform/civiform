@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import play.Environment;
 import services.cloud.PublicStorageClient;
-import services.cloud.StorageUploadRequest;
 import software.amazon.awssdk.regions.Region;
 
 /** An AWS Simple Storage Service (S3) implementation of public storage. */
@@ -39,40 +38,39 @@ public final class AwsPublicStorage implements PublicStorageClient {
   }
 
   @Override
-  public StorageUploadRequest getSignedUploadRequest(
+  public SignedS3UploadRequest getSignedUploadRequest(
       String fileKey, String successRedirectActionLink) {
-    return SimpleStorageHelpers.getSignedUploadRequest(
-      credentials,
-      region,
-      fileLimitMb,
-      bucket,
-      /* actionLink= */ client.bucketAddress(),
+    return AwsStorageHelpers.getSignedUploadRequest(
+        credentials,
+        region,
+        fileLimitMb,
+        bucket,
+        /* actionLink= */ client.actionLink(),
         fileKey,
-        successRedirectActionLink
-);
+        successRedirectActionLink);
   }
 
   /** Returns a direct cloud storage URL to the file with the given key. */
   @Override
-  public String getDisplayUrl(String fileKey) {
-    return client.bucketAddress() + "/" + fileKey;
+  public String getPublicDisplayUrl(String fileKey) {
+    return client.actionLink() + "/" + fileKey;
   }
 
   interface Client {
-    String bucketAddress();
+    String actionLink();
   }
 
   static class NullClient implements Client {
     @Override
-    public String bucketAddress() {
-      return "fake-bucket-address";
+    public String actionLink() {
+      return "fake-action-link";
     }
   }
 
   class AwsClient implements Client {
     @Override
-    public String bucketAddress() {
-      return SimpleStorageHelpers.awsActionLink(bucket, region);
+    public String actionLink() {
+      return AwsStorageHelpers.awsActionLink(bucket, region);
     }
   }
 
@@ -84,8 +82,8 @@ public final class AwsPublicStorage implements PublicStorageClient {
     }
 
     @Override
-    public String bucketAddress() {
-      return SimpleStorageHelpers.localStackActionLink(config, bucket, region);
+    public String actionLink() {
+      return AwsStorageHelpers.localStackActionLink(config, bucket, region);
     }
   }
 }
