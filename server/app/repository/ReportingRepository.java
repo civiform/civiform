@@ -29,7 +29,7 @@ public final class ReportingRepository {
   public ReportingRepository(Clock clock, Provider<VersionRepository> versionRepositoryProvider) {
     this.clock = Preconditions.checkNotNull(clock);
     this.database = DB.getDefault();
-    listOfPrograms = versionRepositoryProvider.get().getActiveVersion().getPrograms();
+    listOfPrograms = Preconditions.checkNotNull(versionRepositoryProvider).get().getActiveVersion().getPrograms();
   }
 
   /**
