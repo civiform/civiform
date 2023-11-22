@@ -19,7 +19,7 @@ import play.data.validation.Constraints;
  */
 @Entity
 @Table(name = "civiform_settings")
-public class SettingsGroup extends BaseModel {
+public class SettingsGroupModel extends BaseModel {
 
   @DbJsonB private ImmutableMap<String, String> settings;
 
@@ -40,12 +40,12 @@ public class SettingsGroup extends BaseModel {
   }
 
   @VisibleForTesting
-  public SettingsGroup setCreateTimeForTest(String createTimeString) {
+  public SettingsGroupModel setCreateTimeForTest(String createTimeString) {
     this.createTime = Instant.parse(createTimeString);
     return this;
   }
 
-  public SettingsGroup(ImmutableMap<String, String> settings, String createdBy) {
+  public SettingsGroupModel(ImmutableMap<String, String> settings, String createdBy) {
     this.settings = checkNotNull(settings);
     this.createdBy = createdBy;
   }

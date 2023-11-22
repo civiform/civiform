@@ -22,7 +22,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
-import models.Application;
+import models.ApplicationModel;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.i18n.Messages;
@@ -263,12 +263,12 @@ public final class AdminApplicationController extends CiviFormController {
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
-    Optional<Application> applicationMaybe =
+    Optional<ApplicationModel> applicationMaybe =
         programAdminApplicationService.getApplication(applicationId, program);
     if (applicationMaybe.isEmpty()) {
       return badRequest(String.format("Application %d does not exist.", applicationId));
     }
-    Application application = applicationMaybe.get();
+    ApplicationModel application = applicationMaybe.get();
     PdfExporter.InMemoryPdf pdf = pdfExporterService.generatePdf(application);
     return ok(pdf.getByteArray())
         .as("application/pdf")
@@ -289,12 +289,12 @@ public final class AdminApplicationController extends CiviFormController {
       return unauthorized();
     }
 
-    Optional<Application> applicationMaybe =
+    Optional<ApplicationModel> applicationMaybe =
         programAdminApplicationService.getApplication(applicationId, program);
     if (applicationMaybe.isEmpty()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
-    Application application = applicationMaybe.get();
+    ApplicationModel application = applicationMaybe.get();
 
     Messages messages = messagesApi.preferred(request);
     String applicantNameWithApplicationId =
@@ -344,12 +344,12 @@ public final class AdminApplicationController extends CiviFormController {
       return unauthorized();
     }
 
-    Optional<Application> applicationMaybe =
+    Optional<ApplicationModel> applicationMaybe =
         programAdminApplicationService.getApplication(applicationId, program);
     if (applicationMaybe.isEmpty()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
-    Application application = applicationMaybe.get();
+    ApplicationModel application = applicationMaybe.get();
 
     Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
     Optional<String> maybeCurrentStatus = Optional.ofNullable(formData.get(CURRENT_STATUS));
@@ -422,12 +422,12 @@ public final class AdminApplicationController extends CiviFormController {
       return unauthorized();
     }
 
-    Optional<Application> applicationMaybe =
+    Optional<ApplicationModel> applicationMaybe =
         programAdminApplicationService.getApplication(applicationId, program);
     if (applicationMaybe.isEmpty()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
-    Application application = applicationMaybe.get();
+    ApplicationModel application = applicationMaybe.get();
 
     Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
     Optional<String> maybeNote = Optional.ofNullable(formData.get(NOTE));
@@ -494,7 +494,7 @@ public final class AdminApplicationController extends CiviFormController {
     }
 
     var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
-    PaginationResult<Application> applications =
+    PaginationResult<ApplicationModel> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
             programId, F.Either.Right(paginationSpec), filters);
 

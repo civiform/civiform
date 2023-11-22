@@ -12,7 +12,7 @@ import services.application.ApplicationEventDetails.StatusEvent;
 import services.program.StatusDefinitions;
 import support.ProgramBuilder;
 
-public class ApplicationTest extends ResetPostgres {
+public class ApplicationModelTest extends ResetPostgres {
 
   private static final StatusDefinitions.Status APPROVED_STATUS =
       StatusDefinitions.Status.builder()
@@ -31,13 +31,13 @@ public class ApplicationTest extends ResetPostgres {
             .build();
 
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
-    Application application =
+    ApplicationModel application =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
-    ApplicationEvent event =
-        new ApplicationEvent(
+    ApplicationEventModel event =
+        new ApplicationEventModel(
             application,
             Optional.of(adminAccount),
             ApplicationEventDetails.builder()
@@ -65,7 +65,7 @@ public class ApplicationTest extends ResetPostgres {
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
 
-    Application application =
+    ApplicationModel application =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
     assertThat(application.getLatestStatus()).isEmpty();
@@ -83,7 +83,7 @@ public class ApplicationTest extends ResetPostgres {
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
 
-    Application application =
+    ApplicationModel application =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
     assertThat(application.getIsAdmin()).isFalse();
@@ -96,10 +96,10 @@ public class ApplicationTest extends ResetPostgres {
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
 
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     applicant.getAccount().setGlobalAdmin(true);
 
-    Application application = resourceCreator.insertActiveApplication(applicant, program);
+    ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
     assertThat(application.getIsAdmin()).isTrue();
   }
 
@@ -110,10 +110,10 @@ public class ApplicationTest extends ResetPostgres {
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
 
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     applicant.getAccount().addAdministeredProgram(program.getProgramDefinition());
 
-    Application application = resourceCreator.insertActiveApplication(applicant, program);
+    ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
     assertThat(application.getIsAdmin()).isTrue();
   }
 }

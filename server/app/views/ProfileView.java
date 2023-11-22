@@ -8,7 +8,7 @@ import static j2html.TagCreator.text;
 import auth.CiviFormProfile;
 import j2html.tags.specialized.SpanTag;
 import javax.inject.Inject;
-import models.Applicant;
+import models.ApplicantModel;
 import play.mvc.Http;
 import play.twirl.api.Content;
 
@@ -22,7 +22,7 @@ public class ProfileView extends BaseHtmlView {
     this.layout = checkNotNull(layout);
   }
 
-  public Content render(Http.Request request, CiviFormProfile profile, Applicant applicant) {
+  public Content render(Http.Request request, CiviFormProfile profile, ApplicantModel applicant) {
     SpanTag applicantIdTag =
         span(String.valueOf(applicant.id))
             .withId("applicant-id")

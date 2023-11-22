@@ -8,8 +8,8 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
-import models.Applicant;
-import models.Application;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import models.LifecycleStage;
 import models.ProgramModel;
 import org.apache.commons.lang3.tuple.Triple;
@@ -21,7 +21,7 @@ import support.ProgramBuilder;
 public class ReportingRepositoryTest extends ResetPostgres {
 
   private ReportingRepository repo;
-  private Applicant applicant;
+  private ApplicantModel applicant;
   private ProgramModel programA;
   private ProgramModel programB;
 
@@ -126,9 +126,9 @@ public class ReportingRepositoryTest extends ResetPostgres {
             lastMonth.atZone(UTC).truncatedTo(ChronoUnit.DAYS).withDayOfMonth(1).toInstant()));
   }
 
-  private Application createFakeApplication(
+  private ApplicationModel createFakeApplication(
       ProgramModel program, LifecycleStage lifecycleStage, Instant createTime, Instant submitTime) {
-    Application application = new Application(applicant, program, lifecycleStage);
+    ApplicationModel application = new ApplicationModel(applicant, program, lifecycleStage);
     application.setApplicantData(applicant.getApplicantData());
     application.save();
 

@@ -11,7 +11,7 @@ import repository.ResetPostgres;
 import services.Path;
 import services.applicant.ApplicantData;
 
-public class ApplicantTest extends ResetPostgres {
+public class ApplicantModelTest extends ResetPostgres {
 
   private AccountRepository repo;
 
@@ -22,13 +22,13 @@ public class ApplicantTest extends ResetPostgres {
 
   @Test
   public void hasAnApplicantDataWhenCreated() {
-    Applicant applicant = new Applicant();
+    ApplicantModel applicant = new ApplicantModel();
     assertThat(applicant.getApplicantData()).isInstanceOf(ApplicantData.class);
   }
 
   @Test
   public void persistsChangesToTheApplicantData() throws Exception {
-    Applicant applicant = new Applicant();
+    ApplicantModel applicant = new ApplicantModel();
 
     Path path = Path.create("$.applicant.birthDate");
     applicant.getApplicantData().putString(path, "1/1/2021");
@@ -42,7 +42,7 @@ public class ApplicantTest extends ResetPostgres {
   @Test
   public void storesAndRetrievesPreferredLocale() {
     // Default to English
-    Applicant applicant = new Applicant();
+    ApplicantModel applicant = new ApplicantModel();
     assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(Locale.US);
 
     // Set locale
@@ -56,7 +56,7 @@ public class ApplicantTest extends ResetPostgres {
 
   @Test
   public void missingPreferredLocale_doesNotSetLocaleOnApplicantData() {
-    Applicant applicant = new Applicant();
+    ApplicantModel applicant = new ApplicantModel();
     applicant.save();
 
     applicant = repo.lookupApplicant(applicant.id).toCompletableFuture().join().get();
@@ -66,7 +66,7 @@ public class ApplicantTest extends ResetPostgres {
 
   @Test
   public void createsOnlyOneApplicantData() {
-    Applicant applicant = new Applicant();
+    ApplicantModel applicant = new ApplicantModel();
 
     ApplicantData applicantData = applicant.getApplicantData();
 
@@ -75,13 +75,13 @@ public class ApplicantTest extends ResetPostgres {
 
   @Test
   public void mergeApplicantData() {
-    ApplicantData data1 = new Applicant().getApplicantData();
+    ApplicantData data1 = new ApplicantModel().getApplicantData();
     Path foo = Path.create("$.applicant.foo");
     Path subMapFoo = Path.create("$.applicant.subObject.foo");
     Path subMapBar = Path.create("$.applicant.subObject.bar");
     data1.putString(foo, "foo");
     data1.putString(subMapFoo, "also_foo");
-    ApplicantData data2 = new Applicant().getApplicantData();
+    ApplicantData data2 = new ApplicantModel().getApplicantData();
     data2.putString(foo, "bar");
     data2.putString(subMapBar, "bar");
     data1.putString(subMapFoo, "also_foo");

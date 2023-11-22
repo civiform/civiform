@@ -11,7 +11,7 @@ import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
-import models.Applicant;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.oidc.client.OidcClient;
@@ -77,7 +77,7 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
     assertThat(profileData).isNotNull();
     assertThat(profileData.getEmail()).isEqualTo("foo@bar.com");
 
-    Optional<Applicant> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
     assertThat(maybeApplicant).isPresent();
 
     ApplicantData applicantData = maybeApplicant.get().getApplicantData();

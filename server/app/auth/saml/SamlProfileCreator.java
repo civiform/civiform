@@ -15,7 +15,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.StringJoiner;
 import javax.inject.Provider;
-import models.Applicant;
+import models.ApplicantModel;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
@@ -76,14 +76,14 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
     }
 
     SAML2Profile profile = (SAML2Profile) samlProfile.get();
-    Optional<Applicant> existingApplicant = getExistingApplicant(profile);
+    Optional<ApplicantModel> existingApplicant = getExistingApplicant(profile);
     Optional<CiviFormProfile> guestProfile = profileUtils.currentUserProfile(context);
     return civiFormProfileMerger.mergeProfiles(
         existingApplicant, guestProfile, profile, this::mergeCiviFormProfile);
   }
 
   @VisibleForTesting
-  Optional<Applicant> getExistingApplicant(SAML2Profile profile) {
+  Optional<ApplicantModel> getExistingApplicant(SAML2Profile profile) {
     // authority_id is used as the unique stable key for users. This is unique and
     // stable per
     // authentication provider.

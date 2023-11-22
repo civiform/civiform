@@ -1,7 +1,6 @@
 package filters;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 import static play.test.Helpers.fakeRequest;
 
 import akka.stream.testkit.NoMaterializer$;
@@ -11,17 +10,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
-import services.settings.SettingsManifest;
 
 public class RecordCookieSizeFilterTest {
-
-  private final SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
 
   @Before
   public void clearRegistry() {
@@ -47,8 +42,7 @@ public class RecordCookieSizeFilterTest {
 
   @Test
   public void testCookieSizesAreRecorded() throws Exception {
-    when(mockSettingsManifest.getCiviformServerMetricsEnabled()).thenReturn(true);
-    RecordCookieSizeFilter filter = new RecordCookieSizeFilter(() -> mockSettingsManifest);
+    RecordCookieSizeFilter filter = new RecordCookieSizeFilter();
 
     // Run filter with several requests with various cookie sizes.
     List<Integer> cookieSizes = ImmutableList.of(1000, 2000, 2000, 3000, 3500, 4000);
@@ -92,20 +86,5 @@ public class RecordCookieSizeFilterTest {
       }
       upperBoundOfCookieSize += RecordCookieSizeFilter.BUCKET_SIZE;
     }
-  }
-
-  @Test
-  public void testCookieSizesAreNotRecordedIfMetricsAreNotEnabled() throws Exception {
-    when(mockSettingsManifest.getCiviformServerMetricsEnabled()).thenReturn(false);
-    RecordCookieSizeFilter filter = new RecordCookieSizeFilter(() -> mockSettingsManifest);
-
-    assertThat(runFilterWithCookieSize(filter, 1000).status()).isEqualTo(200);
-
-    var metricFamilySamplesEnumeration = CollectorRegistry.defaultRegistry.metricFamilySamples();
-    assertThat(metricFamilySamplesEnumeration.hasMoreElements()).isTrue();
-    var metricFamilySamples = metricFamilySamplesEnumeration.nextElement();
-    assertThat(metricFamilySamples.name).isEqualTo("play_session_cookie_size_bytes");
-
-    assertThat(metricFamilySamples.samples.isEmpty()).isTrue();
   }
 }

@@ -11,7 +11,7 @@ import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import com.google.common.collect.ImmutableMap;
 import models.ProgramModel;
-import models.Question;
+import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
@@ -147,7 +147,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .withName("Admin name")
             .withDescription("Admin description")
             .build();
-    Question applicantName = testQuestionBank.applicantName();
+    QuestionModel applicantName = testQuestionBank.applicantName();
     applicantName.save();
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result = controller.show(request, program.id, /*blockId =*/ 1L);
@@ -190,7 +190,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .withName("Admin name")
             .withDescription("Admin description")
             .build();
-    Question applicantName = testQuestionBank.applicantName();
+    QuestionModel applicantName = testQuestionBank.applicantName();
     applicantName.save();
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result = controller.edit(request, program.id, /*blockId =*/ 1L);

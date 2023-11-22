@@ -156,12 +156,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
         programDefinition.getNonRepeatedBlockDefinitions().stream()
             .anyMatch(BlockDefinition::hasNullQuestion);
 
-    ImmutableList<ProgramHeaderButton> headerButtons =
-        viewAllowsEditingProgram()
-            ? ImmutableList.of(
-                ProgramHeaderButton.EDIT_PROGRAM_DETAILS, ProgramHeaderButton.PREVIEW_AS_APPLICANT)
-            : ImmutableList.of(
-                ProgramHeaderButton.EDIT_PROGRAM, ProgramHeaderButton.PREVIEW_AS_APPLICANT);
+    ArrayList<ProgramHeaderButton> headerButtons =
+        new ArrayList<>(
+            getEditHeaderButtons(
+                request, settingsManifest, /* isEditingAllowed= */ viewAllowsEditingProgram()));
+    headerButtons.add(ProgramHeaderButton.PREVIEW_AS_APPLICANT);
 
     HtmlBundle htmlBundle =
         layout
@@ -176,7 +175,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         "px-2",
                         StyleUtils.responsive2XLarge("px-16"))
                     .with(
-                        renderProgramInfoHeader(programDefinition, headerButtons, request)
+                        renderProgramInfoHeader(
+                                programDefinition, ImmutableList.copyOf(headerButtons), request)
                             .with(
                                 iff(
                                     malformedQuestionDefinition,

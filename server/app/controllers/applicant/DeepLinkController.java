@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Applicant;
+import models.ApplicantModel;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -60,7 +60,7 @@ public final class DeepLinkController extends CiviFormController {
         .get()
         .getApplicant()
         .thenComposeAsync(
-            (Applicant applicant) -> {
+            (ApplicantModel applicant) -> {
               // Attempt to set default language for the applicant.
               applicant = languageUtils.maybeSetDefaultLocale(applicant);
               final long applicantId = applicant.id;

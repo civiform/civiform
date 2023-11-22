@@ -29,13 +29,17 @@ public final class ProgramTranslationForm {
   public static final String DISPLAY_NAME_FORM_NAME = "displayName";
   public static final String DISPLAY_DESCRIPTION_FORM_NAME = "displayDescription";
   public static final String CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME = "confirmationMessage";
+  public static final String IMAGE_DESCRIPTION_FORM_NAME = "imageDescription";
 
   private final DynamicForm form;
   private final int maxStatusTranslations;
+  private final boolean hasSummaryImageDescription;
 
-  private ProgramTranslationForm(DynamicForm form, int maxStatusTranslations) {
+  private ProgramTranslationForm(
+      DynamicForm form, int maxStatusTranslations, boolean hasSummaryImageDescription) {
     this.form = checkNotNull(form);
     this.maxStatusTranslations = maxStatusTranslations;
+    this.hasSummaryImageDescription = hasSummaryImageDescription;
   }
 
   public static ProgramTranslationForm fromProgram(
@@ -51,6 +55,15 @@ public final class ProgramTranslationForm {
             .put(
                 CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME,
                 new String[] {program.localizedConfirmationMessage().maybeGet(locale).orElse("")});
+    boolean hasSummaryImageDescription = program.localizedSummaryImageDescription().isPresent();
+    if (hasSummaryImageDescription) {
+      formValuesBuilder.put(
+          IMAGE_DESCRIPTION_FORM_NAME,
+          new String[] {
+            program.localizedSummaryImageDescription().get().maybeGet(locale).orElse("")
+          });
+    }
+
     ImmutableList<StatusDefinitions.Status> statuses = program.statusDefinitions().getStatuses();
     for (int i = 0; i < statuses.size(); i++) {
       StatusDefinitions.Status status = statuses.get(i);
@@ -76,28 +89,39 @@ public final class ProgramTranslationForm {
                 TypedMap.empty(),
                 formValuesBuilder.build(),
                 ImmutableMap.of(),
-                allFieldNames(statuses.size()).toArray(new String[0]));
-    return new ProgramTranslationForm(form, program.statusDefinitions().getStatuses().size());
+                allFieldNames(statuses.size(), hasSummaryImageDescription).toArray(new String[0]));
+    return new ProgramTranslationForm(
+        form, program.statusDefinitions().getStatuses().size(), hasSummaryImageDescription);
   }
 
   public static ProgramTranslationForm bindFromRequest(
-      Http.Request request, FormFactory formFactory, int maxStatusTranslations) {
+      Http.Request request,
+      FormFactory formFactory,
+      int maxStatusTranslations,
+      boolean hasSummaryImageDescription) {
     // We limit the number of status entries read from the form data to that of the
     // current configured set of statuses.
     DynamicForm form =
         formFactory
             .form()
-            .bindFromRequest(request, allFieldNames(maxStatusTranslations).toArray(new String[0]));
-    return new ProgramTranslationForm(form, maxStatusTranslations);
+            .bindFromRequest(
+                request,
+                allFieldNames(maxStatusTranslations, hasSummaryImageDescription)
+                    .toArray(new String[0]));
+    return new ProgramTranslationForm(form, maxStatusTranslations, hasSummaryImageDescription);
   }
 
-  private static ImmutableList<String> allFieldNames(int maxStatusTranslations) {
+  private static ImmutableList<String> allFieldNames(
+      int maxStatusTranslations, boolean hasSummaryImageDescription) {
     ImmutableList.Builder<String> builder =
         ImmutableList.<String>builder()
             .add(
                 DISPLAY_NAME_FORM_NAME,
                 DISPLAY_DESCRIPTION_FORM_NAME,
                 CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME);
+    if (hasSummaryImageDescription) {
+      builder.add(IMAGE_DESCRIPTION_FORM_NAME);
+    }
     for (int i = 0; i < maxStatusTranslations; i++) {
       builder.add(
           statusKeyToUpdateFieldName(i), localizedStatusFieldName(i), localizedEmailFieldName(i));
@@ -110,14 +134,19 @@ public final class ProgramTranslationForm {
   }
 
   public LocalizationUpdate getUpdateData() {
-    return LocalizationUpdate.builder()
-        .setLocalizedDisplayName(getStringFormField(DISPLAY_NAME_FORM_NAME).orElse(""))
-        .setLocalizedDisplayDescription(
-            getStringFormField(DISPLAY_DESCRIPTION_FORM_NAME).orElse(""))
-        .setLocalizedConfirmationMessage(
-            getStringFormField(CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME).orElse(""))
-        .setStatuses(parseStatusUpdatesFromRequest())
-        .build();
+    LocalizationUpdate.Builder dataBuilder =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName(getStringFormField(DISPLAY_NAME_FORM_NAME).orElse(""))
+            .setLocalizedDisplayDescription(
+                getStringFormField(DISPLAY_DESCRIPTION_FORM_NAME).orElse(""))
+            .setLocalizedConfirmationMessage(
+                getStringFormField(CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME).orElse(""));
+    if (hasSummaryImageDescription) {
+      dataBuilder.setLocalizedSummaryImageDescription(
+          getStringFormField(IMAGE_DESCRIPTION_FORM_NAME).orElse(""));
+    }
+    dataBuilder.setStatuses(parseStatusUpdatesFromRequest());
+    return dataBuilder.build();
   }
 
   private ImmutableList<LocalizationUpdate.StatusUpdate> parseStatusUpdatesFromRequest() {

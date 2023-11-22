@@ -12,8 +12,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.WithMockedProfiles;
 import models.AccountModel;
-import models.Applicant;
-import models.Application;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import models.LifecycleStage;
 import models.ProgramModel;
 import org.junit.Before;
@@ -32,8 +32,8 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   private ApplicantProgramReviewController subject;
   private ApplicantProgramBlocksController blockController;
   private ProgramModel activeProgram;
-  public Applicant applicant;
-  public Applicant applicantWithoutProfile;
+  public ApplicantModel applicant;
+  public ApplicantModel applicantWithoutProfile;
 
   @Before
   public void setUpWithFreshApplicants() {
@@ -158,7 +158,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     // No application was submitted
     ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
-    ImmutableSet<Application> applications =
+    ImmutableSet<ApplicationModel> applications =
         applicationRepository
             .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
             .toCompletableFuture()
@@ -191,7 +191,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     // An application was submitted
     ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
-    ImmutableSet<Application> applications =
+    ImmutableSet<ApplicationModel> applications =
         applicationRepository
             .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
             .toCompletableFuture()
@@ -216,7 +216,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     // An application was submitted
     ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
-    ImmutableSet<Application> applications =
+    ImmutableSet<ApplicationModel> applications =
         applicationRepository
             .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
             .toCompletableFuture()
@@ -265,7 +265,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     // There is only one application saved in the db
     ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
-    ImmutableSet<Application> applications =
+    ImmutableSet<ApplicationModel> applications =
         applicationRepository
             .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
             .toCompletableFuture()

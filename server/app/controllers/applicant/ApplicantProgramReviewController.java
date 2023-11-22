@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Application;
+import models.ApplicationModel;
 import org.pac4j.play.java.Secure;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
@@ -240,7 +240,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
       Request request, long applicantId, long programId) {
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
 
-    CompletableFuture<Application> submitAppFuture =
+    CompletableFuture<ApplicationModel> submitAppFuture =
         applicantService
             .submitApplication(applicantId, programId, submittingProfile)
             .toCompletableFuture();
@@ -251,7 +251,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
     return CompletableFuture.allOf(readOnlyApplicantProgramServiceFuture, submitAppFuture)
         .thenApplyAsync(
             (v) -> {
-              Application application = submitAppFuture.join();
+              ApplicationModel application = submitAppFuture.join();
               Long applicationId = application.id;
               Call endOfProgramSubmission =
                   routes.UpsellController.considerRegister(
