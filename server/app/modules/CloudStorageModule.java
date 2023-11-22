@@ -14,12 +14,12 @@ import services.cloud.aws.AwsApplicantStorage;
 import services.cloud.aws.AwsPublicStorage;
 import services.cloud.azure.AzureApplicantStorage;
 import services.cloud.azure.AzurePublicStorage;
-import views.AwsFileUploadViewStrategy;
-import views.AzureFileUploadViewStrategy;
 import views.BaseHtmlView;
-import views.FileUploadViewStrategy;
 import views.applicant.ApplicantProgramBlockEditView;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
+import views.applicant.fileupload.AwsFileUploadRenderer;
+import views.fileupload.AzureFileUploadRenderer;
+import views.fileupload.FileUploadRenderer;
 
 /** Configures and initializes the classes for interacting with file storage backends. */
 public class CloudStorageModule extends AbstractModule {
@@ -45,12 +45,12 @@ public class CloudStorageModule extends AbstractModule {
       case AWS_S3:
         bind(ApplicantStorageClient.class).to(AwsApplicantStorage.class);
         bind(PublicStorageClient.class).to(AwsPublicStorage.class);
-        bind(FileUploadViewStrategy.class).to(AwsFileUploadViewStrategy.class);
+        bind(FileUploadRenderer.class).to(AwsFileUploadRenderer.class);
         break;
       case AZURE_BLOB:
         bind(ApplicantStorageClient.class).to(AzureApplicantStorage.class);
         bind(PublicStorageClient.class).to(AzurePublicStorage.class);
-        bind(FileUploadViewStrategy.class).to(AzureFileUploadViewStrategy.class);
+        bind(FileUploadRenderer.class).to(AzureFileUploadRenderer.class);
         break;
     }
 

@@ -6,6 +6,7 @@ import auth.Authorizers;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
 import forms.admin.ProgramImageDescriptionForm;
+import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -72,5 +73,28 @@ public final class AdminProgramImageController extends CiviFormController {
 
     final String indexUrl = routes.AdminProgramImageController.index(programId).url();
     return redirect(indexUrl).flashing("success", toastMessage);
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result updateFileKey(Http.Request request, long programId)
+      throws ProgramNotFoundException {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    // From ApplicantProgramBlocksController#updateFile
+    Optional<String> bucket = request.queryString("bucket");
+    Optional<String> key = request.queryString("key");
+    System.out.println("bucket = " + bucket + "  key=" + key);
+    // TODO: There's some azure stuff here
+
+    if (bucket.isEmpty() || key.isEmpty()) {
+      throw new IllegalArgumentException(); // TODO
+      // return failedFuture(
+      //    new IllegalArgumentException("missing file key and bucket names"));
+    }
+
+    // TODO(#5676): Verify description has been set before allowing image upload.
+    programService.setSummaryImageFileKey(programId, key.get());
+    final String indexUrl = routes.AdminProgramImageController.index(programId).url();
+    return redirect(indexUrl).flashing("success", "Image set");
   }
 }
