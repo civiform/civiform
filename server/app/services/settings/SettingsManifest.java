@@ -1477,18 +1477,19 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
-                        SettingDescription.create(
-                          "AWS_S3_PUBLIC_BUCKET_NAME",
-                          "s3 bucket to store **publicly accessible** files in.",
-                          /* isRequired= */ false,
-                          SettingType.STRING,
-                          SettingMode.HIDDEN),
-                        SettingDescription.create(
-                          "AWS_S3_PUBLIC_FILE_LIMIT_MB",
-                          "The max size (in Mb) of **publicly accessible** files uploaded to s3.",
-                          /* isRequired= */ false,
-                          SettingType.STRING,
-                          SettingMode.HIDDEN),
+                          SettingDescription.create(
+                              "AWS_S3_PUBLIC_BUCKET_NAME",
+                              "s3 bucket to store **publicly accessible** files in.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
+                              "AWS_S3_PUBLIC_FILE_LIMIT_MB",
+                              "The max size (in Mb) of **publicly accessible** files uploaded to"
+                                  + " s3.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN),
                           SettingDescription.create(
                               "AZURE_STORAGE_ACCOUNT_NAME",
                               "The azure account name where the blob storage service exists.",

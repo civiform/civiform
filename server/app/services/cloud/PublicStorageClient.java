@@ -15,6 +15,11 @@ public interface PublicStorageClient {
    */
   StorageUploadRequest getSignedUploadRequest(String fileKey, String successRedirectActionLink);
 
-  /** Returns a direct cloud storage URL to the file with the given key. */
-  String getDisplayUrl(String fileKey);
+  /**
+   * Returns a URL to the file with the given key.
+   *
+   * <p>The URL is directly to the cloud storage provider and is **not** a CiviForm URL. This URL
+   * will be used to display the file publicly, to anyone who accesses CiviForm.
+   */
+  String getPublicDisplayUrl(String fileKey);
 }

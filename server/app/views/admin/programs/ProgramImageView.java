@@ -27,12 +27,15 @@ import views.components.ToastMessage;
 public final class ProgramImageView extends BaseHtmlView {
   private final AdminLayout layout;
   private final FormFactory formFactory;
+
   @SuppressWarnings("unused") // TODO(#5676): Use this to upload and render the program image.
   private final PublicStorageClient publicStorageClient;
 
   @Inject
-  public ProgramImageView(AdminLayoutFactory layoutFactory, FormFactory formFactory,
-                          PublicStorageClient publicStorageClient) {
+  public ProgramImageView(
+      AdminLayoutFactory layoutFactory,
+      FormFactory formFactory,
+      PublicStorageClient publicStorageClient) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.formFactory = checkNotNull(formFactory);
     this.publicStorageClient = checkNotNull(publicStorageClient);
