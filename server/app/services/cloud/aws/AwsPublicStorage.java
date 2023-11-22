@@ -12,7 +12,7 @@ import software.amazon.awssdk.regions.Region;
 
 /** An AWS Simple Storage Service (S3) implementation of public storage. */
 @Singleton
-public final class PublicSimpleStorage implements PublicStorageClient {
+public final class AwsPublicStorage implements PublicStorageClient {
   private static final String AWS_PUBLIC_S3_BUCKET_CONF_PATH = "aws.s3.publicbucket";
   private static final String AWS_PUBLIC_S3_FILE_LIMIT_CONF_PATH = "aws.s3.publicfilelimitmb";
 
@@ -23,7 +23,7 @@ public final class PublicSimpleStorage implements PublicStorageClient {
   private final Client client;
 
   @Inject
-  public PublicSimpleStorage(
+  public AwsPublicStorage(
       AwsRegion region, Credentials credentials, Config config, Environment environment) {
     this.region = checkNotNull(region).get();
     this.credentials = checkNotNull(credentials);
