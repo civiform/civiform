@@ -10,9 +10,9 @@ import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
-import models.Account;
-import models.Applicant;
-import models.TrustedIntermediaryGroup;
+import models.AccountModel;
+import models.ApplicantModel;
+import models.TrustedIntermediaryGroupModel;
 import play.data.Form;
 import repository.AccountRepository;
 import repository.SearchParameters;
@@ -48,7 +48,7 @@ public final class TrustedIntermediaryService {
 
   public Form<AddApplicantToTrustedIntermediaryGroupForm> addNewClient(
       Form<AddApplicantToTrustedIntermediaryGroupForm> form,
-      TrustedIntermediaryGroup trustedIntermediaryGroup) {
+      TrustedIntermediaryGroupModel trustedIntermediaryGroup) {
     form = validateFirstName(form);
     form = validateLastName(form);
     form = validateDateOfBirthForAddApplicant(form);
@@ -125,12 +125,12 @@ public final class TrustedIntermediaryService {
    *     Parameter and an optional errorMessage which is generated if the filtering has failed.
    */
   public TrustedIntermediarySearchResult getManagedAccounts(
-      SearchParameters searchParameters, TrustedIntermediaryGroup tiGroup) {
-    ImmutableList<Account> allAccounts = tiGroup.getManagedAccounts();
+      SearchParameters searchParameters, TrustedIntermediaryGroupModel tiGroup) {
+    ImmutableList<AccountModel> allAccounts = tiGroup.getManagedAccounts();
     if (searchParameters.nameQuery().isEmpty() && searchParameters.dateQuery().isEmpty()) {
       return TrustedIntermediarySearchResult.success(allAccounts);
     }
-    final ImmutableList<Account> searchedResult;
+    final ImmutableList<AccountModel> searchedResult;
     try {
       searchedResult = searchAccounts(searchParameters, allAccounts);
     } catch (DateTimeParseException e) {
@@ -140,8 +140,8 @@ public final class TrustedIntermediaryService {
     return TrustedIntermediarySearchResult.success(searchedResult);
   }
 
-  private ImmutableList<Account> searchAccounts(
-      SearchParameters searchParameters, ImmutableList<Account> allAccounts) {
+  private ImmutableList<AccountModel> searchAccounts(
+      SearchParameters searchParameters, ImmutableList<AccountModel> allAccounts) {
     return allAccounts.stream()
         .filter(
             account ->
@@ -181,7 +181,7 @@ public final class TrustedIntermediaryService {
    *     runtime exception is raised.
    */
   public Form<UpdateApplicantDobForm> updateApplicantDateOfBirth(
-      TrustedIntermediaryGroup trustedIntermediaryGroup,
+      TrustedIntermediaryGroupModel trustedIntermediaryGroup,
       Long accountId,
       Form<UpdateApplicantDobForm> form)
       throws ApplicantNotFoundException {
@@ -191,7 +191,7 @@ public final class TrustedIntermediaryService {
     if (form.hasErrors()) {
       return form;
     }
-    Optional<Account> optionalAccount =
+    Optional<AccountModel> optionalAccount =
         trustedIntermediaryGroup.getManagedAccounts().stream()
             .filter(account -> account.id.equals(accountId))
             .findAny();
@@ -199,7 +199,7 @@ public final class TrustedIntermediaryService {
     if (optionalAccount.isEmpty() || optionalAccount.get().newestApplicant().isEmpty()) {
       throw new ApplicantNotFoundException(accountId);
     }
-    Applicant applicant = optionalAccount.get().newestApplicant().get();
+    ApplicantModel applicant = optionalAccount.get().newestApplicant().get();
     applicant.getApplicantData().setDateOfBirth(form.get().getDob());
     accountRepository.updateApplicant(applicant).toCompletableFuture().join();
     return form;

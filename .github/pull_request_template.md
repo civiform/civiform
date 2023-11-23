@@ -12,7 +12,7 @@ The title of the pull request will be used as the default release notes descript
 
 Read the full guidelines for PRs [here](https://github.com/civiform/civiform/wiki/Technical-contribution-guide#creating-a-pull-request)
 
-- [ ] Added the correct label: < feature | bug | dependencies | infrastructure | ignore-for-release | database >
+- [ ] Added the correct label: < feature | enhancement | bug | dependencies | infrastructure | ignore-for-release | database >
 - [ ] Assigned to a specific person, `civiform/developers`, or a [more specific round-robin list](https://github.com/civiform/civiform/wiki/Technical-contribution-guide#adding-reviewers).
 - [ ] Created unit and/or browser tests which fail without the change (if possible)
 - [ ] Performed manual testing (Chrome and Firefox if it includes front-end changes)

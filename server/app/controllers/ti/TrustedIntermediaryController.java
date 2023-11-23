@@ -15,8 +15,8 @@ import forms.UpdateApplicantDobForm;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
-import models.Account;
-import models.TrustedIntermediaryGroup;
+import models.AccountModel;
+import models.TrustedIntermediaryGroupModel;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -78,7 +78,7 @@ public final class TrustedIntermediaryController {
     if (civiformProfile.isEmpty()) {
       return unauthorized();
     }
-    Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
+    Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
         accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
@@ -90,7 +90,7 @@ public final class TrustedIntermediaryController {
     if (!trustedIntermediarySearchResult.isSuccessful()) {
       throw new BadRequestException(trustedIntermediarySearchResult.getErrorMessage().get());
     }
-    PaginationInfo<Account> pageInfo =
+    PaginationInfo<AccountModel> pageInfo =
         PaginationInfo.paginate(
             trustedIntermediarySearchResult.getAccounts().get(), PAGE_SIZE, page.get());
 
@@ -119,7 +119,7 @@ public final class TrustedIntermediaryController {
       return unauthorized();
     }
 
-    Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
+    Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
         accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
@@ -150,7 +150,7 @@ public final class TrustedIntermediaryController {
     if (civiformProfile.isEmpty()) {
       return unauthorized();
     }
-    Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
+    Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
         accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();

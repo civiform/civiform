@@ -21,7 +21,7 @@ public abstract class AnswerData {
     return new AutoValue_AnswerData.Builder();
   }
 
-  /** The {@link models.Program} id that this is currently in the context of. */
+  /** The {@link models.ProgramModel} id that this is currently in the context of. */
   public abstract Long programId();
 
   /** The {@link Block} id for where this question resides within the current program. */
@@ -39,7 +39,10 @@ public abstract class AnswerData {
   /** The repeated entity if this is an answer to a repeated question. Otherwise, empty. */
   public abstract Optional<RepeatedEntity> repeatedEntity();
 
-  /** The index of the {@link models.Question} this is an answer for in the block it appeared in. */
+  /**
+   * The index of the {@link models.QuestionModel} this is an answer for in the block it appeared
+   * in.
+   */
   public abstract int questionIndex();
 
   /** The localized question text */

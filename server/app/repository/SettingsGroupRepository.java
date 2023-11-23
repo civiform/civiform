@@ -8,10 +8,12 @@ import io.ebean.Database;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.SettingsGroup;
+import models.SettingsGroupModel;
 
 /** Contains queries related to the server settings system. */
 public final class SettingsGroupRepository {
+  private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
+      new QueryProfileLocationBuilder("SettingsGroupRepository");
 
   private final Database database;
   private final DatabaseExecutionContext databaseExecutionContext;
@@ -22,15 +24,17 @@ public final class SettingsGroupRepository {
     this.databaseExecutionContext = checkNotNull(databaseExecutionContext);
   }
 
-  /** Get the most recently created {@link SettingsGroup}. */
-  public CompletionStage<Optional<SettingsGroup>> getCurrentSettings() {
+  /** Get the most recently created {@link SettingsGroupModel}. */
+  public CompletionStage<Optional<SettingsGroupModel>> getCurrentSettings() {
     return supplyAsync(
         () ->
             database
-                .find(SettingsGroup.class)
+                .find(SettingsGroupModel.class)
                 .orderBy()
                 .desc("create_time")
                 .setMaxRows(1)
+                .setLabel("SettingsGroupModel.findOne")
+                .setProfileLocation(queryProfileLocationBuilder.create("getCurrentSettings"))
                 .findOneOrEmpty(),
         databaseExecutionContext);
   }

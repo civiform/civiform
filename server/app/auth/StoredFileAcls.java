@@ -6,11 +6,11 @@ import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nullable;
-import models.Account;
+import models.AccountModel;
 import services.program.ProgramDefinition;
 
 /**
- * Stores access control state for {@link models.StoredFile}s.
+ * Stores access control state for {@link models.StoredFileModel}s.
  *
  * <p>Program admins may read a file if they are an admin for a program included in the {@code
  * programReadAcls} for that file.
@@ -49,7 +49,7 @@ public final class StoredFileAcls {
     return this;
   }
 
-  public boolean hasProgramReadPermission(Account account) {
+  public boolean hasProgramReadPermission(AccountModel account) {
     return account.getAdministeredProgramNames().stream().anyMatch(programReadAcls::contains);
   }
 

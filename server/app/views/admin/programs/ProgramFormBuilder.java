@@ -20,7 +20,7 @@ import j2html.tags.specialized.LabelTag;
 import java.util.ArrayList;
 import java.util.List;
 import models.DisplayMode;
-import models.TrustedIntermediaryGroup;
+import models.TrustedIntermediaryGroupModel;
 import modules.MainModule;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
@@ -225,7 +225,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private DomContent showTiSelectionList(List<Long> selectedTi, boolean selectTiChecked) {
-    List<TrustedIntermediaryGroup> tiGroups = accountRepository.listTrustedIntermediaryGroups();
+    List<TrustedIntermediaryGroupModel> tiGroups =
+        accountRepository.listTrustedIntermediaryGroups();
     DivTag tiSelectionRenderer =
         div()
             // Hidden input that's always selected to allow for clearing multi-select data.

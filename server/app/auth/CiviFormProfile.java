@@ -11,8 +11,8 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 import javax.persistence.EntityNotFoundException;
-import models.Account;
-import models.Applicant;
+import models.AccountModel;
+import models.ApplicantModel;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import repository.DatabaseExecutionContext;
@@ -42,22 +42,22 @@ public class CiviFormProfile {
     this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
   }
 
-  /** Get the latest {@link Applicant} associated with the profile. */
-  public CompletableFuture<Applicant> getApplicant() {
+  /** Get the latest {@link ApplicantModel} associated with the profile. */
+  public CompletableFuture<ApplicantModel> getApplicant() {
     return this.getAccount()
         .thenApplyAsync(
             (a) ->
                 a.getApplicants().stream()
-                    .min(Comparator.comparing(Applicant::getWhenCreated))
+                    .min(Comparator.comparing(ApplicantModel::getWhenCreated))
                     .orElseThrow(),
             httpContext.current());
   }
 
-  /** Look up the {@link Account} associated with the profile from database. */
-  public CompletableFuture<Account> getAccount() {
+  /** Look up the {@link AccountModel} associated with the profile from database. */
+  public CompletableFuture<AccountModel> getAccount() {
     return supplyAsync(
         () -> {
-          Account account = new Account();
+          AccountModel account = new AccountModel();
           account.id = Long.valueOf(this.profileData.getId());
           try {
             account.refresh();
@@ -113,7 +113,7 @@ public class CiviFormProfile {
   }
 
   /**
-   * Sets the authority id for the associated {@link Account} if none is set.
+   * Sets the authority id for the associated {@link AccountModel} if none is set.
    *
    * <p>If an id is already present this may only be called with the same exact ID.
    *
@@ -142,7 +142,7 @@ public class CiviFormProfile {
   }
 
   /**
-   * Set email address for the associated {@link Account} if none is set.
+   * Set email address for the associated {@link AccountModel} if none is set.
    *
    * <p>If email address is present and different from the address to be set, a
    * `CompletionException` is thrown caused by a `ProfileMergeConflictException`.
@@ -173,14 +173,14 @@ public class CiviFormProfile {
             dbContext);
   }
 
-  /** Returns the authority id from the {@link Account} associated with the profile. */
+  /** Returns the authority id from the {@link AccountModel} associated with the profile. */
   public CompletableFuture<String> getAuthorityId() {
-    return this.getAccount().thenApplyAsync(Account::getAuthorityId, httpContext.current());
+    return this.getAccount().thenApplyAsync(AccountModel::getAuthorityId, httpContext.current());
   }
 
   /**
    * Get the email address from the session's {@link CiviFormProfileData} if present, otherwise get
-   * it from the {@link Account} associated with the profile.
+   * it from the {@link AccountModel} associated with the profile.
    *
    * <p>This value could be null.
    *
@@ -193,7 +193,7 @@ public class CiviFormProfile {
     }
 
     // If it's not present i.e. if user is a guest, fall back to the address in the database
-    return this.getAccount().thenApplyAsync(Account::getEmailAddress, httpContext.current());
+    return this.getAccount().thenApplyAsync(AccountModel::getEmailAddress, httpContext.current());
   }
 
   /** Get the profile data. */
@@ -220,7 +220,7 @@ public class CiviFormProfile {
                             .flatMap(tiGroup -> Optional.of(tiGroup.getManagedAccounts().stream()))
                             .orElse(Stream.of()),
                         Stream.of(account))
-                    .map(Account::ownedApplicantIds)
+                    .map(AccountModel::ownedApplicantIds)
                     .reduce(
                         ImmutableList.of(),
                         (one, two) ->

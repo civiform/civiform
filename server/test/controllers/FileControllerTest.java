@@ -8,9 +8,9 @@ import static play.test.Helpers.fakeRequest;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import models.Applicant;
-import models.Program;
-import models.StoredFile;
+import models.ApplicantModel;
+import models.ProgramModel;
+import models.StoredFileModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
@@ -30,7 +30,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void show_differentApplicant_returnsUnauthorizedResult() {
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     String fileKey = fakeFileKey(applicant.id, 1L);
     Result result =
         controller.show(request, applicant.id + 1, fileKey).toCompletableFuture().join();
@@ -39,7 +39,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void show_differentFileKey_returnsNotFound() {
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     String fileKey = fakeFileKey(applicant.id + 1, 1L);
     Result result = controller.show(request, applicant.id, fileKey).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -47,7 +47,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void show_TIManagedApplicant_redirects() {
-    Applicant managedApplicant = createApplicant();
+    ApplicantModel managedApplicant = createApplicant();
     createTIWithMockedProfile(managedApplicant);
     String fileKey = fakeFileKey(managedApplicant.id, 1L);
     Result result =
@@ -57,7 +57,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void show_redirects() {
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     String fileKey = fakeFileKey(applicant.id, 1L);
     Result result = controller.show(request, applicant.id, fileKey).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -65,7 +65,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void adminShow_invalidProgram_returnsNotFound() {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createProgramAdminWithMockedProfile(program);
     String fileKey = fakeFileKey(1L, program.id);
     Result result = controller.adminShow(request, program.id + 1, fileKey);
@@ -74,8 +74,8 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void adminShow_differentProgram_returnsUnauthorizedResult() {
-    Program programOne = ProgramBuilder.newDraftProgram("one").build();
-    Program programTwo = ProgramBuilder.newDraftProgram("two").build();
+    ProgramModel programOne = ProgramBuilder.newDraftProgram("one").build();
+    ProgramModel programTwo = ProgramBuilder.newDraftProgram("two").build();
     createProgramAdminWithMockedProfile(programOne);
     String fileKey = fakeFileKey(1L, programTwo.id);
     createStoredFileWithProgramAccess(fileKey, programTwo);
@@ -86,7 +86,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void adminShow_differentFileKey_returnsNotFound() {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createProgramAdminWithMockedProfile(program);
     String fileKey = fakeFileKey(1L, program.id + 1);
     createStoredFileWithProgramAccess(fakeFileKey(1L, program.id), program);
@@ -97,7 +97,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void adminShow_globalAdmin_returnsUnauthorizedResult() {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createProgramAdminWithMockedProfile(program);
     createGlobalAdminWithMockedProfile();
     String fileKey = fakeFileKey(1L, program.id);
@@ -109,7 +109,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void adminShow_globalAdminWhenNoProgramAdmin_returnsUnauthorizedResult() {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createGlobalAdminWithMockedProfile();
     String fileKey = fakeFileKey(1L, program.id);
     createStoredFileWithProgramAccess(fileKey, program);
@@ -120,7 +120,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void adminShow_redirects() {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createProgramAdminWithMockedProfile(program);
     String fileKey = fakeFileKey(1L, program.id);
     createStoredFileWithProgramAccess(fileKey, program);
@@ -131,8 +131,8 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void acledAdminShow_differentProgram_returnsUnauthorizedResult() {
-    Program programOne = ProgramBuilder.newDraftProgram("one").build();
-    Program programTwo = ProgramBuilder.newDraftProgram("two").build();
+    ProgramModel programOne = ProgramBuilder.newDraftProgram("one").build();
+    ProgramModel programTwo = ProgramBuilder.newDraftProgram("two").build();
     createProgramAdminWithMockedProfile(programOne);
     String programTwoFileKey = fakeFileKey(1L, programTwo.id);
     createStoredFileWithProgramAccess(fakeFileKey(1L, programOne.id), programOne);
@@ -144,7 +144,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void acledAdminShow_differentFileKey_returnsNotFound() {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createProgramAdminWithMockedProfile(program);
     createStoredFileWithProgramAccess(fakeFileKey(1L, program.id), program);
 
@@ -155,7 +155,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void acledAdminShow_globalAdmin_returnsUnauthorizedResult() {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createGlobalAdminWithMockedProfile();
     String fileKey = fakeFileKey(1L, program.id);
     createStoredFileWithProgramAccess(fileKey, program);
@@ -166,7 +166,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void acledAdminShow_redirects() {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createProgramAdminWithMockedProfile(program);
     String fileKey = fakeFileKey(1L, program.id);
     createStoredFileWithProgramAccess(fileKey, program);
@@ -185,8 +185,8 @@ public class FileControllerTest extends WithMockedProfiles {
     return URLEncoder.encode(fileKey, StandardCharsets.UTF_8);
   }
 
-  private void createStoredFileWithProgramAccess(String fileKey, Program program) {
-    var file = new StoredFile().setName(fileKey);
+  private void createStoredFileWithProgramAccess(String fileKey, ProgramModel program) {
+    var file = new StoredFileModel().setName(fileKey);
     file.getAcls().addProgramToReaders(program.getProgramDefinition());
     file.save();
   }

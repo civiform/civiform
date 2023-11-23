@@ -20,11 +20,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import models.Account;
-import models.Application;
+import models.AccountModel;
+import models.ApplicationModel;
 import models.LifecycleStage;
-import models.Program;
-import models.Version;
+import models.ProgramModel;
+import models.VersionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.cache.NamedCache;
@@ -41,11 +41,13 @@ import services.program.ProgramNotFoundException;
 import services.settings.SettingsManifest;
 
 /**
- * ProgramRepository performs complicated operations on {@link Program} that often involve other
- * EBean models or asynchronous handling.
+ * ProgramRepository performs complicated operations on {@link ProgramModel} that often involve
+ * other EBean models or asynchronous handling.
  */
 public final class ProgramRepository {
   private static final Logger logger = LoggerFactory.getLogger(ProgramRepository.class);
+  private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
+      new QueryProfileLocationBuilder("ProgramRepository");
 
   private final Database database;
   private final DatabaseExecutionContext executionContext;
@@ -69,7 +71,7 @@ public final class ProgramRepository {
     this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
   }
 
-  public CompletionStage<Optional<Program>> lookupProgram(long id) {
+  public CompletionStage<Optional<ProgramModel>> lookupProgram(long id) {
     // Use the cache if it is enabled and there isn't a draft version in progress.
     if (settingsManifest.getProgramCacheEnabled()
         && !versionRepository.get().getDraftVersion().isPresent()) {
@@ -80,23 +82,29 @@ public final class ProgramRepository {
     return supplyAsync(() -> lookupProgramSync(id), executionContext);
   }
 
-  private Optional<Program> lookupProgramSync(long id) {
-    return database.find(Program.class).where().eq("id", id).findOneOrEmpty();
+  private Optional<ProgramModel> lookupProgramSync(long id) {
+    return database
+        .find(ProgramModel.class)
+        .setLabel("ProgramModel.findById")
+        .setProfileLocation(queryProfileLocationBuilder.create("lookupProgramSync"))
+        .where()
+        .eq("id", id)
+        .findOneOrEmpty();
   }
 
-  public Program insertProgramSync(Program program) {
+  public ProgramModel insertProgramSync(ProgramModel program) {
     program.id = null;
     database.insert(program);
     program.refresh();
     return program;
   }
 
-  public Program updateProgramSync(Program program) {
+  public ProgramModel updateProgramSync(ProgramModel program) {
     database.update(program);
     return program;
   }
 
-  public ImmutableList<Version> getVersionsForProgram(Program program) {
+  public ImmutableList<VersionModel> getVersionsForProgram(ProgramModel program) {
     if (settingsManifest.getProgramCacheEnabled()) {
       return versionsByProgramCache.getOrElseUpdate(
           String.valueOf(program.id), () -> program.getVersions());
@@ -119,15 +127,15 @@ public final class ProgramRepository {
    * Makes {@code existingProgram} the DRAFT revision configuration of the question, creating a new
    * DRAFT if necessary.
    */
-  public Program createOrUpdateDraft(Program existingProgram) {
-    Version draftVersion = versionRepository.get().getDraftVersionOrCreate();
-    Optional<Program> existingDraftOpt =
+  public ProgramModel createOrUpdateDraft(ProgramModel existingProgram) {
+    VersionModel draftVersion = versionRepository.get().getDraftVersionOrCreate();
+    Optional<ProgramModel> existingDraftOpt =
         versionRepository
             .get()
             .getProgramByNameForVersion(
                 existingProgram.getProgramDefinition().adminName(), draftVersion);
     if (existingDraftOpt.isPresent()) {
-      Program existingDraft = existingDraftOpt.get();
+      ProgramModel existingDraft = existingDraftOpt.get();
       if (!existingDraft.id.equals(existingProgram.id)) {
         // This may be indicative of a coding error, as it does a reset of the draft and not an
         // update of the draft, so log it.
@@ -136,7 +144,7 @@ public final class ProgramRepository {
             existingDraft.id,
             existingProgram.id);
       }
-      Program updatedDraft =
+      ProgramModel updatedDraft =
           existingProgram.getProgramDefinition().toBuilder()
               .setId(existingDraft.id)
               .build()
@@ -150,8 +158,9 @@ public final class ProgramRepository {
     try {
       // Program -> builder -> back to program in order to clear any metadata stored in the program
       // (for example, version information).
-      Program newDraft =
-          new Program(existingProgram.getProgramDefinition().toBuilder().build(), draftVersion);
+      ProgramModel newDraft =
+          new ProgramModel(
+              existingProgram.getProgramDefinition().toBuilder().build(), draftVersion);
       newDraft = insertProgramSync(newDraft);
       draftVersion.refresh();
       Preconditions.checkState(
@@ -164,7 +173,7 @@ public final class ProgramRepository {
       String programName = existingProgram.getProgramDefinition().adminName();
       Preconditions.checkState(
           versionRepository.get().getProgramsForVersion(draftVersion).stream()
-                  .map(Program::getProgramDefinition)
+                  .map(ProgramModel::getProgramDefinition)
                   .map(ProgramDefinition::adminName)
                   .filter(programName::equals)
                   .count()
@@ -189,10 +198,10 @@ public final class ProgramRepository {
   }
 
   /** Get the current active program with the provided slug. */
-  public CompletableFuture<Program> getActiveProgramFromSlug(String slug) {
+  public CompletableFuture<ProgramModel> getActiveProgramFromSlug(String slug) {
     return supplyAsync(
         () -> {
-          ImmutableList<Program> activePrograms =
+          ImmutableList<ProgramModel> activePrograms =
               versionRepository
                   .get()
                   .getProgramsForVersion(versionRepository.get().getActiveVersion());
@@ -205,15 +214,15 @@ public final class ProgramRepository {
   }
 
   /** Get the current draft program with the provided slug. */
-  public Program getDraftProgramFromSlug(String slug) throws ProgramDraftNotFoundException {
+  public ProgramModel getDraftProgramFromSlug(String slug) throws ProgramDraftNotFoundException {
 
-    Optional<Version> version = versionRepository.get().getDraftVersion();
+    Optional<VersionModel> version = versionRepository.get().getDraftVersion();
 
     if (version.isEmpty()) {
       throw new ProgramDraftNotFoundException(slug);
     }
 
-    ImmutableList<Program> draftPrograms =
+    ImmutableList<ProgramModel> draftPrograms =
         versionRepository.get().getProgramsForVersion(version.get());
 
     return draftPrograms.stream()
@@ -222,24 +231,38 @@ public final class ProgramRepository {
         .orElseThrow(() -> new ProgramDraftNotFoundException(slug));
   }
 
-  public ImmutableList<Account> getProgramAdministrators(String programName) {
+  public ImmutableList<AccountModel> getProgramAdministrators(String programName) {
     return ImmutableList.copyOf(
-        database.find(Account.class).where().arrayContains("admin_of", programName).findList());
+        database
+            .find(AccountModel.class)
+            .setLabel("Account.findList")
+            .setProfileLocation(queryProfileLocationBuilder.create("getProgramAdministrators"))
+            .where()
+            .arrayContains("admin_of", programName)
+            .findList());
   }
 
-  public ImmutableList<Account> getProgramAdministrators(long programId)
+  public ImmutableList<AccountModel> getProgramAdministrators(long programId)
       throws ProgramNotFoundException {
-    Optional<Program> program = database.find(Program.class).setId(programId).findOneOrEmpty();
+    Optional<ProgramModel> program =
+        database
+            .find(ProgramModel.class)
+            .setLabel("ProgramModel.findById")
+            .setProfileLocation(queryProfileLocationBuilder.create("getProgramAdministrators"))
+            .setId(programId)
+            .findOneOrEmpty();
     if (program.isEmpty()) {
       throw new ProgramNotFoundException(programId);
     }
     return getProgramAdministrators(program.get().getProgramDefinition().adminName());
   }
 
-  public ImmutableList<Program> getAllProgramVersions(long programId) {
-    Query<Program> programNameQuery =
+  public ImmutableList<ProgramModel> getAllProgramVersions(long programId) {
+    Query<ProgramModel> programNameQuery =
         database
-            .find(Program.class)
+            .find(ProgramModel.class)
+            .setLabel("ProgramModel.findById")
+            .setProfileLocation(queryProfileLocationBuilder.create("getAllProgramVersions"))
             .select("name")
             .where()
             .eq("id", programId)
@@ -247,7 +270,9 @@ public final class ProgramRepository {
             .query();
 
     return database
-        .find(Program.class)
+        .find(ProgramModel.class)
+        .setLabel("ProgramModel.findList")
+        .setProfileLocation(queryProfileLocationBuilder.create("getAllProgramVersions"))
         .where()
         .in("name", programNameQuery)
         .query()
@@ -265,14 +290,17 @@ public final class ProgramRepository {
    * the caller may pass either a {@link IdentifierBasedPaginationSpec <Long>} or {@link
    * PageNumberBasedPaginationSpec} using play's {@link F.Either} wrapper.
    */
-  public PaginationResult<Application> getApplicationsForAllProgramVersions(
+  public PaginationResult<ApplicationModel> getApplicationsForAllProgramVersions(
       long programId,
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
       SubmittedApplicationFilter filters) {
-    ExpressionList<Application> query =
+    ExpressionList<ApplicationModel> query =
         database
-            .find(Application.class)
+            .find(ApplicationModel.class)
+            .setLabel("ApplicationModel.findList")
+            .setProfileLocation(
+                queryProfileLocationBuilder.create("getApplicationsForAllProgramVersions"))
             .fetch("program")
             .fetch("applicant")
             .orderBy("id desc")
@@ -319,7 +347,7 @@ public final class ProgramRepository {
       }
     }
 
-    PagedList<Application> pagedQuery;
+    PagedList<ApplicationModel> pagedQuery;
 
     if (paginationSpecEither.left.isPresent()) {
       IdentifierBasedPaginationSpec<Long> paginationSpec = paginationSpecEither.left.get();
@@ -340,17 +368,31 @@ public final class ProgramRepository {
 
     pagedQuery.loadCount();
 
-    return new PaginationResult<Application>(
+    return new PaginationResult<ApplicationModel>(
         pagedQuery.hasNext(),
         pagedQuery.getTotalPageCount(),
         pagedQuery.getList().stream().collect(ImmutableList.toImmutableList()));
   }
 
-  private Query<Program> allProgramVersionsQuery(long programId) {
-    Query<Program> programNameQuery =
-        database.find(Program.class).select("name").where().eq("id", programId).query();
+  private Query<ProgramModel> allProgramVersionsQuery(long programId) {
+    Query<ProgramModel> programNameQuery =
+        database
+            .find(ProgramModel.class)
+            .select("name")
+            .setLabel("ProgramModel.findByName")
+            .setProfileLocation(queryProfileLocationBuilder.create("allProgramVersionsQuery"))
+            .where()
+            .eq("id", programId)
+            .query();
 
-    return database.find(Program.class).select("id").where().in("name", programNameQuery).query();
+    return database
+        .find(ProgramModel.class)
+        .select("id")
+        .setLabel("ProgramModel.findById")
+        .setProfileLocation(queryProfileLocationBuilder.create("allProgramVersionsQuery"))
+        .where()
+        .in("name", programNameQuery)
+        .query();
   }
 
   private String getApplicationObjectPath(Path path) {

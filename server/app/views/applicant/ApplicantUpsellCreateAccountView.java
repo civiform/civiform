@@ -15,7 +15,7 @@ import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import java.util.Locale;
 import java.util.Optional;
-import models.Account;
+import models.AccountModel;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -50,7 +50,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
   public Content render(
       Http.Request request,
       String redirectTo,
-      Account account,
+      AccountModel account,
       Locale locale,
       String programTitle,
       LocalizedStrings customConfirmationMessage,

@@ -3,6 +3,7 @@ package auth.oidc.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileFactory;
+import auth.oidc.IdTokensFactory;
 import auth.oidc.OidcClientProviderParams;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -20,17 +21,20 @@ public class AdfsClientProvider implements Provider<OidcClient> {
   private final Config configuration;
   private final String baseUrl;
   private final ProfileFactory profileFactory;
-  private final Provider<AccountRepository> userRepositoryProvider;
+  private final IdTokensFactory idTokensFactory;
+  private final Provider<AccountRepository> accountRepositoryProvider;
 
   @Inject
   public AdfsClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
-      Provider<AccountRepository> userRepositoryProvider) {
+      IdTokensFactory idTokensFactory,
+      Provider<AccountRepository> accountRepositoryProvider) {
     this.configuration = checkNotNull(configuration);
     this.baseUrl = configuration.getString("base_url");
-    this.profileFactory = profileFactory;
-    this.userRepositoryProvider = userRepositoryProvider;
+    this.profileFactory = checkNotNull(profileFactory);
+    this.idTokensFactory = checkNotNull(idTokensFactory);
+    this.accountRepositoryProvider = checkNotNull(accountRepositoryProvider);
   }
 
   @Override
@@ -87,7 +91,8 @@ public class AdfsClientProvider implements Provider<OidcClient> {
             config,
             client,
             OidcClientProviderParams.create(
-                configuration, profileFactory, userRepositoryProvider)));
+                configuration, profileFactory, idTokensFactory, accountRepositoryProvider)));
+
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.init();
     return client;

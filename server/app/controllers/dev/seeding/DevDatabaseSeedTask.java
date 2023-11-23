@@ -173,8 +173,8 @@ public final class DevDatabaseSeedTask {
 
       long blockId = 1L;
       BlockForm blockForm = new BlockForm();
-      blockForm.setName("Block 1");
-      blockForm.setDescription("Block 1");
+      blockForm.setName("Screen 1");
+      blockForm.setDescription("Screen 1");
       programService.updateBlock(programId, blockId, blockForm).getResult();
 
       long nameQuestionId = getCreatedId(NAME_QUESTION_DEFINITION, createdSampleQuestions);
@@ -227,7 +227,7 @@ public final class DevDatabaseSeedTask {
 
       long blockId = 1L;
       BlockForm blockForm = new BlockForm();
-      blockForm.setName("Block 1");
+      blockForm.setName("Screen 1");
       blockForm.setDescription("one of each question type - part 1");
       programService.updateBlock(programId, blockId, blockForm).getResult();
       programService.addQuestionsToBlock(
@@ -244,7 +244,7 @@ public final class DevDatabaseSeedTask {
 
       blockId =
           programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
-      blockForm.setName("Block 2");
+      blockForm.setName("Screen 2");
       blockForm.setDescription("one of each question type - part 2");
       programService.updateBlock(programId, blockId, blockForm);
       programService.addQuestionsToBlock(
@@ -290,7 +290,7 @@ public final class DevDatabaseSeedTask {
 
       blockId =
           programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
-      blockForm.setName("Block 3");
+      blockForm.setName("Screen 3");
       blockForm.setDescription("Random information");
       programService.updateBlock(programId, blockId, blockForm);
       long radioButtonQuestionId =
@@ -300,7 +300,7 @@ public final class DevDatabaseSeedTask {
 
       blockId =
           programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
-      blockForm.setName("Block with Predicate");
+      blockForm.setName("Screen with Predicate");
       blockForm.setDescription("May be hidden");
       programService.updateBlock(programId, blockId, blockForm);
       // Add an unanswered question to the block so it is considered incomplete.

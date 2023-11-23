@@ -10,9 +10,9 @@ import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import auth.ProfileFactory;
 import controllers.WithMockedProfiles;
-import models.Applicant;
-import models.Application;
-import models.Question;
+import models.ApplicantModel;
+import models.ApplicationModel;
+import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Result;
@@ -42,8 +42,8 @@ public class UpsellControllerTest extends WithMockedProfiles {
   public void considerRegister_redirectsToUpsellViewForDefaultProgramType() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    Applicant applicant = createApplicantWithMockedProfile();
-    Application application =
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+    ApplicationModel application =
         resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
     String redirectLocation = "someUrl";
 
@@ -65,7 +65,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
   @Test
   public void
       considerRegister_redirectsToUpsellViewForCommonIntakeWithNoRecommendedProgramsFound() {
-    Question predicateQuestion = testQuestionBank().applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank().applicantFavoriteColor();
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()
             .setPredicate(
@@ -85,7 +85,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
             .withEligibilityDefinition(eligibility)
             .buildDefinition();
 
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
 
     // Answer the color question with an ineligible response
     Path colorPath = ApplicantData.APPLICANT_PATH.join("applicant_favorite_color");
@@ -98,7 +98,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(predicateQuestion)
             .buildDefinition();
-    Application application =
+    ApplicationModel application =
         resourceCreator.insertActiveApplication(applicant, commonIntakeForm.toProgram());
 
     String redirectLocation = "someUrl";
@@ -123,7 +123,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
 
   @Test
   public void considerRegister_redirectsToUpsellViewForCommonIntakeWithRecommendedPrograms() {
-    Question predicateQuestion = testQuestionBank().applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank().applicantFavoriteColor();
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()
             .setPredicate(
@@ -143,7 +143,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
             .withEligibilityDefinition(eligibility)
             .buildDefinition();
 
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
 
     // Answer the color question with an eligible response
     Path colorPath = ApplicantData.APPLICANT_PATH.join("applicant_favorite_color");
@@ -156,7 +156,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(predicateQuestion)
             .buildDefinition();
-    Application application =
+    ApplicationModel application =
         resourceCreator.insertActiveApplication(applicant, commonIntakeForm.toProgram());
 
     String redirectLocation = "someUrl";
@@ -181,8 +181,8 @@ public class UpsellControllerTest extends WithMockedProfiles {
   public void download_authenticatedApplicant() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    Applicant applicant = createApplicantWithMockedProfile();
-    Application application =
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+    ApplicationModel application =
         resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
 
     Result result;
@@ -204,10 +204,10 @@ public class UpsellControllerTest extends WithMockedProfiles {
     ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    Applicant managedApplicant = createApplicant();
+    ApplicantModel managedApplicant = createApplicant();
     createTIWithMockedProfile(managedApplicant);
     profileFactory.createFakeTrustedIntermediary();
-    Application application =
+    ApplicationModel application =
         resourceCreator.insertActiveApplication(managedApplicant, programDefinition.toProgram());
 
     Result result;
@@ -231,11 +231,11 @@ public class UpsellControllerTest extends WithMockedProfiles {
     ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    Applicant unmanagedApplicant = createApplicant();
-    Applicant managedApplicant = createApplicant();
+    ApplicantModel unmanagedApplicant = createApplicant();
+    ApplicantModel managedApplicant = createApplicant();
     createTIWithMockedProfile(managedApplicant);
     profileFactory.createFakeTrustedIntermediary();
-    Application application =
+    ApplicationModel application =
         resourceCreator.insertActiveApplication(managedApplicant, programDefinition.toProgram());
 
     Result result;
@@ -258,8 +258,8 @@ public class UpsellControllerTest extends WithMockedProfiles {
   public void download_invalidApplicantID() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    Applicant applicant = createApplicantWithMockedProfile();
-    Application application =
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+    ApplicationModel application =
         resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
 
     Result result;
@@ -279,7 +279,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
   public void download_invalidApplicationID() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
 
     Result result;

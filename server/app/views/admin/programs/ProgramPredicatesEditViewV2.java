@@ -14,7 +14,6 @@ import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
-import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
@@ -28,6 +27,7 @@ import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.HtmlBundle;
 import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
@@ -44,6 +44,7 @@ import views.style.ReferenceClasses;
 public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
 
   private final AdminLayout layout;
+  private final SettingsManifest settingsManifest;
 
   // The functionality type of the predicate editor.
   public enum ViewType {
@@ -52,8 +53,10 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
   }
 
   @Inject
-  public ProgramPredicatesEditViewV2(AdminLayoutFactory layoutFactory) {
+  public ProgramPredicatesEditViewV2(
+      AdminLayoutFactory layoutFactory, SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -243,8 +246,10 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
             .getBundle(request)
             .setTitle(title)
             .addMainContent(
-                renderProgramInfo(programDefinition)
-                    .with(renderEditProgramDetailsButton(programDefinition)),
+                renderProgramInfoHeader(
+                    programDefinition,
+                    getEditHeaderButtons(request, settingsManifest, /* isEditingAllowed= */ true),
+                    request),
                 content);
 
     Http.Flash flash = request.flash();
@@ -285,12 +290,6 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
                     div(questionHelpText).withClasses("mt-1", "text-sm"),
                     div(String.format("Admin ID: %s", questionDefinition.getName()))
                         .withClasses("mt-1", "text-sm")));
-  }
-
-  private ButtonTag renderEditProgramDetailsButton(ProgramDefinition programDefinition) {
-    ButtonTag editButton = getStandardizedEditButton("Edit program details");
-    String editLink = routes.AdminProgramController.edit(programDefinition.id()).url();
-    return asRedirectElement(editButton, editLink);
   }
 
   @Override

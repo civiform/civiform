@@ -2,7 +2,7 @@ package services.ti;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
-import models.Account;
+import models.AccountModel;
 
 /**
  * Holds list of account after filtering out the account list per the SearchParamaters
@@ -14,22 +14,22 @@ import models.Account;
  */
 public final class TrustedIntermediarySearchResult {
 
-  private final Optional<ImmutableList<Account>> accounts;
+  private final Optional<ImmutableList<AccountModel>> accounts;
   private final Optional<String> errorMessage;
 
   private TrustedIntermediarySearchResult(
-      Optional<ImmutableList<Account>> accounts, Optional<String> errorMessage) {
+      Optional<ImmutableList<AccountModel>> accounts, Optional<String> errorMessage) {
     this.accounts = accounts;
     this.errorMessage = errorMessage;
   }
 
-  public static TrustedIntermediarySearchResult success(ImmutableList<Account> searchResult) {
+  public static TrustedIntermediarySearchResult success(ImmutableList<AccountModel> searchResult) {
     return new TrustedIntermediarySearchResult(
         Optional.of(searchResult), /* errorMessage= */ Optional.empty());
   }
 
   public static TrustedIntermediarySearchResult fail(
-      ImmutableList<Account> allAccount, String errorMessage) {
+      ImmutableList<AccountModel> allAccount, String errorMessage) {
     return new TrustedIntermediarySearchResult(Optional.of(allAccount), Optional.of(errorMessage));
   }
 
@@ -37,7 +37,7 @@ public final class TrustedIntermediarySearchResult {
     return errorMessage.isEmpty();
   }
 
-  public Optional<ImmutableList<Account>> getAccounts() {
+  public Optional<ImmutableList<AccountModel>> getAccounts() {
     return accounts;
   }
 

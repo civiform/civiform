@@ -8,8 +8,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Optional;
 import java.util.function.Function;
-import models.Question;
-import models.Version;
+import models.QuestionModel;
+import models.VersionModel;
 import repository.VersionRepository;
 import services.DeletionStatus;
 import services.program.ProgramDefinition;
@@ -44,18 +44,18 @@ public final class ActiveAndDraftQuestions {
   }
 
   private ActiveAndDraftQuestions(VersionRepository repository) {
-    Version active = repository.getActiveVersion();
-    Version draft = repository.getDraftVersionOrCreate();
-    Version withDraftEdits = repository.previewPublishNewSynchronizedVersion();
+    VersionModel active = repository.getActiveVersion();
+    VersionModel draft = repository.getDraftVersionOrCreate();
+    VersionModel withDraftEdits = repository.previewPublishNewSynchronizedVersion();
     ImmutableMap<String, QuestionDefinition> activeNameToQuestion =
         repository.getQuestionsForVersion(active).stream()
-            .map(Question::getQuestionDefinition)
+            .map(QuestionModel::getQuestionDefinition)
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, Function.identity()));
     this.activeQuestions = activeNameToQuestion.values().asList();
 
     ImmutableMap<String, QuestionDefinition> draftNameToQuestion =
         repository.getQuestionsForVersion(draft).stream()
-            .map(Question::getQuestionDefinition)
+            .map(QuestionModel::getQuestionDefinition)
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, Function.identity()));
     this.draftQuestions = draftNameToQuestion.values().asList();
 

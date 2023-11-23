@@ -10,8 +10,8 @@ import com.typesafe.config.ConfigFactory;
 import controllers.WithMockedProfiles;
 import io.prometheus.client.CollectorRegistry;
 import java.util.Locale;
-import models.Applicant;
-import models.Application;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +25,7 @@ public class MetricsControllerTest extends WithMockedProfiles {
   public void setUp() {
     resetDatabase();
     CollectorRegistry.defaultRegistry.clear();
+    // TODO(#5933) initializing counters causes the test to fail in bin/sbt-test
     MetricsController.initializeCounters();
   }
 
@@ -42,11 +43,11 @@ public class MetricsControllerTest extends WithMockedProfiles {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
     applicant.save();
-    Application app =
-        new Application(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
+    ApplicationModel app =
+        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
     app.save();
     resourceCreator().insertDraftProgram(programDefinition.adminName());
     versionRepository.publishNewSynchronizedVersion();
@@ -59,9 +60,11 @@ public class MetricsControllerTest extends WithMockedProfiles {
     assertThat(metricsContent).contains("ebean_queries_mean_latency_micros");
     assertThat(metricsContent).contains("ebean_queries_max_latency_micros");
     assertThat(metricsContent).contains("ebean_queries_total_latency_micros");
-    assertThat(metricsContent).contains(getEbeanCountName("Program.findList"));
-    assertThat(metricsContent).contains(getEbeanCountName("Question.findList"));
-    assertThat(metricsContent).contains(getEbeanCountName("Version.byId"));
+    assertThat(metricsContent).contains(getEbeanCountName("models.ProgramModel"));
+    assertThat(metricsContent).contains(getEbeanCountName("models.Question"));
+    assertThat(metricsContent).contains(getEbeanCountName("VersionModel.byId"));
+    assertThat(metricsContent).contains("location=\"VersionRepository.getActiveVersion");
+    assertThat(metricsContent).contains("className=\"models.VersionModel");
   }
 
   @Test
@@ -78,6 +81,6 @@ public class MetricsControllerTest extends WithMockedProfiles {
   }
 
   private String getEbeanCountName(String queryName) {
-    return String.format("ebean_queries_total{name=\"%s\",}", queryName);
+    return String.format("ebean_queries_total{name=\"%s", queryName);
   }
 }

@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Applicant;
+import models.ApplicantModel;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -170,11 +170,11 @@ public final class ApplicantInformationController extends CiviFormController {
             });
   }
 
-  private CompletionStage<Applicant> updateApplicantPreferredLanguage(
-      Optional<Applicant> maybeApplicant, long applicantId, Locale locale) {
+  private CompletionStage<ApplicantModel> updateApplicantPreferredLanguage(
+      Optional<ApplicantModel> maybeApplicant, long applicantId, Locale locale) {
     // Set preferred locale.
     if (maybeApplicant.isPresent()) {
-      Applicant applicant = maybeApplicant.get();
+      ApplicantModel applicant = maybeApplicant.get();
       ApplicantData data = applicant.getApplicantData();
       data.setPreferredLocale(locale);
       // Update the applicant, then pass the updated applicant to the next stage.

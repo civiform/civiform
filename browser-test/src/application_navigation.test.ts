@@ -595,6 +595,28 @@ describe('Applicant navigation flow', () => {
       await validateScreenshot(page, 'cif-submission-guest-login-prompt-modal')
     })
 
+    it('shows intake form as submitted after completion', async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'intake_form_enabled')
+
+      // Fill out common intake form, with eligible response
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.clickSubmit()
+
+      await applicantQuestions.expectCommonIntakeConfirmationPage(
+        /* wantUpsell= */ true,
+        /* wantTrustedIntermediary= */ false,
+        /* wantEligiblePrograms= */ [secondProgramName],
+      )
+
+      await page.click('button:has-text("Apply to programs")')
+      await page.click('button:has-text("Continue without an account")')
+      await validateScreenshot(page, 'cif-shows-submitted')
+    })
+
     it('does not show eligible programs and shows TI text on confirmation page when no programs are eligible and a TI', async () => {
       const {page, tiDashboard, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'intake_form_enabled')

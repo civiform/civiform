@@ -5,7 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import models.Question;
+import models.QuestionModel;
 import models.QuestionTag;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
@@ -177,7 +177,7 @@ public abstract class QuestionForm {
     }
 
     if (questionExportState.isEmpty()) {
-      Question q = new Question(this.qd);
+      QuestionModel q = new QuestionModel(this.qd);
       q.refresh();
       populateQuestionExportStateFromTags(q.getQuestionTags());
     }
