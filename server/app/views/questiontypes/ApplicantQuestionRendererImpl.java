@@ -71,8 +71,8 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                     .with(
                         TextFormatter.formatText(
                             applicantQuestion.getQuestionHelpText(),
-                            /*preserveEmptyLines= */ false,
-                            /*addRequiredIndicator= */ false)))
+                            /* preserveEmptyLines= */ false,
+                            /* addRequiredIndicator= */ false)))
             .withClasses("mb-4");
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
