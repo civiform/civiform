@@ -4,7 +4,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
+import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.assistedinject.Assisted;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
@@ -12,12 +14,14 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
+import services.question.types.QuestionDefinition;
 import views.ApplicationBaseView;
 import views.FileUploadViewStrategy;
 import views.HtmlBundle;
@@ -42,7 +46,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
       @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
     this.layout = checkNotNull(layout);
     this.fileUploadStrategy = checkNotNull(fileUploadStrategy);
-    this.applicantQuestionRendererFactory = applicantQuestionRendererFactory;
+    this.applicantQuestionRendererFactory = checkNotNull(applicantQuestionRendererFactory);
   }
 
   public Content render(Params params) {
@@ -120,8 +124,9 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     }
 
     FormTag form = form();
+    final boolean formHasErrors = params.block().hasErrors();
 
-    if (params.block().hasErrors()
+    if (formHasErrors
         && ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS.equals(
             params.errorDisplayMode())) {
       form.with(
@@ -129,6 +134,10 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
               .withText(params.messages().at(MessageKey.ERROR_ANNOUNCEMENT_SR.getKeyName()))
               .attr("role", "alert")
               .attr("aria-live", "polite")
+              // aria-atomic=true is necessary to make Voiceover on iOS read the error messages
+              // after more than one invalid submission.
+              // See https://www.w3.org/WAI/WCAG21/Techniques/aria/ARIA19
+              .attr("area-atomic", "true")
               .withClasses("sr-only"));
     }
 
@@ -136,23 +145,60 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         routes.ApplicantProgramBlocksController.update(
                 params.applicantId(), params.programId(), params.block().getId(), params.inReview())
             .url();
-    ApplicantQuestionRendererParams rendererParams =
-        ApplicantQuestionRendererParams.builder()
-            .setMessages(params.messages())
-            .setErrorDisplayMode(params.errorDisplayMode())
-            .setQuestionName(params.questionName())
-            .build();
+
+    AtomicInteger ordinalErrorCount = new AtomicInteger(0);
 
     return form.withId(BLOCK_FORM_ID)
         .withAction(formAction)
         .withMethod(HttpVerbs.POST)
         .with(makeCsrfTokenInputTag(params.request()))
-        .with(this.requiredFieldsExplanationContent(params.messages()))
+        .with(requiredFieldsExplanationContent(params.messages()))
         .with(
             each(
                 params.block().getQuestions(),
-                question -> renderQuestion(question, rendererParams)))
+                question -> {
+                  if (question.hasErrors()) {
+                    ordinalErrorCount.incrementAndGet();
+                  }
+
+                  ApplicantQuestionRendererParams rendererParams =
+                      ApplicantQuestionRendererParams.builder()
+                          .setMessages(params.messages())
+                          .setErrorDisplayMode(params.errorDisplayMode())
+                          .setAutofocus(
+                              calculateAutoFocusTarget(
+                                  params.errorDisplayMode(),
+                                  question.getQuestionDefinition(),
+                                  formHasErrors,
+                                  ordinalErrorCount.get(),
+                                  params.applicantSelectedQuestionName()))
+                          .build();
+
+                  return renderQuestion(question, rendererParams);
+                }))
         .with(renderBottomNavButtons(params));
+  }
+
+  // One field at most should be autofocused on the page. If there are errors,
+  // it should be the first field with an error of the first question with
+  // errors. Otherwise, if there is a user-selected question it should be the
+  // first field of that question.
+  @VisibleForTesting
+  ApplicantQuestionRendererParams.AutoFocusTarget calculateAutoFocusTarget(
+      ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode,
+      QuestionDefinition questionDefinition,
+      boolean formHasErrors,
+      int ordinalErrorCount,
+      Optional<String> applicantSelectedQuestionName) {
+    if (formHasErrors && DISPLAY_ERRORS.equals(errorDisplayMode)) {
+      return ordinalErrorCount == 1
+          ? ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_ERROR
+          : ApplicantQuestionRendererParams.AutoFocusTarget.NONE;
+    }
+
+    return applicantSelectedQuestionName.map(questionDefinition.getName()::equals).orElse(false)
+        ? ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD
+        : ApplicantQuestionRendererParams.AutoFocusTarget.NONE;
   }
 
   private DivTag renderQuestion(

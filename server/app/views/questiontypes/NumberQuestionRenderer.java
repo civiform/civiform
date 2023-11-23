@@ -46,17 +46,12 @@ public class NumberQuestionRenderer extends ApplicantSingleQuestionRenderer {
             .setAriaDescribedByIds(ariaDescribedByIds)
             .addReferenceClass(getReferenceClass());
 
-    if (applicantSelectedQuestion(params.questionName())) {
+    if (params.autofocusSingleField()) {
       numberField.focusOnInput();
     }
 
     if (!validationErrors.isEmpty()) {
       numberField.forceAriaInvalid();
-      if (params
-          .errorDisplayMode()
-          .equals(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)) {
-        numberField.focusOnError();
-      }
     }
 
     if (numberQuestion.getNumberValue().isPresent()) {
