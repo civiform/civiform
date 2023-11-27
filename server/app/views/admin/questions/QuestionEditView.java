@@ -49,6 +49,7 @@ import views.components.LinkElement;
 import views.components.Modal;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
+import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -159,7 +160,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
     InputTag csrfTag = makeCsrfTokenInputTag(request);
 
-    Modal modal = buildModal(csrfTag, questionForm);
+    Modal modal = buildUnsetUniversalModal(questionForm);
 
     QuestionType questionType = questionForm.getQuestionType();
     String title =
@@ -318,29 +319,30 @@ public final class QuestionEditView extends BaseHtmlView {
     return formTag;
   }
 
-  private Modal buildModal(InputTag csrfTag, QuestionForm questionForm) {
+  private Modal buildUnsetUniversalModal(QuestionForm questionForm) {
 
     ButtonTag triggerModalButton = button("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE);
-    FormTag acceptUpdatesForm =
-        form(csrfTag) // maybe don't need csrfTag?
+    FormTag confirmUnsetUniversalForm =
+        form()
             .with(
-                div("This question will no longer be as the displayed as a recommended "
+                div("This question will no longer be set as a recommended "
                         + questionForm.getQuestionType().toString()
-                        + " question")
+                        + " question.")
                     .withClasses("mb-8"),
                 div(submitButton("Remove from universal questions")
-                        .withId("accept-question-updates-button") // do i need this id?
+                        .withId("accept-question-updates-button")
                         .attr("form", "full-edit-form")
-                        .withClasses(ButtonStyles.SOLID_BLUE))
+                        .withClasses(ButtonStyles.SOLID_BLUE),
+                        button("Cancel").withClasses(ButtonStyles.LINK_STYLE, ReferenceClasses.MODAL_CLOSE))
                     .withClasses("flex", "flex-col", StyleUtils.responsiveMedium("flex-row")));
     return Modal.builder()
         .setModalId("confirm-question-updates-modal")
         .setLocation(Modal.Location.ADMIN_FACING)
-        .setContent(acceptUpdatesForm)
+        .setContent(confirmUnsetUniversalForm)
         .setModalTitle(
             "Are you sure you want to remove this question from the universal questions" + " set?")
         .setTriggerButtonContent(triggerModalButton)
-        .setWidth(Modal.Width.HALF)
+        .setWidth(Modal.Width.THIRD)
         .build();
   }
 
