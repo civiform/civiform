@@ -8,7 +8,6 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
-import javax.inject.Provider;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
@@ -17,28 +16,28 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.junit.Before;
 import org.junit.Test;
 import services.reporting.ApplicationSubmissionsStat;
-import support.CfTestHelpers;
 import support.ProgramBuilder;
 
 public class ReportingRepositoryTest extends ResetPostgres {
 
-  private ReportingRepository repo;
   private Applicant applicant;
-  private VersionRepository versionRepository;
-  private Provider<VersionRepository> versionRepositoryProvider;
   private ProgramModel programA;
   private ProgramModel programB;
+  private ReportingRepository repo;
+  private ReportingRepositoryFactory reportingRepositoryFactory;
+  private VersionRepository versionRepository;
 
   @Before
   public void setUp() {
     versionRepository = instanceOf(VersionRepository.class);
+    reportingRepositoryFactory = new ReportingRepositoryFactory(testClock, versionRepository);
+    repo = reportingRepositoryFactory.create();
     applicant = resourceCreator.insertApplicantWithAccount();
     programA =
         ProgramBuilder.newActiveProgramWithDisplayName("fake-program-a", "Fake Program A").build();
     programB =
         ProgramBuilder.newActiveProgramWithDisplayName("fake-program-b", "Fake Program B").build();
-    versionRepositoryProvider = CfTestHelpers.versionRepositoryProvider(versionRepository);
-    repo = new ReportingRepository(testClock, versionRepositoryProvider);
+
   }
 
   @Test

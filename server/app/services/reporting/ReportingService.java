@@ -26,6 +26,7 @@ import org.apache.commons.csv.CSVPrinter;
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
 import repository.ReportingRepository;
+import repository.ReportingRepositoryFactory;
 import services.DateConverter;
 import views.admin.reporting.ReportingTableRenderer;
 
@@ -37,19 +38,18 @@ public final class ReportingService {
 
   private static final Comparator<ApplicationSubmissionsStat> STAT_TIMESTAMP_DESCENDING =
       Comparator.comparing((ApplicationSubmissionsStat stat) -> stat.timestamp().get()).reversed();
-
-  private final ReportingRepository reportingRepository;
   private final SyncCacheApi reportingDataCache;
   private final DateConverter dateConverter;
+  private final ReportingRepositoryFactory reportingRepositoryFactory;
 
   @Inject
   public ReportingService(
       DateConverter dateConverter,
-      ReportingRepository reportingRepository,
+      ReportingRepositoryFactory reportingRepositoryFactory,
       @NamedCache("monthly-reporting-data") SyncCacheApi reportingDataCache) {
     this.dateConverter = checkNotNull(dateConverter);
-    this.reportingRepository = Preconditions.checkNotNull(reportingRepository);
     this.reportingDataCache = Preconditions.checkNotNull(reportingDataCache);
+    this.reportingRepositoryFactory = Preconditions.checkNotNull(reportingRepositoryFactory);
   }
 
   /**
@@ -167,6 +167,7 @@ public final class ReportingService {
   }
 
   private MonthlyStats queryAndCollateMonthlyStats() {
+    ReportingRepository reportingRepository = reportingRepositoryFactory.create();
     ImmutableList<ApplicationSubmissionsStat> submissionsByProgramByMonth =
         reportingRepository.loadMonthlyReportingView();
     ImmutableList<ApplicationSubmissionsStat> submissionsThisMonth =

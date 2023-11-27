@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import javax.inject.Inject;
-import javax.inject.Provider;
 import models.ProgramModel;
 import org.postgresql.util.PGInterval;
 import services.reporting.ApplicationSubmissionsStat;
@@ -25,11 +24,10 @@ public final class ReportingRepository {
   private final Database database;
   private final ImmutableList<ProgramModel> listOfPrograms;
 
-  @Inject
-  public ReportingRepository(Clock clock, Provider<VersionRepository> versionRepositoryProvider) {
+  public ReportingRepository(Clock clock, ImmutableList<ProgramModel> listOfPrograms) {
     this.clock = Preconditions.checkNotNull(clock);
     this.database = DB.getDefault();
-    listOfPrograms = Preconditions.checkNotNull(versionRepositoryProvider).get().getActiveVersion().getPrograms();
+    this.listOfPrograms = listOfPrograms;
   }
 
   /**
