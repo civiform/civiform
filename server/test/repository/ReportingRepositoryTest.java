@@ -24,7 +24,6 @@ public class ReportingRepositoryTest extends ResetPostgres {
   private ApplicantModel applicant;
   private ProgramModel programA;
   private ProgramModel programB;
-  private ReportingRepository repo;
   private ReportingRepositoryFactory reportingRepositoryFactory;
   private VersionRepository versionRepository;
 
@@ -38,7 +37,6 @@ public class ReportingRepositoryTest extends ResetPostgres {
         ProgramBuilder.newActiveProgramWithDisplayName("fake-program-a", "Fake Program A").build();
     programB =
         ProgramBuilder.newActiveProgramWithDisplayName("fake-program-b", "Fake Program B").build();
-
   }
 
   @Test
