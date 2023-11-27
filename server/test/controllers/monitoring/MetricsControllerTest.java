@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import controllers.WithMockedProfiles;
-import io.prometheus.client.CollectorRegistry;
 import java.util.Locale;
 import models.ApplicantModel;
 import models.ApplicationModel;
