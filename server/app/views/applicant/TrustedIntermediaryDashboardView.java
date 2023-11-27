@@ -28,7 +28,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.TrustedIntermediaryGroup;
+import models.TrustedIntermediaryGroupModel;
 import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -60,7 +60,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   public Content render(
-      TrustedIntermediaryGroup tiGroup,
+      TrustedIntermediaryGroupModel tiGroup,
       ApplicantPersonalInfo personalInfo,
       ImmutableList<AccountModel> managedAccounts,
       int totalPageCount,
@@ -163,7 +163,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                     Optional.of(pageNumber))));
   }
 
-  private DivTag renderTIMembersTable(TrustedIntermediaryGroup tiGroup) {
+  private DivTag renderTIMembersTable(TrustedIntermediaryGroupModel tiGroup) {
     return div(
         table()
             .withClasses("border", "border-gray-300", "shadow-md", "w-3/4")
@@ -177,7 +177,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         this::renderTIRow))));
   }
 
-  private DivTag renderAddNewForm(TrustedIntermediaryGroup tiGroup, Http.Request request) {
+  private DivTag renderAddNewForm(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
     FormTag formTag =
         form()
             .withMethod("POST")

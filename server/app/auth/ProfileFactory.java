@@ -9,7 +9,7 @@ import javax.inject.Provider;
 import models.AccountModel;
 import models.ApiKeyModel;
 import models.ApplicantModel;
-import models.TrustedIntermediaryGroup;
+import models.TrustedIntermediaryGroupModel;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.AccountRepository;
@@ -163,9 +163,9 @@ public final class ProfileFactory {
   /** This creates a trusted intermediary. */
   public CiviFormProfileData createFakeTrustedIntermediary() {
     AccountRepository accountRepository = userRepositoryProvider.get();
-    List<TrustedIntermediaryGroup> existingGroups =
+    List<TrustedIntermediaryGroupModel> existingGroups =
         accountRepository.listTrustedIntermediaryGroups();
-    TrustedIntermediaryGroup group;
+    TrustedIntermediaryGroupModel group;
 
     if (existingGroups.isEmpty()) {
       group =

@@ -140,8 +140,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 Modal loginPromptModal =
                     createLoginPromptModal(
                             messages,
-                            /*postLoginRedirectTo=*/ controllers.applicant.routes.DeepLinkController
-                                .programBySlug(
+                            /* postLoginRedirectTo= */ controllers.applicant.routes
+                                .DeepLinkController.programBySlug(
                                     request.flash().get("redirected-from-program-slug").get())
                                 .url(),
                             messages.at(

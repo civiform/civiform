@@ -18,7 +18,7 @@ public final class Models {
           ProgramModel.class,
           QuestionModel.class,
           StoredFileModel.class,
-          TrustedIntermediaryGroup.class,
+          TrustedIntermediaryGroupModel.class,
           VersionModel.class,
           SettingsGroupModel.class);
 

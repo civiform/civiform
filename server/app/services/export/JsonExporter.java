@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.ApplicationModel;
 import models.LifecycleStage;
-import models.TrustedIntermediaryGroup;
+import models.TrustedIntermediaryGroupModel;
 import org.apache.commons.lang3.NotImplementedException;
 import play.libs.F;
 import repository.SubmittedApplicationFilter;
@@ -155,7 +155,7 @@ public final class JsonExporter {
                     .getApplicant()
                     .getAccount()
                     .getManagedByGroup()
-                    .map(TrustedIntermediaryGroup::getName)
+                    .map(TrustedIntermediaryGroupModel::getName)
                     .orElse(EMPTY_VALUE))
             .setSubmitTime(application.getSubmitTime())
             .setStatus(application.getLatestStatus())

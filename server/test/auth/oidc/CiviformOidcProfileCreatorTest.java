@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.TrustedIntermediaryGroup;
+import models.TrustedIntermediaryGroupModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.oidc.client.OidcClient;
@@ -205,7 +205,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   public void mergeCiviFormProfile_skipped_forTrustedIntermediaries() {
     // Setup.
     AccountModel accountWithTiGroup = new AccountModel();
-    accountWithTiGroup.setMemberOfGroup(new TrustedIntermediaryGroup("name", "description"));
+    accountWithTiGroup.setMemberOfGroup(new TrustedIntermediaryGroupModel("name", "description"));
     CiviFormProfile trustedIntermediary = mock(CiviFormProfile.class);
     when(trustedIntermediary.getAccount())
         .thenReturn(CompletableFuture.completedFuture(accountWithTiGroup));

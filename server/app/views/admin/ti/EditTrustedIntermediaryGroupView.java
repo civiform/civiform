@@ -20,7 +20,7 @@ import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
 import models.AccountModel;
-import models.TrustedIntermediaryGroup;
+import models.TrustedIntermediaryGroupModel;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -49,7 +49,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.INTERMEDIARIES);
   }
 
-  public Content render(TrustedIntermediaryGroup tiGroup, Http.Request request) {
+  public Content render(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
     String title = "Trusted Intermediary Groups";
 
     HtmlBundle htmlBundle =
@@ -83,7 +83,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
   }
 
   // TODO https://github.com/seattle-uat/civiform/issues/2762
-  private DivTag renderAddNewButton(TrustedIntermediaryGroup tiGroup, Http.Request request) {
+  private DivTag renderAddNewButton(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
     FormTag formTag =
         form()
             .withMethod("POST")
@@ -105,7 +105,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
   }
 
   private TrTag renderTIRow(
-      TrustedIntermediaryGroup tiGroup, AccountModel ti, Http.Request request) {
+      TrustedIntermediaryGroupModel tiGroup, AccountModel ti, Http.Request request) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             "border-b",
@@ -132,7 +132,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
   }
 
   private TdTag renderActionsCell(
-      TrustedIntermediaryGroup tiGroup, AccountModel account, Http.Request request) {
+      TrustedIntermediaryGroupModel tiGroup, AccountModel account, Http.Request request) {
     return td().with(
             div()
                 .withClasses("flex", "justify-end", "items-center", "pr-3")
@@ -140,7 +140,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
   }
 
   private FormTag renderDeleteButton(
-      TrustedIntermediaryGroup tiGroup, AccountModel account, Http.Request request) {
+      TrustedIntermediaryGroupModel tiGroup, AccountModel account, Http.Request request) {
     return form()
         .withMethod("POST")
         .withAction(

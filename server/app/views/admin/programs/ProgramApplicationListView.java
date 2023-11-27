@@ -169,7 +169,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     String redirectUrl =
         routes.AdminApplicationController.index(
                 program.id(),
-                /* search = */ Optional.empty(),
+                /* search= */ Optional.empty(),
                 /* page= */ Optional.empty(),
                 /* fromDate= */ Optional.empty(),
                 /* untilDate= */ Optional.empty(),
@@ -183,7 +183,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .withAction(
             routes.AdminApplicationController.index(
                     program.id(),
-                    /* search = */ Optional.empty(),
+                    /* search= */ Optional.empty(),
                     /* page= */ Optional.empty(),
                     /* fromDate= */ Optional.empty(),
                     /* untilDate= */ Optional.empty(),

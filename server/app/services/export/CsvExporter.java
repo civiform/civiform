@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import models.ApplicationModel;
-import models.TrustedIntermediaryGroup;
+import models.TrustedIntermediaryGroupModel;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import services.DateConverter;
@@ -172,7 +172,7 @@ public final class CsvExporter implements AutoCloseable {
                   .getApplicant()
                   .getAccount()
                   .getManagedByGroup()
-                  .map(TrustedIntermediaryGroup::getName)
+                  .map(TrustedIntermediaryGroupModel::getName)
                   .orElse(EMPTY_VALUE));
           break;
         case OPAQUE_ID:

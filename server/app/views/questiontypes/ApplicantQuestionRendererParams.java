@@ -18,14 +18,15 @@ public abstract class ApplicantQuestionRendererParams {
     HIDE_ERRORS,
     /**
      * Validation errors are displayed. Typically used when displaying a question in response to the
-     * applicant attempting a submit.
+     * applicant submitting a form.
      */
-    DISPLAY_ERRORS,
-    DISPLAY_SINGLE_ERROR,
+    DISPLAY_ERRORS
   }
 
   public static Builder builder() {
-    return new AutoValue_ApplicantQuestionRendererParams.Builder();
+    return new AutoValue_ApplicantQuestionRendererParams.Builder()
+        .setAutofocus(AutoFocusTarget.NONE)
+        .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_ERRORS);
   }
 
   public abstract Messages messages();
@@ -34,7 +35,29 @@ public abstract class ApplicantQuestionRendererParams {
 
   public abstract ErrorDisplayMode errorDisplayMode();
 
-  public abstract Optional<String> questionName();
+  public abstract AutoFocusTarget autofocus();
+
+  /**
+   * True if autofocus is FIRST_FIELD, meaning the first field of the first question on the page
+   * should have the autofocus attribute.
+   */
+  public boolean autofocusFirstField() {
+    return AutoFocusTarget.FIRST_FIELD.equals(autofocus());
+  }
+
+  /**
+   * True if autofocus is FIRST_ERROR, meaning the first field on the page that has an validation
+   * error message should have the autofocus attribute.
+   */
+  public boolean autofocusFirstError() {
+    return AutoFocusTarget.FIRST_ERROR.equals(autofocus());
+  }
+
+  /** True if a question that only has a single field should autofocus it. */
+  public boolean autofocusSingleField() {
+    return AutoFocusTarget.FIRST_ERROR.equals(autofocus())
+        || AutoFocusTarget.FIRST_FIELD.equals(autofocus());
+  }
 
   @AutoValue.Builder
   public abstract static class Builder {
@@ -45,8 +68,18 @@ public abstract class ApplicantQuestionRendererParams {
 
     public abstract Builder setErrorDisplayMode(ErrorDisplayMode errorDisplayMode);
 
-    public abstract Builder setQuestionName(Optional<String> questionName);
+    public abstract Builder setAutofocus(AutoFocusTarget autofocus);
 
     public abstract ApplicantQuestionRendererParams build();
+  }
+
+  /** Specifies autofocus logic. */
+  public enum AutoFocusTarget {
+    // Question should not autofocus
+    NONE,
+    // Autofocus the first field on the page that has a validation error message
+    FIRST_ERROR,
+    // Autofocus first field in the question on the page
+    FIRST_FIELD;
   }
 }

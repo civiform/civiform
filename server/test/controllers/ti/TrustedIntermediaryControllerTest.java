@@ -12,7 +12,7 @@ import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import java.util.Optional;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.TrustedIntermediaryGroup;
+import models.TrustedIntermediaryGroupModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
@@ -56,7 +56,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                         "dob",
                         "")));
     Http.Request request = requestBuilder.build();
-    TrustedIntermediaryGroup trustedIntermediaryGroup =
+    TrustedIntermediaryGroupModel trustedIntermediaryGroup =
         repo.getTrustedIntermediaryGroup(profileUtils.currentUserProfile(request).get()).get();
     Result result = tiController.addApplicant(trustedIntermediaryGroup.id, request);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -80,7 +80,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                         "sample2@fake.com",
                         "dob",
                         "2022-07-18")));
-    TrustedIntermediaryGroup group = repo.listTrustedIntermediaryGroups().get(0);
+    TrustedIntermediaryGroupModel group = repo.listTrustedIntermediaryGroups().get(0);
     Result result = tiController.addApplicant(group.id, requestBuilder.build());
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     Optional<ApplicantModel> testApplicant =
@@ -102,7 +102,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(Helpers.fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-05-05")));
     Http.Request request = requestBuilder.build();
-    TrustedIntermediaryGroup trustedIntermediaryGroup =
+    TrustedIntermediaryGroupModel trustedIntermediaryGroup =
         repo.getTrustedIntermediaryGroup(profileUtils.currentUserProfile(request).get()).get();
     repo.createNewApplicantForTrustedIntermediaryGroup(form, trustedIntermediaryGroup);
     Optional<AccountModel> account = repo.lookupAccountByEmail("sample3@example.com");

@@ -44,17 +44,12 @@ public class EmailQuestionRenderer extends ApplicantSingleQuestionRenderer {
             .setAriaDescribedByIds(ariaDescribedByIds)
             .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader());
 
-    if (applicantSelectedQuestion(params.questionName())) {
+    if (params.autofocusSingleField()) {
       emailField.focusOnInput();
     }
 
     if (!validationErrors.isEmpty()) {
       emailField.forceAriaInvalid();
-      if (params
-          .errorDisplayMode()
-          .equals(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)) {
-        emailField.focusOnError();
-      }
     }
 
     return emailField.getEmailTag();
