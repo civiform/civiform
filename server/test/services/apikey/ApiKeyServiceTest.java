@@ -20,7 +20,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Locale;
-import models.ApiKey;
+import models.ApiKeyModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.data.DynamicForm;
@@ -75,7 +75,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
     }
 
     for (int i = 0; i < 3; i++) {
-      ApiKey retiredApiKey =
+      ApiKeyModel retiredApiKey =
           apiKeyService
               .createApiKey(
                   buildForm(
@@ -105,9 +105,9 @@ public class ApiKeyServiceTest extends ResetPostgres {
           .getApiKey();
     }
 
-    ImmutableList<ApiKey> activeKeys = apiKeyService.listActiveApiKeys();
+    ImmutableList<ApiKeyModel> activeKeys = apiKeyService.listActiveApiKeys();
     // Keys should be shown in reverse creation order.
-    assertThat(activeKeys.stream().map(ApiKey::getName))
+    assertThat(activeKeys.stream().map(ApiKeyModel::getName))
         .containsExactly("test key 2", "test key 1", "test key 0");
   }
 
@@ -135,7 +135,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
     }
 
     for (int i = 0; i < 3; i++) {
-      ApiKey retiredApiKey =
+      ApiKeyModel retiredApiKey =
           apiKeyService
               .createApiKey(
                   buildForm(
@@ -166,9 +166,9 @@ public class ApiKeyServiceTest extends ResetPostgres {
           .getApiKey();
     }
 
-    ImmutableList<ApiKey> result = apiKeyService.listRetiredApiKeys();
+    ImmutableList<ApiKeyModel> result = apiKeyService.listRetiredApiKeys();
     // Keys should be shown in reverse creation order.
-    assertThat(result.stream().map(ApiKey::getName))
+    assertThat(result.stream().map(ApiKeyModel::getName))
         .containsExactly("retired test key 2", "retired test key 1", "retired test key 0");
   }
 
@@ -196,7 +196,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
           adminProfile);
     }
     for (int i = 0; i < 3; i++) {
-      ApiKey retiredApiKey =
+      ApiKeyModel retiredApiKey =
           apiKeyService
               .createApiKey(
                   buildForm(
@@ -227,15 +227,15 @@ public class ApiKeyServiceTest extends ResetPostgres {
           .getApiKey();
     }
 
-    ImmutableList<ApiKey> result = apiKeyService.listExpiredApiKeys();
+    ImmutableList<ApiKeyModel> result = apiKeyService.listExpiredApiKeys();
     // Keys should be shown in reverse creation order.
-    assertThat(result.stream().map(ApiKey::getName))
+    assertThat(result.stream().map(ApiKeyModel::getName))
         .containsExactly("expired test key 2", "expired test key 1", "expired test key 0");
   }
 
   @Test
   public void retireApiKey_retiresAnApiKey() {
-    ApiKey apiKey =
+    ApiKeyModel apiKey =
         apiKeyService
             .createApiKey(
                 buildForm(
@@ -257,7 +257,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
 
   @Test
   public void retireApiKey_keyAlreadyRetired_throws() {
-    ApiKey apiKey =
+    ApiKeyModel apiKey =
         apiKeyService
             .createApiKey(
                 buildForm(
@@ -303,7 +303,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
     byte[] keyIdBytes = Base64.getDecoder().decode(credentialString);
     String keyId =
         Iterables.get(Splitter.on(':').split(new String(keyIdBytes, StandardCharsets.UTF_8)), 0);
-    ApiKey apiKey = apiKeyRepository.lookupApiKey(keyId).toCompletableFuture().join().get();
+    ApiKeyModel apiKey = apiKeyRepository.lookupApiKey(keyId).toCompletableFuture().join().get();
 
     assertThat(apiKey.getName()).isEqualTo("test key");
     assertThat(apiKey.getSubnet()).isEqualTo("0.0.0.1/32,1.1.1.0/32");
@@ -333,7 +333,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
     byte[] keyIdBytes = Base64.getDecoder().decode(credentialString);
     String keyId =
         Iterables.get(Splitter.on(':').split(new String(keyIdBytes, StandardCharsets.UTF_8)), 0);
-    ApiKey apiKey = apiKeyRepository.lookupApiKey(keyId).toCompletableFuture().join().get();
+    ApiKeyModel apiKey = apiKeyRepository.lookupApiKey(keyId).toCompletableFuture().join().get();
 
     assertThat(apiKey.getName()).isEqualTo("test key");
     assertThat(apiKey.getSubnet()).isEqualTo("0.0.0.1/32,1.1.1.0/32");

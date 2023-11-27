@@ -13,8 +13,8 @@ import com.jayway.jsonpath.DocumentContext;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
-import models.ApiKey;
-import models.Application;
+import models.ApiKeyModel;
+import models.ApplicationModel;
 import models.ProgramModel;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
@@ -31,10 +31,10 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
   private static final String rawCredentials = keyId + ":" + keySecret;
   private static final String serializedApiKey =
       Base64.getEncoder().encodeToString(rawCredentials.getBytes(StandardCharsets.UTF_8));
-  private ApiKey apiKey;
-  private Application januaryApplication;
-  private Application februaryApplication;
-  private Application marchApplication;
+  private ApiKeyModel apiKey;
+  private ApplicationModel januaryApplication;
+  private ApplicationModel februaryApplication;
+  private ApplicationModel marchApplication;
 
   @Before
   public void setUp() {

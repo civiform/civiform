@@ -11,8 +11,8 @@ import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.AccountModel;
-import models.Applicant;
-import models.TrustedIntermediaryGroup;
+import models.ApplicantModel;
+import models.TrustedIntermediaryGroupModel;
 import play.data.Form;
 import repository.AccountRepository;
 import repository.SearchParameters;
@@ -48,7 +48,7 @@ public final class TrustedIntermediaryService {
 
   public Form<AddApplicantToTrustedIntermediaryGroupForm> addNewClient(
       Form<AddApplicantToTrustedIntermediaryGroupForm> form,
-      TrustedIntermediaryGroup trustedIntermediaryGroup) {
+      TrustedIntermediaryGroupModel trustedIntermediaryGroup) {
     form = validateFirstName(form);
     form = validateLastName(form);
     form = validateDateOfBirthForAddApplicant(form);
@@ -125,7 +125,7 @@ public final class TrustedIntermediaryService {
    *     Parameter and an optional errorMessage which is generated if the filtering has failed.
    */
   public TrustedIntermediarySearchResult getManagedAccounts(
-      SearchParameters searchParameters, TrustedIntermediaryGroup tiGroup) {
+      SearchParameters searchParameters, TrustedIntermediaryGroupModel tiGroup) {
     ImmutableList<AccountModel> allAccounts = tiGroup.getManagedAccounts();
     if (searchParameters.nameQuery().isEmpty() && searchParameters.dateQuery().isEmpty()) {
       return TrustedIntermediarySearchResult.success(allAccounts);
@@ -181,7 +181,7 @@ public final class TrustedIntermediaryService {
    *     runtime exception is raised.
    */
   public Form<UpdateApplicantDobForm> updateApplicantDateOfBirth(
-      TrustedIntermediaryGroup trustedIntermediaryGroup,
+      TrustedIntermediaryGroupModel trustedIntermediaryGroup,
       Long accountId,
       Form<UpdateApplicantDobForm> form)
       throws ApplicantNotFoundException {
@@ -199,7 +199,7 @@ public final class TrustedIntermediaryService {
     if (optionalAccount.isEmpty() || optionalAccount.get().newestApplicant().isEmpty()) {
       throw new ApplicantNotFoundException(accountId);
     }
-    Applicant applicant = optionalAccount.get().newestApplicant().get();
+    ApplicantModel applicant = optionalAccount.get().newestApplicant().get();
     applicant.getApplicantData().setDateOfBirth(form.get().getDob());
     accountRepository.updateApplicant(applicant).toCompletableFuture().join();
     return form;

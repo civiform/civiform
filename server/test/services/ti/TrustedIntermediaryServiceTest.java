@@ -12,8 +12,8 @@ import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import forms.UpdateApplicantDobForm;
 import java.util.Optional;
 import models.AccountModel;
-import models.Applicant;
-import models.TrustedIntermediaryGroup;
+import models.ApplicantModel;
+import models.TrustedIntermediaryGroupModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,8 +32,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   private TrustedIntermediaryService service;
   private FormFactory formFactory;
   private ProfileFactory profileFactory;
-  private TrustedIntermediaryGroup tiGroup;
-  private TrustedIntermediaryGroup tiGroup2;
+  private TrustedIntermediaryGroupModel tiGroup;
+  private TrustedIntermediaryGroupModel tiGroup2;
 
   @Before
   public void setup() {
@@ -41,9 +41,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     service = instanceOf(TrustedIntermediaryService.class);
     formFactory = instanceOf(FormFactory.class);
     profileFactory = instanceOf(ProfileFactory.class);
-    Applicant managedApplicant = createApplicant();
+    ApplicantModel managedApplicant = createApplicant();
     createTIWithMockedProfile(managedApplicant);
-    Applicant managedApplicant2 = createApplicant();
+    ApplicantModel managedApplicant2 = createApplicant();
     createTIWithMockedProfile(managedApplicant2);
     profileFactory.createFakeTrustedIntermediary();
     tiGroup = repo.listTrustedIntermediaryGroups().get(0);
@@ -348,12 +348,12 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   private void setupTIAccount(
-      String firstName, String dob, String email, TrustedIntermediaryGroup tiGroup) {
+      String firstName, String dob, String email, TrustedIntermediaryGroupModel tiGroup) {
     AccountModel account = new AccountModel();
     account.setEmailAddress(email);
     account.setManagedByGroup(tiGroup);
     account.save();
-    Applicant applicant = new Applicant();
+    ApplicantModel applicant = new ApplicantModel();
     applicant.setAccount(account);
     ApplicantData applicantData = applicant.getApplicantData();
     applicantData.setUserName(firstName, "", "Last");

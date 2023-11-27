@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.assertj.core.api.Assertions.fail;
+import static services.LocalizedStrings.DEFAULT_LOCALE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
@@ -28,7 +29,7 @@ import junitparams.Parameters;
 import models.AccountModel;
 import models.DisplayMode;
 import models.ProgramModel;
-import models.Question;
+import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +37,7 @@ import repository.ResetPostgres;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
+import services.TranslationNotFoundException;
 import services.applicant.question.Scalar;
 import services.program.predicate.AndNode;
 import services.program.predicate.LeafOperationExpressionNode;
@@ -1485,7 +1487,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void setBlockPredicate_updatesBlock() throws Exception {
-    Question question = testQuestionBank.applicantAddress();
+    QuestionModel question = testQuestionBank.applicantAddress();
     ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
@@ -1598,7 +1600,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void setBlockEligibilityDefinition_updatesBlock() throws Exception {
-    Question question = testQuestionBank.applicantAddress();
+    QuestionModel question = testQuestionBank.applicantAddress();
     ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
@@ -1991,6 +1993,8 @@ public class ProgramServiceTest extends ResetPostgres {
   public void updateLocalizations_addsNewLocale() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram()
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.withDefaultValue("default image description"))
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
@@ -2000,6 +2004,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedDisplayName("German Name")
             .setLocalizedDisplayDescription("German Description")
             .setLocalizedConfirmationMessage("")
+            .setLocalizedSummaryImageDescription("German Image Description")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
@@ -2020,6 +2025,9 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(definition.localizedName().get(Locale.GERMAN)).isEqualTo("German Name");
     assertThat(definition.localizedDescription().get(Locale.GERMAN))
         .isEqualTo("German Description");
+    assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(definition.localizedSummaryImageDescription().get().get(Locale.GERMAN))
+        .isEqualTo("German Image Description");
     assertThat(definition.statusDefinitions().getStatuses())
         .isEqualTo(
             ImmutableList.of(
@@ -2052,6 +2060,12 @@ public class ProgramServiceTest extends ResetPostgres {
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
             .withLocalizedConfirmationMessage(Locale.FRENCH, "")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English image description",
+                    Locale.FRENCH,
+                    "existing French image description"))
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
@@ -2060,6 +2074,7 @@ public class ProgramServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedSummaryImageDescription("new French image description")
             .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
@@ -2084,6 +2099,9 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(definition.localizedName().get(Locale.FRENCH)).isEqualTo("new French name");
     assertThat(definition.localizedDescription().get(Locale.FRENCH))
         .isEqualTo("new French description");
+    assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(definition.localizedSummaryImageDescription().get().get(Locale.FRENCH))
+        .isEqualTo("new French image description");
     assertThat(definition.statusDefinitions().getStatuses())
         .isEqualTo(
             ImmutableList.of(
@@ -2301,6 +2319,31 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
         .isInstanceOf(OutOfDateStatusesException.class);
+  }
+
+  @Test
+  public void updateLocalizations_imageDescriptionProvidedWithNoImageConfigured_notUsed()
+      throws Exception {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("English name", "English description").build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("new French name")
+            .setLocalizedDisplayDescription("new French description")
+            .setLocalizedConfirmationMessage("")
+            .setLocalizedSummaryImageDescription("invalid French image description")
+            .setStatuses(ImmutableList.of())
+            .build();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+
+    assertThat(result.isError()).isFalse();
+    ProgramDefinition definition = result.getResult();
+    // Verify we didn't save the French image description because we don't have any image
+    // description.
+    assertThat(definition.localizedSummaryImageDescription().isPresent()).isFalse();
   }
 
   @Test
@@ -2707,5 +2750,69 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThat(ps.getCommonIntakeForm()).isPresent();
     assertThat(ps.getCommonIntakeForm().get().adminName()).isEqualTo("two");
+  }
+
+  @Test
+  public void setSummaryImageDescription_missingProgram_throws() {
+    assertThatThrownBy(() -> ps.setSummaryImageDescription(Long.MAX_VALUE, Locale.US, "test"))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID:");
+  }
+
+  @Test
+  public void setSummaryImageDescription_defaultLocale_createsNewStrings()
+      throws ProgramNotFoundException, TranslationNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+
+    ProgramDefinition result =
+        ps.setSummaryImageDescription(program.id(), DEFAULT_LOCALE, "fake description");
+
+    assertThat(result.localizedSummaryImageDescription().isPresent()).isTrue();
+    LocalizedStrings descriptions = result.localizedSummaryImageDescription().get();
+    assertThat(descriptions.get(DEFAULT_LOCALE)).isEqualTo("fake description");
+    assertThatThrownBy(() -> descriptions.get(Locale.ITALIAN))
+        .isInstanceOf(TranslationNotFoundException.class);
+  }
+
+  @Test
+  public void setSummaryImageDescription_additionalLocale_addsToExisting()
+      throws ProgramNotFoundException, TranslationNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+    ps.setSummaryImageDescription(program.id(), Locale.US, "US description");
+
+    ProgramDefinition result =
+        ps.setSummaryImageDescription(program.id(), Locale.CANADA, "Canada description");
+
+    assertThat(result.localizedSummaryImageDescription().isPresent()).isTrue();
+    LocalizedStrings descriptions = result.localizedSummaryImageDescription().get();
+    assertThat(descriptions.get(Locale.US)).isEqualTo("US description");
+    assertThat(descriptions.get(Locale.CANADA)).isEqualTo("Canada description");
+  }
+
+  @Test
+  public void setSummaryImageDescription_existingLocale_updates()
+      throws ProgramNotFoundException, TranslationNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+    ps.setSummaryImageDescription(program.id(), Locale.US, "Old description");
+
+    ProgramDefinition result =
+        ps.setSummaryImageDescription(program.id(), Locale.US, "New description");
+
+    assertThat(result.localizedSummaryImageDescription().isPresent()).isTrue();
+    LocalizedStrings descriptions = result.localizedSummaryImageDescription().get();
+    assertThat(descriptions.get(Locale.US)).isEqualTo("New description");
+  }
+
+  @Test
+  public void setSummaryImageDescription_defaultLocaleAndBlank_removesAllTranslations()
+      throws ProgramNotFoundException, TranslationNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+    ps.setSummaryImageDescription(program.id(), Locale.US, "US description");
+    ps.setSummaryImageDescription(program.id(), Locale.CANADA, "Canada description");
+    ps.setSummaryImageDescription(program.id(), Locale.KOREAN, "Korean description");
+
+    ProgramDefinition result = ps.setSummaryImageDescription(program.id(), DEFAULT_LOCALE, "");
+
+    assertThat(result.localizedSummaryImageDescription().isPresent()).isFalse();
   }
 }

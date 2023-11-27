@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nullable;
-import models.Application;
+import models.ApplicationModel;
 import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
@@ -103,7 +103,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
         .getActiveProgramDefinitionAsync(programSlug)
         .thenApplyAsync(
             programDefinition -> {
-              PaginationResult<Application> paginationResult =
+              PaginationResult<ApplicationModel> paginationResult =
                   programService.getSubmittedProgramApplicationsAllVersions(
                       programDefinition.id(), F.Either.Left(paginationSpec), filters);
 
@@ -133,7 +133,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
   }
 
   private Optional<ApiPaginationTokenPayload> getNextPageToken(
-      PaginationResult<Application> paginationResult,
+      PaginationResult<ApplicationModel> paginationResult,
       String programSlug,
       int pageSize,
       TimeFilter timeFilter) {

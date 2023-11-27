@@ -40,6 +40,17 @@ public class LocalizedStringsTest {
   }
 
   @Test
+  public void withEmptyDefault_hasDefault() throws TranslationNotFoundException {
+    assertThat(LocalizedStrings.withEmptyDefault().get(LocalizedStrings.DEFAULT_LOCALE))
+        .isEqualTo("");
+  }
+
+  @Test
+  public void withEmptyDefault_isRequired() {
+    assertThat(LocalizedStrings.withEmptyDefault().isRequired()).isTrue();
+  }
+
+  @Test
   public void of_isRequired() {
     assertThat(LocalizedStrings.of().isRequired()).isTrue();
   }

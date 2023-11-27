@@ -5,7 +5,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
-import models.ApiKey;
+import models.ApiKeyModel;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.profile.BasicUserProfile;
@@ -56,7 +56,7 @@ public class ProfileUtils {
     return profileMaybe.map(BasicUserProfile::getId);
   }
 
-  public Optional<ApiKey> currentApiKey(Http.RequestHeader request) {
+  public Optional<ApiKeyModel> currentApiKey(Http.RequestHeader request) {
     Optional<String> maybeApiKeyId = currentApiKeyId(request);
 
     return maybeApiKeyId.map(profileFactory::retrieveApiKey);

@@ -11,10 +11,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.StoredFile;
+import models.StoredFileModel;
 
 /**
- * StoredFileRepository performs complicated operations on {@link StoredFile} that involve
+ * StoredFileRepository performs complicated operations on {@link StoredFileModel} that involve
  * asynchronous handling.
  */
 public final class StoredFileRepository {
@@ -31,22 +31,22 @@ public final class StoredFileRepository {
   }
 
   /** Return all files in a set. */
-  public CompletionStage<Set<StoredFile>> list() {
+  public CompletionStage<Set<StoredFileModel>> list() {
     return supplyAsync(
         () ->
             database
-                .find(StoredFile.class)
+                .find(StoredFileModel.class)
                 .setLabel("StoredFile.findSet")
                 .setProfileLocation(queryProfileLocationBuilder.create("list"))
                 .findSet(),
         executionContext);
   }
 
-  public CompletionStage<List<StoredFile>> lookupFiles(ImmutableList<String> keyNames) {
+  public CompletionStage<List<StoredFileModel>> lookupFiles(ImmutableList<String> keyNames) {
     return supplyAsync(
         () ->
             database
-                .find(StoredFile.class)
+                .find(StoredFileModel.class)
                 .setLabel("StoredFile.findList")
                 .setProfileLocation(queryProfileLocationBuilder.create("lookupFiles"))
                 .where()
@@ -55,12 +55,12 @@ public final class StoredFileRepository {
         executionContext);
   }
 
-  public CompletionStage<Optional<StoredFile>> lookupFile(String keyName) {
+  public CompletionStage<Optional<StoredFileModel>> lookupFile(String keyName) {
     return supplyAsync(
         () ->
             Optional.ofNullable(
                 database
-                    .find(StoredFile.class)
+                    .find(StoredFileModel.class)
                     .setLabel("StoredFile.findByName")
                     .setProfileLocation(queryProfileLocationBuilder.create("lookupFile"))
                     .where()
@@ -69,12 +69,12 @@ public final class StoredFileRepository {
         executionContext);
   }
 
-  public CompletionStage<Optional<StoredFile>> lookupFile(Long id) {
+  public CompletionStage<Optional<StoredFileModel>> lookupFile(Long id) {
     return supplyAsync(
         () ->
             Optional.ofNullable(
                 database
-                    .find(StoredFile.class)
+                    .find(StoredFileModel.class)
                     .setLabel("StoredFile.findOne")
                     .setProfileLocation(queryProfileLocationBuilder.create("lookupFile"))
                     .setId(id)
@@ -82,7 +82,7 @@ public final class StoredFileRepository {
         executionContext);
   }
 
-  public CompletionStage<Void> update(StoredFile storedFile) {
+  public CompletionStage<Void> update(StoredFileModel storedFile) {
     return supplyAsync(
         () -> {
           database.update(storedFile);
@@ -91,7 +91,7 @@ public final class StoredFileRepository {
         executionContext);
   }
 
-  public CompletionStage<StoredFile> insert(StoredFile file) {
+  public CompletionStage<StoredFileModel> insert(StoredFileModel file) {
     return supplyAsync(
         () -> {
           database.insert(file);

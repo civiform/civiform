@@ -3,7 +3,7 @@ package services;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import javax.inject.Inject;
-import models.Version;
+import models.VersionModel;
 import repository.VersionRepository;
 import services.question.QuestionService;
 
@@ -25,9 +25,10 @@ public final class ProgramBlockValidationFactory {
     this.versionRepository = checkNotNull(versionRepository);
     this.questionService = checkNotNull(questionService);
   }
+
   /** Creating a ProgramBlockValidation object with version(DB object) as its member variable */
   public ProgramBlockValidation create() {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     services.question.ActiveAndDraftQuestions activeAndDraftQuestions =
         questionService.getReadOnlyQuestionServiceSync().getActiveAndDraftQuestions();
     return new ProgramBlockValidation(version, activeAndDraftQuestions);

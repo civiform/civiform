@@ -10,17 +10,17 @@ public final class Models {
   private static final ImmutableList<Class<? extends BaseModel>> MODELS =
       ImmutableList.of(
           AccountModel.class,
-          ApiKey.class,
-          Applicant.class,
-          Application.class,
-          ApplicationEvent.class,
-          PersistedDurableJob.class,
+          ApiKeyModel.class,
+          ApplicantModel.class,
+          ApplicationModel.class,
+          ApplicationEventModel.class,
+          PersistedDurableJobModel.class,
           ProgramModel.class,
-          Question.class,
-          StoredFile.class,
-          TrustedIntermediaryGroup.class,
-          Version.class,
-          SettingsGroup.class);
+          QuestionModel.class,
+          StoredFileModel.class,
+          TrustedIntermediaryGroupModel.class,
+          VersionModel.class,
+          SettingsGroupModel.class);
 
   /** Get the complete list of ebean models to truncate. */
   public static void truncate(Database database) {

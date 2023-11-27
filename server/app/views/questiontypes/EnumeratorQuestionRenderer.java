@@ -90,16 +90,8 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                     .withId(ADD_ELEMENT_BUTTON_ID)
                     // need to specify type "button" to avoid default onClick browser behavior
                     .withType("button")
-                    .condAttr(applicantSelectedQuestion(params.questionName()), Attr.AUTOFOCUS, "")
+                    .condAttr(params.autofocusSingleField(), Attr.AUTOFOCUS, "")
                     .condAttr(hasErrors, "aria-invalid", "true")
-                    .condAttr(
-                        params
-                            .errorDisplayMode()
-                            .equals(
-                                ApplicantQuestionRendererParams.ErrorDisplayMode
-                                    .DISPLAY_SINGLE_ERROR),
-                        Attr.AUTOFOCUS,
-                        "")
                     .withClasses(
                         ButtonStyles.SOLID_BLUE_WITH_ICON,
                         "normal-case",

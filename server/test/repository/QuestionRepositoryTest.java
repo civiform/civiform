@@ -10,7 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import models.Question;
+import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import services.LocalizedStrings;
@@ -36,17 +36,17 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
   @Test
   public void listQuestions() {
-    Question one = resourceCreator.insertQuestion();
-    Question two = resourceCreator.insertQuestion();
+    QuestionModel one = resourceCreator.insertQuestion();
+    QuestionModel two = resourceCreator.insertQuestion();
 
-    Set<Question> list = repo.listQuestions().toCompletableFuture().join();
+    Set<QuestionModel> list = repo.listQuestions().toCompletableFuture().join();
 
     assertThat(list).containsExactly(one, two);
   }
 
   @Test
   public void lookupQuestion_returnsEmptyOptionalWhenQuestionNotFound() {
-    Optional<Question> found = repo.lookupQuestion(1L).toCompletableFuture().join();
+    Optional<QuestionModel> found = repo.lookupQuestion(1L).toCompletableFuture().join();
 
     assertThat(found).isEmpty();
   }
@@ -54,9 +54,9 @@ public class QuestionRepositoryTest extends ResetPostgres {
   @Test
   public void lookupQuestion_findsCorrectQuestion() {
     resourceCreator.insertQuestion();
-    Question existing = resourceCreator.insertQuestion();
+    QuestionModel existing = resourceCreator.insertQuestion();
 
-    Optional<Question> found = repo.lookupQuestion(existing.id).toCompletableFuture().join();
+    Optional<QuestionModel> found = repo.lookupQuestion(existing.id).toCompletableFuture().join();
 
     assertThat(found).hasValue(existing);
   }
@@ -71,35 +71,35 @@ public class QuestionRepositoryTest extends ResetPostgres {
             .setName("a brand new question")
             .build();
 
-    Optional<Question> maybeConflict = repo.findConflictingQuestion(newQuestionDefinition);
+    Optional<QuestionModel> maybeConflict = repo.findConflictingQuestion(newQuestionDefinition);
 
     assertThat(maybeConflict).isEmpty();
   }
 
   @Test
   public void findConflictingQuestion_sameName_hasConflict() throws Exception {
-    Question applicantAddress = testQuestionBank.applicantAddress();
+    QuestionModel applicantAddress = testQuestionBank.applicantAddress();
     QuestionDefinition newQuestionDefinition =
         new QuestionDefinitionBuilder(applicantAddress.getQuestionDefinition())
             .clearId()
             .setEnumeratorId(Optional.of(1L))
             .build();
 
-    Optional<Question> maybeConflict = repo.findConflictingQuestion(newQuestionDefinition);
+    Optional<QuestionModel> maybeConflict = repo.findConflictingQuestion(newQuestionDefinition);
 
     assertThat(maybeConflict).contains(applicantAddress);
   }
 
   @Test
   public void findConflictingQuestion_sameQuestionPathSegment_hasConflict() throws Exception {
-    Question applicantAddress = testQuestionBank.applicantAddress();
+    QuestionModel applicantAddress = testQuestionBank.applicantAddress();
     QuestionDefinition newQuestionDefinition =
         new QuestionDefinitionBuilder(applicantAddress.getQuestionDefinition())
             .clearId()
             .setName("applicant address!")
             .build();
 
-    Optional<Question> maybeConflict = repo.findConflictingQuestion(newQuestionDefinition);
+    Optional<QuestionModel> maybeConflict = repo.findConflictingQuestion(newQuestionDefinition);
 
     assertThat(maybeConflict).contains(applicantAddress);
   }
@@ -107,7 +107,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
   @Test
   public void findConflictingQuestion_sameQuestionPathSegmentButDifferentEnumeratorId_ok()
       throws Exception {
-    Question applicantAddress = testQuestionBank.applicantAddress();
+    QuestionModel applicantAddress = testQuestionBank.applicantAddress();
     QuestionDefinition newQuestionDefinition =
         new QuestionDefinitionBuilder(applicantAddress.getQuestionDefinition())
             .clearId()
@@ -115,15 +115,15 @@ public class QuestionRepositoryTest extends ResetPostgres {
             .setEnumeratorId(Optional.of(1L))
             .build();
 
-    Optional<Question> maybeConflict = repo.findConflictingQuestion(newQuestionDefinition);
+    Optional<QuestionModel> maybeConflict = repo.findConflictingQuestion(newQuestionDefinition);
 
     assertThat(maybeConflict).isEmpty();
   }
 
   @Test
   public void findConflictingQuestion_sameQuestion_hasConflict() {
-    Question applicantAddress = testQuestionBank.applicantAddress();
-    Optional<Question> maybeConflict =
+    QuestionModel applicantAddress = testQuestionBank.applicantAddress();
+    Optional<QuestionModel> maybeConflict =
         repo.findConflictingQuestion(applicantAddress.getQuestionDefinition());
 
     assertThat(maybeConflict).contains(applicantAddress);
@@ -131,11 +131,11 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
   @Test
   public void findConflictingQuestion_differentVersion_hasConflict() throws Exception {
-    Question applicantName = testQuestionBank.applicantName();
+    QuestionModel applicantName = testQuestionBank.applicantName();
     QuestionDefinition questionDefinition =
         new QuestionDefinitionBuilder(applicantName.getQuestionDefinition()).setId(123123L).build();
 
-    Optional<Question> maybeConflict = repo.findConflictingQuestion(questionDefinition);
+    Optional<QuestionModel> maybeConflict = repo.findConflictingQuestion(questionDefinition);
 
     assertThat(maybeConflict).contains(applicantName);
   }
@@ -145,11 +145,11 @@ public class QuestionRepositoryTest extends ResetPostgres {
   public void insertingDuplicateDraftQuestions_raisesDatabaseException() throws Exception {
     var versionRepo = instanceOf(VersionRepository.class);
     var draftVersion = versionRepo.getDraftVersionOrCreate();
-    Question activeQuestion = testQuestionBank.applicantName();
+    QuestionModel activeQuestion = testQuestionBank.applicantName();
     assertThat(activeQuestion.id).isNotNull();
 
     var draftOne =
-        new Question(
+        new QuestionModel(
             new QuestionDefinitionBuilder(activeQuestion.getQuestionDefinition())
                 .setId(null)
                 .build());
@@ -157,7 +157,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
     draftOne.save();
 
     var draftTwo =
-        new Question(
+        new QuestionModel(
             new QuestionDefinitionBuilder(activeQuestion.getQuestionDefinition())
                 .setId(null)
                 .build());
@@ -178,12 +178,12 @@ public class QuestionRepositoryTest extends ResetPostgres {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .build());
-    Question question = new Question(questionDefinition);
+    QuestionModel question = new QuestionModel(questionDefinition);
 
     repo.insertQuestion(question).toCompletableFuture().join();
 
     long id = question.id;
-    Question q = repo.lookupQuestion(id).toCompletableFuture().join().get();
+    QuestionModel q = repo.lookupQuestion(id).toCompletableFuture().join().get();
     assertThat(q.id).isEqualTo(id);
   }
 
@@ -197,7 +197,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .build());
-    Question question = new Question(questionDefinition);
+    QuestionModel question = new QuestionModel(questionDefinition);
 
     repo.insertQuestionSync(question);
 
@@ -208,8 +208,8 @@ public class QuestionRepositoryTest extends ResetPostgres {
   public void getExistingQuestions() {
     resourceCreator.insertQuestion("name-question");
     resourceCreator.insertQuestion("date-question");
-    Question dateQuestionV2 = resourceCreator.insertQuestion("date-question");
-    Question nameQuestionV2 = resourceCreator.insertQuestion("name-question");
+    QuestionModel dateQuestionV2 = resourceCreator.insertQuestion("date-question");
+    QuestionModel nameQuestionV2 = resourceCreator.insertQuestion("name-question");
     Map<String, QuestionDefinition> result =
         repo.getExistingQuestions(
             ImmutableSet.of("name-question", "date-question", "other-question"));
@@ -220,27 +220,27 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
   @Test
   public void updateQuestion() throws UnsupportedQuestionTypeException {
-    Question question = resourceCreator.insertQuestion();
+    QuestionModel question = resourceCreator.insertQuestion();
     QuestionDefinition questionDefinition = question.getQuestionDefinition();
     questionDefinition =
         new QuestionDefinitionBuilder(questionDefinition).setDescription("new description").build();
 
-    repo.updateQuestion(new Question(questionDefinition)).toCompletableFuture().join();
+    repo.updateQuestion(new QuestionModel(questionDefinition)).toCompletableFuture().join();
 
-    Question q = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    QuestionModel q = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
     assertThat(q.getQuestionDefinition()).isEqualTo(questionDefinition);
   }
 
   @Test
   public void updateQuestionSync() throws UnsupportedQuestionTypeException {
-    Question question = resourceCreator.insertQuestion();
+    QuestionModel question = resourceCreator.insertQuestion();
     QuestionDefinition questionDefinition = question.getQuestionDefinition();
     questionDefinition =
         new QuestionDefinitionBuilder(questionDefinition).setDescription("new description").build();
 
-    repo.updateQuestionSync(new Question(questionDefinition));
+    repo.updateQuestionSync(new QuestionModel(questionDefinition));
 
-    Question q = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    QuestionModel q = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
     assertThat(q.getQuestionDefinition()).isEqualTo(questionDefinition);
   }
 
@@ -253,7 +253,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
                 + " 'REPEATER');")
         .execute();
 
-    Question found =
+    QuestionModel found =
         repo.listQuestions().toCompletableFuture().join().stream()
             .filter(
                 question -> question.getQuestionDefinition().getName().equals("old schema entry"))

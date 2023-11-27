@@ -8,7 +8,7 @@ import auth.ProfileUtils;
 import auth.UnauthorizedApiRequestException;
 import controllers.CiviFormController;
 import javax.inject.Inject;
-import models.ApiKey;
+import models.ApiKeyModel;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -43,7 +43,7 @@ public class CiviFormApiController extends CiviFormController {
   }
 
   protected void assertHasProgramReadPermission(Http.Request request, String programSlug) {
-    ApiKey apiKey =
+    ApiKeyModel apiKey =
         profileUtils
             .currentApiKey(request)
             .orElseThrow(() -> new AccountNonexistentException("No API key found for profile"));

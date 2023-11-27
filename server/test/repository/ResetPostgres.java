@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import models.LifecycleStage;
 import models.Models;
-import models.Version;
+import models.VersionModel;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -64,7 +64,7 @@ public class ResetPostgres {
   public void resetTables() {
     Database database = DB.getDefault();
     Models.truncate(database);
-    Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
+    VersionModel newActiveVersion = new VersionModel(LifecycleStage.ACTIVE);
     newActiveVersion.save();
     instanceOf(SettingsService.class).migrateConfigValuesToSettingsGroup();
   }

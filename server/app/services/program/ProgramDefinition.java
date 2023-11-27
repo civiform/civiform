@@ -97,6 +97,9 @@ public abstract class ProgramDefinition {
 
   public abstract ProgramAcls acls();
 
+  /** A description of the program's summary image, used for alt text. */
+  public abstract Optional<LocalizedStrings> localizedSummaryImageDescription();
+
   /**
    * Returns a program definition with block definitions such that each enumerator block is
    * immediately followed by all of its repeated and nested repeated blocks. This method should be
@@ -400,6 +403,8 @@ public abstract class ProgramDefinition {
             .map(QuestionDefinition::getSupportedLocales)
             .collect(toImmutableSet());
 
+    // TODO(#5995): Should this also include localizedConfirmationMessage and/or
+    // localizedSummaryImageDescription?
     Set<Locale> intersection =
         Sets.intersection(localizedName().locales(), localizedDescription().locales());
     for (ImmutableSet<Locale> set : questionLocales) {
@@ -750,6 +755,9 @@ public abstract class ProgramDefinition {
     public abstract Builder setEligibilityIsGating(Boolean eligibilityIsGating);
 
     public abstract Builder setAcls(ProgramAcls programAcls);
+
+    public abstract Builder setLocalizedSummaryImageDescription(
+        Optional<LocalizedStrings> localizedSummaryImageDescription);
 
     public abstract ProgramDefinition build();
 

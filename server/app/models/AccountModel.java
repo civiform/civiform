@@ -2,8 +2,10 @@ package models;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
+import auth.oidc.SerializedIdTokens;
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbArray;
+import io.ebean.annotation.DbJsonB;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -38,10 +40,10 @@ public class AccountModel extends BaseModel {
   private static final long serialVersionUID = 1L;
 
   @OneToMany(mappedBy = "account")
-  private List<Applicant> applicants;
+  private List<ApplicantModel> applicants;
 
-  @ManyToOne private TrustedIntermediaryGroup memberOfGroup;
-  @ManyToOne private TrustedIntermediaryGroup managedByGroup;
+  @ManyToOne private TrustedIntermediaryGroupModel memberOfGroup;
+  @ManyToOne private TrustedIntermediaryGroupModel managedByGroup;
   private boolean globalAdmin;
 
   // This must be a mutable collection so we can add to the list later.
@@ -50,19 +52,22 @@ public class AccountModel extends BaseModel {
   private String authorityId;
   private String emailAddress;
 
+  @DbJsonB(name = "id_tokens")
+  private SerializedIdTokens serializedIdTokens;
+
   public ImmutableList<Long> ownedApplicantIds() {
     return getApplicants().stream().map(applicant -> applicant.id).collect(toImmutableList());
   }
 
-  public List<Applicant> getApplicants() {
+  public List<ApplicantModel> getApplicants() {
     return applicants;
   }
 
-  public Optional<Applicant> newestApplicant() {
-    return applicants.stream().max(Comparator.comparing(Applicant::getWhenCreated));
+  public Optional<ApplicantModel> newestApplicant() {
+    return applicants.stream().max(Comparator.comparing(ApplicantModel::getWhenCreated));
   }
 
-  public AccountModel setApplicants(List<Applicant> applicants) {
+  public AccountModel setApplicants(List<ApplicantModel> applicants) {
     this.applicants = applicants;
     return this;
   }
@@ -85,22 +90,31 @@ public class AccountModel extends BaseModel {
     return this.emailAddress;
   }
 
-  public AccountModel setMemberOfGroup(TrustedIntermediaryGroup group) {
+  public AccountModel setMemberOfGroup(TrustedIntermediaryGroupModel group) {
     this.memberOfGroup = group;
     return this;
   }
 
-  public AccountModel setManagedByGroup(TrustedIntermediaryGroup group) {
+  public AccountModel setManagedByGroup(TrustedIntermediaryGroupModel group) {
     this.managedByGroup = group;
     return this;
   }
 
-  public Optional<TrustedIntermediaryGroup> getMemberOfGroup() {
+  public Optional<TrustedIntermediaryGroupModel> getMemberOfGroup() {
     return Optional.ofNullable(this.memberOfGroup);
   }
 
-  public Optional<TrustedIntermediaryGroup> getManagedByGroup() {
+  public Optional<TrustedIntermediaryGroupModel> getManagedByGroup() {
     return Optional.ofNullable(this.managedByGroup);
+  }
+
+  public SerializedIdTokens getSerializedIdTokens() {
+    return serializedIdTokens;
+  }
+
+  public AccountModel setSerializedIdTokens(SerializedIdTokens serializedIdTokens) {
+    this.serializedIdTokens = serializedIdTokens;
+    return this;
   }
 
   public ImmutableList<String> getAdministeredProgramNames() {
@@ -156,7 +170,7 @@ public class AccountModel extends BaseModel {
    */
   public String getApplicantName() {
     return this.getApplicants().stream()
-        .max(Comparator.comparing(Applicant::getWhenCreated))
+        .max(Comparator.comparing(ApplicantModel::getWhenCreated))
         .map(u -> u.getApplicantData().getApplicantName().orElse("<Unnamed User>"))
         .orElse("<Unnamed User>");
   }

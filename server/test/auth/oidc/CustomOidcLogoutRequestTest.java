@@ -18,7 +18,8 @@ public class CustomOidcLogoutRequestTest {
             "post_logout_redirect_uri",
             /* postLogoutRedirectURI= */ new URI("https://civiform.com/"),
             /* clientId = */ Optional.empty(),
-            /* state= */ null);
+            /* state= */ null,
+            /* idTokenHint= */ null);
     assertThat(request.toURI().toString())
         .isEqualTo(
             "https://auth.com/logout?post_logout_redirect_uri=https%3A%2F%2Fciviform.com%2F");
@@ -32,7 +33,8 @@ public class CustomOidcLogoutRequestTest {
             "post_logout_redirect_uri",
             /* postLogoutRedirectURI= */ new URI("https://civiform.com/"),
             /* clientId = */ Optional.of("12345"),
-            /* state= */ null);
+            /* state= */ null,
+            /* idTokenHint= */ null);
     assertThat(request.toURI().toString())
         .isEqualTo(
             "https://auth.com/logout?post_logout_redirect_uri=https%3A%2F%2Fciviform.com%2F&client_id=12345");
@@ -46,7 +48,8 @@ public class CustomOidcLogoutRequestTest {
             "post_logout_redirect_uri",
             /* postLogoutRedirectURI= */ new URI("https://civiform.com/"),
             /* clientId = */ Optional.empty(),
-            new State("stateValue"));
+            new State("stateValue"),
+            /* idTokenHint= */ null);
     assertThat(request.toURI().toString())
         .isEqualTo(
             "https://auth.com/logout?post_logout_redirect_uri=https%3A%2F%2Fciviform.com%2F&state=stateValue");
@@ -63,7 +66,8 @@ public class CustomOidcLogoutRequestTest {
             "",
             /* postLogoutRedirectURI= */ new URI("https://civiform.com/"),
             /* clientId = */ Optional.empty(),
-            /* state= */ null);
+            /* state= */ null,
+            /* idTokenHint= */ null);
     assertThat(request.toURI().toString()).isEqualTo("https://auth.com/logout#fragmentHere");
   }
 }

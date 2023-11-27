@@ -842,9 +842,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("QUESTION_CACHE_ENABLED");
   }
 
-  /** Enables logic to populate more fields in OIDC logout requests. */
-  public boolean getEnhancedOidcLogoutEnabled() {
-    return getBool("ENHANCED_OIDC_LOGOUT_ENABLED");
+  /** Enables populating more fields in OIDC logout requests to admin identity provider. */
+  public boolean getAdminOidcEnhancedLogoutEnabled(RequestHeader request) {
+    return getBool("ADMIN_OIDC_ENHANCED_LOGOUT_ENABLED", request);
+  }
+
+  /** Enables populating more fields in OIDC logout requests to applicant identity provider. */
+  public boolean getApplicantOidcEnhancedLogoutEnabled(RequestHeader request) {
+    return getBool("APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED", request);
   }
 
   /**
@@ -929,9 +934,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                       "IDCS_SECRET",
                                       "A secret known only to the client (Civiform) and"
                                           + " authorization server, specifically for IDCS OIDC"
-                                          + " systems. This secret essentially acts as the"
-                                          + " client’s “password” for accessing data from the auth"
-                                          + " server.",
+                                          + " systems. This secret essentially acts as the client’s"
+                                          + " “password” for accessing data from the auth server.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.SECRET),
@@ -957,8 +961,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "LOGIN_RADIUS_METADATA_URI",
-                                      "The base URL to construct SAML endpoints, based on the"
-                                          + " SAML2 spec.",
+                                      "The base URL to construct SAML endpoints, based on the SAML2"
+                                          + " spec.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
@@ -1005,11 +1009,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "APPLICANT_OIDC_OVERRIDE_LOGOUT_URL",
-                                      "By default the 'end_session_endpoint' from the auth"
-                                          + " provider discovery metadata file is used as the"
-                                          + " logout endpoint. However for some integrations that"
-                                          + " standard flow might not work and we need to override"
-                                          + " logout URL.",
+                                      "By default the 'end_session_endpoint' from the auth provider"
+                                          + " discovery metadata file is used as the logout"
+                                          + " endpoint. However for some integrations that standard"
+                                          + " flow might not work and we need to override logout"
+                                          + " URL.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
@@ -1017,12 +1021,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                       "APPLICANT_OIDC_POST_LOGOUT_REDIRECT_PARAM",
                                       "URL param used to pass the post logout redirect url in the"
                                           + " logout request to the auth provider. It defaults to"
-                                          + " 'post_logout_redirect_uri' if this variable is"
-                                          + " unset. If this variable is set to the empty string,"
-                                          + " the post logout redirect url is not passed at all"
-                                          + " and instead it needs to be hardcoded on the the auth"
-                                          + " provider (otherwise the user won't be redirected"
-                                          + " back to civiform after logout).",
+                                          + " 'post_logout_redirect_uri' if this variable is unset."
+                                          + " If this variable is set to the empty string, the post"
+                                          + " logout redirect url is not passed at all and instead"
+                                          + " it needs to be hardcoded on the the auth provider"
+                                          + " (otherwise the user won't be redirected back to"
+                                          + " civiform after logout).",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
@@ -1044,9 +1048,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   SettingDescription.create(
                                       "APPLICANT_OIDC_CLIENT_SECRET",
                                       "A secret known only to the client (Civiform) and"
-                                          + " authorization server. This secret essentially acts"
-                                          + " as the client’s “password” for accessing data from"
-                                          + " the auth server.",
+                                          + " authorization server. This secret essentially acts as"
+                                          + " the client’s “password” for accessing data from the"
+                                          + " auth server.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.SECRET),
@@ -1059,8 +1063,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "APPLICANT_OIDC_RESPONSE_MODE",
-                                      "Informs the auth server of the desired auth processing"
-                                          + " flow, based on the OpenID Connect spec.",
+                                      "Informs the auth server of the desired auth processing flow,"
+                                          + " based on the OpenID Connect spec.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
@@ -1121,8 +1125,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                       "LOGIN_GOV_CLIENT_ID",
                                       "An opaque public identifier for apps that use OIDC (OpenID"
                                           + " Connect) to request data from authorization servers,"
-                                          + " specifically communicating with Login.gov. A"
-                                          + " Civiform instance is always the client.",
+                                          + " specifically communicating with Login.gov. A Civiform"
+                                          + " instance is always the client.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
@@ -1137,8 +1141,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   SettingDescription.create(
                                       "LOGIN_GOV_ADDITIONAL_SCOPES",
                                       "Scopes the client (CiviForm) is requesting in addition to"
-                                          + " the standard scopes the OpenID Connect spec"
-                                          + " provides. Scopes should be separated by a space.",
+                                          + " the standard scopes the OpenID Connect spec provides."
+                                          + " Scopes should be separated by a space.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
@@ -1205,9 +1209,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   SettingDescription.create(
                                       "ADFS_SECRET",
                                       "A secret known only to the client (Civiform) and"
-                                          + " authorization server. This secret essentially acts"
-                                          + " as the client’s “password” for accessing data from"
-                                          + " the auth server.",
+                                          + " authorization server. This secret essentially acts as"
+                                          + " the client’s “password” for accessing data from the"
+                                          + " auth server.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.SECRET),
@@ -1228,15 +1232,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   SettingDescription.create(
                                       "ADFS_ADDITIONAL_SCOPES",
                                       "Scopes the client (CiviForm) is requesting in addition to"
-                                          + " the standard scopes the OpenID Connect spec"
-                                          + " provides. Scopes should be separated by a space.",
+                                          + " the standard scopes the OpenID Connect spec provides."
+                                          + " Scopes should be separated by a space.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "AD_GROUPS_ATTRIBUTE_NAME",
-                                      "The attribute name for looking up the groups associated"
-                                          + " with a particular user.",
+                                      "The attribute name for looking up the groups associated with"
+                                          + " a particular user.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN))),
@@ -1265,9 +1269,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   SettingDescription.create(
                                       "ADMIN_OIDC_CLIENT_SECRET",
                                       "A secret known only to the client (Civiform) and"
-                                          + " authorization server. This secret essentially acts"
-                                          + " as the client’s “password” for accessing data from"
-                                          + " the auth server.",
+                                          + " authorization server. This secret essentially acts as"
+                                          + " the client’s “password” for accessing data from the"
+                                          + " auth server.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
@@ -1280,8 +1284,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "ADMIN_OIDC_RESPONSE_MODE",
-                                      "Informs the auth server of the desired auth processing"
-                                          + " flow, based on the OpenID Connect spec.",
+                                      "Informs the auth server of the desired auth processing flow,"
+                                          + " based on the OpenID Connect spec.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
@@ -1394,8 +1398,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               SettingMode.HIDDEN),
                           SettingDescription.create(
                               "FORK_JOIN_PARALLELISM_FACTOR",
-                              "The parallelism factor is used to determine thread pool size for"
-                                  + " the 'fork-join-executor' using the following formula:"
+                              "The parallelism factor is used to determine thread pool size for the"
+                                  + " 'fork-join-executor' using the following formula:"
                                   + " ceil(available processors * factor). Resulting size is then"
                                   + " bounded by the parallelism-min and parallelism-max values.",
                               /* isRequired= */ false,
@@ -1625,10 +1629,10 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "A cryptographic [secret"
                           + " salt](https://en.wikipedia.org/wiki/Salt_(cryptography)) used for"
                           + " salting API keys before storing their hash values in the database."
-                          + " This value should be kept strictly secret. If one suspects the"
-                          + " secret has been leaked or otherwise comprised it should be changed"
-                          + " and all active API keys should be retired and reissued. Default"
-                          + " value is 'changeme'.",
+                          + " This value should be kept strictly secret. If one suspects the secret"
+                          + " has been leaked or otherwise comprised it should be changed and all"
+                          + " active API keys should be retired and reissued. Default value is"
+                          + " 'changeme'.",
                       /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.SECRET),
@@ -1672,9 +1676,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingMode.HIDDEN),
                   SettingDescription.create(
                       "DURABLE_JOBS_THREAD_POOL_SIZE",
-                      "The number of server threads available for the durable job runner. More"
-                          + " than a single thread will the server execute multiple jobs in"
-                          + " parallel. Default value is 1.",
+                      "The number of server threads available for the durable job runner. More than"
+                          + " a single thread will the server execute multiple jobs in parallel."
+                          + " Default value is 1.",
                       /* isRequired= */ false,
                       SettingType.INT,
                       SettingMode.HIDDEN))),
@@ -1686,8 +1690,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
               ImmutableList.of(
                   SettingDescription.create(
                       "APPLICATION_EXPORTABLE",
-                      "Enables the feature that allows completed applications to be downloadable"
-                          + " by PDF.",
+                      "Enables the feature that allows completed applications to be downloadable by"
+                          + " PDF.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
@@ -1772,11 +1776,19 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
-                      "ENHANCED_OIDC_LOGOUT_ENABLED",
-                      "Enables logic to populate more fields in OIDC logout requests.",
+                      "ADMIN_OIDC_ENHANCED_LOGOUT_ENABLED",
+                      "Enables populating more fields in OIDC logout requests to admin identity"
+                          + " provider.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.HIDDEN),
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED",
+                      "Enables populating more fields in OIDC logout requests to applicant identity"
+                          + " provider.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "UNIVERSAL_QUESTIONS",
                       "Enables setting and displaying the universal question state on questions."
@@ -1827,9 +1839,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   SettingDescription.create(
                       "CIVIFORM_SUPPORTED_LANGUAGES",
                       "The full list of languages available to CiviForm. These are the language"
-                          + " that admins can choose from when adding translations for programs"
-                          + " and applications, as well as the default list that applicants can"
-                          + " choose from when specifying their language preference. See"
+                          + " that admins can choose from when adding translations for programs and"
+                          + " applications, as well as the default list that applicants can choose"
+                          + " from when specifying their language preference. See"
                           + " CIVIFORM_APPLICANT_ENABLED_LANGUAGES for further control over"
                           + " languages available to applicants.",
                       /* isRequired= */ false,
@@ -1858,17 +1870,17 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "CIVIFORM_IMAGE_TAG",
                       "The tag of the docker image this server is running inside. Is added as a"
                           + " HTML meta tag with name 'civiform-build-tag'. If"
-                          + " SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also"
-                          + " shown on the login page if CIVIFORM_VERSION is the empty string or"
-                          + " set to 'latest'.",
+                          + " SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also shown"
+                          + " on the login page if CIVIFORM_VERSION is the empty string or set to"
+                          + " 'latest'.",
                       /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "CIVIFORM_VERSION",
                       "The release version of CiviForm. For example: v1.18.0. If"
-                          + " SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also"
-                          + " shown on the login page if it a value other than the empty string or"
+                          + " SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also shown"
+                          + " on the login page if it a value other than the empty string or"
                           + " 'latest'.",
                       /* isRequired= */ false,
                       SettingType.STRING,
@@ -1876,8 +1888,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   SettingDescription.create(
                       "CLIENT_IP_TYPE",
                       "Where to find the IP address for incoming requests. Default is \"DIRECT\""
-                          + " where the IP address of the request is the originating IP address."
-                          + " If \"FORWARDED\" then request has been reverse proxied and the"
+                          + " where the IP address of the request is the originating IP address. If"
+                          + " \"FORWARDED\" then request has been reverse proxied and the"
                           + " originating IP address is stored in the X-Forwarded-For header.",
                       /* isRequired= */ false,
                       SettingType.ENUM,

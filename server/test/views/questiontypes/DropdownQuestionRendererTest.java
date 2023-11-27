@@ -106,8 +106,7 @@ public class DropdownQuestionRendererTest extends ResetPostgres {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
-            .setQuestionName(Optional.of("favorite ice cream"))
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD)
             .build();
 
     DivTag result = renderer.render(params);
@@ -120,8 +119,7 @@ public class DropdownQuestionRendererTest extends ResetPostgres {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
-            .setQuestionName(Optional.of("wrong name"))
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
             .build();
 
     DivTag result = renderer.render(params);

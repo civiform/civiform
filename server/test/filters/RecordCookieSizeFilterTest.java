@@ -17,15 +17,34 @@ import play.mvc.Result;
 import play.mvc.Results;
 
 public class RecordCookieSizeFilterTest {
+
   @Before
   public void clearRegistry() {
     CollectorRegistry.defaultRegistry.clear();
   }
 
+  private Result runFilterWithCookieSize(RecordCookieSizeFilter filter, int cookieSize)
+      throws Exception {
+    Http.Cookie playSessionCookie =
+        Http.Cookie.builder("PLAY_SESSION", "*".repeat(cookieSize)).build();
+    Http.Request request = fakeRequest().cookie(playSessionCookie).build();
+    return filter
+        .apply(EssentialAction.of(r -> Accumulator.done(Results.ok("OK"))))
+        .apply(request)
+        .run(NoMaterializer$.MODULE$)
+        .toCompletableFuture()
+        .get();
+  }
+
+  private double samplesBelowUpperBound(List<Integer> sizes, double upperBound) {
+    return sizes.stream().filter(n -> n <= upperBound).count();
+  }
+
   @Test
   public void testCookieSizesAreRecorded() throws Exception {
-    // Run filter with several requests with various cookie sizes.
     RecordCookieSizeFilter filter = new RecordCookieSizeFilter();
+
+    // Run filter with several requests with various cookie sizes.
     List<Integer> cookieSizes = ImmutableList.of(1000, 2000, 2000, 3000, 3500, 4000);
     for (int cookieSize : cookieSizes) {
       assertThat(runFilterWithCookieSize(filter, cookieSize).status()).isEqualTo(200);
@@ -67,22 +86,5 @@ public class RecordCookieSizeFilterTest {
       }
       upperBoundOfCookieSize += RecordCookieSizeFilter.BUCKET_SIZE;
     }
-  }
-
-  private Result runFilterWithCookieSize(RecordCookieSizeFilter filter, int cookieSize)
-      throws Exception {
-    Http.Cookie playSessionCookie =
-        Http.Cookie.builder("PLAY_SESSION", "*".repeat(cookieSize)).build();
-    Http.Request request = fakeRequest().cookie(playSessionCookie).build();
-    return filter
-        .apply(EssentialAction.of(r -> Accumulator.done(Results.ok("OK"))))
-        .apply(request)
-        .run(NoMaterializer$.MODULE$)
-        .toCompletableFuture()
-        .get();
-  }
-
-  private double samplesBelowUpperBound(List<Integer> sizes, double upperBound) {
-    return sizes.stream().filter(n -> n <= upperBound).count();
   }
 }
