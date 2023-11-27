@@ -25,7 +25,7 @@ public final class ReportingRepository {
 
   public ReportingRepository() {
     clock = null;
-    this.database = DB.getDefault();
+    database = null;
     listOfPrograms = null;
   }
 
