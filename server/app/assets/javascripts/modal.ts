@@ -1,5 +1,5 @@
 export class ModalController {
-  static abortSignal = new AbortController()
+  static abortController = new AbortController()
 
   /**
    * Find the modals, and add on-click listeners on their respective buttons to toggle them.
@@ -16,7 +16,8 @@ export class ModalController {
           e.stopPropagation()
           ModalController.showModal(modalContainer, modal)
         },
-        {signal: ModalController.abortSignal.signal},
+        // Add an abort controller so we can easily clear the click behavior with ModalController.abortController.abort()
+        {signal: ModalController.abortController.signal},
       )
     }
 

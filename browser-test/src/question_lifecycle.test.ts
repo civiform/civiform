@@ -475,7 +475,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.clickUniversalToggle()
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
     // Since we are toggling the universal question setting from "on" to "off", a confirmation modal will appear
-    // Click the submit button the modal to continue
+    // Click the submit button on the modal to continue
     await adminQuestions.clickSubmitButtonAndNavigate(
       'Remove from universal questions',
     )
@@ -497,7 +497,7 @@ describe('normal question lifecycle', () => {
     await disableFeatureFlag(page, 'universal_questions')
   })
 
-  it('shows the "Remove from universal questions" confirmation modal in the right circumstances', async () => {
+  it('shows the "Remove from universal questions" confirmation modal in the right circumstances and navigation works', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -520,6 +520,13 @@ describe('normal question lifecycle', () => {
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
     // Flag is on and we are going from "on" to "off" so the modal should show
     await validateScreenshot(page, 'remove-universal-confirmation-modal')
+
+    // Clicking "Cancel" on the modal closes the modal and returns you to the edit page
+    await adminQuestions.clickSubmitButtonAndNavigate('Cancel')
+    await adminQuestions.expectQuestionEditPage(questionName)
+
+    // Clicking "Remove from universal questions" submits the form and redirects you to the admin questions page
+    await adminQuestions.clickSubmitButtonAndNavigate('Update')
     await adminQuestions.clickSubmitButtonAndNavigate(
       'Remove from universal questions',
     )

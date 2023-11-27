@@ -19,7 +19,6 @@ import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.InputTag;
 import java.util.Locale;
 import java.util.Optional;
 import models.QuestionTag;
@@ -121,7 +120,8 @@ public final class QuestionEditView extends BaseHtmlView {
         .map(ToastMessage::getContainerTag)
         .ifPresent(formContent::with);
 
-    return renderWithPreview(request, formContent, questionType, title, Optional.empty());
+    return renderWithPreview(
+        request, formContent, questionType, title, /* modal= */ Optional.empty());
   }
 
   /** Render a fresh Edit Question Form. */
@@ -157,9 +157,7 @@ public final class QuestionEditView extends BaseHtmlView {
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
       Optional<ToastMessage> message) {
 
-    InputTag csrfTag = makeCsrfTokenInputTag(request);
-
-    Modal modal = buildUnsetUniversalModal(questionForm);
+    Modal unsetUniversalModal = buildUnsetUniversalModal(questionForm);
 
     QuestionType questionType = questionForm.getQuestionType();
     String title =
@@ -171,15 +169,20 @@ public final class QuestionEditView extends BaseHtmlView {
         buildQuestionContainer(title)
             .with(
                 buildEditQuestionForm(
-                        id, questionForm, maybeEnumerationQuestionDefinition, request, modal)
-                    .with(csrfTag));
+                        id,
+                        questionForm,
+                        maybeEnumerationQuestionDefinition,
+                        request,
+                        unsetUniversalModal)
+                    .with(makeCsrfTokenInputTag(request)));
 
     message
         .map(m -> m.setDismissible(true))
         .map(ToastMessage::getContainerTag)
         .ifPresent(formContent::with);
 
-    return renderWithPreview(request, formContent, questionType, title, Optional.of(modal));
+    return renderWithPreview(
+        request, formContent, questionType, title, Optional.of(unsetUniversalModal));
   }
 
   /** Render a read-only non-submittable question form. */
@@ -199,7 +202,8 @@ public final class QuestionEditView extends BaseHtmlView {
         buildQuestionContainer(title)
             .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption, request));
 
-    return renderWithPreview(request, formContent, questionType, title, Optional.empty());
+    return renderWithPreview(
+        request, formContent, questionType, title, /* modal= */ Optional.empty());
   }
 
   private Content renderWithPreview(
@@ -296,11 +300,11 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private FormTag buildEditQuestionForm(
-      Long id,
+      long id,
       QuestionForm questionForm,
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
       Request request,
-      Modal modal) {
+      Modal unsetUniversalModal) {
     SelectWithLabel enumeratorOption =
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
     FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOption, false, request);
@@ -310,7 +314,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .url());
 
     if (settingsManifest.getUniversalQuestions(request)) {
-      formTag.with(modal.getButton());
+      formTag.with(unsetUniversalModal.getButton());
     } else {
       formTag.with(submitButton("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE));
     }
@@ -319,7 +323,6 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private Modal buildUnsetUniversalModal(QuestionForm questionForm) {
-
     ButtonTag triggerModalButton = button("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE);
     FormTag confirmUnsetUniversalForm =
         form()
@@ -341,7 +344,7 @@ public final class QuestionEditView extends BaseHtmlView {
         .setLocation(Modal.Location.ADMIN_FACING)
         .setContent(confirmUnsetUniversalForm)
         .setModalTitle(
-            "Are you sure you want to remove this question from the universal questions" + " set?")
+            "Are you sure you want to remove this question from the universal questions set?")
         .setTriggerButtonContent(triggerModalButton)
         .setWidth(Modal.Width.THIRD)
         .build();

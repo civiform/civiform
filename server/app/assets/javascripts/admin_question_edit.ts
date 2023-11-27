@@ -9,6 +9,10 @@ class AdminQuestionEdit {
       return
     }
 
+    this.addCustomModalClickHandler(modal)
+  }
+
+  addCustomModalClickHandler(modal: HTMLElement) {
     const toggleElement = assertNotNull(
       document.getElementById('universal-toggle-input'),
     ) as HTMLInputElement
@@ -23,15 +27,12 @@ class AdminQuestionEdit {
     const initialToggleValue = toggleElement.value
 
     // Remove the default event listener on the modal since we want to show it conditionally
-    ModalController.abortSignal.abort()
+    ModalController.abortController.abort()
 
     // Add a new click handler that checks if the toggle went from "on" to "off"
-    modalTriggerButton.addEventListener('click', (e: Event) => {
-      e.stopPropagation() // do we need this?
-
+    modalTriggerButton.addEventListener('click', () => {
       // Get the toggle value when the user clicks to update the question
       const currentToggleValue = toggleElement.value
-
       if (initialToggleValue === 'true' && currentToggleValue === 'false') {
         // If they are unsetting the universal question attribute, show a modal to confirm
         ModalController.showModal(modalContainer, modal)
