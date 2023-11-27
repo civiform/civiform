@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.SqlRow;
 import java.sql.Timestamp;
@@ -24,15 +23,16 @@ public final class ReportingRepository {
   private final ImmutableList<ProgramModel> listOfPrograms;
 
   public ReportingRepository() {
-    clock = null;
-    database = null;
-    listOfPrograms = null;
+    this.clock = null;
+    this.database = null;
+    this.listOfPrograms = null;
   }
 
-  public ReportingRepository(Clock clock, ImmutableList<ProgramModel> listOfPrograms) {
+  public ReportingRepository(
+      Clock clock, Database database, ImmutableList<ProgramModel> listOfPrograms) {
     this.clock = Preconditions.checkNotNull(clock);
-    this.database = DB.getDefault();
-    this.listOfPrograms = listOfPrograms;
+    this.database = database;
+    this.listOfPrograms = Preconditions.checkNotNull(listOfPrograms);
   }
 
   /**
