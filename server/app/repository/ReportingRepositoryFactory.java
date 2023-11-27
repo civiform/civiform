@@ -6,7 +6,12 @@ import com.google.common.base.Preconditions;
 import java.time.Clock;
 import javax.inject.Inject;
 
-/** Factory for initializing ReportingRepository. */
+/**
+ * Factory for initializing ReportingRepository.
+ *
+ * Avoids n+1 DB queries when acquiring the public name of a program when loading
+ * program reporting statistics.
+ */
 public class ReportingRepositoryFactory {
   private final Clock clock;
   private final VersionRepository versionRepository;
