@@ -10,7 +10,7 @@ import models.AccountModel;
 import services.program.ProgramDefinition;
 
 /**
- * Stores access control state for {@link models.StoredFile}s.
+ * Stores access control state for {@link models.StoredFileModel}s.
  *
  * <p>Program admins may read a file if they are an admin for a program included in the {@code
  * programReadAcls} for that file.

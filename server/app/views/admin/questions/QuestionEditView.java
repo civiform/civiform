@@ -49,7 +49,6 @@ import views.components.LinkElement;
 import views.components.Modal;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
-import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -329,11 +328,13 @@ public final class QuestionEditView extends BaseHtmlView {
                         + questionForm.getQuestionType().toString()
                         + " question.")
                     .withClasses("mb-8"),
-                div(submitButton("Remove from universal questions")
-                        .withId("accept-question-updates-button")
-                        .attr("form", "full-edit-form")
-                        .withClasses(ButtonStyles.SOLID_BLUE),
-                        button("Cancel").withClasses(ButtonStyles.LINK_STYLE, ReferenceClasses.MODAL_CLOSE))
+                div(
+                        submitButton("Remove from universal questions")
+                            .withId("accept-question-updates-button")
+                            .attr("form", "full-edit-form")
+                            .withClasses(ButtonStyles.SOLID_BLUE),
+                        button("Cancel")
+                            .withClasses(ButtonStyles.LINK_STYLE, ReferenceClasses.MODAL_CLOSE))
                     .withClasses("flex", "flex-col", StyleUtils.responsiveMedium("flex-row")));
     return Modal.builder()
         .setModalId("confirm-question-updates-modal")

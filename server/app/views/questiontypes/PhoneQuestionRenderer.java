@@ -56,7 +56,12 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
                         phoneQuestion.getCountryCodePath(), ImmutableSet.of()))
                 .addReferenceClass(ReferenceClasses.PHONE_COUNTRY_CODE)
                 .setId(ReferenceClasses.PHONE_COUNTRY_CODE);
-    if (applicantSelectedQuestion(params.questionName())) {
+
+    boolean alreadyAutofocused = false;
+    if (params.autofocusFirstField()
+        || (params.autofocusFirstError()
+            && validationErrors.containsKey(phoneQuestion.getCountryCodePath()))) {
+      alreadyAutofocused = true;
       countryCodeField.focusOnInput();
     }
 
@@ -76,15 +81,15 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
             .addReferenceClass(ReferenceClasses.PHONE_NUMBER)
             .setId(ReferenceClasses.PHONE_NUMBER);
 
+    if (!alreadyAutofocused
+        && params.autofocusFirstError()
+        && validationErrors.containsKey(phoneQuestion.getCountryCodePath())) {
+      countryCodeField.focusOnInput();
+    }
+
     if (!validationErrors.isEmpty()) {
       countryCodeField.forceAriaInvalid();
       phoneField.forceAriaInvalid();
-      if (params
-          .errorDisplayMode()
-          .equals(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)) {
-        countryCodeField.focusOnError();
-        phoneField.focusOnError();
-      }
     }
 
     return div()

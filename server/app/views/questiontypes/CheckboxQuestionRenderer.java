@@ -11,7 +11,7 @@ import j2html.attributes.Attr;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LabelTag;
 import java.util.Comparator;
-import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
@@ -40,6 +40,7 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
       boolean isOptional) {
 
     boolean hasErrors = !validationErrors.isEmpty();
+    AtomicBoolean alreadyAutofocused = new AtomicBoolean(false);
     MultiSelectQuestion multiOptionQuestion = applicantQuestion.createMultiSelectQuestion();
 
     DivTag checkboxQuestionFormContent =
@@ -56,15 +57,22 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
                 multiOptionQuestion.getOptions().stream()
                     .sorted(Comparator.comparing(LocalizedQuestionOption::order))
                     .map(
-                        option ->
-                            renderCheckboxOption(
-                                multiOptionQuestion.getSelectionPathAsArray(),
-                                option,
-                                multiOptionQuestion.optionIsSelected(option),
-                                hasErrors,
-                                isOptional,
-                                params.errorDisplayMode(),
-                                params.questionName())));
+                        option -> {
+                          boolean shouldAutofocus = false;
+
+                          if (params.autofocusSingleField() && !alreadyAutofocused.get()) {
+                            shouldAutofocus = true;
+                            alreadyAutofocused.setPlain(true);
+                          }
+
+                          return renderCheckboxOption(
+                              multiOptionQuestion.getSelectionPathAsArray(),
+                              option,
+                              multiOptionQuestion.optionIsSelected(option),
+                              hasErrors,
+                              isOptional,
+                              shouldAutofocus);
+                        }));
 
     return checkboxQuestionFormContent;
   }
@@ -75,8 +83,7 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
       boolean isSelected,
       boolean hasErrors,
       boolean isOptional,
-      ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode,
-      Optional<String> questionName) {
+      boolean autofocus) {
     String id = "checkbox-" + applicantQuestion.getContextualizedPath() + "-" + option.id();
     LabelTag labelTag =
         label()
@@ -91,13 +98,8 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
                     .withName(selectionPath)
                     .withValue(String.valueOf(option.id()))
                     .withCondChecked(isSelected)
-                    .condAttr(applicantSelectedQuestion(questionName), Attr.AUTOFOCUS, "")
+                    .condAttr(autofocus, Attr.AUTOFOCUS, "")
                     .condAttr(hasErrors, "aria-invalid", "true")
-                    .condAttr(
-                        errorDisplayMode.equals(
-                            ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR),
-                        Attr.AUTOFOCUS,
-                        "")
                     .condAttr(!isOptional, "aria-required", "true")
                     .withClasses(
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)),

@@ -13,8 +13,8 @@ import repository.VersionRepository;
 import services.program.ProgramType;
 import services.question.exceptions.QuestionNotFoundException;
 
-// TODO(#4912): Add more tests for Version.java.
-public class VersionTest extends ResetPostgres {
+// TODO(#4912): Add more tests for VersionModel.java.
+public class VersionModelTest extends ResetPostgres {
 
   private VersionRepository versionRepository;
 
@@ -25,7 +25,7 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void addAndRemoveProgram() {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     ProgramModel program =
         new ProgramModel(
             "adminName",
@@ -50,8 +50,8 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void addAndRemoveQuestion() {
-    Version version = versionRepository.getDraftVersionOrCreate();
-    Question question = resourceCreator.insertQuestion("name");
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
+    QuestionModel question = resourceCreator.insertQuestion("name");
 
     version.addQuestion(question);
     assertThat(version.getQuestions()).hasSize(1);
@@ -63,7 +63,7 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void getProgramByName_found() {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String programName = "program";
     resourceCreator.insertDraftProgram(programName);
     version.refresh();
@@ -76,7 +76,7 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void getProgramByName_notFound() {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String programName = "program";
     resourceCreator.insertDraftProgram(programName);
     version.refresh();
@@ -88,7 +88,7 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void getProgramNames() {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String programNameOne = "programone";
     ProgramModel programOne = resourceCreator.insertDraftProgram(programNameOne);
     String programNameTwo = "programtwo";
@@ -107,13 +107,13 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void getQuestionNames() throws Exception {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String questionOneName = "one";
-    Question questionOne = resourceCreator.insertQuestion(questionOneName);
+    QuestionModel questionOne = resourceCreator.insertQuestion(questionOneName);
     String questionTwoName = "two";
-    Question questionTwo = resourceCreator.insertQuestion(questionTwoName);
+    QuestionModel questionTwo = resourceCreator.insertQuestion(questionTwoName);
     String tombstonedQuestionOneName = "tombstoneOne";
-    Question tombstonedQuestionOne = resourceCreator.insertQuestion(tombstonedQuestionOneName);
+    QuestionModel tombstonedQuestionOne = resourceCreator.insertQuestion(tombstonedQuestionOneName);
 
     version.addQuestion(questionOne);
     version.addQuestion(questionTwo);
@@ -127,7 +127,7 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void getTombstonedProgramNames() {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String programNameOne = "programone";
     ProgramModel programOne = resourceCreator.insertDraftProgram(programNameOne);
     String tombstonedProgramNameOne = "tombstoneOne";
@@ -151,13 +151,13 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void getTombstonedQuestionNames() throws Exception {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String questionOneName = "one";
-    Question questionOne = resourceCreator.insertQuestion(questionOneName);
+    QuestionModel questionOne = resourceCreator.insertQuestion(questionOneName);
     String tombstonedQuestionOneName = "tombstoneOne";
-    Question tombstonedQuestionOne = resourceCreator.insertQuestion(tombstonedQuestionOneName);
+    QuestionModel tombstonedQuestionOne = resourceCreator.insertQuestion(tombstonedQuestionOneName);
     String tombstonedQuestionTwoName = "tombstoneTwo";
-    Question tombstonedQuestionTwo = resourceCreator.insertQuestion(tombstonedQuestionTwoName);
+    QuestionModel tombstonedQuestionTwo = resourceCreator.insertQuestion(tombstonedQuestionTwoName);
 
     version.addQuestion(questionOne);
     version.addQuestion(tombstonedQuestionOne);
@@ -173,11 +173,11 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void questionIsTombstoned() throws Exception {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String questionOneName = "one";
-    Question questionOne = resourceCreator.insertQuestion(questionOneName);
+    QuestionModel questionOne = resourceCreator.insertQuestion(questionOneName);
     String tombstonedQuestionOneName = "tombstoneOne";
-    Question tombstonedQuestionOne = resourceCreator.insertQuestion(tombstonedQuestionOneName);
+    QuestionModel tombstonedQuestionOne = resourceCreator.insertQuestion(tombstonedQuestionOneName);
 
     version.addQuestion(questionOne);
     version.addQuestion(tombstonedQuestionOne);
@@ -193,7 +193,7 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void programIsTombstoned() {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String programNameOne = "programone";
     ProgramModel programOne = resourceCreator.insertDraftProgram(programNameOne);
     String tombstonedProgramNameOne = "tombstoneOne";
@@ -214,9 +214,9 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void addTombstoneForQuestion() throws Exception {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String questionOneName = "one";
-    Question questionOne = resourceCreator.insertQuestion(questionOneName);
+    QuestionModel questionOne = resourceCreator.insertQuestion(questionOneName);
     version.addQuestion(questionOne);
 
     boolean succeeded = versionRepository.addTombstoneForQuestionInVersion(questionOne, version);
@@ -229,9 +229,9 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void addTombstoneForQuestion_alreadyTombstoned() throws Exception {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String questionOneName = "one";
-    Question questionOne = resourceCreator.insertQuestion(questionOneName);
+    QuestionModel questionOne = resourceCreator.insertQuestion(questionOneName);
     version.addQuestion(questionOne);
 
     boolean succeeded = versionRepository.addTombstoneForQuestionInVersion(questionOne, version);
@@ -246,10 +246,10 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void addTombstoneForQuestion_questionNotInVersion_throwsException() throws Exception {
-    Version activeVersion = versionRepository.getActiveVersion();
-    Version draftVersion = versionRepository.getDraftVersionOrCreate();
+    VersionModel activeVersion = versionRepository.getActiveVersion();
+    VersionModel draftVersion = versionRepository.getDraftVersionOrCreate();
 
-    Question question = resourceCreator.insertQuestion("question");
+    QuestionModel question = resourceCreator.insertQuestion("question");
     question.addVersion(activeVersion).save();
     activeVersion.refresh();
 
@@ -260,9 +260,9 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void removeTombstoneForQuestion() throws Exception {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String questionOneName = "one";
-    Question questionOne = resourceCreator.insertQuestion(questionOneName);
+    QuestionModel questionOne = resourceCreator.insertQuestion(questionOneName);
     version.addQuestion(questionOne);
 
     versionRepository.addTombstoneForQuestionInVersion(questionOne, version);
@@ -277,9 +277,9 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void removeTombstoneForQuestion_forNonTombstonedQuestion() throws Exception {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String questionOneName = "one";
-    Question questionOne = resourceCreator.insertQuestion(questionOneName);
+    QuestionModel questionOne = resourceCreator.insertQuestion(questionOneName);
     version.addQuestion(questionOne);
 
     boolean succeeded = version.removeTombstoneForQuestion(questionOne);
@@ -289,7 +289,7 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void removeTombstoneForProgram() {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String programNameOne = "programone";
     ProgramModel programOne = resourceCreator.insertDraftProgram(programNameOne);
 
@@ -306,7 +306,7 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void removeTombstoneForProgram_forNonTombstonedProgram() {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String programNameOne = "programone";
     ProgramModel programOne = resourceCreator.insertDraftProgram(programNameOne);
     version.addProgram(programOne);
@@ -319,9 +319,9 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void hasAnyChanges_hasTombstonedQuestions() throws Exception {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String questionOneName = "one";
-    Question questionOne = resourceCreator.insertQuestion(questionOneName);
+    QuestionModel questionOne = resourceCreator.insertQuestion(questionOneName);
     version.addQuestion(questionOne);
     versionRepository.addTombstoneForQuestionInVersion(questionOne, version);
 
@@ -330,7 +330,7 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void hasAnyChanges_hasTombstonedPrograms() {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String programNameOne = "programone";
     ProgramModel programOne = resourceCreator.insertDraftProgram(programNameOne);
     version.addTombstoneForProgramForTest(programOne);
@@ -340,9 +340,9 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void hasAnyChanges_hasQuestions() {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String questionOneName = "one";
-    Question questionOne = resourceCreator.insertQuestion(questionOneName);
+    QuestionModel questionOne = resourceCreator.insertQuestion(questionOneName);
     version.addQuestion(questionOne);
 
     assertThat(version.hasAnyChanges()).isTrue();
@@ -350,7 +350,7 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void hasAnyChanges_hasPrograms() {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String programNameOne = "programone";
     ProgramModel programOne = resourceCreator.insertDraftProgram(programNameOne);
     version.addProgram(programOne);
@@ -360,9 +360,9 @@ public class VersionTest extends ResetPostgres {
 
   @Test
   public void hasAnyChanges_noChanges() {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String questionOneName = "one";
-    Question questionOne = resourceCreator.insertQuestion(questionOneName);
+    QuestionModel questionOne = resourceCreator.insertQuestion(questionOneName);
     version.addQuestion(questionOne);
 
     // Revert changes.

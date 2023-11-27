@@ -6,7 +6,7 @@ import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import com.google.common.collect.ImmutableList;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
@@ -43,9 +43,9 @@ public class CiviFormProfileTest extends ResetPostgres {
   @Test
   public void checkAuthorization_passesForOneOfSeveralIdsInAccount() {
     // We need to save these first so that the IDs are populated.
-    Applicant one = resourceCreator.insertApplicant();
-    Applicant two = resourceCreator.insertApplicant();
-    Applicant three = resourceCreator.insertApplicant();
+    ApplicantModel one = resourceCreator.insertApplicant();
+    ApplicantModel two = resourceCreator.insertApplicant();
+    ApplicantModel three = resourceCreator.insertApplicant();
     AccountModel account = resourceCreator.insertAccount();
 
     // Set the accounts on applicants and the applicants on the account. Saving required!

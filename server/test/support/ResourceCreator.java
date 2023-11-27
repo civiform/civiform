@@ -7,14 +7,14 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import models.AccountModel;
-import models.ApiKey;
-import models.Applicant;
-import models.Application;
+import models.ApiKeyModel;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import models.LifecycleStage;
 import models.Models;
 import models.ProgramModel;
-import models.Question;
-import models.TrustedIntermediaryGroup;
+import models.QuestionModel;
+import models.TrustedIntermediaryGroupModel;
 import play.inject.Injector;
 import services.LocalizedStrings;
 import services.apikey.ApiKeyService;
@@ -38,9 +38,9 @@ public class ResourceCreator {
    * Create an API key with subnet of "8.8.8.8/32,1.1.1.1/32" and an expiration date one year in the
    * future.
    */
-  public ApiKey createActiveApiKey(String name, String keyId, String keySecret) {
-    ApiKey apiKey =
-        new ApiKey()
+  public ApiKeyModel createActiveApiKey(String name, String keyId, String keySecret) {
+    ApiKeyModel apiKey =
+        new ApiKeyModel()
             .setName(name)
             .setKeyId(keyId)
             .setExpiration(Instant.now().plusSeconds(SECONDS_PER_YEAR))
@@ -61,7 +61,7 @@ public class ResourceCreator {
     injector.instanceOf(repository.VersionRepository.class).publishNewSynchronizedVersion();
   }
 
-  public Question insertQuestion(String name) {
+  public QuestionModel insertQuestion(String name) {
     QuestionDefinition definition =
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -70,12 +70,12 @@ public class ResourceCreator {
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .build());
-    Question question = new Question(definition);
+    QuestionModel question = new QuestionModel(definition);
     question.save();
     return question;
   }
 
-  public Question insertEnum(String name) {
+  public QuestionModel insertEnum(String name) {
     QuestionDefinition enumDefinition =
         new services.question.types.EnumeratorQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -85,12 +85,12 @@ public class ResourceCreator {
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
                 .build(),
             LocalizedStrings.empty());
-    Question enumQuestion = new Question(enumDefinition);
+    QuestionModel enumQuestion = new QuestionModel(enumDefinition);
     enumQuestion.save();
     return enumQuestion;
   }
 
-  public Question insertEnumQuestion(String enumName, Question question) {
+  public QuestionModel insertEnumQuestion(String enumName, QuestionModel question) {
     QuestionDefinition enumDefinition =
         new services.question.types.EnumeratorQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -101,12 +101,12 @@ public class ResourceCreator {
                 .setEnumeratorId(Optional.of(question.id))
                 .build(),
             LocalizedStrings.empty());
-    Question enumQuestion = new Question(enumDefinition);
+    QuestionModel enumQuestion = new QuestionModel(enumDefinition);
     enumQuestion.save();
     return enumQuestion;
   }
 
-  public Question insertQuestion() {
+  public QuestionModel insertQuestion() {
     String name = UUID.randomUUID().toString();
     QuestionDefinition definition =
         new TextQuestionDefinition(
@@ -116,7 +116,7 @@ public class ResourceCreator {
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .build());
-    Question question = new Question(definition);
+    QuestionModel question = new QuestionModel(definition);
     question.save();
     return question;
   }
@@ -137,21 +137,21 @@ public class ResourceCreator {
     return ProgramBuilder.newDraftProgram(name, "description").build();
   }
 
-  public Application insertActiveApplication(Applicant applicant, ProgramModel program) {
-    return Application.create(applicant, program, LifecycleStage.ACTIVE);
+  public ApplicationModel insertActiveApplication(ApplicantModel applicant, ProgramModel program) {
+    return ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE);
   }
 
-  public Application insertDraftApplication(Applicant applicant, ProgramModel program) {
-    return Application.create(applicant, program, LifecycleStage.DRAFT);
+  public ApplicationModel insertDraftApplication(ApplicantModel applicant, ProgramModel program) {
+    return ApplicationModel.create(applicant, program, LifecycleStage.DRAFT);
   }
 
-  public Application insertApplication(
-      Applicant applicant, ProgramModel program, LifecycleStage lifecycleStage) {
-    return Application.create(applicant, program, lifecycleStage);
+  public ApplicationModel insertApplication(
+      ApplicantModel applicant, ProgramModel program, LifecycleStage lifecycleStage) {
+    return ApplicationModel.create(applicant, program, lifecycleStage);
   }
 
-  public Applicant insertApplicant() {
-    Applicant applicant = new Applicant();
+  public ApplicantModel insertApplicant() {
+    ApplicantModel applicant = new ApplicantModel();
     applicant.save();
     return applicant;
   }
@@ -162,14 +162,14 @@ public class ResourceCreator {
     return account;
   }
 
-  public TrustedIntermediaryGroup insertTiGroup(String groupName) {
-    TrustedIntermediaryGroup tiGroup =
-        new TrustedIntermediaryGroup(groupName, "A TI group for all your TI needs!");
+  public TrustedIntermediaryGroupModel insertTiGroup(String groupName) {
+    TrustedIntermediaryGroupModel tiGroup =
+        new TrustedIntermediaryGroupModel(groupName, "A TI group for all your TI needs!");
     tiGroup.save();
     return tiGroup;
   }
 
-  public Applicant insertApplicantWithAccount() {
+  public ApplicantModel insertApplicantWithAccount() {
     return insertApplicantWithAccount(/* accountEmail= */ Optional.empty());
   }
 
@@ -180,8 +180,8 @@ public class ResourceCreator {
    *     also don't populate the authority ID, which makes this test user a guest.
    * @return the applicant
    */
-  public Applicant insertApplicantWithAccount(Optional<String> accountEmail) {
-    Applicant applicant = insertApplicant();
+  public ApplicantModel insertApplicantWithAccount(Optional<String> accountEmail) {
+    ApplicantModel applicant = insertApplicant();
     AccountModel account = insertAccount();
 
     accountEmail.ifPresent(account::setEmailAddress);
@@ -211,12 +211,12 @@ public class ResourceCreator {
     return account;
   }
 
-  public TrustedIntermediaryGroup insertTrustedIntermediaryGroup() {
+  public TrustedIntermediaryGroupModel insertTrustedIntermediaryGroup() {
     return insertTrustedIntermediaryGroup("");
   }
 
-  public TrustedIntermediaryGroup insertTrustedIntermediaryGroup(String name) {
-    TrustedIntermediaryGroup group = new TrustedIntermediaryGroup(name, "description");
+  public TrustedIntermediaryGroupModel insertTrustedIntermediaryGroup(String name) {
+    TrustedIntermediaryGroupModel group = new TrustedIntermediaryGroupModel(name, "description");
     group.save();
     return group;
   }

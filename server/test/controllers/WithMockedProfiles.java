@@ -10,11 +10,11 @@ import auth.ProfileFactory;
 import auth.ProfileUtils;
 import java.util.Optional;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import models.LifecycleStage;
 import models.ProgramModel;
-import models.TrustedIntermediaryGroup;
-import models.Version;
+import models.TrustedIntermediaryGroupModel;
+import models.VersionModel;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.mockito.ArgumentMatcher;
@@ -77,12 +77,12 @@ public class WithMockedProfiles {
   protected void resetDatabase() {
     testQuestionBank().reset();
     resourceCreator().truncateTables();
-    Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
+    VersionModel newActiveVersion = new VersionModel(LifecycleStage.ACTIVE);
     newActiveVersion.save();
   }
 
-  protected Applicant createApplicant() {
-    Applicant applicant = resourceCreator.insertApplicant();
+  protected ApplicantModel createApplicant() {
+    ApplicantModel applicant = resourceCreator.insertApplicant();
     AccountModel account = resourceCreator.insertAccount();
 
     applicant.setAccount(account);
@@ -90,17 +90,17 @@ public class WithMockedProfiles {
     return applicant;
   }
 
-  protected Applicant createApplicantWithMockedProfile() {
-    Applicant applicant = createApplicant();
+  protected ApplicantModel createApplicantWithMockedProfile() {
+    ApplicantModel applicant = createApplicant();
     CiviFormProfile profile = profileFactory.wrap(applicant);
     mockProfile(profile);
     return applicant;
   }
 
-  protected AccountModel createTIWithMockedProfile(Applicant managedApplicant) {
+  protected AccountModel createTIWithMockedProfile(ApplicantModel managedApplicant) {
     AccountModel ti = resourceCreator.insertAccount();
 
-    TrustedIntermediaryGroup group = resourceCreator.insertTrustedIntermediaryGroup();
+    TrustedIntermediaryGroupModel group = resourceCreator.insertTrustedIntermediaryGroup();
     AccountModel managedAccount = managedApplicant.getAccount();
     managedAccount.setManagedByGroup(group);
     managedAccount.save();
@@ -129,7 +129,7 @@ public class WithMockedProfiles {
 
     AccountModel adminAccount = profile.getAccount().join();
 
-    Applicant applicant = resourceCreator.insertApplicant();
+    ApplicantModel applicant = resourceCreator.insertApplicant();
     applicant.setAccount(adminAccount);
     applicant.save();
 

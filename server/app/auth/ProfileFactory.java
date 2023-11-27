@@ -7,9 +7,9 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.AccountModel;
-import models.ApiKey;
-import models.Applicant;
-import models.TrustedIntermediaryGroup;
+import models.ApiKeyModel;
+import models.ApplicantModel;
+import models.TrustedIntermediaryGroupModel;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.AccountRepository;
@@ -84,8 +84,8 @@ public final class ProfileFactory {
    * Retrieves an API key. API keys are effectively the profile (i.e. record of identity and
    * authority) for API requests.
    */
-  public ApiKey retrieveApiKey(String keyId) {
-    Optional<ApiKey> apiKey = apiKeyService.get().findByKeyIdWithCache(keyId);
+  public ApiKeyModel retrieveApiKey(String keyId) {
+    Optional<ApiKeyModel> apiKey = apiKeyService.get().findByKeyIdWithCache(keyId);
 
     return apiKey.orElseThrow(() -> new AccountNonexistentException("API key does not exist"));
   }
@@ -105,7 +105,7 @@ public final class ProfileFactory {
     return wrapProfileData(new CiviFormProfileData(account.id));
   }
 
-  public CiviFormProfile wrap(Applicant applicant) {
+  public CiviFormProfile wrap(ApplicantModel applicant) {
     return wrapProfileData(new CiviFormProfileData(applicant.getAccount().id));
   }
 
@@ -163,9 +163,9 @@ public final class ProfileFactory {
   /** This creates a trusted intermediary. */
   public CiviFormProfileData createFakeTrustedIntermediary() {
     AccountRepository accountRepository = userRepositoryProvider.get();
-    List<TrustedIntermediaryGroup> existingGroups =
+    List<TrustedIntermediaryGroupModel> existingGroups =
         accountRepository.listTrustedIntermediaryGroups();
-    TrustedIntermediaryGroup group;
+    TrustedIntermediaryGroupModel group;
 
     if (existingGroups.isEmpty()) {
       group =
@@ -193,7 +193,7 @@ public final class ProfileFactory {
             })
         .join();
 
-    Applicant tiApplicant = tiProfile.getApplicant().join();
+    ApplicantModel tiApplicant = tiProfile.getApplicant().join();
     // The name for a fake TI must not be unique so that screenshot tests stay consistent. Use an
     // underscore so that the name parser doesn't display "TI, Fake".
     tiApplicant.getApplicantData().setUserName("Fake_TI");

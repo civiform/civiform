@@ -93,5 +93,11 @@ public final class ButtonStyles {
   public static final String CLEAR_WITH_ICON_FOR_DROPDOWN =
       StyleUtils.removeStyles(CLEAR_WITH_ICON, "rounded-full");
 
-public static final String LINK_STYLE =  StyleUtils.joinStyles(StyleUtils.removeStyles(ApplicantStyles.LINK, "text-sm"), "bg-transparent", "border-none", "hover:bg-opacity-0");
+  // Use the base link styles and override default background, border, and hover button styles
+  public static final String LINK_STYLE =
+      StyleUtils.joinStyles(
+          StyleUtils.removeStyles(ApplicantStyles.LINK, "text-sm"),
+          "bg-transparent",
+          "border-none",
+          "hover:bg-opacity-0");
 }

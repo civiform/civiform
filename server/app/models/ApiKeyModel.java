@@ -15,7 +15,7 @@ import javax.persistence.Table;
 /** An EBean mapped class that represents an API key in CiviForm. */
 @Entity
 @Table(name = "api_keys")
-public class ApiKey extends BaseModel {
+public class ApiKeyModel extends BaseModel {
 
   @WhenCreated private Instant createTime;
   @WhenModified private Instant updateTime;
@@ -33,12 +33,12 @@ public class ApiKey extends BaseModel {
   /** Permissions granted to this ApiKey by the admin. */
   @DbJsonB private ApiKeyGrants grants;
 
-  public ApiKey(ApiKeyGrants grants) {
+  public ApiKeyModel(ApiKeyGrants grants) {
     this.callCount = 0L;
     this.grants = grants;
   }
 
-  public ApiKey() {
+  public ApiKeyModel() {
     this(new ApiKeyGrants());
   }
 
@@ -46,7 +46,7 @@ public class ApiKey extends BaseModel {
     return grants;
   }
 
-  public ApiKey setGrants(ApiKeyGrants grants) {
+  public ApiKeyModel setGrants(ApiKeyGrants grants) {
     this.grants = grants;
     return this;
   }
@@ -57,7 +57,7 @@ public class ApiKey extends BaseModel {
    *
    * @param retiredBy the authority_id of the account who retired the key.
    */
-  public ApiKey retire(String retiredBy) {
+  public ApiKeyModel retire(String retiredBy) {
     if (retiredTime != null) {
       throw new RuntimeException(String.format("ApiKey %s is already retired", id));
     }
@@ -109,7 +109,7 @@ public class ApiKey extends BaseModel {
   /**
    * Timestamp of when the ApiKey is no longer valid. Expiration should be immutable after creation.
    */
-  public ApiKey setExpiration(Instant expiration) {
+  public ApiKeyModel setExpiration(Instant expiration) {
     this.expiration = expiration;
     return this;
   }
@@ -120,7 +120,7 @@ public class ApiKey extends BaseModel {
   }
 
   /** The {@code authorityId} of the account that created the ApiKey. */
-  public ApiKey setCreatedBy(String createdBy) {
+  public ApiKeyModel setCreatedBy(String createdBy) {
     this.createdBy = createdBy;
     return this;
   }
@@ -131,7 +131,7 @@ public class ApiKey extends BaseModel {
   }
 
   /** Human readable name of the ApiKey. OK to modify after creation. */
-  public ApiKey setName(String name) {
+  public ApiKeyModel setName(String name) {
     this.name = name;
     return this;
   }
@@ -145,7 +145,7 @@ public class ApiKey extends BaseModel {
   }
 
   /** Unique identifier for the ApiKey. */
-  public ApiKey setKeyId(String keyId) {
+  public ApiKeyModel setKeyId(String keyId) {
     this.keyId = keyId;
     return this;
   }
@@ -159,7 +159,7 @@ public class ApiKey extends BaseModel {
   }
 
   /** The salted key secret (a.k.a. password) of the ApiKey. */
-  public ApiKey setSaltedKeySecret(String saltedKeySecret) {
+  public ApiKeyModel setSaltedKeySecret(String saltedKeySecret) {
     this.saltedKeySecret = saltedKeySecret;
     return this;
   }
@@ -191,7 +191,7 @@ public class ApiKey extends BaseModel {
    *
    * <p>This attribute is a CSV, with multiple CIDR blocks separated by commas.
    */
-  public ApiKey setSubnet(String subnet) {
+  public ApiKeyModel setSubnet(String subnet) {
     this.subnet = subnet;
     return this;
   }
@@ -205,7 +205,7 @@ public class ApiKey extends BaseModel {
   }
 
   /** The client IPv4 address of the last request to successfully auth with the ApiKey. */
-  public ApiKey setLastCallIpAddress(String lastCallIpAddress) {
+  public ApiKeyModel setLastCallIpAddress(String lastCallIpAddress) {
     this.lastCallIpAddress = lastCallIpAddress;
     return this;
   }
@@ -216,7 +216,7 @@ public class ApiKey extends BaseModel {
   }
 
   /** Increment the number of requests that have been attempted using this API key. */
-  public ApiKey incrementCallCount() {
+  public ApiKeyModel incrementCallCount() {
     this.callCount++;
     return this;
   }

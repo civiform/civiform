@@ -11,7 +11,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.AccountModel;
-import models.StoredFile;
+import models.StoredFileModel;
 import org.pac4j.play.java.Secure;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
@@ -98,7 +98,7 @@ public class FileController extends CiviFormController {
   private Result adminShowInternal(Request request, String fileKey) {
     String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
 
-    Optional<StoredFile> maybeFile =
+    Optional<StoredFileModel> maybeFile =
         storedFileRepository.lookupFile(decodedFileKey).toCompletableFuture().join();
 
     if (maybeFile.isEmpty()) {

@@ -27,8 +27,8 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import models.AccountModel;
-import models.Applicant;
-import models.TrustedIntermediaryGroup;
+import models.ApplicantModel;
+import models.TrustedIntermediaryGroupModel;
 import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -60,7 +60,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   public Content render(
-      TrustedIntermediaryGroup tiGroup,
+      TrustedIntermediaryGroupModel tiGroup,
       ApplicantPersonalInfo personalInfo,
       ImmutableList<AccountModel> managedAccounts,
       int totalPageCount,
@@ -163,7 +163,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                     Optional.of(pageNumber))));
   }
 
-  private DivTag renderTIMembersTable(TrustedIntermediaryGroup tiGroup) {
+  private DivTag renderTIMembersTable(TrustedIntermediaryGroupModel tiGroup) {
     return div(
         table()
             .withClasses("border", "border-gray-300", "shadow-md", "w-3/4")
@@ -177,7 +177,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         this::renderTIRow))));
   }
 
-  private DivTag renderAddNewForm(TrustedIntermediaryGroup tiGroup, Http.Request request) {
+  private DivTag renderAddNewForm(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
     FormTag formTag =
         form()
             .withMethod("POST")
@@ -259,7 +259,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   private TdTag renderDateOfBirthCell(AccountModel account, Http.Request request) {
-    Optional<Applicant> newestApplicant = account.newestApplicant();
+    Optional<ApplicantModel> newestApplicant = account.newestApplicant();
     if (newestApplicant.isEmpty()) {
       return td().withClasses(BaseStyles.TABLE_CELL_STYLES);
     }
@@ -299,7 +299,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   private TdTag renderActionsCell(AccountModel applicant) {
-    Optional<Applicant> newestApplicant = applicant.newestApplicant();
+    Optional<ApplicantModel> newestApplicant = applicant.newestApplicant();
     if (newestApplicant.isEmpty()) {
       return td().withClasses(BaseStyles.TABLE_CELL_STYLES);
     }

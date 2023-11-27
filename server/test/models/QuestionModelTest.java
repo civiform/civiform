@@ -23,7 +23,7 @@ import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
-public class QuestionTest extends ResetPostgres {
+public class QuestionModelTest extends ResetPostgres {
 
   private QuestionRepository repo;
 
@@ -42,11 +42,11 @@ public class QuestionTest extends ResetPostgres {
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .build());
-    Question question = new Question(definition);
+    QuestionModel question = new QuestionModel(definition);
 
     question.save();
 
-    Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    QuestionModel found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
     QuestionDefinition expected =
         new QuestionDefinitionBuilder(definition).setId(question.id).build();
@@ -63,10 +63,10 @@ public class QuestionTest extends ResetPostgres {
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .build());
-    Question question = new Question(questionDefinition);
+    QuestionModel question = new QuestionModel(questionDefinition);
     question.save();
 
-    Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    QuestionModel found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
     assertThat(found.getQuestionDefinition().getEnumeratorId()).isEmpty();
   }
@@ -82,10 +82,10 @@ public class QuestionTest extends ResetPostgres {
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setEnumeratorId(Optional.of(10L))
                 .build());
-    Question question = new Question(questionDefinition);
+    QuestionModel question = new QuestionModel(questionDefinition);
     question.save();
 
-    Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    QuestionModel found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
     assertThat(found.getQuestionDefinition().getEnumeratorId()).hasValue(10L);
   }
@@ -100,11 +100,11 @@ public class QuestionTest extends ResetPostgres {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "hello"))
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help"))
                 .build());
-    Question question = new Question(definition);
+    QuestionModel question = new QuestionModel(definition);
 
     question.save();
 
-    Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    QuestionModel found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
     assertThat(found.getQuestionDefinition().getQuestionText())
         .isEqualTo(LocalizedStrings.of(Locale.US, "hello"));
@@ -122,11 +122,11 @@ public class QuestionTest extends ResetPostgres {
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .build());
-    Question question = new Question(address);
+    QuestionModel question = new QuestionModel(address);
 
     question.save();
 
-    Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    QuestionModel found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
     assertThat(found.getQuestionDefinition()).isInstanceOf(AddressQuestionDefinition.class);
   }
@@ -142,11 +142,11 @@ public class QuestionTest extends ResetPostgres {
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(TextValidationPredicates.create(0, 128))
                 .build());
-    Question question = new Question(definition);
+    QuestionModel question = new QuestionModel(definition);
 
     question.save();
 
-    Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    QuestionModel found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
     assertThat(found.getQuestionDefinition().getValidationPredicates())
         .isEqualTo(TextValidationPredicates.create(0, 128));
@@ -167,11 +167,11 @@ public class QuestionTest extends ResetPostgres {
                 ImmutableList.of(
                     QuestionOption.create(1L, "opt1", LocalizedStrings.of(Locale.US, "option"))))
             .build();
-    Question question = new Question(definition);
+    QuestionModel question = new QuestionModel(definition);
 
     question.save();
 
-    Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    QuestionModel found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
     assertThat(found.getQuestionDefinition().getQuestionType().isMultiOptionType()).isTrue();
     MultiOptionQuestionDefinition multiOption =
@@ -199,11 +199,11 @@ public class QuestionTest extends ResetPostgres {
             .setQuestionHelpText(LocalizedStrings.empty())
             .setEntityType(entityType)
             .build();
-    Question question = new Question(definition);
+    QuestionModel question = new QuestionModel(definition);
 
     question.save();
 
-    Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    QuestionModel found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
     assertThat(found.getQuestionDefinition().getQuestionType()).isEqualTo(QuestionType.ENUMERATOR);
     EnumeratorQuestionDefinition enumerator =
@@ -223,14 +223,14 @@ public class QuestionTest extends ResetPostgres {
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setEnumeratorId(Optional.of(10L))
                 .build());
-    Question initialQuestion = new Question(questionDefinition);
+    QuestionModel initialQuestion = new QuestionModel(questionDefinition);
     initialQuestion.save();
 
     assertThat(initialQuestion.getCreateTime()).isNotEmpty();
     assertThat(initialQuestion.getQuestionDefinition().getLastModifiedTime()).isNotEmpty();
 
     // Ensure a freshly loaded copy has the same timestamps.
-    Question freshlyLoaded =
+    QuestionModel freshlyLoaded =
         repo.lookupQuestion(initialQuestion.id).toCompletableFuture().join().get();
     assertThat(freshlyLoaded.getCreateTime()).isEqualTo(initialQuestion.getCreateTime());
     assertThat(freshlyLoaded.getQuestionDefinition().getLastModifiedTime())
@@ -246,7 +246,7 @@ public class QuestionTest extends ResetPostgres {
     freshlyLoaded.markAsDirty();
     freshlyLoaded.save();
 
-    Question afterUpdate =
+    QuestionModel afterUpdate =
         repo.lookupQuestion(initialQuestion.id).toCompletableFuture().join().get();
     assertThat(afterUpdate.getCreateTime()).isEqualTo(initialQuestion.getCreateTime());
     assertThat(afterUpdate.getQuestionDefinition().getLastModifiedTime()).isPresent();
@@ -267,17 +267,17 @@ public class QuestionTest extends ResetPostgres {
     QuestionDefinition nonUniversalQuestionDefinition =
         new TextQuestionDefinition(builder.setUniversal(false).build());
 
-    Question universalQuestion = new Question(universalQuestionDefinition);
+    QuestionModel universalQuestion = new QuestionModel(universalQuestionDefinition);
     universalQuestion.save();
-    Question nonUniversalQuestion = new Question(nonUniversalQuestionDefinition);
+    QuestionModel nonUniversalQuestion = new QuestionModel(nonUniversalQuestionDefinition);
     nonUniversalQuestion.save();
 
-    Question universalFound =
+    QuestionModel universalFound =
         repo.lookupQuestion(universalQuestion.id).toCompletableFuture().join().get();
     assertThat(universalFound.getQuestionDefinition().isUniversal()).isTrue();
     assertThat(universalFound.containsTag(QuestionTag.UNIVERSAL)).isTrue();
 
-    Question nonUniversalFound =
+    QuestionModel nonUniversalFound =
         repo.lookupQuestion(nonUniversalQuestion.id).toCompletableFuture().join().get();
     assertThat(nonUniversalFound.getQuestionDefinition().isUniversal()).isFalse();
     assertThat(nonUniversalFound.containsTag(QuestionTag.UNIVERSAL)).isFalse();
