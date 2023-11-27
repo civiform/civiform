@@ -12,7 +12,6 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
-import javax.inject.Inject;
 import models.ProgramModel;
 import org.postgresql.util.PGInterval;
 import services.reporting.ApplicationSubmissionsStat;
@@ -23,6 +22,12 @@ public final class ReportingRepository {
   private final Clock clock;
   private final Database database;
   private final ImmutableList<ProgramModel> listOfPrograms;
+
+  public ReportingRepository() {
+    clock = null;
+    this.database = DB.getDefault();
+    listOfPrograms = null;
+  }
 
   public ReportingRepository(Clock clock, ImmutableList<ProgramModel> listOfPrograms) {
     this.clock = Preconditions.checkNotNull(clock);

@@ -10,6 +10,9 @@ import java.time.Clock;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * Factory for initializing ReportingRepository.
+ */
 public class ReportingRepositoryFactory {
   private final Clock clock;
   private final ImmutableList<ProgramModel> listOfPrograms;
