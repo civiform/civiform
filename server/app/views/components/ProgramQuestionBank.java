@@ -216,7 +216,7 @@ public final class ProgramQuestionBank {
                 QuestionSortOption.LAST_MODIFIED.getDataAttribute(),
                 definition.getLastModifiedTime().orElse(Instant.EPOCH).toString())
             .withData(RELEVANT_FILTER_TEXT_DATA_ATTR, relevantFilterText);
-    DivTag row = div().withClasses("relative", "p-3", "pr-0", "flex", "items-center");
+    DivTag row = div().withClasses("relative", "p-3", "pr-0", "flex");
 
     ButtonTag addButton =
         button("Add")
@@ -225,10 +225,12 @@ public final class ProgramQuestionBank {
             .withName("question-" + definition.getId())
             .withValue(definition.getId() + "")
             .withClasses(
-                ReferenceClasses.ADD_QUESTION_BUTTON, ButtonStyles.OUTLINED_WHITE_WITH_ICON);
+                ReferenceClasses.ADD_QUESTION_BUTTON,
+                ButtonStyles.OUTLINED_WHITE_WITH_ICON,
+                "h-12");
 
     SvgTag icon =
-        Icons.questionTypeSvg(definition.getQuestionType()).withClasses("shrink-0", "h-12", "w-6");
+        Icons.questionTypeSvg(definition.getQuestionType()).withClasses("shrink-0", "h-6", "w-6");
 
     // Only show the admin note if it is not empty.
     PTag adminNote =
@@ -241,7 +243,7 @@ public final class ProgramQuestionBank {
             .withClasses("ml-4", "grow")
             .with(
                 p(definition.getQuestionText().getDefault())
-                    .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, "font-bold"),
+                    .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, "font-bold", "w-3/5"),
                 p(questionHelpText).withClasses("mt-1", "text-sm", "line-clamp-2"),
                 p(String.format("Admin ID: %s", definition.getName()))
                     .withClasses("mt-1", "text-sm"),
