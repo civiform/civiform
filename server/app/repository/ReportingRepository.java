@@ -51,8 +51,9 @@ public final class ReportingRepository {
         .map(
             row -> {
               String programName = row.getString("program_name");
+              System.out.println(programName);
               return ApplicationSubmissionsStat.create(
-                  getProgram(programName).get().getProgramDefinition().localizedName().getDefault(),
+                  getProgramAdminName(programName),
                   programName,
                   Optional.of(row.getTimestamp("submit_month")),
                   row.getLong("count"),
@@ -68,6 +69,14 @@ public final class ReportingRepository {
     return listOfPrograms.stream()
         .filter(p -> p.getProgramDefinition().adminName().equals(name))
         .findAny();
+  }
+
+  private String getProgramAdminName(String name) {
+    Optional<ProgramModel> program = getProgram(name);
+    if (program.isPresent()) {
+      return program.get().getProgramDefinition().localizedName().getDefault();
+    }
+    return name;
   }
 
   private Timestamp getFirstOfMonth() {
@@ -103,7 +112,7 @@ public final class ReportingRepository {
             row -> {
               String programName = row.getString("program_name");
               return ApplicationSubmissionsStat.create(
-                  getProgram(programName).get().getProgramDefinition().localizedName().getDefault(),
+                  getProgramAdminName(programName),
                   programName,
                   Optional.of(firstOfMonth),
                   row.getLong("count"),

@@ -30,13 +30,13 @@ public class ReportingRepositoryTest extends ResetPostgres {
   @Before
   public void setUp() {
     versionRepository = instanceOf(VersionRepository.class);
-    reportingRepositoryFactory = new ReportingRepositoryFactory(testClock, versionRepository);
-    repo = reportingRepositoryFactory.create();
     applicant = resourceCreator.insertApplicantWithAccount();
     programA =
         ProgramBuilder.newActiveProgramWithDisplayName("fake-program-a", "Fake Program A").build();
     programB =
         ProgramBuilder.newActiveProgramWithDisplayName("fake-program-b", "Fake Program B").build();
+    reportingRepositoryFactory = new ReportingRepositoryFactory(testClock, versionRepository);
+    repo = reportingRepositoryFactory.create();
   }
 
   @Test
