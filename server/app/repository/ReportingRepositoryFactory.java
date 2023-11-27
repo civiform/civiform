@@ -14,7 +14,7 @@ import javax.inject.Inject;
  * <p>Avoids n+1 DB queries when acquiring the public name of a program when loading program
  * reporting statistics.
  */
-public class ReportingRepositoryFactory {
+public final class ReportingRepositoryFactory {
   private final Clock clock;
   private final Database database;
   private final VersionRepository versionRepository;

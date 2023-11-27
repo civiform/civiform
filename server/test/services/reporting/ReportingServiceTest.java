@@ -37,15 +37,15 @@ public class ReportingServiceTest extends ResetPostgres {
   @Before
   public void setUp() {
     versionRepository = instanceOf(VersionRepository.class);
-    reportingRepositoryFactory = new ReportingRepositoryFactory(testClock, versionRepository);
-    service =
-        new ReportingService(
-            instanceOf(DateConverter.class),
-            reportingRepositoryFactory,
-            instanceOf(SyncCacheApi.class));
     applicant = resourceCreator.insertApplicantWithAccount();
     programA = ProgramBuilder.newActiveProgram().withName("Fake Program A").build();
     programB = ProgramBuilder.newActiveProgram().withName("Fake Program B").build();
+    reportingRepositoryFactory = new ReportingRepositoryFactory(testClock, versionRepository);
+    service =
+      new ReportingService(
+        instanceOf(DateConverter.class),
+        reportingRepositoryFactory,
+        instanceOf(SyncCacheApi.class));
   }
 
   @Test
@@ -139,7 +139,7 @@ public class ReportingServiceTest extends ResetPostgres {
                 createFakeApplication(
                     programB, applicationSpec.getLeft(), applicationSpec.getRight()));
 
-    instanceOf(ReportingRepository.class).refreshMonthlyReportingView();
+    reportingRepositoryFactory.create().refreshMonthlyReportingView();
   }
 
   private ApplicationModel createFakeApplication(
