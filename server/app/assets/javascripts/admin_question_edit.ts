@@ -5,11 +5,9 @@ class AdminQuestionEdit {
   constructor() {
     // Check for the modal to confirm we are on the question edit page with the UNIVERSAL_QUESTIONS feature flag turned on
     const modal = document.getElementById('confirm-question-updates-modal')
-    if (modal === null) {
-      return
+    if (modal !== null) {
+      this.addCustomModalClickHandler(modal)
     }
-
-    this.addCustomModalClickHandler(modal)
   }
 
   addCustomModalClickHandler(modal: HTMLElement) {

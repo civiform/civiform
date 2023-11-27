@@ -531,6 +531,7 @@ describe('normal question lifecycle', () => {
       'Remove from universal questions',
     )
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+    await disableFeatureFlag(page, 'universal_questions')
   })
 
   it('redirects to draft question when trying to edit original question', async () => {
