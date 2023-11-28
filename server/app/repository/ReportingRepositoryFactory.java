@@ -6,13 +6,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
-import models.ProgramModel;
-import services.program.ProgramDefinition;
-
 import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
+import models.ProgramModel;
+import services.program.ProgramDefinition;
 
 /**
  * Factory for initializing ReportingRepository.
@@ -32,8 +31,10 @@ public final class ReportingRepositoryFactory {
     this.versionRepository = Preconditions.checkNotNull(versionRepository);
   }
 
-  /** Creating a ReportingRepository object with <code>List&lt;ProgramModel&gt;</code>
-   * output as a HashMap. */
+  /**
+   * Creating a ReportingRepository object with <code>List&lt;ProgramModel&gt;</code> output as a
+   * HashMap.
+   */
   public ReportingRepository create() {
     ImmutableList<ProgramModel> listOfPrograms = versionRepository.getActiveVersion().getPrograms();
     Map<String, String> hashOfPrograms = new HashMap<>();
@@ -41,7 +42,6 @@ public final class ReportingRepositoryFactory {
       ProgramDefinition pd = p.getProgramDefinition();
       hashOfPrograms.put(pd.adminName(), pd.localizedName().getDefault());
     }
-    return new ReportingRepository(
-        clock, database, hashOfPrograms);
+    return new ReportingRepository(clock, database, hashOfPrograms);
   }
 }

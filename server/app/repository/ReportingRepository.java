@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Optional;
-import models.ProgramModel;
 import org.postgresql.util.PGInterval;
 import services.reporting.ApplicationSubmissionsStat;
 
@@ -30,8 +29,7 @@ public final class ReportingRepository {
     this.hashOfPrograms = null;
   }
 
-  public ReportingRepository(
-      Clock clock, Database database, Map<String, String> hashOfPrograms) {
+  public ReportingRepository(Clock clock, Database database, Map<String, String> hashOfPrograms) {
     this.clock = Preconditions.checkNotNull(clock);
     this.database = Preconditions.checkNotNull(database);
     this.hashOfPrograms = Preconditions.checkNotNull(hashOfPrograms);
