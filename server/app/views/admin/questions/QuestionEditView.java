@@ -328,7 +328,7 @@ public final class QuestionEditView extends BaseHtmlView {
         form()
             .with(
                 div("This question will no longer be set as a recommended "
-                        + questionForm.getQuestionType().toString()
+                        + questionForm.getQuestionType().getLabel()
                         + " question.")
                     .withClasses("mb-8"),
                 div(
