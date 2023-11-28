@@ -8,6 +8,7 @@ import {
 } from './wait'
 import {BASE_URL, TEST_CIVIC_ENTITY_SHORT_NAME} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
+import {AdminProgramImage} from './admin_program_image'
 import {validateScreenshot} from '.'
 
 /**
@@ -283,6 +284,14 @@ export class AdminPrograms {
     await this.expectProgramManageTranslationsPage(programName)
   }
 
+  async goToProgramImagePage(programName: string) {
+    await this.gotoAdminProgramsPage()
+    await this.expectDraftProgram(programName)
+    await this.gotoEditDraftProgramPage(programName)
+    await this.page.click('button:has-text("Edit program image")')
+    await this.expectProgramImagePage(programName)
+  }
+
   async gotoManageProgramAdminsPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
@@ -429,6 +438,11 @@ export class AdminPrograms {
     )
   }
 
+  async expectProgramImagePage(programName: string) {
+    const adminProgramImage = new AdminProgramImage(this.page)
+    await adminProgramImage.expectProgramImagePage(programName)
+  }
+
   async expectManageProgramAdminsPage() {
     expect(await this.page.innerText('h1')).toContain(
       'Manage Admins for Program',
@@ -570,9 +584,12 @@ export class AdminPrograms {
     )
   }
 
-  async questionBankNames(): Promise<string[]> {
+  async questionBankNames(universal = false): Promise<string[]> {
+    const loc = '.cf-question-bank-element:visible .cf-question-title'
     const titles = this.page.locator(
-      '.cf-question-bank-element:visible .cf-question-title',
+      universal
+        ? '#question-bank-universal ' + loc
+        : '#question-bank-nonuniversal ' + loc,
     )
     return titles.allTextContents()
   }

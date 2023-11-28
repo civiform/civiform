@@ -15,16 +15,18 @@ import services.application.ApplicationEventDetails;
 
 @Entity
 @Table(name = "application_events")
-public final class ApplicationEvent extends BaseModel {
+public final class ApplicationEventModel extends BaseModel {
 
   // The Application the event is on.
-  @ManyToOne private Application application;
+  @ManyToOne private ApplicationModel application;
   // The {@code ApplicationEventDetails.Type} of the event.
   @Constraints.Required private ApplicationEventDetails.Type eventType;
+
   // The Account that triggered the event.
   @ManyToOne
   @JoinColumn(name = "creator_id")
   private AccountModel creator;
+
   // Details of the event specific to the eventType.
   @Constraints.Required @DbJson private ApplicationEventDetails details;
   @WhenCreated private Instant createTime;
@@ -37,19 +39,21 @@ public final class ApplicationEvent extends BaseModel {
    *
    * @param creator the Account that created the event.
    */
-  public ApplicationEvent(
-      Application application, Optional<AccountModel> creator, ApplicationEventDetails details) {
+  public ApplicationEventModel(
+      ApplicationModel application,
+      Optional<AccountModel> creator,
+      ApplicationEventDetails details) {
     this.application = checkNotNull(application);
     this.creator = checkNotNull(creator).orElse(null);
     this.details = checkNotNull(details);
     this.eventType = details.eventType();
   }
 
-  public Application getApplication() {
+  public ApplicationModel getApplication() {
     return application;
   }
 
-  public ApplicationEvent setApplication(Application application) {
+  public ApplicationEventModel setApplication(ApplicationModel application) {
     this.application = checkNotNull(application);
     return this;
   }
@@ -58,7 +62,7 @@ public final class ApplicationEvent extends BaseModel {
     return eventType;
   }
 
-  public ApplicationEvent setEventType(ApplicationEventDetails.Type eventType) {
+  public ApplicationEventModel setEventType(ApplicationEventDetails.Type eventType) {
     this.eventType = checkNotNull(eventType);
     return this;
   }
@@ -67,7 +71,7 @@ public final class ApplicationEvent extends BaseModel {
     return Optional.ofNullable(creator);
   }
 
-  public ApplicationEvent setCreator(AccountModel creator) {
+  public ApplicationEventModel setCreator(AccountModel creator) {
     this.creator = checkNotNull(creator);
     return this;
   }
@@ -76,7 +80,7 @@ public final class ApplicationEvent extends BaseModel {
     return details;
   }
 
-  public ApplicationEvent setDetails(ApplicationEventDetails details) {
+  public ApplicationEventModel setDetails(ApplicationEventDetails details) {
     this.details = checkNotNull(details);
     return this;
   }

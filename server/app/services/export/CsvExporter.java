@@ -12,8 +12,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import models.Application;
-import models.TrustedIntermediaryGroup;
+import models.ApplicationModel;
+import models.TrustedIntermediaryGroupModel;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import services.DateConverter;
@@ -63,9 +63,9 @@ public final class CsvExporter implements AutoCloseable {
     this.printer = new CSVPrinter(writer, format);
   }
 
-  /** Writes a single {@link Application} record to the CSV. */
+  /** Writes a single {@link ApplicationModel} record to the CSV. */
   public void exportRecord(
-      Application application,
+      ApplicationModel application,
       ReadOnlyApplicantProgramService roApplicantService,
       Optional<Boolean> optionalEligibilityStatus)
       throws IOException {
@@ -172,7 +172,7 @@ public final class CsvExporter implements AutoCloseable {
                   .getApplicant()
                   .getAccount()
                   .getManagedByGroup()
-                  .map(TrustedIntermediaryGroup::getName)
+                  .map(TrustedIntermediaryGroupModel::getName)
                   .orElse(EMPTY_VALUE));
           break;
         case OPAQUE_ID:

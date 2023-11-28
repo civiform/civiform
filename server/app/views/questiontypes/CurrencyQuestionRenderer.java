@@ -44,17 +44,12 @@ public class CurrencyQuestionRenderer extends ApplicantSingleQuestionRenderer {
                     currencyQuestion.getCurrencyPath(), ImmutableSet.of()))
             .setAriaDescribedByIds(ariaDescribedByIds);
 
-    if (applicantSelectedQuestion(params.questionName())) {
+    if (params.autofocusSingleField()) {
       currencyField.focusOnInput();
     }
 
     if (!validationErrors.isEmpty()) {
       currencyField.forceAriaInvalid();
-      if (params
-          .errorDisplayMode()
-          .equals(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)) {
-        currencyField.focusOnError();
-      }
     }
 
     if (currencyQuestion.getCurrencyValue().isPresent()) {

@@ -57,7 +57,12 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                 messages,
                 validationErrors.getOrDefault(addressQuestion.getStreetPath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.ADDRESS_STREET_1);
-    if (applicantSelectedQuestion(params.questionName())) {
+
+    boolean alreadyAutofocused = false;
+    if (params.autofocusFirstField()
+        || (params.autofocusFirstError()
+            && validationErrors.containsKey(addressQuestion.getStreetPath()))) {
+      alreadyAutofocused = true;
       streetAddressField.focusOnInput();
     }
 
@@ -83,6 +88,13 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                 validationErrors.getOrDefault(addressQuestion.getCityPath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.ADDRESS_CITY);
 
+    if (!alreadyAutofocused
+        && params.autofocusFirstError()
+        && validationErrors.containsKey(addressQuestion.getCityPath())) {
+      alreadyAutofocused = true;
+      cityField.focusOnInput();
+    }
+
     SelectWithLabel stateField =
         (SelectWithLabel)
             new SelectWithLabel()
@@ -102,6 +114,13 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                         addressQuestion.getStatePath(), ImmutableSet.of()))
                 .addReferenceClass(ReferenceClasses.ADDRESS_STATE);
 
+    if (!alreadyAutofocused
+        && params.autofocusFirstError()
+        && validationErrors.containsKey(addressQuestion.getStatePath())) {
+      alreadyAutofocused = true;
+      stateField.focusOnInput();
+    }
+
     FieldWithLabel zipField =
         FieldWithLabel.input()
             .setFieldName(addressQuestion.getZipPath().toString())
@@ -113,23 +132,17 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                 validationErrors.getOrDefault(addressQuestion.getZipPath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.ADDRESS_ZIP);
 
+    if (!alreadyAutofocused
+        && params.autofocusFirstError()
+        && validationErrors.containsKey(addressQuestion.getZipPath())) {
+      zipField.focusOnInput();
+    }
+
     if (!validationErrors.isEmpty()) {
       streetAddressField.forceAriaInvalid();
       cityField.forceAriaInvalid();
       stateField.forceAriaInvalid();
       zipField.forceAriaInvalid();
-      /* Currently, only the streetAddress field will ever receive focus given that
-      we have no way of determining the exact field with an error. However, autofocus
-      will be on each field when we eventually find a way to do that.
-      */
-      if (params
-          .errorDisplayMode()
-          .equals(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)) {
-        streetAddressField.focusOnError();
-        cityField.focusOnError();
-        stateField.focusOnError();
-        zipField.focusOnError();
-      }
     }
 
     if (!isOptional) {

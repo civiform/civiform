@@ -22,7 +22,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
-import models.Application;
+import models.ApplicationModel;
 import models.QuestionTag;
 import play.libs.F;
 import repository.ExportServiceRepository;
@@ -97,7 +97,7 @@ public final class CsvExporterService {
     CsvExportConfig exportConfig =
         generateDefaultCsvExportConfig(allProgramVersions, currentProgram.hasEligibilityEnabled());
 
-    ImmutableList<Application> applications =
+    ImmutableList<ApplicationModel> applications =
         programService
             .getSubmittedProgramApplicationsAllVersions(
                 programId,
@@ -114,7 +114,7 @@ public final class CsvExporterService {
     Map<Path, AnswerData> answerMap = new HashMap<>();
 
     for (ProgramDefinition programDefinition : programDefinitions) {
-      for (Application application :
+      for (ApplicationModel application :
           programService.getSubmittedProgramApplications(programDefinition.id())) {
         applicantService
             .getReadOnlyApplicantProgramService(application, programDefinition)
@@ -142,7 +142,7 @@ public final class CsvExporterService {
    * @throws ProgramNotFoundException If the program ID refers to a program that does not exist.
    */
   public String getProgramCsv(long programId) throws ProgramNotFoundException {
-    ImmutableList<Application> applications =
+    ImmutableList<ApplicationModel> applications =
         programService.getSubmittedProgramApplications(programId);
     ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
     return exportCsv(
@@ -153,7 +153,7 @@ public final class CsvExporterService {
 
   private String exportCsv(
       CsvExportConfig exportConfig,
-      ImmutableList<Application> applications,
+      ImmutableList<ApplicationModel> applications,
       Optional<ProgramDefinition> currentProgram) {
     OutputStream inMemoryBytes = new ByteArrayOutputStream();
     try (Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8)) {
@@ -171,7 +171,7 @@ public final class CsvExporterService {
         HashMap<Long, ProgramDefinition> programDefinitions = new HashMap<>();
         boolean shouldCheckEligibility =
             currentProgram.isPresent() && currentProgram.get().hasEligibilityEnabled();
-        for (Application application : applications) {
+        for (ApplicationModel application : applications) {
           Long programId = application.getProgram().id;
           if (!programDefinitions.containsKey(programId)) {
             try {
@@ -208,7 +208,7 @@ public final class CsvExporterService {
    * then there would be N columns for each of that question's scalars.
    */
   private CsvExportConfig generateDefaultCsvConfig(long programId, boolean showEligibilityColumn) {
-    ImmutableList<Application> applications;
+    ImmutableList<ApplicationModel> applications;
 
     try {
       applications = programService.getSubmittedProgramApplications(programId);
@@ -220,7 +220,7 @@ public final class CsvExporterService {
     // doesn't matter which answer ends up in the map, as long as every <block id, question index>
     // is accounted for.
     Map<String, AnswerData> answerMap = new HashMap<>();
-    for (Application application : applications) {
+    for (ApplicationModel application : applications) {
       ReadOnlyApplicantProgramService roApplicantService =
           applicantService
               .getReadOnlyApplicantProgramService(application)

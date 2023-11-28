@@ -54,13 +54,11 @@ public final class SimpleEmail {
 
   private final String sender;
   private final Client client;
-  private final boolean metricsEnabled;
 
   @Inject
   public SimpleEmail(
       AwsRegion region, Config config, Environment environment, ApplicationLifecycle appLifecycle) {
     this.sender = checkNotNull(config).getString(AWS_SES_SENDER_CONF_PATH);
-    this.metricsEnabled = checkNotNull(config).getBoolean("civiform_server_metrics_enabled");
 
     if (environment.isDev()) {
       client = new LocalStackClient(region, config);
@@ -102,17 +100,13 @@ public final class SimpleEmail {
     } catch (SesException e) {
       logger.error(e.toString());
       e.printStackTrace();
-      if (metricsEnabled) {
-        EMAIL_FAIL_COUNT.inc();
-        EMAIL_SEND_COUNT.labels(String.valueOf(e.statusCode())).inc();
-      }
+      EMAIL_FAIL_COUNT.inc();
+      EMAIL_SEND_COUNT.labels(String.valueOf(e.statusCode())).inc();
     } finally {
-      if (metricsEnabled) {
-        // Increase the count of emails sent.
-        EMAIL_SEND_COUNT.labels(String.valueOf(HttpStatusCode.OK)).inc();
-        // Record the execution time of the email sending process.
-        timer.observeDuration();
-      }
+      // Increase the count of emails sent.
+      EMAIL_SEND_COUNT.labels(String.valueOf(HttpStatusCode.OK)).inc();
+      // Record the execution time of the email sending process.
+      timer.observeDuration();
     }
   }
 

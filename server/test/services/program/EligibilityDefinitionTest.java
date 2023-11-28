@@ -2,7 +2,7 @@ package services.program;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import models.Question;
+import models.QuestionModel;
 import org.junit.Test;
 import services.applicant.question.Scalar;
 import services.program.predicate.LeafOperationExpressionNode;
@@ -20,7 +20,7 @@ public class EligibilityDefinitionTest {
 
   @Test
   public void setAndGet() {
-    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    QuestionModel predicateQuestion = testQuestionBank.applicantFavoriteColor();
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(

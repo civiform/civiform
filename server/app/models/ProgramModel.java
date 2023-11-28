@@ -15,7 +15,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
@@ -68,6 +71,7 @@ public class ProgramModel extends BaseModel {
   @DbJsonB private LocalizedStrings localizedName;
 
   @DbJsonB private ProgramAcls acls;
+
   /**
    * legacyLocalizedName is the legacy storage column for program name translations. Programs
    * created before early May 2021 may use this, but all other programs should not.
@@ -106,14 +110,28 @@ public class ProgramModel extends BaseModel {
    */
   @Constraints.Required private Boolean eligibilityIsGating;
 
+  /**
+   * A localized description of the summary image (used as alt text).
+   *
+   * <p>Note: If the program doesn't have a summary image, the field here will be null but the
+   * corresponding field in {@link ProgramDefinition} will be {@code Optional.empty}. (Ebean doesn't
+   * support optional fields, which is why it's null instead of Optional in this model.) Be sure to
+   * convert between null and Optional when going between this model and {@link ProgramDefinition}.
+   */
+  @DbJsonB @Nullable private LocalizedStrings localizedSummaryImageDescription;
+
   @ManyToMany(mappedBy = "programs")
-  private List<Version> versions;
+  @JoinTable(
+      name = "versions_programs",
+      joinColumns = @JoinColumn(name = "programs_id"),
+      inverseJoinColumns = @JoinColumn(name = "versions_id"))
+  private List<VersionModel> versions;
 
   @OneToMany(mappedBy = "program")
   @OrderBy("id desc")
-  private List<Application> applications;
+  private List<ApplicationModel> applications;
 
-  public ImmutableList<Version> getVersions() {
+  public ImmutableList<VersionModel> getVersions() {
     return ImmutableList.copyOf(versions);
   }
 
@@ -135,11 +153,11 @@ public class ProgramModel extends BaseModel {
     this(definition, Optional.empty());
   }
 
-  public ProgramModel(ProgramDefinition definition, Version version) {
+  public ProgramModel(ProgramDefinition definition, VersionModel version) {
     this(definition, Optional.of(version));
   }
 
-  private ProgramModel(ProgramDefinition definition, Optional<Version> version) {
+  private ProgramModel(ProgramDefinition definition, Optional<VersionModel> version) {
     this.programDefinition = definition;
     this.id = definition.id();
     this.name = definition.adminName();
@@ -154,6 +172,8 @@ public class ProgramModel extends BaseModel {
     this.programType = definition.programType();
     this.eligibilityIsGating = definition.eligibilityIsGating();
     this.acls = definition.acls();
+    this.localizedSummaryImageDescription =
+        definition.localizedSummaryImageDescription().orElse(null);
 
     orderBlockDefinitionsBeforeUpdate();
 
@@ -174,7 +194,7 @@ public class ProgramModel extends BaseModel {
       String externalLink,
       String displayMode,
       ImmutableList<BlockDefinition> blockDefinitions,
-      Version associatedVersion,
+      VersionModel associatedVersion,
       ProgramType programType,
       ProgramAcls programAcls) {
     this.name = adminName;
@@ -211,6 +231,8 @@ public class ProgramModel extends BaseModel {
     programType = programDefinition.programType();
     eligibilityIsGating = programDefinition.eligibilityIsGating();
     acls = programDefinition.acls();
+    localizedSummaryImageDescription =
+        programDefinition.localizedSummaryImageDescription().orElse(null);
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -238,6 +260,7 @@ public class ProgramModel extends BaseModel {
     setLocalizedName(builder);
     setLocalizedDescription(builder);
     setLocalizedConfirmationMessage(builder);
+    setLocalizedSummaryImageDescription(builder);
     this.programDefinition = builder.build();
   }
 
@@ -268,10 +291,19 @@ public class ProgramModel extends BaseModel {
     if (localizedConfirmationMessage != null) {
       builder.setLocalizedConfirmationMessage(localizedConfirmationMessage);
     } else {
-      builder.setLocalizedConfirmationMessage(
-          LocalizedStrings.create(ImmutableMap.of(Locale.US, "")));
+      builder.setLocalizedConfirmationMessage(LocalizedStrings.withEmptyDefault());
     }
     return this;
+  }
+
+  private void setLocalizedSummaryImageDescription(ProgramDefinition.Builder builder) {
+    if (localizedSummaryImageDescription != null) {
+      builder.setLocalizedSummaryImageDescription(Optional.of(localizedSummaryImageDescription));
+    } else {
+      // See docs on `this.localizedSummaryImageDescription` -- a null field here means an
+      // Optional.empty field for the program definition.
+      builder.setLocalizedSummaryImageDescription(Optional.empty());
+    }
   }
 
   /**
@@ -279,7 +311,7 @@ public class ProgramModel extends BaseModel {
    * obsolete if the applicant submitted the application more than once, but are included since all
    * submitted applications should be shown.
    */
-  public ImmutableList<Application> getSubmittedApplications() {
+  public ImmutableList<ApplicationModel> getSubmittedApplications() {
     return applications.stream()
         .filter(
             application ->

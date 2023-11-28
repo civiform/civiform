@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import models.LifecycleStage;
-import models.Question;
+import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import services.LocalizedStrings;
@@ -42,7 +42,7 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
   @Test
   public void getMultiSelectedHeaders_DraftVersionExcludedButPublishedVersionIncluded()
       throws Exception {
-    Question questionWeather =
+    QuestionModel questionWeather =
         createMultiSelectQuestion("weather", "fall", "spring", "summer", LifecycleStage.ACTIVE);
     MultiOptionQuestionDefinition multiOptionQuestionDefinition =
         (MultiOptionQuestionDefinition) questionWeather.getQuestionDefinition();
@@ -73,7 +73,7 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
 
   @Test
   public void getMultiSelectedHeaders_DeletedOptionsIncluded() throws Exception {
-    Question questionWeather =
+    QuestionModel questionWeather =
         createMultiSelectQuestion("weather", "fall", "spring", "summer", LifecycleStage.ACTIVE);
     MultiOptionQuestionDefinition multiOptionQuestionDefinition =
         (MultiOptionQuestionDefinition) questionWeather.getQuestionDefinition();
@@ -147,7 +147,7 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
 
   // TODO(#5957): Structuring this using the Builder pattern would make this easier to extend or
   // customize
-  private Question createMultiSelectQuestion(
+  private QuestionModel createMultiSelectQuestion(
       String name, String option1, String option2, String option3, LifecycleStage stage) {
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()

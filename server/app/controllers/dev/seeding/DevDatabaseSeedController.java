@@ -8,7 +8,7 @@ import io.ebean.DB;
 import io.ebean.Database;
 import models.LifecycleStage;
 import models.Models;
-import models.Version;
+import models.VersionModel;
 import play.cache.AsyncCacheApi;
 import play.cache.NamedCache;
 import play.mvc.Controller;
@@ -150,7 +150,7 @@ public class DevDatabaseSeedController extends Controller {
 
   private void resetTables() {
     Models.truncate(database);
-    Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
+    VersionModel newActiveVersion = new VersionModel(LifecycleStage.ACTIVE);
     newActiveVersion.save();
     settingsService.migrateConfigValuesToSettingsGroup();
   }

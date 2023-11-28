@@ -83,7 +83,13 @@ public class DatabaseSeedView extends BaseHtmlView {
                             .with(makeCsrfTokenInputTag(request))
                             .with(submitButton("clear", "Clear cache"))
                             .withMethod("post")
-                            .withAction(routes.DevDatabaseSeedController.clearCache().url())))
+                            .withAction(routes.DevDatabaseSeedController.clearCache().url()))
+                    .with(
+                        form()
+                            .with(makeCsrfTokenInputTag(request))
+                            .with(submitButton("index", "Go to index page"))
+                            .withMethod("get")
+                            .withAction(controllers.routes.HomeController.index().url())))
             .with(
                 div()
                     .withClasses("grid", "grid-cols-2")

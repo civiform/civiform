@@ -3,7 +3,7 @@ package durablejobs.jobs;
 import com.google.common.base.Preconditions;
 import durablejobs.DurableJob;
 import java.time.LocalDate;
-import models.PersistedDurableJob;
+import models.PersistedDurableJobModel;
 import repository.AccountRepository;
 import services.WellKnownPaths;
 import services.applicant.ApplicantData;
@@ -16,17 +16,17 @@ import services.applicant.ApplicantData;
  */
 public final class FixApplicantDobDataPathJob extends DurableJob {
 
-  private final PersistedDurableJob persistedDurableJob;
+  private final PersistedDurableJobModel persistedDurableJob;
   private final AccountRepository accountRepository;
 
   public FixApplicantDobDataPathJob(
-      AccountRepository accountRepository, PersistedDurableJob persistedDurableJob) {
+      AccountRepository accountRepository, PersistedDurableJobModel persistedDurableJob) {
     this.accountRepository = Preconditions.checkNotNull(accountRepository);
     this.persistedDurableJob = Preconditions.checkNotNull(persistedDurableJob);
   }
 
   @Override
-  public PersistedDurableJob getPersistedDurableJob() {
+  public PersistedDurableJobModel getPersistedDurableJob() {
     return persistedDurableJob;
   }
 
