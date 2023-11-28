@@ -22,6 +22,7 @@ import controllers.admin.routes;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LiTag;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -87,8 +88,9 @@ public final class ProgramIndexView extends BaseHtmlView {
         "Create, edit and publish programs in "
             + settingsManifest.getWhitelabelCivicEntityShortName(request).get();
     Optional<Modal> maybePublishModal = maybeRenderPublishAllModal(programs, questions, request);
-
+    Modal publishSingleProgramModals = buildPublishSingleProgramModals(programs);
     Modal demographicsCsvModal = renderDemographicsCsvModal();
+
     DivTag contentDiv =
         div()
             .withClasses("px-4")
@@ -122,7 +124,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                                             programs.getActiveProgramDefinition(name),
                                             programs.getDraftProgramDefinition(name),
                                             request,
-                                            profile))
+                                            profile, publishSingleProgramModal))
                                 .sorted(
                                     ProgramCardFactory
                                         .programTypeThenLastModifiedThenNameComparator())
@@ -135,7 +137,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .getBundle(request)
             .setTitle(pageTitle)
             .addMainContent(contentDiv)
-            .addModals(demographicsCsvModal);
+            .addModals(demographicsCsvModal, publishSingleProgramModal);
     maybePublishModal.ifPresent(htmlBundle::addModals);
 
     Http.Flash flash = request.flash();
@@ -193,6 +195,22 @@ public final class ProgramIndexView extends BaseHtmlView {
         .setModalTitle(downloadActionText)
         .setTriggerButtonContent(makeSvgTextButton(downloadActionText, Icons.DOWNLOAD))
         .build();
+  }
+
+  private ImmutableList<Modal> buildPublishSingleProgramModals(ActiveAndDraftPrograms programs) {
+
+    // for each program... build a modal
+    List<Modal> modals = new ArrayList<Modal>();
+
+    return Modal.builder()
+    .setModalId("publish-single-program-modal")
+    .setLocation(Modal.Location.ADMIN_FACING)
+    .setContent(div("hi i'm a modal"))
+    .setModalTitle("title")
+    .setTriggerButtonContent(makeSvgTextButton("Publish ", Icons.PUBLISH)
+                .withId("publish-program-button")
+                .withClasses(ButtonStyles.CLEAR_WITH_ICON))
+    .build();
   }
 
   private Optional<Modal> maybeRenderPublishAllModal(
@@ -312,13 +330,19 @@ public final class ProgramIndexView extends BaseHtmlView {
       Optional<ProgramDefinition> activeProgram,
       Optional<ProgramDefinition> draftProgram,
       Http.Request request,
-      Optional<CiviFormProfile> profile) {
+      Optional<CiviFormProfile> profile, 
+      Modal publishSingleProgramModal) {
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> draftRow = Optional.empty();
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> activeRow = Optional.empty();
     if (draftProgram.isPresent()) {
       List<ButtonTag> draftRowActions = Lists.newArrayList();
       List<ButtonTag> draftRowExtraActions = Lists.newArrayList();
-      draftRowActions.add(renderPublishProgramLink(draftProgram.get(), request));
+      // add the modal button here
+      // ok so we need to modal to have data about the particular program...
+      // program name
+      // info about if it uses all universal questions
+      draftRowActions.add(publishSingleProgramModal.getButton());
+    //   draftRowActions.add(renderPublishProgramLink(draftProgram.get(), request));
       draftRowActions.add(renderEditLink(/* isActive = */ false, draftProgram.get(), request));
       draftRowExtraActions.add(renderManageProgramAdminsLink(draftProgram.get()));
       Optional<ButtonTag> maybeManageTranslationsLink =
