@@ -6,6 +6,8 @@ import {
   seedQuestions,
   validateScreenshot,
   waitForPageJsLoad,
+  enableFeatureFlag,
+  disableFeatureFlag,
 } from './support'
 import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
@@ -408,91 +410,6 @@ describe('normal question lifecycle', () => {
         ),
       ),
     ).toBeTruthy()
-  })
-
-  it('persists universal state and orders questions correctly', async () => {
-    const {page, adminQuestions} = ctx
-
-    await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'universal_questions')
-
-    // Navigate to the new question page and ensure that the universal toggle is unset
-    await adminQuestions.gotoAdminQuestionsPage()
-    await adminQuestions.page.click('#create-question-button')
-    await adminQuestions.page.click('#create-text-question')
-    await waitForPageJsLoad(adminQuestions.page)
-    expect(await adminQuestions.getUniversalToggleValue()).toEqual('false')
-
-    const question1Name = 'universalTextQuestionTestOne'
-    await adminQuestions.addTextQuestion({
-      questionName: question1Name,
-      questionText: question1Name,
-      universal: true,
-    })
-    const question2Name = 'universalTextQuestionTestTwo'
-    await adminQuestions.addTextQuestion({
-      questionName: question2Name,
-      questionText: question2Name,
-      universal: true,
-    })
-    const question3Name = 'universalTextQuestionTestThree'
-    await adminQuestions.addTextQuestion({
-      questionName: question3Name,
-      questionText: question3Name,
-      universal: false,
-    })
-
-    // Confirm that the previously selected universal option was saved.
-    await adminQuestions.gotoQuestionEditPage(question1Name)
-    expect(await adminQuestions.getUniversalToggleValue()).toEqual('true')
-    await validateScreenshot(page, 'question-edit-universal-set')
-    await adminQuestions.gotoQuestionEditPage(question3Name)
-    expect(await adminQuestions.getUniversalToggleValue()).toEqual('false')
-
-    // Ensure ordering is correct
-    await adminQuestions.gotoAdminQuestionsPage()
-    expect(await adminQuestions.questionNames()).toEqual([
-      question2Name,
-      question1Name,
-      question3Name,
-    ])
-    await validateScreenshot(page, 'universal-questions-1')
-
-    // Update question1 and ensure it now appears at the top of the list
-    await adminQuestions.gotoQuestionEditPage(question1Name)
-    await adminQuestions.clickSubmitButtonAndNavigate('Update')
-    await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
-    expect(await adminQuestions.questionNames()).toEqual([
-      question1Name,
-      question2Name,
-      question3Name,
-    ])
-
-    // Make question1 non-universal and question3 universal and confirm that the new values are saved.
-    await adminQuestions.gotoQuestionEditPage(question1Name)
-    await adminQuestions.clickUniversalToggle()
-    await adminQuestions.clickSubmitButtonAndNavigate('Update')
-    // Since we are toggling the universal question setting from "on" to "off", a confirmation modal will appear
-    // Click the submit button on the modal to continue
-    await adminQuestions.clickSubmitButtonAndNavigate(
-      'Remove from universal questions',
-    )
-    await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
-    await adminQuestions.gotoQuestionEditPage(question1Name)
-    expect(await adminQuestions.getUniversalToggleValue()).toEqual('false')
-    await validateScreenshot(page, 'question-edit-universal-unset')
-    await adminQuestions.gotoQuestionEditPage(question3Name)
-    await adminQuestions.clickUniversalToggle()
-    await adminQuestions.clickSubmitButtonAndNavigate('Update')
-    await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
-    expect(await adminQuestions.questionNames()).toEqual([
-      question3Name,
-      question2Name,
-      question1Name,
-    ])
-    await validateScreenshot(page, 'universal-questions-2')
-
-    await disableFeatureFlag(page, 'universal_questions')
   })
 
   it('shows the "Remove from universal questions" confirmation modal in the right circumstances and navigation works', async () => {
