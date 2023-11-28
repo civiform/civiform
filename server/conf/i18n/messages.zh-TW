@@ -288,7 +288,7 @@ validation.textTooShort=長度不可少於 {0} 個字元。
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=多選題不得留空。
-adminValidation.multiOptionAdminError=Admin names can only contain letters, numbers, underscores, and dashes.
+adminValidation.multiOptionAdminError=管理員名稱只能使用英文字母、數字、底線和破折號。
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -318,9 +318,9 @@ email.tiApplicationUpdateBody=申請者「{0}」的「{1}」計畫申請書狀�
 # GOVERNMENT BANNER - text explaining that CF is an official government site #
 #------------------------------------------------------------------------------#
 
-banner.title=This is an official government website.
-banner.link=Here''s how you know
-banner.govWebsiteSectionHeader=Official websites use .gov
-banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
-banner.httpsSectionHeader=Secure .gov websites use HTTPS
-banner.httpsSectionContent=A lock ( {0} ) or https:// means you''ve safely connected to the .gov website. Only share sensitive information on official, secure websites.
+banner.title=這是官方政府網站。
+banner.link=以下說明判斷方式
+banner.govWebsiteSectionHeader=官方網站的網址會有 .gov
+banner.govWebsiteSectionContent=結尾是 .gov 的網址為美國的官方政府機關所有。
+banner.httpsSectionHeader=安全的 .gov 網站會使用 HTTPS
+banner.httpsSectionContent=如果看到鎖頭圖示 ( {0} ) 或 https://，表示您已安全地連線至 .gov 網站。請務必只在安全的官方網站上分享私密資訊。
