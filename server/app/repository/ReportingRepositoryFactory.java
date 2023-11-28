@@ -3,9 +3,15 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
+import models.ProgramModel;
+import services.program.ProgramDefinition;
+
 import java.time.Clock;
+import java.util.HashMap;
+import java.util.Map;
 import javax.inject.Inject;
 
 /**
@@ -26,9 +32,16 @@ public final class ReportingRepositoryFactory {
     this.versionRepository = Preconditions.checkNotNull(versionRepository);
   }
 
-  /** Creating a ProgramBlockValidation object with version(DB object) as its member variable */
+  /** Creating a ReportingRepository object with <code>List&lt;ProgramModel&gt;</code>
+   * output as a HashMap. */
   public ReportingRepository create() {
+    ImmutableList<ProgramModel> listOfPrograms = versionRepository.getActiveVersion().getPrograms();
+    Map<String, String> hashOfPrograms = new HashMap<>();
+    for (ProgramModel p : listOfPrograms) {
+      ProgramDefinition pd = p.getProgramDefinition();
+      hashOfPrograms.put(pd.adminName(), pd.localizedName().getDefault());
+    }
     return new ReportingRepository(
-        clock, database, versionRepository.getActiveVersion().getPrograms());
+        clock, database, hashOfPrograms);
   }
 }

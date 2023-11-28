@@ -4,12 +4,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.SqlRow;
 import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 import java.util.Optional;
 import models.ProgramModel;
 import org.postgresql.util.PGInterval;
@@ -20,19 +22,19 @@ public final class ReportingRepository {
 
   private final Clock clock;
   private final Database database;
-  private final ImmutableList<ProgramModel> listOfPrograms;
+  private final Map<String, String> hashOfPrograms;
 
   public ReportingRepository() {
     this.clock = null;
-    this.database = null;
-    this.listOfPrograms = null;
+    this.database = DB.getDefault();
+    this.hashOfPrograms = null;
   }
 
   public ReportingRepository(
-      Clock clock, Database database, ImmutableList<ProgramModel> listOfPrograms) {
+      Clock clock, Database database, Map<String, String> hashOfPrograms) {
     this.clock = Preconditions.checkNotNull(clock);
-    this.database = database;
-    this.listOfPrograms = Preconditions.checkNotNull(listOfPrograms);
+    this.database = Preconditions.checkNotNull(database);
+    this.hashOfPrograms = Preconditions.checkNotNull(hashOfPrograms);
   }
 
   /**
@@ -51,9 +53,8 @@ public final class ReportingRepository {
         .map(
             row -> {
               String programName = row.getString("program_name");
-              System.out.println(programName);
               return ApplicationSubmissionsStat.create(
-                  getProgramAdminName(programName),
+                  getProgramLocalizedName(programName),
                   programName,
                   Optional.of(row.getTimestamp("submit_month")),
                   row.getLong("count"),
@@ -65,16 +66,9 @@ public final class ReportingRepository {
         .collect(ImmutableList.toImmutableList());
   }
 
-  private Optional<ProgramModel> getProgram(String name) {
-    return listOfPrograms.stream()
-        .filter(p -> p.getProgramDefinition().adminName().equals(name))
-        .findAny();
-  }
-
-  private String getProgramAdminName(String name) {
-    Optional<ProgramModel> program = getProgram(name);
-    if (program.isPresent()) {
-      return program.get().getProgramDefinition().localizedName().getDefault();
+  private String getProgramLocalizedName(String name) {
+    if (hashOfPrograms.containsKey(name)) {
+      return hashOfPrograms.get(name);
     }
     return name;
   }
@@ -112,7 +106,7 @@ public final class ReportingRepository {
             row -> {
               String programName = row.getString("program_name");
               return ApplicationSubmissionsStat.create(
-                  getProgramAdminName(programName),
+                  getProgramLocalizedName(programName),
                   programName,
                   Optional.of(firstOfMonth),
                   row.getLong("count"),
