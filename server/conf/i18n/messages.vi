@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=Trên điện thoại của bạn? Tính năng "Ch�
 toast.errorMessageOutline=Lỗi: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Đóng
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
+link.opensNewTabSr=opens in a new tab
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -83,7 +85,7 @@ content.description=CiviForm giúp bạn biết được những lợi ích mà 
 content.saveTime=Tiết kiệm thời gian khi đăng ký nhận phúc lợi
 content.guestDescription=Đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản và đăng ký để nhận nhiều phúc lợi mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký bất cứ lúc nào và kiểm tra trạng thái của đơn đăng ký.
 link.programDetails=Chi tiết chương trình
-link.programDetailsSr=Chi tiết chương trình {0}
+link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=Chương trình và dịch vụ
 title.findServicesSection=Tìm dịch vụ có thể giúp bạn
 title.allProgramsSection=Tất cả các chương trình ({0})
