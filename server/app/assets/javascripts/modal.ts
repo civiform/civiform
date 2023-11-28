@@ -1,4 +1,6 @@
-class ModalController {
+export class ModalController {
+  static abortController = new AbortController()
+
   /**
    * Find the modals, and add on-click listeners on their respective buttons to toggle them.
    * @param {Element} modalContainer The container holding the modal.
@@ -8,10 +10,15 @@ class ModalController {
     // Connect the modal to its button
     const modalButton = document.querySelector(`#${modal.id}-button`)
     if (modalButton) {
-      modalButton.addEventListener('click', (e: Event) => {
-        e.stopPropagation()
-        ModalController.showModal(modalContainer, modal)
-      })
+      modalButton.addEventListener(
+        'click',
+        (e: Event) => {
+          e.stopPropagation()
+          ModalController.showModal(modalContainer, modal)
+        },
+        // Add an abort controller so we can easily clear the click behavior with ModalController.abortController.abort()
+        {signal: ModalController.abortController.signal},
+      )
     }
 
     const modalCloses = Array.from(modal.querySelectorAll('.cf-modal-close'))
