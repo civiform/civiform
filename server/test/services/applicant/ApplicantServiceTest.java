@@ -3001,9 +3001,12 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void getCorrectedAddress_whenSuccessfullyApplyingACorrectedAddress()
-      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
-          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException,
-          ExecutionException, InterruptedException {
+      throws ProgramBlockDefinitionNotFoundException,
+          ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException,
+          ProgramQuestionDefinitionInvalidException,
+          ExecutionException,
+          InterruptedException {
     // Arrange
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
@@ -3108,9 +3111,12 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void getCorrectedAddress_whenUserChooseToKeepTheAddressOriginallyEntered()
-      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
-          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException,
-          ExecutionException, InterruptedException {
+      throws ProgramBlockDefinitionNotFoundException,
+          ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException,
+          ProgramQuestionDefinitionInvalidException,
+          ExecutionException,
+          InterruptedException {
     // Arrange
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
@@ -3197,9 +3203,12 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void getCorrectedAddress_whenExternalCorrectionFails()
-      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
-          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException,
-          ExecutionException, InterruptedException {
+      throws ProgramBlockDefinitionNotFoundException,
+          ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException,
+          ProgramQuestionDefinitionInvalidException,
+          ExecutionException,
+          InterruptedException {
     // Arrange
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
@@ -3286,8 +3295,10 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void getFirstAddressCorrectionEnabledApplicantQuestion_isSuccessful()
-      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
-          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException {
+      throws ProgramBlockDefinitionNotFoundException,
+          ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException,
+          ProgramQuestionDefinitionInvalidException {
     // Arrange
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
@@ -3357,8 +3368,10 @@ public class ApplicantServiceTest extends ResetPostgres {
    * the block for use in getAddressSuggestionGroup.
    */
   public Block createProgramAndBlockWithAddress(String address)
-      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
-          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException {
+      throws ProgramBlockDefinitionNotFoundException,
+          ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException,
+          ProgramQuestionDefinitionInvalidException {
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
@@ -3411,8 +3424,10 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void getAddressSuggestionGroup_isSuccessful()
-      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
-          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException {
+      throws ProgramBlockDefinitionNotFoundException,
+          ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException,
+          ProgramQuestionDefinitionInvalidException {
     Block block = createProgramAndBlockWithAddress("Legit Address");
     AddressSuggestionGroup addressSuggestionGroup =
         subject.getAddressSuggestionGroup(block).toCompletableFuture().join();
@@ -3421,8 +3436,10 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void getAddressSuggestionGroup_noSuggestions()
-      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
-          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException {
+      throws ProgramBlockDefinitionNotFoundException,
+          ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException,
+          ProgramQuestionDefinitionInvalidException {
     Block block = createProgramAndBlockWithAddress("Bogus Address");
     AddressSuggestionGroup addressSuggestionGroup =
         subject.getAddressSuggestionGroup(block).toCompletableFuture().join();
@@ -3431,8 +3448,10 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void getAddressSuggestionGroup_errorFromService()
-      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
-          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException {
+      throws ProgramBlockDefinitionNotFoundException,
+          ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException,
+          ProgramQuestionDefinitionInvalidException {
     Block block = createProgramAndBlockWithAddress("Error Address");
     AddressSuggestionGroup addressSuggestionGroup =
         subject.getAddressSuggestionGroup(block).toCompletableFuture().join();

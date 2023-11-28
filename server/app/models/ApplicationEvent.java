@@ -21,10 +21,12 @@ public final class ApplicationEvent extends BaseModel {
   @ManyToOne private Application application;
   // The {@code ApplicationEventDetails.Type} of the event.
   @Constraints.Required private ApplicationEventDetails.Type eventType;
+
   // The Account that triggered the event.
   @ManyToOne
   @JoinColumn(name = "creator_id")
   private Account creator;
+
   // Details of the event specific to the eventType.
   @Constraints.Required @DbJson private ApplicationEventDetails details;
   @WhenCreated private Instant createTime;

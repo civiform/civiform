@@ -22,6 +22,7 @@ public final class ProgramBlockValidation {
     this.version = checkNotNull(version);
     this.activeAndDraftQuestions = checkNotNull(activeAndDraftQuestions);
   }
+
   /**
    * Result of checking whether a question can be added to a specific block. Only ELIGIBLE means
    * that question can be added. All other states indicate that question is not eligible for the

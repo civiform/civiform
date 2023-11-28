@@ -84,7 +84,8 @@ public class ApplicantData extends CfJsonDocumentContext {
     }
     StringBuilder sb = new StringBuilder();
     sb.append(readString(WellKnownPaths.APPLICANT_FIRST_NAME).get());
-    if (hasPath(WellKnownPaths.APPLICANT_MIDDLE_NAME) && readAsString(WellKnownPaths.APPLICANT_MIDDLE_NAME).isPresent()) {
+    if (hasPath(WellKnownPaths.APPLICANT_MIDDLE_NAME)
+        && readAsString(WellKnownPaths.APPLICANT_MIDDLE_NAME).isPresent()) {
       sb.append(", ");
       sb.append(readString(WellKnownPaths.APPLICANT_MIDDLE_NAME).get());
     } else {

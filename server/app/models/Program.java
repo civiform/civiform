@@ -68,6 +68,7 @@ public class Program extends BaseModel {
   @DbJsonB private LocalizedStrings localizedName;
 
   @DbJsonB private ProgramAcls acls;
+
   /**
    * legacyLocalizedName is the legacy storage column for program name translations. Programs
    * created before early May 2021 may use this, but all other programs should not.

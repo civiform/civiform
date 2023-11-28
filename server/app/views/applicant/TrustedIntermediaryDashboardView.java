@@ -115,6 +115,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       ApplicantData applicantData = account.newestApplicant().get().getApplicantData();
       FormTag formTag =
           form()
+              .withId("edit-ti")
               .withMethod("POST")
               .withAction(routes.TrustedIntermediaryController.updateClientInfo(account.id).url());
       List<String> names =
@@ -141,7 +142,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
               .setValue(names.get(2));
       FieldWithLabel phoneNumberField =
           FieldWithLabel.input()
-              .setId("phone-number-input")
+              .setId("current-phone-number-input")
+              .setPlaceholderText("(xxx) xxx-xxxx")
               .setFieldName("phoneNumber")
               .setLabelText("Phone Number")
               .setValue(applicantData.getPhoneNumber().orElse(""));
@@ -359,6 +361,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return td().with(
             a().with(
                     button("Edit")
+                        .withId("edit" + account.id + "modal")
                         .withClasses("text-xs", "ml-3")
                         .withId(modal.getTriggerButtonId())));
   }
@@ -452,7 +455,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/4"))
             .with(th("Applications").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/4"))
             .with(th("Actions").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/4"))
-            .with(th("Date Of Birth").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/3")));
+            .with(th("Date Of Birth").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/3"))
+            .with(th("Edit").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/4")));
   }
 
   private TheadTag renderGroupTableHeader() {

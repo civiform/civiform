@@ -179,10 +179,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                 iff(
                                     malformedQuestionDefinition,
                                     div(
-                                        p("If you see this file a bug with the CiviForm"
-                                              + " development team. Some questions are not"
-                                              + " pointing at the latest version. Edit the program"
-                                              + " and try republishing. ")
+                                        p("If you see this file a bug with the CiviForm development"
+                                              + " team. Some questions are not pointing at the"
+                                              + " latest version. Edit the program and try"
+                                              + " republishing. ")
                                             .withClasses("text-center", "text-red-500")))),
                         div()
                             .withClasses("flex", "flex-grow", "-mx-2")

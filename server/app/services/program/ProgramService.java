@@ -1037,7 +1037,8 @@ public final class ProgramService {
       long programId,
       long blockDefinitionId,
       ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+      throws ProgramNotFoundException,
+          ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
@@ -1064,7 +1065,9 @@ public final class ProgramService {
    */
   public ProgramDefinition addQuestionsToBlock(
       long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
-      throws CantAddQuestionToBlockException, QuestionNotFoundException, ProgramNotFoundException,
+      throws CantAddQuestionToBlockException,
+          QuestionNotFoundException,
+          ProgramNotFoundException,
           ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
@@ -1125,8 +1128,10 @@ public final class ProgramService {
    */
   public ProgramDefinition removeQuestionsFromBlock(
       long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
-      throws QuestionNotFoundException, ProgramNotFoundException,
-          ProgramBlockDefinitionNotFoundException, IllegalPredicateOrderingException {
+      throws QuestionNotFoundException,
+          ProgramNotFoundException,
+          ProgramBlockDefinitionNotFoundException,
+          IllegalPredicateOrderingException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     for (long questionId : questionIds) {
@@ -1166,7 +1171,8 @@ public final class ProgramService {
    */
   public ProgramDefinition setBlockVisibilityPredicate(
       long programId, long blockDefinitionId, Optional<PredicateDefinition> predicate)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+      throws ProgramNotFoundException,
+          ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
@@ -1195,8 +1201,10 @@ public final class ProgramService {
    */
   public ProgramDefinition setBlockEligibilityDefinition(
       long programId, long blockDefinitionId, Optional<EligibilityDefinition> eligibility)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
-          IllegalPredicateOrderingException, EligibilityNotValidForProgramTypeException {
+      throws ProgramNotFoundException,
+          ProgramBlockDefinitionNotFoundException,
+          IllegalPredicateOrderingException,
+          EligibilityNotValidForProgramTypeException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     if (programDefinition.isCommonIntakeForm() && eligibility.isPresent()) {
@@ -1267,7 +1275,8 @@ public final class ProgramService {
    *     this program
    */
   public ProgramDefinition deleteBlock(long programId, long blockDefinitionId)
-      throws ProgramNotFoundException, ProgramNeedsABlockException,
+      throws ProgramNotFoundException,
+          ProgramNeedsABlockException,
           IllegalPredicateOrderingException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
@@ -1359,7 +1368,8 @@ public final class ProgramService {
    */
   public ProgramDefinition setProgramQuestionDefinitionOptionality(
       long programId, long blockDefinitionId, long questionDefinitionId, boolean optional)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+      throws ProgramNotFoundException,
+          ProgramBlockDefinitionNotFoundException,
           ProgramQuestionDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
@@ -1409,8 +1419,10 @@ public final class ProgramService {
       long blockDefinitionId,
       long questionDefinitionId,
       boolean addressCorrectionEnabled)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
-          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException {
+      throws ProgramNotFoundException,
+          ProgramBlockDefinitionNotFoundException,
+          ProgramQuestionDefinitionNotFoundException,
+          ProgramQuestionDefinitionInvalidException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
@@ -1472,8 +1484,10 @@ public final class ProgramService {
    */
   public ProgramDefinition setProgramQuestionDefinitionPosition(
       long programId, long blockDefinitionId, long questionDefinitionId, int newPosition)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
-          ProgramQuestionDefinitionNotFoundException, InvalidQuestionPositionException {
+      throws ProgramNotFoundException,
+          ProgramBlockDefinitionNotFoundException,
+          ProgramQuestionDefinitionNotFoundException,
+          InvalidQuestionPositionException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 

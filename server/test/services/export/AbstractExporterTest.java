@@ -366,6 +366,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         "2022-03-01T00:00:00Z", () -> applicationThree.setSubmitTimeToNow());
     applicationThree.save();
   }
+
   /**
    * Creates a program that has an enumerator question with children, three applicants, and three
    * applications. The applications have submission times one month apart starting on 2022-01-01.

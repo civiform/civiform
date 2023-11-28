@@ -513,6 +513,7 @@ public class TestQuestionBank {
                 .build());
     return maybeSave(definition);
   }
+
   // Text
   private Question applicantFavoriteColor(QuestionEnum ignore) {
     QuestionDefinition definition =
