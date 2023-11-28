@@ -12,6 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
@@ -84,7 +85,8 @@ public final class ApplicantProgramsController extends CiviFormController {
                       applicantId,
                       applicantStage.toCompletableFuture().join(),
                       applicationPrograms,
-                      banner))
+                      banner,
+                      requesterProfile.orElseThrow()))
                   // If the user has been to the index page, any existing redirects should be
                   // cleared to avoid an experience where they're unexpectedly redirected after
                   // logging in.
@@ -113,7 +115,8 @@ public final class ApplicantProgramsController extends CiviFormController {
   }
 
   @Secure
-  public CompletionStage<Result> view(Request request, long applicantId, long programId) {
+  public CompletionStage<Result> viewWithApplicantId(
+      Request request, long applicantId, long programId) {
     Optional<CiviFormProfile> requesterProfile = profileUtils.currentUserProfile(request);
 
     // If the user doesn't have a profile, send them home.
@@ -160,6 +163,27 @@ public final class ApplicantProgramsController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
+  }
+
+  @Secure
+  // This method can be invoked for two different logical routes:
+  // - /programs/:id
+  // - /programs/:programSlug
+  //
+  // However, play does not allow overloaded controller methods, so we determine which treatment to apply based on the form of the parameter.
+  public CompletionStage<Result> view(Request request, String programParam) {
+    if (StringUtils.isNumeric(programParam)) {
+      // programParam is a numeric program id.
+
+      // The route for this action should only be computed if the applicant ID is available in the
+      // session.
+      long applicantId = getApplicantId(request).orElseThrow();
+
+      return viewWithApplicantId(request, applicantId, Long.parseLong(programParam));
+    } else {
+      // programParam is not a numeric id, so treat it like a program slug.
+      return programBySlug(request, programParam);
+    }
   }
 
   @Secure

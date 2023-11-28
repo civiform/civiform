@@ -19,6 +19,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   private static long applicantId = 123L;
   private static long applicantAccountId = 456L;
   private static long tiAccountId = 789L;
+  private static long programId = 321L;
 
   // Class to hold counter values.
   static class Counts {
@@ -49,7 +50,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  public void testIndexRouteForApplicantWithIdInProfile() {
+  public void testIndexRoute_forApplicantWithIdInProfile() {
     Counts before = getApplicantIdInProfileCounts();
 
     CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
@@ -66,7 +67,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  public void testIndexRouteForApplicantWithoutIdInProfile() {
+  public void testIndexRoute_forApplicantWithoutIdInProfile() {
     Counts before = getApplicantIdInProfileCounts();
 
     CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
@@ -83,7 +84,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  public void testIndexRouteForTrustedIntermediary() {
+  public void testIndexRoute_forTrustedIntermediary() {
     Counts before = getApplicantIdInProfileCounts();
 
     CiviFormProfileData profileData = new CiviFormProfileData(tiAccountId);
@@ -93,6 +94,58 @@ public class ApplicantRoutesTest extends ResetPostgres {
     String expectedIndexUrl = String.format("/applicants/%d/programs", applicantId);
     assertThat(new ApplicantRoutes().index(tiProfile, applicantId).url())
         .isEqualTo(expectedIndexUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present);
+    assertThat(after.absent).isEqualTo(before.absent + 1);
+  }
+
+  @Test
+  public void testViewRoute_forApplicantWithIdInProfile() {
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(applicantId));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedViewUrl = String.format("/programs/%d", programId);
+    assertThat(new ApplicantRoutes().view(applicantProfile, applicantId, programId).url())
+        .isEqualTo(expectedViewUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present + 1);
+    assertThat(after.absent).isEqualTo(before.absent);
+  }
+
+  @Test
+  public void testViewRoute_forApplicantWithoutIdInProfile() {
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedViewUrl = String.format("/applicants/%d/programs/%d", applicantId, programId);
+    assertThat(new ApplicantRoutes().view(applicantProfile, applicantId, programId).url())
+        .isEqualTo(expectedViewUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present);
+    assertThat(after.absent).isEqualTo(before.absent + 1);
+  }
+
+  @Test
+  public void testViewRoute_forTrustedIntermediary() {
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(tiAccountId);
+    profileData.addRole(Role.ROLE_TI.toString());
+    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedViewUrl = String.format("/applicants/%d/programs/%d", applicantId, programId);
+    assertThat(new ApplicantRoutes().view(tiProfile, applicantId, programId).url())
+        .isEqualTo(expectedViewUrl);
 
     Counts after = getApplicantIdInProfileCounts();
     assertThat(after.present).isEqualTo(before.present);

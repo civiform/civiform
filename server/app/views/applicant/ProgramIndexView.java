@@ -22,6 +22,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
@@ -74,6 +75,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final ProfileUtils profileUtils;
   private final String authProviderName;
   private final ZoneId zoneId;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public ProgramIndexView(
@@ -81,12 +83,14 @@ public final class ProgramIndexView extends BaseHtmlView {
       ZoneId zoneId,
       SettingsManifest settingsManifest,
       ProfileUtils profileUtils,
-      @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
+      @BindingAnnotations.ApplicantAuthProviderName String authProviderName,
+      ApplicantRoutes applicantRoutes) {
     this.layout = checkNotNull(layout);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.profileUtils = checkNotNull(profileUtils);
     this.authProviderName = checkNotNull(authProviderName);
     this.zoneId = checkNotNull(zoneId);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   /**
@@ -105,7 +109,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       long applicantId,
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms applicationPrograms,
-      Optional<ToastMessage> bannerMessage) {
+      Optional<ToastMessage> bannerMessage,
+      CiviFormProfile profile) {
     HtmlBundle bundle = layout.getBundle(request);
     bundle.setTitle(messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()));
     bannerMessage.ifPresent(bundle::addToastMessages);
@@ -125,10 +130,11 @@ public final class ProgramIndexView extends BaseHtmlView {
             applicationPrograms,
             applicantId,
             messages.lang().toLocale(),
-            bundle));
+            bundle,
+            profile));
 
     return layout.renderWithNav(
-        request, personalInfo, messages, bundle, /*includeAdminLogin=*/ true, applicantId);
+        request, personalInfo, messages, bundle, /* includeAdminLogin= */ true, applicantId);
   }
 
   private DivTag topContent(
@@ -214,7 +220,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       ApplicantService.ApplicationPrograms relevantPrograms,
       long applicantId,
       Locale preferredLocale,
-      HtmlBundle bundle) {
+      HtmlBundle bundle,
+      CiviFormProfile profile) {
     DivTag content =
         div()
             .withId("main-content")
@@ -239,7 +246,8 @@ public final class ProgramIndexView extends BaseHtmlView {
               cardContainerStyles,
               applicantId,
               preferredLocale,
-              bundle),
+              bundle,
+              profile),
           div().withClass("mb-12"),
           programSectionTitle(
               messages.at(
@@ -264,7 +272,8 @@ public final class ProgramIndexView extends BaseHtmlView {
               relevantPrograms.inProgress(),
               MessageKey.BUTTON_CONTINUE,
               MessageKey.BUTTON_CONTINUE_SR,
-              bundle));
+              bundle,
+              profile));
     }
     if (!relevantPrograms.submitted().isEmpty()) {
       content.with(
@@ -279,7 +288,8 @@ public final class ProgramIndexView extends BaseHtmlView {
               relevantPrograms.submitted(),
               MessageKey.BUTTON_EDIT,
               MessageKey.BUTTON_EDIT_SR,
-              bundle));
+              bundle,
+              profile));
     }
     if (!relevantPrograms.unapplied().isEmpty()) {
       content.with(
@@ -294,7 +304,8 @@ public final class ProgramIndexView extends BaseHtmlView {
               relevantPrograms.unapplied(),
               MessageKey.BUTTON_APPLY,
               MessageKey.BUTTON_APPLY_SR,
-              bundle));
+              bundle,
+              profile));
     }
 
     return div().withClasses("flex", "flex-col", "place-items-center").with(content);
@@ -308,7 +319,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       String cardContainerStyles,
       long applicantId,
       Locale preferredLocale,
-      HtmlBundle bundle) {
+      HtmlBundle bundle,
+      CiviFormProfile profile) {
     Optional<LifecycleStage> commonIntakeFormApplicationStatus =
         relevantPrograms.commonIntakeForm().get().latestApplicationLifecycleStage();
     MessageKey buttonText = MessageKey.BUTTON_START_HERE;
@@ -342,7 +354,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                 ImmutableList.of(relevantPrograms.commonIntakeForm().get()),
                 buttonText,
                 buttonScreenReaderText,
-                bundle));
+                bundle,
+                profile));
   }
 
   /**
@@ -370,7 +383,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       ImmutableList<ApplicantService.ApplicantProgramData> cards,
       MessageKey buttonTitle,
       MessageKey buttonSrText,
-      HtmlBundle bundle) {
+      HtmlBundle bundle,
+      CiviFormProfile profile) {
     String sectionHeaderId = Modal.randomModalId();
     DivTag div = div().withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION);
     if (sectionTitle.isPresent()) {
@@ -396,7 +410,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                             buttonTitle,
                             buttonSrText,
                             sectionTitle.isPresent(),
-                            bundle))));
+                            bundle,
+                            profile))));
   }
 
   private LiTag programCard(
@@ -409,7 +424,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       MessageKey buttonTitle,
       MessageKey buttonSrText,
       boolean nestedUnderSubheading,
-      HtmlBundle bundle) {
+      HtmlBundle bundle,
+      CiviFormProfile profile) {
     ProgramDefinition program = cardData.program();
 
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
@@ -425,8 +441,8 @@ public final class ProgramIndexView extends BaseHtmlView {
     ImmutableList<DomContent> descriptionContent =
         TextFormatter.formatText(
             program.localizedDescription().getOrDefault(preferredLocale),
-            /*preserveEmptyLines= */ false,
-            /*addRequiredIndicator= */ false);
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ false);
     DivTag description =
         div()
             .withId(baseId + "-description")
@@ -448,9 +464,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     // Use external link if it is present else use the default Program details page
     String programDetailsLink =
         program.externalLink().isEmpty()
-            ? controllers.applicant.routes.ApplicantProgramsController.view(
-                    applicantId, program.id())
-                .url()
+            ? applicantRoutes.view(profile, applicantId, program.id()).url()
             : program.externalLink();
     ATag infoLink =
         new LinkElement()
