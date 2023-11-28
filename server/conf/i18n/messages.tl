@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=Ginagamit ang iyong telepono? Binibigyang-daan ka r
 toast.errorMessageOutline=Error: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Isara
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
+link.opensNewTabSr=opens in a new tab
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -83,7 +85,7 @@ content.description=Matutulungan ka ng CiviForm na humanap ng mga benepisyo kung
 content.saveTime=Makatipid sa oras kapag nag-a-apply para sa mga benepisyo
 content.guestDescription=Mag-log in sa iyong {0} account o gumawa ng account at mag-apply para sa maraming benepisyo nang hindi kailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon anumang oras at tumingin sa mga status ng iyong aplikasyon.
 link.programDetails=Mga detalya ng programa
-link.programDetailsSr=Mga detalya ng programa para sa {0}
+link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=Mga programa at mga serbisyo
 title.findServicesSection=Humanap ng mga serbisyong makakatulong sa iyo
 title.allProgramsSection=Lahat ng programa ({0})
