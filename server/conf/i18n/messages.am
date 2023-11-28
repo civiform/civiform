@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=በእርስዎ ስልክ ላይ? እንዲሁም �
 toast.errorMessageOutline=ስህተት: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=ዝጋ
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
+link.opensNewTabSr=opens in a new tab
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -83,7 +85,7 @@ content.description=CiviForm በ{0} ውስጥ ብቁ ሊሆኑ የሚችሉባ�
 content.saveTime=ለጥቅማጥቅሞች ሲያመለክቱ ጊዜ ይቆጥቡ
 content.guestDescription=ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ እና ተመሳሳዩን መረጃ እንደገና ሳያስገቡ ለብዙ ጥቅማጥቅሞች ያመልክቱ። እንዲሁም ማመልከቻዎችን በማንኛውም ጊዜ ማርትዕ እና የመተግበሪያዎን ሁኔታዎች ማረጋገጥ ይችላሉ።
 link.programDetails=የፕሮግራም ዝርዝሮች
-link.programDetailsSr=የ{0} ፕሮግራም ዝርዝሮች
+link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=ፕሮግራሞች እና አገልግሎቶች
 title.findServicesSection=የሚያግዙዎትን አገልግሎቶች ያግኙ
 title.allProgramsSection=ሁሉም ፕሮግራሞች ({0})
