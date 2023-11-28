@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import models.QuestionModel;
+import models.QuestionTag;
 import org.junit.Before;
 import org.junit.Test;
 import services.LocalizedStrings;
@@ -23,10 +24,12 @@ import services.question.types.TextQuestionDefinition;
 public class QuestionRepositoryTest extends ResetPostgres {
 
   private QuestionRepository repo;
+  private VersionRepository versionRepo;
 
   @Before
   public void setupQuestionRepository() {
     repo = instanceOf(QuestionRepository.class);
+    versionRepo = instanceOf(VersionRepository.class);
   }
 
   @Test
@@ -264,5 +267,36 @@ public class QuestionRepositoryTest extends ResetPostgres {
         .isEqualTo(LocalizedStrings.of(Locale.US, "text"));
     assertThat(found.getQuestionDefinition().getQuestionHelpText())
         .isEqualTo(LocalizedStrings.of(Locale.US, "help"));
+  }
+
+  @Test
+  public void createOrUpdateDraft_managesUniversalTagCorrectly()
+      throws UnsupportedQuestionTypeException {
+    // Question will be published in an ACTIVE version
+    QuestionModel question = testQuestionBank.applicantName();
+    QuestionDefinition nextQuestionDefinition;
+
+    // Create new draft, ensure tags are correct
+    nextQuestionDefinition =
+        new QuestionDefinitionBuilder(question.getQuestionDefinition()).setUniversal(true).build();
+    question = repo.createOrUpdateDraft(nextQuestionDefinition);
+    assertThat(question.getQuestionTags().contains(QuestionTag.UNIVERSAL)).isTrue();
+
+    versionRepo.publishNewSynchronizedVersion();
+    nextQuestionDefinition =
+        new QuestionDefinitionBuilder(question.getQuestionDefinition()).setUniversal(false).build();
+    question = repo.createOrUpdateDraft(nextQuestionDefinition);
+    assertThat(question.getQuestionTags().contains(QuestionTag.UNIVERSAL)).isFalse();
+
+    // Update existing draft, ensure tags are correct
+    nextQuestionDefinition =
+        new QuestionDefinitionBuilder(question.getQuestionDefinition()).setUniversal(true).build();
+    question = repo.createOrUpdateDraft(nextQuestionDefinition);
+    assertThat(question.getQuestionTags().contains(QuestionTag.UNIVERSAL)).isTrue();
+
+    nextQuestionDefinition =
+        new QuestionDefinitionBuilder(question.getQuestionDefinition()).setUniversal(false).build();
+    question = repo.createOrUpdateDraft(nextQuestionDefinition);
+    assertThat(question.getQuestionTags().contains(QuestionTag.UNIVERSAL)).isFalse();
   }
 }

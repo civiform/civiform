@@ -36,6 +36,7 @@ RUN cd $FORMATTER_DIR && \
     cd $SERVER_DIR && \
     npm install
 
+WORKDIR $SERVER_DIR
 
 ENTRYPOINT ["/code/formatter/fmt"]
 

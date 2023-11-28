@@ -311,6 +311,22 @@ export class AdminQuestions {
     return titles.allTextContents()
   }
 
+  // Note the following two functions do not reload the
+  // questions page, so can be used to verify sorting
+  async universalQuestionNames(): Promise<string[]> {
+    const titles = this.page.locator(
+      '#questions-list-universal .cf-admin-question-table-row .cf-question-title',
+    )
+    return titles.allTextContents()
+  }
+
+  async nonUniversalQuestionNames(): Promise<string[]> {
+    const titles = this.page.locator(
+      '#questions-list-non-universal .cf-admin-question-table-row .cf-question-title',
+    )
+    return titles.allTextContents()
+  }
+
   private async gotoQuestionEditOrNewVersionPage({
     questionName,
     buttonText,

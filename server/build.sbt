@@ -145,6 +145,8 @@ lazy val root = (project in file("."))
     Test / testOptions := Seq(
       Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")
     ),
+    // Allow tests to print to stdout when running in forking mode (default)
+    Test / outputStrategy := Some(StdoutOutput),
     // Use test config for tests
     Test / javaOptions += "-Dconfig.file=conf/application.test.conf",
     // Uncomment the following line to disable JVM forking, which allows attaching a remote
