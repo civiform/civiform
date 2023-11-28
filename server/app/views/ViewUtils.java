@@ -322,7 +322,7 @@ public final class ViewUtils {
             "py-1",
             "space-x-1",
             "text-white",
-            BaseStyles.BG_CIVIFORM_TEAL,
+            "bg-civiform-teal",
             String.join(" ", classes))
         .with(Icons.svg(icon).withClasses("flex", "h-6", "w-4"), span(text));
   }
@@ -354,11 +354,10 @@ public final class ViewUtils {
    */
   public static DivTag makeAlertInfoSlim(String text) {
     return div()
-        .withClasses(
-            BaseStyles.USWDS_ALERT, BaseStyles.USWDS_ALERT_INFO, BaseStyles.USWDS_ALERT_SLIM)
+        .withClasses("usa-alert", "usa-alert--info", "usa-alert--slim")
         .with(
             div()
-                .withClass(BaseStyles.USWDS_ALERT_BODY)
-                .with(p().withClass(BaseStyles.USWDS_ALERT_TEXT).withText(text)));
+                .withClass("usa-alert__body")
+                .with(p().withClass("usa-alert__text").withText(text)));
   }
 }

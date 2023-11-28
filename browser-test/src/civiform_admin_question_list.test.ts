@@ -2,7 +2,6 @@ import {
   AdminPrograms,
   AdminQuestions,
   createTestContext,
-  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
@@ -355,8 +354,6 @@ describe('Admin question list', () => {
       question1Name,
       question4Name,
     ])
-
-    await disableFeatureFlag(page, 'universal_questions')
   })
 
   async function expectQuestionListElements(
