@@ -71,4 +71,7 @@ public final class AdminStyles {
 
   public static final String HEADER_BUTTON_STYLES =
       StyleUtils.joinStyles(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-5", "mr-2");
+
+/** For use with section headers, such as on the questions list view for universal vs. other questions */
+  public static final String SEMIBOLD_HEADER = StyleUtils.joinStyles("mt-8", "font-semibold");
 }

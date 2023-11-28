@@ -52,6 +52,7 @@ import views.components.Modal.Width;
 import views.components.QuestionBank;
 import views.components.QuestionSortOption;
 import views.components.ToastMessage;
+import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -206,7 +207,7 @@ public final class QuestionsListView extends BaseHtmlView {
           div()
               .withId("questions-list-universal")
               .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
-              .with(h2("Universal questions").withClasses("mt-8", "font-semibold"))
+              .with(h2("Universal questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
               .with(
                   ViewUtils.makeAlertInfoSlim(
                       "We recommend using all universal questions in your program for personal and"
@@ -219,13 +220,13 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
             .condWith(
                 !universalQuestionContent.isEmpty(),
-                h2("All other questions").withClasses("mt-8", "font-semibold"))
+                h2("All other questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
             .with(nonArchivedQuestionContent));
     if (!archivedQuestionContent.isEmpty()) {
       questionContent.with(
           div()
               .withId("questions-list-archived")
-              .with(h2("Marked for archival").withClasses("mt-8", "font-semibold"))
+              .with(h2("Marked for archival").withClasses(AdminStyles.SEMIBOLD_HEADER))
               .with(archivedQuestionContent));
     }
     return Pair.of(questionContent, modals.build());

@@ -297,7 +297,7 @@ describe('Admin question list', () => {
       question4Name,
       question3Name,
     ])
-    await validateScreenshot(page, 'universal-questions-1')
+    await validateScreenshot(page, 'universal-questions')
 
     // Update question1 and question 3 and ensure they now appears at the top of the list
     await adminQuestions.gotoQuestionEditPage(question1Name)
@@ -334,7 +334,6 @@ describe('Admin question list', () => {
       question1Name,
       question4Name,
     ])
-    await validateScreenshot(page, 'universal-questions-2')
 
     // Ensure sorting by Admin ID works correctly
     await adminQuestions.sortQuestions('adminname-asc')

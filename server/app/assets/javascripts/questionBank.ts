@@ -160,14 +160,14 @@ class QuestionBankController {
       QuestionBankController.SORT_SELECT_ID,
     ) as HTMLSelectElement
 
-    const parents = document.querySelectorAll('.cf-sortable-questions')
-    if (!questionBankSort || !parents) {
+    const questionSublists = document.querySelectorAll('.cf-sortable-questions')
+    if (!questionBankSort || !questionSublists) {
       return
     }
 
-    parents.forEach((parent) => {
+    questionSublists.forEach((questionSublist) => {
       const questions: HTMLElement[] = Array.from(
-        parent.querySelectorAll('.cf-question-bank-element'),
+        questionSublist.querySelectorAll('.cf-question-bank-element'),
       )
 
       const sortedQuestions = questions.sort((elementA, elementB) => {
@@ -197,7 +197,7 @@ class QuestionBankController {
       })
 
       sortedQuestions.forEach((q) => {
-        parent.appendChild(q)
+        questionSublist.appendChild(q)
       })
     })
   }

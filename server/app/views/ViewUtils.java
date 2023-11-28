@@ -347,6 +347,7 @@ public final class ViewUtils {
 
   /**
    * Makes a USWDS Alert component, Slim variant, Info icon, with the given text.
+   * https://designsystem.digital.gov/components/alert/
    *
    * @param text The text to include in the alert.
    * @return DivTag containing the alert.

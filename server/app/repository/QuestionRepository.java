@@ -98,7 +98,7 @@ public final class QuestionRepository {
         oldQuestion.refresh();
         oldQuestion.getQuestionTags().forEach(newDraftQuestion::addTag);
 
-        // TODO: Add export state to QuestionDefinition so that the QuestionDefinition
+        // TODO (#6058): Add export state to QuestionDefinition so that the QuestionDefinition
         // is the source of truth for the state of the tags and tags are set when creating
         // the Question, rather than having to copy the tags from the old question.
         //
