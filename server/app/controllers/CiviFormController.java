@@ -2,8 +2,11 @@ package controllers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.CiviFormProfileData;
+import auth.ProfileFactory;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableSet;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -65,5 +68,18 @@ public class CiviFormController extends Controller {
                 throw new SecurityException();
               }
             });
+  }
+
+  /** Retrieves the applicant id from the user profile, if present. */
+  protected Optional<Long> getApplicantId(Http.Request request) {
+    CiviFormProfileData profileData =
+        profileUtils.currentUserProfile(request).orElseThrow().getProfileData();
+
+    if (profileData == null) {
+      return Optional.empty();
+    }
+
+    return Optional.ofNullable(
+        profileData.getAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, Long.class));
   }
 }

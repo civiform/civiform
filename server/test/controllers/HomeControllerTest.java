@@ -22,10 +22,9 @@ public class HomeControllerTest extends ResetPostgres {
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
     ResultWithFinalRequestUri resultWithFinalRequestUri =
         CfTestHelpers.doRequestWithInternalRedirects(app, request);
-    assertThat(resultWithFinalRequestUri.getResult().status()).isEqualTo(HttpConstants.OK);
 
-    assertThat(resultWithFinalRequestUri.getFinalRequestUri()).startsWith("/applicants/");
-    assertThat(resultWithFinalRequestUri.getFinalRequestUri()).endsWith("/programs");
+    assertThat(resultWithFinalRequestUri.getResult().status()).isEqualTo(HttpConstants.OK);
+    assertThat(resultWithFinalRequestUri.getFinalRequestUri()).isEqualTo("/programs");
   }
 
   @Test
