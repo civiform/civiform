@@ -30,6 +30,23 @@ public final class BaseStyles {
   public static final String BG_CIVIFORM_PURPLE_LIGHT = "bg-civiform-purple-light";
   public static final String TEXT_CIVIFORM_YELLOW = "text-civiform-yellow";
   public static final String BG_CIVIFORM_YELLOW_LIGHT = "bg-civiform-yellow-light";
+  public static final String BG_CIVIFORM_TEAL = "bg-civiform-teal";
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // USWDS component classes
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // https://designsystem.digital.gov/components/alert/
+  public static final String USWDS_ALERT = "usa-alert";
+  public static final String USWDS_ALERT_INFO = "usa-alert--info";
+  public static final String USWDS_ALERT_WARNING = "usa-alert--warning";
+  public static final String USWDS_ALERT_ERROR = "usa-alert--error";
+  public static final String USWDS_ALERT_SUCCESS = "usa-alert--success";
+  public static final String USWDS_ALERT_SLIM = "usa-alert--slim";
+  public static final String USWDS_ALERT_NO_ICON = "usa-alert--no-icon";
+  public static final String USWDS_ALERT_BODY = "usa-alert__body";
+  public static final String USWDS_ALERT_HEADING = "usa-alert__heading";
+  public static final String USWDS_ALERT_TEXT = "usa-alert__text";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Form style classes
@@ -84,6 +101,7 @@ public final class BaseStyles {
    * text.</label>
    */
   public static final String CHECKBOX_LABEL = StyleUtils.joinStyles(INPUT_BASE, "align-middle");
+
   /** Same as the above but for radio buttons. */
   public static final String RADIO_LABEL = CHECKBOX_LABEL;
 
@@ -96,6 +114,7 @@ public final class BaseStyles {
 
   /** For use on an `input` of type "checkbox". */
   public static final String CHECKBOX = StyleUtils.joinStyles("h-4", "w-4", "mr-4", "align-middle");
+
   /** For use on an `input` of type "radio". */
   public static final String RADIO = CHECKBOX;
 
@@ -106,9 +125,11 @@ public final class BaseStyles {
   /** The modal container contains modals, and the glass pane, and covers the whole page. */
   public static final String MODAL_CONTAINER =
       StyleUtils.joinStyles("hidden", "fixed", "h-screen", "w-screen", "z-20");
+
   /** The modal container for the modal glass pane. */
   public static final String MODAL_GLASS_PANE =
       StyleUtils.joinStyles("fixed", "h-screen", "w-screen", "bg-gray-400", "opacity-75");
+
   /** Generic style for all modals. This should be centered. */
   public static final String MODAL =
       StyleUtils.joinStyles(

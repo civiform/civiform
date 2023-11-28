@@ -370,9 +370,6 @@ describe('modify program statuses', () => {
       const {page, adminProgramStatuses} = ctx
       const statusName = 'Test Status 1'
 
-      await page.pause()
-      await page.pause()
-      await page.pause()
       await adminProgramStatuses.editStatusDefault(statusName, false)
 
       await adminProgramStatuses.expectProgramManageStatusesPage(programName)
