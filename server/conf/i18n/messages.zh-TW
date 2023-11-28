@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=如果您是使用手機操作，還可以透過「
 toast.errorMessageOutline=發生錯誤: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=關閉
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
+link.opensNewTabSr=opens in a new tab
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -83,7 +85,7 @@ content.description=CiviForm 可協助您尋找自己可能有資格享有的「
 content.saveTime=在提出福利申請時節省時間
 content.guestDescription=請登入您的「{0}」帳戶或建立新帳戶，這樣一來，您就不必在針對不同福利提出申請時一再輸入相同的資訊，還可隨時編輯申請書及查看申請狀態。
 link.programDetails=計畫詳情
-link.programDetailsSr=「{0}」計畫詳情
+link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=計畫與服務
 title.findServicesSection=尋找可協助您的服務
 title.allProgramsSection=所有計畫 ({0})
