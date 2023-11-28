@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=Telefoonkaaga? "Choose File" sidoo kale waxuu kuu o
 toast.errorMessageOutline=Khalad: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Xidh
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
+link.opensNewTabSr=opens in a new tab
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -83,7 +85,7 @@ content.description=CiviForm waxay kaa caawisaa helida faa'iidooyinka aad u qalm
 content.saveTime=Wakhti kaydi marka aad codsanayso dheefaha
 content.guestDescription=Soo gal {0} koontadaada ama samayso koonto oo codso dheefo badan addoon soo gelin macluumaad isku mid ah mar labbaad. Waxba kama beddeli karti codsiyada wakhti kasta oo hubi heerarkaaga codsigu marayo.
 link.programDetails=Faahfaahinta barnaamijka
-link.programDetailsSr=Faahfaahinta barnaamijka ee {0}
+link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=Barnaamijyada iyo adeegyada
 title.findServicesSection=Hel adeegyada ku caawin kara adiga
 title.allProgramsSection=Dhammaan barnaamijyada ({0})
