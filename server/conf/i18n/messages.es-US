@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=¿Estás usando el teléfono? "Elegir archivo" tamb
 toast.errorMessageOutline=Error: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Cerrar
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
+link.opensNewTabSr=opens in a new tab
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -83,7 +85,7 @@ content.description=CiviForm te ayuda a encontrar los beneficios que puedes reci
 content.saveTime=Ahorra tiempo cuando solicitas beneficios
 content.guestDescription=Accede a tu cuenta de {0} o crea una cuenta y solicita más de un beneficio sin tener que volver a ingresar la misma información. También puedes editar solicitudes en cualquier momento y verificar el estado de tus solicitudes.
 link.programDetails=Detalles del programa
-link.programDetailsSr=Detalles del programa para {0}
+link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=Programas y servicios
 title.findServicesSection=Encuentra servicios que te sean útiles
 title.allProgramsSection=Todos los programas ({0})
