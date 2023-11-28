@@ -15,6 +15,7 @@ import models.AccountModel;
 import models.ApplicantModel;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
+import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import services.settings.SettingsManifest;
 
@@ -30,20 +31,37 @@ public class CiviFormProfile {
   private final HttpExecutionContext httpContext;
   private final CiviFormProfileData profileData;
   private final SettingsManifest settingsManifest;
+  private final AccountRepository accountRepository;
 
   public CiviFormProfile(
       DatabaseExecutionContext dbContext,
       HttpExecutionContext httpContext,
       CiviFormProfileData profileData,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      AccountRepository accountRepository) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
     this.httpContext = Preconditions.checkNotNull(httpContext);
     this.profileData = Preconditions.checkNotNull(profileData);
     this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
+    this.accountRepository = Preconditions.checkNotNull(accountRepository);
   }
 
   /** Get the latest {@link ApplicantModel} associated with the profile. */
   public CompletableFuture<ApplicantModel> getApplicant() {
+    if (profileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME)) {
+      long applicantId =
+          profileData.getAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, Long.class);
+      return accountRepository
+          .lookupApplicant(applicantId)
+          .thenApply(
+              optionalApplicant -> {
+                return optionalApplicant.orElseThrow();
+              })
+          .toCompletableFuture();
+    }
+
+    // If the applicant id has not yet been stored in the profile, then get it from the account,
+    // which requires an extra db fetch.
     return this.getAccount()
         .thenApplyAsync(
             (a) ->

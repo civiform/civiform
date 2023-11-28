@@ -308,7 +308,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 .setId(String.format("act-as-%d-button", newestApplicant.get().id))
                 .setText("Applicant Dashboard ➔")
                 .setHref(
-                    controllers.applicant.routes.ApplicantProgramsController.index(
+                    controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
                             newestApplicant.get().id)
                         .url())
                 .asAnchorText())

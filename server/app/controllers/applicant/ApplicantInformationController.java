@@ -3,6 +3,7 @@ package controllers.applicant;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
 import forms.ApplicantInformationForm;
@@ -39,6 +40,7 @@ public final class ApplicantInformationController extends CiviFormController {
   private final AccountRepository repository;
   private final FormFactory formFactory;
   private final ApplicantLayout layout;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public ApplicantInformationController(
@@ -48,13 +50,15 @@ public final class ApplicantInformationController extends CiviFormController {
       FormFactory formFactory,
       ProfileUtils profileUtils,
       ApplicantLayout layout,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      ApplicantRoutes applicantRoutes) {
     super(profileUtils, versionRepository);
     this.httpExecutionContext = httpExecutionContext;
     this.messagesApi = messagesApi;
     this.repository = repository;
     this.formFactory = formFactory;
     this.layout = layout;
+    this.applicantRoutes = applicantRoutes;
   }
 
   /**
@@ -90,7 +94,8 @@ public final class ApplicantInformationController extends CiviFormController {
                             /* page= */ Optional.of(1))
                         .url();
               } else {
-                redirectLink = routes.ApplicantProgramsController.index(applicantId).url();
+                CiviFormProfile profile = profileUtils.currentUserProfile(request).orElseThrow();
+                redirectLink = applicantRoutes.index(profile, applicantId).url();
               }
 
               return redirect(redirectLink)
@@ -129,9 +134,10 @@ public final class ApplicantInformationController extends CiviFormController {
     ApplicantInformationForm infoForm = form.bindFromRequest(request).get();
     String redirectLocation;
     Session session;
+    CiviFormProfile profile = profileUtils.currentUserProfile(request).orElseThrow();
 
     if (infoForm.getRedirectLink().isEmpty()) {
-      redirectLocation = routes.ApplicantProgramsController.index(applicantId).url();
+      redirectLocation = applicantRoutes.index(profile, applicantId).url();
       session = request.session();
     } else {
       redirectLocation = infoForm.getRedirectLink();

@@ -7,6 +7,7 @@ import static play.test.Helpers.fakeRequest;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
+import controllers.applicant.ApplicantRoutes;
 import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +41,7 @@ public class HomeControllerWithProfileTest extends WithMockedProfiles {
 
   @Test
   public void testLanguageSelectorNotShownOneLanguage() {
-    ApplicantModel applicant = createApplicantWithMockedProfile();
+    createApplicantWithMockedProfile();
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
@@ -53,10 +54,9 @@ public class HomeControllerWithProfileTest extends WithMockedProfiles {
             instanceOf(ProfileUtils.class),
             instanceOf(MessagesApi.class),
             instanceOf(HttpExecutionContext.class),
-            languageUtils);
+            languageUtils,
+            new ApplicantRoutes());
     Result result = controller.index(fakeRequest().build()).toCompletableFuture().join();
-    assertThat(result.redirectLocation())
-        .contains(
-            controllers.applicant.routes.ApplicantProgramsController.index(applicant.id).url());
+    assertThat(result.redirectLocation()).hasValue("/programs");
   }
 }

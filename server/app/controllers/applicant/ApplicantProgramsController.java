@@ -59,7 +59,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   }
 
   @Secure
-  public CompletionStage<Result> index(Request request, long applicantId) {
+  public CompletionStage<Result> indexWithApplicantId(Request request, long applicantId) {
     Optional<CiviFormProfile> requesterProfile = profileUtils.currentUserProfile(request);
 
     // If the user doesn't have a profile, send them home.
@@ -102,6 +102,14 @@ public final class ApplicantProgramsController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
+  }
+
+  @Secure
+  public CompletionStage<Result> index(Request request) {
+    // The route for this action should only be computed if the applicant ID is available in the
+    // session.
+    long applicantId = getApplicantId(request).orElseThrow();
+    return indexWithApplicantId(request, applicantId);
   }
 
   @Secure
