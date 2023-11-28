@@ -288,7 +288,7 @@ validation.textTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga charac
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Ang mga katanungan na maraming pagpipiliang opsyon ay hindi maaaring magkaroon ng mga blanko na mga opsyon.
-adminValidation.multiOptionAdminError=Admin names can only contain letters, numbers, underscores, and dashes.
+adminValidation.multiOptionAdminError=Mga titik, numero, underscore, at gitling lang ang puwedeng gamitin para sa mga pangalan ng admin.
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -318,9 +318,9 @@ email.tiApplicationUpdateBody=Ang status para sa aplikanteng si {0} sa programan
 # GOVERNMENT BANNER - text explaining that CF is an official government site #
 #------------------------------------------------------------------------------#
 
-banner.title=This is an official government website.
-banner.link=Here''s how you know
-banner.govWebsiteSectionHeader=Official websites use .gov
-banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
-banner.httpsSectionHeader=Secure .gov websites use HTTPS
-banner.httpsSectionContent=A lock ( {0} ) or https:// means you''ve safely connected to the .gov website. Only share sensitive information on official, secure websites.
+banner.title=Isa itong opisyal na website ng pamahalaan.
+banner.link=Ganito mo malalaman
+banner.govWebsiteSectionHeader=Gumagamit ang mga opisyal na website ng .gov
+banner.govWebsiteSectionContent=Ang mga address ng website na nagtatapos sa .gov ay pagmamay-ari ng mga opisyal na organisasyon ng pamahalaan sa United States.
+banner.httpsSectionHeader=Gumagamit ng HTTPS ang mga secure na .gov na website
+banner.httpsSectionContent=Ang lock na ( {0} ) o https:// ay nangangahulugang ligtas kang nakakonekta sa .gov na website. Magbahagi lang ng sensitibong impormasyon sa mga opisyal at secure na website.
