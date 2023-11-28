@@ -1,12 +1,6 @@
 package views.style;
 
-/**
- * Constant class containing the names of styles that we have added to tailwind.
- *
- * <p>This file is special - strings in this file, within double quotes, are *not* stripped from the
- * tailwind CSS during production optimization. If you add a string here, run bin/refresh-styles or
- * restart bin/run-dev.
- */
+/** Constant class containing the names of styles that we have added to tailwind. */
 public final class BaseStyles {
 
   public static final String LINK_TEXT = "text-blue-600";
@@ -30,23 +24,6 @@ public final class BaseStyles {
   public static final String BG_CIVIFORM_PURPLE_LIGHT = "bg-civiform-purple-light";
   public static final String TEXT_CIVIFORM_YELLOW = "text-civiform-yellow";
   public static final String BG_CIVIFORM_YELLOW_LIGHT = "bg-civiform-yellow-light";
-  public static final String BG_CIVIFORM_TEAL = "bg-civiform-teal";
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  // USWDS component classes
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-
-  // https://designsystem.digital.gov/components/alert/
-  public static final String USWDS_ALERT = "usa-alert";
-  public static final String USWDS_ALERT_INFO = "usa-alert--info";
-  public static final String USWDS_ALERT_WARNING = "usa-alert--warning";
-  public static final String USWDS_ALERT_ERROR = "usa-alert--error";
-  public static final String USWDS_ALERT_SUCCESS = "usa-alert--success";
-  public static final String USWDS_ALERT_SLIM = "usa-alert--slim";
-  public static final String USWDS_ALERT_NO_ICON = "usa-alert--no-icon";
-  public static final String USWDS_ALERT_BODY = "usa-alert__body";
-  public static final String USWDS_ALERT_HEADING = "usa-alert__heading";
-  public static final String USWDS_ALERT_TEXT = "usa-alert__text";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Form style classes
