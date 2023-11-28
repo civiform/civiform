@@ -6,6 +6,8 @@ import {
   seedQuestions,
   validateScreenshot,
   waitForPageJsLoad,
+  enableFeatureFlag,
+  disableFeatureFlag,
 } from './support'
 import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
@@ -408,6 +410,43 @@ describe('normal question lifecycle', () => {
         ),
       ),
     ).toBeTruthy()
+  })
+
+  it('shows the "Remove from universal questions" confirmation modal in the right circumstances and navigation works', async () => {
+    const {page, adminQuestions} = ctx
+
+    await loginAsAdmin(page)
+    const questionName = 'text question'
+    await adminQuestions.addTextQuestion({questionName})
+    await adminQuestions.gotoQuestionEditPage(questionName)
+    await adminQuestions.clickSubmitButtonAndNavigate('Update')
+    // Since the flag is not enabled, the modal should not appear and you should be redirected to the admin questions page
+    await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+
+    await enableFeatureFlag(page, 'universal_questions')
+    await adminQuestions.gotoQuestionEditPage(questionName)
+    await adminQuestions.clickUniversalToggle()
+    await adminQuestions.clickSubmitButtonAndNavigate('Update')
+    // Since we are going from "off" to "on", the modal should not appear and you should be redirected to the admin questions page
+    await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+
+    await adminQuestions.gotoQuestionEditPage(questionName)
+    await adminQuestions.clickUniversalToggle()
+    await adminQuestions.clickSubmitButtonAndNavigate('Update')
+    // Flag is on and we are going from "on" to "off" so the modal should show
+    await validateScreenshot(page, 'remove-universal-confirmation-modal')
+
+    // Clicking "Cancel" on the modal closes the modal and returns you to the edit page
+    await adminQuestions.clickSubmitButtonAndNavigate('Cancel')
+    await adminQuestions.expectQuestionEditPage(questionName)
+
+    // Clicking "Remove from universal questions" submits the form and redirects you to the admin questions page
+    await adminQuestions.clickSubmitButtonAndNavigate('Update')
+    await adminQuestions.clickSubmitButtonAndNavigate(
+      'Remove from universal questions',
+    )
+    await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+    await disableFeatureFlag(page, 'universal_questions')
   })
 
   it('redirects to draft question when trying to edit original question', async () => {

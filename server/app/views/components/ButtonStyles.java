@@ -1,5 +1,6 @@
 package views.components;
 
+import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 
@@ -91,4 +92,12 @@ public final class ButtonStyles {
   // Just like CLEAR_WITH_ICON, but in dropdowns we want to remove the rounded corners.
   public static final String CLEAR_WITH_ICON_FOR_DROPDOWN =
       StyleUtils.removeStyles(CLEAR_WITH_ICON, "rounded-full");
+
+  // Use the base link styles and override default background, border, and hover button styles
+  public static final String LINK_STYLE =
+      StyleUtils.joinStyles(
+          StyleUtils.removeStyles(ApplicantStyles.LINK, "text-sm"),
+          "bg-transparent",
+          "border-none",
+          "hover:bg-opacity-0");
 }
