@@ -16,6 +16,10 @@ https://designsystem.digital.gov/utilities/.
    */
     $theme-font-path: '../../../../node_modules/@uswds/uswds/dist/fonts',
   $theme-image-path: '../../../../node_modules/@uswds/uswds/dist/img',
+  // We set the background to a dark color so that the banner uses the dark theme,
+  // but we override the background color with Tailwind "bg-gray-900" when we
+  // create the banner.
+  $theme-banner-background-color: 'blue-90',
   $border-settings: ('output': false),
   $color-settings: ('output': false)
 );

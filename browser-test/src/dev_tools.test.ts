@@ -9,10 +9,10 @@ describe('developer tools', () => {
   const ctx = createTestContext()
 
   it('link shown in the header', async () => {
-    const header: Locator = ctx.page.locator('header')
+    const header: Locator = ctx.page.locator('nav')
     await validateScreenshot(header, 'dev-tools-in-header')
 
-    expect(await ctx.page.textContent('header')).toContain('DevTools')
+    expect(await ctx.page.textContent('nav')).toContain('DevTools')
 
     await validateAccessibility(ctx.page)
   })

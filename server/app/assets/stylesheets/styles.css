@@ -68,4 +68,11 @@
   .cf-question-bank-hidden .cf-question-bank-glasspane {
     @apply opacity-0;
   }
+
+  @media screen and (min-width: 640px) {
+    /* When expanded, the banner header was moving to the center because of margin-auto */
+    .usa-banner__header--expanded .usa-banner__inner {
+      margin-left: 0px;
+    }
+  }
 }
