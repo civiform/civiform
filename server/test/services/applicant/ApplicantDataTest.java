@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
 import services.Path;
+import services.WellKnownPaths;
 import services.applicant.question.Scalar;
 
 public class ApplicantDataTest {
@@ -69,6 +70,16 @@ public class ApplicantDataTest {
     ApplicantData data = new ApplicantData();
     String sampleDob = "2022-01-05";
     data.setDateOfBirth(sampleDob);
+    assertThat(data.getDateOfBirth().get()).isEqualTo(sampleDob);
+    assertThat(data.asJsonString())
+        .isEqualTo("{\"applicant\":{\"applicant_date_of_birth\":{\"date\":1641340800000}}}");
+  }
+
+  @Test
+  public void getDateOfBirth_canHandleDeprecatedDobPath() {
+    ApplicantData data = new ApplicantData();
+    String sampleDob = "2022-01-05";
+    data.putDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED, sampleDob);
     assertThat(data.getDateOfBirth().get()).isEqualTo(sampleDob);
     assertThat(data.asJsonString())
         .isEqualTo("{\"applicant\":{\"applicant_date_of_birth\":1641340800000}}");

@@ -93,7 +93,7 @@ public class ApplicationBaseView extends BaseHtmlView {
 
     public abstract Optional<ToastMessage> bannerMessage();
 
-    public abstract Optional<String> questionName();
+    public abstract Optional<String> applicantSelectedQuestionName();
 
     @AutoValue.Builder
     public abstract static class Builder {
@@ -128,7 +128,7 @@ public class ApplicationBaseView extends BaseHtmlView {
 
       public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo personalInfo);
 
-      public abstract Builder setQuestionName(Optional<String> questionName);
+      public abstract Builder setApplicantSelectedQuestionName(Optional<String> questionName);
 
       public abstract Params build();
     }

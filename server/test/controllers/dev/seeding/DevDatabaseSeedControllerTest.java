@@ -8,7 +8,7 @@ import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
 import java.util.Optional;
-import models.Version;
+import models.VersionModel;
 import org.junit.After;
 import org.junit.Test;
 import play.Application;
@@ -87,7 +87,7 @@ public class DevDatabaseSeedControllerTest {
     assertThat(contentAsString(result)).contains("comprehensive-sample-program");
 
     // Load the data, which sets the cache and ensure it is present
-    Version activeVersion = versionRepo.getActiveVersion();
+    VersionModel activeVersion = versionRepo.getActiveVersion();
     String cacheKey = String.valueOf(activeVersion.id);
     assertThat(programsByVersionCache.get(cacheKey).isPresent()).isTrue();
 

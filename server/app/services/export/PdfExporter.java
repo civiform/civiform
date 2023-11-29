@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
 import javax.inject.Inject;
-import models.Application;
+import models.ApplicationModel;
 import services.DateConverter;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
@@ -55,7 +55,7 @@ public final class PdfExporter {
    * inMemoryPDF object. The InMemoryPdf object is passed back to the AdminController Class to
    * generate the required PDF.
    */
-  public InMemoryPdf export(Application application) throws DocumentException, IOException {
+  public InMemoryPdf export(ApplicationModel application) throws DocumentException, IOException {
     ReadOnlyApplicantProgramService roApplicantService =
         applicantService
             .getReadOnlyApplicantProgramService(application)

@@ -17,8 +17,9 @@ public class CustomOidcLogoutRequestTest {
             new URI("https://auth.com/logout"),
             "post_logout_redirect_uri",
             /* postLogoutRedirectURI= */ new URI("https://civiform.com/"),
-            /* clientId= */ Optional.empty(),
-            /* state= */ null);
+            /* clientId = */ Optional.empty(),
+            /* state= */ null,
+            /* idTokenHint= */ null);
     assertThat(request.toURI().toString())
         .isEqualTo(
             "https://auth.com/logout?post_logout_redirect_uri=https%3A%2F%2Fciviform.com%2F");
@@ -31,8 +32,9 @@ public class CustomOidcLogoutRequestTest {
             new URI("https://auth.com/logout"),
             "post_logout_redirect_uri",
             /* postLogoutRedirectURI= */ new URI("https://civiform.com/"),
-            /* clientId= */ Optional.of("12345"),
-            /* state= */ null);
+            /* clientId = */ Optional.of("12345"),
+            /* state= */ null,
+            /* idTokenHint= */ null);
     assertThat(request.toURI().toString())
         .isEqualTo(
             "https://auth.com/logout?post_logout_redirect_uri=https%3A%2F%2Fciviform.com%2F&client_id=12345");
@@ -45,8 +47,9 @@ public class CustomOidcLogoutRequestTest {
             new URI("https://auth.com/logout"),
             "post_logout_redirect_uri",
             /* postLogoutRedirectURI= */ new URI("https://civiform.com/"),
-            /* clientId= */ Optional.empty(),
-            new State("stateValue"));
+            /* clientId = */ Optional.empty(),
+            new State("stateValue"),
+            /* idTokenHint= */ null);
     assertThat(request.toURI().toString())
         .isEqualTo(
             "https://auth.com/logout?post_logout_redirect_uri=https%3A%2F%2Fciviform.com%2F&state=stateValue");
@@ -62,8 +65,9 @@ public class CustomOidcLogoutRequestTest {
             new URI("https://auth.com/logout#fragmentHere"),
             "",
             /* postLogoutRedirectURI= */ new URI("https://civiform.com/"),
-            /* clientId= */ Optional.empty(),
-            /* state= */ null);
+            /* clientId = */ Optional.empty(),
+            /* state= */ null,
+            /* idTokenHint= */ null);
     assertThat(request.toURI().toString()).isEqualTo("https://auth.com/logout#fragmentHere");
   }
 }

@@ -1,6 +1,7 @@
 package services.program;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static services.LocalizedStrings.DEFAULT_LOCALE;
 
 import auth.ProgramAcls;
 import com.google.common.base.Strings;
@@ -24,11 +25,11 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import models.Account;
-import models.Application;
+import models.AccountModel;
+import models.ApplicationModel;
 import models.DisplayMode;
-import models.Program;
-import models.Version;
+import models.ProgramModel;
+import models.VersionModel;
 import modules.MainModule;
 import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
@@ -205,7 +206,7 @@ public final class ProgramService {
    */
   public ProgramDefinition getDraftProgramDefinition(String programSlug)
       throws ProgramDraftNotFoundException {
-    Program draftProgram = programRepository.getDraftProgramFromSlug(programSlug);
+    ProgramModel draftProgram = programRepository.getDraftProgramFromSlug(programSlug);
     return syncProgramAssociations(draftProgram).toCompletableFuture().join();
   }
 
@@ -219,21 +220,22 @@ public final class ProgramService {
         .collect(ImmutableList.toImmutableList());
   }
 
-  private CompletionStage<ProgramDefinition> syncProgramAssociations(Program program) {
+  private CompletionStage<ProgramDefinition> syncProgramAssociations(ProgramModel program) {
     if (isActiveOrDraftProgram(program)) {
       return syncProgramDefinitionQuestions(program.getProgramDefinition())
           .thenApply(ProgramDefinition::orderBlockDefinitions);
     }
 
     // Any version that the program is in has all the questions the program has.
-    Version version = programRepository.getVersionsForProgram(program).stream().findAny().get();
+    VersionModel version =
+        programRepository.getVersionsForProgram(program).stream().findAny().get();
     ProgramDefinition programDefinition =
         syncProgramDefinitionQuestions(program.getProgramDefinition(), version);
 
     return CompletableFuture.completedStage(programDefinition.orderBlockDefinitions());
   }
 
-  private boolean isActiveOrDraftProgram(Program program) {
+  private boolean isActiveOrDraftProgram(ProgramModel program) {
     return Streams.concat(
             versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()).stream(),
             versionRepository
@@ -303,8 +305,8 @@ public final class ProgramService {
     }
     ProgramAcls programAcls = new ProgramAcls(new HashSet<>(tiGroups));
     BlockDefinition emptyBlock = maybeEmptyBlock.getResult();
-    Program program =
-        new Program(
+    ProgramModel program =
+        new ProgramModel(
             adminName,
             adminDescription,
             defaultDisplayName,
@@ -434,7 +436,7 @@ public final class ProgramService {
       programDefinition = removeAllEligibilityPredicates(programDefinition);
     }
 
-    Program program =
+    ProgramModel program =
         programDefinition.toBuilder()
             .setAdminDescription(adminDescription)
             .setLocalizedName(
@@ -481,8 +483,8 @@ public final class ProgramService {
     LocalizedStrings existingConfirmationMessageTranslations =
         programDefinition.localizedConfirmationMessage();
     LocalizedStrings newConfirmationMessageTranslations;
-    if (locale.equals(Locale.US) && confirmationMessage.equals("")) {
-      newConfirmationMessageTranslations = LocalizedStrings.create(ImmutableMap.of(Locale.US, ""));
+    if (locale.equals(DEFAULT_LOCALE) && confirmationMessage.equals("")) {
+      newConfirmationMessageTranslations = LocalizedStrings.withEmptyDefault();
     } else {
       newConfirmationMessageTranslations =
           existingConfirmationMessageTranslations.updateTranslation(locale, confirmationMessage);
@@ -506,7 +508,7 @@ public final class ProgramService {
         programRepository
             .createOrUpdateDraft(maybeCommonIntakeForm.get().toProgram())
             .getProgramDefinition();
-    Program commonIntakeProgram =
+    ProgramModel commonIntakeProgram =
         draftCommonIntakeProgramDefinition.toBuilder()
             .setProgramType(ProgramType.DEFAULT)
             .build()
@@ -645,7 +647,7 @@ public final class ProgramService {
       return ErrorAnd.error(errors);
     }
 
-    Program program =
+    ProgramDefinition.Builder newProgram =
         programDefinition.toBuilder()
             .setLocalizedName(
                 programDefinition
@@ -660,12 +662,18 @@ public final class ProgramService {
                     .localizedConfirmationMessage()
                     .updateTranslation(locale, localizationUpdate.localizedConfirmationMessage()))
             .setStatusDefinitions(
-                programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()))
-            .build()
-            .toProgram();
+                programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()));
+    updateSummaryImageDescriptionLocalization(
+        programDefinition,
+        newProgram,
+        localizationUpdate.localizedSummaryImageDescription(),
+        locale);
+
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
-                programRepository.updateProgramSync(program).getProgramDefinition())
+                programRepository
+                    .updateProgramSync(newProgram.build().toProgram())
+                    .getProgramDefinition())
             .toCompletableFuture()
             .join());
   }
@@ -706,7 +714,7 @@ public final class ProgramService {
   public ImmutableList<String> getNotificationEmailAddresses(String programName) {
     ImmutableList<String> explicitProgramAdmins =
         programRepository.getProgramAdministrators(programName).stream()
-            .map(Account::getEmailAddress)
+            .map(AccountModel::getEmailAddress)
             .filter(address -> !Strings.isNullOrEmpty(address))
             .collect(ImmutableList.toImmutableList());
     // If there are any program admins, return them.
@@ -715,7 +723,7 @@ public final class ProgramService {
     }
     // Return all the global admins email addresses.
     return accountRepository.getGlobalAdmins().stream()
-        .map(Account::getEmailAddress)
+        .map(AccountModel::getEmailAddress)
         .filter(address -> !Strings.isNullOrEmpty(address))
         .collect(ImmutableList.toImmutableList());
   }
@@ -879,6 +887,57 @@ public final class ProgramService {
   }
 
   /**
+   * Sets what the summary image description should be for the given locale.
+   *
+   * <p>If the {@code locale} is the default locale and the {@code summaryImageDescription} is empty
+   * or blank, then the description for *all* locales will be erased.
+   */
+  public ProgramDefinition setSummaryImageDescription(
+      long programId, Locale locale, String summaryImageDescription)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    Optional<LocalizedStrings> newStrings =
+        getUpdatedSummaryImageDescription(programDefinition, locale, summaryImageDescription);
+    programDefinition =
+        programDefinition.toBuilder().setLocalizedSummaryImageDescription(newStrings).build();
+    return programRepository
+        .updateProgramSync(programDefinition.toProgram())
+        .getProgramDefinition();
+  }
+
+  private void updateSummaryImageDescriptionLocalization(
+      ProgramDefinition currentProgram,
+      ProgramDefinition.Builder newProgram,
+      Optional<String> newDescription,
+      Locale locale) {
+    // Only update the localization if the current program has an image description set.
+    if (currentProgram.localizedSummaryImageDescription().isPresent()
+        && newDescription.isPresent()) {
+      Optional<LocalizedStrings> newDescriptionStrings =
+          getUpdatedSummaryImageDescription(currentProgram, locale, newDescription.get());
+      newProgram.setLocalizedSummaryImageDescription(newDescriptionStrings);
+    }
+  }
+
+  private Optional<LocalizedStrings> getUpdatedSummaryImageDescription(
+      ProgramDefinition programDefinition, Locale locale, String summaryImageDescription) {
+    if (locale.equals(DEFAULT_LOCALE) && summaryImageDescription.isBlank()) {
+      // Clear out all associated translations when the admin deletes a description.
+      return Optional.empty();
+    }
+
+    Optional<LocalizedStrings> currentDescription =
+        programDefinition.localizedSummaryImageDescription();
+    LocalizedStrings newStrings;
+    if (currentDescription.isEmpty()) {
+      newStrings = LocalizedStrings.of(locale, summaryImageDescription);
+    } else {
+      newStrings = currentDescription.get().updateTranslation(locale, summaryImageDescription);
+    }
+    return Optional.of(newStrings);
+  }
+
+  /**
    * Adds an empty {@link BlockDefinition} to the end of a given program.
    *
    * @param programId the ID of the program to update
@@ -934,7 +993,7 @@ public final class ProgramService {
           ProgramBlockAdditionResult.of(programDefinition, Optional.empty()));
     }
     BlockDefinition blockDefinition = maybeBlockDefinition.getResult();
-    Program program =
+    ProgramModel program =
         programDefinition.insertBlockDefinitionInTheRightPlace(blockDefinition).toProgram();
     ProgramDefinition updatedProgram =
         syncProgramDefinitionQuestions(
@@ -971,7 +1030,7 @@ public final class ProgramService {
   public ProgramDefinition moveBlock(
       long programId, long blockId, ProgramDefinition.Direction direction)
       throws ProgramNotFoundException, IllegalPredicateOrderingException {
-    final Program program;
+    final ProgramModel program;
     try {
       program = getProgramDefinition(programId).moveBlock(blockId, direction).toProgram();
     } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -1317,11 +1376,12 @@ public final class ProgramService {
     Map<Long, ReadOnlyQuestionService> programToQuestionService = new HashMap<>();
 
     for (ProgramDefinition programDef : programDefinitions) {
-      Program p = programDef.toProgram();
+      ProgramModel p = programDef.toProgram();
       p.refresh();
       // We only need to get the question data if the program has eligibility conditions.
       if (programDef.hasEligibilityEnabled()) {
-        Version v = programRepository.getVersionsForProgram(p).stream().findAny().orElseThrow();
+        VersionModel v =
+            programRepository.getVersionsForProgram(p).stream().findAny().orElseThrow();
         ReadOnlyQuestionService questionServiceForVersion = versionToQuestionService.get(v.id);
         if (questionServiceForVersion == null) {
           questionServiceForVersion =
@@ -1528,9 +1588,9 @@ public final class ProgramService {
    *
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
-  public ImmutableList<Application> getSubmittedProgramApplications(long programId)
+  public ImmutableList<ApplicationModel> getSubmittedProgramApplications(long programId)
       throws ProgramNotFoundException {
-    Optional<Program> programMaybe =
+    Optional<ProgramModel> programMaybe =
         programRepository.lookupProgram(programId).toCompletableFuture().join();
     if (programMaybe.isEmpty()) {
       throw new ProgramNotFoundException(programId);
@@ -1546,7 +1606,7 @@ public final class ProgramService {
    *     pagination spec to use for a given call.
    * @param filters a set of filters to apply to the examined applications.
    */
-  public PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
+  public PaginationResult<ApplicationModel> getSubmittedProgramApplicationsAllVersions(
       long programId,
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
@@ -1608,7 +1668,7 @@ public final class ProgramService {
   }
 
   private ProgramDefinition syncProgramDefinitionQuestions(
-      ProgramDefinition programDefinition, Version version) {
+      ProgramDefinition programDefinition, VersionModel version) {
     try {
       return syncProgramDefinitionQuestions(
           programDefinition,

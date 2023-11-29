@@ -17,7 +17,7 @@ public final class ApplicantStyles {
           StyleUtils.responsiveSmall("my-12"));
 
   public static final String PROGRAM_INDEX_TOP_CONTENT =
-      StyleUtils.joinStyles(BaseStyles.BG_SEATTLE_BLUE, "text-white", "text-center", "w-full");
+      StyleUtils.joinStyles("bg-blue-900", "text-white", "text-center", "w-full");
 
   public static final String CIVIFORM_LOGO =
       StyleUtils.joinStyles(

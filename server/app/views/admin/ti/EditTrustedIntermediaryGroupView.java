@@ -19,8 +19,8 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
-import models.Account;
-import models.TrustedIntermediaryGroup;
+import models.AccountModel;
+import models.TrustedIntermediaryGroupModel;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -49,7 +49,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.INTERMEDIARIES);
   }
 
-  public Content render(TrustedIntermediaryGroup tiGroup, Http.Request request) {
+  public Content render(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
     String title = "Trusted Intermediary Groups";
 
     HtmlBundle htmlBundle =
@@ -83,7 +83,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
   }
 
   // TODO https://github.com/seattle-uat/civiform/issues/2762
-  private DivTag renderAddNewButton(TrustedIntermediaryGroup tiGroup, Http.Request request) {
+  private DivTag renderAddNewButton(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
     FormTag formTag =
         form()
             .withMethod("POST")
@@ -104,7 +104,8 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
         .withClasses("border", "border-gray-300", "shadow-md", "mt-6");
   }
 
-  private TrTag renderTIRow(TrustedIntermediaryGroup tiGroup, Account ti, Http.Request request) {
+  private TrTag renderTIRow(
+      TrustedIntermediaryGroupModel tiGroup, AccountModel ti, Http.Request request) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             "border-b",
@@ -115,13 +116,13 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
         .with(renderActionsCell(tiGroup, ti, request));
   }
 
-  private TdTag renderInfoCell(Account ti) {
+  private TdTag renderInfoCell(AccountModel ti) {
     return td().with(div(ti.getApplicantName()).withClasses("font-semibold"))
         .with(div(ti.getEmailAddress()).withClasses("text-xs"))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
   }
 
-  private TdTag renderStatusCell(Account ti) {
+  private TdTag renderStatusCell(AccountModel ti) {
     String accountStatus = "OK";
     if (ti.ownedApplicantIds().isEmpty()) {
       accountStatus = "Not yet signed in.";
@@ -131,7 +132,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
   }
 
   private TdTag renderActionsCell(
-      TrustedIntermediaryGroup tiGroup, Account account, Http.Request request) {
+      TrustedIntermediaryGroupModel tiGroup, AccountModel account, Http.Request request) {
     return td().with(
             div()
                 .withClasses("flex", "justify-end", "items-center", "pr-3")
@@ -139,7 +140,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
   }
 
   private FormTag renderDeleteButton(
-      TrustedIntermediaryGroup tiGroup, Account account, Http.Request request) {
+      TrustedIntermediaryGroupModel tiGroup, AccountModel account, Http.Request request) {
     return form()
         .withMethod("POST")
         .withAction(

@@ -8,6 +8,7 @@ import {
 } from './wait'
 import {BASE_URL, TEST_CIVIC_ENTITY_SHORT_NAME} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
+import {AdminProgramImage} from './admin_program_image'
 import {validateScreenshot} from '.'
 
 /**
@@ -204,6 +205,25 @@ export class AdminPrograms {
     ).toBe(1)
   }
 
+  /**
+   * Expects a question card either with or without a universal question badge.
+   */
+  async expectQuestionCardUniversalBadgeState(
+    questionName: string,
+    universal: boolean,
+  ) {
+    expect(
+      await this.page
+        .locator(
+          this.withinQuestionCardSelectorInProgramView(
+            questionName,
+            '.cf-universal-badge',
+          ),
+        )
+        .count(),
+    ).toBe(universal ? 1 : 0)
+  }
+
   // Question card within a program edit or read only page
   questionCardSelectorInProgramView(questionName: string) {
     return `.cf-program-question:has(:text("Admin ID: ${questionName}"))`
@@ -262,6 +282,14 @@ export class AdminPrograms {
     )
     await waitForPageJsLoad(this.page)
     await this.expectProgramManageTranslationsPage(programName)
+  }
+
+  async goToProgramImagePage(programName: string) {
+    await this.gotoAdminProgramsPage()
+    await this.expectDraftProgram(programName)
+    await this.gotoEditDraftProgramPage(programName)
+    await this.page.click('button:has-text("Edit program image")')
+    await this.expectProgramImagePage(programName)
   }
 
   async gotoManageProgramAdminsPage(programName: string) {
@@ -410,6 +438,11 @@ export class AdminPrograms {
     )
   }
 
+  async expectProgramImagePage(programName: string) {
+    const adminProgramImage = new AdminProgramImage(this.page)
+    await adminProgramImage.expectProgramImagePage(programName)
+  }
+
   async expectManageProgramAdminsPage() {
     expect(await this.page.innerText('h1')).toContain(
       'Manage Admins for Program',
@@ -551,9 +584,12 @@ export class AdminPrograms {
     )
   }
 
-  async questionBankNames(): Promise<string[]> {
+  async questionBankNames(universal = false): Promise<string[]> {
+    const loc = '.cf-question-bank-element:visible .cf-question-title'
     const titles = this.page.locator(
-      '.cf-question-bank-element:visible .cf-question-title',
+      universal
+        ? '#question-bank-universal ' + loc
+        : '#question-bank-nonuniversal ' + loc,
     )
     return titles.allTextContents()
   }

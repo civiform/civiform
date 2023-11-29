@@ -3,7 +3,7 @@ package durablejobs;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import models.PersistedDurableJob;
+import models.PersistedDurableJobModel;
 import org.junit.Test;
 
 public class DurableJobRegistryTest {
@@ -62,10 +62,10 @@ public class DurableJobRegistryTest {
   static class FakeJobFactory implements DurableJobFactory {
 
     @Override
-    public DurableJob create(PersistedDurableJob persistedDurableJob) {
+    public DurableJob create(PersistedDurableJobModel persistedDurableJob) {
       return new DurableJob() {
         @Override
-        public PersistedDurableJob getPersistedDurableJob() {
+        public PersistedDurableJobModel getPersistedDurableJob() {
           return persistedDurableJob;
         }
 

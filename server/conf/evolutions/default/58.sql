@@ -1,7 +1,7 @@
 # --- !Ups
 
-alter table accounts add ti_note varchar;
+alter table accounts add column id_tokens jsonb;
 
-# --- #!Downs
+# --- !Downs
 
-alter table accounts drop column ti_note;
+alter table accounts drop column if exists id_tokens;

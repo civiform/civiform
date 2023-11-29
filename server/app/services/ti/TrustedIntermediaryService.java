@@ -10,9 +10,9 @@ import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
-import models.Account;
-import models.Applicant;
-import models.TrustedIntermediaryGroup;
+import models.AccountModel;
+import models.ApplicantModel;
+import models.TrustedIntermediaryGroupModel;
 import play.data.Form;
 import repository.AccountRepository;
 import repository.SearchParameters;
@@ -48,7 +48,7 @@ public final class TrustedIntermediaryService {
 
   public Form<AddApplicantToTrustedIntermediaryGroupForm> addNewClient(
       Form<AddApplicantToTrustedIntermediaryGroupForm> form,
-      TrustedIntermediaryGroup trustedIntermediaryGroup) {
+      TrustedIntermediaryGroupModel trustedIntermediaryGroup) {
     form = validateFirstName(form);
     form = validateLastName(form);
     form = validateDateOfBirthForAddApplicant(form);
@@ -157,12 +157,12 @@ public final class TrustedIntermediaryService {
    *     Parameter and an optional errorMessage which is generated if the filtering has failed.
    */
   public TrustedIntermediarySearchResult getManagedAccounts(
-      SearchParameters searchParameters, TrustedIntermediaryGroup tiGroup) {
-    ImmutableList<Account> allAccounts = tiGroup.getManagedAccounts();
+      SearchParameters searchParameters, TrustedIntermediaryGroupModel tiGroup) {
+    ImmutableList<AccountModel> allAccounts = tiGroup.getManagedAccounts();
     if (searchParameters.nameQuery().isEmpty() && searchParameters.dateQuery().isEmpty()) {
       return TrustedIntermediarySearchResult.success(allAccounts);
     }
-    final ImmutableList<Account> searchedResult;
+    final ImmutableList<AccountModel> searchedResult;
     try {
       searchedResult = searchAccounts(searchParameters, allAccounts);
     } catch (DateTimeParseException e) {
@@ -172,8 +172,8 @@ public final class TrustedIntermediaryService {
     return TrustedIntermediarySearchResult.success(searchedResult);
   }
 
-  private ImmutableList<Account> searchAccounts(
-      SearchParameters searchParameters, ImmutableList<Account> allAccounts) {
+  private ImmutableList<AccountModel> searchAccounts(
+      SearchParameters searchParameters, ImmutableList<AccountModel> allAccounts) {
     return allAccounts.stream()
         .filter(
             account ->
@@ -239,7 +239,48 @@ public final class TrustedIntermediaryService {
   //    return form;
   //  }
 
-  private Form<EditTiClientInfoForm> validateDateOfBirth(Form<EditTiClientInfoForm> form) {
+//  private Form<EditTiClientInfoForm> validateDateOfBirth(Form<EditTiClientInfoForm> form) {
+//=======
+//  /**
+//   * This function updates the Applicant's date of birth by calling the UpdateApplicant() on the
+//   * User Repository.
+//   *
+//   * @param trustedIntermediaryGroup - the TIGroup who manages the account whose Dob needs to be
+//   *     updated.
+//   * @param accountId - the account Id of the applicant whose Dob should be updated
+//   * @param form - this contains the dob field which would be parsed into local date and updated for
+//   *     the applicant
+//   * @return form - the form object is always returned. If the form contains error, the controller
+//   *     will handle the flash messages If the account is not found for the given AccountId, a
+//   *     runtime exception is raised.
+//   */
+//  public Form<UpdateApplicantDobForm> updateApplicantDateOfBirth(
+//      TrustedIntermediaryGroupModel trustedIntermediaryGroup,
+//      Long accountId,
+//      Form<UpdateApplicantDobForm> form)
+//      throws ApplicantNotFoundException {
+//
+//    form = validateDateOfBirthForUpdateDob(form);
+//
+//    if (form.hasErrors()) {
+//      return form;
+//    }
+//    Optional<AccountModel> optionalAccount =
+//        trustedIntermediaryGroup.getManagedAccounts().stream()
+//            .filter(account -> account.id.equals(accountId))
+//            .findAny();
+//
+//    if (optionalAccount.isEmpty() || optionalAccount.get().newestApplicant().isEmpty()) {
+//      throw new ApplicantNotFoundException(accountId);
+//    }
+//    ApplicantModel applicant = optionalAccount.get().newestApplicant().get();
+//    applicant.getApplicantData().setDateOfBirth(form.get().getDob());
+//    accountRepository.updateApplicant(applicant).toCompletableFuture().join();
+//    return form;
+//  }
+//
+  private Form<EditTiClientInfoForm> validateDateOfBirth(
+      Form<EditTiClientInfoForm> form) {
     Optional<String> errorMessage = validateDateOfBirth(form.value().get().getDob());
     if (errorMessage.isPresent()) {
       return form.withError(FORM_FIELD_NAME_DOB, errorMessage.get());
@@ -248,7 +289,7 @@ public final class TrustedIntermediaryService {
   }
 
   public Form<EditTiClientInfoForm> updateClientInfo(
-      Form<EditTiClientInfoForm> form, TrustedIntermediaryGroup tiGroup, Long accountId)
+      Form<EditTiClientInfoForm> form, TrustedIntermediaryGroupModel tiGroup, Long accountId)
       throws ApplicantNotFoundException {
     // validate functions return the form w/ validation errors if applicable
     form = validateFirstNameForEditClient(form);
@@ -261,14 +302,14 @@ public final class TrustedIntermediaryService {
     if (form.hasErrors()) {
       return form;
     }
-    Optional<Account> accountMaybe =
+    Optional<AccountModel> accountMaybe =
         tiGroup.getManagedAccounts().stream()
             .filter(account -> account.id.equals(accountId))
             .findAny();
     if (accountMaybe.isEmpty() || accountMaybe.get().newestApplicant().isEmpty()) {
       throw new ApplicantNotFoundException(accountId);
     }
-    Applicant applicant = accountMaybe.get().newestApplicant().get();
+    ApplicantModel applicant = accountMaybe.get().newestApplicant().get();
     EditTiClientInfoForm theForm = form.get();
     accountRepository.updateApplicantInfoForTrustedIntermediaryGroup(theForm, applicant);
     String email = theForm.getEmailAddress();
@@ -278,7 +319,7 @@ public final class TrustedIntermediaryService {
     return form;
   }
 
-  private Boolean checkEmailChange(String email, Account account) {
+  private Boolean checkEmailChange(String email, AccountModel account) {
     return !email.equals(account.getEmailAddress());
   }
 }

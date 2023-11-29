@@ -19,7 +19,6 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import controllers.ti.routes;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TdTag;
@@ -30,9 +29,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import models.Account;
-import models.Applicant;
-import models.TrustedIntermediaryGroup;
+import models.AccountModel;
+import models.ApplicantModel;
+import models.TrustedIntermediaryGroupModel;
 import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -68,9 +67,9 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   public Content render(
-      TrustedIntermediaryGroup tiGroup,
+      TrustedIntermediaryGroupModel tiGroup,
       ApplicantPersonalInfo personalInfo,
-      ImmutableList<Account> managedAccounts,
+      ImmutableList<AccountModel> managedAccounts,
       int totalPageCount,
       int page,
       SearchParameters searchParameters,
@@ -91,7 +90,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 hr().withClasses("mt-6"),
                 renderHeader("Clients"),
                 renderSearchForm(request, searchParameters),
-                renderTIApplicantsTable(managedAccounts, searchParameters, page, totalPageCount),
+                renderTIApplicantsTable(managedAccounts, searchParameters, page, totalPageCount,request),
                 hr().withClasses("mt-6"),
                 renderHeader("Trusted Intermediary Members"),
                 renderTIMembersTable(tiGroup).withClasses("ml-2"))
@@ -110,8 +109,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
   }
 
-  private List<Modal> generateModals(ImmutableList<Account> managedAccounts, Http.Request request) {
-    for (Account account : managedAccounts) {
+  private List<Modal> generateModals(ImmutableList<AccountModel> managedAccounts, Http.Request request) {
+    for (AccountModel account : managedAccounts) {
       ApplicantData applicantData = account.newestApplicant().get().getApplicantData();
       FormTag formTag =
           form()
@@ -233,21 +232,21 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   private DivTag renderTIApplicantsTable(
-      ImmutableList<Account> managedAccounts,
-      SearchParameters searchParameters,
-      int page,
-      int totalPageCount) {
+    ImmutableList<AccountModel> managedAccounts,
+    SearchParameters searchParameters,
+    int page,
+    int totalPageCount, Http.Request request) {
     DivTag main =
         div(table()
                 .withClasses("border", "border-gray-300", "shadow-md", "flex-auto")
                 .with(renderApplicantTableHeader())
-                .with(
-                    tbody(
-                        each(
-                            managedAccounts.stream()
-                                .sorted(Comparator.comparing(Account::getApplicantName))
-                                .collect(Collectors.toList()),
-                            this::renderApplicantRow))))
+          .with(
+            tbody(
+              each(
+                managedAccounts.stream()
+                  .sorted(Comparator.comparing(AccountModel::getApplicantName))
+                  .collect(Collectors.toList()),
+                account -> renderApplicantRow(account, request)))))
             .withClasses("mb-16");
     return main.with(
         renderPaginationDiv(
@@ -260,7 +259,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                     Optional.of(pageNumber))));
   }
 
-  private DivTag renderTIMembersTable(TrustedIntermediaryGroup tiGroup) {
+  private DivTag renderTIMembersTable(TrustedIntermediaryGroupModel tiGroup) {
     return div(
         table()
             .withClasses("border", "border-gray-300", "shadow-md", "w-3/4")
@@ -269,12 +268,12 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 tbody(
                     each(
                         tiGroup.getTrustedIntermediaries().stream()
-                            .sorted(Comparator.comparing(Account::getApplicantName))
+                            .sorted(Comparator.comparing(AccountModel::getApplicantName))
                             .collect(Collectors.toList()),
                         this::renderTIRow))));
   }
 
-  private DivTag renderAddNewForm(TrustedIntermediaryGroup tiGroup, Http.Request request) {
+  private DivTag renderAddNewForm(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
     FormTag formTag =
         form()
             .withMethod("POST")
@@ -333,7 +332,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
   }
 
-  private TrTag renderTIRow(Account ti) {
+  private TrTag renderTIRow(AccountModel ti) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             "border-b",
@@ -343,7 +342,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderStatusCell(ti));
   }
 
-  private TrTag renderApplicantRow(Account applicant) {
+  private TrTag renderApplicantRow(AccountModel applicant) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             "border-b",
@@ -356,7 +355,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderUpdateClientInfoCell(applicant));
   }
 
-  private TdTag renderUpdateClientInfoCell(Account account) {
+  private TdTag renderUpdateClientInfoCell(AccountModel account) {
     Modal modal = getModal(account.id);
     return td().with(
             a().with(
@@ -381,8 +380,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .build();
   }
 
-  private TdTag renderDateOfBirthCell(Account account) {
-    Optional<Applicant> newestApplicant = account.newestApplicant();
+  private TdTag renderDateOfBirthCell(AccountModel account) {
+    Optional<ApplicantModel> newestApplicant = account.newestApplicant();
     if (newestApplicant.isEmpty()) {
       return td().withClasses(BaseStyles.TABLE_CELL_STYLES);
     }
@@ -402,7 +401,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 .withValue(currentDob));
   }
 
-  private TdTag renderApplicantInfoCell(Account applicantAccount) {
+  private TdTag renderApplicantInfoCell(AccountModel applicantAccount) {
     int applicationCount =
         applicantAccount.getApplicants().stream()
             .map(applicant -> applicant.getApplications().size())
@@ -413,8 +412,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES);
   }
 
-  private TdTag renderActionsCell(Account applicant) {
-    Optional<Applicant> newestApplicant = applicant.newestApplicant();
+  private TdTag renderActionsCell(AccountModel applicant) {
+    Optional<ApplicantModel> newestApplicant = applicant.newestApplicant();
     if (newestApplicant.isEmpty()) {
       return td().withClasses(BaseStyles.TABLE_CELL_STYLES);
     }
@@ -430,7 +429,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
   }
 
-  private TdTag renderInfoCell(Account ti) {
+  private TdTag renderInfoCell(AccountModel ti) {
     String emailField = ti.getEmailAddress();
     if (Strings.isNullOrEmpty(emailField)) {
       emailField = "(no email address)";
@@ -440,7 +439,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES);
   }
 
-  private TdTag renderStatusCell(Account ti) {
+  private TdTag renderStatusCell(AccountModel ti) {
     String accountStatus = "OK";
     if (ti.ownedApplicantIds().isEmpty()) {
       accountStatus = "Not yet signed in.";

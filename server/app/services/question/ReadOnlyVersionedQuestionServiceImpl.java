@@ -2,8 +2,8 @@ package services.question;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import models.Question;
-import models.Version;
+import models.QuestionModel;
+import models.VersionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.VersionRepository;
@@ -16,7 +16,7 @@ import services.question.types.QuestionDefinition;
  * Implementation class for {@link ReadOnlyQuestionService} interface. It contains all questions
  * that are in the specified version.
  *
- * <p>See {@link QuestionService#getReadOnlyVersionedQuestionService(Version)}.
+ * <p>See {@link QuestionService#getReadOnlyVersionedQuestionService(VersionModel)}.
  */
 public final class ReadOnlyVersionedQuestionServiceImpl implements ReadOnlyQuestionService {
 
@@ -25,10 +25,10 @@ public final class ReadOnlyVersionedQuestionServiceImpl implements ReadOnlyQuest
       LoggerFactory.getLogger(ReadOnlyVersionedQuestionServiceImpl.class);
 
   public ReadOnlyVersionedQuestionServiceImpl(
-      Version version, VersionRepository versionRepository) {
+      VersionModel version, VersionRepository versionRepository) {
     questionsById =
         versionRepository.getQuestionsForVersion(version).stream()
-            .map(Question::getQuestionDefinition)
+            .map(QuestionModel::getQuestionDefinition)
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
   }
 

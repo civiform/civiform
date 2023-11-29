@@ -11,11 +11,11 @@ import static support.CfTestHelpers.requestBuilderWithSettings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.WithMockedProfiles;
-import models.Account;
-import models.Applicant;
-import models.Application;
+import models.AccountModel;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import models.LifecycleStage;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
@@ -31,9 +31,9 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   private ApplicantProgramReviewController subject;
   private ApplicantProgramBlocksController blockController;
-  private Program activeProgram;
-  public Applicant applicant;
-  public Applicant applicantWithoutProfile;
+  private ProgramModel activeProgram;
+  public ApplicantModel applicant;
+  public ApplicantModel applicantWithoutProfile;
 
   @Before
   public void setUpWithFreshApplicants() {
@@ -67,7 +67,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void review_applicantAccessToDraftProgram_redirectsToHome() {
-    Program draftProgram =
+    ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -79,9 +79,9 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void review_civiformAdminAccessToDraftProgram_isOk() {
-    Account adminAccount = createGlobalAdminWithMockedProfile();
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
-    Program draftProgram =
+    ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -92,7 +92,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void review_obsoleteProgram_isOk() {
-    Program obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+    ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
     Result result = this.review(applicant.id, obsoleteProgram.id);
     assertThat(result.status()).isEqualTo(OK);
   }
@@ -127,7 +127,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void submit_applicantAccessToDraftProgram_redirectsToHome() {
-    Program draftProgram =
+    ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -139,7 +139,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void submit_civiformAdminAccessToDraftProgram_redirectsAndDoesNotSubmitApplication() {
-    Account adminAccount = createGlobalAdminWithMockedProfile();
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
 
     ProgramBuilder.newActiveProgram("test program", "desc")
@@ -158,7 +158,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     // No application was submitted
     ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
-    ImmutableSet<Application> applications =
+    ImmutableSet<ApplicationModel> applications =
         applicationRepository
             .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
             .toCompletableFuture()
@@ -191,7 +191,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     // An application was submitted
     ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
-    ImmutableSet<Application> applications =
+    ImmutableSet<ApplicationModel> applications =
         applicationRepository
             .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
             .toCompletableFuture()
@@ -202,7 +202,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void submit_isSuccessful() {
-    Program activeProgram =
+    ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -216,7 +216,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     // An application was submitted
     ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
-    ImmutableSet<Application> applications =
+    ImmutableSet<ApplicationModel> applications =
         applicationRepository
             .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
             .toCompletableFuture()
@@ -227,7 +227,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void submit_incomplete_showsError() {
-    Program activeProgram =
+    ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -242,7 +242,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void submit_duplicate_handlesErrorAndDoesNotSaveDuplicateApplication() {
-    Program activeProgram =
+    ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -265,7 +265,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     // There is only one application saved in the db
     ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
-    ImmutableSet<Application> applications =
+    ImmutableSet<ApplicationModel> applications =
         applicationRepository
             .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
             .toCompletableFuture()

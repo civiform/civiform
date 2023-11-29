@@ -6,7 +6,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
-import models.Applicant;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,12 +30,12 @@ public class EmailQuestionTest extends ResetPostgres {
               .setLastModifiedTime(Optional.empty())
               .build());
 
-  private Applicant applicant;
+  private ApplicantModel applicant;
   private ApplicantData applicantData;
 
   @Before
   public void setUp() {
-    applicant = new Applicant();
+    applicant = new ApplicantModel();
     applicantData = applicant.getApplicantData();
   }
 

@@ -36,8 +36,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20180219.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.21.14",
-      "software.amazon.awssdk" % "ses" % "2.21.14",
+      "software.amazon.awssdk" % "s3" % "2.21.28",
+      "software.amazon.awssdk" % "ses" % "2.21.28",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.10.4",
@@ -94,7 +94,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.24",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.26",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.6",
@@ -145,6 +145,8 @@ lazy val root = (project in file("."))
     Test / testOptions := Seq(
       Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")
     ),
+    // Allow tests to print to stdout when running in forking mode (default)
+    Test / outputStrategy := Some(StdoutOutput),
     // Use test config for tests
     Test / javaOptions += "-Dconfig.file=conf/application.test.conf",
     // Uncomment the following line to disable JVM forking, which allows attaching a remote

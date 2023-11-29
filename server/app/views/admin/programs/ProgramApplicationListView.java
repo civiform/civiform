@@ -26,7 +26,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.SpanTag;
 import java.util.Optional;
-import models.Application;
+import models.ApplicationModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
@@ -88,7 +88,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ProgramDefinition program,
       ImmutableList<String> allPossibleProgramApplicationStatuses,
       PageNumberBasedPaginationSpec paginationSpec,
-      PaginationResult<Application> paginatedApplications,
+      PaginationResult<ApplicationModel> paginatedApplications,
       RenderFilterParams filterParams,
       Optional<String> selectedApplicationUri) {
     Modal downloadModal = renderDownloadApplicationsModal(program, filterParams);
@@ -352,7 +352,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   }
 
   private DivTag renderApplicationListItem(
-      Application application,
+      ApplicationModel application,
       boolean displayStatus,
       Optional<Boolean> maybeEligibilityStatus,
       Optional<StatusDefinitions.Status> defaultStatus) {
@@ -416,7 +416,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .withClasses(ReferenceClasses.ADMIN_APPLICATION_CARD, "w-full", "shadow-lg", "mt-4");
   }
 
-  private SpanTag renderSubmitTime(Application application) {
+  private SpanTag renderSubmitTime(ApplicationModel application) {
     try {
       return span().withText(dateConverter.renderDateTime(application.getSubmitTime()));
     } catch (NullPointerException e) {
@@ -425,7 +425,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     }
   }
 
-  private ATag renderViewLink(String text, Application application) {
+  private ATag renderViewLink(String text, ApplicationModel application) {
     String viewLink =
         controllers.admin.routes.AdminApplicationController.show(
                 application.getProgram().id, application.id)

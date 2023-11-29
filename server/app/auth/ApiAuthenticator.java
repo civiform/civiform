@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import models.ApiKey;
+import models.ApiKeyModel;
 import org.apache.commons.net.util.SubnetUtils;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import services.apikey.ApiKeyService;
 
 /**
- * Authenticator for API requests based on HTTP basic auth and backed by the {@link ApiKey}
+ * Authenticator for API requests based on HTTP basic auth and backed by the {@link ApiKeyModel}
  * resource. Background: https://en.wikipedia.org/wiki/Basic_access_authentication
  *
  * <p>When referenced by a request, {@code ApiKey}s are stored in the "api-keys" named cache, keyed
@@ -81,13 +81,13 @@ public class ApiAuthenticator implements Authenticator {
     // Cache the API key for quick lookup in the controller, also for subsequent requests.
     // We intentionally cache the empty optional rather than throwing here so that subsequent
     // requests with the invalid key do not put pressure on the database.
-    Optional<ApiKey> maybeApiKey = apiKeyService.get().findByKeyIdWithCache(keyId);
+    Optional<ApiKeyModel> maybeApiKey = apiKeyService.get().findByKeyIdWithCache(keyId);
 
     if (maybeApiKey.isEmpty()) {
       throwUnauthorized(context, "API key does not exist: " + keyId);
     }
 
-    ApiKey apiKey = maybeApiKey.get();
+    ApiKeyModel apiKey = maybeApiKey.get();
 
     if (apiKey.isRetired()) {
       throwUnauthorized(context, "API key is retired: " + keyId);
@@ -112,7 +112,7 @@ public class ApiAuthenticator implements Authenticator {
     }
   }
 
-  private boolean isAllowedIp(ApiKey apiKey, String clientIp) {
+  private boolean isAllowedIp(ApiKeyModel apiKey, String clientIp) {
     return apiKey.getSubnetSet().stream()
         .map(SubnetUtils::new)
         // Setting this to true includes the network and broadcast addresses.

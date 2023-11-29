@@ -55,17 +55,12 @@ public class DropdownQuestionRenderer extends ApplicantSingleQuestionRenderer {
                     .collect(ImmutableList.toImmutableList()))
             .setAriaDescribedByIds(ariaDescribedByIds);
 
-    if (applicantSelectedQuestion(params.questionName())) {
+    if (params.autofocusSingleField()) {
       select.focusOnInput();
     }
 
     if (!validationErrors.isEmpty()) {
       select.forceAriaInvalid();
-      if (params
-          .errorDisplayMode()
-          .equals(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)) {
-        select.focusOnError();
-      }
     }
     select.setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader());
 

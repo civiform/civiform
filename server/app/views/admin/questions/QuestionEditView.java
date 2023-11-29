@@ -16,6 +16,7 @@ import com.google.inject.Inject;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
@@ -44,10 +45,12 @@ import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.components.Modal;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 
 /** Renders a page for editing a question. */
 public final class QuestionEditView extends BaseHtmlView {
@@ -117,7 +120,8 @@ public final class QuestionEditView extends BaseHtmlView {
         .map(ToastMessage::getContainerTag)
         .ifPresent(formContent::with);
 
-    return renderWithPreview(request, formContent, questionType, title);
+    return renderWithPreview(
+        request, formContent, questionType, title, /* modal= */ Optional.empty());
   }
 
   /** Render a fresh Edit Question Form. */
@@ -153,6 +157,8 @@ public final class QuestionEditView extends BaseHtmlView {
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
       Optional<ToastMessage> message) {
 
+    Modal unsetUniversalModal = buildUnsetUniversalModal(questionForm);
+
     QuestionType questionType = questionForm.getQuestionType();
     String title =
         String.format("Edit %s question", questionType.getLabel().toLowerCase(Locale.ROOT));
@@ -162,7 +168,12 @@ public final class QuestionEditView extends BaseHtmlView {
     DivTag formContent =
         buildQuestionContainer(title)
             .with(
-                buildEditQuestionForm(id, questionForm, maybeEnumerationQuestionDefinition, request)
+                buildEditQuestionForm(
+                        id,
+                        questionForm,
+                        maybeEnumerationQuestionDefinition,
+                        request,
+                        unsetUniversalModal)
                     .with(makeCsrfTokenInputTag(request)));
 
     message
@@ -170,7 +181,8 @@ public final class QuestionEditView extends BaseHtmlView {
         .map(ToastMessage::getContainerTag)
         .ifPresent(formContent::with);
 
-    return renderWithPreview(request, formContent, questionType, title);
+    return renderWithPreview(
+        request, formContent, questionType, title, Optional.of(unsetUniversalModal));
   }
 
   /** Render a read-only non-submittable question form. */
@@ -190,16 +202,21 @@ public final class QuestionEditView extends BaseHtmlView {
         buildQuestionContainer(title)
             .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption, request));
 
-    return renderWithPreview(request, formContent, questionType, title);
+    return renderWithPreview(
+        request, formContent, questionType, title, /* modal= */ Optional.empty());
   }
 
   private Content renderWithPreview(
-      Request request, DivTag formContent, QuestionType type, String title) {
+      Request request, DivTag formContent, QuestionType type, String title, Optional<Modal> modal) {
     DivTag previewContent =
         QuestionPreview.renderQuestionPreview(type, messages, fileUploadViewStrategy);
 
     HtmlBundle htmlBundle =
         layout.getBundle(request).setTitle(title).addMainContent(formContent, previewContent);
+
+    if (settingsManifest.getUniversalQuestions(request) && modal.isPresent()) {
+      htmlBundle.addModals(modal.get());
+    }
     return layout.render(htmlBundle);
   }
 
@@ -286,17 +303,51 @@ public final class QuestionEditView extends BaseHtmlView {
       long id,
       QuestionForm questionForm,
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
-      Request request) {
+      Request request,
+      Modal unsetUniversalModal) {
     SelectWithLabel enumeratorOption =
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
     FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOption, false, request);
-    formTag
-        .withAction(
-            controllers.admin.routes.AdminQuestionController.update(
-                    id, questionForm.getQuestionType().toString())
-                .url())
-        .with(submitButton("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE));
+    formTag.withAction(
+        controllers.admin.routes.AdminQuestionController.update(
+                id, questionForm.getQuestionType().toString())
+            .url());
+
+    if (settingsManifest.getUniversalQuestions(request)) {
+      formTag.with(unsetUniversalModal.getButton());
+    } else {
+      formTag.with(submitButton("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE));
+    }
+
     return formTag;
+  }
+
+  private Modal buildUnsetUniversalModal(QuestionForm questionForm) {
+    ButtonTag triggerModalButton = button("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE);
+    FormTag confirmUnsetUniversalForm =
+        form()
+            .with(
+                div("This question will no longer be set as a recommended "
+                        + questionForm.getQuestionType().getLabel()
+                        + " question.")
+                    .withClasses("mb-8"),
+                div(
+                        submitButton("Remove from universal questions")
+                            .withId("accept-question-updates-button")
+                            .attr("form", "full-edit-form")
+                            .withClasses(ButtonStyles.SOLID_BLUE),
+                        button("Cancel")
+                            .withClasses(ButtonStyles.LINK_STYLE, ReferenceClasses.MODAL_CLOSE))
+                    .withClasses("flex", "flex-col", StyleUtils.responsiveMedium("flex-row")));
+    return Modal.builder()
+        .setModalId("confirm-question-updates-modal")
+        .setLocation(Modal.Location.ADMIN_FACING)
+        .setContent(confirmUnsetUniversalForm)
+        .setModalTitle(
+            "Are you sure you want to remove this question from the universal questions set?")
+        .setTriggerButtonContent(triggerModalButton)
+        .setWidth(Modal.Width.THIRD)
+        .build();
   }
 
   private FormTag buildQuestionForm(
@@ -308,6 +359,7 @@ public final class QuestionEditView extends BaseHtmlView {
     QuestionType questionType = questionForm.getQuestionType();
     FormTag formTag =
         form()
+            .withId("full-edit-form")
             .withMethod("POST")
             .with(
                 // Hidden input indicating the type of question to be created.

@@ -26,6 +26,10 @@ content.requiredFieldsNote=Lưu ý: Các trường có gắn dấu {0} là trư�
 content.optional=(không bắt buộc)
 content.mobileFileUploadHelp=Trên điện thoại của bạn? Tính năng "Chọn tệp" cũng cho phép bạn sử dụng camera của điện thoại để tải tài liệu lên.
 toast.errorMessageOutline=Lỗi: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=Đóng
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
+link.opensNewTabSr=opens in a new tab
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -81,7 +85,7 @@ content.description=CiviForm giúp bạn biết được những lợi ích mà 
 content.saveTime=Tiết kiệm thời gian khi đăng ký nhận phúc lợi
 content.guestDescription=Đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản và đăng ký để nhận nhiều phúc lợi mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký bất cứ lúc nào và kiểm tra trạng thái của đơn đăng ký.
 link.programDetails=Chi tiết chương trình
-link.programDetailsSr=Chi tiết chương trình {0}
+link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=Chương trình và dịch vụ
 title.findServicesSection=Tìm dịch vụ có thể giúp bạn
 title.allProgramsSection=Tất cả các chương trình ({0})
@@ -149,7 +153,7 @@ content.commonIntakeConfirmationTi=Khách hàng của bạn có thể nhận đ�
 content.commonIntakeNoMatchingPrograms=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà bạn có thể đủ tiêu chuẩn nhận vào lúc này. Tuy nhiên, bạn có thể đăng ký nhận phúc lợi bất cứ lúc nào bằng cách nhấp vào ''Đăng ký chương trình''. Hoặc để xem thêm các chương trình phúc lợi khác, bạn có thể truy cập {0}
 content.commonIntakeNoMatchingProgramsTi=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà khách hàng của bạn có thể đủ tiêu chuẩn nhận vào lúc này. Tuy nhiên, bạn có thể đăng ký nhận phúc lợi bất cứ lúc nào bằng cách nhấp vào ''Đăng ký chương trình''. Hoặc để xem thêm các chương trình phúc lợi khác, bạn có thể truy cập {0}
 content.commonIntakeNoMatchingProgramsNextStep=Bạn cũng có thể quay lại trang trước để chỉnh sửa câu trả lời của mình.
-button.downloadPdf=Download PDF
+button.downloadPdf=Tải bản PDF xuống
 button.applyToPrograms=Đăng ký chương trình
 
 #-------------------------------------------------------------------------------------------------------------------------#
@@ -284,6 +288,7 @@ validation.textTooShort=Phải có ít nhất {0} ký tự.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Không được để lựa chọn trống trong câu hỏi có nhiều lựa chọn.
+adminValidation.multiOptionAdminError=Tên của quản trị viên chỉ có thể chứa chữ cái, số, dấu gạch dưới và dấu gạch ngang.
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -308,3 +313,14 @@ email.tiManageYourClients=Quản lý khách hàng của bạn tại {0}.
 email.applicationUpdateSubject=Cập nhật về đơn đăng ký của bạn {0}
 email.tiApplicationUpdateSubject=Cập nhật về đơn đăng ký tham gia chương trình {0} thay mặt cho người đăng ký {1}
 email.tiApplicationUpdateBody=Trạng thái của người đăng ký {0} trong chương trình {1} đã thay đổi thành {2}.
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
+banner.title=Đây là một trang web chính thức của chính phủ.
+banner.link=Sau đây là cách giúp bạn biết đâu là trang web chính thức của chính phủ
+banner.govWebsiteSectionHeader=Các trang web chính thức sử dụng tên miền .gov
+banner.govWebsiteSectionContent=Những địa chỉ trang web có đuôi .gov là địa chỉ trang web thuộc về các tổ chức chính thức của chính phủ tại Hoa Kỳ.
+banner.httpsSectionHeader=Các trang web .gov an toàn sử dụng HTTPS
+banner.httpsSectionContent=Biểu tượng khoá ( {0} ) hoặc https:// có nghĩa là bạn đã kết nối an toàn với trang web .gov. Bạn chỉ nên chia sẻ thông tin nhạy cảm trên các trang web chính thức, an toàn.

@@ -26,6 +26,10 @@ content.requiredFieldsNote=Fiiro: Qaybaha ku calaamadsan {0} waa loo baahan yaha
 content.optional=(Ikhtiyaar)
 content.mobileFileUploadHelp=Telefoonkaaga? "Choose File" sidoo kale waxuu kuu oggolaanayaa inaad isticmaasho kamarada telefoonkaaga si aad u soo geliso dukumintiyo.
 toast.errorMessageOutline=Khalad: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=Xidh
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
+link.opensNewTabSr=opens in a new tab
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -81,7 +85,7 @@ content.description=CiviForm waxay kaa caawisaa helida faa'iidooyinka aad u qalm
 content.saveTime=Wakhti kaydi marka aad codsanayso dheefaha
 content.guestDescription=Soo gal {0} koontadaada ama samayso koonto oo codso dheefo badan addoon soo gelin macluumaad isku mid ah mar labbaad. Waxba kama beddeli karti codsiyada wakhti kasta oo hubi heerarkaaga codsigu marayo.
 link.programDetails=Faahfaahinta barnaamijka
-link.programDetailsSr=Faahfaahinta barnaamijka ee {0}
+link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=Barnaamijyada iyo adeegyada
 title.findServicesSection=Hel adeegyada ku caawin kara adiga
 title.allProgramsSection=Dhammaan barnaamijyada ({0})
@@ -149,7 +153,7 @@ content.commonIntakeConfirmationTi=Macmiilkaagu waxa uu awoodi karaa inuu helo f
 content.commonIntakeNoMatchingPrograms=Qiimeeyaha hore waa uu heli kari waayey barnaamijyada aad u qalmi karto wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa faa'iidooyinka wakhti kasta, addoo riixaya "Codso barnaamiyada". Ama arag faa'iidooyinka dheeraadka ah ee barnaamijyada aad booqan karto {0}
 content.commonIntakeNoMatchingProgramsTi=Qiimeeyaha hore waa uu heli kari waayey barnaamijyada uu macmiilkaagu u qalmi karo wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa faa'iidooyinka wakhti kasta, addoo riixaya "Codso barnaamiyada". Ama arag faa'iidooyinka dheeraadka ah ee barnaamijyada aad booqan karto {0}
 content.commonIntakeNoMatchingProgramsNextStep=Sidoo kale waxaad ku noqon kartaa bogga hore si aad wax uga beddesho jawaabahaaga.
-button.downloadPdf=Download PDF
+button.downloadPdf=Soo.deji.PDF
 button.applyToPrograms=Codso barnaamijyada
 
 #-------------------------------------------------------------------------------------------------------------------------#
@@ -284,6 +288,7 @@ validation.textTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Su''aalaha xulashada badan ma yeelan karaan ikhtiyaaro madhan.
+adminValidation.multiOptionAdminError=Magacyada maamulka keliya waxay ka kooban yihiin xarfo, lambaro, calaamada andhar iskoorka, iyo dhibco jiidan.
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -308,3 +313,14 @@ email.tiManageYourClients=Ka maamul macaamiishaada xaga {0}.
 email.applicationUpdateSubject=Cosboonaysiinta codsigaaga {0}
 email.tiApplicationUpdateSubject=Cusboonaysiinta codsiga barnaamijka {0} iyadoo la metelaayo codsadaha {1}
 email.tiApplicationUpdateBody=Heerka codsadaha {0} barnaamijka {1} waxa uu u beddelmay {2}.
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
+banner.title=Tani waa websaydka rasmiga ah ee dowladda.
+banner.link=Halkan waxaa ah sida aad u garanayso
+banner.govWebsiteSectionHeader=Websaydyada rasmiga ah waxay isticmaalaan .gov
+banner.govWebsiteSectionContent=Cinwaanada websaydka ku dhammaanaya gov waxaa leh ururada dowladda rasmiga ah gudaha Maraykanka.
+banner.httpsSectionHeader=Websyadyada amniga ah ee .gov waxay isticmaalaan HTTPS
+banner.httpsSectionContent=Quful ( {0} ) ama https:// macnaheedu waxa weeye waxaad si amni ah ugu xidhan tahay websaydka .gov. Keliya ku wadaag macluumaadka xasaasiga ah websaydyada rasmiga ah, ee amniga ah.

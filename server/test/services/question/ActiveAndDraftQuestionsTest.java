@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
-import models.Program;
-import models.Question;
-import models.Version;
+import models.ProgramModel;
+import models.QuestionModel;
+import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
@@ -29,7 +29,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
   @Test
   public void getQuestionNames() throws Exception {
-    Question tombstonedQuestionFromActiveVersion =
+    QuestionModel tombstonedQuestionFromActiveVersion =
         resourceCreator.insertQuestion("tombstoned-question");
 
     versionRepository
@@ -57,13 +57,14 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
   @Test
   public void getActiveOrDraftQuestionDefinition() throws Exception {
-    Question tombstonedQuestionFromActiveVersion =
+    QuestionModel tombstonedQuestionFromActiveVersion =
         resourceCreator.insertQuestion("tombstoned-question");
-    Question activeAndDraftQuestion = resourceCreator.insertQuestion("active-and-draft-question");
-    Question activeOnlyQuestion = resourceCreator.insertQuestion("active-only-question");
-    Question activeAndDraftQuestionUpdated =
+    QuestionModel activeAndDraftQuestion =
         resourceCreator.insertQuestion("active-and-draft-question");
-    Question draftOnlyQuestion = resourceCreator.insertQuestion("draft-only-question");
+    QuestionModel activeOnlyQuestion = resourceCreator.insertQuestion("active-only-question");
+    QuestionModel activeAndDraftQuestionUpdated =
+        resourceCreator.insertQuestion("active-and-draft-question");
+    QuestionModel draftOnlyQuestion = resourceCreator.insertQuestion("draft-only-question");
 
     versionRepository
         .getActiveVersion()
@@ -143,10 +144,10 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
   @Test
   public void getDeletionStatus_notReferencedByProgramButStillReferencedByVersion() {
-    Question activeVersionQuestion = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+    QuestionModel activeVersionQuestion = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(activeVersionQuestion).save();
 
-    Question draftVersionQuestion = resourceCreator.insertQuestion("draft-version-question");
+    QuestionModel draftVersionQuestion = resourceCreator.insertQuestion("draft-version-question");
     versionRepository.getDraftVersionOrCreate().addQuestion(draftVersionQuestion).save();
 
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
@@ -157,7 +158,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
   @Test
   public void getDeletionStatus_tombstoned() throws Exception {
-    Question question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+    QuestionModel question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(question).save();
     versionRepository
         .getDraftVersionOrCreate()
@@ -171,7 +172,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
   @Test
   public void getDeletionStatus_createdAndTombstonedInDraftVersion() throws Exception {
-    Question question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+    QuestionModel question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getDraftVersionOrCreate().addQuestion(question).save();
     addTombstoneToVersion(versionRepository.getDraftVersionOrCreate(), question);
 
@@ -181,7 +182,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
   @Test
   public void getDeletionStatus_stillReferencedInActiveVersion() {
-    Question questionActive = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+    QuestionModel questionActive = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(questionActive).save();
     // newActiveProgram automatically adds the program to the active version.
     ProgramBuilder.newActiveProgram("foo")
@@ -198,7 +199,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     // Simulates the state where the question was created in the active version
     // and wasn't referenced. Then it was referenced by a program in the draft
     // version. In this case, the draft won't yet contain a reference to the question.
-    Question questionActive = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+    QuestionModel questionActive = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(questionActive).save();
     // newDraftProgram automatically adds the program to the draft version.
     ProgramBuilder.newDraftProgram("foo")
@@ -213,7 +214,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   @Test
   public void getDeletionStatus_noLongerReferencedInDraftVersion() {
     // Simulate the only reference to the question having been removed in an edit of the program.
-    Question questionActive = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+    QuestionModel questionActive = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(questionActive).save();
     // newActiveProgram automatically adds the program to the active version.
     ProgramBuilder.newActiveProgram("foo")
@@ -228,7 +229,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .isEqualTo(DeletionStatus.DELETABLE);
 
     // Adding a draft edit of the question continues to be considered deletable.
-    Question questionDraft = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+    QuestionModel questionDraft = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getDraftVersionOrCreate().addQuestion(questionDraft).save();
 
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
@@ -284,19 +285,19 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
   @Test
   public void getReferencingPrograms_multipleProgramReferencesForSameQuestionVersion() {
-    Question question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+    QuestionModel question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
 
     // Set up state where the question is referenced from:
     // ACTIVE version - first-program and second-program
     // DRAFT version - second-program and third-program
 
     // newActiveProgram / newDraftProgram automatically adds the program to the specified version.
-    Program firstProgramActive =
+    ProgramModel firstProgramActive =
         ProgramBuilder.newActiveProgram("first-program")
             .withBlock("Screen 1")
             .withRequiredQuestion(question)
             .build();
-    Program secondProgramActive =
+    ProgramModel secondProgramActive =
         ProgramBuilder.newActiveProgram("second-program")
             .withBlock("Screen 1")
             .withBlock("Screen 2")
@@ -306,14 +307,14 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
     // No longer reference the question from the first program.
     ProgramBuilder.newDraftProgram("first-program").withBlock("Screen 1").build();
-    Program secondProgramDraft =
+    ProgramModel secondProgramDraft =
         ProgramBuilder.newDraftProgram("second-program")
             .withBlock("Screen 1")
             .withBlock("Screen 2")
             .withBlock("Screen 3")
             .withRequiredQuestion(question)
             .build();
-    Program thirdProgramDraft =
+    ProgramModel thirdProgramDraft =
         ProgramBuilder.newDraftProgram("third-program")
             .withBlock("Screen 1")
             .withRequiredQuestion(question)
@@ -335,15 +336,15 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     // DRAFT version - second-program and third-program
     // In addition, the DRAFT version references are to an edited question.
 
-    Question activeQuestion = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+    QuestionModel activeQuestion = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(activeQuestion).save();
     // newActiveProgram / newDraftProgram automatically adds the program to the specified version.
-    Program firstProgramActive =
+    ProgramModel firstProgramActive =
         ProgramBuilder.newActiveProgram("first-program")
             .withBlock("Screen 1")
             .withRequiredQuestion(activeQuestion)
             .build();
-    Program secondProgramActive =
+    ProgramModel secondProgramActive =
         ProgramBuilder.newActiveProgram("second-program")
             .withBlock("Screen 1")
             .withBlock("Screen 2")
@@ -351,17 +352,17 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
             .build();
 
     // No longer reference the question from the first program.
-    Question draftQuestion = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+    QuestionModel draftQuestion = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getDraftVersionOrCreate().addQuestion(draftQuestion).save();
     ProgramBuilder.newDraftProgram("first-program").withBlock("Screen 1").build();
-    Program secondProgramDraft =
+    ProgramModel secondProgramDraft =
         ProgramBuilder.newDraftProgram("second-program")
             .withBlock("Screen 1")
             .withBlock("Screen 2")
             .withBlock("Screen 3")
             .withRequiredQuestion(draftQuestion)
             .build();
-    Program thirdProgramDraft =
+    ProgramModel thirdProgramDraft =
         ProgramBuilder.newDraftProgram("third-program")
             .withBlock("Screen 1")
             .withRequiredQuestion(draftQuestion)
@@ -391,7 +392,8 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     return ActiveAndDraftQuestions.buildFromCurrentVersions(versionRepository);
   }
 
-  private void addTombstoneToVersion(Version version, Question question) throws Exception {
+  private void addTombstoneToVersion(VersionModel version, QuestionModel question)
+      throws Exception {
     assertThat(versionRepository.addTombstoneForQuestionInVersion(question, version)).isTrue();
     version.save();
   }

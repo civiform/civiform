@@ -5,14 +5,19 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
+import auth.oidc.IdTokens;
+import auth.oidc.IdTokensFactory;
+import auth.oidc.SerializedIdTokens;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import durablejobs.jobs.FixApplicantDobDataPathJob;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import forms.EditTiClientInfoForm;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
+import io.ebean.Query;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -20,9 +25,10 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Account;
-import models.Applicant;
-import models.TrustedIntermediaryGroup;
+import models.AccountModel;
+import models.ApplicantModel;
+import models.TrustedIntermediaryGroupModel;
+import org.pac4j.oidc.profile.OidcProfile;
 import services.CiviFormError;
 import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
@@ -31,44 +37,66 @@ import services.ti.NoSuchTrustedIntermediaryError;
 import services.ti.NoSuchTrustedIntermediaryGroupError;
 import services.ti.NotEligibleToBecomeTiError;
 
-/** AccountRepository contains database interactions for {@link Account} and {@link Applicant}. */
+/**
+ * AccountRepository contains database interactions for {@link AccountModel} and {@link
+ * ApplicantModel}.
+ */
 public final class AccountRepository {
+  private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
+      new QueryProfileLocationBuilder("AccountRepository");
 
   private final Database database;
   private final DatabaseExecutionContext executionContext;
+  private final IdTokensFactory idTokensFactory;
 
   @Inject
-  public AccountRepository(DatabaseExecutionContext executionContext) {
+  public AccountRepository(
+      DatabaseExecutionContext executionContext, IdTokensFactory idTokensFactory) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
+    this.idTokensFactory = checkNotNull(idTokensFactory);
   }
 
-  public CompletionStage<Set<Applicant>> listApplicants() {
-    return supplyAsync(() -> database.find(Applicant.class).findSet(), executionContext);
-  }
-
-  public CompletionStage<Optional<Applicant>> lookupApplicant(long id) {
+  public CompletionStage<Set<ApplicantModel>> listApplicants() {
     return supplyAsync(
-        () -> database.find(Applicant.class).setId(id).findOneOrEmpty(), executionContext);
+        () ->
+            database
+                .find(ApplicantModel.class)
+                .setLabel("ApplicantModel.findSet")
+                .setProfileLocation(queryProfileLocationBuilder.create("listApplicants"))
+                .findSet(),
+        executionContext);
   }
 
-  public Optional<Account> lookupAccountById(Long accountId) {
-    return database.find(Account.class).setId(accountId).findOneOrEmpty();
+  public Optional<AccountModel> lookupAccountById(Long accountId) {
+    return database.find(AccountModel.class).setId(accountId).findOneOrEmpty();
   }
 
-  public Optional<Account> lookupAccountByAuthorityId(String authorityId) {
+  public Optional<AccountModel> lookupAccountByAuthorityId(String authorityId) {
     checkNotNull(authorityId);
     checkArgument(!authorityId.isEmpty());
-    return database.find(Account.class).where().eq("authority_id", authorityId).findOneOrEmpty();
+    return database
+        .find(AccountModel.class)
+        .where()
+        .eq("authority_id", authorityId)
+        .setLabel("AccountModel.findById")
+        .setProfileLocation(queryProfileLocationBuilder.create("lookupAccountByAuthorityId"))
+        .findOneOrEmpty();
   }
 
-  public Optional<Account> lookupAccountByEmail(String emailAddress) {
+  public Optional<AccountModel> lookupAccountByEmail(String emailAddress) {
     checkNotNull(emailAddress);
     checkArgument(!emailAddress.isEmpty());
-    return database.find(Account.class).where().eq("email_address", emailAddress).findOneOrEmpty();
+    return database
+        .find(AccountModel.class)
+        .where()
+        .eq("email_address", emailAddress)
+        .setLabel("AccountModel.findByEmail")
+        .setProfileLocation(queryProfileLocationBuilder.create("lookupAccountByEmail"))
+        .findOneOrEmpty();
   }
 
-  public CompletionStage<Optional<Account>> lookupAccountByEmailAsync(String emailAddress) {
+  public CompletionStage<Optional<AccountModel>> lookupAccountByEmailAsync(String emailAddress) {
     if (emailAddress == null) {
       return CompletableFuture.failedStage(new NullPointerException());
     }
@@ -77,7 +105,13 @@ public final class AccountRepository {
     }
     return supplyAsync(
         () ->
-            database.find(Account.class).where().eq("email_address", emailAddress).findOneOrEmpty(),
+            database
+                .find(AccountModel.class)
+                .where()
+                .eq("email_address", emailAddress)
+                .setLabel("AccountModel.findByEmail")
+                .setProfileLocation(queryProfileLocationBuilder.create("lookupAccountByEmailAsync"))
+                .findOneOrEmpty(),
         executionContext);
   }
 
@@ -87,24 +121,25 @@ public final class AccountRepository {
    * <p>If no applicant exists, this is probably an account waiting for a trusted intermediary, so
    * we create one.
    */
-  private Applicant getOrCreateApplicant(Account account) {
-    Optional<Applicant> applicantOpt =
-        account.getApplicants().stream().max(Comparator.comparing(Applicant::getWhenCreated));
-    return applicantOpt.orElseGet(() -> new Applicant().setAccount(account).saveAndReturn());
+  private ApplicantModel getOrCreateApplicant(AccountModel account) {
+    Optional<ApplicantModel> applicantOpt =
+        account.getApplicants().stream().max(Comparator.comparing(ApplicantModel::getWhenCreated));
+    return applicantOpt.orElseGet(() -> new ApplicantModel().setAccount(account).saveAndReturn());
   }
 
-  public CompletionStage<Optional<Applicant>> lookupApplicantByAuthorityId(String authorityId) {
+  public CompletionStage<Optional<ApplicantModel>> lookupApplicantByAuthorityId(
+      String authorityId) {
     return supplyAsync(
         () -> lookupAccountByAuthorityId(authorityId).map(this::getOrCreateApplicant),
         executionContext);
   }
 
-  public CompletionStage<Optional<Applicant>> lookupApplicantByEmail(String emailAddress) {
+  public CompletionStage<Optional<ApplicantModel>> lookupApplicantByEmail(String emailAddress) {
     return supplyAsync(
         () -> lookupAccountByEmail(emailAddress).map(this::getOrCreateApplicant), executionContext);
   }
 
-  public CompletionStage<Void> insertApplicant(Applicant applicant) {
+  public CompletionStage<Void> insertApplicant(ApplicantModel applicant) {
     return supplyAsync(
         () -> {
           database.insert(applicant);
@@ -113,7 +148,7 @@ public final class AccountRepository {
         executionContext);
   }
 
-  public CompletionStage<Void> updateApplicant(Applicant applicant) {
+  public CompletionStage<Void> updateApplicant(ApplicantModel applicant) {
     return supplyAsync(
         () -> {
           database.update(applicant);
@@ -122,13 +157,18 @@ public final class AccountRepository {
         executionContext);
   }
 
-  public Optional<Applicant> lookupApplicantSync(long id) {
-    return database.find(Applicant.class).setId(id).findOneOrEmpty();
+  public Optional<ApplicantModel> lookupApplicantSync(long id) {
+    return database
+        .find(ApplicantModel.class)
+        .setId(id)
+        .setLabel("ApplicantModel.findById")
+        .setProfileLocation(queryProfileLocationBuilder.create("lookupApplicantSync"))
+        .findOneOrEmpty();
   }
 
   /** Merge the older applicant data into the newer applicant, and set both to the given account. */
-  public CompletionStage<Applicant> mergeApplicants(
-      Applicant left, Applicant right, Account account) {
+  public CompletionStage<ApplicantModel> mergeApplicants(
+      ApplicantModel left, ApplicantModel right, AccountModel account) {
     return supplyAsync(
         () -> {
           left.setAccount(account).save();
@@ -139,9 +179,9 @@ public final class AccountRepository {
   }
 
   /** Merge the applicant data from older applicant into the newer applicant. */
-  private Applicant mergeApplicants(Applicant left, Applicant right) {
+  private ApplicantModel mergeApplicants(ApplicantModel left, ApplicantModel right) {
     if (left.getWhenCreated().isAfter(right.getWhenCreated())) {
-      Applicant tmp = left;
+      ApplicantModel tmp = left;
       left = right;
       right = tmp;
     }
@@ -151,27 +191,36 @@ public final class AccountRepository {
     return right;
   }
 
-  public List<TrustedIntermediaryGroup> listTrustedIntermediaryGroups() {
-    return database.find(TrustedIntermediaryGroup.class).findList();
+  public List<TrustedIntermediaryGroupModel> listTrustedIntermediaryGroups() {
+    return database
+        .find(TrustedIntermediaryGroupModel.class)
+        .setLabel("TrustedIntermediaryGroup.findList")
+        .setProfileLocation(queryProfileLocationBuilder.create("listTrustedIntermediaryGroups"))
+        .findList();
   }
 
-  public TrustedIntermediaryGroup createNewTrustedIntermediaryGroup(
+  public TrustedIntermediaryGroupModel createNewTrustedIntermediaryGroup(
       String name, String description) {
-    TrustedIntermediaryGroup tiGroup = new TrustedIntermediaryGroup(name, description);
+    TrustedIntermediaryGroupModel tiGroup = new TrustedIntermediaryGroupModel(name, description);
     tiGroup.save();
     return tiGroup;
   }
 
   public void deleteTrustedIntermediaryGroup(long id) {
-    Optional<TrustedIntermediaryGroup> tiGroup = getTrustedIntermediaryGroup(id);
+    Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
     if (tiGroup.isEmpty()) {
       throw new NoSuchTrustedIntermediaryGroupError();
     }
     database.delete(tiGroup.get());
   }
 
-  public Optional<TrustedIntermediaryGroup> getTrustedIntermediaryGroup(long id) {
-    return database.find(TrustedIntermediaryGroup.class).setId(id).findOneOrEmpty();
+  public Optional<TrustedIntermediaryGroupModel> getTrustedIntermediaryGroup(long id) {
+    return database
+        .find(TrustedIntermediaryGroupModel.class)
+        .setId(id)
+        .setLabel("TrustedIntermediaryGroup.findById")
+        .setProfileLocation(queryProfileLocationBuilder.create("getTrustedIntermediaryGroup"))
+        .findOneOrEmpty();
   }
 
   /**
@@ -180,15 +229,15 @@ public final class AccountRepository {
    * signs in for the first time.
    */
   public void addTrustedIntermediaryToGroup(long id, String emailAddress) {
-    Optional<TrustedIntermediaryGroup> tiGroup = getTrustedIntermediaryGroup(id);
+    Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
     if (tiGroup.isEmpty()) {
       throw new NoSuchTrustedIntermediaryGroupError();
     }
-    Optional<Account> accountMaybe = lookupAccountByEmail(emailAddress);
-    Account account =
+    Optional<AccountModel> accountMaybe = lookupAccountByEmail(emailAddress);
+    AccountModel account =
         accountMaybe.orElseGet(
             () -> {
-              Account a = new Account();
+              AccountModel a = new AccountModel();
               a.setEmailAddress(emailAddress);
               a.save();
               return a;
@@ -203,15 +252,15 @@ public final class AccountRepository {
   }
 
   public void removeTrustedIntermediaryFromGroup(long id, long accountId) {
-    Optional<TrustedIntermediaryGroup> tiGroup = getTrustedIntermediaryGroup(id);
+    Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
     if (tiGroup.isEmpty()) {
       throw new NoSuchTrustedIntermediaryGroupError();
     }
-    Optional<Account> accountMaybe = lookupAccount(accountId);
+    Optional<AccountModel> accountMaybe = lookupAccount(accountId);
     if (accountMaybe.isEmpty()) {
       throw new NoSuchTrustedIntermediaryError();
     }
-    Account account = accountMaybe.get();
+    AccountModel account = accountMaybe.get();
     if (account.getMemberOfGroup().isPresent()
         && account.getMemberOfGroup().get().equals(tiGroup.get())) {
       account.setMemberOfGroup(null);
@@ -221,11 +270,16 @@ public final class AccountRepository {
     }
   }
 
-  private Optional<Account> lookupAccount(long accountId) {
-    return database.find(Account.class).setId(accountId).findOneOrEmpty();
+  public Optional<AccountModel> lookupAccount(long accountId) {
+    return database
+        .find(AccountModel.class)
+        .setId(accountId)
+        .setLabel("AccountModel.findById")
+        .setProfileLocation(queryProfileLocationBuilder.create("lookupAccount"))
+        .findOneOrEmpty();
   }
 
-  public Optional<TrustedIntermediaryGroup> getTrustedIntermediaryGroup(
+  public Optional<TrustedIntermediaryGroupModel> getTrustedIntermediaryGroup(
       CiviFormProfile civiformProfile) {
     return civiformProfile.getAccount().join().getMemberOfGroup();
   }
@@ -238,8 +292,8 @@ public final class AccountRepository {
    * @throws EmailAddressExistsException if the provided email address already exists.
    */
   public void createNewApplicantForTrustedIntermediaryGroup(
-      AddApplicantToTrustedIntermediaryGroupForm form, TrustedIntermediaryGroup tiGroup) {
-    Account newAccount = new Account();
+      AddApplicantToTrustedIntermediaryGroupForm form, TrustedIntermediaryGroupModel tiGroup) {
+    AccountModel newAccount = new AccountModel();
     if (!Strings.isNullOrEmpty(form.getEmailAddress())) {
       if (lookupAccountByEmail(form.getEmailAddress()).isPresent()) {
         throw new EmailAddressExistsException();
@@ -248,7 +302,7 @@ public final class AccountRepository {
     }
     newAccount.setManagedByGroup(tiGroup);
     newAccount.save();
-    Applicant applicant = new Applicant();
+    ApplicantModel applicant = new ApplicantModel();
     applicant.setAccount(newAccount);
     ApplicantData applicantData = applicant.getApplicantData();
     applicantData.setUserName(form.getFirstName(), form.getMiddleName(), form.getLastName());
@@ -257,7 +311,7 @@ public final class AccountRepository {
   }
 
   public void updateApplicantInfoForTrustedIntermediaryGroup(
-      EditTiClientInfoForm form, Applicant applicant) {
+      EditTiClientInfoForm form, ApplicantModel applicant) {
     ApplicantData applicantData = applicant.getApplicantData();
     applicantData.setUserName(form.getFirstName(), form.getMiddleName(), form.getLastName());
     applicantData.setDateOfBirth(form.getDob());
@@ -269,7 +323,7 @@ public final class AccountRepository {
   public void updateApplicantEmail(String email, Long accountId) {
     if (!Strings.isNullOrEmpty(email)) {
       try (Transaction transaction = database.beginTransaction()) {
-        Account currentAccount = lookupAccountById(accountId).get();
+        AccountModel currentAccount = lookupAccountById(accountId).get();
         currentAccount.setEmailAddress(email);
         currentAccount.save();
         transaction.commit();
@@ -290,7 +344,7 @@ public final class AccountRepository {
       return Optional.empty();
     }
 
-    Optional<Account> maybeAccount = lookupAccountByEmail(accountEmail);
+    Optional<AccountModel> maybeAccount = lookupAccountByEmail(accountEmail);
     if (maybeAccount.isEmpty()) {
       return Optional.of(
           CiviFormError.of(
@@ -317,7 +371,7 @@ public final class AccountRepository {
    * @param program the {@link ProgramDefinition} to remove from the given account
    */
   public void removeAdministeredProgram(String accountEmail, ProgramDefinition program) {
-    Optional<Account> maybeAccount = lookupAccountByEmail(accountEmail);
+    Optional<AccountModel> maybeAccount = lookupAccountByEmail(accountEmail);
     maybeAccount.ifPresent(
         account -> {
           account.removeAdministeredProgram(program);
@@ -325,14 +379,25 @@ public final class AccountRepository {
         });
   }
 
-  public ImmutableSet<Account> getGlobalAdmins() {
+  public ImmutableSet<AccountModel> getGlobalAdmins() {
     return ImmutableSet.copyOf(
-        database.find(Account.class).where().eq("global_admin", true).findList());
+        database
+            .find(AccountModel.class)
+            .where()
+            .eq("global_admin", true)
+            .setLabel("AccountModel.findList")
+            .setProfileLocation(queryProfileLocationBuilder.create("getGlobalAdmins"))
+            .findList());
   }
 
   @VisibleForTesting
-  public ImmutableSet<Account> listAccounts() {
-    return ImmutableSet.copyOf(database.find(Account.class).findSet());
+  public ImmutableSet<AccountModel> listAccounts() {
+    return ImmutableSet.copyOf(
+        database
+            .find(AccountModel.class)
+            .setLabel("AccountModel.findSet")
+            .setProfileLocation(queryProfileLocationBuilder.create("listAccounts"))
+            .findSet());
   }
 
   /** Delete guest accounts that have no data and were created before the provided maximum age. */
@@ -357,5 +422,39 @@ public final class AccountRepository {
             + "WHERE accounts.id IN (SELECT account_id FROM unused_accounts);";
 
     return database.sqlUpdate(sql).execute();
+  }
+
+  /**
+   * For use in {@link FixApplicantDobDataPathJob}. This will return applicants who have the
+   * incorrect path for applicant_date_of_birth where applicant_date_of_birth points directly to a
+   * number. eg. {applicant:{applicant_date_of_birth: 1038787200000}}
+   */
+  public Query<ApplicantModel> findApplicantsWithIncorrectDobPath() {
+    String sql =
+        "WITH temp_json_table AS (SELECT * , ((object#>>'{}')::jsonb)::json AS parsed_object FROM"
+            + " applicants) select temp_json_table.* FROM temp_json_table WHERE"
+            + " temp_json_table.parsed_object#>'{applicant,applicant_date_of_birth}' IS NOT NULL"
+            + " AND temp_json_table.parsed_object#>'{applicant,applicant_date_of_birth,date}' IS"
+            + " NULL";
+    return database.findNative(ApplicantModel.class, sql);
+  }
+
+  /**
+   * Associates the ID token from the profile with the provided session id and persists this
+   * association to the provided account.
+   *
+   * <p>Also purges any expired ID tokens as a side effect.
+   */
+  public void updateSerializedIdTokens(
+      AccountModel account, String sessionId, OidcProfile oidcProfile) {
+    SerializedIdTokens serializedIdTokens = account.getSerializedIdTokens();
+    if (serializedIdTokens == null) {
+      serializedIdTokens = new SerializedIdTokens();
+      account.setSerializedIdTokens(serializedIdTokens);
+    }
+    IdTokens idTokens = idTokensFactory.create(serializedIdTokens);
+    idTokens.purgeExpiredIdTokens();
+    idTokens.storeIdToken(sessionId, oidcProfile.getIdTokenString());
+    account.save();
   }
 }

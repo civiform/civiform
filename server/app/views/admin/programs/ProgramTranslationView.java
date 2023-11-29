@@ -97,29 +97,8 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 .setHref(programDetailsLink)
                                 .setStyles("ml-2")
                                 .asAnchorText()),
-                    ImmutableList.of(
-                        fieldWithDefaultLocaleTextHint(
-                            FieldWithLabel.input()
-                                .setFieldName(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME)
-                                .setLabelText("Program name")
-                                .setValue(updateData.localizedDisplayName())
-                                .getInputTag(),
-                            program.localizedName()),
-                        fieldWithDefaultLocaleTextHint(
-                            FieldWithLabel.input()
-                                .setFieldName(ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME)
-                                .setLabelText("Program description")
-                                .setValue(updateData.localizedDisplayDescription())
-                                .getInputTag(),
-                            program.localizedDescription()),
-                        fieldWithDefaultLocaleTextHint(
-                            FieldWithLabel.input()
-                                .setFieldName(
-                                    ProgramTranslationForm.CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME)
-                                .setLabelText("Custom Confirmation Screen Message")
-                                .setValue(updateData.localizedConfirmationMessage())
-                                .getInputTag(),
-                            program.localizedConfirmationMessage()))));
+                    getApplicantVisibleProgramDetailFields(program, updateData)));
+
     // Add Status Tracking messages.
     String programStatusesLink =
         controllers.admin.routes.AdminProgramStatusesController.index(program.id()).url();
@@ -175,5 +154,47 @@ public final class ProgramTranslationView extends TranslationFormView {
               fieldsBuilder.build()));
     }
     return result.build();
+  }
+
+  private ImmutableList<DomContent> getApplicantVisibleProgramDetailFields(
+      ProgramDefinition program, LocalizationUpdate updateData) {
+    ImmutableList.Builder<DomContent> applicantVisibleDetails =
+        ImmutableList.<DomContent>builder()
+            .add(
+                fieldWithDefaultLocaleTextHint(
+                    FieldWithLabel.input()
+                        .setFieldName(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME)
+                        .setLabelText("Program name")
+                        .setValue(updateData.localizedDisplayName())
+                        .getInputTag(),
+                    program.localizedName()),
+                fieldWithDefaultLocaleTextHint(
+                    FieldWithLabel.input()
+                        .setFieldName(ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME)
+                        .setLabelText("Program description")
+                        .setValue(updateData.localizedDisplayDescription())
+                        .getInputTag(),
+                    program.localizedDescription()),
+                fieldWithDefaultLocaleTextHint(
+                    FieldWithLabel.input()
+                        .setFieldName(ProgramTranslationForm.CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME)
+                        .setLabelText("Custom Confirmation Screen Message")
+                        .setValue(updateData.localizedConfirmationMessage())
+                        .getInputTag(),
+                    program.localizedConfirmationMessage()));
+
+    // Only add the summary image description input to the page if a summary image description is
+    // actually set.
+    if (program.localizedSummaryImageDescription().isPresent()) {
+      applicantVisibleDetails.add(
+          fieldWithDefaultLocaleTextHint(
+              FieldWithLabel.input()
+                  .setFieldName(ProgramTranslationForm.IMAGE_DESCRIPTION_FORM_NAME)
+                  .setLabelText("Program image description")
+                  .setValue(updateData.localizedSummaryImageDescription())
+                  .getInputTag(),
+              program.localizedSummaryImageDescription().get()));
+    }
+    return applicantVisibleDetails.build();
   }
 }

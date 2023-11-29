@@ -26,6 +26,10 @@ content.requiredFieldsNote=ໝາຍເຫດ: ຕ້ອງລະບຸຊ່ອ
 content.optional=(ບໍ່ບັງຄັບ)
 content.mobileFileUploadHelp=ທ່ານຢູ່ໃນສາຍໂທບໍ? ນອກຈາກນັ້ນ, "ເລືອກໄຟລ໌" ຍັງອະນຸຍາດໃຫ້ທ່ານໃຊ້ກ້ອງຖ່າຍຮູບໃນໂທລະສັບຂອງທ່ານອັບໂຫຼດເອກະສານໄດ້ນຳ.
 toast.errorMessageOutline=ຂໍ້ຜິດພາດ: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=ປິດ
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
+link.opensNewTabSr=opens in a new tab
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -81,7 +85,7 @@ content.description=CiviForm ຊ່ວຍໃຫ້ທ່ານຊອກຫາສ
 content.saveTime=ປະຢັດເມື່ອສະໝັກຂໍຮັບສິດທິປະໂຫຍດ
 content.guestDescription=ເຂົ້າສູ່ລະບົບບັນຊີ {0} ຂອງທ່ານ ຫຼື ສ້າງບັນຊີ ແລະ ສະໝັກຂໍຮັບສິດທິປະໂຫຍດຫຼາຍຢ່າງໂດຍບໍ່ຕ້ອງປ້ອນຂໍ້ມູນເກົ່າຄືນໃໝ່. ນອກຈາກນັ້ນ, ທ່ານສາມາດແກ້ໄຂໃບສະໝັກໄດ້ທຸກເວລາ ແລະ ກວດສອບສະຖານະໃບສະໝັກຂອງທ່ານໄດ້ນຳ.
 link.programDetails=ລາຍລະອຽດໂຄງການ
-link.programDetailsSr=ລາຍລະອຽດໂຄງການສຳລັບ {0}
+link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=ໂຄງການ ແລະ ບໍລິການ
 title.findServicesSection=ຊອກຫາບໍລິການທີ່ສາມາດຊ່ວຍທ່ານໄດ້
 title.allProgramsSection=ໂຄງການທັງໝົດ ({0})
@@ -149,7 +153,7 @@ content.commonIntakeConfirmationTi=ລູກຄ້າຂອງທ່ານອາ
 content.commonIntakeNoMatchingPrograms=ຕົວກວດສອບລ່ວງໜ້າບໍ່ພົບໂຄງການທີ່ທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມໃນເວລານີ້. ແນວໃດກໍຕາມ, ທ່ານອາດສະໝັກຂໍຮັບສິດທິປະໂຫຍດໄດ້ທຸກເວລາ, ໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''.  ຫຼື ເພື່ອເບິ່ງໂຄງການສິດທິປະໂຫຍດເພີ່ມເຕີມ ທ່ານສາມາດເຂົ້າໄປ {0} ໄດ້
 content.commonIntakeNoMatchingProgramsTi=ຕົວກວດສອບລ່ວງໜ້າບໍ່ພົບໂຄງການທີ່ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມໃນເວລານີ້. ແນວໃດກໍຕາມ, ທ່ານອາດສະໝັກຂໍຮັບສິດທິປະໂຫຍດໄດ້ທຸກເວລາ, ໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''.  ຫຼື ເພື່ອເບິ່ງໂຄງການສິດທິປະໂຫຍດເພີ່ມເຕີມ ທ່ານສາມາດເຂົ້າໄປ {0} ໄດ້
 content.commonIntakeNoMatchingProgramsNextStep=ນອກຈາກນັ້ນ, ທ່ານຍັງສາມາດກັບຄືນໄປຫາໜ້າກ່ອນໜ້ານີ້ເພື່ອແກ້ໄຂຄຳຕອບຂອງທ່ານໄດ້ນຳ.
-button.downloadPdf=Download PDF
+button.downloadPdf=ດາວໂຫຼດ PDF
 button.applyToPrograms=ສະໝັກເຂົ້າຮ່ວມໂຄງການ
 
 #-------------------------------------------------------------------------------------------------------------------------#
@@ -284,6 +288,7 @@ validation.textTooShort=ຕ້ອງມີຢ່າງໜ້ອຍ {0} ຕົວ
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=ຄຳຖາມແບບຫຼາຍຕົວເລືອກບໍ່ສາມາດມີເລືອກຫວ່າງເປົ່າໄດ້.
+adminValidation.multiOptionAdminError=ຊື່ຂອງຜູ້ເບິ່ງແຍງສາມາດມີໄດ້ສະເພາະຕົວອັກສອນ, ຕົວເລກ, ຂີດກ້ອງ ແລະ ຂີດກາງ.
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -308,3 +313,14 @@ email.tiManageYourClients=ຈັດການລູກຄ້າຂອງທ່າ
 email.applicationUpdateSubject=ການອັບເດດໃບສະໝັກ {0} ຂອງທ່ານ
 email.tiApplicationUpdateSubject=ການອັບເດດໃບສະໝັກຂໍເຂົ້າຮ່ວມໂຄງການ {0} ໃນນາມຂອງຜູ້ສະໝັກ {1}
 email.tiApplicationUpdateBody=ສະຖານະຂອງຜູ້ສະໝັກ {0} ໃນໂຄງການ {1} ໄດ້ປ່ຽນເປັນ {2}.
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
+banner.title=ນີ້ແມ່ນເວັບໄຊຢ່າງເປັນທາງການຂອງພາກລັດ.
+banner.link=ໂດຍທ່ານສາມາດຮູ້ໄດ້ດັ່ງນີ້
+banner.govWebsiteSectionHeader=ເວັບໄຊຢ່າງເປັນທາງການໃຊ້ .gov
+banner.govWebsiteSectionContent=ທີ່ຢູ່ເວັບໄຊທີ່ລົງທ້າຍດ້ວຍ .gov ເປັນຂອງໜ່ວຍງານພາກລັດຢ່າງເປັນທາງການໃນສະຫະລັດອາເມລິກາ.
+banner.httpsSectionHeader=ເວັບໄຊ .gov ທີ່ປອດໄພຈະໃຊ້ HTTPS
+banner.httpsSectionContent=ໄອຄອນກະແຈ ( {0} ) ຫຼື https:// ໝາຍຄວາມວ່າທ່ານໄດ້ເຊື່ອມຕໍ່ກັບເວັບໄຊ .gov ຢ່າງປອດໄພ. ກະລຸນາແບ່ງປັນຂໍ້ມູນລະອຽດອ່ອນຢູ່ເວັບໄຊຢ່າງເປັນທາງການທີ່ປອດໄພເທົ່ານັ້ນ.

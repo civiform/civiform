@@ -129,7 +129,10 @@ public class AdminProgramTranslationsController extends CiviFormController {
 
     ProgramTranslationForm translationForm =
         ProgramTranslationForm.bindFromRequest(
-            request, formFactory, program.statusDefinitions().getStatuses().size());
+            request,
+            formFactory,
+            program.statusDefinitions().getStatuses().size(),
+            program.localizedSummaryImageDescription().isPresent());
 
     final ErrorAnd<ProgramDefinition, CiviFormError> result;
     try {

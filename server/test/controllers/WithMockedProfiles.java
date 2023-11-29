@@ -9,12 +9,12 @@ import auth.CiviFormProfile;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
 import java.util.Optional;
-import models.Account;
-import models.Applicant;
+import models.AccountModel;
+import models.ApplicantModel;
 import models.LifecycleStage;
-import models.Program;
-import models.TrustedIntermediaryGroup;
-import models.Version;
+import models.ProgramModel;
+import models.TrustedIntermediaryGroupModel;
+import models.VersionModel;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.mockito.ArgumentMatcher;
@@ -77,31 +77,31 @@ public class WithMockedProfiles {
   protected void resetDatabase() {
     testQuestionBank().reset();
     resourceCreator().truncateTables();
-    Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
+    VersionModel newActiveVersion = new VersionModel(LifecycleStage.ACTIVE);
     newActiveVersion.save();
   }
 
-  protected Applicant createApplicant() {
-    Applicant applicant = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccount();
+  protected ApplicantModel createApplicant() {
+    ApplicantModel applicant = resourceCreator.insertApplicant();
+    AccountModel account = resourceCreator.insertAccount();
 
     applicant.setAccount(account);
     applicant.save();
     return applicant;
   }
 
-  protected Applicant createApplicantWithMockedProfile() {
-    Applicant applicant = createApplicant();
+  protected ApplicantModel createApplicantWithMockedProfile() {
+    ApplicantModel applicant = createApplicant();
     CiviFormProfile profile = profileFactory.wrap(applicant);
     mockProfile(profile);
     return applicant;
   }
 
-  protected Account createTIWithMockedProfile(Applicant managedApplicant) {
-    Account ti = resourceCreator.insertAccount();
+  protected AccountModel createTIWithMockedProfile(ApplicantModel managedApplicant) {
+    AccountModel ti = resourceCreator.insertAccount();
 
-    TrustedIntermediaryGroup group = resourceCreator.insertTrustedIntermediaryGroup();
-    Account managedAccount = managedApplicant.getAccount();
+    TrustedIntermediaryGroupModel group = resourceCreator.insertTrustedIntermediaryGroup();
+    AccountModel managedAccount = managedApplicant.getAccount();
     managedAccount.setManagedByGroup(group);
     managedAccount.save();
     ti.setMemberOfGroup(group);
@@ -112,8 +112,8 @@ public class WithMockedProfiles {
     return ti;
   }
 
-  protected Account createProgramAdminWithMockedProfile(Program program) {
-    Account programAdmin = resourceCreator.insertAccount();
+  protected AccountModel createProgramAdminWithMockedProfile(ProgramModel program) {
+    AccountModel programAdmin = resourceCreator.insertAccount();
 
     programAdmin.addAdministeredProgram(program.getProgramDefinition());
     programAdmin.save();
@@ -123,13 +123,13 @@ public class WithMockedProfiles {
     return programAdmin;
   }
 
-  protected Account createGlobalAdminWithMockedProfile() {
+  protected AccountModel createGlobalAdminWithMockedProfile() {
     CiviFormProfile profile = profileFactory.wrapProfileData(profileFactory.createNewAdmin());
     mockProfile(profile);
 
-    Account adminAccount = profile.getAccount().join();
+    AccountModel adminAccount = profile.getAccount().join();
 
-    Applicant applicant = resourceCreator.insertApplicant();
+    ApplicantModel applicant = resourceCreator.insertApplicant();
     applicant.setAccount(adminAccount);
     applicant.save();
 

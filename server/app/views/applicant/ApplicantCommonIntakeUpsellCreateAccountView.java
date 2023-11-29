@@ -17,7 +17,7 @@ import com.google.inject.Inject;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.SectionTag;
 import java.util.Optional;
-import models.Account;
+import models.AccountModel;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -53,7 +53,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
   public Content render(
       Http.Request request,
       String redirectTo,
-      Account account,
+      AccountModel account,
       ApplicantPersonalInfo personalInfo,
       Long applicantId,
       Long programId,
