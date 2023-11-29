@@ -6,8 +6,11 @@ import static support.CfTestHelpers.EMPTY_REQUEST;
 
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.ConfigFactory;
+import controllers.AssetsFinder;
 import j2html.tags.specialized.LinkTag;
+import j2html.tags.specialized.SectionTag;
 import java.util.HashMap;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import play.twirl.api.Content;
@@ -32,7 +35,8 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
         new BaseHtmlLayout(
             instanceOf(ViewUtils.class),
             new SettingsManifest(ConfigFactory.parseMap(DEFAULT_CONFIG)),
-            instanceOf(DeploymentType.class));
+            instanceOf(DeploymentType.class),
+            instanceOf(AssetsFinder.class));
   }
 
   @Test
@@ -62,7 +66,8 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
         new BaseHtmlLayout(
             instanceOf(ViewUtils.class),
             new SettingsManifest(ConfigFactory.parseMap(config)),
-            instanceOf(DeploymentType.class));
+            instanceOf(DeploymentType.class),
+            instanceOf(AssetsFinder.class));
     HtmlBundle bundle = layout.getBundle(EMPTY_REQUEST);
     Content content = layout.render(bundle);
 
@@ -104,5 +109,21 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     Content content = layout.render(layout.getBundle(EMPTY_REQUEST).setTitle("A title"));
 
     assertThat(content.body()).contains("<title>A title — CiviForm</title>");
+  }
+
+  @Test
+  public void getGovBanner_returnsBannerWithHeader() {
+    SectionTag banner = layout.getGovBanner(Optional.empty());
+
+    String header = String.format("<header class=\"%s", "usa-banner__header");
+    assertThat(banner.render()).contains(header);
+  }
+
+  @Test
+  public void getGovBanner_returnsBannerWithContentDiv() {
+    SectionTag banner = layout.getGovBanner(Optional.empty());
+
+    String contentDiv = String.format("<div class=\"%s", "usa-banner__content");
+    assertThat(banner.render()).contains(contentDiv);
   }
 }

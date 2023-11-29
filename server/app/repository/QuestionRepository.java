@@ -98,6 +98,18 @@ public final class QuestionRepository {
         oldQuestion.refresh();
         oldQuestion.getQuestionTags().forEach(newDraftQuestion::addTag);
 
+        // TODO (#6058): Add export state to QuestionDefinition so that the QuestionDefinition
+        // is the source of truth for the state of the tags and tags are set when creating
+        // the Question, rather than having to copy the tags from the old question.
+        //
+        // Since we track the universal question state in the QuestionDefinition,
+        // if we're adding UNIVERSAL to the question, it will add the tag when the Question
+        // is created. But if we're trying to remove UNIVERSAL, then it's going to get
+        // copied from the old question and we now need to remove it here.
+        if (!definition.isUniversal()) {
+          newDraftQuestion.removeTag(QuestionTag.UNIVERSAL);
+        }
+
         newDraftQuestion.addVersion(draftVersion).save();
         draftVersion.refresh();
 

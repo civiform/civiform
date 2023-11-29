@@ -50,6 +50,15 @@
   }
 
   /**
+   * USWDS's alignment strategy makes alerts look a little odd for us, so override
+   * to remove the extra margin to make the alert body left-justified. It doesn't
+   * respect using the margin-left-0 class or Tailwind's ml-0, so we override it here.
+   */
+  .usa-alert .usa-alert__body {
+    margin-left: 0;
+  }
+
+  /**
    * For explanation of why we need two different hidden classes see
    * initToggleQuestionBankButtons() in questionBank.ts
    */
@@ -58,5 +67,12 @@
   }
   .cf-question-bank-hidden .cf-question-bank-glasspane {
     @apply opacity-0;
+  }
+
+  @media screen and (min-width: 640px) {
+    /* When expanded, the banner header was moving to the center because of margin-auto */
+    .usa-banner__header--expanded .usa-banner__inner {
+      margin-left: 0px;
+    }
   }
 }
