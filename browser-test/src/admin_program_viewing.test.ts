@@ -36,8 +36,6 @@ describe('admin program view page', () => {
     await adminPrograms.addProgram(programName)
 
     await validateScreenshot(page, 'program-draft-view-images-flag-on')
-
-    await disableFeatureFlag(page, 'program_card_images')
   })
 
   it('view draft program has no edit image button if images flag off', async () => {
@@ -94,8 +92,6 @@ describe('admin program view page', () => {
       true,
     )
     await validateScreenshot(page, 'program-view-universal-questions')
-
-    await disableFeatureFlag(page, 'universal_questions')
   })
 
   it('view program, view multiple blocks, then start editing', async () => {

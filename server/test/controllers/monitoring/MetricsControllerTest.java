@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import controllers.WithMockedProfiles;
-import io.prometheus.client.CollectorRegistry;
 import java.util.Locale;
 import models.ApplicantModel;
 import models.ApplicationModel;
@@ -24,8 +23,6 @@ public class MetricsControllerTest extends WithMockedProfiles {
   @Before
   public void setUp() {
     resetDatabase();
-    CollectorRegistry.defaultRegistry.clear();
-    // TODO(#5933) initializing counters causes the test to fail in bin/sbt-test
     MetricsController.initializeCounters();
   }
 

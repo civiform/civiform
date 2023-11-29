@@ -584,9 +584,12 @@ export class AdminPrograms {
     )
   }
 
-  async questionBankNames(): Promise<string[]> {
+  async questionBankNames(universal = false): Promise<string[]> {
+    const loc = '.cf-question-bank-element:visible .cf-question-title'
     const titles = this.page.locator(
-      '.cf-question-bank-element:visible .cf-question-title',
+      universal
+        ? '#question-bank-universal ' + loc
+        : '#question-bank-nonuniversal ' + loc,
     )
     return titles.allTextContents()
   }

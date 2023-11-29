@@ -1,6 +1,5 @@
 import {
   createTestContext,
-  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
@@ -191,8 +190,6 @@ describe('Admin can manage translations', () => {
     await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
     await adminTranslations.selectLanguage('Tagalog')
     await adminTranslations.expectProgramImageDescriptionTranslation('')
-
-    await disableFeatureFlag(page, 'program_card_images')
   })
 
   it('editing summary image description does not clobber translations', async () => {
@@ -230,8 +227,6 @@ describe('Admin can manage translations', () => {
     await adminTranslations.expectProgramImageDescriptionTranslation(
       'Spanish image description',
     )
-
-    await disableFeatureFlag(page, 'program_card_images')
   })
 
   it('deleting summary image description deletes all translations', async () => {
@@ -267,8 +262,6 @@ describe('Admin can manage translations', () => {
     await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.expectNoProgramImageDescription()
-
-    await disableFeatureFlag(page, 'program_card_images')
   })
 
   it('creates a question and adds translations', async () => {

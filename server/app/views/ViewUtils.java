@@ -344,4 +344,20 @@ public final class ViewUtils {
         String.format("Universal %s Question", questionDefinition.getQuestionType().getLabel()),
         Lists.asList("cf-universal-badge", classes).toArray(new String[0]));
   }
+
+  /**
+   * Makes a USWDS Alert component, Slim variant, Info icon, with the given text.
+   * https://designsystem.digital.gov/components/alert/
+   *
+   * @param text The text to include in the alert.
+   * @return DivTag containing the alert.
+   */
+  public static DivTag makeAlertInfoSlim(String text) {
+    return div()
+        .withClasses("usa-alert", "usa-alert--info", "usa-alert--slim")
+        .with(
+            div()
+                .withClass("usa-alert__body")
+                .with(p().withClass("usa-alert__text").withText(text)));
+  }
 }

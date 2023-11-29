@@ -6,6 +6,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 import static views.BaseHtmlView.iconOnlyButton;
 
@@ -31,6 +32,8 @@ import services.ProgramBlockValidationFactory;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
+import views.ViewUtils;
+import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 
 /** Contains methods for rendering question bank for an admin to add questions to a program. */
@@ -63,7 +66,7 @@ public final class ProgramQuestionBank {
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
   }
 
-  public DivTag getContainer(Visibility questionBankVisibility) {
+  public DivTag getContainer(Visibility questionBankVisibility, boolean showUniversal) {
     return div()
         .withId(ReferenceClasses.QUESTION_BANK_CONTAINER)
         // For explanation of why we need two different hidden classes see
@@ -87,10 +90,10 @@ public final class ProgramQuestionBank {
                     "transition-opacity",
                     ReferenceClasses.CLOSE_QUESTION_BANK_BUTTON,
                     ReferenceClasses.QUESTION_BANK_GLASSPANE))
-        .with(questionBankPanel());
+        .with(questionBankPanel(showUniversal));
   }
 
-  private FormTag questionBankPanel() {
+  private FormTag questionBankPanel(boolean showUniversal) {
     FormTag questionForm =
         form()
             .withMethod(HttpVerbs.POST)
@@ -145,7 +148,8 @@ public final class ProgramQuestionBank {
                                     params.questionCreateRedirectUrl(),
                                     /* isPrimaryButton= */ false)))));
 
-    ImmutableList<QuestionDefinition> questions =
+    // Sort by last modified, since that's the default of the sort by dropdown
+    ImmutableList<QuestionDefinition> allQuestions =
         filterQuestions()
             .sorted(
                 Comparator.<QuestionDefinition, Instant>comparing(
@@ -153,17 +157,40 @@ public final class ProgramQuestionBank {
                     .reversed()
                     .thenComparing(qdef -> qdef.getName().toLowerCase(Locale.ROOT)))
             .collect(ImmutableList.toImmutableList());
-
+    ImmutableList<QuestionDefinition> universalQuestions =
+        allQuestions.stream().filter(q -> q.isUniversal()).collect(ImmutableList.toImmutableList());
+    ImmutableList<QuestionDefinition> nonUniversalQuestions =
+        allQuestions.stream()
+            .filter(q -> !q.isUniversal())
+            .collect(ImmutableList.toImmutableList());
+    if (!universalQuestions.isEmpty() && showUniversal) {
+      contentDiv.with(
+          div()
+              .withId("question-bank-universal")
+              .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
+              .with(h2("Universal questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
+              .with(
+                  ViewUtils.makeAlertInfoSlim(
+                      "We recommend using all universal questions in your program for personal and"
+                          + " contact information questions."))
+              .with(each(universalQuestions, qd -> renderQuestionDefinition(qd, showUniversal))));
+    }
     contentDiv.with(
         div()
-            .withId("question-bank-questions")
+            .withId("question-bank-nonuniversal")
             .withClass(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
-            .with(each(questions, this::renderQuestionDefinition)));
+            .condWith(
+                !universalQuestions.isEmpty() && showUniversal,
+                h2("All other questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
+            .with(
+                each(
+                    showUniversal ? nonUniversalQuestions : allQuestions,
+                    qd -> renderQuestionDefinition(qd, showUniversal))));
 
     return questionForm;
   }
 
-  private DivTag renderQuestionDefinition(QuestionDefinition definition) {
+  private DivTag renderQuestionDefinition(QuestionDefinition definition, boolean showUniversal) {
     String questionHelpText =
         definition.getQuestionHelpText().isEmpty()
             ? ""
@@ -181,20 +208,16 @@ public final class ProgramQuestionBank {
     DivTag questionDiv =
         div()
             .withId("add-question-" + definition.getId())
-            .withClasses(
-                ReferenceClasses.QUESTION_BANK_ELEMENT,
-                "relative",
-                "p-3",
-                "pr-0",
-                "flex",
-                "items-center",
-                "border-b",
-                "border-gray-300")
+            .withClasses(ReferenceClasses.QUESTION_BANK_ELEMENT, "border-b", "border-gray-300")
+            .condWith(
+                definition.isUniversal() && showUniversal,
+                ViewUtils.makeUniversalBadge(definition, "mt-3"))
             .withData(QuestionSortOption.ADMIN_NAME.getDataAttribute(), definition.getName())
             .withData(
                 QuestionSortOption.LAST_MODIFIED.getDataAttribute(),
                 definition.getLastModifiedTime().orElse(Instant.EPOCH).toString())
             .withData(RELEVANT_FILTER_TEXT_DATA_ATTR, relevantFilterText);
+    DivTag row = div().withClasses("relative", "p-3", "pr-0", "flex");
 
     ButtonTag addButton =
         button("Add")
@@ -203,10 +226,12 @@ public final class ProgramQuestionBank {
             .withName("question-" + definition.getId())
             .withValue(definition.getId() + "")
             .withClasses(
-                ReferenceClasses.ADD_QUESTION_BUTTON, ButtonStyles.OUTLINED_WHITE_WITH_ICON);
+                ReferenceClasses.ADD_QUESTION_BUTTON,
+                ButtonStyles.OUTLINED_WHITE_WITH_ICON,
+                "h-12");
 
     SvgTag icon =
-        Icons.questionTypeSvg(definition.getQuestionType()).withClasses("shrink-0", "h-12", "w-6");
+        Icons.questionTypeSvg(definition.getQuestionType()).withClasses("shrink-0", "h-6", "w-6");
 
     // Only show the admin note if it is not empty.
     PTag adminNote =
@@ -219,13 +244,13 @@ public final class ProgramQuestionBank {
             .withClasses("ml-4", "grow")
             .with(
                 p(definition.getQuestionText().getDefault())
-                    .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, "font-bold"),
+                    .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, "font-bold", "w-3/5"),
                 p(questionHelpText).withClasses("mt-1", "text-sm", "line-clamp-2"),
                 p(String.format("Admin ID: %s", definition.getName()))
                     .withClasses("mt-1", "text-sm"),
                 adminNote);
 
-    return questionDiv.with(icon, content, addButton);
+    return questionDiv.with(row.with(icon, content, addButton));
   }
 
   /**

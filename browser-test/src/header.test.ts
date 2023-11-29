@@ -1,4 +1,9 @@
-import {createTestContext, loginAsTestUser, validateScreenshot} from './support'
+import {
+  createTestContext,
+  loginAsTestUser,
+  validateScreenshot,
+  validateAccessibility,
+} from './support'
 
 describe('Header', () => {
   const ctx = createTestContext(/* clearDb= */ false)
@@ -19,5 +24,36 @@ describe('Header', () => {
     const {page} = ctx
     await loginAsTestUser(page)
     await validateScreenshot(page.getByRole('navigation'), 'logged-in')
+  })
+
+  it('Passes accessibility test', async () => {
+    const {page} = ctx
+    await validateAccessibility(page)
+  })
+
+  it('Displays the government banner', async () => {
+    const {page} = ctx
+    expect(await page.textContent('section')).toContain(
+      'This is an official government website.',
+    )
+  })
+
+  it('Government banner expands when clicked and closes when clicked again', async () => {
+    const {page} = ctx
+    // The banner is initially closed
+    expect(await page.locator('.usa-banner__content').isVisible()).toEqual(
+      false,
+    )
+    // Click to expand the banner
+    await page.click('.usa-banner__button')
+
+    expect(await page.locator('.usa-banner__content').isVisible()).toEqual(true)
+    await validateScreenshot(page.getByRole('navigation'), 'banner-expanded')
+    // Click again to close the banner
+    await page.click('.usa-banner__button')
+
+    expect(await page.locator('.usa-banner__content').isVisible()).toEqual(
+      false,
+    )
   })
 })
