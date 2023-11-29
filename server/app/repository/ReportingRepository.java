@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.SqlRow;
 import java.sql.Timestamp;
