@@ -26,7 +26,7 @@ public final class ReportingRepositoryFactory {
 
   @Inject
   public ReportingRepositoryFactory(Clock clock, VersionRepository versionRepository) {
-    this.clock = checkNotNull(clock);
+    this.clock = Preconditions.checkNotNull(clock);
     this.database = DB.getDefault();
     this.versionRepository = Preconditions.checkNotNull(versionRepository);
   }
