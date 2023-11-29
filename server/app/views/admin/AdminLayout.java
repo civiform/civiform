@@ -69,12 +69,12 @@ public final class AdminLayout extends BaseHtmlLayout {
   }
 
   public Content renderCentered(HtmlBundle bundle) {
-    return render(bundle, /* isCentered = */ true);
+    return render(bundle, /* isCentered= */ true);
   }
 
   @Override
   public Content render(HtmlBundle bundle) {
-    return render(bundle, /* isCentered = */ false);
+    return render(bundle, /* isCentered= */ false);
   }
 
   private Content render(HtmlBundle bundle, boolean isCentered) {

@@ -131,8 +131,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
         personalInfo,
         messages,
         bundle,
-        /*includeAdminLogin=*/ false,
-        /*applicantId=*/ applicantId);
+        /* includeAdminLogin= */ false,
+        /* applicantId= */ applicantId);
   }
 
   public Content renderWithNav(
