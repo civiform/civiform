@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=Trên điện thoại của bạn? Tính năng "Ch�
 toast.errorMessageOutline=Lỗi: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Đóng
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
+link.opensNewTabSr=opens in a new tab
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -83,7 +85,7 @@ content.description=CiviForm giúp bạn biết được những lợi ích mà 
 content.saveTime=Tiết kiệm thời gian khi đăng ký nhận phúc lợi
 content.guestDescription=Đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản và đăng ký để nhận nhiều phúc lợi mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký bất cứ lúc nào và kiểm tra trạng thái của đơn đăng ký.
 link.programDetails=Chi tiết chương trình
-link.programDetailsSr=Chi tiết chương trình {0}
+link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=Chương trình và dịch vụ
 title.findServicesSection=Tìm dịch vụ có thể giúp bạn
 title.allProgramsSection=Tất cả các chương trình ({0})
@@ -286,7 +288,7 @@ validation.textTooShort=Phải có ít nhất {0} ký tự.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Không được để lựa chọn trống trong câu hỏi có nhiều lựa chọn.
-adminValidation.multiOptionAdminError=Admin names can only contain letters, numbers, underscores, and dashes.
+adminValidation.multiOptionAdminError=Tên của quản trị viên chỉ có thể chứa chữ cái, số, dấu gạch dưới và dấu gạch ngang.
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -316,9 +318,9 @@ email.tiApplicationUpdateBody=Trạng thái của người đăng ký {0} trong 
 # GOVERNMENT BANNER - text explaining that CF is an official government site #
 #------------------------------------------------------------------------------#
 
-banner.title=This is an official government website.
-banner.link=Here''s how you know
-banner.govWebsiteSectionHeader=Official websites use .gov
-banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
-banner.httpsSectionHeader=Secure .gov websites use HTTPS
-banner.httpsSectionContent=A lock ( {0} ) or https:// means you''ve safely connected to the .gov website. Only share sensitive information on official, secure websites.
+banner.title=Đây là một trang web chính thức của chính phủ.
+banner.link=Sau đây là cách giúp bạn biết đâu là trang web chính thức của chính phủ
+banner.govWebsiteSectionHeader=Các trang web chính thức sử dụng tên miền .gov
+banner.govWebsiteSectionContent=Những địa chỉ trang web có đuôi .gov là địa chỉ trang web thuộc về các tổ chức chính thức của chính phủ tại Hoa Kỳ.
+banner.httpsSectionHeader=Các trang web .gov an toàn sử dụng HTTPS
+banner.httpsSectionContent=Biểu tượng khoá ( {0} ) hoặc https:// có nghĩa là bạn đã kết nối an toàn với trang web .gov. Bạn chỉ nên chia sẻ thông tin nhạy cảm trên các trang web chính thức, an toàn.

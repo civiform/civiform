@@ -2,7 +2,6 @@ import {
   createTestContext,
   dismissToast,
   enableFeatureFlag,
-  disableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
   validateToastMessage,
@@ -22,8 +21,6 @@ describe('Admin can manage program image', () => {
     await adminPrograms.goToProgramImagePage(programName)
 
     await validateScreenshot(page, 'program-image-none')
-
-    await disableFeatureFlag(page, 'program_card_images')
   })
 
   describe('description', () => {
@@ -35,10 +32,6 @@ describe('Admin can manage program image', () => {
       await enableFeatureFlag(page, 'program_card_images')
       await adminPrograms.addProgram(programName)
       await adminPrograms.goToProgramImagePage(programName)
-    })
-
-    afterEach(async () => {
-      await disableFeatureFlag(ctx.page, 'program_card_images')
     })
 
     it('sets new description', async () => {

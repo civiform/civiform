@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=Telefoonkaaga? "Choose File" sidoo kale waxuu kuu o
 toast.errorMessageOutline=Khalad: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Xidh
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
+link.opensNewTabSr=opens in a new tab
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -83,7 +85,7 @@ content.description=CiviForm waxay kaa caawisaa helida faa'iidooyinka aad u qalm
 content.saveTime=Wakhti kaydi marka aad codsanayso dheefaha
 content.guestDescription=Soo gal {0} koontadaada ama samayso koonto oo codso dheefo badan addoon soo gelin macluumaad isku mid ah mar labbaad. Waxba kama beddeli karti codsiyada wakhti kasta oo hubi heerarkaaga codsigu marayo.
 link.programDetails=Faahfaahinta barnaamijka
-link.programDetailsSr=Faahfaahinta barnaamijka ee {0}
+link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=Barnaamijyada iyo adeegyada
 title.findServicesSection=Hel adeegyada ku caawin kara adiga
 title.allProgramsSection=Dhammaan barnaamijyada ({0})
@@ -286,7 +288,7 @@ validation.textTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Su''aalaha xulashada badan ma yeelan karaan ikhtiyaaro madhan.
-adminValidation.multiOptionAdminError=Admin names can only contain letters, numbers, underscores, and dashes.
+adminValidation.multiOptionAdminError=Magacyada maamulka keliya waxay ka kooban yihiin xarfo, lambaro, calaamada andhar iskoorka, iyo dhibco jiidan.
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -316,9 +318,9 @@ email.tiApplicationUpdateBody=Heerka codsadaha {0} barnaamijka {1} waxa uu u bed
 # GOVERNMENT BANNER - text explaining that CF is an official government site #
 #------------------------------------------------------------------------------#
 
-banner.title=This is an official government website.
-banner.link=Here''s how you know
-banner.govWebsiteSectionHeader=Official websites use .gov
-banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
-banner.httpsSectionHeader=Secure .gov websites use HTTPS
-banner.httpsSectionContent=A lock ( {0} ) or https:// means you''ve safely connected to the .gov website. Only share sensitive information on official, secure websites.
+banner.title=Tani waa websaydka rasmiga ah ee dowladda.
+banner.link=Halkan waxaa ah sida aad u garanayso
+banner.govWebsiteSectionHeader=Websaydyada rasmiga ah waxay isticmaalaan .gov
+banner.govWebsiteSectionContent=Cinwaanada websaydka ku dhammaanaya gov waxaa leh ururada dowladda rasmiga ah gudaha Maraykanka.
+banner.httpsSectionHeader=Websyadyada amniga ah ee .gov waxay isticmaalaan HTTPS
+banner.httpsSectionContent=Quful ( {0} ) ama https:// macnaheedu waxa weeye waxaad si amni ah ugu xidhan tahay websaydka .gov. Keliya ku wadaag macluumaadka xasaasiga ah websaydyada rasmiga ah, ee amniga ah.

@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=¿Estás usando el teléfono? "Elegir archivo" tamb
 toast.errorMessageOutline=Error: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Cerrar
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
+link.opensNewTabSr=opens in a new tab
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -83,7 +85,7 @@ content.description=CiviForm te ayuda a encontrar los beneficios que puedes reci
 content.saveTime=Ahorra tiempo cuando solicitas beneficios
 content.guestDescription=Accede a tu cuenta de {0} o crea una cuenta y solicita más de un beneficio sin tener que volver a ingresar la misma información. También puedes editar solicitudes en cualquier momento y verificar el estado de tus solicitudes.
 link.programDetails=Detalles del programa
-link.programDetailsSr=Detalles del programa para {0}
+link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=Programas y servicios
 title.findServicesSection=Encuentra servicios que te sean útiles
 title.allProgramsSection=Todos los programas ({0})
@@ -286,7 +288,7 @@ validation.textTooShort=Debe tener más de {0} caracteres.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Las preguntas con varias respuestas no pueden tener opciones vacías.
-adminValidation.multiOptionAdminError=Admin names can only contain letters, numbers, underscores, and dashes.
+adminValidation.multiOptionAdminError=Los nombres de administrador solo pueden incluir letras, números, guiones o guiones bajos.
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -316,9 +318,9 @@ email.tiApplicationUpdateBody=El estado del solicitante {0} en el programa {1} c
 # GOVERNMENT BANNER - text explaining that CF is an official government site #
 #------------------------------------------------------------------------------#
 
-banner.title=This is an official government website.
-banner.link=Here''s how you know
-banner.govWebsiteSectionHeader=Official websites use .gov
-banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
-banner.httpsSectionHeader=Secure .gov websites use HTTPS
-banner.httpsSectionContent=A lock ( {0} ) or https:// means you''ve safely connected to the .gov website. Only share sensitive information on official, secure websites.
+banner.title=Este es un sitio web oficial del gobierno
+banner.link=Así es como puedes verificarlo
+banner.govWebsiteSectionHeader=Los sitios web oficiales usan .gov
+banner.govWebsiteSectionContent=Las direcciones de sitios web que terminan en .gov pertenecen a organizaciones gubernamentales oficiales de Estados Unidos.
+banner.httpsSectionHeader=Los sitios web seguros .gov usan HTTPS
+banner.httpsSectionContent=Un candado ( {0} ) o https:// significa que te conectaste de forma segura a un sitio web .gov. Comparte información sensible solo en sitios web oficiales y seguros.

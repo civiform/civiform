@@ -1,19 +1,37 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.br;
+import static j2html.TagCreator.button;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.header;
+import static j2html.TagCreator.img;
 import static j2html.TagCreator.meta;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.script;
+import static j2html.TagCreator.section;
+import static j2html.TagCreator.span;
+import static j2html.TagCreator.strong;
+import static j2html.TagCreator.title;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import controllers.AssetsFinder;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.HeaderTag;
 import j2html.tags.specialized.ScriptTag;
+import j2html.tags.specialized.SectionTag;
+import j2html.tags.specialized.SpanTag;
 import java.util.Optional;
 import javax.inject.Inject;
+import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeploymentType;
+import services.MessageKey;
 import services.settings.SettingsManifest;
+import views.components.Icons;
 import views.components.ToastMessage;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING BaseHtmlLayout
@@ -34,6 +52,7 @@ public class BaseHtmlLayout {
   private static final String USWDS_INIT_FILEPATH = "javascripts/uswds/uswds-init.min";
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
+  private final AssetsFinder assetsFinder;
 
   public final ViewUtils viewUtils;
   protected final SettingsManifest settingsManifest;
@@ -43,13 +62,17 @@ public class BaseHtmlLayout {
 
   @Inject
   public BaseHtmlLayout(
-      ViewUtils viewUtils, SettingsManifest settingsManifest, DeploymentType deploymentType) {
+      ViewUtils viewUtils,
+      SettingsManifest settingsManifest,
+      DeploymentType deploymentType,
+      AssetsFinder assetsFinder) {
     this.viewUtils = checkNotNull(viewUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.measurementId = settingsManifest.getMeasurementId();
 
     this.isDevOrStaging = checkNotNull(deploymentType).isDevOrStaging();
     this.addNoindexMetaTag = settingsManifest.getStagingAddNoindexMetaTag();
+    this.assetsFinder = checkNotNull(assetsFinder);
 
     civiformImageTag = settingsManifest.getCiviformImageTag().get();
   }
@@ -157,5 +180,163 @@ public class BaseHtmlLayout {
             .with(rawHtml(String.format(googleAnalyticsCode, trackingTag)))
             .withType("text/javascript");
     return new ImmutableList.Builder<ScriptTag>().add(scriptImport).add(rawScript).build();
+  }
+
+  /**
+   * Creates the banner which indicates that CiviForm is an official government website. This banner
+   * is at the top of every page. It is a USWDS component:
+   * https://designsystem.digital.gov/components/banner/
+   *
+   * @return a html section tag
+   */
+  protected SectionTag getGovBanner(Optional<Messages> maybeMessages) {
+    SpanTag lockIcon =
+        new SpanTag()
+            .withClass("icon-lock")
+            .with(
+                Icons.svg(Icons.LOCK)
+                    .withClasses("inline", "align-baseline", "usa-banner__lock-image")
+                    .attr("viewBox", "0 0 52 64")
+                    .attr("role", "img")
+                    .attr("aria-label", "Locked padlock icon")
+                    .attr("focusable", false)
+                    .with(title("Lock").withId("banner-lock-title-default")));
+
+    HeaderTag bannerHeader =
+        header()
+            .withClass("usa-banner__header")
+            .with(
+                div()
+                    .withClasses("usa-banner__inner", "ml-0", "pl-4")
+                    .with(div().withClass("grid-col-auto"))
+                    .with(
+                        div()
+                            .withClasses("grid-col-fill", "tablet:grid-col-auto")
+                            .attr("aria-hidden", true)
+                            .with(
+                                p(maybeMessages.isPresent()
+                                        ? maybeMessages
+                                            .get()
+                                            .at(MessageKey.BANNER_TITLE.getKeyName())
+                                        : "This is an official government website.")
+                                    .withClass("usa-banner__header-text"),
+                                p(maybeMessages.isPresent()
+                                        ? maybeMessages
+                                            .get()
+                                            .at(MessageKey.BANNER_LINK.getKeyName())
+                                        : "Here's how you know")
+                                    .withClass("usa-banner__header-action")))
+                    .with(
+                        button()
+                            .withType("button")
+                            .withClasses(
+                                "bg-transparent",
+                                "p-0",
+                                "usa-accordion__button",
+                                "usa-banner__button")
+                            .attr("aria-expanded", false)
+                            .attr("aria-controls", "gov-banner-default-default")
+                            .with(
+                                span(maybeMessages.isPresent()
+                                        ? maybeMessages
+                                            .get()
+                                            .at(MessageKey.BANNER_LINK.getKeyName())
+                                        : "Here's how you know")
+                                    .withClass("usa-banner__button-text"))));
+
+    DivTag bannerContent =
+        div()
+            .withClasses("usa-banner__content", "usa-accordion__content", "sm: ml-0", "sm:pl-4")
+            .withId("gov-banner-default-default")
+            .with(
+                div()
+                    .withClasses("grid-row", "grid-gap-lg")
+                    .with(
+                        div()
+                            .withClasses("usa-banner__guidance", "tablet:grid-col-6")
+                            .with(
+                                img()
+                                    .withClasses("usa-banner__icon", "usa-media-block__img")
+                                    .withSrc(assetsFinder.path("Images/uswds/icon-dot-gov.svg"))
+                                    .withAlt("")
+                                    .attr("role", "img")
+                                    .attr("aria-hidden", true),
+                                div()
+                                    .withClass("usa-media-block__body")
+                                    .with(
+                                        p().with(
+                                                strong(
+                                                    maybeMessages.isPresent()
+                                                        ? maybeMessages
+                                                            .get()
+                                                            .at(
+                                                                MessageKey
+                                                                    .BANNER_GOV_WEBSITE_SECTION_HEADER
+                                                                    .getKeyName())
+                                                        : "Official websites use .gov"),
+                                                br(),
+                                                span(
+                                                    maybeMessages.isPresent()
+                                                        ? maybeMessages
+                                                            .get()
+                                                            .at(
+                                                                MessageKey
+                                                                    .BANNER_GOV_WEBSITE_SECTION_CONTENT
+                                                                    .getKeyName())
+                                                        : "Website addresses ending in .gov"
+                                                            + " belong to official"
+                                                            + " government organizations in"
+                                                            + " the United States.")))))
+                    .with(
+                        div()
+                            .withClasses("usa-banner__guidance", "tablet:grid-col-6")
+                            .with(
+                                img()
+                                    .withClasses("usa-banner__icon", "usa-media-block__img")
+                                    .withSrc(assetsFinder.path("Images/uswds/icon-https.svg"))
+                                    .withAlt("")
+                                    .attr("role", "img")
+                                    .attr("aria-hidden", true),
+                                div()
+                                    .withClass("usa-media-block__body")
+                                    .with(
+                                        p().with(
+                                                strong(
+                                                    maybeMessages.isPresent()
+                                                        ? maybeMessages
+                                                            .get()
+                                                            .at(
+                                                                MessageKey
+                                                                    .BANNER_HTTPS_SECTION_HEADER
+                                                                    .getKeyName())
+                                                        : "Secure .gov websites use HTTPS"),
+                                                br(),
+                                                rawHtml(
+                                                    maybeMessages.isPresent()
+                                                        ? maybeMessages
+                                                            .get()
+                                                            .at(
+                                                                MessageKey
+                                                                    .BANNER_HTTPS_SECTION_CONTENT
+                                                                    .getKeyName(),
+                                                                lockIcon)
+                                                        : String.format(
+                                                            "<div>A lock ( %s ) or https:// means"
+                                                                + " you've safely connected to the"
+                                                                + " .gov website. Only share"
+                                                                + " sensitive information on"
+                                                                + " official, secure"
+                                                                + " websites.</div>",
+                                                            lockIcon)))))));
+
+    return section()
+        .withClasses("usa-banner", "bg-gray-900")
+        .attr(
+            "aria-label",
+            // i18n messages are only available on the applicant views
+            maybeMessages.isPresent()
+                ? maybeMessages.get().at(MessageKey.BANNER_TITLE.getKeyName())
+                : "This is an official government website.")
+        .with(div().withClass("usa-accordion").with(bannerHeader, bannerContent));
   }
 }
