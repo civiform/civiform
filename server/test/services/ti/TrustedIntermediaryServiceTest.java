@@ -439,7 +439,14 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         service.updateApplicantDateOfBirth(tiGroup, fetchedAccount.id, form);
     assertThat(returnedForm.hasErrors()).isFalse();
     System.out.println(fetchedAccount.newestApplicant().get().getApplicantData().asJsonString());
-    assertThat(fetchedAccount.newestApplicant().get().getApplicantData().getDateOfBirth().get().toString())
+    assertThat(
+            fetchedAccount
+                .newestApplicant()
+                .get()
+                .getApplicantData()
+                .getDateOfBirth()
+                .get()
+                .toString())
         .isEqualTo("2021-09-09");
   }
 }
