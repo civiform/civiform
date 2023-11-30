@@ -149,6 +149,11 @@ POST    /applicants/:applicantId                                            cont
 
 # Program methods for applicants (new)
 GET     /programs                   controllers.applicant.ApplicantProgramsController.index(request: Request)
+# This route is special. It may specify a program by id or by program
+# slug. Since Play doesn't allow overloaded controller methods, accept
+# the path parameter as a string and decide how to handle it in the
+# controller.
+GET     /programs/:programParam     controllers.applicant.ApplicantProgramsController.view(request: Request, programParam: String)
 
 # Program methods for TI actions on behalf of applicants.
 #
@@ -157,7 +162,7 @@ GET     /programs                   controllers.applicant.ApplicantProgramsContr
 # do not yet contain the applicant id, so we maintain these routes
 # during migration.
 GET     /applicants/:applicantId/programs                                                      controllers.applicant.ApplicantProgramsController.indexWithApplicantId(request: Request, applicantId: Long)
-GET     /applicants/:applicantId/programs/:programId                                           controllers.applicant.ApplicantProgramsController.view(request: Request, applicantId: Long, programId: Long)
+GET     /applicants/:applicantId/programs/:programId                                           controllers.applicant.ApplicantProgramsController.viewWithApplicantId(request: Request, applicantId: Long, programId: Long)
 GET     /applicants/:applicantId/programs/:programId/edit                                      controllers.applicant.ApplicantProgramsController.edit(request: Request, applicantId: Long, programId: Long)
 GET     /applicants/:applicantId/programs/:programId/review                                    controllers.applicant.ApplicantProgramReviewController.review(request: Request, applicantId: Long, programId: Long)
 POST    /applicants/:applicantId/programs/:programId/submit                                    controllers.applicant.ApplicantProgramReviewController.submit(request: Request, applicantId: Long, programId: Long)
@@ -181,9 +186,6 @@ GET     /support/unsupportedBrowser    controllers.SupportController.handleUnsup
 
 # Methods for program admins
 GET     /programAdmin       controllers.admin.ProgramAdminController.index(request: Request)
-
-# Deep-link methods
-GET     /programs/:programSlug      controllers.applicant.DeepLinkController.programBySlug(request: Request, programSlug: String)
 
 # Upsell methods
 GET     /download                   controllers.applicant.UpsellController.download(request: Request, applicationId: Long, applicantId: Long)

@@ -12,6 +12,7 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
 import com.typesafe.config.Config;
+import controllers.applicant.routes;
 import forms.ProgramForm;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
@@ -275,8 +276,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     if (editExistingProgram) {
       String programUrl =
           baseUrl
-              + controllers.applicant.routes.DeepLinkController.programBySlug(
-                      MainModule.SLUGIFIER.slugify(adminName))
+              + routes.ApplicantProgramsController.view(MainModule.SLUGIFIER.slugify(adminName))
                   .url();
       return div()
           .withClass("mb-2")

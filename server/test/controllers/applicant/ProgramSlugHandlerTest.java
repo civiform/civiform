@@ -8,6 +8,7 @@ import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import controllers.CiviFormController;
 import controllers.LanguageUtils;
 import controllers.WithMockedProfiles;
 import java.util.Locale;
@@ -29,7 +30,7 @@ import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 
-public class DeepLinkControllerTest extends WithMockedProfiles {
+public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
   @Before
   public void setUp() {
@@ -50,10 +51,13 @@ public class DeepLinkControllerTest extends WithMockedProfiles {
     resourceCreator().insertDraftProgram(programDefinition.adminName());
     versionRepository.publishNewSynchronizedVersion();
 
+    CiviFormController controller = instanceOf(CiviFormController.class);
     Result result =
-        instanceOf(DeepLinkController.class)
+        instanceOf(ProgramSlugHandler.class)
             .programBySlug(
-                addCSRFToken(requestBuilderWithSettings()).build(), programDefinition.slug())
+                controller,
+                addCSRFToken(requestBuilderWithSettings()).build(),
+                programDefinition.slug())
             .toCompletableFuture()
             .join();
 
@@ -75,9 +79,12 @@ public class DeepLinkControllerTest extends WithMockedProfiles {
     resourceCreator().insertDraftProgram(programDefinition.adminName());
     versionRepository.publishNewSynchronizedVersion();
 
+    CiviFormController controller = instanceOf(CiviFormController.class);
+
     Result result =
-        instanceOf(DeepLinkController.class)
+        instanceOf(ProgramSlugHandler.class)
             .programBySlug(
+                controller,
                 addCSRFToken(
                         requestBuilderWithSettings()
                             .session(REDIRECT_TO_SESSION_KEY, "redirect-url"))
@@ -95,9 +102,12 @@ public class DeepLinkControllerTest extends WithMockedProfiles {
     applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
     applicant.save();
 
+    CiviFormController controller = instanceOf(CiviFormController.class);
+
     Result result =
-        instanceOf(DeepLinkController.class)
+        instanceOf(ProgramSlugHandler.class)
             .programBySlug(
+                controller,
                 addCSRFToken(
                         requestBuilderWithSettings()
                             .session(REDIRECT_TO_SESSION_KEY, "redirect-url"))
@@ -114,11 +124,16 @@ public class DeepLinkControllerTest extends WithMockedProfiles {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     ApplicantModel applicant = createApplicantWithMockedProfile();
-    DeepLinkController controller = instanceOf(DeepLinkController.class);
+    CiviFormController controller = instanceOf(CiviFormController.class);
+
+    ProgramSlugHandler handler = instanceOf(ProgramSlugHandler.class);
+
     Result result =
-        controller
+        handler
             .programBySlug(
-                addCSRFToken(requestBuilderWithSettings()).build(), programDefinition.slug())
+                controller,
+                addCSRFToken(requestBuilderWithSettings()).build(),
+                programDefinition.slug())
             .toCompletableFuture()
             .join();
 
@@ -139,19 +154,21 @@ public class DeepLinkControllerTest extends WithMockedProfiles {
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     LanguageUtils languageUtils =
         new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
+    CiviFormController controller = instanceOf(CiviFormController.class);
 
-    DeepLinkController controller =
-        new DeepLinkController(
+    ProgramSlugHandler handler =
+        new ProgramSlugHandler(
             instanceOf(HttpExecutionContext.class),
             instanceOf(ApplicantService.class),
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramService.class),
-            instanceOf(VersionRepository.class),
             languageUtils);
     Result result =
-        controller
+        handler
             .programBySlug(
-                addCSRFToken(requestBuilderWithSettings()).build(), programDefinition.slug())
+                controller,
+                addCSRFToken(requestBuilderWithSettings()).build(),
+                programDefinition.slug())
             .toCompletableFuture()
             .join();
     assertThat(result.redirectLocation())
@@ -171,19 +188,21 @@ public class DeepLinkControllerTest extends WithMockedProfiles {
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     LanguageUtils languageUtils =
         new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
+    CiviFormController controller = instanceOf(CiviFormController.class);
 
-    DeepLinkController controller =
-        new DeepLinkController(
+    ProgramSlugHandler handler =
+        new ProgramSlugHandler(
             instanceOf(HttpExecutionContext.class),
             instanceOf(ApplicantService.class),
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramService.class),
-            instanceOf(VersionRepository.class),
             languageUtils);
     Result result =
-        controller
+        handler
             .programBySlug(
-                addCSRFToken(requestBuilderWithSettings()).build(), programDefinition.slug())
+                controller,
+                addCSRFToken(requestBuilderWithSettings()).build(),
+                programDefinition.slug())
             .toCompletableFuture()
             .join();
     assertThat(result.redirectLocation())

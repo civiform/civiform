@@ -57,7 +57,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
     // Use external link if it is present else use the default Program details page
     String programDetailsLink =
         programDefinition.externalLink().isEmpty()
-            ? routes.ApplicantProgramsController.view(applicantId, programId).url()
+            ? applicantRoutes.view(submittingProfile, applicantId, programId).url()
             : programDefinition.externalLink();
     ATag infoLink =
         new LinkElement()

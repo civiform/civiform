@@ -532,7 +532,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   ButtonTag renderShareLink(ProgramDefinition program) {
     String programLink =
         baseUrl
-            + controllers.applicant.routes.DeepLinkController.programBySlug(program.slug()).url();
+            + controllers.applicant.routes.ApplicantProgramsController.view(program.slug()).url();
     return makeSvgTextButton("Share link", Icons.CONTENT_COPY)
         .withClass(ButtonStyles.CLEAR_WITH_ICON)
         .withData("copyable-program-link", programLink);

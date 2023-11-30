@@ -16,7 +16,6 @@ import models.ApplicantModel;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.VersionRepository;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.ApplicantService.ApplicationPrograms;
@@ -27,29 +26,30 @@ import services.program.ProgramService;
  * Controller for handling methods for deep links. Applicants will be asked to sign-in before they
  * can access the page.
  */
-public final class DeepLinkController extends CiviFormController {
+public final class ProgramSlugHandler {
 
   private final HttpExecutionContext httpContext;
   private final ApplicantService applicantService;
+  private final ProfileUtils profileUtils;
   private final ProgramService programService;
   private final LanguageUtils languageUtils;
 
   @Inject
-  public DeepLinkController(
+  public ProgramSlugHandler(
       HttpExecutionContext httpContext,
       ApplicantService applicantService,
       ProfileUtils profileUtils,
       ProgramService programService,
-      VersionRepository versionRepository,
       LanguageUtils languageUtils) {
-    super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
+    this.profileUtils = checkNotNull(profileUtils);
     this.programService = checkNotNull(programService);
     this.languageUtils = checkNotNull(languageUtils);
   }
 
-  public CompletionStage<Result> programBySlug(Http.Request request, String programSlug) {
+  public CompletionStage<Result> programBySlug(
+      CiviFormController controller, Http.Request request, String programSlug) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     if (profile.isEmpty()) {
@@ -69,7 +69,8 @@ public final class DeepLinkController extends CiviFormController {
               // the information controller to ask for preferred language.
               if (!applicant.getApplicantData().hasPreferredLocale()) {
                 return CompletableFuture.completedFuture(
-                    redirect(
+                    controller
+                        .redirect(
                             controllers.applicant.routes.ApplicantInformationController
                                 .setLangFromBrowser(applicantId))
                         .withSession(
@@ -85,20 +86,23 @@ public final class DeepLinkController extends CiviFormController {
                         if (programForExistingApplication.isPresent()) {
                           long programId = programForExistingApplication.get().id();
                           return CompletableFuture.completedFuture(
-                              redirectToReviewPage(programId, applicantId, programSlug, request));
+                              redirectToReviewPage(
+                                  controller, programId, applicantId, programSlug, request));
                         } else {
                           return programService
                               .getActiveProgramDefinitionAsync(programSlug)
                               .thenApply(
                                   activeProgramDefinition ->
                                       redirectToReviewPage(
+                                          controller,
                                           activeProgramDefinition.id(),
                                           applicantId,
                                           programSlug,
                                           request))
                               .exceptionally(
                                   ex ->
-                                      notFound(ex.getMessage())
+                                      controller
+                                          .notFound(ex.getMessage())
                                           .removingFromSession(request, REDIRECT_TO_SESSION_KEY));
                         }
                       },
@@ -108,8 +112,13 @@ public final class DeepLinkController extends CiviFormController {
   }
 
   private Result redirectToReviewPage(
-      long programId, long applicantId, String programSlug, Http.Request request) {
-    return redirect(
+      CiviFormController controller,
+      long programId,
+      long applicantId,
+      String programSlug,
+      Http.Request request) {
+    return controller
+        .redirect(
             controllers.applicant.routes.ApplicantProgramReviewController.review(
                 applicantId, programId))
         .flashing("redirected-from-program-slug", programSlug)

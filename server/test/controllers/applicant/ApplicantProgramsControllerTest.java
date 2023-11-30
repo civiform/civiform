@@ -155,7 +155,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains(routes.ApplicantProgramsController.view(currentApplicant.id, program.id).url());
+        .contains(
+            routes.ApplicantProgramsController.viewWithApplicantId(currentApplicant.id, program.id)
+                .url());
   }
 
   @Test
@@ -169,7 +171,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains(routes.ApplicantProgramsController.view(currentApplicant.id, program.id).url());
+        .contains(
+            routes.ApplicantProgramsController.viewWithApplicantId(currentApplicant.id, program.id)
+                .url());
   }
 
   @Test
@@ -212,7 +216,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
-        controller.view(request, currentApplicant.id, program.id).toCompletableFuture().join();
+        controller
+            .viewWithApplicantId(request, currentApplicant.id, program.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -224,7 +231,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void view_invalidProgram_returnsBadRequest() {
     Result result =
         controller
-            .view(requestBuilderWithSettings().build(), currentApplicant.id, 9999L)
+            .viewWithApplicantId(requestBuilderWithSettings().build(), currentApplicant.id, 9999L)
             .toCompletableFuture()
             .join();
 
@@ -238,12 +245,50 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
         controller
-            .view(request, applicantWithoutProfile.id, program.id)
+            .viewWithApplicantId(request, applicantWithoutProfile.id, program.id)
             .toCompletableFuture()
             .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  // Tests the behavior of the `view()` method when the parameter contains a numeric value,
+  // representing a program id.
+  public void view_withNumericProgramParam_viewsById() {
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    String numericProgramParam = String.valueOf(program.id);
+    Result result = controller.view(request, numericProgramParam).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains(
+            routes.ApplicantProgramReviewController.review(currentApplicant.id, program.id).url());
+  }
+
+  @Test
+  // Tests the behavior of the `view()` method when the parameter contains an alphanumeric value,
+  // representing a program slug.
+  public void view_withStringProgramParam_viewsByProgramSlug() {
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    // Set preferred locale so that browser doesn't get redirected to set it. This way we get a
+    // meaningful redirect location.
+    currentApplicant.getApplicantData().setPreferredLocale(Locale.US);
+    currentApplicant.save();
+
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result = controller.view(request, alphaNumProgramParam).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .contains(
+            routes.ApplicantProgramReviewController.review(currentApplicant.id, program.id).url());
   }
 
   @Test
