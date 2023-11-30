@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import j2html.tags.DomContent;
 import java.util.List;
+import java.util.Arrays;
 import org.owasp.html.HtmlChangeListener;
 import org.owasp.html.HtmlPolicyBuilder;
 import org.owasp.html.PolicyFactory;
@@ -15,6 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import views.CiviFormMarkdown;
 import views.ViewUtils;
+import play.i18n.Messages;
+import org.apache.commons.lang3.StringUtils;
+
 
 /** The TextFormatter class formats text using Markdown and some custom logic. */
 public final class TextFormatter {
@@ -25,15 +29,16 @@ public final class TextFormatter {
 
   /** Passes provided text through Markdown formatter. */
   public static ImmutableList<DomContent> formatText(
-      String text, boolean preserveEmptyLines, boolean addRequiredIndicator) {
+      String text, boolean preserveEmptyLines, boolean addRequiredIndicator, Messages messages) {
 
     ImmutableList.Builder<DomContent> builder = new ImmutableList.Builder<DomContent>();
 
     if (preserveEmptyLines) {
       text = preserveEmptyLines(text);
     }
-    String markdownText = CIVIFORM_MARKDOWN.render(text);
+    String markdownText = CIVIFORM_MARKDOWN.render(text); // pass in request here
     markdownText = addIconToLinks(markdownText);
+    markdownText = addAriaLabelsToLinks(markdownText, messages);
     markdownText = addTextSize(markdownText);
     if (addRequiredIndicator) {
       markdownText = addRequiredIndicator(markdownText);
@@ -62,6 +67,21 @@ public final class TextFormatter {
             .withClasses("shrink-0", "h-5", "w-auto", "inline", "ml-1", "align-text-top")
             .toString();
     return markdownText.replaceAll(closingATag, svgIconString + closingATag);
+  }
+
+  private static String addAriaLabelsToLinks(String markdownText, Messages messages) {
+    String preTexString = "rel=\"nofollow noopener noreferrer\">";
+    String postTextString = "<svg";
+    String[] textStringsArr = StringUtils.substringsBetween(markdownText, preTexString, postTextString);
+    // how can we get the text to use for the aria label? poop.
+    List<String> textStringsList = Arrays.asList(textStringsArr);
+    textStringsList.forEach((textString) -> {
+      // how do we add the aria label into the correct place arghhhhhhhh
+          String ariaLabel = "aria-label=\"";
+
+    });
+
+    return markdownText;
   }
 
   private static String addTextSize(String markdownText) {
@@ -102,6 +122,7 @@ public final class TextFormatter {
                 "fill",
                 "stroke",
                 "stroke-width",
+                "aria-label",
                 "aria-hidden",
                 "viewbox",
                 "d")
