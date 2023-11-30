@@ -318,6 +318,11 @@ describe('Admin question list', () => {
     await adminQuestions.gotoQuestionEditPage(question1Name)
     await adminQuestions.clickUniversalToggle()
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
+    // Since we are toggling the universal question setting from "on" to "off", a confirmation modal will appear
+    // Click the submit button on the modal to continue
+    await adminQuestions.clickSubmitButtonAndNavigate(
+      'Remove from universal questions',
+    )
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
     await adminQuestions.gotoQuestionEditPage(question1Name)
     expect(await adminQuestions.getUniversalToggleValue()).toEqual('false')
