@@ -1,5 +1,6 @@
 package controllers.applicant;
 
+import static auth.DefaultToGuestRedirector.createGuestSessionAndRedirect;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
@@ -12,10 +13,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+
+import controllers.LanguageUtils;
+import models.ApplicantModel;
 import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -25,6 +30,7 @@ import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.Block;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 import views.applicant.ApplicantProgramInfoView;
 import views.applicant.ProgramIndexView;
 import views.components.ToastMessage;
@@ -38,25 +44,29 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   private final HttpExecutionContext httpContext;
   private final ApplicantService applicantService;
+  private final ProgramService programService;
+  private final LanguageUtils languageUtils;
   private final MessagesApi messagesApi;
   private final ProgramIndexView programIndexView;
   private final ApplicantProgramInfoView programInfoView;
 
   @Inject
   public ApplicantProgramsController(
-      HttpExecutionContext httpContext,
-      ApplicantService applicantService,
-      MessagesApi messagesApi,
-      ProgramIndexView programIndexView,
-      ApplicantProgramInfoView programInfoView,
-      ProfileUtils profileUtils,
-      VersionRepository versionRepository) {
+    HttpExecutionContext httpContext,
+    ApplicantService applicantService,
+    MessagesApi messagesApi,
+    ProgramIndexView programIndexView,
+    ApplicantProgramInfoView programInfoView,
+    ProfileUtils profileUtils,
+    VersionRepository versionRepository, ProgramService programService, LanguageUtils languageUtils) {
     super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.programIndexView = checkNotNull(programIndexView);
     this.programInfoView = checkNotNull(programInfoView);
+    this.programService = checkNotNull(programService);
+    this.languageUtils = checkNotNull(languageUtils);
   }
 
   @Secure
@@ -181,7 +191,7 @@ public final class ApplicantProgramsController extends CiviFormController {
 
       return viewWithApplicantId(request, applicantId, Long.parseLong(programParam));
     } else {
-      // programParam is not a numeric id, so treat it like a program slug.
+      // programParam is not a numeric id, so treat it as a program slug.
       return programBySlug(request, programParam);
     }
   }
@@ -243,6 +253,92 @@ public final class ApplicantProgramsController extends CiviFormController {
               throw new RuntimeException(ex);
             });
   }
+
+  public CompletionStage<Result> programBySlug(Http.Request request, String programSlug) {
+    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+
+    if (profile.isEmpty()) {
+      return CompletableFuture.completedFuture(createGuestSessionAndRedirect(request));
+    }
+
+    return profile
+      .get()
+      .getApplicant()
+      .thenComposeAsync(
+        (ApplicantModel applicant) -> {
+          // Attempt to set default language for the applicant.
+          applicant = languageUtils.maybeSetDefaultLocale(applicant);
+          final long applicantId = applicant.id;
+
+          // If the applicant has not yet set their preferred language, redirect to
+          // the information controller to ask for preferred language.
+          if (!applicant.getApplicantData().hasPreferredLocale()) {
+            return CompletableFuture.completedFuture(
+              redirect(
+                controllers.applicant.routes.ApplicantInformationController
+                  .setLangFromBrowser(applicantId))
+                .withSession(
+                  request.session().adding(REDIRECT_TO_SESSION_KEY, request.uri())));
+          }
+
+          return getProgramVersionForApplicant(applicantId, programSlug, request)
+            .thenComposeAsync(
+              (Optional<ProgramDefinition> programForExistingApplication) -> {
+                // Check to see if the applicant already has an application
+                // for this program, redirect to program version associated
+                // with that application if so.
+                if (programForExistingApplication.isPresent()) {
+                  long programId = programForExistingApplication.get().id();
+                  return CompletableFuture.completedFuture(
+                    redirectToReviewPage(programId, applicantId, programSlug, request));
+                } else {
+                  return programService
+                    .getActiveProgramDefinitionAsync(programSlug)
+                    .thenApply(
+                      activeProgramDefinition ->
+                        redirectToReviewPage(
+                          activeProgramDefinition.id(),
+                          applicantId,
+                          programSlug,
+                          request))
+                    .exceptionally(
+                      ex ->
+                        notFound(ex.getMessage())
+                          .removingFromSession(request, REDIRECT_TO_SESSION_KEY));
+                }
+              },
+              httpContext.current());
+        },
+        httpContext.current());
+  }
+
+  private Result redirectToReviewPage(
+    long programId, long applicantId, String programSlug, Http.Request request) {
+    return redirect(
+      controllers.applicant.routes.ApplicantProgramReviewController.review(
+        applicantId, programId))
+      .flashing("redirected-from-program-slug", programSlug)
+      // If we had a redirectTo session key that redirected us here, remove it so that it doesn't
+      // get used again.
+      .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
+  }
+
+  private CompletionStage<Optional<ProgramDefinition>> getProgramVersionForApplicant(
+    long applicantId, String programSlug, Http.Request request) {
+    // Find all applicant's DRAFT applications for programs of the same slug
+    // redirect to the newest program version with a DRAFT application.
+    CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request).orElseThrow();
+    return applicantService
+      .relevantProgramsForApplicant(applicantId, requesterProfile)
+      .thenApplyAsync(
+        (ApplicantService.ApplicationPrograms relevantPrograms) ->
+          relevantPrograms.inProgress().stream()
+            .map(ApplicantProgramData::program)
+            .filter(program -> program.slug().equals(programSlug))
+            .findFirst(),
+        httpContext.current());
+  }
+
 
   private static Result redirectToHome() {
     return redirect(controllers.routes.HomeController.index().url());

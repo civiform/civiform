@@ -63,7 +63,7 @@ public final class ApplicantRoutes {
       return controllers.applicant.routes.ApplicantProgramsController.viewWithApplicantId(
           applicantId, programId);
     } else {
-      return controllers.applicant.routes.ApplicantProgramsController.view(programId);
+      return controllers.applicant.routes.ApplicantProgramsController.view(String.valueOf(programId));
     }
   }
 }
