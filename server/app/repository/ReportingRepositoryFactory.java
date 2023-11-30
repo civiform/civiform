@@ -2,6 +2,7 @@ package repository;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.ebean.DB;
 import io.ebean.Database;
 import java.time.Clock;
@@ -35,11 +36,13 @@ public final class ReportingRepositoryFactory {
    */
   public ReportingRepository create() {
     ImmutableList<ProgramModel> listOfPrograms = versionRepository.getActiveVersion().getPrograms();
-    Map<String, String> hashOfPrograms = new HashMap<>();
+    Map<String, String> tempHash = new HashMap<>();
     for (ProgramModel p : listOfPrograms) {
       ProgramDefinition pd = p.getProgramDefinition();
-      hashOfPrograms.put(pd.adminName(), pd.localizedName().getDefault());
+      tempHash.put(pd.adminName(), pd.localizedName().getDefault());
     }
+    ImmutableMap<String, String> hashOfPrograms =
+        ImmutableMap.<String, String>builder().putAll(tempHash).build();
     return new ReportingRepository(clock, database, hashOfPrograms);
   }
 }

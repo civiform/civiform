@@ -4,13 +4,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.ebean.Database;
 import io.ebean.SqlRow;
 import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Map;
 import java.util.Optional;
 import org.postgresql.util.PGInterval;
 import services.reporting.ApplicationSubmissionsStat;
@@ -20,7 +20,7 @@ public final class ReportingRepository {
 
   private final Clock clock;
   private final Database database;
-  private final Map<String, String> hashOfPrograms;
+  private final ImmutableMap<String, String> hashOfPrograms;
 
   public ReportingRepository() {
     this.clock = null;
@@ -28,7 +28,8 @@ public final class ReportingRepository {
     this.hashOfPrograms = null;
   }
 
-  public ReportingRepository(Clock clock, Database database, Map<String, String> hashOfPrograms) {
+  public ReportingRepository(
+      Clock clock, Database database, ImmutableMap<String, String> hashOfPrograms) {
     this.clock = Preconditions.checkNotNull(clock);
     this.database = Preconditions.checkNotNull(database);
     this.hashOfPrograms = Preconditions.checkNotNull(hashOfPrograms);
