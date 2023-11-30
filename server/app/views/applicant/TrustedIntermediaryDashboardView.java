@@ -51,6 +51,7 @@ import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
+import controllers.ti.routes;
 
 /** Renders a page for a trusted intermediary to manage their clients. */
 public class TrustedIntermediaryDashboardView extends BaseHtmlView {
@@ -90,7 +91,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 hr().withClasses("mt-6"),
                 renderHeader("Clients"),
                 renderSearchForm(request, searchParameters),
-                renderTIApplicantsTable(managedAccounts, searchParameters, page, totalPageCount,request),
+                renderTIApplicantsTable(managedAccounts, searchParameters, page, totalPageCount),
                 hr().withClasses("mt-6"),
                 renderHeader("Trusted Intermediary Members"),
                 renderTIMembersTable(tiGroup).withClasses("ml-2"))
@@ -235,7 +236,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     ImmutableList<AccountModel> managedAccounts,
     SearchParameters searchParameters,
     int page,
-    int totalPageCount, Http.Request request) {
+    int totalPageCount) {
     DivTag main =
         div(table()
                 .withClasses("border", "border-gray-300", "shadow-md", "flex-auto")
@@ -246,7 +247,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 managedAccounts.stream()
                   .sorted(Comparator.comparing(AccountModel::getApplicantName))
                   .collect(Collectors.toList()),
-                account -> renderApplicantRow(account, request)))))
+                account -> renderApplicantRow(account)))))
             .withClasses("mb-16");
     return main.with(
         renderPaginationDiv(
@@ -275,9 +276,9 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
 
   private DivTag renderAddNewForm(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
     FormTag formTag =
-        form()
-            .withMethod("POST")
-            .withAction(routes.TrustedIntermediaryController.addApplicant(tiGroup.id).url());
+      form()
+        .withMethod("POST")
+        .withAction(routes.TrustedIntermediaryController.addApplicant(tiGroup.id).url());
     FieldWithLabel firstNameField =
         FieldWithLabel.input()
             .setId("first-name-input")

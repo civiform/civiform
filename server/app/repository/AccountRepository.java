@@ -16,7 +16,6 @@ import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import forms.EditTiClientInfoForm;
 import io.ebean.DB;
 import io.ebean.Database;
-import io.ebean.Transaction;
 import io.ebean.Query;
 import java.util.Comparator;
 import java.util.List;
@@ -25,6 +24,8 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+
+import io.ebean.Transaction;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
@@ -68,8 +69,16 @@ public final class AccountRepository {
         executionContext);
   }
 
-  public Optional<AccountModel> lookupAccountById(Long accountId) {
-    return database.find(AccountModel.class).setId(accountId).findOneOrEmpty();
+  public CompletionStage<Optional<ApplicantModel>> lookupApplicant(long id) {
+    return supplyAsync(
+        () ->
+            database
+                .find(ApplicantModel.class)
+                .setId(id)
+                .setLabel("ApplicantModel.findById")
+                .setProfileLocation(queryProfileLocationBuilder.create("lookupApplicant"))
+                .findOneOrEmpty(),
+        executionContext);
   }
 
   public Optional<AccountModel> lookupAccountByAuthorityId(String authorityId) {
@@ -155,6 +164,26 @@ public final class AccountRepository {
           return null;
         },
         executionContext);
+  }
+  public void updateApplicantInfoForTrustedIntermediaryGroup(
+    EditTiClientInfoForm form, ApplicantModel applicant) {
+    ApplicantData applicantData = applicant.getApplicantData();
+    applicantData.setUserName(form.getFirstName(), form.getMiddleName(), form.getLastName());
+    applicantData.setDateOfBirth(form.getDob());
+    applicantData.setPhoneNumber(form.getPhoneNumber());
+    applicant.getAccount().setTiNote(form.getNote());
+    applicant.save();
+  }
+
+  public void updateApplicantEmail(String email, Long accountId) {
+    if (!Strings.isNullOrEmpty(email)) {
+      try (Transaction transaction = database.beginTransaction()) {
+        AccountModel currentAccount = lookupAccount(accountId).get();
+        currentAccount.setEmailAddress(email);
+        currentAccount.save();
+        transaction.commit();
+      }
+    }
   }
 
   public Optional<ApplicantModel> lookupApplicantSync(long id) {
@@ -308,27 +337,6 @@ public final class AccountRepository {
     applicantData.setUserName(form.getFirstName(), form.getMiddleName(), form.getLastName());
     applicantData.setDateOfBirth(form.getDob());
     applicant.save();
-  }
-
-  public void updateApplicantInfoForTrustedIntermediaryGroup(
-      EditTiClientInfoForm form, ApplicantModel applicant) {
-    ApplicantData applicantData = applicant.getApplicantData();
-    applicantData.setUserName(form.getFirstName(), form.getMiddleName(), form.getLastName());
-    applicantData.setDateOfBirth(form.getDob());
-    applicantData.setPhoneNumber(form.getPhoneNumber());
-    applicant.getAccount().setTiNote(form.getNote());
-    applicant.save();
-  }
-
-  public void updateApplicantEmail(String email, Long accountId) {
-    if (!Strings.isNullOrEmpty(email)) {
-      try (Transaction transaction = database.beginTransaction()) {
-        AccountModel currentAccount = lookupAccountById(accountId).get();
-        currentAccount.setEmailAddress(email);
-        currentAccount.save();
-        transaction.commit();
-      }
-    }
   }
 
   /**

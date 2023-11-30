@@ -112,7 +112,7 @@ public final class TrustedIntermediaryController {
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
-  public Result updateClientInfo(Long accountId, Http.Request request)
+  public Result updateClientInfo(Long id, Http.Request request)
       throws ApplicantNotFoundException {
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
     if (civiformProfile.isEmpty()) {
@@ -126,7 +126,7 @@ public final class TrustedIntermediaryController {
     }
     Form<EditTiClientInfoForm> form =
         formFactory.form(EditTiClientInfoForm.class).bindFromRequest(request);
-    form = tiService.updateClientInfo(form, trustedIntermediaryGroup.get(), accountId);
+    form = tiService.updateClientInfo(form, trustedIntermediaryGroup.get(), id);
     if (!form.hasErrors()) {
       return redirect(
               routes.TrustedIntermediaryController.dashboard(
