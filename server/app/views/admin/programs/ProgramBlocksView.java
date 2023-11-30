@@ -27,7 +27,6 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.OptionalLong;
 import java.util.stream.IntStream;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
@@ -36,7 +35,6 @@ import services.ProgramBlockValidationFactory;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
-import services.program.ProgramDefinition.Direction;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramType;
 import services.program.predicate.PredicateDefinition;
@@ -83,14 +81,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
   private final SettingsManifest settingsManifest;
   private final ProgramDisplayType programDisplayType;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
+  private final BlockListPartial blockListPartial;
 
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   public static final String MOVE_QUESTION_POSITION_FIELD = "position";
-  private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
-  private static final int BASE_INDENTATION_SIZE = 4;
-  private static final int INDENTATION_FACTOR_INCREASE_ON_LEVEL = 2;
   private static final String QUESTIONS_SECTION_ID = "questions-section";
 
   @Inject
@@ -98,11 +94,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ProgramBlockValidationFactory programBlockValidationFactory,
       @Assisted ProgramDisplayType programViewType,
       AdminLayoutFactory layoutFactory,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      BlockListPartial.Factory blockListPartialFactory) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.programDisplayType = programViewType;
+    this.programDisplayType = checkNotNull(programViewType);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
+    this.blockListPartial = checkNotNull(blockListPartialFactory.create(programViewType));
   }
 
   public Content render(
@@ -188,7 +186,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                             .withClasses("text-center", "text-red-500")))),
                         div()
                             .withClasses("flex", "flex-grow", "-mx-2")
-                            .with(renderBlockOrderPanel(request, programDefinition, blockId))
+                            .with(blockListPartial.render(request, programDefinition, blockId))
                             .with(
                                 renderBlockPanel(
                                     programDefinition,
@@ -215,7 +213,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   csrfTag,
                   ProgramQuestionBank.shouldShowQuestionBank(request),
                   request))
-          .addMainContent(addFormEndpoints(csrfTag, programDefinition.id(), blockId))
           .addModals(blockDescriptionEditModal, blockDeleteScreenModal);
     }
 
@@ -228,178 +225,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
     message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.render(htmlBundle);
-  }
-
-  private DivTag addFormEndpoints(InputTag csrfTag, long programId, long blockId) {
-    String blockCreateAction =
-        controllers.admin.routes.AdminProgramBlocksController.create(programId).url();
-    FormTag createBlockForm =
-        form(csrfTag)
-            .withId(CREATE_BLOCK_FORM_ID)
-            .withMethod(HttpVerbs.POST)
-            .withAction(blockCreateAction);
-
-    FormTag createRepeatedBlockForm =
-        form(csrfTag)
-            .withId(CREATE_REPEATED_BLOCK_FORM_ID)
-            .withMethod(HttpVerbs.POST)
-            .withAction(blockCreateAction)
-            .with(
-                FieldWithLabel.number()
-                    .setFieldName(ENUMERATOR_ID_FORM_FIELD)
-                    .setScreenReaderText(ENUMERATOR_ID_FORM_FIELD)
-                    .setValue(OptionalLong.of(blockId))
-                    .getNumberTag());
-
-    return div(createBlockForm, createRepeatedBlockForm).withClasses("hidden");
-  }
-
-  /**
-   * Returns a wrapper panel that contains the list of all blocks and, if the view shows an editable
-   * program, a button to add a new screen,
-   */
-  private DivTag renderBlockOrderPanel(
-      Request request, ProgramDefinition program, long focusedBlockId) {
-    DivTag ret = div().withClasses("shadow-lg", "pt-6", "w-2/12", "border-r", "border-gray-200");
-    ret.with(
-        renderBlockList(
-            request,
-            program,
-            program.getNonRepeatedBlockDefinitions(),
-            focusedBlockId,
-            /* level= */ 0));
-
-    if (viewAllowsEditingProgram()) {
-      ret.with(
-          ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
-              .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-4")
-              .withType("submit")
-              .withId("add-block-button")
-              .withForm(CREATE_BLOCK_FORM_ID));
-    }
-    return ret;
-  }
-
-  /**
-   * Returns a panel that shows all Blocks of the given program. In an editable view it also adds a
-   * button that allows to add a new screen and controls to change the order.
-   */
-  private DivTag renderBlockList(
-      Request request,
-      ProgramDefinition programDefinition,
-      ImmutableList<BlockDefinition> blockDefinitions,
-      long focusedBlockId,
-      int level) {
-    DivTag container = div();
-    String genericBlockDivId = "block_list_item_";
-    for (BlockDefinition blockDefinition : blockDefinitions) {
-
-      // TODO: Not i18n safe.
-      int numQuestions = blockDefinition.getQuestionCount();
-      String questionCountText = String.format("Question count: %d", numQuestions);
-      String blockName = blockDefinition.name();
-      // indentation value for enums and repeaters
-      int listIndentationFactor =
-          BASE_INDENTATION_SIZE + (level * INDENTATION_FACTOR_INCREASE_ON_LEVEL);
-      String selectedClasses = blockDefinition.id() == focusedBlockId ? "bg-gray-100" : "";
-      DivTag blockTag =
-          div()
-              .withClasses(
-                  "flex",
-                  "flex-row",
-                  "gap-2",
-                  "py-2",
-                  "px-" + listIndentationFactor,
-                  "border",
-                  "border-white",
-                  StyleUtils.hover("border-gray-300"),
-                  selectedClasses);
-      String switchBlockLink;
-      if (viewAllowsEditingProgram()) {
-        switchBlockLink =
-            controllers.admin.routes.AdminProgramBlocksController.edit(
-                    programDefinition.id(), blockDefinition.id())
-                .url();
-      } else {
-        switchBlockLink =
-            controllers.admin.routes.AdminProgramBlocksController.show(
-                    programDefinition.id(), blockDefinition.id())
-                .url();
-      }
-      blockTag
-          .withId(genericBlockDivId + blockDefinition.id())
-          .with(
-              a().withClasses("flex-grow", "overflow-hidden")
-                  .withHref(switchBlockLink)
-                  .with(
-                      p(blockName)
-                          .withClass(iff(blockDefinition.hasNullQuestion(), "text-red-500")),
-                      p(questionCountText).withClasses("text-sm")));
-      if (viewAllowsEditingProgram()) {
-        DivTag moveButtons =
-            renderBlockMoveButtons(
-                request, programDefinition.id(), blockDefinitions, blockDefinition);
-        blockTag.with(moveButtons);
-      }
-      container.with(blockTag);
-
-      // Recursively add repeated blocks indented under their enumerator block
-      if (blockDefinition.isEnumerator()) {
-        container.with(
-            renderBlockList(
-                request,
-                programDefinition,
-                programDefinition.getBlockDefinitionsForEnumerator(blockDefinition.id()),
-                focusedBlockId,
-                level + 1));
-      }
-    }
-    return container;
-  }
-
-  /**
-   * Creates a set of buttons, which are shown next to each block in the list of blocks. They are
-   * used to move a block up or down in the list.
-   */
-  private DivTag renderBlockMoveButtons(
-      Request request,
-      long programId,
-      ImmutableList<BlockDefinition> blockDefinitions,
-      BlockDefinition blockDefinition) {
-    String moveUpFormAction =
-        routes.AdminProgramBlocksController.move(programId, blockDefinition.id()).url();
-    // Move up button is invisible for the first block
-    String moveUpInvisible =
-        blockDefinition.id() == blockDefinitions.get(0).id() ? "invisible" : "";
-    DivTag moveUp =
-        div()
-            .withClass(moveUpInvisible)
-            .with(
-                form()
-                    .withAction(moveUpFormAction)
-                    .withMethod(HttpVerbs.POST)
-                    .with(makeCsrfTokenInputTag(request))
-                    .with(input().isHidden().withName("direction").withValue(Direction.UP.name()))
-                    .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
-
-    String moveDownFormAction =
-        routes.AdminProgramBlocksController.move(programId, blockDefinition.id()).url();
-    // Move down button is invisible for the last block
-    String moveDownInvisible =
-        blockDefinition.id() == blockDefinitions.get(blockDefinitions.size() - 1).id()
-            ? "invisible"
-            : "";
-    DivTag moveDown =
-        div()
-            .withClasses("transform", "rotate-180", moveDownInvisible)
-            .with(
-                form()
-                    .withAction(moveDownFormAction)
-                    .withMethod(HttpVerbs.POST)
-                    .with(makeCsrfTokenInputTag(request))
-                    .with(input().isHidden().withName("direction").withValue(Direction.DOWN.name()))
-                    .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
-    return div().withClasses("flex", "flex-col", "self-center").with(moveUp, moveDown);
   }
 
   /**

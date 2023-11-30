@@ -36,7 +36,7 @@ import services.CryptographicUtils;
  * the provided token matches the freshly computed signature of the provided payload.
  */
 public final class ApiPaginationTokenSerializer {
-  private static final ObjectMapper mapper =
+  public static final ObjectMapper MAPPER =
       new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
 
   private final String signingSecret;
@@ -81,7 +81,7 @@ public final class ApiPaginationTokenSerializer {
 
   private <T> T deserializeJson(String json, Class<T> clazz) {
     try {
-      return mapper.readValue(json, clazz);
+      return MAPPER.readValue(json, clazz);
     } catch (JsonProcessingException e) {
       throw new BadApiRequestException("Error deserializing " + clazz.toString());
     }
@@ -89,7 +89,7 @@ public final class ApiPaginationTokenSerializer {
 
   private String serializeJson(Object object) {
     try {
-      return mapper.writeValueAsString(object);
+      return MAPPER.writeValueAsString(object);
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
     }
