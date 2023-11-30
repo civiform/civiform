@@ -22,6 +22,7 @@ import play.data.FormFactory;
 import play.mvc.Http;
 import repository.AccountRepository;
 import repository.SearchParameters;
+import services.WellKnownPaths;
 import services.applicant.ApplicantData;
 import services.applicant.exception.ApplicantNotFoundException;
 
@@ -412,6 +413,33 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         service.updateApplicantDateOfBirth(tiGroup, account.id, form);
     assertThat(returnedForm.hasErrors()).isFalse();
     assertThat(account.newestApplicant().get().getApplicantData().getDateOfBirth().get().toString())
+        .isEqualTo("2021-09-09");
+  }
+
+  @Test
+  public void updateApplicantDateOfBirth_handlesOldDataFormat() throws ApplicantNotFoundException {
+    AccountModel account = new AccountModel();
+    account.setEmailAddress("fake@email.com");
+    account.setManagedByGroup(tiGroup);
+    account.save();
+    ApplicantModel applicant = new ApplicantModel();
+    applicant.setAccount(account);
+    ApplicantData applicantData = applicant.getApplicantData();
+    applicantData.setUserName("First", "", "Last");
+    // Set the date with the deprecated path
+    applicantData.putDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED, "2021-11-11");
+    applicant.save();
+
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2021-09-09")));
+    Form<UpdateApplicantDobForm> form =
+        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
+    AccountModel fetchedAccount = repo.lookupAccountByEmail("fake@email.com").get();
+    Form<UpdateApplicantDobForm> returnedForm =
+        service.updateApplicantDateOfBirth(tiGroup, fetchedAccount.id, form);
+    assertThat(returnedForm.hasErrors()).isFalse();
+    System.out.println(fetchedAccount.newestApplicant().get().getApplicantData().asJsonString());
+    assertThat(fetchedAccount.newestApplicant().get().getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2021-09-09");
   }
 }
