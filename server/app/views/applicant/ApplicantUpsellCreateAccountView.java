@@ -106,8 +106,8 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                     .with(
                         TextFormatter.formatText(
                             customConfirmationMessage.getOrDefault(locale),
-                            /* preserveEmptyLines= */ true,
-                            /* addRequiredIndicator= */ false))
+                            /*preserveEmptyLines= */ true,
+                            /*addRequiredIndicator= */ false))
                     .withClasses("mb-4")),
             shouldUpsell,
             messages,

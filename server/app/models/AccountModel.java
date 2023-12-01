@@ -92,7 +92,7 @@ public class AccountModel extends BaseModel {
     return this.emailAddress;
   }
 
-  public AccountModel setTiNote(String tiNoteote) {
+  public AccountModel setTiNote(String tiNote) {
     this.tiNote = tiNote;
     return this;
   }
