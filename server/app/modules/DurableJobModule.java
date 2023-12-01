@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 import java.util.Random;
 import repository.AccountRepository;
 import repository.PersistedDurableJobRepository;
-import repository.ReportingRepository;
+import repository.ReportingRepositoryFactory;
 import scala.concurrent.ExecutionContext;
 
 /**
@@ -69,7 +69,7 @@ public final class DurableJobModule extends AbstractModule {
       AccountRepository accountRepository,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
       PersistedDurableJobRepository persistedDurableJobRepository,
-      ReportingRepository reportingRepository) {
+      ReportingRepositoryFactory reportingRepositoryFactory) {
     var durableJobRegistry = new DurableJobRegistry();
 
     durableJobRegistry.register(
@@ -81,7 +81,8 @@ public final class DurableJobModule extends AbstractModule {
     durableJobRegistry.register(
         DurableJobName.REPORTING_DASHBOARD_MONTHLY_REFRESH,
         persistedDurableJob ->
-            new ReportingDashboardMonthlyRefreshJob(reportingRepository, persistedDurableJob),
+            new ReportingDashboardMonthlyRefreshJob(
+                reportingRepositoryFactory.create(), persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.FirstOfMonth2Am());
 
     durableJobRegistry.register(

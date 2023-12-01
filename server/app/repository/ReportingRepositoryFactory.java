@@ -6,8 +6,6 @@ import com.google.common.collect.ImmutableMap;
 import io.ebean.DB;
 import io.ebean.Database;
 import java.time.Clock;
-import java.util.HashMap;
-import java.util.Map;
 import javax.inject.Inject;
 import models.ProgramModel;
 import services.program.ProgramDefinition;

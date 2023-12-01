@@ -22,12 +22,6 @@ public final class ReportingRepository {
   private final Database database;
   private final ImmutableMap<String, String> programToPublicHash;
 
-  public ReportingRepository() {
-    this.clock = null;
-    this.database = null;
-    this.programToPublicHash = null;
-  }
-
   public ReportingRepository(
       Clock clock, Database database, ImmutableMap<String, String> programToPublicHash) {
     this.clock = Preconditions.checkNotNull(clock);
