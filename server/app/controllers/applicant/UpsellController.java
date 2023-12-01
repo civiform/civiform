@@ -196,7 +196,8 @@ public final class UpsellController extends CiviFormController {
         .thenApplyAsync(
             check -> {
               PdfExporter.InMemoryPdf pdf =
-                  pdfExporterService.generatePdf(applicationMaybe.join().get());
+                  pdfExporterService.generatePdf(
+                      applicationMaybe.join().get(), /* showEligibilityText= */ false);
 
               return ok(pdf.getByteArray())
                   .as("application/pdf")

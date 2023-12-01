@@ -269,7 +269,8 @@ public final class AdminApplicationController extends CiviFormController {
       return badRequest(String.format("Application %d does not exist.", applicationId));
     }
     ApplicationModel application = applicationMaybe.get();
-    PdfExporter.InMemoryPdf pdf = pdfExporterService.generatePdf(application);
+    PdfExporter.InMemoryPdf pdf =
+        pdfExporterService.generatePdf(application, /* showEligibilityText= */ true);
     return ok(pdf.getByteArray())
         .as("application/pdf")
         .withHeader(
