@@ -23,10 +23,10 @@ readonly HOST_CPU_ARCH="$(docker info --format='{{.Architecture}}')"
 
 echo "Building ${SNAPSHOT_TAG}..."
 
-BUILD_ARGS=(-f "${DOCKERFILE}"
-  -t "${NAMESPACE}/${IMAGE}"
-  -t "${NAMESPACE}/${IMAGE}:latest"
-  -t "${NAMESPACE}/${IMAGE}:${SNAPSHOT_TAG}"
+BUILD_ARGS=(--file "${DOCKERFILE}"
+  --tag "${NAMESPACE}/${IMAGE}"
+  --tag "${NAMESPACE}/${IMAGE}:latest"
+  --tag "${NAMESPACE}/${IMAGE}:${SNAPSHOT_TAG}"
   --cache-from "${NAMESPACE}/${IMAGE}"
   --build-arg BUILDKIT_INLINE_CACHE=1
   --build-arg git_commit_sha="${GIT_SHA}"
