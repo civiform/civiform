@@ -44,7 +44,7 @@ lazy val root = (project in file("."))
       "com.azure" % "azure-storage-blob" % "12.25.0",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.6.0",
+      "org.postgresql" % "postgresql" % "42.7.0",
       "com.h2database" % "h2" % "2.2.224" % Test,
 
       // Metrics collection and export for Prometheus
