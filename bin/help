@@ -63,7 +63,7 @@ readonly COLOR_RESET
 # Begin work
 FILES_MISSING_DOCSTRING=()
 
-# Get a sort list of potential files with help text
+# Get a sorted list of potential files with help text
 HELP_FILES="$(find bin \
   -type f \
   -not -iname '*.sh' \
