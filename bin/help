@@ -20,19 +20,22 @@ NO_COLOR_OUTPUT="false"
 SINGLE_LINE_OUTPUT="false"
 
 while getopts "hns" opt; do
-  case "${opt}" in 
+  case "${opt}" in
     h)
       print_help
-      exit 0;;
+      exit 0
+      ;;
     n)
-      NO_COLOR_OUTPUT="true";;
+      NO_COLOR_OUTPUT="true"
+      ;;
     s)
-      SINGLE_LINE_OUTPUT="true";;
+      SINGLE_LINE_OUTPUT="true"
+      ;;
     *)
-      break;;
+      break
+      ;;
   esac
 done
-
 
 # Set up variables
 FILENAME_SEPARATOR="\n"
@@ -88,7 +91,7 @@ while read -r HELP_FILE; do
   else
     FILES_MISSING_DOCSTRING+=("${HELP_FILE}")
   fi
-done <<< "${HELP_FILES}"
+done <<<"${HELP_FILES}"
 
 # Print a full list of files that are missing help text
 if [[ "${#FILES_MISSING_DOCSTRING[@]}" -gt 0 ]]; then
