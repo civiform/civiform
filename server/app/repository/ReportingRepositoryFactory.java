@@ -36,13 +36,12 @@ public final class ReportingRepositoryFactory {
    */
   public ReportingRepository create() {
     ImmutableList<ProgramModel> listOfPrograms = versionRepository.getActiveVersion().getPrograms();
-    Map<String, String> tempHash = new HashMap<>();
+    ImmutableMap.Builder<String, String> programMapBuilder = new ImmutableMap.Builder<>();
     for (ProgramModel p : listOfPrograms) {
       ProgramDefinition pd = p.getProgramDefinition();
-      tempHash.put(pd.adminName(), pd.localizedName().getDefault());
+      programMapBuilder.put(pd.adminName(), pd.localizedName().getDefault());
     }
-    ImmutableMap<String, String> hashOfPrograms =
-        ImmutableMap.<String, String>builder().putAll(tempHash).build();
-    return new ReportingRepository(clock, database, hashOfPrograms);
+    ImmutableMap<String, String> programToPublicHash = programMapBuilder.build();
+    return new ReportingRepository(clock, database, programToPublicHash);
   }
 }

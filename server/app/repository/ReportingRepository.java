@@ -20,19 +20,19 @@ public final class ReportingRepository {
 
   private final Clock clock;
   private final Database database;
-  private final ImmutableMap<String, String> hashOfPrograms;
+  private final ImmutableMap<String, String> programToPublicHash;
 
   public ReportingRepository() {
     this.clock = null;
     this.database = null;
-    this.hashOfPrograms = null;
+    this.programToPublicHash = null;
   }
 
   public ReportingRepository(
-      Clock clock, Database database, ImmutableMap<String, String> hashOfPrograms) {
+      Clock clock, Database database, ImmutableMap<String, String> programToPublicHash) {
     this.clock = Preconditions.checkNotNull(clock);
     this.database = Preconditions.checkNotNull(database);
-    this.hashOfPrograms = Preconditions.checkNotNull(hashOfPrograms);
+    this.programToPublicHash = Preconditions.checkNotNull(programToPublicHash);
   }
 
   /**
