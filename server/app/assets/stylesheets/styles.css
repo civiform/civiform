@@ -85,8 +85,4 @@
   .cf-radio-option:focus-within {
     @apply border-4;
   }
-
-  input:focus {
-    @apply outline-offset-0;
-  }
 }
