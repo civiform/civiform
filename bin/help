@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 # DOC: Print descriptions of each bin script.
-# DOC: Use --help for optional usage flags
+# DOC: Use -h for help to show optional usage flags
 
 source bin/lib.sh
 
@@ -10,38 +10,26 @@ function print_help {
   ${0} [options] 
 
 OPTIONS
-  -h, --help          show list of command-line options
-  -n, --no-color      disable colorized output 
-  -s, --single-line   print file name and help text on the same line (useful for grep)"
+  -h    shows help 
+  -n    disable colorized output 
+  -s    print file name and help text on the same line (useful for grep)"
 }
 
 # Get arguments
-opts="$(getopt \
-  --options "hns" \
-  --longoptions "help,no-color,single-line" \
-  -- "${@}"
-)" || exit
-
-# Required for getopt to safely and correctly parse
-eval set -- "${opts}"
-
 NO_COLOR_OUTPUT="false"
 SINGLE_LINE_OUTPUT="false"
 
-while [[ "${#}" -gt 0 ]]; do
-  case "${1}" in 
-    -h | --help)
+while getopts "hns" opt; do
+  case "${opt}" in 
+    h)
       print_help
       exit 0;;
-    -n | --no-color)
-      NO_COLOR_OUTPUT="true"
-      shift 1;;
-    -s | --single-line)
-      SINGLE_LINE_OUTPUT="true"
-      shift 1;;
+    n)
+      NO_COLOR_OUTPUT="true";;
+    s)
+      SINGLE_LINE_OUTPUT="true";;
     *)
-      break
-      ;;
+      break;;
   esac
 done
 
