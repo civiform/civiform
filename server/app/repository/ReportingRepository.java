@@ -65,8 +65,8 @@ public final class ReportingRepository {
   }
 
   private String getProgramLocalizedName(String name) {
-    if (hashOfPrograms.containsKey(name)) {
-      return hashOfPrograms.get(name);
+    if (programToPublicHash.containsKey(name)) {
+      return programToPublicHash.get(name);
     }
     return name;
   }
