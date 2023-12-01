@@ -10,7 +10,7 @@ function print_help {
   ${0} [options] 
 
 OPTIONS
-  -h    shows help 
+  -h    shows this help message
   -n    disable colorized output 
   -s    print file name and help text on the same line (useful for grep)"
 }
