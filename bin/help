@@ -86,7 +86,7 @@ while read -r HELP_FILE; do
   if [[ -n "${HELP_TEXT}" ]]; then
     printf "%b%s\n\n" "${COLOR_FILENAME}${HELP_FILE}${COLOR_RESET}${FILENAME_SEPARATOR}" "${HELP_TEXT}"
   else
-    FILES_MISSING_DOCSTRING+=("$HELP_FILE")
+    FILES_MISSING_DOCSTRING+=("${HELP_FILE}")
   fi
 done <<< "${HELP_FILES}"
 
