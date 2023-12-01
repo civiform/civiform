@@ -14,8 +14,8 @@ readonly IMAGE="mock-web-services"
 readonly LOCATION="mock-web-services/"
 readonly DOCKERFILE="mock-web-services/mock-web-services.Dockerfile"
 
-BUILD_ARGS=(-f "${DOCKERFILE}"
-  -t "${NAMESPACE}/${IMAGE}:latest"
+BUILD_ARGS=(--file "${DOCKERFILE}"
+  --tag "${NAMESPACE}/${IMAGE}:latest"
   --cache-from "${NAMESPACE}/${IMAGE}"
   --build-arg BUILDKIT_INLINE_CACHE=1
   --build-context server=server/
