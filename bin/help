@@ -86,7 +86,7 @@ HELP_FILES="$(find bin \
 while read -r HELP_FILE; do
   # Pull the help text from the file and remove the doc string token for easier reading
   HELP_TEXT="$(grep --regexp "^# DOC\:" "${HELP_FILE}" \
-    | sed --expression "s/^\# DOC\: //")"
+    | sed -e "s/^\# DOC\: //")"
 
   # Remove extra lines break when in single line mode
   if [[ "${SINGLE_LINE_OUTPUT}" == "true" ]]; then
