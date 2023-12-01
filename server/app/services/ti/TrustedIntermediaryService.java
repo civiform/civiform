@@ -9,6 +9,7 @@ import com.google.i18n.phonenumbers.Phonenumber;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import forms.EditTiClientInfoForm;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.Optional;
@@ -20,6 +21,7 @@ import play.data.Form;
 import repository.AccountRepository;
 import repository.SearchParameters;
 import services.DateConverter;
+import services.applicant.ApplicantData;
 import services.applicant.exception.ApplicantNotFoundException;
 
 /**
@@ -132,12 +134,8 @@ public final class TrustedIntermediaryService {
     return Optional.empty();
   }
 
-  private Form<EditTiClientInfoForm> validateNote(Form<EditTiClientInfoForm> form) {
-    return form;
-  }
-
-  private Form<EditTiClientInfoForm> validateEmail(Form<EditTiClientInfoForm> form) {
-    return form;
+  private Boolean checkEmailChange(String newEmail, AccountModel account) {
+    return !newEmail.equals(account.getEmailAddress());
   }
 
   private Form<EditTiClientInfoForm> validatePhoneNumber(Form<EditTiClientInfoForm> form) {
@@ -157,6 +155,72 @@ public final class TrustedIntermediaryService {
       } catch (NumberParseException e) {
         throw new RuntimeException(e);
       }
+    }
+    return form;
+  }
+  private Form<EditTiClientInfoForm> validateDateOfBirth(Form<EditTiClientInfoForm> form) {
+    Optional<String> errorMessage = validateDateOfBirth(form.value().get().getDob());
+    if (errorMessage.isPresent()) {
+      return form.withError(FORM_FIELD_NAME_DOB, errorMessage.get());
+    }
+    return form;
+  }
+
+  public Form<EditTiClientInfoForm> updateClientInfo(
+    Form<EditTiClientInfoForm> form, TrustedIntermediaryGroupModel tiGroup, Long accountId)
+    throws ApplicantNotFoundException {
+    // validate functions return the form w/ validation errors if applicable
+    form = validateFirstNameForEditClient(form);
+    form = validateLastNameForEditClient(form);
+    form = validatePhoneNumber(form);
+    form = validateDateOfBirth(form);
+    if (form.hasErrors()) {
+      return form;
+    }
+    Optional<AccountModel> accountMaybe =
+      tiGroup.getManagedAccounts().stream()
+        .filter(account -> account.id.equals(accountId))
+        .findAny();
+    if (accountMaybe.isEmpty() || accountMaybe.get().newestApplicant().isEmpty()) {
+      throw new ApplicantNotFoundException(accountId);
+    }
+    ApplicantModel applicant = accountMaybe.get().newestApplicant().get();
+    ApplicantData applicantData = applicant.getApplicantData();
+
+    //name update
+    String firstName = form.get().getFirstName();
+    String middleName = form.get().getMiddleName();
+    String lastName = form.get().getLastName();
+     String currentFullName =  applicantData
+              .getApplicantFullName()
+              .get();
+     String newFullName = applicantData.buildApplicantFullName(Optional.of(firstName), Optional.of(middleName), Optional.of(lastName)).get();
+     if(!currentFullName.equals(newFullName)) {
+       accountRepository.updateClientName(firstName, middleName, lastName, applicant);
+     }
+      // DOB update
+    String newDob = form.get().getDob();
+    LocalDate localDate = LocalDate.parse(newDob, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    if (!applicantData.getDateOfBirth().get().equals(localDate)) {
+      accountRepository.updateClientDob(newDob,applicant);
+    }
+    //Phone number update
+    Optional<String> currentPhone = applicantData.getPhoneNumber();
+    String newPhoneNumber = form.get().getPhoneNumber();
+    if (!currentPhone.isPresent() || !currentPhone.get().equals(newPhoneNumber)) {
+      accountRepository.updateClientPhoneNumber(newPhoneNumber,applicant);
+    }
+    //tiNote update
+    AccountModel currentAccount = applicant.getAccount();
+    String newTiNote = form.get().getTiNote();
+    if(currentAccount.getTiNote().isEmpty() || !currentAccount.getTiNote().equals(newTiNote)) {
+      accountRepository.updateClientTiNote(newTiNote,currentAccount);
+    }
+    //email update
+    String newEmail = form.get().getEmailAddress();
+    if (checkEmailChange(newEmail, currentAccount)
+      && accountRepository.lookupAccountByEmail(newEmail).isEmpty()) {
+      accountRepository.updateClientEmail(newEmail, accountId);
     }
     return form;
   }
@@ -217,45 +281,4 @@ public final class TrustedIntermediaryService {
         .collect(ImmutableList.toImmutableList());
   }
 
-  private Form<EditTiClientInfoForm> validateDateOfBirth(Form<EditTiClientInfoForm> form) {
-    Optional<String> errorMessage = validateDateOfBirth(form.value().get().getDob());
-    if (errorMessage.isPresent()) {
-      return form.withError(FORM_FIELD_NAME_DOB, errorMessage.get());
-    }
-    return form;
-  }
-
-  public Form<EditTiClientInfoForm> updateClientInfo(
-      Form<EditTiClientInfoForm> form, TrustedIntermediaryGroupModel tiGroup, Long accountId)
-      throws ApplicantNotFoundException {
-    // validate functions return the form w/ validation errors if applicable
-    form = validateFirstNameForEditClient(form);
-    form = validateLastNameForEditClient(form);
-    form = validatePhoneNumber(form);
-    form = validateDateOfBirth(form);
-    form = validateEmail(form);
-    form = validateNote(form);
-    if (form.hasErrors()) {
-      return form;
-    }
-    Optional<AccountModel> accountMaybe =
-        tiGroup.getManagedAccounts().stream()
-            .filter(account -> account.id.equals(accountId))
-            .findAny();
-    if (accountMaybe.isEmpty() || accountMaybe.get().newestApplicant().isEmpty()) {
-      throw new ApplicantNotFoundException(accountId);
-    }
-    ApplicantModel applicant = accountMaybe.get().newestApplicant().get();
-    accountRepository.updateApplicantInfoForTrustedIntermediaryGroup(form.get(), applicant);
-    String email = form.get().getEmailAddress();
-    if (checkEmailChange(email, accountMaybe.get())
-        && accountRepository.lookupAccountByEmail(email).isEmpty()) {
-      accountRepository.updateApplicantEmail(email, accountId);
-    }
-    return form;
-  }
-
-  private Boolean checkEmailChange(String email, AccountModel account) {
-    return !email.equals(account.getEmailAddress());
-  }
 }

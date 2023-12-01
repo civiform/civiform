@@ -79,21 +79,39 @@ public class ApplicantData extends CfJsonDocumentContext {
   }
 
   public Optional<String> getApplicantFullName() {
-    if (!hasPath(WellKnownPaths.APPLICANT_FIRST_NAME)) {
+    return buildApplicantFullName(readString(WellKnownPaths.APPLICANT_FIRST_NAME),readString(WellKnownPaths.APPLICANT_MIDDLE_NAME),readString(WellKnownPaths.APPLICANT_LAST_NAME));
+
+//    if (!hasPath(WellKnownPaths.APPLICANT_FIRST_NAME)) {
+//      return Optional.empty();
+//    }
+//    StringBuilder nameBuilder = new StringBuilder();
+//    nameBuilder.append(readString(WellKnownPaths.APPLICANT_FIRST_NAME).get());
+//    if (hasPath(WellKnownPaths.APPLICANT_MIDDLE_NAME)
+//        && readAsString(WellKnownPaths.APPLICANT_MIDDLE_NAME).isPresent()) {
+//      nameBuilder.append(", ");
+//      nameBuilder.append(readString(WellKnownPaths.APPLICANT_MIDDLE_NAME).get());
+//    } else {
+//      nameBuilder.append(", ");
+//    }
+//    if (hasPath(WellKnownPaths.APPLICANT_LAST_NAME)) {
+//      nameBuilder.append(", ");
+//      nameBuilder.append(readString(WellKnownPaths.APPLICANT_LAST_NAME).get());
+//    }
+//    return Optional.of(nameBuilder.toString());
+  }
+  public Optional<String> buildApplicantFullName(Optional<String> firstName,Optional<String> middleName, Optional<String> lastName){
+    if(firstName.isEmpty()) {
       return Optional.empty();
     }
     StringBuilder nameBuilder = new StringBuilder();
-    nameBuilder.append(readString(WellKnownPaths.APPLICANT_FIRST_NAME).get());
-    if (hasPath(WellKnownPaths.APPLICANT_MIDDLE_NAME)
-        && readAsString(WellKnownPaths.APPLICANT_MIDDLE_NAME).isPresent()) {
-      nameBuilder.append(", ");
-      nameBuilder.append(readString(WellKnownPaths.APPLICANT_MIDDLE_NAME).get());
-    } else {
+    nameBuilder.append(firstName.get());
+    nameBuilder.append(", ");
+    if(middleName.isPresent()){
+      nameBuilder.append(middleName.get());
       nameBuilder.append(", ");
     }
-    if (hasPath(WellKnownPaths.APPLICANT_LAST_NAME)) {
-      nameBuilder.append(", ");
-      nameBuilder.append(readString(WellKnownPaths.APPLICANT_LAST_NAME).get());
+    if(lastName.isPresent()){
+      nameBuilder.append(lastName.get());
     }
     return Optional.of(nameBuilder.toString());
   }

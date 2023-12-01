@@ -167,49 +167,23 @@ public final class AccountRepository {
         executionContext);
   }
 
-  public void updateApplicantInfoForTrustedIntermediaryGroup(
-      EditTiClientInfoForm form, ApplicantModel applicant) {
-    ApplicantData applicantData = applicant.getApplicantData();
-    // name update
-    if (!applicantData
-        .getApplicantFullName()
-        .get()
-        .equals(
-            getFullNameFromForm(form.getFirstName(), form.getMiddleName(), form.getLastName()))) {
-      applicantData.setUserName(form.getFirstName(), form.getMiddleName(), form.getLastName());
-    }
-    // DOB update
-    LocalDate localDate = LocalDate.parse(form.getDob(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-    if (!applicantData.getDateOfBirth().get().equals(localDate)) {
-      applicantData.setDateOfBirth(form.getDob());
-    }
-    // Phone number update
-    Optional<String> currentPhone = applicantData.getPhoneNumber();
-    if (!currentPhone.isPresent() || !currentPhone.get().equals(form.getPhoneNumber())) {
-      applicantData.setPhoneNumber(form.getPhoneNumber());
-    }
-    // tiNote update
-    AccountModel currentAccount = applicant.getAccount();
-    currentAccount.setTiNote(form.getTiNote());
-    // saving updates
-    currentAccount.save();
+  public void updateClientDob(String newDob, ApplicantModel applicant){
+    applicant.getApplicantData().setDateOfBirth(newDob);
     applicant.save();
   }
-
-  private String getFullNameFromForm(String firstName, String middleName, String lastName) {
-    StringBuilder nameBuilder = new StringBuilder();
-    nameBuilder.append(firstName);
-    nameBuilder.append(", ");
-    if (!Strings.isNullOrEmpty(middleName)) {
-      nameBuilder.append(middleName);
-      nameBuilder.append(", ");
-    }
-    nameBuilder.append(lastName);
-
-    return nameBuilder.toString();
+  public void updateClientName(String firstName,String middleName,String lastName,ApplicantModel applicant) {
+    applicant.getApplicantData().setUserName(firstName,middleName,lastName);
+    applicant.save();
   }
-
-  public void updateApplicantEmail(String email, Long accountId) {
+  public void updateClientPhoneNumber(String phoneNumber, ApplicantModel applicant){
+    applicant.getApplicantData().setPhoneNumber(phoneNumber);
+    applicant.save();
+  }
+  public void updateClientTiNote(String tiNote, AccountModel account) {
+    account.setTiNote(tiNote);
+    account.save();
+  }
+  public void updateClientEmail(String email, Long accountId) {
     if (!Strings.isNullOrEmpty(email)) {
       try (Transaction transaction = database.beginTransaction()) {
         AccountModel currentAccount = lookupAccount(accountId).get();
