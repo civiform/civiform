@@ -12,8 +12,8 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import models.LifecycleStage;
 import models.ProgramModel;
-import models.Question;
-import models.Version;
+import models.QuestionModel;
+import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -67,13 +67,13 @@ public class VersionRepositoryTest extends ResetPostgres {
   @Test
   public void testPublish_tombstonesProgramsAndQuestionsOnlyCreatedInTheDraftVersion()
       throws Exception {
-    Question draftOnlyQuestion = resourceCreator.insertQuestion("draft-only-question");
+    QuestionModel draftOnlyQuestion = resourceCreator.insertQuestion("draft-only-question");
     draftOnlyQuestion.addVersion(versionRepository.getDraftVersionOrCreate()).save();
 
     ProgramModel draftOnlyProgram =
         ProgramBuilder.newDraftProgram("draft-only-program").withBlock("Screen 1").build();
 
-    Version draftForTombstoning = versionRepository.getDraftVersionOrCreate();
+    VersionModel draftForTombstoning = versionRepository.getDraftVersionOrCreate();
     assertThat(
             versionRepository.addTombstoneForQuestionInVersion(
                 draftOnlyQuestion, draftForTombstoning))
@@ -95,7 +95,7 @@ public class VersionRepositoryTest extends ResetPostgres {
         .containsExactly(draftOnlyQuestion.getQuestionDefinition().getName());
 
     // Publish and ensure that both the program and question aren't carried forward.
-    Version updated = versionRepository.previewPublishNewSynchronizedVersion();
+    VersionModel updated = versionRepository.previewPublishNewSynchronizedVersion();
     assertThat(updated.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     assertThat(updated.getPrograms()).isEmpty();
     assertThat(updated.getTombstonedProgramNames()).isEmpty();
@@ -105,9 +105,9 @@ public class VersionRepositoryTest extends ResetPostgres {
 
   @Test
   public void testPublish() {
-    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
-    Question secondQuestion = resourceCreator.insertQuestion("second-question");
+    QuestionModel secondQuestion = resourceCreator.insertQuestion("second-question");
     secondQuestion.addVersion(versionRepository.getActiveVersion()).save();
 
     ProgramModel firstProgramActive =
@@ -120,7 +120,7 @@ public class VersionRepositoryTest extends ResetPostgres {
             .withBlock("Screen 1")
             .withRequiredQuestion(secondQuestion)
             .build();
-    Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
+    QuestionModel secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
     secondQuestionUpdated.addVersion(versionRepository.getDraftVersionOrCreate()).save();
     ProgramModel secondProgramDraft =
         ProgramBuilder.newDraftProgram("bar")
@@ -137,11 +137,11 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.getDraftVersionOrCreate().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(secondQuestionUpdated.id);
 
-    Version oldDraft = versionRepository.getDraftVersionOrCreate();
-    Version oldActive = versionRepository.getActiveVersion();
+    VersionModel oldDraft = versionRepository.getDraftVersionOrCreate();
+    VersionModel oldActive = versionRepository.getActiveVersion();
 
     // First, preview the changes and ensure no versions are updated.
-    Version toApplyNewActiveVersion = versionRepository.previewPublishNewSynchronizedVersion();
+    VersionModel toApplyNewActiveVersion = versionRepository.previewPublishNewSynchronizedVersion();
     assertThat(versionRepository.getDraftVersionOrCreate().id).isEqualTo(oldDraft.id);
     assertThat(versionRepository.getActiveVersion().id).isEqualTo(oldActive.id);
     assertThat(versionRepository.getDraftVersionOrCreate().getPrograms().stream().map(p -> p.id))
@@ -196,9 +196,9 @@ public class VersionRepositoryTest extends ResetPostgres {
 
   @Test
   public void testPublishWithQuestionsNotIncludedInPrograms() throws Exception {
-    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
-    Question secondQuestion = resourceCreator.insertQuestion("second-question");
+    QuestionModel secondQuestion = resourceCreator.insertQuestion("second-question");
     secondQuestion.addVersion(versionRepository.getActiveVersion()).save();
 
     ProgramModel firstProgramActive =
@@ -212,12 +212,12 @@ public class VersionRepositoryTest extends ResetPostgres {
             .withRequiredQuestion(secondQuestion)
             .build();
 
-    Version draftForTombstoning = versionRepository.getDraftVersionOrCreate();
+    VersionModel draftForTombstoning = versionRepository.getDraftVersionOrCreate();
     draftForTombstoning.addQuestion(firstQuestion).save();
     assertThat(
             versionRepository.addTombstoneForQuestionInVersion(firstQuestion, draftForTombstoning))
         .isTrue();
-    Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
+    QuestionModel secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
     secondQuestionUpdated.addVersion(versionRepository.getDraftVersionOrCreate()).save();
 
     assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
@@ -235,9 +235,9 @@ public class VersionRepositoryTest extends ResetPostgres {
 
   @Test
   public void testPublishWithDraftQuestionsAndActivePrograms() throws Exception {
-    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
-    Question secondQuestion = resourceCreator.insertQuestion("second-question");
+    QuestionModel secondQuestion = resourceCreator.insertQuestion("second-question");
     secondQuestion.addVersion(versionRepository.getActiveVersion()).save();
 
     ProgramModel firstProgramActive =
@@ -251,12 +251,12 @@ public class VersionRepositoryTest extends ResetPostgres {
             .withRequiredQuestion(secondQuestion)
             .build();
 
-    Version draftForTombstoning = versionRepository.getDraftVersionOrCreate();
+    VersionModel draftForTombstoning = versionRepository.getDraftVersionOrCreate();
     draftForTombstoning.addQuestion(firstQuestion).save();
     assertThat(
             versionRepository.addTombstoneForQuestionInVersion(firstQuestion, draftForTombstoning))
         .isTrue();
-    Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
+    QuestionModel secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
     secondQuestionUpdated.addVersion(versionRepository.getDraftVersionOrCreate()).save();
     versionRepository.updateProgramsThatReferenceQuestion(secondQuestion.id);
 
@@ -274,8 +274,8 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.getDraftVersionOrCreate().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
 
-    Version oldDraft = versionRepository.getDraftVersionOrCreate();
-    Version oldActive = versionRepository.getActiveVersion();
+    VersionModel oldDraft = versionRepository.getDraftVersionOrCreate();
+    VersionModel oldActive = versionRepository.getActiveVersion();
 
     versionRepository.publishNewSynchronizedVersion();
 
@@ -298,17 +298,17 @@ public class VersionRepositoryTest extends ResetPostgres {
 
   @Test
   public void testPublishWithDraftQuestionsAndNoActiveOrDraftPrograms() throws Exception {
-    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
-    Question secondQuestion = resourceCreator.insertQuestion("second-question");
+    QuestionModel secondQuestion = resourceCreator.insertQuestion("second-question");
     secondQuestion.addVersion(versionRepository.getActiveVersion()).save();
 
-    Version draftForTombstoning = versionRepository.getDraftVersionOrCreate();
+    VersionModel draftForTombstoning = versionRepository.getDraftVersionOrCreate();
     draftForTombstoning.addQuestion(firstQuestion).save();
     assertThat(
             versionRepository.addTombstoneForQuestionInVersion(firstQuestion, draftForTombstoning))
         .isTrue();
-    Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
+    QuestionModel secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
     secondQuestionUpdated.addVersion(versionRepository.getDraftVersionOrCreate()).save();
 
     assertThat(versionRepository.getActiveVersion().getPrograms()).isEmpty();
@@ -318,8 +318,8 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.getDraftVersionOrCreate().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
 
-    Version oldDraft = versionRepository.getDraftVersionOrCreate();
-    Version oldActive = versionRepository.getActiveVersion();
+    VersionModel oldDraft = versionRepository.getDraftVersionOrCreate();
+    VersionModel oldActive = versionRepository.getActiveVersion();
 
     versionRepository.publishNewSynchronizedVersion();
 
@@ -341,12 +341,12 @@ public class VersionRepositoryTest extends ResetPostgres {
 
   @Test
   public void testPublishProgram() throws Exception {
-    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
-    Question secondQuestion = resourceCreator.insertQuestion("second-question");
+    QuestionModel secondQuestion = resourceCreator.insertQuestion("second-question");
     secondQuestion.addVersion(versionRepository.getActiveVersion()).save();
     // Third question is only a draft.
-    Question thirdQuestion = resourceCreator.insertQuestion("third-question");
+    QuestionModel thirdQuestion = resourceCreator.insertQuestion("third-question");
     thirdQuestion.addVersion(versionRepository.getDraftVersionOrCreate()).save();
 
     ProgramModel firstProgramActive =
@@ -366,7 +366,7 @@ public class VersionRepositoryTest extends ResetPostgres {
             .build();
 
     // secondProgramDraft and its question, secondQuestionUpdated, should be published.
-    Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
+    QuestionModel secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
     secondQuestionUpdated.addVersion(versionRepository.getDraftVersionOrCreate()).save();
     ProgramModel secondProgramDraft =
         ProgramBuilder.newDraftProgram("bar")
@@ -392,8 +392,8 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.getDraftVersionOrCreate().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(secondQuestionUpdated.id, thirdQuestion.id);
 
-    Version oldDraft = versionRepository.getDraftVersionOrCreate();
-    Version oldActive = versionRepository.getActiveVersion();
+    VersionModel oldDraft = versionRepository.getDraftVersionOrCreate();
+    VersionModel oldActive = versionRepository.getActiveVersion();
 
     // Publish the second program.
     versionRepository.publishNewSynchronizedVersion("bar");
@@ -421,9 +421,9 @@ public class VersionRepositoryTest extends ResetPostgres {
 
   @Test
   public void testPublishProgramWithNewProgram() throws Exception {
-    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
-    Question secondQuestion = resourceCreator.insertQuestion("second-question");
+    QuestionModel secondQuestion = resourceCreator.insertQuestion("second-question");
     secondQuestion.addVersion(versionRepository.getActiveVersion()).save();
 
     ProgramModel firstProgramActive =
@@ -431,7 +431,7 @@ public class VersionRepositoryTest extends ResetPostgres {
             .withBlock("Screen 1")
             .withRequiredQuestion(firstQuestion)
             .build();
-    Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
+    QuestionModel secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
     secondQuestionUpdated.addVersion(versionRepository.getDraftVersionOrCreate()).save();
 
     // Program being published has no existing active version.
@@ -441,8 +441,8 @@ public class VersionRepositoryTest extends ResetPostgres {
             .withRequiredQuestion(firstQuestion)
             .build();
 
-    Version oldDraft = versionRepository.getDraftVersionOrCreate();
-    Version oldActive = versionRepository.getActiveVersion();
+    VersionModel oldDraft = versionRepository.getDraftVersionOrCreate();
+    VersionModel oldActive = versionRepository.getActiveVersion();
 
     versionRepository.publishNewSynchronizedVersion("bar");
 
@@ -466,9 +466,9 @@ public class VersionRepositoryTest extends ResetPostgres {
 
   @Test
   public void testPublishProgramDoesNotAllowPublishingWhenQuestionsAreShared() throws Exception {
-    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
-    Question secondQuestion = resourceCreator.insertQuestion("second-question");
+    QuestionModel secondQuestion = resourceCreator.insertQuestion("second-question");
     secondQuestion.addVersion(versionRepository.getActiveVersion()).save();
 
     ProgramModel firstProgramActive =
@@ -484,7 +484,7 @@ public class VersionRepositoryTest extends ResetPostgres {
             .build();
 
     // firstProgram and secondProgram both reference secondQuestionUpdated.
-    Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
+    QuestionModel secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
     secondQuestionUpdated.addVersion(versionRepository.getDraftVersionOrCreate()).save();
     ProgramModel firstProgramDraft =
         ProgramBuilder.newDraftProgram("foo")
@@ -516,7 +516,7 @@ public class VersionRepositoryTest extends ResetPostgres {
 
   @Test
   public void testPublishProgramDoesNotAllowPublishingNonDraftProgram() throws Exception {
-    Question question = resourceCreator.insertQuestion("first-question");
+    QuestionModel question = resourceCreator.insertQuestion("first-question");
     question.addVersion(versionRepository.getActiveVersion()).save();
 
     ProgramModel activeProgram =
@@ -538,14 +538,14 @@ public class VersionRepositoryTest extends ResetPostgres {
         .containsExactlyInAnyOrder(question.id);
   }
 
-  private Question insertActiveQuestion(String name) {
-    Question q = resourceCreator.insertQuestion(name);
+  private QuestionModel insertActiveQuestion(String name) {
+    QuestionModel q = resourceCreator.insertQuestion(name);
     q.addVersion(versionRepository.getActiveVersion()).save();
     return q;
   }
 
-  private Question insertDraftQuestion(String name) {
-    Question q = resourceCreator.insertQuestion(name);
+  private QuestionModel insertDraftQuestion(String name) {
+    QuestionModel q = resourceCreator.insertQuestion(name);
     q.addVersion(versionRepository.getDraftVersionOrCreate()).save();
     return q;
   }
@@ -567,7 +567,7 @@ public class VersionRepositoryTest extends ResetPostgres {
                     program -> String.format("%d %s", program.id(), program.adminName()),
                     program -> program.lastModifiedTime().orElseThrow()));
 
-    ImmutableList<Question> questions =
+    ImmutableList<QuestionModel> questions =
         ImmutableList.of(
             insertActiveQuestion("active"),
             insertActiveQuestion("other_active"),
@@ -614,7 +614,7 @@ public class VersionRepositoryTest extends ResetPostgres {
             .map(
                 q ->
                     DB.getDefault()
-                        .find(Question.class)
+                        .find(QuestionModel.class)
                         .where()
                         .eq("id", q.id)
                         .findOneOrEmpty()
@@ -635,9 +635,9 @@ public class VersionRepositoryTest extends ResetPostgres {
   public void testTransactionality() {
     Transaction outer = DB.getDefault().beginTransaction();
     assertThat(outer.isActive()).isTrue();
-    Version draft = versionRepository.getDraftVersionOrCreate();
+    VersionModel draft = versionRepository.getDraftVersionOrCreate();
     assertThat(outer.isActive()).isTrue();
-    Version draft2 = versionRepository.getDraftVersionOrCreate();
+    VersionModel draft2 = versionRepository.getDraftVersionOrCreate();
     assertThat(outer.isActive()).isTrue();
     outer.rollback();
     assertThat(outer.isActive()).isFalse();
@@ -646,22 +646,22 @@ public class VersionRepositoryTest extends ResetPostgres {
 
   @Test
   public void updatePredicateNode() {
-    Version draft = versionRepository.getDraftVersionOrCreate();
-    Version active = versionRepository.getActiveVersion();
+    VersionModel draft = versionRepository.getDraftVersionOrCreate();
+    VersionModel active = versionRepository.getActiveVersion();
 
     // Old versions of questions
-    Question oldOne = resourceCreator.insertQuestion("one");
+    QuestionModel oldOne = resourceCreator.insertQuestion("one");
     oldOne.addVersion(active);
     oldOne.save();
-    Question oldTwo = resourceCreator.insertQuestion("two");
+    QuestionModel oldTwo = resourceCreator.insertQuestion("two");
     oldTwo.addVersion(active);
     oldTwo.save();
 
     // New versions of questions
-    Question newOne = resourceCreator.insertQuestion("one");
+    QuestionModel newOne = resourceCreator.insertQuestion("one");
     newOne.addVersion(draft);
     newOne.save();
-    Question newTwo = resourceCreator.insertQuestion("two");
+    QuestionModel newTwo = resourceCreator.insertQuestion("two");
     newTwo.addVersion(draft);
     newTwo.save();
 
@@ -711,22 +711,22 @@ public class VersionRepositoryTest extends ResetPostgres {
 
   @Test
   public void updateQuestionVersions_updatesAllQuestionsInBlocks() {
-    Version draft = versionRepository.getDraftVersionOrCreate();
-    Version active = versionRepository.getActiveVersion();
+    VersionModel draft = versionRepository.getDraftVersionOrCreate();
+    VersionModel active = versionRepository.getActiveVersion();
 
     // Create some old questions
-    Question oldOne = resourceCreator.insertQuestion("one");
+    QuestionModel oldOne = resourceCreator.insertQuestion("one");
     oldOne.addVersion(active);
     oldOne.save();
-    Question oldTwo = resourceCreator.insertQuestion("two");
+    QuestionModel oldTwo = resourceCreator.insertQuestion("two");
     oldTwo.addVersion(active);
     oldTwo.save();
 
     // Create new versions of the old questions
-    Question newOne = resourceCreator.insertQuestion("one");
+    QuestionModel newOne = resourceCreator.insertQuestion("one");
     newOne.addVersion(draft);
     newOne.save();
-    Question newTwo = resourceCreator.insertQuestion("two");
+    QuestionModel newTwo = resourceCreator.insertQuestion("two");
     newTwo.addVersion(draft);
     newTwo.save();
 
@@ -886,12 +886,12 @@ public class VersionRepositoryTest extends ResetPostgres {
 
   @Test
   public void getProgramQuestionNamesInVersion() {
-    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
-    Question secondQuestion = resourceCreator.insertQuestion("second-question");
+    QuestionModel secondQuestion = resourceCreator.insertQuestion("second-question");
     secondQuestion.addVersion(versionRepository.getActiveVersion()).save();
     // Third question is only a draft.
-    Question thirdQuestion = resourceCreator.insertQuestion("third-question");
+    QuestionModel thirdQuestion = resourceCreator.insertQuestion("third-question");
     thirdQuestion.addVersion(versionRepository.getDraftVersionOrCreate()).save();
 
     ProgramModel firstProgramActive =
@@ -905,7 +905,7 @@ public class VersionRepositoryTest extends ResetPostgres {
             .withRequiredQuestion(secondQuestion)
             .build();
 
-    Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
+    QuestionModel secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
     secondQuestionUpdated.addVersion(versionRepository.getDraftVersionOrCreate()).save();
     ProgramModel secondProgramDraft =
         ProgramBuilder.newDraftProgram("bar")
@@ -914,8 +914,8 @@ public class VersionRepositoryTest extends ResetPostgres {
             .withRequiredQuestion(thirdQuestion)
             .build();
 
-    Version draft = versionRepository.getDraftVersionOrCreate();
-    Version active = versionRepository.getActiveVersion();
+    VersionModel draft = versionRepository.getDraftVersionOrCreate();
+    VersionModel active = versionRepository.getActiveVersion();
 
     assertThat(
             versionRepository.getProgramQuestionNamesInVersion(
@@ -941,29 +941,29 @@ public class VersionRepositoryTest extends ResetPostgres {
   @Test
   public void previousVersion_isFound() {
     // Create first version
-    Version version1 = versionRepository.getDraftVersionOrCreate();
-    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    VersionModel version1 = versionRepository.getDraftVersionOrCreate();
+    QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(version1).save();
     version1.save();
     versionRepository.publishNewSynchronizedVersion();
     version1.refresh();
 
     // Test finding previous version
-    Version activeVersion = versionRepository.getActiveVersion();
-    Optional<Version> previousVersion = versionRepository.getPreviousVersion(activeVersion);
+    VersionModel activeVersion = versionRepository.getActiveVersion();
+    Optional<VersionModel> previousVersion = versionRepository.getPreviousVersion(activeVersion);
 
     assertThat(previousVersion.isPresent()).isTrue();
   }
 
   @Test
   public void getQuestionByNameForVersion_found() {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String questionName = "question";
-    Question question = resourceCreator.insertQuestion(questionName);
+    QuestionModel question = resourceCreator.insertQuestion(questionName);
     question.addVersion(version).save();
     version.refresh();
 
-    Optional<Question> result =
+    Optional<QuestionModel> result =
         versionRepository.getQuestionByNameForVersion(questionName, version);
     assertThat(result.isPresent()).isTrue();
     assertThat(result.get().getQuestionDefinition().getName()).isEqualTo(questionName);
@@ -971,13 +971,13 @@ public class VersionRepositoryTest extends ResetPostgres {
 
   @Test
   public void getQuestionByNameForVersion_notFound() {
-    Version version = versionRepository.getDraftVersionOrCreate();
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
     String questionName = "question";
-    Question question = resourceCreator.insertQuestion(questionName);
+    QuestionModel question = resourceCreator.insertQuestion(questionName);
     question.addVersion(version).save();
     version.refresh();
 
-    Optional<Question> result =
+    Optional<QuestionModel> result =
         versionRepository.getQuestionByNameForVersion(questionName + "other", version);
     assertThat(result.isPresent()).isFalse();
   }
@@ -986,13 +986,13 @@ public class VersionRepositoryTest extends ResetPostgres {
   public void getQuestions_usesCacheIfEnabledForObsoleteVersion() {
     Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
 
-    Version version1 = versionRepository.getDraftVersionOrCreate();
+    VersionModel version1 = versionRepository.getDraftVersionOrCreate();
     ProgramBuilder.newDraftProgram("draft program").build();
     versionRepository.publishNewSynchronizedVersion();
     version1.refresh();
 
     // Create another version and publish it, so the original version becomes obsolete
-    Version version2 = versionRepository.getDraftVersionOrCreate();
+    VersionModel version2 = versionRepository.getDraftVersionOrCreate();
     ProgramBuilder.newDraftProgram("draft program2").build();
     version2.save();
     versionRepository.publishNewSynchronizedVersion();
@@ -1005,10 +1005,10 @@ public class VersionRepositoryTest extends ResetPostgres {
     questionsByVersionCache.remove(version1Key);
 
     // Associate question with obsolete version
-    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(version1).save();
 
-    ImmutableList<Question> questionsForVersion =
+    ImmutableList<QuestionModel> questionsForVersion =
         versionRepository.getQuestionsForVersion(version1);
 
     assertThat(questionsByVersionCache.get(version1Key).get()).isEqualTo(questionsForVersion);
@@ -1018,7 +1018,7 @@ public class VersionRepositoryTest extends ResetPostgres {
   public void getQuestions_usesCacheIfEnabledForActiveVersion() {
     Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
 
-    Version version1 = versionRepository.getDraftVersionOrCreate();
+    VersionModel version1 = versionRepository.getDraftVersionOrCreate();
     ProgramBuilder.newDraftProgram("draft program").build();
     versionRepository.publishNewSynchronizedVersion();
     version1.refresh();
@@ -1026,10 +1026,10 @@ public class VersionRepositoryTest extends ResetPostgres {
     String version1Key = String.valueOf(version1.id);
 
     // Associate question with active version
-    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(version1).save();
 
-    ImmutableList<Question> questionsForVersion =
+    ImmutableList<QuestionModel> questionsForVersion =
         versionRepository.getQuestionsForVersion(version1);
 
     assertThat(questionsByVersionCache.get(version1Key).get()).isEqualTo(questionsForVersion);
@@ -1039,9 +1039,9 @@ public class VersionRepositoryTest extends ResetPostgres {
   public void getQuestions_doesNotUseCacheForDraftVersion() {
     Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
 
-    Version version1 = versionRepository.getDraftVersionOrCreate();
+    VersionModel version1 = versionRepository.getDraftVersionOrCreate();
     version1.save();
-    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(version1).save();
 
     String version1Key = String.valueOf(version1.id);
@@ -1057,13 +1057,13 @@ public class VersionRepositoryTest extends ResetPostgres {
   public void getPrograms_usesCacheIfEnabledForObsoleteVersion() {
     Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
 
-    Version version1 = versionRepository.getDraftVersionOrCreate();
+    VersionModel version1 = versionRepository.getDraftVersionOrCreate();
     resourceCreator.insertDraftProgram("first-program");
     versionRepository.publishNewSynchronizedVersion();
     version1.refresh();
 
     // Create another version and publish it, so the original version becomes obsolete
-    Version version2 = versionRepository.getDraftVersionOrCreate();
+    VersionModel version2 = versionRepository.getDraftVersionOrCreate();
     resourceCreator.insertDraftProgram("second-program");
     versionRepository.publishNewSynchronizedVersion();
     version2.refresh();
@@ -1079,7 +1079,7 @@ public class VersionRepositoryTest extends ResetPostgres {
   @Test
   public void getPrograms_usesCacheIfEnabledForActiveVersion() {
     Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
-    Version version1 = versionRepository.getDraftVersionOrCreate();
+    VersionModel version1 = versionRepository.getDraftVersionOrCreate();
     resourceCreator.insertDraftProgram("first-program");
     versionRepository.publishNewSynchronizedVersion();
     version1.refresh();
@@ -1095,7 +1095,7 @@ public class VersionRepositoryTest extends ResetPostgres {
   @Test
   public void getPrograms_doesNotUseCacheForDraftVersion() {
     Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
-    Version version1 = versionRepository.getDraftVersionOrCreate();
+    VersionModel version1 = versionRepository.getDraftVersionOrCreate();
     resourceCreator.insertDraftProgram("first-program");
     version1.save();
 

@@ -129,6 +129,7 @@ public enum MessageKey {
   LINK_CREATE_ACCOUNT_OR_SIGN_IN("link.createAccountOrSignIn"),
   LINK_EDIT("link.edit"),
   LINK_ANSWER("link.answer"),
+  LINK_OPENS_NEW_TAB_SR("link.opensNewTabSr"),
   LINK_PROGRAM_DETAILS("link.programDetails"),
   LINK_PROGRAM_DETAILS_SR("link.programDetailsSr"),
   MOBILE_FILE_UPLOAD_HELP("content.mobileFileUploadHelp"),

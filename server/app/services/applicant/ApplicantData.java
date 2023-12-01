@@ -159,7 +159,12 @@ public class ApplicantData extends CfJsonDocumentContext {
   }
 
   public void setDateOfBirth(String dateOfBirth) {
-    putDate(WellKnownPaths.APPLICANT_DOB, dateOfBirth);
+    Path deprecatedDobPath = WellKnownPaths.APPLICANT_DOB_DEPRECATED;
+    if (hasPath(deprecatedDobPath)) {
+      putDate(deprecatedDobPath, dateOfBirth);
+    } else {
+      putDate(WellKnownPaths.APPLICANT_DOB, dateOfBirth);
+    }
   }
 
   /**

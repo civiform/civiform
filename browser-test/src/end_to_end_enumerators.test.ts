@@ -88,10 +88,10 @@ describe('End to end enumerator test', () => {
     )
 
     // All non-repeated questions should be available in the question bank.
-    expect(await page.innerText('id=question-bank-questions')).toContain(
+    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
       'enumerator-ete-name',
     )
-    expect(await page.innerText('id=question-bank-questions')).toContain(
+    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
       'enumerator-ete-householdmembers',
     )
 
@@ -99,14 +99,14 @@ describe('End to end enumerator test', () => {
     await adminPrograms.addQuestionFromQuestionBank(
       'enumerator-ete-householdmembers',
     )
-    expect(await page.innerText('id=question-bank-questions')).toBe('')
+    expect(await page.innerText('id=question-bank-nonuniversal')).toBe('')
 
     // Remove the enumerator question and add a non-enumerator question, and the enumerator option should not be in the bank.
     await page.click(
       '.cf-program-question:has-text("enumerator-ete-householdmembers") >> .cf-remove-question-button',
     )
     await adminPrograms.addQuestionFromQuestionBank('enumerator-ete-name')
-    expect(await page.innerText('id=question-bank-questions')).not.toContain(
+    expect(await page.innerText('id=question-bank-nonuniversal')).not.toContain(
       'enumerator-ete-householdmembers',
     )
 
@@ -116,10 +116,10 @@ describe('End to end enumerator test', () => {
       'enumerator-ete-householdmembers',
     )
     await page.click('#create-repeated-block-button')
-    expect(await page.innerText('id=question-bank-questions')).toContain(
+    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
       'enumerator-ete-repeated-name',
     )
-    expect(await page.innerText('id=question-bank-questions')).toContain(
+    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
       'enumerator-ete-repeated-jobs',
     )
 

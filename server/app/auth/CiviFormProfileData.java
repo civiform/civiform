@@ -4,7 +4,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
 import models.AccountModel;
-import models.Applicant;
+import models.ApplicantModel;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import repository.DatabaseExecutionContext;
@@ -17,6 +17,17 @@ import repository.DatabaseExecutionContext;
  * <p>It is wrapped by CiviFormProfile, which is what we should use server-side.
  */
 public class CiviFormProfileData extends CommonProfile {
+
+  // It is crucial that serialization of this class does not change, so that user profiles continue
+  // to be honored and in-progress applications are not lost.
+  //
+  // However, serialization is highly sensitive to details of the class, well beyond the actual data
+  // being serialized: see https://docs.oracle.com/javase/7/docs/api/java/io/Serializable.html
+  //
+  // The value below corresponds to the value computed by the compiler for the current version of
+  // the class. Specifying this value will prevent us from introducing changes that break
+  // serialization.
+  private static final long serialVersionUID = 3142603030317816700L;
 
   public CiviFormProfileData() {
     super();
@@ -63,7 +74,7 @@ public class CiviFormProfileData extends CommonProfile {
             () -> {
               AccountModel acc = new AccountModel();
               acc.save();
-              Applicant newA = new Applicant();
+              ApplicantModel newA = new ApplicantModel();
               newA.setAccount(acc);
               newA.save();
 

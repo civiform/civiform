@@ -34,6 +34,7 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
       boolean isOptional) {
     Messages messages = params.messages();
     NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
+    boolean alreadyAutofocused = false;
 
     FieldWithLabel firstNameField =
         FieldWithLabel.input()
@@ -46,7 +47,10 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
                 messages,
                 validationErrors.getOrDefault(nameQuestion.getFirstNamePath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.NAME_FIRST);
-    if (applicantSelectedQuestion(params.questionName())) {
+    if (params.autofocusFirstField()
+        || (params.autofocusFirstError()
+            && validationErrors.containsKey(nameQuestion.getFirstNamePath()))) {
+      alreadyAutofocused = true;
       firstNameField.focusOnInput();
     }
 
@@ -73,20 +77,15 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
                 validationErrors.getOrDefault(nameQuestion.getLastNamePath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.NAME_LAST);
 
+    if (!alreadyAutofocused
+        && params.autofocusFirstError()
+        && validationErrors.containsKey(nameQuestion.getLastNamePath())) {
+      lastNameField.focusOnInput();
+    }
+
     if (!validationErrors.isEmpty()) {
       firstNameField.forceAriaInvalid();
       lastNameField.forceAriaInvalid();
-      /* Currently, only the streetAddress field will ever receive focus given that
-        we have no way of determining the exact field with an error. However, autofocus
-        will be on each field when we eventually find a way to do that.
-      */
-      if (params
-          .errorDisplayMode()
-          .equals(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)) {
-        firstNameField.focusOnError();
-        middleNameField.focusOnError();
-        lastNameField.focusOnError();
-      }
     }
 
     DivTag nameQuestionFormContent =

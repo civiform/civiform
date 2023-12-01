@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 import repository.ResetPostgres;
 
-public class TrustedIntermediaryGroupTest extends ResetPostgres {
+public class TrustedIntermediaryGroupModelTest extends ResetPostgres {
   @Test
   public void testTIOrg() {
     AccountModel ti = new AccountModel();
@@ -13,7 +13,7 @@ public class TrustedIntermediaryGroupTest extends ResetPostgres {
     AccountModel applicant = new AccountModel();
     applicant.save();
 
-    TrustedIntermediaryGroup tiGroup = new TrustedIntermediaryGroup("org", "an org");
+    TrustedIntermediaryGroupModel tiGroup = new TrustedIntermediaryGroupModel("org", "an org");
     tiGroup.save();
 
     ti.setMemberOfGroup(tiGroup);

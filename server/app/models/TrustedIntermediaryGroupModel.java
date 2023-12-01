@@ -16,7 +16,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "ti_organizations")
-public class TrustedIntermediaryGroup extends BaseModel {
+public class TrustedIntermediaryGroupModel extends BaseModel {
 
   @OneToMany(mappedBy = "memberOfGroup")
   private List<AccountModel> tiAccounts;
@@ -27,7 +27,7 @@ public class TrustedIntermediaryGroup extends BaseModel {
   private String name;
   private String description;
 
-  public TrustedIntermediaryGroup(String name, String description) {
+  public TrustedIntermediaryGroupModel(String name, String description) {
     this.name = name;
     this.description = description;
   }

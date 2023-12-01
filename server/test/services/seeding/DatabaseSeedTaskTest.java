@@ -3,7 +3,7 @@ package services.seeding;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
-import models.Question;
+import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
@@ -35,7 +35,7 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
     assertThat(getAllQuestions().size()).isEqualTo(2);
     assertThat(
             getAllQuestions().stream()
-                .map(Question::getQuestionDefinition)
+                .map(QuestionModel::getQuestionDefinition)
                 .map(QuestionDefinition::getName))
         .containsOnly("Name", "Applicant Date of Birth");
   }
@@ -61,12 +61,12 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
     assertThat(getAllQuestions().size()).isEqualTo(2);
     assertThat(
             getAllQuestions().stream()
-                .map(Question::getQuestionDefinition)
+                .map(QuestionModel::getQuestionDefinition)
                 .map(QuestionDefinition::getName))
         .containsOnly("Name", "Applicant Date of Birth");
   }
 
-  private Set<Question> getAllQuestions() {
+  private Set<QuestionModel> getAllQuestions() {
     return questionRepository.listQuestions().toCompletableFuture().join();
   }
 }

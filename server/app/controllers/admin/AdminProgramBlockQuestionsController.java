@@ -9,7 +9,7 @@ import forms.ProgramQuestionDefinitionOptionalityForm;
 import java.util.Map.Entry;
 import java.util.Optional;
 import javax.inject.Inject;
-import models.Question;
+import models.QuestionModel;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.FormFactory;
@@ -70,7 +70,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     // The users' browser may be out of date. Find the last revision of each question.
     ImmutableList.Builder<Long> idBuilder = new ImmutableList.Builder<Long>();
     for (Long qId : questionIds) {
-      Optional<Question> latestQuestion = versionRepository.getLatestVersionOfQuestion(qId);
+      Optional<QuestionModel> latestQuestion = versionRepository.getLatestVersionOfQuestion(qId);
       if (latestQuestion.isEmpty()) {
         return notFound(String.format("Question ID %s not found", qId));
       }

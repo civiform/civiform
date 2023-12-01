@@ -14,8 +14,8 @@ readonly IMAGE="civiform-dev"
 readonly LOCATION="."
 readonly DOCKERFILE="Dockerfile"
 
-BUILD_ARGS=(-f "${DOCKERFILE}"
-  -t "${NAMESPACE}/${IMAGE}:latest"
+BUILD_ARGS=(--file "${DOCKERFILE}"
+  --tag "${NAMESPACE}/${IMAGE}:latest"
   --cache-from "${NAMESPACE}/${IMAGE}"
   --build-arg BUILDKIT_INLINE_CACHE=1
   "${LOCATION}")

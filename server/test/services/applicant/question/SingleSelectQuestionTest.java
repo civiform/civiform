@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
-import models.Applicant;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import services.LocalizedStrings;
@@ -40,12 +40,12 @@ public class SingleSelectQuestionTest {
   private static final MultiOptionQuestionDefinition dropdownQuestionDefinition =
       new MultiOptionQuestionDefinition(CONFIG, QUESTION_OPTIONS, MultiOptionQuestionType.DROPDOWN);
 
-  private Applicant applicant;
+  private ApplicantModel applicant;
   private ApplicantData applicantData;
 
   @Before
   public void setUp() {
-    applicant = new Applicant();
+    applicant = new ApplicantModel();
     applicantData = applicant.getApplicantData();
   }
 

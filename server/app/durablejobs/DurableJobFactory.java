@@ -1,6 +1,6 @@
 package durablejobs;
 
-import models.PersistedDurableJob;
+import models.PersistedDurableJobModel;
 
 /**
  * Defines factories that produce instances of {@link DurableJob}.
@@ -11,5 +11,5 @@ import models.PersistedDurableJob;
 @FunctionalInterface
 public interface DurableJobFactory {
 
-  DurableJob create(PersistedDurableJob persistedDurableJob);
+  DurableJob create(PersistedDurableJobModel persistedDurableJob);
 }

@@ -10,7 +10,7 @@ import java.util.Locale;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import models.Applicant;
+import models.ApplicantModel;
 import models.DisplayMode;
 import org.junit.Before;
 import org.junit.Test;
@@ -911,7 +911,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory,
-            new Applicant().getApplicantData(),
+            new ApplicantModel().getApplicantData(),
             ProgramDefinition.builder()
                 .setId(123L)
                 .setAdminName("Admin program name")

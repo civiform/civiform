@@ -14,7 +14,7 @@ import filters.SessionIdFilter;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import javax.inject.Provider;
-import models.Applicant;
+import models.ApplicantModel;
 import org.apache.commons.lang3.NotImplementedException;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
@@ -195,7 +195,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     }
 
     OidcProfile profile = (OidcProfile) oidcProfile.get();
-    Optional<Applicant> existingApplicant = getExistingApplicant(profile);
+    Optional<ApplicantModel> existingApplicant = getExistingApplicant(profile);
     Optional<CiviFormProfile> guestProfile = profileUtils.currentUserProfile(context);
 
     // The merge function signature specifies the two profiles as parameters.
@@ -207,7 +207,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   }
 
   @VisibleForTesting
-  public final Optional<Applicant> getExistingApplicant(OidcProfile profile) {
+  public final Optional<ApplicantModel> getExistingApplicant(OidcProfile profile) {
     // User keying changed in March 2022 and is reflected and managed here.
     // Originally users were keyed on their email address, however this is not
     // guaranteed to be a unique stable ID. In March 2022 the code base changed to
@@ -218,7 +218,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
             .orElseThrow(
                 () -> new InvalidOidcProfileException("Unable to get authority ID from profile."));
 
-    Optional<Applicant> applicantOpt =
+    Optional<ApplicantModel> applicantOpt =
         accountRepositoryProvider
             .get()
             .lookupApplicantByAuthorityId(authorityId)

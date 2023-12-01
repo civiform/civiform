@@ -11,8 +11,8 @@ import controllers.WithMockedProfiles;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import java.util.Optional;
 import models.AccountModel;
-import models.Applicant;
-import models.TrustedIntermediaryGroup;
+import models.ApplicantModel;
+import models.TrustedIntermediaryGroupModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
@@ -31,7 +31,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   public void setup() {
     profileFactory = instanceOf(ProfileFactory.class);
     tiController = instanceOf(TrustedIntermediaryController.class);
-    Applicant managedApplicant = createApplicant();
+    ApplicantModel managedApplicant = createApplicant();
     createTIWithMockedProfile(managedApplicant);
     repo = instanceOf(AccountRepository.class);
     profileFactory.createFakeTrustedIntermediary();
@@ -56,7 +56,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                         "dob",
                         "")));
     Http.Request request = requestBuilder.build();
-    TrustedIntermediaryGroup trustedIntermediaryGroup =
+    TrustedIntermediaryGroupModel trustedIntermediaryGroup =
         repo.getTrustedIntermediaryGroup(profileUtils.currentUserProfile(request).get()).get();
     Result result = tiController.addApplicant(trustedIntermediaryGroup.id, request);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -80,10 +80,10 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                         "sample2@fake.com",
                         "dob",
                         "2022-07-18")));
-    TrustedIntermediaryGroup group = repo.listTrustedIntermediaryGroups().get(0);
+    TrustedIntermediaryGroupModel group = repo.listTrustedIntermediaryGroups().get(0);
     Result result = tiController.addApplicant(group.id, requestBuilder.build());
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    Optional<Applicant> testApplicant =
+    Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail("sample2@fake.com").toCompletableFuture().join();
     assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2022-07-18");
@@ -102,13 +102,13 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(Helpers.fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-05-05")));
     Http.Request request = requestBuilder.build();
-    TrustedIntermediaryGroup trustedIntermediaryGroup =
+    TrustedIntermediaryGroupModel trustedIntermediaryGroup =
         repo.getTrustedIntermediaryGroup(profileUtils.currentUserProfile(request).get()).get();
     repo.createNewApplicantForTrustedIntermediaryGroup(form, trustedIntermediaryGroup);
     Optional<AccountModel> account = repo.lookupAccountByEmail("sample3@example.com");
     Result result = tiController.updateDateOfBirth(account.get().id, request);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    Optional<Applicant> applicant =
+    Optional<ApplicantModel> applicant =
         repo.lookupAccountByEmail("sample3@example.com").get().newestApplicant();
     assertThat(applicant.get().getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2022-05-05");

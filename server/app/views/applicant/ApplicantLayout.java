@@ -17,6 +17,7 @@ import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import controllers.AssetsFinder;
 import controllers.routes;
 import io.jsonwebtoken.lang.Strings;
 import j2html.TagCreator;
@@ -88,8 +89,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
       LanguageSelector languageSelector,
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
-      DebugContent debugContent) {
-    super(viewUtils, settingsManifest, deploymentType);
+      DebugContent debugContent,
+      AssetsFinder assetsFinder) {
+    super(viewUtils, settingsManifest, deploymentType, assetsFinder);
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
@@ -129,8 +131,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
         personalInfo,
         messages,
         bundle,
-        /*includeAdminLogin=*/ false,
-        /*applicantId=*/ applicantId);
+        /* includeAdminLogin= */ false,
+        /* applicantId= */ applicantId);
   }
 
   public Content renderWithNav(
@@ -203,6 +205,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     return nav()
         .with(
+            getGovBanner(Optional.of(messages)),
             div()
                 .withClasses(
                     "bg-white", "border-b", "align-middle", "p-1", "flex", "flex-row", "flex-wrap")

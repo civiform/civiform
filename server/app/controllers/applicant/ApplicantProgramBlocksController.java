@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.StoredFile;
+import models.StoredFileModel;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -422,7 +422,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
               return ensureFileRecord(key.get(), originalFileName)
                   .thenComposeAsync(
-                      (StoredFile unused) ->
+                      (StoredFileModel unused) ->
                           applicantService.stageAndUpdateIfValid(
                               applicantId,
                               programId,
@@ -527,10 +527,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           roApplicantProgramService,
                           thisBlockUpdated,
                           personalInfo,
-                          thisBlockUpdated.hasSingleError()
-                              ? ApplicantQuestionRendererParams.ErrorDisplayMode
-                                  .DISPLAY_SINGLE_ERROR
-                              : ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS))));
+                          ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS))));
     }
 
     if (settingsManifest.getEsriAddressCorrectionEnabled(request)
@@ -731,7 +728,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setStorageClient(storageClient)
         .setBaseUrl(baseUrl)
         .setErrorDisplayMode(errorDisplayMode)
-        .setQuestionName(questionName);
+        .setApplicantSelectedQuestionName(questionName);
   }
 
   private ApplicationBaseView.Params buildApplicationBaseViewParams(
@@ -758,12 +755,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .build();
   }
 
-  private CompletionStage<StoredFile> ensureFileRecord(
+  private CompletionStage<StoredFileModel> ensureFileRecord(
       String key, Optional<String> originalFileName) {
     return storedFileRepository
         .lookupFile(key)
         .thenComposeAsync(
-            (Optional<StoredFile> maybeStoredFile) -> {
+            (Optional<StoredFileModel> maybeStoredFile) -> {
               // If there is already a stored file with this key in the database, then
               // the applicant has uploaded a file with the same name for the same
               // block and question, overwriting the original in file storage.
@@ -771,7 +768,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 return completedFuture(maybeStoredFile.get());
               }
 
-              var storedFile = new StoredFile();
+              var storedFile = new StoredFileModel();
               storedFile.setName(key);
               originalFileName.ifPresent(storedFile::setOriginalFileName);
 

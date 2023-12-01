@@ -12,17 +12,17 @@ import play.data.validation.Constraints;
 /** The EBean mapped class for a file stored in AWS S3 */
 @Entity
 @Table(name = "files")
-public class StoredFile extends BaseModel {
+public class StoredFileModel extends BaseModel {
   private static final long serialVersionUID = 1L;
 
   /** ACLs for accessing this file. */
   @DbJsonB private StoredFileAcls acls;
 
-  public StoredFile(StoredFileAcls acls) {
+  public StoredFileModel(StoredFileAcls acls) {
     this.acls = checkNotNull(acls);
   }
 
-  public StoredFile() {
+  public StoredFileModel() {
     this(new StoredFileAcls());
   }
 
@@ -30,7 +30,7 @@ public class StoredFile extends BaseModel {
     return acls;
   }
 
-  public StoredFile setAcls(StoredFileAcls acls) {
+  public StoredFileModel setAcls(StoredFileAcls acls) {
     this.acls = acls;
     return this;
   }
@@ -39,7 +39,7 @@ public class StoredFile extends BaseModel {
     return name;
   }
 
-  public StoredFile setName(String name) {
+  public StoredFileModel setName(String name) {
     this.name = name;
     return this;
   }
@@ -48,7 +48,7 @@ public class StoredFile extends BaseModel {
     return Optional.ofNullable(originalFileName);
   }
 
-  public StoredFile setOriginalFileName(String originalFileName) {
+  public StoredFileModel setOriginalFileName(String originalFileName) {
     this.originalFileName = originalFileName;
     return this;
   }

@@ -28,6 +28,8 @@ content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선
 toast.errorMessageOutline=오류: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=닫기
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
+link.opensNewTabSr=opens in a new tab
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -83,7 +85,7 @@ content.description=CiviForm을 통해 {0}에서 받을 수 있는 혜택을 확
 content.saveTime=혜택을 신청할 때 시간을 절약해 보세요
 content.guestDescription={0} 계정에 로그인하거나 계정을 만들면 같은 정보를 다시 입력할 필요 없이 여러 가지 혜택을 신청할 수 있습니다. 언제든지 신청서를 수정하고 신청서 상태를 확인할 수도 있습니다.
 link.programDetails=프로그램 세부정보
-link.programDetailsSr={0}의 프로그램 세부정보
+link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=프로그램 및 서비스
 title.findServicesSection=유용한 서비스 찾기
 title.allProgramsSection=모든 프로그램({0})
@@ -286,7 +288,7 @@ validation.textTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=객관식 질문의 옵션은 비워둘 수 없습니다.
-adminValidation.multiOptionAdminError=Admin names can only contain letters, numbers, underscores, and dashes.
+adminValidation.multiOptionAdminError=관리자 이름에는 문자, 숫자, 밑줄, 대시만 포함할 수 있습니다.
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -316,9 +318,9 @@ email.tiApplicationUpdateBody={0} 신청인의 {1} 프로그램 상태가 {2}(�
 # GOVERNMENT BANNER - text explaining that CF is an official government site #
 #------------------------------------------------------------------------------#
 
-banner.title=This is an official government website.
-banner.link=Here''s how you know
-banner.govWebsiteSectionHeader=Official websites use .gov
-banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
-banner.httpsSectionHeader=Secure .gov websites use HTTPS
-banner.httpsSectionContent=A lock ( {0} ) or https:// means you''ve safely connected to the .gov website. Only share sensitive information on official, secure websites.
+banner.title=공식 정부 웹사이트입니다
+banner.link=파악 방법
+banner.govWebsiteSectionHeader=공식 웹사이트는 .gov를 사용합니다
+banner.govWebsiteSectionContent=.gov로 끝나는 웹사이트 주소는 미국의 공식 정부 조직에서 사용하는 주소입니다.
+banner.httpsSectionHeader=안전한 .gov 웹사이트는 HTTPS를 사용합니다
+banner.httpsSectionContent=자물쇠 ( {0} ) 또는 https://는 .gov 웹사이트에 안전하게 연결되었음을 의미합니다. 민감한 정보는 안전한 공식 웹사이트에서만 공유하세요.
