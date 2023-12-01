@@ -112,8 +112,7 @@ public final class TrustedIntermediaryController {
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
-  public Result updateClientInfo(Long id, Http.Request request)
-      throws ApplicantNotFoundException {
+  public Result updateClientInfo(Long id, Http.Request request) throws ApplicantNotFoundException {
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
     if (civiformProfile.isEmpty()) {
       return unauthorized();
@@ -147,7 +146,7 @@ public final class TrustedIntermediaryController {
       return unauthorized();
     }
     Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
-      accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }

@@ -1,7 +1,7 @@
 package repository;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.gdata.util.common.base.Preconditions.checkNotNull;
+import static com.nimbusds.jose.shaded.gson.internal.$Gson$Preconditions.checkArgument;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
@@ -17,6 +17,9 @@ import forms.EditTiClientInfoForm;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Query;
+import io.ebean.Transaction;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +27,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-
-import io.ebean.Transaction;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
@@ -165,14 +166,47 @@ public final class AccountRepository {
         },
         executionContext);
   }
+
   public void updateApplicantInfoForTrustedIntermediaryGroup(
-    EditTiClientInfoForm form, ApplicantModel applicant) {
+      EditTiClientInfoForm form, ApplicantModel applicant) {
     ApplicantData applicantData = applicant.getApplicantData();
-    applicantData.setUserName(form.getFirstName(), form.getMiddleName(), form.getLastName());
-    applicantData.setDateOfBirth(form.getDob());
-    applicantData.setPhoneNumber(form.getPhoneNumber());
-    applicant.getAccount().setTiNote(form.getNote());
+    // name update
+    if (!applicantData
+        .getApplicantFullName()
+        .get()
+        .equals(
+            getFullNameFromForm(form.getFirstName(), form.getMiddleName(), form.getLastName()))) {
+      applicantData.setUserName(form.getFirstName(), form.getMiddleName(), form.getLastName());
+    }
+    // DOB update
+    LocalDate localDate = LocalDate.parse(form.getDob(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    if (!applicantData.getDateOfBirth().get().equals(localDate)) {
+      applicantData.setDateOfBirth(form.getDob());
+    }
+    // Phone number update
+    Optional<String> currentPhone = applicantData.getPhoneNumber();
+    if (!currentPhone.isPresent() || !currentPhone.get().equals(form.getPhoneNumber())) {
+      applicantData.setPhoneNumber(form.getPhoneNumber());
+    }
+    // tiNote update
+    AccountModel currentAccount = applicant.getAccount();
+    currentAccount.setTiNote(form.getTiNote());
+    // saving updates
+    currentAccount.save();
     applicant.save();
+  }
+
+  private String getFullNameFromForm(String firstName, String middleName, String lastName) {
+    StringBuilder nameBuilder = new StringBuilder();
+    nameBuilder.append(firstName);
+    nameBuilder.append(", ");
+    if (!Strings.isNullOrEmpty(middleName)) {
+      nameBuilder.append(middleName);
+      nameBuilder.append(", ");
+    }
+    nameBuilder.append(lastName);
+
+    return nameBuilder.toString();
   }
 
   public void updateApplicantEmail(String email, Long accountId) {

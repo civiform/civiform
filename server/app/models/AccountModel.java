@@ -51,10 +51,11 @@ public class AccountModel extends BaseModel {
 
   private String authorityId;
   private String emailAddress;
-  private String ti_note;
 
   @DbJsonB(name = "id_tokens")
   private SerializedIdTokens serializedIdTokens;
+
+  private String tiNote;
 
   public ImmutableList<Long> ownedApplicantIds() {
     return getApplicants().stream().map(applicant -> applicant.id).collect(toImmutableList());
@@ -91,13 +92,13 @@ public class AccountModel extends BaseModel {
     return this.emailAddress;
   }
 
-  public AccountModel setTiNote(String ti_note) {
-    this.ti_note = ti_note;
+  public AccountModel setTiNote(String tiNoteote) {
+    this.tiNote = tiNote;
     return this;
   }
 
   public String getTiNote() {
-    return this.ti_note;
+    return this.tiNote;
   }
 
   public AccountModel setMemberOfGroup(TrustedIntermediaryGroupModel group) {

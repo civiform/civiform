@@ -94,7 +94,7 @@ public final class DurableJobModule extends AbstractModule {
         DurableJobName.FIX_APPLICANT_DOB_DATA_PATH,
         persistedDurableJob ->
             new FixApplicantDobDataPathJob(accountRepository, persistedDurableJob),
-        new RecurringJobExecutionTimeResolvers.Nightly2Am());
+        new RecurringJobExecutionTimeResolvers.Immediately());
 
     return durableJobRegistry;
   }

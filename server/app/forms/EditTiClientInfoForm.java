@@ -7,7 +7,7 @@ public class EditTiClientInfoForm {
   private String lastName;
   private String dob;
   private String emailAddress;
-  private String note;
+  private String tiNote;
   private String phoneNumber;
 
   public String getFirstName() {
@@ -50,12 +50,12 @@ public class EditTiClientInfoForm {
     this.emailAddress = emailAddress;
   }
 
-  public String getNote() {
-    return note;
+  public String getTiNote() {
+    return tiNote;
   }
 
-  public void setNote(String note) {
-    this.note = note;
+  public void setTiNote(String tiNote) {
+    this.tiNote = tiNote;
   }
 
   public String getPhoneNumber() {

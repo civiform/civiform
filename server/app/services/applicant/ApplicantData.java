@@ -78,24 +78,24 @@ public class ApplicantData extends CfJsonDocumentContext {
     return Optional.of(firstName);
   }
 
-  public Optional<String> getApplicantNameWithMiddle() {
+  public Optional<String> getApplicantFullName() {
     if (!hasPath(WellKnownPaths.APPLICANT_FIRST_NAME)) {
       return Optional.empty();
     }
-    StringBuilder sb = new StringBuilder();
-    sb.append(readString(WellKnownPaths.APPLICANT_FIRST_NAME).get());
+    StringBuilder nameBuilder = new StringBuilder();
+    nameBuilder.append(readString(WellKnownPaths.APPLICANT_FIRST_NAME).get());
     if (hasPath(WellKnownPaths.APPLICANT_MIDDLE_NAME)
         && readAsString(WellKnownPaths.APPLICANT_MIDDLE_NAME).isPresent()) {
-      sb.append(", ");
-      sb.append(readString(WellKnownPaths.APPLICANT_MIDDLE_NAME).get());
+      nameBuilder.append(", ");
+      nameBuilder.append(readString(WellKnownPaths.APPLICANT_MIDDLE_NAME).get());
     } else {
-      sb.append(", ");
+      nameBuilder.append(", ");
     }
     if (hasPath(WellKnownPaths.APPLICANT_LAST_NAME)) {
-      sb.append(", ");
-      sb.append(readString(WellKnownPaths.APPLICANT_LAST_NAME).get());
+      nameBuilder.append(", ");
+      nameBuilder.append(readString(WellKnownPaths.APPLICANT_LAST_NAME).get());
     }
-    return Optional.of(sb.toString());
+    return Optional.of(nameBuilder.toString());
   }
 
   public void setUserName(String displayName) {

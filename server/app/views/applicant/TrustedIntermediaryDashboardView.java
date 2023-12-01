@@ -7,7 +7,6 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.hr;
-import static j2html.TagCreator.input;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
 import static j2html.TagCreator.td;
@@ -19,6 +18,7 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.ti.routes;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TdTag;
@@ -51,7 +51,6 @@ import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import controllers.ti.routes;
 
 /** Renders a page for a trusted intermediary to manage their clients. */
 public class TrustedIntermediaryDashboardView extends BaseHtmlView {
@@ -110,7 +109,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
   }
 
-  private List<Modal> generateModals(ImmutableList<AccountModel> managedAccounts, Http.Request request) {
+  private List<Modal> generateModals(
+      ImmutableList<AccountModel> managedAccounts, Http.Request request) {
     for (AccountModel account : managedAccounts) {
       ApplicantData applicantData = account.newestApplicant().get().getApplicantData();
       FormTag formTag =
@@ -119,7 +119,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
               .withMethod("POST")
               .withAction(routes.TrustedIntermediaryController.updateClientInfo(account.id).url());
       List<String> names =
-          Splitter.onPattern(",").splitToList(applicantData.getApplicantNameWithMiddle().get());
+          Splitter.onPattern(",").splitToList(applicantData.getApplicantFullName().get());
       FieldWithLabel firstNameField =
           FieldWithLabel.input()
               .setId("first-name-input")
@@ -173,7 +173,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       FieldWithLabel tiNoteField =
           FieldWithLabel.input()
               .setId("ti-note-input")
-              .setFieldName("ti_note")
+              .setFieldName("tiNote")
               .setLabelText("Notes")
               .setValue(account.getTiNote());
       editClientModals.add(
@@ -233,21 +233,21 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   private DivTag renderTIApplicantsTable(
-    ImmutableList<AccountModel> managedAccounts,
-    SearchParameters searchParameters,
-    int page,
-    int totalPageCount) {
+      ImmutableList<AccountModel> managedAccounts,
+      SearchParameters searchParameters,
+      int page,
+      int totalPageCount) {
     DivTag main =
         div(table()
                 .withClasses("border", "border-gray-300", "shadow-md", "flex-auto")
                 .with(renderApplicantTableHeader())
-          .with(
-            tbody(
-              each(
-                managedAccounts.stream()
-                  .sorted(Comparator.comparing(AccountModel::getApplicantName))
-                  .collect(Collectors.toList()),
-                account -> renderApplicantRow(account)))))
+                .with(
+                    tbody(
+                        each(
+                            managedAccounts.stream()
+                                .sorted(Comparator.comparing(AccountModel::getApplicantName))
+                                .collect(Collectors.toList()),
+                            account -> renderApplicantRow(account)))))
             .withClasses("mb-16");
     return main.with(
         renderPaginationDiv(
@@ -276,9 +276,9 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
 
   private DivTag renderAddNewForm(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
     FormTag formTag =
-      form()
-        .withMethod("POST")
-        .withAction(routes.TrustedIntermediaryController.addApplicant(tiGroup.id).url());
+        form()
+            .withMethod("POST")
+            .withAction(routes.TrustedIntermediaryController.addApplicant(tiGroup.id).url());
     FieldWithLabel firstNameField =
         FieldWithLabel.input()
             .setId("first-name-input")
@@ -393,13 +393,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .getDateOfBirth()
             .map(this.dateConverter::formatIso8601Date)
             .orElse("");
-    return td().withClasses(BaseStyles.TABLE_CELL_STYLES, "font-semibold")
-        .with(
-            input()
-                .withId("date-of-birth-update")
-                .withName("dob")
-                .withType("date")
-                .withValue(currentDob));
+    return td().with(div(String.format(currentDob)).withClasses("font-semibold"))
+        .withClasses(BaseStyles.TABLE_CELL_STYLES);
   }
 
   private TdTag renderApplicantInfoCell(AccountModel applicantAccount) {
