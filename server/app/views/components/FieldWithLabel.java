@@ -30,6 +30,7 @@ import play.i18n.Messages;
 import services.applicant.ValidationErrorMessage;
 import views.ViewUtils;
 import views.style.BaseStyles;
+import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING FieldWithLabel
@@ -46,8 +47,10 @@ public class FieldWithLabel {
 
   /** For use with fields of type `number`. * */
   protected OptionalLong fieldValueNumber = OptionalLong.empty();
+
   /** For use with fields of type `number`. */
   protected OptionalLong minValue = OptionalLong.empty();
+
   /** For use with fields of type `number`. */
   protected OptionalLong maxValue = OptionalLong.empty();
 
@@ -55,6 +58,7 @@ public class FieldWithLabel {
 
   /** For use with fields of type `textarea`. */
   private OptionalLong rows = OptionalLong.empty();
+
   /** For use with fields of type `textarea`. */
   private OptionalLong cols = OptionalLong.empty();
 
@@ -640,6 +644,7 @@ public class FieldWithLabel {
             StyleUtils.joinStyles(styleClassesBuilder.build().toArray(new String[0])),
             BaseStyles.CHECKBOX_LABEL,
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
+            ReferenceClasses.RADIO_OPTION,
             labelText.isEmpty() ? "w-min" : "")
         .withCondFor(!this.id.isEmpty(), this.id)
         .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
