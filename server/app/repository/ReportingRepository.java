@@ -20,13 +20,16 @@ public final class ReportingRepository {
 
   private final Clock clock;
   private final Database database;
-  private final ImmutableMap<String, String> programToPublicHash;
+  private final ImmutableMap<String, String> programNameToPublicProgramNameMap;
 
   public ReportingRepository(
-      Clock clock, Database database, ImmutableMap<String, String> programToPublicHash) {
+      Clock clock,
+      Database database,
+      ImmutableMap<String, String> programNameToPublicProgramNameMap) {
     this.clock = Preconditions.checkNotNull(clock);
     this.database = Preconditions.checkNotNull(database);
-    this.programToPublicHash = Preconditions.checkNotNull(programToPublicHash);
+    this.programNameToPublicProgramNameMap =
+        Preconditions.checkNotNull(programNameToPublicProgramNameMap);
   }
 
   /**
@@ -59,8 +62,8 @@ public final class ReportingRepository {
   }
 
   private String getProgramLocalizedName(String name) {
-    if (programToPublicHash.containsKey(name)) {
-      return programToPublicHash.get(name);
+    if (programNameToPublicProgramNameMap.containsKey(name)) {
+      return programNameToPublicProgramNameMap.get(name);
     }
     return name;
   }

@@ -39,7 +39,7 @@ public final class ReportingRepositoryFactory {
       ProgramDefinition pd = p.getProgramDefinition();
       programMapBuilder.put(pd.adminName(), pd.localizedName().getDefault());
     }
-    ImmutableMap<String, String> programToPublicHash = programMapBuilder.build();
-    return new ReportingRepository(clock, database, programToPublicHash);
+    ImmutableMap<String, String> programNameToPublicProgramNameMap = programMapBuilder.build();
+    return new ReportingRepository(clock, database, programNameToPublicProgramNameMap);
   }
 }
