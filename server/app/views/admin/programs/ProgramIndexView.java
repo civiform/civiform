@@ -93,12 +93,12 @@ public final class ProgramIndexView extends BaseHtmlView {
     Optional<Modal> maybePublishModal = maybeRenderPublishAllModal(programs, questions, request);
     Modal demographicsCsvModal = renderDemographicsCsvModal();
 
-    // Collect universal question ids
     ImmutableList<Long> universalQuestionIds =
         questions.getActiveAndDraftQuestions().stream()
             .filter(question -> question.isUniversal())
             .map(question -> question.getId())
             .collect(ImmutableList.toImmutableList());
+
     ImmutableList<Modal> publishSingleProgramModals =
         buildPublishSingleProgramModals(programs.getDraftPrograms(), universalQuestionIds, request);
 
@@ -411,7 +411,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       List<ButtonTag> draftRowActions = Lists.newArrayList();
       List<ButtonTag> draftRowExtraActions = Lists.newArrayList();
       if (settingsManifest.getUniversalQuestions(request)) {
-        // Find the modal that matches the draft program
+        // Add the trigger button belonging to the modal that matches each draft program
         publishSingleProgramModals.stream()
             .forEach(
                 (modal) -> {
@@ -422,7 +422,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       } else {
         draftRowActions.add(renderPublishProgramLink(draftProgram.get(), request));
       }
-      draftRowActions.add(renderEditLink(/* isActive = */ false, draftProgram.get(), request));
+      draftRowActions.add(renderEditLink(/* isActive= */ false, draftProgram.get(), request));
       draftRowExtraActions.add(renderManageProgramAdminsLink(draftProgram.get()));
       Optional<ButtonTag> maybeManageTranslationsLink =
           renderManageTranslationsLink(draftProgram.get());
