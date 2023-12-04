@@ -76,8 +76,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   public Content render(
       ActiveAndDraftPrograms programs,
-      ActiveAndDraftQuestions
-          questions,
+      ActiveAndDraftQuestions questions,
       Http.Request request,
       Optional<CiviFormProfile> profile) {
     if (profile.isPresent()) {
@@ -85,8 +84,11 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
 
     // Collect universal question ids
-    ImmutableList<Long> universalQuestionIds = questions
-        .getActiveAndDraftQuestions().stream().filter(question -> question.isUniversal()).map(question -> question.getId()).collect(ImmutableList.toImmutableList());
+    ImmutableList<Long> universalQuestionIds =
+        questions.getActiveAndDraftQuestions().stream()
+            .filter(question -> question.isUniversal())
+            .map(question -> question.getId())
+            .collect(ImmutableList.toImmutableList());
 
     String pageTitle = "Program dashboard";
 
@@ -98,8 +100,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     Optional<Modal> maybePublishModal = maybeRenderPublishAllModal(programs, questions, request);
     // maybe reorganize the modal creation
     ImmutableList<Modal> publishSingleProgramModals =
-        buildPublishSingleProgramModals(
-            programs.getDraftPrograms(), universalQuestionIds, request);
+        buildPublishSingleProgramModals(programs.getDraftPrograms(), universalQuestionIds, request);
     Modal demographicsCsvModal = renderDemographicsCsvModal();
 
     DivTag contentDiv =
@@ -152,10 +153,11 @@ public final class ProgramIndexView extends BaseHtmlView {
             .addModals(demographicsCsvModal);
 
     if (settingsManifest.getUniversalQuestions(request)) {
-      publishSingleProgramModals.stream().forEach(
-          (modal) -> {
-            htmlBundle.addModals(modal);
-          });
+      publishSingleProgramModals.stream()
+          .forEach(
+              (modal) -> {
+                htmlBundle.addModals(modal);
+              });
     }
 
     maybePublishModal.ifPresent(htmlBundle::addModals);
@@ -226,10 +228,14 @@ public final class ProgramIndexView extends BaseHtmlView {
         .map(
             program -> {
               // might want to make this its own method so can reuse it when publishing all programs
-              // need to break this out into its parts again because the warning is showing up when it shouldn't
-              boolean programIsMissingUniversalQuestions = universalQuestionsIds.stream()
+              // need to break this out into its parts again because the warning is showing up when
+              // it shouldn't
+              boolean programIsMissingUniversalQuestions =
+                  universalQuestionsIds.stream()
                           .filter(id -> !program.getQuestionIdsInProgram().contains(id))
-                          .collect(ImmutableList.toImmutableList()).size() > 0;
+                          .collect(ImmutableList.toImmutableList())
+                          .size()
+                      > 0;
 
               FormTag publishSingleProgramForm =
                   form(makeCsrfTokenInputTag(request))
@@ -248,7 +254,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                                   .with(
                                       ViewUtils.makeAlert(
                                           "Warning: This program does not use all recommended"
-                                              + " universal questions.", ViewUtils.ALERT_WARNING,
+                                              + " universal questions.",
+                                          ViewUtils.ALERT_WARNING,
                                           Optional.empty()))
                                   .with(
                                       p("We recommend using all universal questions when possible"
@@ -412,16 +419,17 @@ public final class ProgramIndexView extends BaseHtmlView {
       List<ButtonTag> draftRowExtraActions = Lists.newArrayList();
       if (settingsManifest.getUniversalQuestions(request)) {
         // Find the modal that matches the draft program
-        publishSingleProgramModals.stream().forEach(
-            (modal) -> {
-              if (modal.modalId().contains(draftProgram.get().adminName())) {
-                draftRowActions.add(modal.getButton());
-              }
-            });
+        publishSingleProgramModals.stream()
+            .forEach(
+                (modal) -> {
+                  if (modal.modalId().contains(draftProgram.get().adminName())) {
+                    draftRowActions.add(modal.getButton());
+                  }
+                });
       } else {
         draftRowActions.add(renderPublishProgramLink(draftProgram.get(), request));
       }
-      draftRowActions.add(renderEditLink(/* isActive = */ false, draftProgram.get(), request));
+      draftRowActions.add(renderEditLink(/* isActive= */ false, draftProgram.get(), request));
       draftRowExtraActions.add(renderManageProgramAdminsLink(draftProgram.get()));
       Optional<ButtonTag> maybeManageTranslationsLink =
           renderManageTranslationsLink(draftProgram.get());

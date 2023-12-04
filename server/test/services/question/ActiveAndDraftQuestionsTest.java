@@ -2,6 +2,7 @@ package services.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import models.ProgramModel;
@@ -396,5 +397,34 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
       throws Exception {
     assertThat(versionRepository.addTombstoneForQuestionInVersion(question, version)).isTrue();
     version.save();
+  }
+
+  @Test
+  public void getActiveAndDraftQuestions_filtersOutActiveQuestionsThatHaveADraftVersion() {
+    String matchingQuestionName = "matching question";
+    versionRepository
+        .getActiveVersion()
+        .addQuestion(resourceCreator.insertQuestion(matchingQuestionName))
+        .addQuestion(resourceCreator.insertQuestion("unique active question"))
+        .save();
+    versionRepository
+        .getDraftVersionOrCreate()
+        .addQuestion(resourceCreator.insertQuestion(matchingQuestionName))
+        .addQuestion(resourceCreator.insertQuestion("unique draft question"))
+        .save();
+    ActiveAndDraftQuestions activeAndDraftQuestions = newActiveAndDraftQuestions();
+
+    ImmutableList<QuestionDefinition> allQuestions =
+        activeAndDraftQuestions.getActiveAndDraftQuestions();
+
+    QuestionDefinition activeMatchingQuestion =
+        activeAndDraftQuestions.getActiveQuestionDefinition(matchingQuestionName).get();
+    ImmutableList<Long> questionIds =
+        allQuestions.stream()
+            .map(question -> question.getId())
+            .collect(ImmutableList.toImmutableList());
+
+    assertThat(questionIds.size()).isEqualTo(3);
+    assertThat(questionIds).doesNotContain(activeMatchingQuestion.getId());
   }
 }

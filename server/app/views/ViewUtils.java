@@ -348,17 +348,17 @@ public final class ViewUtils {
 
   /** Class options for USWDS Alert component */
   public static String ALERT_INFO = "usa-alert--info";
+
   public static String ALERT_WARNING = "usa-alert--warning";
   public static String ALERT_SLIM = "usa-alert--slim";
 
   /**
-   * Makes a USWDS Alert component with the given text and optional title.
-   * Alert variant is determined by the classes passed in.
-   * https://designsystem.digital.gov/components/alert/
+   * Makes a USWDS Alert component with the given text and optional title. Alert variant is
+   * determined by the classes passed in. https://designsystem.digital.gov/components/alert/
    *
    * @param text The text to include in the alert.
    * @param classes One or more of the class options listed above for the USWDS Alert component.
-   * @param maybeTitle An optional title to be included in the alert. 
+   * @param maybeTitle An optional title to be included in the alert.
    * @return DivTag containing the alert.
    */
   public static DivTag makeAlert(String text, String classes, Optional<String> maybeTitle) {

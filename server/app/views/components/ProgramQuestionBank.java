@@ -174,7 +174,9 @@ public final class ProgramQuestionBank {
               .with(
                   ViewUtils.makeAlert(
                       "We recommend using all universal questions in your program for personal and"
-                          + " contact information questions.", StyleUtils.joinStyles(ViewUtils.ALERT_INFO, ViewUtils.ALERT_SLIM), Optional.empty()))
+                          + " contact information questions.",
+                      StyleUtils.joinStyles(ViewUtils.ALERT_INFO, ViewUtils.ALERT_SLIM),
+                      Optional.empty()))
               .with(each(universalQuestions, qd -> renderQuestionDefinition(qd, showUniversal))));
     }
     contentDiv.with(

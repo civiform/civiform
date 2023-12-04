@@ -4,9 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import controllers.AssetsFinder;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.ScriptTag;
-import j2html.tags.specialized.DivTag;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -16,7 +17,6 @@ import org.mockito.junit.MockitoRule;
 import org.mockito.quality.Strictness;
 import services.DateConverter;
 import views.style.StyleUtils;
-import java.util.Optional;
 
 public class ViewUtilsTest {
 
@@ -53,13 +53,25 @@ public class ViewUtilsTest {
 
   @Test
   public void makeAlert_createsAlertComponentWithTheCorrectClasses() {
-    DivTag alertComponent = ViewUtils.makeAlert("some text", StyleUtils.joinStyles(ViewUtils.ALERT_INFO, ViewUtils.ALERT_SLIM), Optional.of("title"));
-    assertThat(alertComponent.render()).isEqualTo("<div class=\"usa-alert usa-alert--info usa-alert--slim\"><div class=\"usa-alert__body\"><h4 class=\"usa-alert__heading\">title</h4><p class=\"usa-alert__text\">some text</p></div></div>");
+    DivTag alertComponent =
+        ViewUtils.makeAlert(
+            "some text",
+            StyleUtils.joinStyles(ViewUtils.ALERT_INFO, ViewUtils.ALERT_SLIM),
+            Optional.of("title"));
+    assertThat(alertComponent.render())
+        .isEqualTo(
+            "<div class=\"usa-alert usa-alert--info usa-alert--slim\"><div"
+                + " class=\"usa-alert__body\"><h4 class=\"usa-alert__heading\">title</h4><p"
+                + " class=\"usa-alert__text\">some text</p></div></div>");
   }
 
   @Test
   public void makeAlert_doesNotIncludeTitleIfNoneIsPresent() {
-    DivTag alertComponent = ViewUtils.makeAlert("some text", ViewUtils.ALERT_WARNING, Optional.empty());
-    assertThat(alertComponent.render()).isEqualTo("<div class=\"usa-alert usa-alert--warning\"><div class=\"usa-alert__body\"><p class=\"usa-alert__text\">some text</p></div></div>");
+    DivTag alertComponent =
+        ViewUtils.makeAlert("some text", ViewUtils.ALERT_WARNING, Optional.empty());
+    assertThat(alertComponent.render())
+        .isEqualTo(
+            "<div class=\"usa-alert usa-alert--warning\"><div class=\"usa-alert__body\"><p"
+                + " class=\"usa-alert__text\">some text</p></div></div>");
   }
 }
