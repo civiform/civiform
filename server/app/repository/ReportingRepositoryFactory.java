@@ -30,16 +30,21 @@ public final class ReportingRepositoryFactory {
 
   /**
    * Creating a ReportingRepository object with <code>List&lt;ProgramModel&gt;</code> output as a
-   * HashMap.
+   * <code>ImmutableMap</code>.
    */
   public ReportingRepository create() {
     ImmutableList<ProgramModel> listOfPrograms = versionRepository.getActiveVersion().getPrograms();
+    ImmutableMap<String, String> programAdminNameToProgramDisplayName =
+        programMapBuilder(listOfPrograms);
+    return new ReportingRepository(clock, database, programAdminNameToProgramDisplayName);
+  }
+
+  private ImmutableMap<String, String> programMapBuilder(
+      ImmutableList<ProgramModel> listOfPrograms) {
     ImmutableMap.Builder<String, String> programMapBuilder = new ImmutableMap.Builder<>();
     for (ProgramModel p : listOfPrograms) {
       ProgramDefinition pd = p.getProgramDefinition();
       programMapBuilder.put(pd.adminName(), pd.localizedName().getDefault());
     }
-    ImmutableMap<String, String> programAdminNameToProgramDisplayName = programMapBuilder.build();
-    return new ReportingRepository(clock, database, programNameToPublicProgramNameMap);
   }
 }
