@@ -83,13 +83,6 @@ public final class ProgramIndexView extends BaseHtmlView {
       layout.setAdminType(profile.get());
     }
 
-    // Collect universal question ids
-    ImmutableList<Long> universalQuestionIds =
-        questions.getActiveAndDraftQuestions().stream()
-            .filter(question -> question.isUniversal())
-            .map(question -> question.getId())
-            .collect(ImmutableList.toImmutableList());
-
     String pageTitle = "Program dashboard";
 
     // Revisit if we introduce internationalization because the word order could change in other
@@ -98,10 +91,16 @@ public final class ProgramIndexView extends BaseHtmlView {
         "Create, edit and publish programs in "
             + settingsManifest.getWhitelabelCivicEntityShortName(request).get();
     Optional<Modal> maybePublishModal = maybeRenderPublishAllModal(programs, questions, request);
-    // maybe reorganize the modal creation
+    Modal demographicsCsvModal = renderDemographicsCsvModal();
+
+    // Collect universal question ids
+    ImmutableList<Long> universalQuestionIds =
+        questions.getActiveAndDraftQuestions().stream()
+            .filter(question -> question.isUniversal())
+            .map(question -> question.getId())
+            .collect(ImmutableList.toImmutableList());
     ImmutableList<Modal> publishSingleProgramModals =
         buildPublishSingleProgramModals(programs.getDraftPrograms(), universalQuestionIds, request);
-    Modal demographicsCsvModal = renderDemographicsCsvModal();
 
     DivTag contentDiv =
         div()
@@ -227,21 +226,36 @@ public final class ProgramIndexView extends BaseHtmlView {
     return programs.stream()
         .map(
             program -> {
-              // might want to make this its own method so can reuse it when publishing all programs
-              // need to break this out into its parts again because the warning is showing up when
-              // it shouldn't
-              boolean programIsMissingUniversalQuestions =
-                  universalQuestionsIds.stream()
-                          .filter(id -> !program.getQuestionIdsInProgram().contains(id))
-                          .collect(ImmutableList.toImmutableList())
-                          .size()
-                      > 0;
-
               FormTag publishSingleProgramForm =
                   form(makeCsrfTokenInputTag(request))
                       .withId("publish-single-program-form")
                       .withMethod(HttpVerbs.POST)
                       .withAction(routes.AdminProgramController.publishProgram(program.id()).url());
+
+              DivTag missingUniversalQuestionsWarning =
+                  div()
+                      .with(
+                          ViewUtils.makeAlert(
+                              "Warning: This program does not use all recommended"
+                                  + " universal questions.",
+                              ViewUtils.ALERT_WARNING,
+                              Optional.empty()))
+                      .with(
+                          p("We recommend using all universal questions when possible"
+                                  + " to create consistent reuse of data and question"
+                                  + " formatting.")
+                              .withClasses("py-4"));
+
+              DivTag buttons =
+                  div(
+                          submitButton("Publish program").withClasses(ButtonStyles.SOLID_BLUE),
+                          button("Cancel")
+                              .withClasses(ButtonStyles.LINK_STYLE, ReferenceClasses.MODAL_CLOSE))
+                      .withClasses(
+                          "flex", "flex-col", StyleUtils.responsiveMedium("flex-row"), "py-4");
+
+              boolean programIsMissingUniversalQuestions =
+                  getMissingUniversalQuestions(program, universalQuestionsIds).size() > 0;
 
               return Modal.builder()
                   .setModalId(program.adminName() + "-publish-modal")
@@ -249,32 +263,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                   .setContent(
                       publishSingleProgramForm
                           .condWith(
-                              programIsMissingUniversalQuestions,
-                              div()
-                                  .with(
-                                      ViewUtils.makeAlert(
-                                          "Warning: This program does not use all recommended"
-                                              + " universal questions.",
-                                          ViewUtils.ALERT_WARNING,
-                                          Optional.empty()))
-                                  .with(
-                                      p("We recommend using all universal questions when possible"
-                                              + " to create consistent reuse of data and question"
-                                              + " formatting.")
-                                          .withClasses("py-4")))
-                          .with(
-                              div(
-                                      submitButton("Publish program")
-                                          .withClasses(ButtonStyles.SOLID_BLUE),
-                                      button("Cancel")
-                                          .withClasses(
-                                              ButtonStyles.LINK_STYLE,
-                                              ReferenceClasses.MODAL_CLOSE))
-                                  .withClasses(
-                                      "flex",
-                                      "flex-col",
-                                      StyleUtils.responsiveMedium("flex-row"),
-                                      "py-4")))
+                              programIsMissingUniversalQuestions, missingUniversalQuestionsWarning)
+                          .with(buttons))
                   .setModalTitle(
                       "Are you sure you want to publish "
                           + program.localizedName().getDefault()
@@ -286,6 +276,13 @@ public final class ProgramIndexView extends BaseHtmlView {
                   .setWidth(Modal.Width.THIRD)
                   .build();
             })
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  private ImmutableList<Long> getMissingUniversalQuestions(
+      ProgramDefinition program, ImmutableList<Long> universalQuestionsIds) {
+    return universalQuestionsIds.stream()
+        .filter(id -> !program.getQuestionIdsInProgram().contains(id))
         .collect(ImmutableList.toImmutableList());
   }
 
@@ -306,9 +303,6 @@ public final class ProgramIndexView extends BaseHtmlView {
         programs.getDraftPrograms().stream()
             .sorted(Comparator.comparing(ProgramDefinition::adminName))
             .collect(ImmutableList.toImmutableList());
-    // will need to calculate universal questions here
-    // we do need to know about questions associated with programs argh
-    // i think we can do programDefinition.getQuestionIdsInProgram
 
     DivTag publishAllModalContent =
         div()
@@ -365,7 +359,6 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private LiTag renderPublishModalProgramItem(ProgramDefinition program) {
-    // program.getQuestionIdsInProgram();
     String visibilityText = "";
     switch (program.displayMode()) {
       case HIDDEN_IN_INDEX:
@@ -429,7 +422,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       } else {
         draftRowActions.add(renderPublishProgramLink(draftProgram.get(), request));
       }
-      draftRowActions.add(renderEditLink(/* isActive= */ false, draftProgram.get(), request));
+      draftRowActions.add(renderEditLink(/* isActive = */ false, draftProgram.get(), request));
       draftRowExtraActions.add(renderManageProgramAdminsLink(draftProgram.get()));
       Optional<ButtonTag> maybeManageTranslationsLink =
           renderManageTranslationsLink(draftProgram.get());
