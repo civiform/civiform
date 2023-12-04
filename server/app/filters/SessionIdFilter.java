@@ -14,11 +14,13 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 /** Filter that ensures all sessions have have a unique ID. */
+
+// TODO(#6113): Remove this filter in favor of populating a pac4j profile attribute.
 public final class SessionIdFilter extends Filter {
   public static final String SESSION_ID = "sessionId";
 
   private static final ImmutableSet<String> excludedPrefixes =
-      ImmutableSet.of("/api/", "/assets/", "/dev/", "/favicon", "/playIndex");
+      ImmutableSet.of("/api/", "/assets/", "/dev/", "/favicon", "/playIndex", "/metrics");
 
   @Inject
   public SessionIdFilter(Materializer mat) {
