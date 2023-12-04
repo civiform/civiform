@@ -46,5 +46,6 @@ public final class ReportingRepositoryFactory {
       ProgramDefinition pd = p.getProgramDefinition();
       programMapBuilder.put(pd.adminName(), pd.localizedName().getDefault());
     }
+    return programMapBuilder.build();
   }
 }
