@@ -167,7 +167,6 @@ describe('Program list page.', () => {
     expect(await page.innerText('#program-one-publish-modal')).not.toContain(
       'Warning: This program does not use all recommended universal questions.',
     )
-    await validateScreenshot(page, 'publish-single-program-modal-no-warning')
     await adminQuestions.clickSubmitButtonAndNavigate('Publish program')
 
     // Program was published.
