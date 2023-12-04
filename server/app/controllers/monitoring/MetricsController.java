@@ -107,8 +107,6 @@ public final class MetricsController extends CiviFormController {
 
   @VisibleForTesting
   static void initializeCounters() {
-    CollectorRegistry.defaultRegistry.clear();
-
     QUERY_METRIC_COUNT =
         Counter.build()
             .name("ebean_queries_total")
