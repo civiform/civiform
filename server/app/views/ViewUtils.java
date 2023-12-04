@@ -3,6 +3,7 @@ package views;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.h4;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.link;
@@ -345,19 +346,31 @@ public final class ViewUtils {
         Lists.asList("cf-universal-badge", classes).toArray(new String[0]));
   }
 
+  /** Class options for USWDS Alert component */
+  public static String ALERT_INFO = "usa-alert--info";
+  public static String ALERT_WARNING = "usa-alert--warning";
+  public static String ALERT_SLIM = "usa-alert--slim";
+
   /**
-   * Makes a USWDS Alert component, Slim variant, Info icon, with the given text.
+   * Makes a USWDS Alert component with the given text and optional title.
+   * Alert variant is determined by the classes passed in.
    * https://designsystem.digital.gov/components/alert/
    *
    * @param text The text to include in the alert.
+   * @param classes One or more of the class options listed above for the USWDS Alert component.
+   * @param maybeTitle An optional title to be included in the alert. 
    * @return DivTag containing the alert.
    */
-  public static DivTag makeAlertInfoSlim(String text) {
+  public static DivTag makeAlert(String text, String classes, Optional<String> maybeTitle) {
     return div()
-        .withClasses("usa-alert", "usa-alert--info", "usa-alert--slim")
+        .withClasses("usa-alert", classes)
         .with(
             div()
-                .withClass("usa-alert__body")
+                .withClasses("usa-alert__body")
+                .condWith(
+                    maybeTitle.isPresent(),
+                    h4().withClass("usa-alert__heading")
+                        .withText(maybeTitle.isPresent() ? maybeTitle.get() : ""))
                 .with(p().withClass("usa-alert__text").withText(text)));
   }
 }

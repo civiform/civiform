@@ -100,6 +100,17 @@ public final class ActiveAndDraftQuestions {
                     }));
   }
 
+  public ImmutableList<QuestionDefinition> getActiveAndDraftQuestions() {
+    // Filter out active questions that have a draft version
+    ImmutableList<QuestionDefinition> draftQuestions = getDraftQuestions();
+    ImmutableList<String> draftQuestionNames = draftQuestions.stream().map(question -> question.getName()).collect(ImmutableList.toImmutableList());
+    ImmutableList<QuestionDefinition> activeQuestionsWithoutDrafts = getActiveQuestions().stream().filter(question -> {
+      return !draftQuestionNames.contains(question.getName());
+    }).collect(ImmutableList.toImmutableList());
+
+    return ImmutableList.<QuestionDefinition>builder().addAll(activeQuestionsWithoutDrafts).addAll(draftQuestions).build();
+  }
+
   public ImmutableList<QuestionDefinition> getActiveQuestions() {
     return activeQuestions;
   }

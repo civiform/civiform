@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
 import play.mvc.Http;
@@ -35,6 +36,7 @@ import services.question.types.QuestionDefinition;
 import views.ViewUtils;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 
 /** Contains methods for rendering question bank for an admin to add questions to a program. */
 public final class ProgramQuestionBank {
@@ -170,9 +172,9 @@ public final class ProgramQuestionBank {
               .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
               .with(h2("Universal questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
               .with(
-                  ViewUtils.makeAlertInfoSlim(
+                  ViewUtils.makeAlert(
                       "We recommend using all universal questions in your program for personal and"
-                          + " contact information questions."))
+                          + " contact information questions.", StyleUtils.joinStyles(ViewUtils.ALERT_INFO, ViewUtils.ALERT_SLIM), Optional.empty()))
               .with(each(universalQuestions, qd -> renderQuestionDefinition(qd, showUniversal))));
     }
     contentDiv.with(
