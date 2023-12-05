@@ -853,6 +853,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * Enables setting and displaying whether the answer to a universal question can be acted upon by
+   * the system.
+   */
+  public boolean getApplicantInfoQuestions(RequestHeader request) {
+    return getBool("APPLICANT_INFO_QUESTIONS", request);
+  }
+
+  /**
    * Enables setting and displaying the universal question state on questions. These questions are
    * intended to be used by all programs and will appear at the top of the question bank with a
    * badge denoting them as universal.
@@ -1786,6 +1794,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED",
                       "Enables populating more fields in OIDC logout requests to applicant identity"
                           + " provider.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "APPLICANT_INFO_QUESTIONS",
+                      "Enables setting and displaying whether the answer to a universal question"
+                          + " can be acted upon by the system.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
