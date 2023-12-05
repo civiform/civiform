@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.libs.streams.Accumulator;
@@ -59,12 +60,12 @@ public class ValidAccountFilter extends EssentialFilter {
    * infinite redirect.
    */
   private boolean allowedEndpoint(String uri) {
-    if (uri.startsWith("/assets")) {
-      return true;
+    for (String pathPrefix : ImmutableList.of("/assets", "/dev", "/favicon")) {
+      if (uri.startsWith(pathPrefix)) {
+        return true;
+      }
     }
-    if (uri.startsWith("/dev")) {
-      return true;
-    }
+
     return isLogoutRequest(uri);
   }
 
