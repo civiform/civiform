@@ -81,7 +81,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
   private final SettingsManifest settingsManifest;
   private final ProgramDisplayType programDisplayType;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
-  private final BlockListPartial blockListPartial;
 
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   public static final String MOVE_QUESTION_POSITION_FIELD = "position";
@@ -94,13 +93,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ProgramBlockValidationFactory programBlockValidationFactory,
       @Assisted ProgramDisplayType programViewType,
       AdminLayoutFactory layoutFactory,
-      SettingsManifest settingsManifest,
-      BlockListPartial.Factory blockListPartialFactory) {
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programDisplayType = checkNotNull(programViewType);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
-    this.blockListPartial = checkNotNull(blockListPartialFactory.create(programViewType));
   }
 
   public Content render(
@@ -186,7 +183,20 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                             .withClasses("text-center", "text-red-500")))),
                         div()
                             .withClasses("flex", "flex-grow", "-mx-2")
-                            .with(blockListPartial.render(request, programDefinition, blockId))
+                            .with(
+                                div()
+                                  .withClasses("shadow-lg pt-6 w-2/12 border-r border-gray-200")
+                                    .attr("hx-swap", "outerHTML")
+                                    .attr(
+                                        "hx-get",
+                                        controllers.admin.routes.AdminProgramBlocksController
+                                            .hxBlockList(programId, blockId))
+                                    .attr("hx-trigger", "load")
+                                    .attr(
+                                        "hx-vals",
+                                        "{ \"programDisplayType\": \""
+                                            + programDisplayType.name()
+                                            + "\" }"))
                             .with(
                                 renderBlockPanel(
                                     programDefinition,

@@ -45,14 +45,15 @@ POST    /admin/programs/:programName/translations/:locale         controllers.ad
 
 
 # A controller for pages for an admin to create and maintain blocks for a program
-GET     /admin/programs/:programId/blocks                              controllers.admin.AdminProgramBlocksController.index(programId: Long)
-GET     /admin/programs/:programId/blocks/readonly                     controllers.admin.AdminProgramBlocksController.readOnlyIndex(programId: Long)
-GET     /admin/programs/:programId/blocks/:blockDefinitionId/show      controllers.admin.AdminProgramBlocksController.show(request: Request, programId: Long, blockDefinitionId: Long)
-GET     /admin/programs/:programId/blocks/:blockDefinitionId/edit      controllers.admin.AdminProgramBlocksController.edit(request: Request, programId: Long, blockDefinitionId: Long)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId           controllers.admin.AdminProgramBlocksController.update(request: Request, programId: Long, blockDefinitionId: Long)
-POST    /admin/programs/:programId/blocks                              controllers.admin.AdminProgramBlocksController.create(request: Request, programId: Long)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/move      controllers.admin.AdminProgramBlocksController.move(request: Request, programId: Long, blockDefinitionId: Long)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/delete    controllers.admin.AdminProgramBlocksController.destroy(programId: Long, blockDefinitionId: Long)
+GET     /admin/programs/:programId/blocks                                 controllers.admin.AdminProgramBlocksController.index(programId: Long)
+GET     /admin/programs/:programId/blocks/readonly                        controllers.admin.AdminProgramBlocksController.readOnlyIndex(programId: Long)
+GET     /admin/programs/:programId/blocks/:blockDefinitionId/show         controllers.admin.AdminProgramBlocksController.show(request: Request, programId: Long, blockDefinitionId: Long)
+GET     /admin/programs/:programId/blocks/:blockDefinitionId/edit         controllers.admin.AdminProgramBlocksController.edit(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId              controllers.admin.AdminProgramBlocksController.update(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks                                 controllers.admin.AdminProgramBlocksController.create(request: Request, programId: Long)
+GET     /admin/programs/:programId/blocks/:blockDefinitionId/hx/blockList controllers.admin.AdminProgramBlocksController.hxBlockList(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/move         controllers.admin.AdminProgramBlocksController.move(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/delete       controllers.admin.AdminProgramBlocksController.destroy(programId: Long, blockDefinitionId: Long)
 
 # A controller for pages for an admin to configure show/hide logic on blocks for a program
 GET     /admin/programs/:programId/blocks/:blockDefinitionId/visibilityPredicates/edit               controllers.admin.AdminProgramBlockPredicatesController.editVisibility(request: Request, programId: Long, blockDefinitionId: Long)

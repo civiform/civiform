@@ -212,6 +212,24 @@ public final class AdminProgramBlocksController extends CiviFormController {
     return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
   }
 
+  /** GET endpoint for rendering sidebar list of blocks. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result hxBlockList(Request request, long programId, long blockId) {
+    DynamicForm requestData = formFactory.form().bindFromRequest(request);
+    ViewUtils.ProgramDisplayType programDisplayType =
+        ViewUtils.ProgramDisplayType.valueOf(requestData.get("programDisplayType"));
+
+    try {
+      return ok(
+          blockListPartialFactory
+              .create(programDisplayType)
+              .render(request, programService.getProgramDefinition(programId), blockId)
+              .render());
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.toString());
+    }
+  }
+
   /** POST endpoint for moving a screen (block) for the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result move(Request request, long programId, long blockId) {
@@ -224,13 +242,14 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
     try {
       programService.moveBlock(programId, blockId, direction);
+
       return ok(
           blockListPartialFactory
               .create(programDisplayType)
               .render(request, programService.getProgramDefinition(programId), blockId)
               .render());
     } catch (IllegalPredicateOrderingException e) {
-      throw new BadRequestException("fo");
+      throw new BadRequestException(e.getMessage());
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     }
