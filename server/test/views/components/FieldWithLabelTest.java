@@ -2,21 +2,34 @@ package views.components;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.test.Helpers.stubMessagesApi;
+import static play.test.Helpers.fakeApplication;
 
-import com.google.common.collect.ImmutableSet;
 import j2html.attributes.Attr;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.Set;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import play.data.validation.ValidationError;
 import play.i18n.Lang;
 import play.i18n.Messages;
+import play.i18n.MessagesApi;
 
 public class FieldWithLabelTest {
 
-  private final Messages messages =
-      stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
+  private static Messages messages;
+
+  @BeforeClass
+  public static void startPlay() {
+    // Create a fake application here just to get access to the injector.
+    // We don't start the fake application so there's no need for an @AfterClass
+    // method to stop it.
+    messages =
+        fakeApplication()
+            .injector()
+            .instanceOf(MessagesApi.class)
+            .preferred(Set.of(Lang.defaultLang()));
+  }
 
   @Test
   public void createInput_rendersInput() {
@@ -193,7 +206,8 @@ public class FieldWithLabelTest {
     FieldWithLabel fieldWithLabel =
         FieldWithLabel.number()
             .setId("field-id")
-            .setFieldErrors(messages, new ValidationError("", "an error message"));
+            .setFieldErrors(
+                messages, new ValidationError("error.internalServerTitle", "an error message"));
     String rendered = fieldWithLabel.getNumberTag().render();
 
     assertThat(rendered).contains("aria-invalid=\"true\"");
