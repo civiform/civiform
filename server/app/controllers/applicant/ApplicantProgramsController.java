@@ -132,7 +132,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   }
 
   @Secure
-  public CompletionStage<Result> viewWithApplicantId(
+  public CompletionStage<Result> showWithApplicantId(
       Request request, long applicantId, long programId) {
     Optional<CiviFormProfile> requesterProfile = profileUtils.currentUserProfile(request);
 
@@ -189,16 +189,16 @@ public final class ApplicantProgramsController extends CiviFormController {
   //
   // Because the second use is public, this controller is not annotated as @Secure. For the first
   // use, the delegated-to method *is* annotated as such.
-  public CompletionStage<Result> view(Request request, String programParam) {
+  public CompletionStage<Result> show(Request request, String programParam) {
     if (StringUtils.isNumeric(programParam)) {
       // The path parameter specifies a program by (numeric) id.
 
       // The route for this action should only be computed if the applicant ID is available in the
-      // session.
+      // session, so it should not throw.
       long applicantId = getApplicantId(request).orElseThrow();
-      return viewWithApplicantId(request, applicantId, Long.parseLong(programParam));
+      return showWithApplicantId(request, applicantId, Long.parseLong(programParam));
     } else {
-      return programSlugHandler.programBySlug(this, request, programParam);
+      return programSlugHandler.showProgram(this, request, programParam);
     }
   }
 
@@ -258,9 +258,5 @@ public final class ApplicantProgramsController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
-  }
-
-  private static Result redirectToHome() {
-    return redirect(controllers.routes.HomeController.index().url());
   }
 }

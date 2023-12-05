@@ -54,7 +54,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     CiviFormController controller = instanceOf(CiviFormController.class);
     Result result =
         instanceOf(ProgramSlugHandler.class)
-            .programBySlug(
+            .showProgram(
                 controller,
                 addCSRFToken(requestBuilderWithSettings()).build(),
                 programDefinition.slug())
@@ -83,7 +83,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     Result result =
         instanceOf(ProgramSlugHandler.class)
-            .programBySlug(
+            .showProgram(
                 controller,
                 addCSRFToken(
                         requestBuilderWithSettings()
@@ -106,7 +106,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     Result result =
         instanceOf(ProgramSlugHandler.class)
-            .programBySlug(
+            .showProgram(
                 controller,
                 addCSRFToken(
                         requestBuilderWithSettings()
@@ -130,7 +130,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     Result result =
         handler
-            .programBySlug(
+            .showProgram(
                 controller,
                 addCSRFToken(requestBuilderWithSettings()).build(),
                 programDefinition.slug())
@@ -165,7 +165,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             languageUtils);
     Result result =
         handler
-            .programBySlug(
+            .showProgram(
                 controller,
                 addCSRFToken(requestBuilderWithSettings()).build(),
                 programDefinition.slug())
@@ -199,7 +199,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             languageUtils);
     Result result =
         handler
-            .programBySlug(
+            .showProgram(
                 controller,
                 addCSRFToken(requestBuilderWithSettings()).build(),
                 programDefinition.slug())

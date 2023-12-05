@@ -64,21 +64,21 @@ public final class ApplicantRoutes {
   }
 
   /**
-   * Returns the route corresponding to the applicant view action.
+   * Returns the route corresponding to the applicant show action.
    *
    * @param profile - Profile corresponding to the logged-in user (applicant or TI).
    * @param applicantId - ID of applicant for whom the action should be performed.
    * @param programId - ID of program to view
    * @return Route for the program view action
    */
-  public Call view(CiviFormProfile profile, long applicantId, long programId) {
+  public Call show(CiviFormProfile profile, long applicantId, long programId) {
     if (includeApplicantIdInRoute(profile)) {
-      return controllers.applicant.routes.ApplicantProgramsController.viewWithApplicantId(
+      return controllers.applicant.routes.ApplicantProgramsController.showWithApplicantId(
           applicantId, programId);
     } else {
       // Since this controller handles two different actions depending on whether it has an integer
       // id or an alphanum slug, we must pass the parameter as the more general type.
-      return controllers.applicant.routes.ApplicantProgramsController.view(
+      return controllers.applicant.routes.ApplicantProgramsController.show(
           String.valueOf(programId));
     }
   }

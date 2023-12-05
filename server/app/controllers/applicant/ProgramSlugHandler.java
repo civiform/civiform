@@ -22,10 +22,7 @@ import services.applicant.ApplicantService.ApplicationPrograms;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
 
-/**
- * Controller for handling methods for deep links. Applicants will be asked to sign-in before they
- * can access the page.
- */
+/** Class for showing program view based on program slug. */
 public final class ProgramSlugHandler {
 
   private final HttpExecutionContext httpContext;
@@ -48,7 +45,7 @@ public final class ProgramSlugHandler {
     this.languageUtils = checkNotNull(languageUtils);
   }
 
-  public CompletionStage<Result> programBySlug(
+  public CompletionStage<Result> showProgram(
       CiviFormController controller, Http.Request request, String programSlug) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 

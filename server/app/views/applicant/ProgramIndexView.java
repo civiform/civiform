@@ -464,7 +464,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     // Use external link if it is present else use the default Program details page
     String programDetailsLink =
         program.externalLink().isEmpty()
-            ? applicantRoutes.view(profile, applicantId, program.id()).url()
+            ? applicantRoutes.show(profile, applicantId, program.id()).url()
             : program.externalLink();
     ATag infoLink =
         new LinkElement()

@@ -6,7 +6,6 @@ import annotations.BindingAnnotations.ApplicantAuthProviderName;
 import annotations.BindingAnnotations.EnUsLang;
 import annotations.BindingAnnotations.Now;
 import auth.ProfileFactory;
-import auth.ProfileUtils;
 import auth.oidc.IdTokensFactory;
 import auth.oidc.OidcClientProviderParams;
 import com.github.slugify.Slugify;
@@ -14,8 +13,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.typesafe.config.Config;
-import controllers.LanguageUtils;
-import controllers.applicant.ProgramSlugHandler;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -23,10 +20,7 @@ import javax.inject.Provider;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
 import repository.AccountRepository;
-import services.applicant.ApplicantService;
-import services.program.ProgramService;
 
 /**
  * This class is a Guice module that tells Guice how to bind several different types. This Guice
@@ -89,16 +83,5 @@ public class MainModule extends AbstractModule {
       Provider<AccountRepository> accountRepositoryProvider) {
     return OidcClientProviderParams.create(
         config, profileFactory, idTokensFactory, accountRepositoryProvider);
-  }
-
-  @Provides
-  public ProgramSlugHandler provideProgramSlugHandler(
-      HttpExecutionContext httpContext,
-      ApplicantService applicantService,
-      ProfileUtils profileUtils,
-      ProgramService programService,
-      LanguageUtils languageUtils) {
-    return new ProgramSlugHandler(
-        httpContext, applicantService, profileUtils, programService, languageUtils);
   }
 }

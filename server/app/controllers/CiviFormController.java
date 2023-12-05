@@ -15,6 +15,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import play.mvc.Controller;
 import play.mvc.Http;
+import play.mvc.Result;
 import repository.VersionRepository;
 import services.CiviFormError;
 
@@ -74,17 +75,27 @@ public class CiviFormController extends Controller {
 
   /** Retrieves the applicant id from the user profile, if present. */
   protected Optional<Long> getApplicantId(Http.Request request) {
-    CiviFormProfileData profileData =
-        profileUtils
-            .currentUserProfile(request)
-            .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class))
-            .getProfileData();
+    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+    if (profile.isEmpty()) {
+      return Optional.empty();
+    }
 
+    CiviFormProfileData profileData = profile.orElseThrow().getProfileData();
     if (profileData == null) {
       return Optional.empty();
     }
 
     return Optional.ofNullable(
         profileData.getAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, Long.class));
+  }
+
+  /** Returns a redirect to the home page. */
+  protected static Result redirectToHome() {
+    return redirect(controllers.routes.HomeController.index().url());
+  }
+
+  /** Returns a CompletionStage containing a redirect to the home page. */
+  protected static CompletionStage<Result> redirectToHomeCompletionStage() {
+    return CompletableFuture.completedFuture(redirectToHome());
   }
 }

@@ -144,7 +144,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 Modal loginPromptModal =
                     createLoginPromptModal(
                             messages,
-                            /* postLoginRedirectTo= */ routes.ApplicantProgramsController.view(
+                            /* postLoginRedirectTo= */ routes.ApplicantProgramsController.show(
                                     request.flash().get("redirected-from-program-slug").get())
                                 .url(),
                             messages.at(
@@ -325,9 +325,5 @@ public class ApplicantProgramReviewController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
-  }
-
-  private static Result redirectToHome() {
-    return redirect(controllers.routes.HomeController.index().url());
   }
 }
