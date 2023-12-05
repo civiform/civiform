@@ -27,6 +27,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import play.data.validation.ValidationError;
 import play.i18n.Messages;
+import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import views.ViewUtils;
 import views.style.BaseStyles;
@@ -478,7 +479,12 @@ public class FieldWithLabel {
   private DivTag buildFieldErrorsTag(String id) {
     String[] referenceClasses =
         referenceClassesBuilder.build().stream().map(ref -> ref + "-error").toArray(String[]::new);
-    return div(each(fieldErrors, error -> div(error.format(messages))))
+    return div(each(
+            fieldErrors,
+            error ->
+                div(
+                    messages.apply(
+                        MessageKey.TOAST_ERROR_MSG_OUTLINE.getKeyName(), error.format(messages)))))
         .withId(id)
         .withClasses(
             StyleUtils.joinStyles(referenceClasses),
