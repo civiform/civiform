@@ -78,6 +78,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   public Content render(
       ActiveAndDraftPrograms programs,
       ActiveAndDraftQuestions questions,
+      ImmutableList<QuestionDefinition> upToDateQuestionDefinitions,
       Http.Request request,
       Optional<CiviFormProfile> profile) {
     if (profile.isPresent()) {
@@ -95,7 +96,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     Modal demographicsCsvModal = renderDemographicsCsvModal();
 
     ImmutableList<Long> universalQuestionIds =
-        questions.getActiveAndDraftQuestions().stream()
+        upToDateQuestionDefinitions.stream()
             .filter(QuestionDefinition::isUniversal)
             .map(QuestionDefinition::getId)
             .collect(ImmutableList.toImmutableList());
