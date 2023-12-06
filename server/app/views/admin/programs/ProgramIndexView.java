@@ -319,7 +319,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       List<ButtonTag> draftRowActions = Lists.newArrayList();
       List<ButtonTag> draftRowExtraActions = Lists.newArrayList();
       draftRowActions.add(renderPublishProgramLink(draftProgram.get(), request));
-      draftRowActions.add(renderEditLink(/* isActive = */ false, draftProgram.get(), request));
+      draftRowActions.add(renderEditLink(/* isActive= */ false, draftProgram.get(), request));
       draftRowExtraActions.add(renderManageProgramAdminsLink(draftProgram.get()));
       Optional<ButtonTag> maybeManageTranslationsLink =
           renderManageTranslationsLink(draftProgram.get());
@@ -349,7 +349,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       applicationsLink.ifPresent(activeRowExtraActions::add);
       if (draftProgram.isEmpty()) {
         activeRowExtraActions.add(
-            renderEditLink(/* isActive = */ true, activeProgram.get(), request));
+            renderEditLink(/* isActive= */ true, activeProgram.get(), request));
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }
       activeRowActions.add(renderViewLink(activeProgram.get(), request));
