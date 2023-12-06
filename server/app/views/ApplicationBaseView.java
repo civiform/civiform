@@ -9,9 +9,8 @@ import com.google.auto.value.AutoValue;
 import controllers.applicant.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.PTag;
-import java.util.Optional;
-
 import j2html.tags.specialized.SpanTag;
+import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import services.MessageKey;
@@ -143,6 +142,7 @@ public class ApplicationBaseView extends BaseHtmlView {
    */
   public static PTag requiredFieldsExplanationContent(Messages messages) {
     SpanTag redAsterisk = span("*").withClass(BaseStyles.FORM_ERROR_TEXT_COLOR);
-    return p(rawHtml(messages.at(MessageKey.REQUIRED_FIELDS_NOTE.getKeyName(), redAsterisk)));
+    return p(rawHtml(messages.at(MessageKey.REQUIRED_FIELDS_NOTE.getKeyName(), redAsterisk)))
+        .withClasses("text-sm", BaseStyles.FORM_LABEL_TEXT_COLOR, "mb-2");
   }
 }
