@@ -346,8 +346,6 @@ public final class ViewUtils {
         Lists.asList("cf-universal-badge", classes).toArray(new String[0]));
   }
 
- 
-
   /**
    * Makes a USWDS Alert component with the given text and optional title. Alert variant is
    * determined by the classes passed in. https://designsystem.digital.gov/components/alert/
@@ -365,8 +363,7 @@ public final class ViewUtils {
                 .withClasses("usa-alert__body")
                 .condWith(
                     maybeTitle.isPresent(),
-                    h4().withClass("usa-alert__heading")
-                        .withText(maybeTitle.orElse("")))
+                    h4().withClass("usa-alert__heading").withText(maybeTitle.orElse("")))
                 .with(p().withClass("usa-alert__text").withText(text)));
   }
 

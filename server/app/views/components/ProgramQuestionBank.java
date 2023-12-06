@@ -22,7 +22,6 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
 import play.mvc.Http;
@@ -36,7 +35,6 @@ import services.question.types.QuestionDefinition;
 import views.ViewUtils;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
-import views.style.StyleUtils;
 
 /** Contains methods for rendering question bank for an admin to add questions to a program. */
 public final class ProgramQuestionBank {

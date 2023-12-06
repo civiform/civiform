@@ -81,7 +81,8 @@ public final class AdminProgramController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Request request) {
     Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
-    ReadOnlyQuestionService readOnlyQuestionService = questionService.getReadOnlyQuestionServiceSync();
+    ReadOnlyQuestionService readOnlyQuestionService =
+        questionService.getReadOnlyQuestionServiceSync();
     return ok(
         listView.render(
             programService.getActiveAndDraftProgramsWithoutQuestionLoad(),
