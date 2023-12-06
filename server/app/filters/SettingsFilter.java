@@ -27,6 +27,8 @@ public final class SettingsFilter extends EssentialFilter {
     this.materializer = checkNotNull(materializer);
   }
 
+  // The URL paths with these prefixes do not consume the SettingsManifest so
+  // requests to them don't need to load it.
   private static final ImmutableList<String> EXCLUDED_PATHS =
       ImmutableList.of("/assets/", "/favicon", "/playIndex");
 
