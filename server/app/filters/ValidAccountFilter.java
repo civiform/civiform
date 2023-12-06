@@ -4,12 +4,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
+import play.mvc.Http;
 import play.mvc.Results;
 
 /**
@@ -32,7 +32,7 @@ public class ValidAccountFilter extends EssentialFilter {
           if (profile.isPresent() && !profileUtils.validCiviFormProfile(profile.get())) {
             // The cookie is present but the profile is not valid, redirect to logout and clear the
             // cookie.
-            if (!allowedEndpoint(request.uri())) {
+            if (!allowedEndpoint(request)) {
               return Accumulator.done(
                   Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
             }
@@ -59,14 +59,8 @@ public class ValidAccountFilter extends EssentialFilter {
    * Return true if the endpoint does not require a profile. Logout url is necessary here to avoid
    * infinite redirect.
    */
-  private boolean allowedEndpoint(String uri) {
-    for (String pathPrefix : ImmutableList.of("/assets", "/dev", "/favicon")) {
-      if (uri.startsWith(pathPrefix)) {
-        return true;
-      }
-    }
-
-    return isLogoutRequest(uri);
+  private boolean allowedEndpoint(Http.RequestHeader requestHeader) {
+    return NonUserRoutePrefixes.anyMatch(requestHeader) || isLogoutRequest(requestHeader.uri());
   }
 
   /** Return true if the request is to the logout endpoint. */
