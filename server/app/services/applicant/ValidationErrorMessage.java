@@ -28,10 +28,6 @@ public abstract class ValidationErrorMessage {
   }
 
   public String getMessage(Messages messages) {
-    String prefix = "";
-    if (key().equals(MessageKey.VALIDATION_REQUIRED)) {
-      prefix = "*";
-    }
-    return prefix + messages.at(key().getKeyName(), args().toArray());
+    return messages.at(key().getKeyName(), args().toArray());
   }
 }
