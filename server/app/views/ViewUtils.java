@@ -346,11 +346,7 @@ public final class ViewUtils {
         Lists.asList("cf-universal-badge", classes).toArray(new String[0]));
   }
 
-  /** Class options for USWDS Alert component */
-  public static String ALERT_INFO = "usa-alert--info";
-
-  public static String ALERT_WARNING = "usa-alert--warning";
-  public static String ALERT_SLIM = "usa-alert--slim";
+ 
 
   /**
    * Makes a USWDS Alert component with the given text and optional title. Alert variant is
@@ -370,7 +366,11 @@ public final class ViewUtils {
                 .condWith(
                     maybeTitle.isPresent(),
                     h4().withClass("usa-alert__heading")
-                        .withText(maybeTitle.isPresent() ? maybeTitle.get() : ""))
+                        .withText(maybeTitle.orElse("")))
                 .with(p().withClass("usa-alert__text").withText(text)));
+  }
+
+  public static DivTag makeAlertInfoSlim(String text) {
+    return makeAlert(text, StyleUtils.joinStyles(BaseStyles.ALERT_INFO, BaseStyles.ALERT_SLIM), Optional.empty());
   }
 }

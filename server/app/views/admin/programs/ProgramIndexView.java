@@ -49,6 +49,7 @@ import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ProgramCardFactory;
 import views.components.ToastMessage;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -95,8 +96,8 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     ImmutableList<Long> universalQuestionIds =
         questions.getActiveAndDraftQuestions().stream()
-            .filter(question -> question.isUniversal())
-            .map(question -> question.getId())
+            .filter(QuestionDefinition::isUniversal)
+            .map(QuestionDefinition::getId)
             .collect(ImmutableList.toImmutableList());
 
     ImmutableList<Modal> publishSingleProgramModals =
@@ -220,7 +221,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private ImmutableList<Modal> buildPublishSingleProgramModals(
       ImmutableList<ProgramDefinition> programs,
-      ImmutableList<Long> universalQuestionsIds,
+      ImmutableList<Long> universalQuestionIds,
       Http.Request request) {
 
     return programs.stream()
@@ -228,7 +229,6 @@ public final class ProgramIndexView extends BaseHtmlView {
             program -> {
               FormTag publishSingleProgramForm =
                   form(makeCsrfTokenInputTag(request))
-                      .withId("publish-single-program-form")
                       .withMethod(HttpVerbs.POST)
                       .withAction(routes.AdminProgramController.publishProgram(program.id()).url());
 
@@ -238,7 +238,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                           ViewUtils.makeAlert(
                               "Warning: This program does not use all recommended"
                                   + " universal questions.",
-                              ViewUtils.ALERT_WARNING,
+                              BaseStyles.ALERT_WARNING,
                               Optional.empty()))
                       .with(
                           p("We recommend using all universal questions when possible"
@@ -254,8 +254,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                       .withClasses(
                           "flex", "flex-col", StyleUtils.responsiveMedium("flex-row"), "py-4");
 
-              boolean programIsMissingUniversalQuestions =
-                  getMissingUniversalQuestions(program, universalQuestionsIds).size() > 0;
+              boolean programIsMissingUniversalQuestions = !getMissingUniversalQuestions(program, universalQuestionIds).isEmpty();
 
               return Modal.builder()
                   .setModalId(program.adminName() + "-publish-modal")
@@ -280,8 +279,8 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private ImmutableList<Long> getMissingUniversalQuestions(
-      ProgramDefinition program, ImmutableList<Long> universalQuestionsIds) {
-    return universalQuestionsIds.stream()
+      ProgramDefinition program, ImmutableList<Long> universalQuestionIds) {
+    return universalQuestionIds.stream()
         .filter(id -> !program.getQuestionIdsInProgram().contains(id))
         .collect(ImmutableList.toImmutableList());
   }
@@ -415,7 +414,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         publishSingleProgramModals.stream()
             .forEach(
                 (modal) -> {
-                  if (modal.modalId().contains(draftProgram.get().adminName())) {
+                  if (modal.modalId().equals(draftProgram.get().adminName()+"-publish-modal")) {
                     draftRowActions.add(modal.getButton());
                   }
                 });
