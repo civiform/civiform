@@ -77,8 +77,8 @@ public final class ProgramRepository {
 
   public CompletionStage<Optional<ProgramModel>> lookupProgram(long id) {
     // Use the cache if it is enabled and there isn't a draft version in progress.
-    if (settingsManifest.getProgramCacheEnabled() && (!profile.isCiviFormAdmin()
-        || !versionRepository.get().getDraftVersion().isPresent())) {
+    if (settingsManifest.getProgramCacheEnabled()
+        && (!profile.isCiviFormAdmin() || !versionRepository.get().getDraftVersion().isPresent())) {
       return supplyAsync(
           () -> programCache.getOrElseUpdate(String.valueOf(id), () -> lookupProgramSync(id)),
           executionContext);
