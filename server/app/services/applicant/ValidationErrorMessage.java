@@ -28,6 +28,8 @@ public abstract class ValidationErrorMessage {
   }
 
   public String getMessage(Messages messages) {
-    return messages.at(key().getKeyName(), args().toArray());
+    return messages.apply(
+        MessageKey.TOAST_ERROR_MSG_OUTLINE.getKeyName(),
+        messages.at(key().getKeyName(), args().toArray()));
   }
 }
