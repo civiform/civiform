@@ -92,15 +92,14 @@ public final class ProgramIndexView extends BaseHtmlView {
     String pageExplanation =
         "Create, edit and publish programs in "
             + settingsManifest.getWhitelabelCivicEntityShortName(request).get();
-    Optional<Modal> maybePublishModal = maybeRenderPublishAllModal(programs, questions, request);
-    Modal demographicsCsvModal = renderDemographicsCsvModal();
-
+  
     ImmutableList<Long> universalQuestionIds =
         upToDateQuestionDefinitions.stream()
             .filter(QuestionDefinition::isUniversal)
             .map(QuestionDefinition::getId)
             .collect(ImmutableList.toImmutableList());
-
+    Optional<Modal> maybePublishModal = maybeRenderPublishAllModal(programs, questions, request, universalQuestionIds);
+    Modal demographicsCsvModal = renderDemographicsCsvModal();
     ImmutableList<Modal> publishSingleProgramModals =
         buildPublishSingleProgramModals(programs.getDraftPrograms(), universalQuestionIds, request);
 
@@ -288,7 +287,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private Optional<Modal> maybeRenderPublishAllModal(
-      ActiveAndDraftPrograms programs, ActiveAndDraftQuestions questions, Http.Request request) {
+      ActiveAndDraftPrograms programs, ActiveAndDraftQuestions questions, Http.Request request, ImmutableList<Long> universalQuestionIds) {
     // We should only render the publish modal / button if there is at least one draft.
     if (!programs.anyDraft() && !questions.draftVersionHasAnyEdits()) {
       return Optional.empty();
@@ -332,7 +331,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .condWith(
                         !sortedDraftPrograms.isEmpty(),
                         ul().withClasses("list-disc", "list-inside")
-                            .with(each(sortedDraftPrograms, this::renderPublishModalProgramItem))),
+                            .with(each(sortedDraftPrograms, program -> renderPublishModalProgramItem(program, universalQuestionIds)))),
                 p("Would you like to publish all draft questions and programs now?"),
                 div()
                     .withClasses("flex", "flex-row")
@@ -359,7 +358,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return Optional.of(publishAllModal);
   }
 
-  private LiTag renderPublishModalProgramItem(ProgramDefinition program) {
+  private LiTag renderPublishModalProgramItem(ProgramDefinition program, ImmutableList<Long> universalQuestionIds) {
     String visibilityText = "";
     switch (program.displayMode()) {
       case HIDDEN_IN_INDEX:
@@ -371,8 +370,19 @@ public final class ProgramIndexView extends BaseHtmlView {
       default:
         break;
     }
+
+    ImmutableList<Long> missingUniversalQuestionIds = getMissingUniversalQuestions(program, universalQuestionIds);
+    int countTotalUniversalQuestions = universalQuestionIds.size();
+    String universalQuestionsText = "";
+    if (missingUniversalQuestionIds.isEmpty()) {
+      universalQuestionsText = "all";
+    } else {
+      universalQuestionsText = countTotalUniversalQuestions - missingUniversalQuestionIds.size() + " of " + countTotalUniversalQuestions;
+    }
+
     return li().with(
             span(program.localizedName().getDefault()).withClasses("font-medium"),
+            span(" - " + "Contains " + universalQuestionsText + " universal questions"),
             span(" - " + visibilityText + " "),
             new LinkElement()
                 .setText("Edit")
