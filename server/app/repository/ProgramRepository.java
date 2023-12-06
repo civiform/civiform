@@ -3,6 +3,7 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import auth.CiviFormProfile;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -53,6 +54,7 @@ public final class ProgramRepository {
   private final DatabaseExecutionContext executionContext;
   private final Provider<VersionRepository> versionRepository;
   private final SettingsManifest settingsManifest;
+  private final CiviFormProfile profile;
   private final SyncCacheApi programCache;
   private final SyncCacheApi versionsByProgramCache;
 
@@ -61,20 +63,22 @@ public final class ProgramRepository {
       DatabaseExecutionContext executionContext,
       Provider<VersionRepository> versionRepository,
       SettingsManifest settingsManifest,
+      CiviFormProfile profile,
       @NamedCache("program") SyncCacheApi programCache,
       @NamedCache("program-versions") SyncCacheApi versionsByProgramCache) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
     this.versionRepository = checkNotNull(versionRepository);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.profile = checkNotNull(profile);
     this.programCache = checkNotNull(programCache);
     this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
   }
 
   public CompletionStage<Optional<ProgramModel>> lookupProgram(long id) {
     // Use the cache if it is enabled and there isn't a draft version in progress.
-    if (settingsManifest.getProgramCacheEnabled()
-        && !versionRepository.get().getDraftVersion().isPresent()) {
+    if (settingsManifest.getProgramCacheEnabled() && (!profile.isCiviFormAdmin()
+        || !versionRepository.get().getDraftVersion().isPresent())) {
       return supplyAsync(
           () -> programCache.getOrElseUpdate(String.valueOf(id), () -> lookupProgramSync(id)),
           executionContext);
