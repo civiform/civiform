@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
@@ -46,14 +47,16 @@ public final class ProgramCardFactory {
     DivTag statusDiv = div();
     if (cardData.draftProgram().isPresent()) {
       statusDiv =
-          statusDiv.with(renderProgramRow(/* isActive = */ false, cardData.draftProgram().get()));
+          statusDiv.with(
+              renderProgramRow(request, /* isActive= */ false, cardData.draftProgram().get()));
     }
 
     if (cardData.activeProgram().isPresent()) {
       statusDiv =
           statusDiv.with(
               renderProgramRow(
-                  /* isActive = */ true,
+                  request,
+                  /* isActive= */ true,
                   cardData.activeProgram().get(),
                   cardData.draftProgram().isPresent() ? "border-t" : ""));
     }
@@ -76,8 +79,8 @@ public final class ProgramCardFactory {
                             .with(
                                 TextFormatter.formatText(
                                     programDescriptionText,
-                                    /*preserveEmptyLines=*/ false,
-                                    /*addRequiredIndicator=*/ false))
+                                    /* preserveEmptyLines= */ false,
+                                    /* addRequiredIndicator= */ false))
                             .withClasses("line-clamp-2", "text-gray-700", "text-base"))
                     .condWith(
                         shouldShowCommonIntakeFormIndicator(request, displayProgram),
@@ -107,7 +110,10 @@ public final class ProgramCardFactory {
   }
 
   private DivTag renderProgramRow(
-      boolean isActive, ProgramCardData.ProgramRow programRow, String... extraStyles) {
+      Http.Request request,
+      boolean isActive,
+      ProgramCardData.ProgramRow programRow,
+      String... extraStyles) {
     ProgramDefinition program = programRow.program();
     String updatedPrefix = "Edited on ";
     Optional<Instant> updatedTime = program.lastModifiedTime();
@@ -133,6 +139,15 @@ public final class ProgramCardFactory {
             isActive ? ProgramDisplayType.ACTIVE : ProgramDisplayType.DRAFT,
             "ml-2",
             StyleUtils.responsiveXLarge("ml-8"));
+
+    boolean shouldShowUniversalQuestionsCount =
+        settingsManifest.getUniversalQuestions(request)
+            && programRow.maybeUniversalQuestionsText().isPresent();
+    String universalQuestionsText = "";
+    if (shouldShowUniversalQuestionsCount) {
+      universalQuestionsText = programRow.maybeUniversalQuestionsText().get();
+    }
+
     return div()
         .withClasses(
             "py-7",
@@ -150,7 +165,8 @@ public final class ProgramCardFactory {
                             span(String.format("%d", blockCount)).withClass("font-semibold"),
                             span(blockCount == 1 ? " screen, " : " screens, "),
                             span(String.format("%d", questionCount)).withClass("font-semibold"),
-                            span(questionCount == 1 ? " question" : " questions"))),
+                            span(questionCount == 1 ? " question" : " questions"))
+                        .condWith(shouldShowUniversalQuestionsCount, p(universalQuestionsText))),
             div().withClass("flex-grow"),
             div()
                 .withClasses("flex", "space-x-2", "pr-6", "font-medium")
@@ -230,6 +246,8 @@ public final class ProgramCardFactory {
 
       abstract ImmutableList<ButtonTag> extraRowActions();
 
+      abstract Optional<String> maybeUniversalQuestionsText();
+
       public static Builder builder() {
         return new AutoValue_ProgramCardFactory_ProgramCardData_ProgramRow.Builder();
       }
@@ -241,6 +259,8 @@ public final class ProgramCardFactory {
         public abstract Builder setRowActions(ImmutableList<ButtonTag> v);
 
         public abstract Builder setExtraRowActions(ImmutableList<ButtonTag> v);
+
+        public abstract Builder setMaybeUniversalQuestionsText(Optional<String> v);
 
         public abstract ProgramRow build();
       }

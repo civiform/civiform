@@ -64,6 +64,43 @@ describe('Program list page.', () => {
     await validateScreenshot(page, 'intake-form-indicator')
   })
 
+  it('shows information about universal questions when the flag is enabled and at least one universal question is set', async () => {
+    const {page, adminPrograms, adminQuestions} = ctx
+
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'universal_questions')
+
+    // Create a program and question that is not universal
+    const programOne = 'program one'
+    await adminPrograms.addProgram(programOne)
+    const nameQuestion = 'name'
+    await adminQuestions.addNameQuestion({
+      questionName: nameQuestion,
+      universal: false,
+    })
+    await adminPrograms.gotoEditDraftProgramPage(programOne)
+    await adminPrograms.addQuestionFromQuestionBank(nameQuestion)
+
+    await adminPrograms.gotoAdminProgramsPage()
+    expect(await page.innerText('.cf-admin-program-card')).not.toContain(
+      'universal questions',
+    )
+    
+    await validateScreenshot(page, 'program-list-view-no-universal-questions-text')
+
+    // Create a universal question
+    const textQuestion = 'text'
+    await adminQuestions.addTextQuestion({
+      questionName: textQuestion,
+      universal: true,
+    })
+    await adminPrograms.gotoAdminProgramsPage()
+    expect(await page.innerText('.cf-admin-program-card')).toContain(
+      'universal questions',
+    )    
+    await validateScreenshot(page, 'program-list-view-with-universal-questions-text')    
+  })
+
   async function expectProgramListElements(
     adminPrograms: AdminPrograms,
     expectedPrograms: string[],
