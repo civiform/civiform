@@ -21,12 +21,14 @@ import com.typesafe.config.Config;
 import controllers.admin.routes;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LiTag;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import play.mvc.Http;
+import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
 import services.TranslationLocales;
 import services.program.ActiveAndDraftPrograms;
@@ -36,6 +38,7 @@ import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
@@ -46,7 +49,9 @@ import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ProgramCardFactory;
 import views.components.ToastMessage;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 
 /** Renders a page so the admin can view all active programs and draft programs. */
 public final class ProgramIndexView extends BaseHtmlView {
@@ -73,6 +78,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   public Content render(
       ActiveAndDraftPrograms programs,
       ActiveAndDraftQuestions questions,
+      ImmutableList<QuestionDefinition> upToDateQuestionDefinitions,
       Http.Request request,
       Optional<CiviFormProfile> profile) {
     if (profile.isPresent()) {
@@ -87,8 +93,17 @@ public final class ProgramIndexView extends BaseHtmlView {
         "Create, edit and publish programs in "
             + settingsManifest.getWhitelabelCivicEntityShortName(request).get();
     Optional<Modal> maybePublishModal = maybeRenderPublishAllModal(programs, questions, request);
-
     Modal demographicsCsvModal = renderDemographicsCsvModal();
+
+    ImmutableList<Long> universalQuestionIds =
+        upToDateQuestionDefinitions.stream()
+            .filter(QuestionDefinition::isUniversal)
+            .map(QuestionDefinition::getId)
+            .collect(ImmutableList.toImmutableList());
+
+    ImmutableList<Modal> publishSingleProgramModals =
+        buildPublishSingleProgramModals(programs.getDraftPrograms(), universalQuestionIds, request);
+
     DivTag contentDiv =
         div()
             .withClasses("px-4")
@@ -122,7 +137,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                                             programs.getActiveProgramDefinition(name),
                                             programs.getDraftProgramDefinition(name),
                                             request,
-                                            profile))
+                                            profile,
+                                            publishSingleProgramModals))
                                 .sorted(
                                     ProgramCardFactory
                                         .programTypeThenLastModifiedThenNameComparator())
@@ -136,6 +152,15 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setTitle(pageTitle)
             .addMainContent(contentDiv)
             .addModals(demographicsCsvModal);
+
+    if (settingsManifest.getUniversalQuestions(request)) {
+      publishSingleProgramModals.stream()
+          .forEach(
+              (modal) -> {
+                htmlBundle.addModals(modal);
+              });
+    }
+
     maybePublishModal.ifPresent(htmlBundle::addModals);
 
     Http.Flash flash = request.flash();
@@ -193,6 +218,73 @@ public final class ProgramIndexView extends BaseHtmlView {
         .setModalTitle(downloadActionText)
         .setTriggerButtonContent(makeSvgTextButton(downloadActionText, Icons.DOWNLOAD))
         .build();
+  }
+
+  private ImmutableList<Modal> buildPublishSingleProgramModals(
+      ImmutableList<ProgramDefinition> programs,
+      ImmutableList<Long> universalQuestionIds,
+      Http.Request request) {
+
+    return programs.stream()
+        .map(
+            program -> {
+              FormTag publishSingleProgramForm =
+                  form(makeCsrfTokenInputTag(request))
+                      .withMethod(HttpVerbs.POST)
+                      .withAction(routes.AdminProgramController.publishProgram(program.id()).url());
+
+              DivTag missingUniversalQuestionsWarning =
+                  div()
+                      .with(
+                          ViewUtils.makeAlert(
+                              "Warning: This program does not use all recommended"
+                                  + " universal questions.",
+                              Optional.empty(),
+                              BaseStyles.ALERT_WARNING))
+                      .with(
+                          p("We recommend using all universal questions when possible"
+                                  + " to create consistent reuse of data and question"
+                                  + " formatting.")
+                              .withClasses("py-4"));
+
+              DivTag buttons =
+                  div(
+                          submitButton("Publish program").withClasses(ButtonStyles.SOLID_BLUE),
+                          button("Cancel")
+                              .withClasses(ButtonStyles.LINK_STYLE, ReferenceClasses.MODAL_CLOSE))
+                      .withClasses(
+                          "flex", "flex-col", StyleUtils.responsiveMedium("flex-row"), "py-4");
+
+              boolean programIsMissingUniversalQuestions =
+                  !getMissingUniversalQuestions(program, universalQuestionIds).isEmpty();
+
+              return Modal.builder()
+                  .setModalId(program.adminName() + "-publish-modal")
+                  .setLocation(Modal.Location.ADMIN_FACING)
+                  .setContent(
+                      publishSingleProgramForm
+                          .condWith(
+                              programIsMissingUniversalQuestions, missingUniversalQuestionsWarning)
+                          .with(buttons))
+                  .setModalTitle(
+                      "Are you sure you want to publish "
+                          + program.localizedName().getDefault()
+                          + " and all of its draft questions?")
+                  .setTriggerButtonContent(
+                      makeSvgTextButton("Publish", Icons.PUBLISH)
+                          .withId(program.adminName() + "-publish-modal-button")
+                          .withClasses(ButtonStyles.CLEAR_WITH_ICON))
+                  .setWidth(Modal.Width.THIRD)
+                  .build();
+            })
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  private ImmutableList<Long> getMissingUniversalQuestions(
+      ProgramDefinition program, ImmutableList<Long> universalQuestionIds) {
+    return universalQuestionIds.stream()
+        .filter(id -> !program.getQuestionIdsInProgram().contains(id))
+        .collect(ImmutableList.toImmutableList());
   }
 
   private Optional<Modal> maybeRenderPublishAllModal(
@@ -312,13 +404,25 @@ public final class ProgramIndexView extends BaseHtmlView {
       Optional<ProgramDefinition> activeProgram,
       Optional<ProgramDefinition> draftProgram,
       Http.Request request,
-      Optional<CiviFormProfile> profile) {
+      Optional<CiviFormProfile> profile,
+      ImmutableList<Modal> publishSingleProgramModals) {
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> draftRow = Optional.empty();
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> activeRow = Optional.empty();
     if (draftProgram.isPresent()) {
       List<ButtonTag> draftRowActions = Lists.newArrayList();
       List<ButtonTag> draftRowExtraActions = Lists.newArrayList();
-      draftRowActions.add(renderPublishProgramLink(draftProgram.get(), request));
+      if (settingsManifest.getUniversalQuestions(request)) {
+        // Add the trigger button belonging to the modal that matches each draft program
+        publishSingleProgramModals.stream()
+            .forEach(
+                (modal) -> {
+                  if (modal.modalId().equals(draftProgram.get().adminName() + "-publish-modal")) {
+                    draftRowActions.add(modal.getButton());
+                  }
+                });
+      } else {
+        draftRowActions.add(renderPublishProgramLink(draftProgram.get(), request));
+      }
       draftRowActions.add(renderEditLink(/* isActive= */ false, draftProgram.get(), request));
       draftRowExtraActions.add(renderManageProgramAdminsLink(draftProgram.get()));
       Optional<ButtonTag> maybeManageTranslationsLink =

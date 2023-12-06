@@ -28,6 +28,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
 import services.question.QuestionService;
+import services.question.ReadOnlyQuestionService;
 import services.settings.SettingsManifest;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
@@ -80,10 +81,13 @@ public final class AdminProgramController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Request request) {
     Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
+    ReadOnlyQuestionService readOnlyQuestionService =
+        questionService.getReadOnlyQuestionServiceSync();
     return ok(
         listView.render(
             programService.getActiveAndDraftProgramsWithoutQuestionLoad(),
-            questionService.getReadOnlyQuestionServiceSync().getActiveAndDraftQuestions(),
+            readOnlyQuestionService.getActiveAndDraftQuestions(),
+            readOnlyQuestionService.getUpToDateQuestions(),
             request,
             profileMaybe));
   }
