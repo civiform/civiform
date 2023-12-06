@@ -238,8 +238,9 @@ public final class ProgramIndexView extends BaseHtmlView {
                           ViewUtils.makeAlert(
                               "Warning: This program does not use all recommended"
                                   + " universal questions.",
-                              BaseStyles.ALERT_WARNING,
-                              Optional.empty()))
+                                  Optional.empty(),
+                              BaseStyles.ALERT_WARNING
+                              ))
                       .with(
                           p("We recommend using all universal questions when possible"
                                   + " to create consistent reuse of data and question"

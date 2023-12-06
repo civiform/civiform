@@ -57,8 +57,8 @@ public class ViewUtilsTest {
     DivTag alertComponent =
         ViewUtils.makeAlert(
             "some text",
-            StyleUtils.joinStyles(BaseStyles.ALERT_INFO, BaseStyles.ALERT_SLIM),
-            Optional.of("title"));
+            Optional.of("title"),
+            BaseStyles.ALERT_INFO, BaseStyles.ALERT_SLIM);
     assertThat(alertComponent.render())
         .isEqualTo(
             "<div class=\"usa-alert usa-alert--info usa-alert--slim\"><div"
@@ -69,7 +69,7 @@ public class ViewUtilsTest {
   @Test
   public void makeAlert_doesNotIncludeTitleIfNoneIsPresent() {
     DivTag alertComponent =
-        ViewUtils.makeAlert("some text", BaseStyles.ALERT_WARNING, Optional.empty());
+        ViewUtils.makeAlert("some text", Optional.empty(), BaseStyles.ALERT_WARNING);
     assertThat(alertComponent.render())
         .isEqualTo(
             "<div class=\"usa-alert usa-alert--warning\"><div class=\"usa-alert__body\"><p"

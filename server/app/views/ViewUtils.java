@@ -357,9 +357,9 @@ public final class ViewUtils {
    * @param maybeTitle An optional title to be included in the alert.
    * @return DivTag containing the alert.
    */
-  public static DivTag makeAlert(String text, String classes, Optional<String> maybeTitle) {
+  public static DivTag makeAlert(String text, Optional<String> maybeTitle, String... classes) {
     return div()
-        .withClasses("usa-alert", classes)
+        .withClasses("usa-alert", String.join(" ", classes))
         .with(
             div()
                 .withClasses("usa-alert__body")
@@ -371,6 +371,6 @@ public final class ViewUtils {
   }
 
   public static DivTag makeAlertInfoSlim(String text) {
-    return makeAlert(text, StyleUtils.joinStyles(BaseStyles.ALERT_INFO, BaseStyles.ALERT_SLIM), Optional.empty());
+    return makeAlert(text, Optional.empty(), BaseStyles.ALERT_INFO, BaseStyles.ALERT_SLIM);
   }
 }
