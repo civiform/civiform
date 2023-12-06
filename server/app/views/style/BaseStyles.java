@@ -185,12 +185,10 @@ public final class BaseStyles {
           StyleUtils.hover("bg-gray-200", "opacity-90"));
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
-  // Alert classes
+  // USWDS Alert style classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
-  /** Class options for USWDS Alert component */
   public static String ALERT_INFO = "usa-alert--info";
-
   public static String ALERT_WARNING = "usa-alert--warning";
   public static String ALERT_SLIM = "usa-alert--slim";
 }
