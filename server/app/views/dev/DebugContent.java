@@ -52,7 +52,11 @@ public final class DebugContent extends BaseHtmlView {
             redirectButton(
                 "database-seed",
                 "Seed Database",
-                controllers.dev.seeding.routes.DevDatabaseSeedController.index().url()));
+                controllers.dev.seeding.routes.DevDatabaseSeedController.index().url()),
+            redirectButton(
+                "show-profile",
+                "Show pac4j profile",
+                controllers.dev.routes.ProfileController.index().url()));
   }
 
   public DivTag civiformVersionDiv() {
