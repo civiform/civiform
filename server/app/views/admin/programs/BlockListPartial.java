@@ -3,9 +3,11 @@ package views.admin.programs;
 import static controllers.api.ApiPaginationTokenSerializer.MAPPER;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.iff;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
+import static play.mvc.Http.HttpVerbs.POST;
 import static services.program.ProgramDefinition.Direction.DOWN;
 import static services.program.ProgramDefinition.Direction.UP;
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
@@ -66,11 +68,16 @@ public final class BlockListPartial extends BaseHtmlView {
 
     if (programDisplayType.equals(DRAFT)) {
       ret.with(
-          ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
-              .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-4")
-              .withType("submit")
-              .withId("add-block-button"));
+          form(
+                  makeCsrfTokenInputTag(request),
+                  ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
+                      .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-4")
+                      .withType("submit")
+                      .withId("add-block-button"))
+              .withAction(routes.AdminProgramBlocksController.create(program.id()).url())
+              .withMethod(POST));
     }
+
     return ret;
   }
 
@@ -109,6 +116,7 @@ public final class BlockListPartial extends BaseHtmlView {
                   StyleUtils.hover("border-gray-300"),
                   selectedClasses);
       String switchBlockLink;
+
       if (viewAllowsEditingProgram()) {
         switchBlockLink =
             controllers.admin.routes.AdminProgramBlocksController.edit(
@@ -120,6 +128,7 @@ public final class BlockListPartial extends BaseHtmlView {
                     programDefinition.id(), blockDefinition.id())
                 .url();
       }
+
       blockTag
           .withId(genericBlockDivId + blockDefinition.id())
           .with(
@@ -129,12 +138,14 @@ public final class BlockListPartial extends BaseHtmlView {
                       p(blockName)
                           .withClass(iff(blockDefinition.hasNullQuestion(), "text-red-500")),
                       p(questionCountText).withClasses("text-sm")));
+
       if (viewAllowsEditingProgram()) {
         DivTag moveButtons =
             renderBlockMoveButtons(
                 request, programDefinition.id(), blockDefinitions, blockDefinition);
         blockTag.with(moveButtons);
       }
+
       container.with(blockTag);
 
       // Recursively add repeated blocks indented under their enumerator block
@@ -148,6 +159,7 @@ public final class BlockListPartial extends BaseHtmlView {
                 level + 1));
       }
     }
+
     return container;
   }
 
