@@ -156,6 +156,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
         programDefinition.getNonRepeatedBlockDefinitions().stream()
             .anyMatch(BlockDefinition::hasNullQuestion);
 
+    ArrayList<ProgramHeaderButton> headerButtons =
+        new ArrayList<>(
+            getEditHeaderButtons(
+                request, settingsManifest, /* isEditingAllowed= */ viewAllowsEditingProgram()));
+    headerButtons.add(ProgramHeaderButton.PREVIEW_AS_APPLICANT);
+
     HtmlBundle htmlBundle =
         layout
             .getBundle(request)
@@ -169,20 +175,16 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         "px-2",
                         StyleUtils.responsive2XLarge("px-16"))
                     .with(
-                        renderProgramInfo(programDefinition)
-                            .with(
-                                div()
-                                    .withClasses("flex")
-                                    .with(renderEditButton(request, programDefinition))
-                                    .with(renderPreviewButton(programDefinition)))
+                        renderProgramInfoHeader(
+                                programDefinition, ImmutableList.copyOf(headerButtons), request)
                             .with(
                                 iff(
                                     malformedQuestionDefinition,
                                     div(
-                                        p("If you see this file a bug with the CiviForm"
-                                              + " development team. Some questions are not"
-                                              + " pointing at the latest version. Edit the program"
-                                              + " and try republishing. ")
+                                        p("If you see this file a bug with the CiviForm development"
+                                                + " team. Some questions are not pointing at the"
+                                                + " latest version. Edit the program and try"
+                                                + " republishing. ")
                                             .withClasses("text-center", "text-red-500")))),
                         div()
                             .withClasses("flex", "flex-grow", "-mx-2")
@@ -211,7 +213,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   programDefinition,
                   blockDefinition,
                   csrfTag,
-                  ProgramQuestionBank.shouldShowQuestionBank(request)))
+                  ProgramQuestionBank.shouldShowQuestionBank(request),
+                  request))
           .addMainContent(addFormEndpoints(csrfTag, programDefinition.id(), blockId))
           .addModals(blockDescriptionEditModal, blockDeleteScreenModal);
     }
@@ -677,11 +680,16 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 iffElse(malformedQuestionDefinition, "border-red-500", "border-gray-200"),
                 "px-4",
                 "py-2",
-                "flex",
-                "gap-4",
                 "items-center",
+                "rounded-md",
                 StyleUtils.hover("text-gray-800", "bg-gray-100"));
+    ret.condWith(
+        settingsManifest.getUniversalQuestions(request)
+            && !malformedQuestionDefinition
+            && questionDefinition.isUniversal(),
+        ViewUtils.makeUniversalBadge(questionDefinition, "mt-2", "mb-4"));
 
+    DivTag row = div().withClasses("flex", "gap-4", "items-center");
     SvgTag icon =
         Icons.questionTypeSvg(questionDefinition.getQuestionType())
             .withClasses("shrink-0", "h-12", "w-6");
@@ -724,12 +732,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
             questionDefinition,
             addressCorrectionEnabled);
 
-    ret.with(icon, content);
+    row.with(icon, content);
     // UI for editing is only added if we are viewing a draft.
     if (viewAllowsEditingProgram()) {
-      maybeAddressCorrectionEnabledToggle.ifPresent(toggle -> ret.with(toggle));
-      maybeOptionalToggle.ifPresent(ret::with);
-      ret.with(
+      maybeAddressCorrectionEnabledToggle.ifPresent(toggle -> row.with(toggle));
+      maybeOptionalToggle.ifPresent(row::with);
+      row.with(
           this.renderMoveQuestionButtonsSection(
               csrfTag,
               programDefinition.id(),
@@ -737,7 +745,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
               questionDefinition,
               questionIndex,
               questionsCount));
-      ret.with(
+      row.with(
           renderDeleteQuestionForm(
               csrfTag,
               programDefinition.id(),
@@ -751,14 +759,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
             addressCorrectionEnabled
                 ? "Address correction: enabled"
                 : "Address correction: disabled";
-        ret.with(renderReadOnlyLabel(label));
+        row.with(renderReadOnlyLabel(label));
       }
       if (maybeOptionalToggle.isPresent()) {
         String label = isOptional ? "optional question" : "required question";
-        ret.with(renderReadOnlyLabel(label));
+        row.with(renderReadOnlyLabel(label));
       }
     }
-    return ret;
+    return ret.with(row);
   }
 
   /**
@@ -1054,7 +1062,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       InputTag csrfTag,
-      ProgramQuestionBank.Visibility questionBankVisibility) {
+      ProgramQuestionBank.Visibility questionBankVisibility,
+      Request request) {
     String addQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.create(
                 program.id(), blockDefinition.id())
@@ -1076,7 +1085,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .setQuestionCreateRedirectUrl(redirectUrl)
                 .build(),
             programBlockValidationFactory);
-    return qb.getContainer(questionBankVisibility);
+    return qb.getContainer(
+        questionBankVisibility,
+        /* showUniversal= */ settingsManifest.getUniversalQuestions(request));
   }
 
   /** Creates a modal, which allows the admin to confirm that they want to delete a block. */
@@ -1209,30 +1220,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
   /** Returns if this view is editable or not. A view is editable only if it represents a draft. */
   private boolean viewAllowsEditingProgram() {
     return programDisplayType.equals(DRAFT);
-  }
-
-  /**
-   * Creates the Edit button shown at the top of the page. For a read only view it redirects to an
-   * editable view.
-   */
-  private ButtonTag renderEditButton(Request request, ProgramDefinition programDefinition) {
-    if (viewAllowsEditingProgram()) {
-      ButtonTag editButton = getStandardizedEditButton("Edit program details");
-      String editLink = routes.AdminProgramController.edit(programDefinition.id()).url();
-      return asRedirectElement(editButton, editLink);
-    } else {
-      ButtonTag editButton = getStandardizedEditButton("Edit program");
-      String editLink = routes.AdminProgramController.newVersionFrom(programDefinition.id()).url();
-      return toLinkButtonForPost(editButton, editLink, request);
-    }
-  }
-
-  private ButtonTag renderPreviewButton(ProgramDefinition programDefinition) {
-    return asRedirectElement(
-        ViewUtils.makeSvgTextButton("Preview as applicant", Icons.VIEW)
-            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-5", "mx-2"),
-        controllers.admin.routes.AdminProgramPreviewController.preview(programDefinition.id())
-            .url());
   }
 
   /** Indicates if this view is showing a draft or published program. */

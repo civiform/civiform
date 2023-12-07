@@ -11,8 +11,8 @@ import static play.test.Helpers.fakeRequest;
 import com.google.common.collect.ImmutableMap;
 import controllers.BadRequestException;
 import java.util.Locale;
-import models.Question;
-import models.Version;
+import models.QuestionModel;
+import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
@@ -36,7 +36,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
   private static final String SPANISH_QUESTION_TEXT = "spanish question text";
   private static final String SPANISH_QUESTION_HELP_TEXT = "spanish question help text";
 
-  private Version draftVersion;
+  private VersionModel draftVersion;
   private QuestionRepository questionRepository;
   private AdminQuestionTranslationsController controller;
 
@@ -51,7 +51,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void edit_defaultLocaleRedirectsWithError() {
-    Question question = createDraftQuestionEnglishAndSpanish();
+    QuestionModel question = createDraftQuestionEnglishAndSpanish();
 
     Result result =
         controller.edit(
@@ -67,7 +67,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void edit_rendersForm_otherLocale() throws UnsupportedQuestionTypeException {
-    Question question = createDraftQuestionEnglishAndSpanish();
+    QuestionModel question = createDraftQuestionEnglishAndSpanish();
 
     Result result =
         controller.edit(
@@ -99,7 +99,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void update_addsNewLocalesAndRedirects() throws TranslationNotFoundException {
-    Question question = createDraftQuestionEnglishOnly();
+    QuestionModel question = createDraftQuestionEnglishOnly();
     Http.RequestBuilder requestBuilder =
         fakeRequest()
             .bodyForm(
@@ -133,7 +133,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
   @Test
   public void update_updatesExistingLocalesAndRedirects()
       throws TranslationNotFoundException, UnsupportedQuestionTypeException {
-    Question question = createDraftQuestionEnglishAndSpanish();
+    QuestionModel question = createDraftQuestionEnglishAndSpanish();
     Http.RequestBuilder requestBuilder =
         fakeRequest()
             .bodyForm(
@@ -177,7 +177,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
   @Test
   public void update_validationErrors_rendersEditFormWithMessage()
       throws UnsupportedQuestionTypeException {
-    Question question = createDraftQuestionEnglishAndSpanish();
+    QuestionModel question = createDraftQuestionEnglishAndSpanish();
     Http.RequestBuilder requestBuilder =
         fakeRequest().bodyForm(ImmutableMap.of("questionText", "", "questionHelpText", ""));
 
@@ -195,7 +195,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
             "Question text cannot be blank");
   }
 
-  private Question createDraftQuestionEnglishOnly() {
+  private QuestionModel createDraftQuestionEnglishOnly() {
     QuestionDefinition definition =
         new NameQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -204,14 +204,14 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
                 .setQuestionText(LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_TEXT))
                 .setQuestionHelpText(LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_HELP_TEXT))
                 .build());
-    Question question = new Question(definition);
+    QuestionModel question = new QuestionModel(definition);
     // Only draft questions are editable.
     question.addVersion(draftVersion);
     question.save();
     return question;
   }
 
-  private Question createDraftQuestionEnglishAndSpanish() {
+  private QuestionModel createDraftQuestionEnglishAndSpanish() {
     QuestionDefinition definition =
         new NameQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -224,7 +224,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
                     LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_HELP_TEXT)
                         .updateTranslation(ES_LOCALE, SPANISH_QUESTION_HELP_TEXT))
                 .build());
-    Question question = new Question(definition);
+    QuestionModel question = new QuestionModel(definition);
     // Only draft questions are editable.
     question.addVersion(draftVersion);
     question.save();

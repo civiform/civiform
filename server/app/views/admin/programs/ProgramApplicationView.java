@@ -29,7 +29,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.OptionalLong;
-import models.Application;
+import models.ApplicationModel;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -78,7 +78,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   public Content render(
       long programId,
       String programName,
-      Application application,
+      ApplicationModel application,
       String applicantNameWithApplicationId,
       ImmutableList<Block> blocks,
       ImmutableList<AnswerData> answers,
@@ -257,7 +257,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   }
 
   private DivTag renderStatusOptionsSelector(
-      Application application, StatusDefinitions statusDefinitions) {
+      ApplicationModel application, StatusDefinitions statusDefinitions) {
     final String SELECTOR_ID = RandomStringUtils.randomAlphabetic(8);
     DivTag container =
         div()
@@ -302,7 +302,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   }
 
   private Modal renderUpdateNoteConfirmationModal(
-      long programId, Application application, Optional<String> noteMaybe) {
+      long programId, ApplicationModel application, Optional<String> noteMaybe) {
     ButtonTag triggerButton =
         makeSvgTextButton("Edit note", Icons.EDIT).withClasses(ButtonStyles.CLEAR_WITH_ICON);
     String formId = Modal.randomModalId();
@@ -339,7 +339,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private Modal renderStatusUpdateConfirmationModal(
       long programId,
       String programName,
-      Application application,
+      ApplicationModel application,
       String applicantNameWithApplicationId,
       StatusDefinitions.Status status) {
     // The previous status as it should be displayed and passed as data in the
@@ -414,7 +414,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
   private DomContent renderStatusUpdateConfirmationModalEmailSection(
       String applicantNameWithApplicationId,
-      Application application,
+      ApplicationModel application,
       StatusDefinitions.Status status) {
     InputTag sendEmailInput =
         input().withType("checkbox").withName(SEND_EMAIL).withClasses(BaseStyles.CHECKBOX);
@@ -451,7 +451,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             span(maybeApplicantEmail.orElse("")).withClass("font-semibold"));
   }
 
-  private SpanTag renderSubmitTime(Application application) {
+  private SpanTag renderSubmitTime(ApplicationModel application) {
     String submitTime =
         application.getSubmitTime() == null
             ? "Application submitted without submission time marked."

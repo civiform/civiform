@@ -1,5 +1,6 @@
 import {
   createTestContext,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   selectApplicantLanguage,
@@ -29,6 +30,7 @@ describe('Admin can manage translations', () => {
       expectProgramDescription: '',
     })
     await adminTranslations.expectNoProgramStatusTranslations()
+    await adminTranslations.expectNoProgramImageDescription()
     const publicName = 'Spanish name'
     const publicDescription = 'Spanish description'
     await adminTranslations.editProgramTranslations({
@@ -43,6 +45,7 @@ describe('Admin can manage translations', () => {
       expectProgramDescription: publicDescription,
     })
     await adminTranslations.expectNoProgramStatusTranslations()
+    await adminTranslations.expectNoProgramImageDescription()
     await adminPrograms.publishProgram(programName)
 
     // View the applicant program page in Spanish and check that the translations are present
@@ -148,6 +151,119 @@ describe('Admin can manage translations', () => {
     })
   })
 
+  it('creates a program with summary image description and adds translations', async () => {
+    const {page, adminPrograms, adminProgramImage, adminTranslations} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Program with summary image description'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramImagePage(programName)
+    await adminProgramImage.setImageDescriptionAndSubmit(
+      'Fake image description',
+    )
+
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.expectProgramImageDescriptionTranslation('')
+
+    // Add a Spanish translation
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.editProgramTranslations({
+      name: 'Spanish name',
+      description: 'Spanish description',
+      statuses: [],
+    })
+    await adminTranslations.editProgramImageDescription(
+      'Spanish image description',
+    )
+
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.expectProgramImageDescriptionTranslation(
+      'Spanish image description',
+    )
+    await validateScreenshot(page, 'program-translation-with-image-description')
+
+    // Verify other translations are still not filled in
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Tagalog')
+    await adminTranslations.expectProgramImageDescriptionTranslation('')
+  })
+
+  it('editing summary image description does not clobber translations', async () => {
+    const {page, adminPrograms, adminProgramImage, adminTranslations} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Program with summary image description'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramImagePage(programName)
+    await adminProgramImage.setImageDescriptionAndSubmit(
+      'Fake image description',
+    )
+
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.editProgramTranslations({
+      name: 'Spanish name',
+      description: 'Spanish description',
+      statuses: [],
+    })
+    await adminTranslations.editProgramImageDescription(
+      'Spanish image description',
+    )
+
+    // Update the original description
+    await adminPrograms.goToProgramImagePage(programName)
+    await adminProgramImage.setImageDescriptionAndSubmit(
+      'New image description',
+    )
+
+    // Verify the Spanish translations are still there
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.expectProgramImageDescriptionTranslation(
+      'Spanish image description',
+    )
+  })
+
+  it('deleting summary image description deletes all translations', async () => {
+    const {page, adminPrograms, adminProgramImage, adminTranslations} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Program with summary image description'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramImagePage(programName)
+    await adminProgramImage.setImageDescriptionAndSubmit(
+      'Fake image description',
+    )
+
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.editProgramTranslations({
+      name: 'Spanish name',
+      description: 'Spanish description',
+      statuses: [],
+    })
+    await adminTranslations.editProgramImageDescription(
+      'Spanish image description',
+    )
+
+    // Remove the original description
+    await adminPrograms.goToProgramImagePage(programName)
+    await adminProgramImage.setImageDescriptionAndSubmit('')
+
+    // Verify there's no longer an option to translate the description.
+    // (The image description translation field will only appear in the UI if
+    // an original description exists.)
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.expectNoProgramImageDescription()
+  })
+
   it('creates a question and adds translations', async () => {
     const {
       page,
@@ -218,9 +334,9 @@ describe('Admin can manage translations', () => {
     await adminQuestions.addRadioButtonQuestion({
       questionName,
       options: [
-        {adminName: 'one admin', text: 'one'},
-        {adminName: 'two admin', text: 'two'},
-        {adminName: 'three admin', text: 'three'},
+        {adminName: 'one_admin', text: 'one'},
+        {adminName: 'two_admin', text: 'two'},
+        {adminName: 'three_admin', text: 'three'},
       ],
     })
 

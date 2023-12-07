@@ -3,6 +3,7 @@ package views;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.h4;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.link;
@@ -12,6 +13,7 @@ import static j2html.TagCreator.script;
 import static j2html.TagCreator.span;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import controllers.AssetsFinder;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
@@ -27,6 +29,7 @@ import java.time.Instant;
 import java.util.Optional;
 import javax.inject.Inject;
 import services.DateConverter;
+import services.question.types.QuestionDefinition;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.style.BaseStyles;
@@ -161,7 +164,7 @@ public final class ViewUtils {
    * @return Tag representing the badge. No classes should be added to the returned tag as it will
    *     overwrite existing classes due to how Jhtml works.
    */
-  public static PTag makeBadge(ProgramDisplayType status, String... extraClasses) {
+  public static PTag makeLifecycleBadge(ProgramDisplayType status, String... extraClasses) {
     String badgeText = "", badgeBGColor = "", badgeFillColor = "";
     switch (status) {
       case ACTIVE:
@@ -300,5 +303,71 @@ public final class ViewUtils {
                             .withCondId(idPresent, nubId)));
     text.ifPresent(button::withText);
     return button;
+  }
+
+  /**
+   * Makes a badge with a civiform-teal background, white text, and the given icon.
+   *
+   * @param icon Icon to use in the badge, left of the text.
+   * @param text Text for the badge.
+   * @param classes Additional classes to apply to the badge.
+   * @return DivTag containing the badge.
+   */
+  public static DivTag makeBadgeWithIcon(Icons icon, String text, String... classes) {
+    return div()
+        .withClasses(
+            "rounded-lg",
+            "flex",
+            "max-w-fit",
+            "px-2",
+            "py-1",
+            "space-x-1",
+            "text-white",
+            "bg-civiform-teal",
+            String.join(" ", classes))
+        .with(Icons.svg(icon).withClasses("flex", "h-6", "w-4"), span(text));
+  }
+
+  /**
+   * Makes a universal question badge, with text denoting the question type, and a
+   * "cf-universal-badge" class applied.
+   *
+   * @param questionDefinition The {@link QuestionDefinition} associated with the question this
+   *     badge will be applied to.
+   * @param classes Additional classes to apply to the badge.
+   * @return DivTag containing the badge.
+   */
+  public static DivTag makeUniversalBadge(
+      QuestionDefinition questionDefinition, String... classes) {
+
+    return makeBadgeWithIcon(
+        Icons.STAR,
+        String.format("Universal %s Question", questionDefinition.getQuestionType().getLabel()),
+        Lists.asList("cf-universal-badge", classes).toArray(new String[0]));
+  }
+
+  /**
+   * Makes a USWDS Alert component with the given text and optional title. Alert variant is
+   * determined by the classes passed in. https://designsystem.digital.gov/components/alert/
+   *
+   * @param text The text to include in the alert.
+   * @param classes One or more of the class options listed above for the USWDS Alert component.
+   * @param maybeTitle An optional title to be included in the alert.
+   * @return DivTag containing the alert.
+   */
+  public static DivTag makeAlert(String text, Optional<String> maybeTitle, String... classes) {
+    return div()
+        .withClasses("usa-alert", String.join(" ", classes))
+        .with(
+            div()
+                .withClasses("usa-alert__body")
+                .condWith(
+                    maybeTitle.isPresent(),
+                    h4().withClass("usa-alert__heading").withText(maybeTitle.orElse("")))
+                .with(p().withClass("usa-alert__text").withText(text)));
+  }
+
+  public static DivTag makeAlertInfoSlim(String text) {
+    return makeAlert(text, Optional.empty(), BaseStyles.ALERT_INFO, BaseStyles.ALERT_SLIM);
   }
 }

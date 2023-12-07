@@ -26,6 +26,10 @@ content.requiredFieldsNote=참고: {0} 표시가 있는 입력란은 필수입�
 content.optional=(선택사항)
 content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선택'을 사용하여 휴대전화 카메라로 문서를 업로드할 수도 있습니다.
 toast.errorMessageOutline=오류: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=닫기
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
+link.opensNewTabSr=opens in a new tab
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -81,7 +85,7 @@ content.description=CiviForm을 통해 {0}에서 받을 수 있는 혜택을 확
 content.saveTime=혜택을 신청할 때 시간을 절약해 보세요
 content.guestDescription={0} 계정에 로그인하거나 계정을 만들면 같은 정보를 다시 입력할 필요 없이 여러 가지 혜택을 신청할 수 있습니다. 언제든지 신청서를 수정하고 신청서 상태를 확인할 수도 있습니다.
 link.programDetails=프로그램 세부정보
-link.programDetailsSr={0}의 프로그램 세부정보
+link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=프로그램 및 서비스
 title.findServicesSection=유용한 서비스 찾기
 title.allProgramsSection=모든 프로그램({0})
@@ -149,7 +153,7 @@ content.commonIntakeConfirmationTi='프로그램 신청'을 클릭하여 온라�
 content.commonIntakeNoMatchingPrograms=이번에는 사전 선별 과정에서 자격요건을 충족할 수도 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 혜택을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 추가로 받을 수 있는 혜택 프로그램을 확인할 수 있습니다.
 content.commonIntakeNoMatchingProgramsTi=이번에는 사전 선별 과정에서 고객이 자격요건을 충족할 수도 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 혜택을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 추가로 받을 수 있는 혜택 프로그램을 확인할 수 있습니다.
 content.commonIntakeNoMatchingProgramsNextStep=이전 페이지로 돌아가 응답을 수정할 수도 있습니다.
-button.downloadPdf=Download PDF
+button.downloadPdf=PDF 다운로드
 button.applyToPrograms=프로그램 신청
 
 #-------------------------------------------------------------------------------------------------------------------------#
@@ -284,7 +288,7 @@ validation.textTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=객관식 질문의 옵션은 비워둘 수 없습니다.
-adminValidation.multiOptionAdminEmpty=다중 선택이 가능한 질문에서 관리자 ID를 비워두면 안 됩니다.
+adminValidation.multiOptionAdminError=관리자 이름에는 문자, 숫자, 밑줄, 대시만 포함할 수 있습니다.
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -309,3 +313,14 @@ email.tiManageYourClients={0}에서 고객 관리하기
 email.applicationUpdateSubject={0} 신청서 업데이트
 email.tiApplicationUpdateSubject={1} 신청인의 {0} 프로그램 신청서 업데이트
 email.tiApplicationUpdateBody={0} 신청인의 {1} 프로그램 상태가 {2}(으)로 변경되었습니다.
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
+banner.title=공식 정부 웹사이트입니다
+banner.link=파악 방법
+banner.govWebsiteSectionHeader=공식 웹사이트는 .gov를 사용합니다
+banner.govWebsiteSectionContent=.gov로 끝나는 웹사이트 주소는 미국의 공식 정부 조직에서 사용하는 주소입니다.
+banner.httpsSectionHeader=안전한 .gov 웹사이트는 HTTPS를 사용합니다
+banner.httpsSectionContent=자물쇠 ( {0} ) 또는 https://는 .gov 웹사이트에 안전하게 연결되었음을 의미합니다. 민감한 정보는 안전한 공식 웹사이트에서만 공유하세요.

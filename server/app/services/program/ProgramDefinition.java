@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import models.DisplayMode;
-import models.Program;
+import models.ProgramModel;
 import modules.MainModule;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
@@ -96,6 +96,9 @@ public abstract class ProgramDefinition {
   public abstract Boolean eligibilityIsGating();
 
   public abstract ProgramAcls acls();
+
+  /** A description of the program's summary image, used for alt text. */
+  public abstract Optional<LocalizedStrings> localizedSummaryImageDescription();
 
   /**
    * Returns a program definition with block definitions such that each enumerator block is
@@ -400,6 +403,8 @@ public abstract class ProgramDefinition {
             .map(QuestionDefinition::getSupportedLocales)
             .collect(toImmutableSet());
 
+    // TODO(#5995): Should this also include localizedConfirmationMessage and/or
+    // localizedSummaryImageDescription?
     Set<Locale> intersection =
         Sets.intersection(localizedName().locales(), localizedDescription().locales());
     for (ImmutableSet<Locale> set : questionLocales) {
@@ -691,8 +696,8 @@ public abstract class ProgramDefinition {
             && !pqd.addressCorrectionEnabled());
   }
 
-  public Program toProgram() {
-    return new Program(this);
+  public ProgramModel toProgram() {
+    return new ProgramModel(this);
   }
 
   public abstract Builder toBuilder();
@@ -750,6 +755,9 @@ public abstract class ProgramDefinition {
     public abstract Builder setEligibilityIsGating(Boolean eligibilityIsGating);
 
     public abstract Builder setAcls(ProgramAcls programAcls);
+
+    public abstract Builder setLocalizedSummaryImageDescription(
+        Optional<LocalizedStrings> localizedSummaryImageDescription);
 
     public abstract ProgramDefinition build();
 

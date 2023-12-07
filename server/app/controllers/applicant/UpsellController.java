@@ -12,8 +12,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Account;
-import models.Application;
+import models.AccountModel;
+import models.ApplicationModel;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
@@ -96,7 +96,7 @@ public final class UpsellController extends CiviFormController {
     CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
         applicantService.getPersonalInfo(applicantId).toCompletableFuture();
 
-    CompletableFuture<Account> account =
+    CompletableFuture<AccountModel> account =
         applicantPersonalInfo
             .thenComposeAsync(
                 v -> checkApplicantAuthorization(request, applicantId), httpContext.current())
@@ -189,14 +189,15 @@ public final class UpsellController extends CiviFormController {
       return CompletableFuture.completedFuture(forbidden());
     }
     CompletableFuture<Void> authorization = checkApplicantAuthorization(request, applicantId);
-    CompletableFuture<Optional<Application>> applicationMaybe =
+    CompletableFuture<Optional<ApplicationModel>> applicationMaybe =
         applicationService.getApplicationAsync(applicationId).toCompletableFuture();
 
     return CompletableFuture.allOf(applicationMaybe, authorization)
         .thenApplyAsync(
             check -> {
               PdfExporter.InMemoryPdf pdf =
-                  pdfExporterService.generatePdf(applicationMaybe.join().get());
+                  pdfExporterService.generatePdf(
+                      applicationMaybe.join().get(), /* showEligibilityText= */ false);
 
               return ok(pdf.getByteArray())
                   .as("application/pdf")

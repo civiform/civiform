@@ -94,8 +94,10 @@ public class DropdownQuestionRendererTest extends ResetPostgres {
   @Test
   public void render_withAriaLabels() {
     DivTag result = renderer.render(params);
+    // Remove invisible new line characters that break the regex match
+    String cleanHtml = result.render().replace("\n", "");
 
-    assertThat(result.render().matches(".*select aria-describedby=\"[A-Za-z]{8}-description\".*"))
+    assertThat(cleanHtml.matches(".*select aria-describedby=\"[A-Za-z]{8}-description\".*"))
         .isTrue();
   }
 
@@ -104,8 +106,7 @@ public class DropdownQuestionRendererTest extends ResetPostgres {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
-            .setQuestionName(Optional.of("favorite ice cream"))
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD)
             .build();
 
     DivTag result = renderer.render(params);
@@ -118,8 +119,7 @@ public class DropdownQuestionRendererTest extends ResetPostgres {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
-            .setQuestionName(Optional.of("wrong name"))
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
             .build();
 
     DivTag result = renderer.render(params);

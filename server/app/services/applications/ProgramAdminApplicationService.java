@@ -7,11 +7,11 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import java.util.Locale;
 import java.util.Optional;
-import models.Account;
-import models.Applicant;
-import models.Application;
-import models.ApplicationEvent;
-import models.Program;
+import models.AccountModel;
+import models.ApplicantModel;
+import models.ApplicationEventModel;
+import models.ApplicationModel;
+import models.ProgramModel;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
@@ -81,10 +81,11 @@ public final class ProgramAdminApplicationService {
    *
    * @param admin The Account that instigated the change.
    */
-  public void setStatus(Application application, StatusEvent newStatusEvent, Account admin)
+  public void setStatus(
+      ApplicationModel application, StatusEvent newStatusEvent, AccountModel admin)
       throws StatusEmailNotFoundException, StatusNotFoundException, AccountHasNoEmailException {
-    Program program = application.getProgram();
-    Applicant applicant = application.getApplicant();
+    ProgramModel program = application.getProgram();
+    ApplicantModel applicant = application.getApplicant();
     String newStatusText = newStatusEvent.statusText();
     // The send/sent phrasing is a little weird as the service layer is converting between intent
     // and reality.
@@ -104,7 +105,8 @@ public final class ProgramAdminApplicationService {
             .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
             .setStatusEvent(newStatusEvent)
             .build();
-    ApplicationEvent event = new ApplicationEvent(application, Optional.of(admin), details);
+    ApplicationEventModel event =
+        new ApplicationEventModel(application, Optional.of(admin), details);
 
     // Send email if requested and present.
     if (sendEmail) {
@@ -137,7 +139,7 @@ public final class ProgramAdminApplicationService {
 
   private void sendApplicantEmail(
       ProgramDefinition programDef,
-      Applicant applicant,
+      ApplicantModel applicant,
       Status statusDef,
       Optional<String> applicantEmail) {
     String civiformLink = baseUrl;
@@ -158,7 +160,7 @@ public final class ProgramAdminApplicationService {
 
   private void sendAdminSubmitterEmail(
       ProgramDefinition programDef,
-      Applicant applicant,
+      ApplicantModel applicant,
       Status statusDef,
       Optional<String> adminSubmitterEmail) {
     String programName = programDef.localizedName().getDefault();
@@ -176,8 +178,8 @@ public final class ProgramAdminApplicationService {
     Locale locale =
         accountRepository
             .lookupAccountByEmail(adminSubmitterEmail.get())
-            .flatMap(Account::newestApplicant)
-            .map(Applicant::getApplicantData)
+            .flatMap(AccountModel::newestApplicant)
+            .map(ApplicantModel::getApplicantData)
             .map(ApplicantData::preferredLocale)
             .orElse(LocalizedStrings.DEFAULT_LOCALE);
     Messages messages =
@@ -200,18 +202,19 @@ public final class ProgramAdminApplicationService {
    *
    * @param admin The Account that instigated the change.
    */
-  public void setNote(Application application, NoteEvent note, Account admin) {
+  public void setNote(ApplicationModel application, NoteEvent note, AccountModel admin) {
     ApplicationEventDetails details =
         ApplicationEventDetails.builder()
             .setEventType(ApplicationEventDetails.Type.NOTE_CHANGE)
             .setNoteEvent(note)
             .build();
-    ApplicationEvent event = new ApplicationEvent(application, Optional.of(admin), details);
+    ApplicationEventModel event =
+        new ApplicationEventModel(application, Optional.of(admin), details);
     eventRepository.insertSync(event);
   }
 
   /** Returns the note content for {@code application}. */
-  public Optional<String> getNote(Application application) {
+  public Optional<String> getNote(ApplicationModel application) {
     // The most recent note event is the current value for the note.
     return application.getApplicationEvents().stream()
         .filter(app -> app.getEventType().equals(ApplicationEventDetails.Type.NOTE_CHANGE))
@@ -223,7 +226,7 @@ public final class ProgramAdminApplicationService {
    * Retrieves the application with the given ID and validates that it is associated with the given
    * program.
    */
-  public Optional<Application> getApplication(long applicationId, ProgramDefinition program) {
+  public Optional<ApplicationModel> getApplication(long applicationId, ProgramDefinition program) {
     try {
       return validateProgram(
           applicationRepository.getApplication(applicationId).toCompletableFuture().join(),
@@ -234,8 +237,8 @@ public final class ProgramAdminApplicationService {
   }
 
   /** Validates that the given application is part of the given program. */
-  private Optional<Application> validateProgram(
-      Optional<Application> application, ProgramDefinition program)
+  private Optional<ApplicationModel> validateProgram(
+      Optional<ApplicationModel> application, ProgramDefinition program)
       throws ProgramNotFoundException {
     if (application.isEmpty()
         || application.get().getProgramName().isEmpty()

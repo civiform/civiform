@@ -24,25 +24,27 @@ lazy val root = (project in file("."))
       javaWs,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.8.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.15.3",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.15.3",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.3",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.16.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.16.0",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.16.0",
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
       "org.commonmark" % "commonmark" % "0.21.0",
+      "org.commonmark" % "commonmark-ext-autolink" % "0.21.0",
+      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20180219.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.21.14",
-      "software.amazon.awssdk" % "ses" % "2.21.14",
+      "software.amazon.awssdk" % "s3" % "2.21.39",
+      "software.amazon.awssdk" % "ses" % "2.21.39",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.10.4",
-      "com.azure" % "azure-storage-blob" % "12.24.1",
+      "com.azure" % "azure-identity" % "1.11.1",
+      "com.azure" % "azure-storage-blob" % "12.25.1",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.6.0",
+      "org.postgresql" % "postgresql" % "42.7.0",
       "com.h2database" % "h2" % "2.2.224" % Test,
 
       // Metrics collection and export for Prometheus
@@ -67,16 +69,16 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "11.1.0-PLAY2.8",
-      "org.pac4j" % "pac4j-core" % "5.7.1",
+      "org.pac4j" % "pac4j-core" % "5.7.2",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "5.7.1",
+      "org.pac4j" % "pac4j-http" % "5.7.2",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "5.7.1",
+      "org.pac4j" % "pac4j-oidc" % "5.7.2",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "5.7.1",
+      "org.pac4j" % "pac4j-saml" % "5.7.2",
 
       // Encrypted cookies require encryption.
-      "org.apache.shiro" % "shiro-crypto-cipher" % "1.12.0",
+      "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
 
       // Autovalue
       "com.google.auto.value" % "auto-value-annotations" % "1.10.4",
@@ -92,7 +94,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.24",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.26",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.6",
@@ -143,6 +145,8 @@ lazy val root = (project in file("."))
     Test / testOptions := Seq(
       Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")
     ),
+    // Allow tests to print to stdout when running in forking mode (default)
+    Test / outputStrategy := Some(StdoutOutput),
     // Use test config for tests
     Test / javaOptions += "-Dconfig.file=conf/application.test.conf",
     // Uncomment the following line to disable JVM forking, which allows attaching a remote
@@ -218,9 +222,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.3",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.15.3",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.15.3"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.16.0",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.16.0",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.16.0"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.

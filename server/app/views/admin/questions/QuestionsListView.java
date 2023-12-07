@@ -36,6 +36,7 @@ import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -51,6 +52,7 @@ import views.components.Modal.Width;
 import views.components.QuestionBank;
 import views.components.QuestionSortOption;
 import views.components.ToastMessage;
+import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -61,15 +63,18 @@ public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final TranslationLocales translationLocales;
   private final ViewUtils viewUtils;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public QuestionsListView(
       AdminLayoutFactory layoutFactory,
       TranslationLocales translationLocales,
-      ViewUtils viewUtils) {
+      ViewUtils viewUtils,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
     this.viewUtils = checkNotNull(viewUtils);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /** Renders a page with a list view of all questions. */
@@ -158,7 +163,12 @@ public final class QuestionsListView extends BaseHtmlView {
                       .build();
                 })
             .sorted(
-                Comparator.<QuestionCardData, Instant>comparing(
+                Comparator.<QuestionCardData, Boolean>comparing(
+                        card ->
+                            settingsManifest.getUniversalQuestions(request)
+                                ? getDisplayQuestion(card).isUniversal()
+                                : true)
+                    .thenComparing(
                         card ->
                             getDisplayQuestion(card).getLastModifiedTime().orElse(Instant.EPOCH))
                     .reversed()
@@ -170,6 +180,7 @@ public final class QuestionsListView extends BaseHtmlView {
                                 .toLowerCase(Locale.ROOT)))
             .collect(ImmutableList.toImmutableList());
 
+    ImmutableList.Builder<DomContent> universalQuestionRows = ImmutableList.builder();
     ImmutableList.Builder<DomContent> nonArchivedQuestionRows = ImmutableList.builder();
     ImmutableList.Builder<DomContent> archivedQuestionRows = ImmutableList.builder();
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
@@ -178,22 +189,45 @@ public final class QuestionsListView extends BaseHtmlView {
           renderQuestionCard(card, activeAndDraftQuestions, request);
       if (isQuestionPendingDeletion(card, activeAndDraftQuestions)) {
         archivedQuestionRows.add(rowAndModals.getLeft());
+      } else if (getDisplayQuestion(card).isUniversal()
+          && settingsManifest.getUniversalQuestions(request)) {
+        universalQuestionRows.add(rowAndModals.getLeft());
       } else {
         nonArchivedQuestionRows.add(rowAndModals.getLeft());
       }
       modals.addAll(rowAndModals.getRight());
     }
 
-    DivTag questionContent =
-        div(
-            div()
-                .withClass(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
-                .with(nonArchivedQuestionRows.build()));
-    if (!archivedQuestionRows.build().isEmpty()) {
+    ImmutableList<DomContent> universalQuestionContent = universalQuestionRows.build();
+    ImmutableList<DomContent> nonArchivedQuestionContent = nonArchivedQuestionRows.build();
+    ImmutableList<DomContent> archivedQuestionContent = archivedQuestionRows.build();
+    DivTag questionContent = div();
+    if (!universalQuestionContent.isEmpty()) {
       questionContent.with(
           div()
-              .with(h2("Marked for archival").withClasses("mt-8", "font-semibold"))
-              .with(archivedQuestionRows.build()));
+              .withId("questions-list-universal")
+              .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
+              .with(h2("Universal questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
+              .with(
+                  ViewUtils.makeAlertInfoSlim(
+                      "We recommend using all universal questions in your program for personal and"
+                          + " contact information questions."))
+              .with(universalQuestionContent));
+    }
+    questionContent.with(
+        div()
+            .withId("questions-list-non-universal")
+            .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
+            .condWith(
+                !universalQuestionContent.isEmpty(),
+                h2("All other questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
+            .with(nonArchivedQuestionContent));
+    if (!archivedQuestionContent.isEmpty()) {
+      questionContent.with(
+          div()
+              .withId("questions-list-archived")
+              .with(h2("Marked for archival").withClasses(AdminStyles.SEMIBOLD_HEADER))
+              .with(archivedQuestionContent));
     }
     return Pair.of(questionContent, modals.build());
   }
@@ -283,6 +317,10 @@ public final class QuestionsListView extends BaseHtmlView {
                 "rounded-lg",
                 "border",
                 ReferenceClasses.ADMIN_QUESTION_TABLE_ROW)
+            .condWith(
+                settingsManifest.getUniversalQuestions(request)
+                    && getDisplayQuestion(cardData).isUniversal(),
+                ViewUtils.makeUniversalBadge(latestDefinition, "mt-4"))
             .with(row)
             .with(adminNote)
             // Add data attributes used for sorting.
@@ -321,7 +359,8 @@ public final class QuestionsListView extends BaseHtmlView {
               ? ProgramDisplayType.PENDING_DELETION
               : ProgramDisplayType.DRAFT;
     }
-    PTag badge = ViewUtils.makeBadge(displayType, "ml-2", StyleUtils.responsiveXLarge("ml-8"));
+    PTag badge =
+        ViewUtils.makeLifecycleBadge(displayType, "ml-2", StyleUtils.responsiveXLarge("ml-8"));
 
     DivTag row =
         div()

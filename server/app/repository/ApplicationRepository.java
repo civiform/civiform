@@ -12,13 +12,12 @@ import io.ebean.ExpressionList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.inject.Inject;
-import models.Applicant;
-import models.Application;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import models.LifecycleStage;
-import models.Program;
+import models.ProgramModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.applicant.exception.ApplicantNotFoundException;
@@ -26,10 +25,13 @@ import services.applicant.exception.DuplicateApplicationException;
 import services.program.ProgramNotFoundException;
 
 /**
- * ApplicationRepository performs complicated operations on {@link Application} that often involve
- * other EBean models or asynchronous handling.
+ * ApplicationRepository performs complicated operations on {@link ApplicationModel} that often
+ * involve other EBean models or asynchronous handling.
  */
 public final class ApplicationRepository {
+  private final QueryProfileLocationBuilder queryProfileLocationBuilder =
+      new QueryProfileLocationBuilder("ApplicationRepository");
+
   private final ProgramRepository programRepository;
   private final AccountRepository accountRepository;
   private final Database database;
@@ -47,22 +49,9 @@ public final class ApplicationRepository {
     this.executionContext = checkNotNull(executionContext);
   }
 
-  /**
-   * Pages through all submitted applications calling the provided consumer function with each one.
-   * Program association is eager loaded.
-   */
-  public void forEachSubmittedApplication(Consumer<Application> fn) {
-    database
-        .find(Application.class)
-        .fetch("program")
-        .where()
-        .in("lifecycle_stage", ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
-        .findEach(fn);
-  }
-
   @VisibleForTesting
-  public CompletionStage<Application> submitApplication(
-      Applicant applicant, Program program, Optional<String> tiSubmitterEmail) {
+  public CompletionStage<ApplicationModel> submitApplication(
+      ApplicantModel applicant, ProgramModel program, Optional<String> tiSubmitterEmail) {
     return supplyAsync(
         () -> submitApplicationInternal(applicant, program, tiSubmitterEmail),
         executionContext.current());
@@ -73,7 +62,7 @@ public final class ApplicationRepository {
    * applications to a program with the same name (to include past versions of the same program),
    * and create a new application in the active state.
    */
-  public CompletionStage<Optional<Application>> submitApplication(
+  public CompletionStage<Optional<ApplicationModel>> submitApplication(
       long applicantId, long programId, Optional<String> tiSubmitterEmail) {
     return this.perform(
         applicantId,
@@ -82,24 +71,26 @@ public final class ApplicationRepository {
             submitApplicationInternal(appArgs.applicant, appArgs.program, tiSubmitterEmail));
   }
 
-  private Application submitApplicationInternal(
-      Applicant applicant, Program program, Optional<String> tiSubmitterEmail) {
+  private ApplicationModel submitApplicationInternal(
+      ApplicantModel applicant, ProgramModel program, Optional<String> tiSubmitterEmail) {
     database.beginTransaction();
     try {
-      List<Application> oldApplications =
+      List<ApplicationModel> oldApplications =
           database
-              .createQuery(Application.class)
+              .createQuery(ApplicationModel.class)
               .where()
               .eq("applicant.id", applicant.id)
               .eq("program.name", program.getProgramDefinition().adminName())
+              .setLabel("ApplicationModel.findList")
+              .setProfileLocation(queryProfileLocationBuilder.create("submitApplicationInternal"))
               .findList();
 
-      ImmutableList<Application> drafts =
+      ImmutableList<ApplicationModel> drafts =
           oldApplications.stream()
               .filter(app -> app.getLifecycleStage().equals(LifecycleStage.DRAFT))
               .collect(ImmutableList.toImmutableList());
 
-      final Application application;
+      final ApplicationModel application;
       if (drafts.size() == 1) {
         application = drafts.get(0);
       } else if (drafts.isEmpty()) {
@@ -107,7 +98,7 @@ public final class ApplicationRepository {
             "No DRAFT applications found when submitting for applicant {} program {}",
             applicant.id,
             program.id);
-        application = new Application(applicant, program, LifecycleStage.ACTIVE);
+        application = new ApplicationModel(applicant, program, LifecycleStage.ACTIVE);
       } else {
         throw new RuntimeException(
             String.format(
@@ -115,7 +106,7 @@ public final class ApplicationRepository {
                 applicant.id, program.id));
       }
 
-      ImmutableList<Application> previousActive =
+      ImmutableList<ApplicationModel> previousActive =
           oldApplications.stream()
               .filter(app -> app.getLifecycleStage().equals(LifecycleStage.ACTIVE))
               .collect(ImmutableList.toImmutableList());
@@ -135,7 +126,7 @@ public final class ApplicationRepository {
                     .collect(ImmutableList.toImmutableList())));
       }
 
-      for (Application app : previousActive) {
+      for (ApplicationModel app : previousActive) {
         boolean isDuplicate = applicant.getApplicantData().isDuplicateOf(app.getApplicantData());
         if (isDuplicate) {
           LOGGER.info(
@@ -173,11 +164,11 @@ public final class ApplicationRepository {
    * Retrieves an applicant and program record and executes the provided function with them with
    * some error handling.
    */
-  private CompletionStage<Optional<Application>> perform(
-      long applicantId, long programId, Function<ApplicationArguments, Application> fn) {
-    CompletionStage<Optional<Applicant>> applicantDb =
+  private CompletionStage<Optional<ApplicationModel>> perform(
+      long applicantId, long programId, Function<ApplicationArguments, ApplicationModel> fn) {
+    CompletionStage<Optional<ApplicantModel>> applicantDb =
         accountRepository.lookupApplicant(applicantId);
-    CompletionStage<Optional<Program>> programDb = programRepository.lookupProgram(programId);
+    CompletionStage<Optional<ProgramModel>> programDb = programRepository.lookupProgram(programId);
     return applicantDb
         .thenCombineAsync(
             programDb,
@@ -207,10 +198,10 @@ public final class ApplicationRepository {
    * Returns all applications submitted within the provided time range. Results are returned in the
    * order that the applications were created.
    */
-  public ImmutableList<Application> getApplications(TimeFilter submitTimeFilter) {
-    ExpressionList<Application> query =
+  public ImmutableList<ApplicationModel> getApplications(TimeFilter submitTimeFilter) {
+    ExpressionList<ApplicationModel> query =
         database
-            .find(Application.class)
+            .find(ApplicationModel.class)
             .fetch("program")
             .fetch("applicant.account")
             .orderBy("id")
@@ -221,34 +212,43 @@ public final class ApplicationRepository {
     if (submitTimeFilter.untilTime().isPresent()) {
       query = query.where().lt("submit_time", submitTimeFilter.untilTime().get());
     }
-    return ImmutableList.copyOf(query.findList());
+    return ImmutableList.copyOf(
+        query
+            .setLabel("ApplicationModel.findList")
+            .setProfileLocation(queryProfileLocationBuilder.create("getApplications"))
+            .findList());
   }
 
   // Need to transmit both arguments to submitApplication through the CompletionStage pipeline.
   // Not useful in the API, not needed more broadly.
   private static final class ApplicationArguments {
-    public Program program;
-    public Applicant applicant;
+    public ProgramModel program;
+    public ApplicantModel applicant;
 
-    public ApplicationArguments(Program program, Applicant applicant) {
+    public ApplicationArguments(ProgramModel program, ApplicantModel applicant) {
       this.program = program;
       this.applicant = applicant;
     }
   }
 
-  private Application createOrUpdateDraftApplicationInternal(Applicant applicant, Program program) {
+  private ApplicationModel createOrUpdateDraftApplicationInternal(
+      ApplicantModel applicant, ProgramModel program) {
     database.beginTransaction();
     try {
-      Optional<Application> existingDraft =
+      Optional<ApplicationModel> existingDraft =
           database
-              .createQuery(Application.class)
+              .createQuery(ApplicationModel.class)
               .where()
               .eq("applicant.id", applicant.id)
               .eq("program.name", program.getProgramDefinition().adminName())
               .eq("lifecycle_stage", LifecycleStage.DRAFT)
+              .setLabel("ApplicationModel.findById")
+              .setProfileLocation(
+                  queryProfileLocationBuilder.create("createOrUpdateDraftApplicationInternal"))
               .findOneOrEmpty();
-      Application application =
-          existingDraft.orElseGet(() -> new Application(applicant, program, LifecycleStage.DRAFT));
+      ApplicationModel application =
+          existingDraft.orElseGet(
+              () -> new ApplicationModel(applicant, program, LifecycleStage.DRAFT));
       application.save();
       database.commitTransaction();
       return application;
@@ -258,7 +258,8 @@ public final class ApplicationRepository {
   }
 
   @VisibleForTesting
-  CompletionStage<Application> createOrUpdateDraft(Applicant applicant, Program program) {
+  CompletionStage<ApplicationModel> createOrUpdateDraft(
+      ApplicantModel applicant, ProgramModel program) {
     return supplyAsync(
         () -> createOrUpdateDraftApplicationInternal(applicant, program),
         executionContext.current());
@@ -268,7 +269,7 @@ public final class ApplicationRepository {
    * Create a draft application for the specified program. Update the draft application if one
    * already exists.
    */
-  public CompletionStage<Optional<Application>> createOrUpdateDraft(
+  public CompletionStage<Optional<ApplicationModel>> createOrUpdateDraft(
       long applicantId, long programId) {
     return this.perform(
         applicantId,
@@ -277,23 +278,29 @@ public final class ApplicationRepository {
             createOrUpdateDraftApplicationInternal(appArgs.applicant, appArgs.program));
   }
 
-  public CompletionStage<Optional<Application>> getApplication(long applicationId) {
+  public CompletionStage<Optional<ApplicationModel>> getApplication(long applicationId) {
     return supplyAsync(
-        () -> database.find(Application.class).setId(applicationId).findOneOrEmpty(),
+        () ->
+            database
+                .find(ApplicationModel.class)
+                .setId(applicationId)
+                .setLabel("ApplicationModel.findById")
+                .setProfileLocation(queryProfileLocationBuilder.create("getApplication"))
+                .findOneOrEmpty(),
         executionContext.current());
   }
 
   /**
    * Get all applications with the specified {@link LifecycleStage}s for an applicant.
    *
-   * <p>The {@link Program} associated with the application is eagerly loaded.
+   * <p>The {@link ProgramModel} associated with the application is eagerly loaded.
    */
-  public CompletionStage<ImmutableSet<Application>> getApplicationsForApplicant(
+  public CompletionStage<ImmutableSet<ApplicationModel>> getApplicationsForApplicant(
       long applicantId, ImmutableSet<LifecycleStage> stages) {
     return supplyAsync(
         () -> {
           return database
-              .find(Application.class)
+              .find(ApplicationModel.class)
               .where()
               .eq("applicant.id", applicantId)
               .isIn("lifecycle_stage", stages)
@@ -301,6 +308,8 @@ public final class ApplicationRepository {
               // Eagerly fetch the program in a SQL join.
               .fetch("program")
               .fetch("applicationEvents")
+              .setLabel("ApplicationModel.findSet")
+              .setProfileLocation(queryProfileLocationBuilder.create("getApplicationsForApplicant"))
               .findSet()
               .stream()
               .collect(ImmutableSet.toImmutableSet());

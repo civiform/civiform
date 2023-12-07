@@ -13,7 +13,7 @@ import io.ebean.DB;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
-import models.SettingsGroup;
+import models.SettingsGroupModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
@@ -154,7 +154,7 @@ public class SettingsServiceTest extends ResetPostgres {
 
   @Test
   public void applySettingsToRequest_doesNotAlterAttributesIfNoSettingsFound() {
-    DB.getDefault().truncate(SettingsGroup.class);
+    DB.getDefault().truncate(SettingsGroupModel.class);
     Http.Request request = Helpers.fakeRequest().build();
 
     settingsService.applySettingsToRequest(request).toCompletableFuture().join();
@@ -218,20 +218,20 @@ public class SettingsServiceTest extends ResetPostgres {
   @Test
   public void
       migrateConfigValuesToSettingsGroup_migratesSettingsFromHoconUnlessNoChangesAreFound() {
-    DB.getDefault().truncate(SettingsGroup.class);
+    DB.getDefault().truncate(SettingsGroupModel.class);
 
     assertThat(getCurrentSettingsGroup()).isEmpty();
     settingsService.migrateConfigValuesToSettingsGroup();
 
-    SettingsGroup settings = getCurrentSettingsGroup().get();
+    SettingsGroupModel settings = getCurrentSettingsGroup().get();
     assertThat(settings.getSettings()).isEqualTo(TEST_SETTINGS);
 
     settingsService.migrateConfigValuesToSettingsGroup();
-    SettingsGroup settingsAfterSecondMigration = getCurrentSettingsGroup().get();
+    SettingsGroupModel settingsAfterSecondMigration = getCurrentSettingsGroup().get();
     assertThat(settingsAfterSecondMigration.id).isEqualTo(settings.id);
   }
 
-  private Optional<SettingsGroup> getCurrentSettingsGroup() {
+  private Optional<SettingsGroupModel> getCurrentSettingsGroup() {
     return instanceOf(SettingsGroupRepository.class)
         .getCurrentSettings()
         .toCompletableFuture()
@@ -248,6 +248,6 @@ public class SettingsServiceTest extends ResetPostgres {
       throw new RuntimeException(e);
     }
 
-    new SettingsGroup(TEST_SETTINGS, "test").save();
+    new SettingsGroupModel(TEST_SETTINGS, "test").save();
   }
 }

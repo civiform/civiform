@@ -12,7 +12,7 @@ import forms.ProgramForm;
 import forms.ProgramSettingsForm;
 import java.util.Optional;
 import javax.inject.Inject;
-import models.Program;
+import models.ProgramModel;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -28,6 +28,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
 import services.question.QuestionService;
+import services.question.ReadOnlyQuestionService;
 import services.settings.SettingsManifest;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
@@ -80,10 +81,13 @@ public final class AdminProgramController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Request request) {
     Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
+    ReadOnlyQuestionService readOnlyQuestionService =
+        questionService.getReadOnlyQuestionServiceSync();
     return ok(
         listView.render(
             programService.getActiveAndDraftProgramsWithoutQuestionLoad(),
-            questionService.getReadOnlyQuestionServiceSync().getActiveAndDraftQuestions(),
+            readOnlyQuestionService.getActiveAndDraftQuestions(),
+            readOnlyQuestionService.getUpToDateQuestions(),
             request,
             profileMaybe));
   }
@@ -194,7 +198,7 @@ public final class AdminProgramController extends CiviFormController {
       // If there's already a draft then use that, likely the client is out of date and unaware a
       // draft exists.
       // TODO(#2246): Implement FE staleness detection system to handle this more robustly.
-      Optional<Program> existingDraft =
+      Optional<ProgramModel> existingDraft =
           versionRepository.getProgramByNameForVersion(
               programService.getProgramDefinition(programId).adminName(),
               versionRepository.getDraftVersionOrCreate());

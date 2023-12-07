@@ -55,7 +55,6 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
   @VisibleForTesting Optional<String> ESRI_FIND_ADDRESS_CANDIDATES_URL;
   private int ESRI_EXTERNAL_CALL_TRIES;
 
-  private final boolean metricsEnabled;
   private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
   @Inject
@@ -66,7 +65,6 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
       WSClient ws) {
     super(clock, esriServiceAreaValidationConfig, Optional.of(configuration));
     this.ws = checkNotNull(ws);
-    this.metricsEnabled = checkNotNull(configuration).getBoolean("civiform_server_metrics_enabled");
     this.ESRI_FIND_ADDRESS_CANDIDATES_URL =
         configuration.hasPath("esri_find_address_candidates_url")
             ? Optional.of(configuration.getString("esri_find_address_candidates_url"))
@@ -132,9 +130,7 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
     return tryRequest(request, this.ESRI_EXTERNAL_CALL_TRIES)
         .thenApply(
             res -> {
-              if (metricsEnabled) {
-                ESRI_REQUEST_C0UNT.labels(String.valueOf(res.getStatus())).inc();
-              }
+              ESRI_REQUEST_C0UNT.labels(String.valueOf(res.getStatus())).inc();
               // return empty if still failing after retries
               if (res.getStatus() != 200) {
                 return Optional.empty();

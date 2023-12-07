@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableSet;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
-import java.util.Optional;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
 import services.Path;
@@ -70,10 +69,10 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                         ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
                         ApplicantStyles.QUESTION_HELP_TEXT)
                     .with(
-                        TextFormatter.createLinksAndEscapeText(
+                        TextFormatter.formatText(
                             applicantQuestion.getQuestionHelpText(),
-                            TextFormatter.UrlOpenAction.NewTab,
-                            /*addRequiredIndicator= */ false)))
+                            /* preserveEmptyLines= */ false,
+                            /* addRequiredIndicator= */ false)))
             .withClasses("mb-4");
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
@@ -82,7 +81,6 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
         validationErrors = ImmutableMap.of();
         break;
       case DISPLAY_ERRORS:
-      case DISPLAY_SINGLE_ERROR:
         validationErrors = applicantQuestion.getQuestion().getValidationErrors();
         break;
       default:
@@ -102,10 +100,10 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     }
 
     ImmutableList<DomContent> questionTextDoms =
-        TextFormatter.createLinksAndEscapeText(
+        TextFormatter.formatText(
             applicantQuestion.getQuestionText(),
-            TextFormatter.UrlOpenAction.NewTab,
-            /*addRequiredIndicator= */ !applicantQuestion.isOptional());
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ !applicantQuestion.isOptional());
     // Reverse the list to have errors appear first.
     ImmutableList<String> ariaDescribedByIds = ariaDescribedByBuilder.build().reverse();
 
@@ -122,16 +120,5 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
         .withId(questionId)
         .withClasses("mx-auto", "mb-8", getReferenceClass(), getRequiredClass())
         .with(questionTag);
-  }
-
-  /**
-   * Determines whether or not a user arrived on the edit page by clicking on a specific question.
-   * If they clicked on a specific question, we set the autofocus to the input for that question.
-   */
-  public boolean applicantSelectedQuestion(Optional<String> questionName) {
-    if (questionName.isPresent()) {
-      return questionName.get().equals(applicantQuestion.getQuestionDefinition().getName());
-    }
-    return false;
   }
 }

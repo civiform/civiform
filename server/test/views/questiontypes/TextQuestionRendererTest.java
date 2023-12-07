@@ -55,6 +55,7 @@ public class TextQuestionRendererTest extends ResetPostgres {
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
             .build();
     renderer = new TextQuestionRenderer(question);
   }
@@ -87,13 +88,13 @@ public class TextQuestionRendererTest extends ResetPostgres {
   @Test
   public void render_withAriaLabels() {
     DivTag result = renderer.render(params);
+    // Remove invisible new line characters that break the regex match
+    String cleanHtml = result.render().replace("\n", "");
 
     assertThat(
-            result
-                .render()
-                .matches(
-                    ".*input type=\"text\" value=\"\""
-                        + " aria-describedby=\"[A-Za-z]{8}-description\".*"))
+            cleanHtml.matches(
+                ".*input type=\"text\" value=\"\""
+                    + " aria-describedby=\"[A-Za-z]{8}-description\".*"))
         .isTrue();
   }
 
@@ -102,8 +103,8 @@ public class TextQuestionRendererTest extends ResetPostgres {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
-            .setQuestionName(Optional.of("question name"))
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
             .build();
 
     DivTag result = renderer.render(params);
@@ -116,8 +117,8 @@ public class TextQuestionRendererTest extends ResetPostgres {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
-            .setQuestionName(Optional.of("wrong name"))
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
             .build();
 
     DivTag result = renderer.render(params);
@@ -130,6 +131,7 @@ public class TextQuestionRendererTest extends ResetPostgres {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
             .build();
 

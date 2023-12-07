@@ -2,6 +2,7 @@ package auth.oidc;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.IdentityProviderType;
 import auth.ProfileFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
@@ -20,6 +21,7 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.AccountRepository;
+import services.settings.SettingsManifest;
 
 /**
  * This class provides the base user OIDC implementation. It's abstract because AD and other
@@ -32,18 +34,22 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
   protected final OidcClientProviderParams params;
   protected final Config civiformConfig;
   protected final ProfileFactory profileFactory;
+  protected final IdTokensFactory idTokensFactory;
   protected final Provider<AccountRepository> accountRepositoryProvider;
   protected final String baseUrl;
+  protected final SettingsManifest settingsManifest;
 
   public OidcClientProvider(OidcClientProviderParams params) {
     this.params = params;
     this.civiformConfig = checkNotNull(params.configuration());
     this.profileFactory = checkNotNull(params.profileFactory());
+    this.idTokensFactory = checkNotNull(params.idTokensFactory());
     this.accountRepositoryProvider = checkNotNull(params.accountRepositoryProvider());
 
     this.baseUrl =
         getBaseConfigurationValue("base_url")
             .orElseThrow(() -> new RuntimeException("base_url must be set"));
+    this.settingsManifest = new SettingsManifest(this.civiformConfig);
   }
 
   /*
@@ -220,10 +226,14 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
       client.setName(providerName.get());
     }
     client.setCallbackUrl(callbackURL);
-    client.setProfileCreator(getProfileCreator(config, client));
+    ProfileCreator profileCreator = getProfileCreator(config, client);
+    IdentityProviderType identityProviderType =
+        ((CiviformOidcProfileCreator) profileCreator).identityProviderType();
+    client.setProfileCreator(profileCreator);
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.setLogoutActionBuilder(
-        new CiviformOidcLogoutActionBuilder(civiformConfig, config, config.getClientId()));
+        new CiviformOidcLogoutActionBuilder(
+            config, config.getClientId(), params, identityProviderType));
 
     try {
       client.init();

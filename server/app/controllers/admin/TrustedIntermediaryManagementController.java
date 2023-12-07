@@ -8,7 +8,7 @@ import forms.CreateTrustedIntermediaryGroupForm;
 import forms.RemoveTrustedIntermediaryForm;
 import java.util.Optional;
 import javax.inject.Inject;
-import models.TrustedIntermediaryGroup;
+import models.TrustedIntermediaryGroupModel;
 import org.pac4j.play.java.Secure;
 import org.slf4j.LoggerFactory;
 import play.data.Form;
@@ -94,7 +94,8 @@ public class TrustedIntermediaryManagementController extends Controller {
   /** Return a HTML page displaying all trusted intermediaries in the specified group. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(long id, Http.Request request) {
-    Optional<TrustedIntermediaryGroup> tiGroup = accountRepository.getTrustedIntermediaryGroup(id);
+    Optional<TrustedIntermediaryGroupModel> tiGroup =
+        accountRepository.getTrustedIntermediaryGroup(id);
     if (tiGroup.isEmpty()) {
       return notFound("no such group.");
     }

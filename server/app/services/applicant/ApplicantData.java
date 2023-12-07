@@ -147,11 +147,24 @@ public class ApplicantData extends CfJsonDocumentContext {
   }
 
   public Optional<LocalDate> getDateOfBirth() {
-    return readDate(WellKnownPaths.APPLICANT_DOB);
+    Path dobPath = WellKnownPaths.APPLICANT_DOB;
+    if (!hasPath(dobPath)) {
+      return getDeprecatedDateOfBirth();
+    }
+    return readDate(dobPath);
+  }
+
+  public Optional<LocalDate> getDeprecatedDateOfBirth() {
+    return readDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED);
   }
 
   public void setDateOfBirth(String dateOfBirth) {
-    putDate(WellKnownPaths.APPLICANT_DOB, dateOfBirth);
+    Path deprecatedDobPath = WellKnownPaths.APPLICANT_DOB_DEPRECATED;
+    if (hasPath(deprecatedDobPath)) {
+      putDate(deprecatedDobPath, dateOfBirth);
+    } else {
+      putDate(WellKnownPaths.APPLICANT_DOB, dateOfBirth);
+    }
   }
 
   /**

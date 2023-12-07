@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nullable;
-import models.Account;
+import models.AccountModel;
 
 public final class ProgramAcls {
   @JsonProperty("tiProgramViewAcls")
@@ -32,7 +32,7 @@ public final class ProgramAcls {
   public boolean hasProgramViewPermission(CiviFormProfile civiFormProfile) {
     // only a TI profile holder can access the program
     if (civiFormProfile.isTrustedIntermediary()) {
-      Account currentAccount = civiFormProfile.getAccount().join();
+      AccountModel currentAccount = civiFormProfile.getAccount().join();
       // If the TI is applying on behalf of a client, then the currentAccount will be the
       // client account. Hence, we should check if the TIOrg Id present in getManagedByGroup() is
       // part of tiProgramViewAcls list.

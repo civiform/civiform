@@ -11,8 +11,8 @@ import com.google.common.collect.ImmutableList;
 import controllers.LanguageUtils;
 import controllers.WithMockedProfiles;
 import java.util.Locale;
-import models.Applicant;
-import models.Application;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,11 +41,11 @@ public class DeepLinkControllerTest extends WithMockedProfiles {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
     applicant.save();
-    Application app =
-        new Application(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
+    ApplicationModel app =
+        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
     app.save();
     resourceCreator().insertDraftProgram(programDefinition.adminName());
     versionRepository.publishNewSynchronizedVersion();
@@ -69,7 +69,7 @@ public class DeepLinkControllerTest extends WithMockedProfiles {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
     applicant.save();
     resourceCreator().insertDraftProgram(programDefinition.adminName());
@@ -91,7 +91,7 @@ public class DeepLinkControllerTest extends WithMockedProfiles {
 
   @Test
   public void programBySlug_clearsOutRedirectSessionKey_nonExistingProgram() {
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
     applicant.save();
 
@@ -113,7 +113,7 @@ public class DeepLinkControllerTest extends WithMockedProfiles {
   public void programBySlug_testLanguageSelectorShown() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     DeepLinkController controller = instanceOf(DeepLinkController.class);
     Result result =
         controller
@@ -133,7 +133,7 @@ public class DeepLinkControllerTest extends WithMockedProfiles {
   public void programBySlug_testLanguageSelectorNotShownOneLanguage() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
@@ -165,7 +165,7 @@ public class DeepLinkControllerTest extends WithMockedProfiles {
   public void programBySlug_testLanguageSelectorNotShownNoLanguage() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    Applicant applicant = createApplicantWithMockedProfile();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of());
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);

@@ -6,11 +6,13 @@ import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
 
 import auth.CiviFormProfile;
+import controllers.AssetsFinder;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.NavTag;
+import java.util.Optional;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeploymentType;
@@ -50,8 +52,9 @@ public final class AdminLayout extends BaseHtmlLayout {
       ViewUtils viewUtils,
       NavPage activeNavPage,
       SettingsManifest settingsManifest,
-      DeploymentType deploymentType) {
-    super(viewUtils, settingsManifest, deploymentType);
+      DeploymentType deploymentType,
+      AssetsFinder assetsFinder) {
+    super(viewUtils, settingsManifest, deploymentType, assetsFinder);
     this.activeNavPage = activeNavPage;
   }
 
@@ -66,12 +69,12 @@ public final class AdminLayout extends BaseHtmlLayout {
   }
 
   public Content renderCentered(HtmlBundle bundle) {
-    return render(bundle, /* isCentered = */ true);
+    return render(bundle, /* isCentered= */ true);
   }
 
   @Override
   public Content render(HtmlBundle bundle) {
-    return render(bundle, /* isCentered = */ false);
+    return render(bundle, /* isCentered= */ false);
   }
 
   private Content render(HtmlBundle bundle, boolean isCentered) {
@@ -108,7 +111,10 @@ public final class AdminLayout extends BaseHtmlLayout {
             .withClasses("font-normal", "text-xl", "inline", "pl-10", "py-0", "mr-4")
             .with(span("Civi"), span("Form").withClasses("font-thin"));
 
-    NavTag adminHeader = nav().with(headerIcon, headerTitle).withClasses(AdminStyles.NAV_STYLES);
+    NavTag navBar = nav().with(getGovBanner(Optional.empty())).withClasses(AdminStyles.NAV_STYLES);
+
+    DivTag adminHeader =
+        div().with(headerIcon, headerTitle).withClasses(AdminStyles.INNER_NAV_STYLES);
 
     String questionLink = controllers.admin.routes.AdminQuestionController.index().url();
     String programLink = controllers.admin.routes.AdminProgramController.index().url();
@@ -186,7 +192,7 @@ public final class AdminLayout extends BaseHtmlLayout {
         }
     }
 
-    return adminHeader.with(
+    adminHeader.with(
         headerLink("Logout", logoutLink, "float-right").withId("logout-button"),
         primaryAdminType.equals(AdminType.CIVI_FORM_ADMIN)
             ? a(Icons.svg(Icons.COG)
@@ -194,6 +200,8 @@ public final class AdminLayout extends BaseHtmlLayout {
                 .withHref(settingsLink)
                 .withClasses("float-right")
             : null);
+
+    return navBar.with(adminHeader);
   }
 
   private ATag headerLink(String text, String href, String... styles) {

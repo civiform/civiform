@@ -11,7 +11,7 @@ import static j2html.TagCreator.text;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.PTag;
 import javax.inject.Inject;
-import models.ApiKey;
+import models.ApiKeyModel;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
@@ -53,7 +53,7 @@ public final class ApiKeyCredentialsView extends BaseHtmlView {
 
   public Content render(
       Http.Request request,
-      ApiKey apiKey,
+      ApiKeyModel apiKey,
       String encodedCredentials,
       String keyId,
       String keySecret) {

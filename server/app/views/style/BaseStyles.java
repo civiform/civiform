@@ -1,12 +1,6 @@
 package views.style;
 
-/**
- * Constant class containing the names of styles that we have added to tailwind.
- *
- * <p>This file is special - strings in this file, within double quotes, are *not* stripped from the
- * tailwind CSS during production optimization. If you add a string here, run bin/refresh-styles or
- * restart bin/run-dev.
- */
+/** Constant class containing the names of styles that we have added to tailwind. */
 public final class BaseStyles {
 
   public static final String LINK_TEXT = "text-blue-600";
@@ -84,6 +78,7 @@ public final class BaseStyles {
    * text.</label>
    */
   public static final String CHECKBOX_LABEL = StyleUtils.joinStyles(INPUT_BASE, "align-middle");
+
   /** Same as the above but for radio buttons. */
   public static final String RADIO_LABEL = CHECKBOX_LABEL;
 
@@ -96,6 +91,7 @@ public final class BaseStyles {
 
   /** For use on an `input` of type "checkbox". */
   public static final String CHECKBOX = StyleUtils.joinStyles("h-4", "w-4", "mr-4", "align-middle");
+
   /** For use on an `input` of type "radio". */
   public static final String RADIO = CHECKBOX;
 
@@ -106,9 +102,11 @@ public final class BaseStyles {
   /** The modal container contains modals, and the glass pane, and covers the whole page. */
   public static final String MODAL_CONTAINER =
       StyleUtils.joinStyles("hidden", "fixed", "h-screen", "w-screen", "z-20");
+
   /** The modal container for the modal glass pane. */
   public static final String MODAL_GLASS_PANE =
       StyleUtils.joinStyles("fixed", "h-screen", "w-screen", "bg-gray-400", "opacity-75");
+
   /** Generic style for all modals. This should be centered. */
   public static final String MODAL =
       StyleUtils.joinStyles(
@@ -185,4 +183,12 @@ public final class BaseStyles {
           "underline",
           "font-bold",
           StyleUtils.hover("bg-gray-200", "opacity-90"));
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // USWDS Alert style classes
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
+  public static String ALERT_INFO = "usa-alert--info";
+  public static String ALERT_WARNING = "usa-alert--warning";
+  public static String ALERT_SLIM = "usa-alert--slim";
 }

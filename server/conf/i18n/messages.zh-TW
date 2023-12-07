@@ -26,6 +26,10 @@ content.requiredFieldsNote=注意：標有 {0} 的欄位為必填欄位。
 content.optional=(選用)
 content.mobileFileUploadHelp=如果您是使用手機操作，還可以透過「選擇檔案」按鈕用手機相機上傳文件。
 toast.errorMessageOutline=發生錯誤: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=關閉
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
+link.opensNewTabSr=opens in a new tab
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -81,7 +85,7 @@ content.description=CiviForm 可協助您尋找自己可能有資格享有的「
 content.saveTime=在提出福利申請時節省時間
 content.guestDescription=請登入您的「{0}」帳戶或建立新帳戶，這樣一來，您就不必在針對不同福利提出申請時一再輸入相同的資訊，還可隨時編輯申請書及查看申請狀態。
 link.programDetails=計畫詳情
-link.programDetailsSr=「{0}」計畫詳情
+link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=計畫與服務
 title.findServicesSection=尋找可協助您的服務
 title.allProgramsSection=所有計畫 ({0})
@@ -149,7 +153,7 @@ content.commonIntakeConfirmationTi=如果點選「申請參加計畫」，並填
 content.commonIntakeNoMatchingPrograms=預先篩選工具目前找不到您可能符合資格的計畫。不過，您隨時可以點選「申請參加計畫」提出福利申請，或是前往「{0}」查看其他福利計畫
 content.commonIntakeNoMatchingProgramsTi=預先篩選工具目前找不到您的客戶可能符合資格的計畫。不過，您隨時可以點選「申請參加計畫」提出福利申請，或是前往「{0}」查看其他福利計畫
 content.commonIntakeNoMatchingProgramsNextStep=您也可以返回上一頁編輯回答。
-button.downloadPdf=Download PDF
+button.downloadPdf=下載 PDF
 button.applyToPrograms=申請參加計畫
 
 #-------------------------------------------------------------------------------------------------------------------------#
@@ -284,7 +288,7 @@ validation.textTooShort=長度不可少於 {0} 個字元。
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=多選題不得留空。
-adminValidation.multiOptionAdminEmpty=複選題的管理員 ID 不得留空。
+adminValidation.multiOptionAdminError=管理員名稱只能使用英文字母、數字、底線和破折號。
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -309,3 +313,14 @@ email.tiManageYourClients=如要管理您的客戶，請前往 {0}。
 email.applicationUpdateSubject=您的「{0}」申請書狀態有新異動
 email.tiApplicationUpdateSubject=您代替申請者「{1}」提出的「{0}」計畫申請書狀態有新異動
 email.tiApplicationUpdateBody=申請者「{0}」的「{1}」計畫申請書狀態已變更為「{2}」。
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
+banner.title=這是官方政府網站。
+banner.link=以下說明判斷方式
+banner.govWebsiteSectionHeader=官方網站的網址會有 .gov
+banner.govWebsiteSectionContent=結尾是 .gov 的網址為美國的官方政府機關所有。
+banner.httpsSectionHeader=安全的 .gov 網站會使用 HTTPS
+banner.httpsSectionContent=如果看到鎖頭圖示 ( {0} ) 或 https://，表示您已安全地連線至 .gov 網站。請務必只在安全的官方網站上分享私密資訊。

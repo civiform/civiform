@@ -13,6 +13,11 @@ import {Page} from 'playwright'
 describe('program creation', () => {
   const ctx = createTestContext()
 
+  beforeEach(async () => {
+    const {page} = ctx
+    await enableFeatureFlag(page, 'universal_questions')
+  })
+
   it('program details page screenshot', async () => {
     const {page, adminPrograms} = ctx
 
@@ -31,7 +36,11 @@ describe('program creation', () => {
     await adminQuestions.createStaticQuestion({
       questionName: 'static-question',
       questionText:
-        '### This is an example of some static text with formatting',
+        'This is an example of some static text with formatting\n' +
+        '* List Item 1\n' +
+        '* List Item 2\n' +
+        '\n' +
+        '[This is a link](https://www.example.com)\n',
     })
 
     await page.waitForTimeout(100) // ms
@@ -51,6 +60,12 @@ describe('program creation', () => {
       description: 'this is a note',
     })
 
+    await adminQuestions.addAddressQuestion({
+      questionName: 'address-universal-w-admin-note',
+      description: 'universal note',
+      universal: true,
+    })
+
     const programName = 'search-program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(
@@ -60,11 +75,17 @@ describe('program creation', () => {
 
     await adminPrograms.openQuestionBank()
 
-    expect(await page.innerText('id=question-bank-questions')).toContain(
+    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
       'address-w-admin-note',
     )
-    expect(await page.innerText('id=question-bank-questions')).toContain(
+    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
       'this is a note',
+    )
+    expect(await page.innerText('id=question-bank-universal')).toContain(
+      'address-universal-w-admin-note',
+    )
+    expect(await page.innerText('id=question-bank-universal')).toContain(
+      'universal note',
     )
 
     await validateScreenshot(page, 'open-question-search', {fullPage: false})
@@ -94,28 +115,28 @@ describe('program creation', () => {
     await adminPrograms.editProgramBlock(programName, 'apc program description')
 
     // All non-repeated questions should be available in the question bank
-    expect(await page.innerText('id=question-bank-questions')).toContain(
+    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
       'apc-address',
     )
-    expect(await page.innerText('id=question-bank-questions')).toContain(
+    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
       'apc-name',
     )
-    expect(await page.innerText('id=question-bank-questions')).toContain(
+    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
       'apc-text',
     )
-    expect(await page.innerText('id=question-bank-questions')).toContain(
+    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
       'apc-enumerator',
     )
-    expect(await page.innerText('id=question-bank-questions')).not.toContain(
+    expect(await page.innerText('id=question-bank-nonuniversal')).not.toContain(
       'apc-repeated',
     )
 
     // Add a non-enumerator question and the enumerator option should go away
     await adminPrograms.addQuestionFromQuestionBank('apc-name')
-    expect(await page.innerText('id=question-bank-questions')).not.toContain(
+    expect(await page.innerText('id=question-bank-nonuniversal')).not.toContain(
       'apc-enumerator',
     )
-    expect(await page.innerText('id=question-bank-questions')).not.toContain(
+    expect(await page.innerText('id=question-bank-nonuniversal')).not.toContain(
       'apc-repeated',
     )
 
@@ -124,11 +145,11 @@ describe('program creation', () => {
       '.cf-program-question:has-text("apc-name") >> .cf-remove-question-button',
     )
     await adminPrograms.addQuestionFromQuestionBank('apc-enumerator')
-    expect(await page.innerText('id=question-bank-questions')).toBe('')
+    expect(await page.innerText('id=question-bank-nonuniversal')).toBe('')
 
     // Create a repeated block. The repeated question should be the only option.
     await page.click('#create-repeated-block-button')
-    expect(await page.innerText('id=question-bank-questions')).toContain(
+    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
       'apc-repeated',
     )
   })
@@ -355,128 +376,46 @@ describe('program creation', () => {
       helpText: 'Question help text',
     })
     await adminQuestions.clickSubmitButtonAndNavigate('Create')
+    await adminPrograms.expectSuccessToast(`question ${questionName} created`)
+    await adminPrograms.expectProgramBlockEditPage(programName)
+
+    await page.click('#create-question-button')
+    await page.click('#create-text-question')
+    await waitForPageJsLoad(page)
+
+    const universalQuestionName = 'new-universal-from-question-bank'
+    const universalQuestionText = 'Universal question text'
+    await adminQuestions.fillInQuestionBasics({
+      questionName: universalQuestionName,
+      description: '',
+      questionText: universalQuestionText,
+      helpText: 'Universal question help text',
+      universal: true,
+    })
+    await adminQuestions.clickSubmitButtonAndNavigate('Create')
+    await adminPrograms.expectSuccessToast(
+      `question ${universalQuestionName} created`,
+    )
+    await adminPrograms.expectProgramBlockEditPage(programName)
     await validateScreenshot(page, 'question-bank-with-created-question', {
       fullPage: false,
     })
 
-    await adminPrograms.expectSuccessToast(`question ${questionName} created`)
-    await adminPrograms.expectProgramBlockEditPage(programName)
-
     await adminQuestions.expectDraftQuestionExist(questionName, questionText)
+    await adminQuestions.expectDraftQuestionExist(
+      universalQuestionName,
+      universalQuestionText,
+    )
     // Ensure the question can be added from the question bank.
     await adminPrograms.editProgramBlock(programName, 'dummy description', [
       questionName,
     ])
-  })
-
-  it('all questions shown on question bank before filtering', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-
-    await loginAsAdmin(page)
-    await adminQuestions.addTextQuestion({
-      questionName: 'q-f',
-      questionText: 'first question',
-    })
-    await adminQuestions.addTextQuestion({
-      questionName: 'q-s',
-      questionText: 'second question',
-    })
-
-    const programName = 'Test program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName)
-    await adminPrograms.openQuestionBank()
-
-    expect(await adminPrograms.questionBankNames()).toEqual([
-      'second question',
-      'first question',
+    await adminPrograms.editProgramBlock(programName, 'new dummy description', [
+      universalQuestionName,
     ])
   })
 
-  it('filter questions in question bank based on text', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-
-    await loginAsAdmin(page)
-    await adminQuestions.addTextQuestion({
-      questionName: 'q-f',
-      questionText: 'first question',
-    })
-    await adminQuestions.addTextQuestion({
-      questionName: 'q-s',
-      questionText: 'second question',
-    })
-
-    const programName = 'Test program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName)
-    await adminPrograms.openQuestionBank()
-
-    await page.locator('#question-bank-filter').fill('fi')
-    expect(await adminPrograms.questionBankNames()).toEqual(['first question'])
-
-    await page.locator('#question-bank-filter').fill('se')
-    expect(await adminPrograms.questionBankNames()).toEqual(['second question'])
-
-    await page.locator('#question-bank-filter').fill('')
-    expect(await adminPrograms.questionBankNames()).toEqual([
-      'second question',
-      'first question',
-    ])
-  })
-
-  it('filter questions in question bank based on name', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-
-    await loginAsAdmin(page)
-    await adminQuestions.addTextQuestion({
-      questionName: 'q-f',
-      questionText: 'first question',
-    })
-    await adminQuestions.addTextQuestion({
-      questionName: 'q-s',
-      questionText: 'second question',
-    })
-
-    const programName = 'Test program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName)
-    await adminPrograms.openQuestionBank()
-
-    await page.locator('#question-bank-filter').fill('q-f')
-    expect(await adminPrograms.questionBankNames()).toEqual(['first question'])
-
-    await page.locator('#question-bank-filter').fill('q-s')
-    expect(await adminPrograms.questionBankNames()).toEqual(['second question'])
-  })
-
-  it('filter questions in question bank based on help text', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-
-    await loginAsAdmin(page)
-    await adminQuestions.addTextQuestion({
-      questionName: 'q-f',
-      questionText: 'first question',
-      helpText: 'qf-help-text',
-    })
-    await adminQuestions.addTextQuestion({
-      questionName: 'q-s',
-      questionText: 'second question',
-      helpText: 'qs-help-text',
-    })
-
-    const programName = 'Test program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName)
-    await adminPrograms.openQuestionBank()
-
-    await page.locator('#question-bank-filter').fill('qf-help')
-    expect(await adminPrograms.questionBankNames()).toEqual(['first question'])
-
-    await page.locator('#question-bank-filter').fill('qs-help')
-    expect(await adminPrograms.questionBankNames()).toEqual(['second question'])
-  })
-
-  it('filter questions in question bank based on description', async () => {
+  it('all questions shown on question bank before filtering, then filters based on different attributes correctly', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -484,11 +423,27 @@ describe('program creation', () => {
       questionName: 'q-f',
       questionText: 'first question',
       description: 'qf-description-text',
+      helpText: 'qf-help-text',
     })
     await adminQuestions.addTextQuestion({
       questionName: 'q-s',
       questionText: 'second question',
       description: 'qs-description-text',
+      helpText: 'qs-help-text',
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-f-u',
+      questionText: 'universal first question',
+      description: 'qf-description-text-universal',
+      helpText: 'qf-help-text-universal',
+      universal: true,
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-s-u',
+      questionText: 'universal second question',
+      description: 'qs-description-test-universal',
+      helpText: 'qs-help-text-universal',
+      universal: true,
     })
 
     const programName = 'Test program'
@@ -496,92 +451,121 @@ describe('program creation', () => {
     await adminPrograms.editProgramBlock(programName)
     await adminPrograms.openQuestionBank()
 
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ false),
+    ).toEqual(['second question', 'first question'])
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ true),
+    ).toEqual(['universal second question', 'universal first question'])
+
+    // Filter questions based on text
+    await page.locator('#question-bank-filter').fill('fi')
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ false),
+    ).toEqual(['first question'])
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ true),
+    ).toEqual(['universal first question'])
+
+    await page.locator('#question-bank-filter').fill('se')
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ false),
+    ).toEqual(['second question'])
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ true),
+    ).toEqual(['universal second question'])
+
+    await page.locator('#question-bank-filter').fill('')
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ false),
+    ).toEqual(['second question', 'first question'])
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ true),
+    ).toEqual(['universal second question', 'universal first question'])
+
+    // Filter questions based on name
+    await page.locator('#question-bank-filter').fill('q-f')
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ false),
+    ).toEqual(['first question'])
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ true),
+    ).toEqual(['universal first question'])
+
+    await page.locator('#question-bank-filter').fill('q-s')
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ false),
+    ).toEqual(['second question'])
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ true),
+    ).toEqual(['universal second question'])
+
+    // Filter questions based on help text
+    await page.locator('#question-bank-filter').fill('qf-help')
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ false),
+    ).toEqual(['first question'])
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ true),
+    ).toEqual(['universal first question'])
+
+    await page.locator('#question-bank-filter').fill('qs-help')
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ false),
+    ).toEqual(['second question'])
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ true),
+    ).toEqual(['universal second question'])
+
+    // Filter questions based on description
     await page.locator('#question-bank-filter').fill('qf-desc')
-    expect(await adminPrograms.questionBankNames()).toEqual(['first question'])
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ false),
+    ).toEqual(['first question'])
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ true),
+    ).toEqual(['universal first question'])
 
     await page.locator('#question-bank-filter').fill('qs-desc')
-    expect(await adminPrograms.questionBankNames()).toEqual(['second question'])
-  })
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ false),
+    ).toEqual(['second question'])
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ true),
+    ).toEqual(['universal second question'])
 
-  /**
-   * All question UIs will have an "Add" button, so ensure filtering to "Add"
-   * doesn't just show every question.
-   */
-  it('filters out add button', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-
-    await loginAsAdmin(page)
-    await adminQuestions.addTextQuestion({
-      questionName: 'q-f',
-      questionText: 'first question',
-    })
-    await adminQuestions.addTextQuestion({
-      questionName: 'q-s',
-      questionText: 'second question',
-    })
-
-    const programName = 'Test program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName)
-    await adminPrograms.openQuestionBank()
-
+    // All question UIs will have an "Add" button, so ensure filtering to "Add" doesn't just show
+    // every question
     await page.locator('#question-bank-filter').fill('add')
 
-    expect(await adminPrograms.questionBankNames()).toEqual([])
-  })
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ false),
+    ).toEqual([])
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ true),
+    ).toEqual([])
 
-  /**
-   * All question UIs will have an "Admin ID" field, so ensure filtering to
-   * "Admin ID" doesn't just show every question.
-   */
-  it('filters out admin ID', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-
-    await loginAsAdmin(page)
-    await adminQuestions.addTextQuestion({
-      questionName: 'q-f',
-      questionText: 'first question',
-    })
-    await adminQuestions.addTextQuestion({
-      questionName: 'q-s',
-      questionText: 'second question',
-    })
-
-    const programName = 'Test program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName)
-    await adminPrograms.openQuestionBank()
-
+    // All question UIs will have an "Admin ID" field, so ensure filtering to "Admin ID"
+    // doesn't just show every question.
     await page.locator('#question-bank-filter').fill('admin id')
 
-    expect(await adminPrograms.questionBankNames()).toEqual([])
-  })
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ false),
+    ).toEqual([])
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ true),
+    ).toEqual([])
 
-  /**
-   * Many question UIs will have an "Admin Note" field, so ensure filtering to
-   * "Admin Note" doesn't just show all questions with an admin note.
-   */
-  it('filters out admin note', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-
-    await loginAsAdmin(page)
-    await adminQuestions.addTextQuestion({
-      questionName: 'q-f',
-      questionText: 'first question',
-    })
-    await adminQuestions.addTextQuestion({
-      questionName: 'q-s',
-      questionText: 'second question',
-    })
-
-    const programName = 'Test program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName)
-    await adminPrograms.openQuestionBank()
-
+    // Many question UIs will have an "Admin Note" field (description), so ensure filtering to "Admin Note"
+    // doesn't just show all questions with an admin note.
     await page.locator('#question-bank-filter').fill('admin note')
 
-    expect(await adminPrograms.questionBankNames()).toEqual([])
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ false),
+    ).toEqual([])
+    expect(
+      await adminPrograms.questionBankNames(/* universal= */ true),
+    ).toEqual([])
   })
 
   /**
@@ -755,5 +739,51 @@ describe('program creation', () => {
 
     await adminPrograms.gotoEditDraftProgramPage('cif')
     expect(await page.innerText('main')).not.toContain('Eligibility')
+  })
+
+  it('create program with universal questions', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+
+    await adminQuestions.addAddressQuestion({
+      questionName: 'universal-address',
+      universal: true,
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'nonuniversal-text',
+      universal: false,
+    })
+    await adminQuestions.addPhoneQuestion({
+      questionName: 'universal-phone',
+      universal: true,
+    })
+
+    const programName = 'Program with universal questions'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(
+      programName,
+      'universal program description',
+    )
+    await adminPrograms.addQuestionFromQuestionBank('universal-address')
+    await adminPrograms.addQuestionFromQuestionBank('nonuniversal-text')
+    await adminPrograms.addQuestionFromQuestionBank('universal-phone')
+
+    await validateScreenshot(
+      page,
+      'program-block-edit-with-universal-questions',
+    )
+    await adminPrograms.expectQuestionCardUniversalBadgeState(
+      'universal-address',
+      true,
+    )
+    await adminPrograms.expectQuestionCardUniversalBadgeState(
+      'nonuniversal-text',
+      false,
+    )
+    await adminPrograms.expectQuestionCardUniversalBadgeState(
+      'universal-phone',
+      true,
+    )
   })
 })

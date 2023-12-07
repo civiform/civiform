@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
 import java.util.List;
-import models.StoredFile;
+import models.StoredFileModel;
 import org.junit.Before;
 import org.junit.Test;
 import support.ProgramBuilder;
@@ -15,12 +15,12 @@ import support.ProgramBuilder;
 public class StoredFileRepositoryTest extends ResetPostgres {
 
   private StoredFileRepository repo;
-  private StoredFile file;
+  private StoredFileModel file;
 
   @Before
   public void setUp() {
     repo = instanceOf(StoredFileRepository.class);
-    file = new StoredFile().setName("file name");
+    file = new StoredFileModel().setName("file name");
   }
 
   @Test
@@ -48,10 +48,10 @@ public class StoredFileRepositoryTest extends ResetPostgres {
   @Test
   public void lookupFiles() {
     file.save();
-    var fileTwo = new StoredFile().setName("file-two");
+    var fileTwo = new StoredFileModel().setName("file-two");
     fileTwo.save();
 
-    List<StoredFile> result =
+    List<StoredFileModel> result =
         repo.lookupFiles(ImmutableList.of(file.getName(), fileTwo.getName()))
             .toCompletableFuture()
             .join();
@@ -63,7 +63,7 @@ public class StoredFileRepositoryTest extends ResetPostgres {
   public void lookupFile() {
     file.save();
 
-    StoredFile result = repo.lookupFile(file.getName()).toCompletableFuture().join().get();
+    StoredFileModel result = repo.lookupFile(file.getName()).toCompletableFuture().join().get();
 
     assertThat(result).isEqualTo(file);
   }
@@ -81,7 +81,7 @@ public class StoredFileRepositoryTest extends ResetPostgres {
         .setParameter("name", fileName)
         .execute();
 
-    StoredFile result = repo.lookupFile(fileName).toCompletableFuture().join().get();
+    StoredFileModel result = repo.lookupFile(fileName).toCompletableFuture().join().get();
 
     assertThat(result.getName()).isEqualTo(fileName);
     assertThat(result.getAcls()).isInstanceOf(StoredFileAcls.class);

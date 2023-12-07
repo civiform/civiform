@@ -99,8 +99,10 @@ public class RadioButtonQuestionRendererTest {
   @Test
   public void render_withAriaLabels() {
     DivTag result = renderer.render(params);
+    // Remove invisible new line characters that break the regex match
+    String cleanHtml = result.render().replace("\n", "");
 
-    assertThat(result.render().matches(".*fieldset aria-describedby=\"[A-Za-z]{8}-description\".*"))
+    assertThat(cleanHtml.matches(".*fieldset aria-describedby=\"[A-Za-z]{8}-description\".*"))
         .isTrue();
   }
 
@@ -109,7 +111,8 @@ public class RadioButtonQuestionRendererTest {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_SINGLE_ERROR)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD)
             .build();
 
     DivTag result = renderer.render(params);
@@ -129,8 +132,8 @@ public class RadioButtonQuestionRendererTest {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
-            .setQuestionName(Optional.of("favorite ice cream"))
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
             .build();
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, question.getContextualizedPath(), 0, 0L);
@@ -145,8 +148,8 @@ public class RadioButtonQuestionRendererTest {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
-            .setQuestionName(Optional.of("wrong name"))
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
             .build();
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, question.getContextualizedPath(), 0, 0L);

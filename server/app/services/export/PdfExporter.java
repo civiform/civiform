@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
 import javax.inject.Inject;
-import models.Application;
+import models.ApplicationModel;
 import services.DateConverter;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
@@ -55,7 +55,8 @@ public final class PdfExporter {
    * inMemoryPDF object. The InMemoryPdf object is passed back to the AdminController Class to
    * generate the required PDF.
    */
-  public InMemoryPdf export(Application application) throws DocumentException, IOException {
+  public InMemoryPdf export(ApplicationModel application, boolean showEligibilityText)
+      throws DocumentException, IOException {
     ReadOnlyApplicantProgramService roApplicantService =
         applicantService
             .getReadOnlyApplicantProgramService(application)
@@ -75,7 +76,8 @@ public final class PdfExporter {
             applicantNameWithApplicationId,
             application.getProgram().getProgramDefinition(),
             application.getLatestStatus(),
-            getSubmitTime(application.getSubmitTime()));
+            getSubmitTime(application.getSubmitTime()),
+            showEligibilityText);
     return new InMemoryPdf(bytes, filename);
   }
 
@@ -90,7 +92,8 @@ public final class PdfExporter {
       String applicantNameWithApplicationId,
       ProgramDefinition programDefinition,
       Optional<String> statusValue,
-      String submitTime)
+      String submitTime,
+      boolean showEligibilityText)
       throws DocumentException, IOException {
     ByteArrayOutputStream byteArrayOutputStream = null;
     PdfWriter writer = null;
@@ -150,7 +153,7 @@ public final class PdfExporter {
             new Paragraph("Answered on : " + date, FontFactory.getFont(FontFactory.HELVETICA, 10));
         time.setAlignment(Paragraph.ALIGN_RIGHT);
         Paragraph eligibility = new Paragraph();
-        if (isEligibilityEnabledInProgram) {
+        if (showEligibilityText && isEligibilityEnabledInProgram) {
           try {
             Optional<EligibilityDefinition> eligibilityDef =
                 programDefinition.getBlockDefinition(answerData.blockId()).eligibilityDefinition();

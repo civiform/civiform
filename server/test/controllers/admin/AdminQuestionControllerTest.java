@@ -17,7 +17,7 @@ import forms.DropdownQuestionForm;
 import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
-import models.Question;
+import models.QuestionModel;
 import models.QuestionTag;
 import org.junit.Before;
 import org.junit.Test;
@@ -73,7 +73,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
     assertThat(questionIdsAfter.size()).isEqualTo(questionIdsBefore.size() + 1);
     Long newQuestionId = Sets.difference(questionIdsAfter, questionIdsBefore).iterator().next();
-    Question newQuestion =
+    QuestionModel newQuestion =
         questionRepo.lookupQuestion(newQuestionId).toCompletableFuture().join().get();
     assertThat(newQuestion.getQuestionDefinition().getName()).isEqualTo("name");
     assertThat(newQuestion.getQuestionDefinition().getDescription()).isEqualTo("desc");
@@ -104,7 +104,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
     assertThat(questionIdsAfter.size()).isEqualTo(questionIdsBefore.size() + 1);
     Long newQuestionId = Sets.difference(questionIdsAfter, questionIdsBefore).iterator().next();
-    Question newQuestion =
+    QuestionModel newQuestion =
         questionRepo.lookupQuestion(newQuestionId).toCompletableFuture().join().get();
     assertThat(newQuestion.getQuestionDefinition().getName()).isEqualTo("name");
     assertThat(newQuestion.getQuestionDefinition().getDescription()).isEqualTo("desc");
@@ -116,7 +116,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void create_repeatedQuestion_redirectsOnSuccess() {
-    Question enumeratorQuestion = testQuestionBank.applicantHouseholdMembers();
+    QuestionModel enumeratorQuestion = testQuestionBank.applicantHouseholdMembers();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
         .put("questionName", "name")
@@ -136,7 +136,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
     assertThat(questionIdsAfter.size()).isEqualTo(questionIdsBefore.size() + 1);
     Long newQuestionId = Sets.difference(questionIdsAfter, questionIdsBefore).iterator().next();
-    Question newQuestion =
+    QuestionModel newQuestion =
         questionRepo.lookupQuestion(newQuestionId).toCompletableFuture().join().get();
     assertThat(newQuestion.getQuestionDefinition().getName()).isEqualTo("name");
     assertThat(newQuestion.getQuestionDefinition().getDescription()).isEqualTo("desc");
@@ -157,7 +157,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.create(request, "text");
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("New text field question");
+    assertThat(contentAsString(result)).contains("New text question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("Question text cannot be blank");
     assertThat(contentAsString(result)).contains("name");
@@ -186,8 +186,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void edit_returnsRedirectWhenEditingQuestionWithExistingDraft() {
-    Question publishedQuestion = testQuestionBank.applicantName();
-    Question draftQuestion =
+    QuestionModel publishedQuestion = testQuestionBank.applicantName();
+    QuestionModel draftQuestion =
         testQuestionBank.maybeSave(
             this.createNameQuestionDuplicate(publishedQuestion), LifecycleStage.DRAFT);
 
@@ -204,22 +204,22 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void edit_returnsPopulatedForm() {
-    Question question = testQuestionBank.applicantName();
+    QuestionModel question = testQuestionBank.applicantName();
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result = controller.edit(request, question.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Edit name field question");
+    assertThat(contentAsString(result)).contains("Edit name question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("Sample Question of type:");
   }
 
   @Test
   public void edit_repeatedQuestion_hasEnumeratorName() {
-    Question repeatedQuestion = testQuestionBank.applicantHouseholdMemberName();
+    QuestionModel repeatedQuestion = testQuestionBank.applicantHouseholdMemberName();
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result = controller.edit(request, repeatedQuestion.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Edit name field question");
+    assertThat(contentAsString(result)).contains("Edit name question");
     assertThat(contentAsString(result)).contains("applicant household members");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("Sample Question of type:");
@@ -290,7 +290,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.newOne(request, "text", "/some/redirect/url");
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("New text field question");
+    assertThat(contentAsString(result)).contains("New text question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("Sample Question of type:");
     assertThat(contentAsString(result)).contains("/some/redirect/url");
@@ -314,7 +314,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   @Test
   public void update_redirectsOnSuccessAndUpdatesQuestion() {
     // We can only update draft questions, so save this in the DRAFT version.
-    Question originalNameQuestion =
+    QuestionModel originalNameQuestion =
         testQuestionBank.maybeSave(
             this.createNameQuestionDuplicate(testQuestionBank.applicantName()),
             LifecycleStage.DRAFT);
@@ -341,7 +341,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
     assertThat(result.flash().get("success").get()).contains("updated");
 
-    Question updatedNameQuestion =
+    QuestionModel updatedNameQuestion =
         questionRepo
             .lookupQuestion(originalNameQuestion.getQuestionDefinition().getId())
             .toCompletableFuture()
@@ -368,19 +368,19 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         ImmutableList.of(
             QuestionOption.create(
                 1L,
-                "chocolate admin",
+                "chocolate_admin",
                 LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
             QuestionOption.create(
                 2L,
-                "strawberry admin",
+                "strawberry_admin",
                 LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")),
             QuestionOption.create(
                 3L,
-                "vanilla admin",
+                "vanilla_admin",
                 LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
             QuestionOption.create(
                 4L,
-                "coffee admin",
+                "coffee_admin",
                 LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café")));
     MultiOptionQuestionDefinition definition =
         new MultiOptionQuestionDefinition(
@@ -392,7 +392,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     DropdownQuestionForm questionForm = new DropdownQuestionForm(definition);
     questionForm.setNewOptions(ImmutableList.of("cookie", "mint", "pistachio"));
     questionForm.setNewOptionAdminNames(
-        ImmutableList.of("cookie admin", "mint admin", "pistachio admin"));
+        ImmutableList.of("cookie_admin", "mint_admin", "pistachio_admin"));
 
     DropdownQuestionForm newQuestionForm =
         new DropdownQuestionForm((MultiOptionQuestionDefinition) questionForm.getBuilder().build());
@@ -419,19 +419,19 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         ImmutableList.of(
             QuestionOption.create(
                 /* id= */ 1L,
-                "chocolate admin",
+                "chocolate_admin",
                 LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
             QuestionOption.create(
                 /* id= */ 2L,
-                "strawberry admin",
+                "strawberry_admin",
                 LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")),
             QuestionOption.create(
                 /* id= */ 3L,
-                "vanilla admin",
+                "vanilla_admin",
                 LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
             QuestionOption.create(
                 /* id= */ 4L,
-                "coffee admin",
+                "coffee_admin",
                 LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café")));
 
     QuestionDefinition definition =
@@ -439,7 +439,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             config, questionOptions, MultiOptionQuestionType.DROPDOWN);
 
     // We can only update draft questions, so save this in the DRAFT version.
-    Question question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
+    QuestionModel question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
 
     ImmutableMap<String, String> formData =
         ImmutableMap.<String, String>builder()
@@ -453,9 +453,9 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("newOptions[0]", "lavender") // New flavor
             .put("optionIds[0]", "4")
             .put("optionIds[1]", "3")
-            .put("optionAdminNames[0]", "coffee admin")
-            .put("optionAdminNames[1]", "vanilla admin")
-            .put("newOptionAdminNames[0]", "lavender admin")
+            .put("optionAdminNames[0]", "coffee_admin")
+            .put("optionAdminNames[1]", "vanilla_admin")
+            .put("newOptionAdminNames[0]", "lavender_admin")
             .put("nextAvailableId", "5")
             .put("questionExportState", "NON_DEMOGRAPHIC")
             // Has one fewer than the original question
@@ -467,7 +467,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             requestBuilder.build(), question.id, definition.getQuestionType().toString());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    Question found = questionRepo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    QuestionModel found =
+        questionRepo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
     assertThat(found.getQuestionDefinition().getQuestionText().translations())
         .containsExactlyInAnyOrderEntriesOf(
@@ -481,17 +482,17 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             QuestionOption.create(
                 /* id= */ 4,
                 /* displayOrder= */ 0,
-                "coffee admin",
+                "coffee_admin",
                 LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café")),
             QuestionOption.create(
                 /* id= */ 3,
                 /* displayOrder= */ 1,
-                "vanilla admin",
+                "vanilla_admin",
                 LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
             QuestionOption.create(
                 /* id= */ 5,
                 /* displayOrder= */ 2,
-                "lavender admin",
+                "lavender_admin",
                 LocalizedStrings.withDefaultValue("lavender")));
     assertThat(((MultiOptionQuestionDefinition) found.getQuestionDefinition()).getOptions())
         .isEqualTo(expectedOptions);
@@ -519,11 +520,11 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         ImmutableList.of(
             QuestionOption.create(
                 /* id= */ 1L,
-                "chocolate admin",
+                "chocolate_admin",
                 LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
             QuestionOption.create(
                 /* id= */ 2L,
-                "strawberry admin",
+                "strawberry_admin",
                 LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")));
 
     QuestionDefinition definition =
@@ -531,7 +532,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             config, questionOptions, MultiOptionQuestionType.DROPDOWN);
 
     // We can only update draft questions, so save this in the DRAFT version.
-    Question question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
+    QuestionModel question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
 
     ImmutableMap<String, String> formData =
         ImmutableMap.<String, String>builder()
@@ -544,27 +545,28 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("options[1]", "strawberry")
             .put("optionIds[0]", "1")
             .put("optionIds[1]", "2")
-            .put("optionAdminNames[0]", "chocolate admin")
-            .put("optionAdminNames[1]", "strawberry new admin name") // updated admin name
+            .put("optionAdminNames[0]", "chocolate_admin")
+            .put("optionAdminNames[1]", "strawberry_new_admin_name") // updated admin name
             .put("nextAvailableId", "3")
             .put("questionExportState", "NON_DEMOGRAPHIC")
             .build();
     RequestBuilder requestBuilder = addCSRFToken(requestBuilderWithSettings().bodyForm(formData));
 
     controller.update(requestBuilder.build(), question.id, definition.getQuestionType().toString());
-    Question found = questionRepo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    QuestionModel found =
+        questionRepo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
     ImmutableList<QuestionOption> expectedOptions =
         ImmutableList.of(
             QuestionOption.create(
                 /* id= */ 1,
                 /* displayOrder= */ 0,
-                "chocolate admin",
+                "chocolate_admin",
                 LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
             QuestionOption.create(
                 /* id= */ 2,
                 /* displayOrder= */ 1,
-                "strawberry admin", // ignore changed admin name
+                "strawberry_admin", // ignore changed admin name
                 LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")));
     assertThat(((MultiOptionQuestionDefinition) found.getQuestionDefinition()).getOptions())
         .isEqualTo(expectedOptions);
@@ -585,11 +587,11 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         ImmutableList.of(
             QuestionOption.create(
                 /* id= */ 1L,
-                "chocolate admin",
+                "chocolate_admin",
                 LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
             QuestionOption.create(
                 /* id= */ 2L,
-                "strawberry admin",
+                "strawberry_admin",
                 LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")));
 
     QuestionDefinition definition =
@@ -597,7 +599,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             config, questionOptions, MultiOptionQuestionType.DROPDOWN);
 
     // We can only update draft questions, so save this in the DRAFT version.
-    Question question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
+    QuestionModel question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
 
     ImmutableMap<String, String> formData =
         ImmutableMap.<String, String>builder()
@@ -610,27 +612,28 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("options[1]", "new ice cream name")
             .put("optionIds[0]", "1")
             .put("optionIds[1]", "2")
-            .put("optionAdminNames[0]", "chocolate admin")
-            .put("optionAdminNames[1]", "new admin name") // updated admin name
+            .put("optionAdminNames[0]", "chocolate_admin")
+            .put("optionAdminNames[1]", "new_admin_name") // updated admin name
             .put("nextAvailableId", "3")
             .put("questionExportState", "NON_DEMOGRAPHIC")
             .build();
     RequestBuilder requestBuilder = addCSRFToken(requestBuilderWithSettings().bodyForm(formData));
 
     controller.update(requestBuilder.build(), question.id, definition.getQuestionType().toString());
-    Question found = questionRepo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    QuestionModel found =
+        questionRepo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
     ImmutableList<QuestionOption> expectedOptions =
         ImmutableList.of(
             QuestionOption.create(
                 /* id= */ 1,
                 /* displayOrder= */ 0,
-                "chocolate admin",
+                "chocolate_admin",
                 LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
             QuestionOption.create(
                 /* id= */ 2,
                 /* displayOrder= */ 1,
-                "strawberry admin", // ignore changed admin name
+                "strawberry_admin", // ignore changed admin name
                 LocalizedStrings.of(Locale.US, "new ice cream name"))); // clear other locales
     assertThat(((MultiOptionQuestionDefinition) found.getQuestionDefinition()).getOptions())
         .isEqualTo(expectedOptions);
@@ -651,11 +654,11 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         ImmutableList.of(
             QuestionOption.create(
                 /* id= */ 1L,
-                "chocolate admin",
+                "chocolate_admin",
                 LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
             QuestionOption.create(
                 /* id= */ 2L,
-                "strawberry admin",
+                "strawberry_admin",
                 LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")));
 
     QuestionDefinition definition =
@@ -663,7 +666,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             config, questionOptions, MultiOptionQuestionType.DROPDOWN);
 
     // We can only update draft questions, so save this in the DRAFT version.
-    Question question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
+    QuestionModel question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
 
     ImmutableMap<String, String> formData =
         ImmutableMap.<String, String>builder()
@@ -674,30 +677,31 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("questionHelpText", "new help text")
             .put("options[0]", "chocolate")
             .put("optionIds[0]", "1")
-            .put("optionAdminNames[0]", "chocolate admin")
+            .put("optionAdminNames[0]", "chocolate_admin")
             // id 2 was deleted by the user, but 3 is still set as the next ID by the
             // QuestionConfig
             .put("nextAvailableId", "3")
             .put("newOptions[0]", "lavender") // New flavor
-            .put("newOptionAdminNames[0]", "lavender admin")
+            .put("newOptionAdminNames[0]", "lavender_admin")
             .put("questionExportState", "NON_DEMOGRAPHIC")
             .build();
     RequestBuilder requestBuilder = addCSRFToken(requestBuilderWithSettings().bodyForm(formData));
 
     controller.update(requestBuilder.build(), question.id, definition.getQuestionType().toString());
-    Question found = questionRepo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    QuestionModel found =
+        questionRepo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
     ImmutableList<QuestionOption> expectedOptions =
         ImmutableList.of(
             QuestionOption.create(
                 /* id= */ 1,
                 /* displayOrder= */ 0,
-                "chocolate admin",
+                "chocolate_admin",
                 LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
             QuestionOption.create(
                 /* id= */ 3, // use nextAvailableId
                 /* displayOrder= */ 1,
-                "lavender admin",
+                "lavender_admin",
                 LocalizedStrings.of(Locale.US, "lavender")));
     assertThat(((MultiOptionQuestionDefinition) found.getQuestionDefinition()).getOptions())
         .isEqualTo(expectedOptions);
@@ -705,7 +709,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void update_failsWithErrorMessageAndPopulatedFields() {
-    Question question = testQuestionBank.applicantFavoriteColor();
+    QuestionModel question = testQuestionBank.applicantFavoriteColor();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
         .put("questionName", "favorite_color")
@@ -716,14 +720,14 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.update(request, question.id, "text");
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Edit text field question");
+    assertThat(contentAsString(result)).contains("Edit text question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("question text updated!");
   }
 
   @Test
   public void update_failsWithInvalidQuestionType() {
-    Question question = testQuestionBank.applicantHouseholdMembers();
+    QuestionModel question = testQuestionBank.applicantHouseholdMembers();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData.put("questionType", "INVALID_TYPE").put("questionText", "question text updated!");
     RequestBuilder requestBuilder = requestBuilderWithSettings().bodyForm(formData.build());
@@ -733,7 +737,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
-  private NameQuestionDefinition createNameQuestionDuplicate(Question question) {
+  private NameQuestionDefinition createNameQuestionDuplicate(QuestionModel question) {
     QuestionDefinition def = question.getQuestionDefinition();
     return new NameQuestionDefinition(
         QuestionDefinitionConfig.builder()

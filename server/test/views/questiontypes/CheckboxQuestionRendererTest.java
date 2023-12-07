@@ -58,6 +58,7 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
             .build();
     renderer = new CheckboxQuestionRenderer(question);
@@ -95,30 +96,13 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
         applicantData, question.getContextualizedPath(), 2, 3L);
 
     DivTag result = renderer.render(params);
+    // Remove invisible new line characters that break the regex match
+    String cleanHtml = result.render().replace("\n", "");
 
     assertThat(
-            result
-                .render()
-                .matches(
-                    ".*fieldset aria-describedby=\"[A-Za-z]{8}-error"
-                        + " [A-Za-z]{8}-description\".*"))
+            cleanHtml.matches(
+                ".*fieldset aria-describedby=\"[A-Za-z]{8}-error" + " [A-Za-z]{8}-description\".*"))
         .isTrue();
-  }
-
-  @Test
-  public void renderWithNoSelections_andSingleErrorMode_hasAutofocus() {
-    params =
-        ApplicantQuestionRendererParams.builder()
-            .setMessages(messages)
-            .setErrorDisplayMode(
-                ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)
-            .build();
-    QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, question.getContextualizedPath(), 0, 0L);
-
-    DivTag result = renderer.render(params);
-
-    assertThat(result.render()).contains(Attr.AUTOFOCUS);
   }
 
   @Test
@@ -137,7 +121,7 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
-            .setQuestionName(Optional.of("question name"))
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD)
             .build();
 
     DivTag result = renderer.render(params);
@@ -151,7 +135,7 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
-            .setQuestionName(Optional.of("wrong name"))
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
             .build();
 
     DivTag result = renderer.render(params);

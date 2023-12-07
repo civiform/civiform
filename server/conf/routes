@@ -90,6 +90,10 @@ GET     /admin/questions/:questionName/translations/edit          controllers.ad
 GET     /admin/questions/:questionName/translations/:locale/edit  controllers.admin.AdminQuestionTranslationsController.edit(request: Request, questionName: String, locale: String)
 POST    /admin/questions/:questionName/translations/:locale       controllers.admin.AdminQuestionTranslationsController.update(request: Request, questionName: String, locale: String)
 
+# Routes for a CiviForm admin to manage program image
+GET     /admin/programs/:programId/image             controllers.admin.AdminProgramImageController.index(request: Request, programId: Long)
+POST    /admin/programs/:programId/image/description controllers.admin.AdminProgramImageController.updateDescription(request: Request, programId: Long)
+
 # Trusted Intermediary routes
 GET     /admin/tiGroups                    controllers.admin.TrustedIntermediaryManagementController.index(request: Request)
 POST    /admin/tiGroups/new                controllers.admin.TrustedIntermediaryManagementController.create(request: Request)
@@ -152,7 +156,7 @@ POST    /applicants/:applicantId/programs/:programId/submit                     
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit                      controllers.applicant.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: String, questionName: java.util.Optional[String])
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/review                    controllers.applicant.ApplicantProgramBlocksController.review(request: Request, applicantId: Long, programId: Long, blockId: String, questionName: java.util.Optional[String])
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/confirmAddress/:inReview  controllers.applicant.ApplicantProgramBlocksController.confirmAddress(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
-GET     /applicants/:applicantId/programs/:programId/blocks/:blockIndex/previous/:inReview     controllers.applicant.ApplicantProgramBlocksController.previous(request: Request, applicantId: Long, programId: Long, blockIndex: Int, inReview: Boolean)
+GET     /applicants/:applicantId/programs/:programId/blocks/:previousBlockIndex/previous/:inReview     controllers.applicant.ApplicantProgramBlocksController.previous(request: Request, applicantId: Long, programId: Long, previousBlockIndex: Int, inReview: Boolean)
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/updateFile/:inReview      controllers.applicant.ApplicantProgramBlocksController.updateFile(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview                 controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
 
@@ -216,6 +220,9 @@ GET     /dev/icons                       controllers.dev.IconsController.index(r
 # Change feature flags.
 GET     /dev/feature/:flag/disable     controllers.dev.FeatureFlagOverrideController.disable(request: Request, flag: String)
 GET     /dev/feature/:flag/enable      controllers.dev.FeatureFlagOverrideController.enable(request: Request, flag: String)
+
+# Display user profile
+GET     /dev/profile                   controllers.dev.ProfileController.index(request: Request)
 
 ## Prometheus metrics export
 GET     /metrics          controllers.monitoring.MetricsController.getMetrics()

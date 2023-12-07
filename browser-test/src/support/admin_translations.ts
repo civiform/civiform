@@ -112,6 +112,31 @@ export class AdminTranslations {
     expect(isStatusEmailVisible).toBe(false)
   }
 
+  /**
+   * Note that the program name and description must be translated using
+   * {@link editProgramTranslations} before calling this method.
+   */
+  async editProgramImageDescription(imageDescription: string) {
+    await this.page.fill('text=Program image description', imageDescription)
+    await this.page.click('#update-localizations-button')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async expectNoProgramImageDescription() {
+    expect(
+      await this.page.locator('text=Program image description').count(),
+    ).toEqual(0)
+  }
+
+  async expectProgramImageDescriptionTranslation(
+    expectImageDescription: string,
+  ) {
+    const imageDescriptionValue = await this.page.inputValue(
+      'text=Program image description',
+    )
+    expect(imageDescriptionValue).toEqual(expectImageDescription)
+  }
+
   async editQuestionTranslations(
     text: string,
     helpText: string,

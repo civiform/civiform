@@ -4,7 +4,6 @@
  */
 
 import * as main from './main'
-import * as accordion from './accordion'
 import * as radio from './radio'
 import * as toast from './toast'
 import * as toggle from './toggle'
@@ -22,6 +21,7 @@ import * as questionBank from './questionBank'
 import * as preview from './preview'
 import * as enumerator from './enumerator'
 import * as phoneNumber from './phone'
+import * as adminQuestionEdit from './admin_question_edit'
 import htmx from 'htmx.org'
 
 declare global {
@@ -35,7 +35,6 @@ window.htmx = htmx
 
 window.addEventListener('load', () => {
   main.init()
-  accordion.init()
   radio.init()
   toast.init()
   toggle.init()
@@ -53,4 +52,5 @@ window.addEventListener('load', () => {
   preview.init()
   enumerator.init()
   phoneNumber.init()
+  adminQuestionEdit.init()
 })
