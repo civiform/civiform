@@ -28,6 +28,7 @@ import j2html.tags.specialized.InputTag;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.IntStream;
+import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
@@ -84,7 +85,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   public static final String MOVE_QUESTION_POSITION_FIELD = "position";
-  private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
   private static final String QUESTIONS_SECTION_ID = "questions-section";
 
@@ -321,6 +321,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
     if (viewAllowsEditingProgram()) {
       DivTag buttons =
           renderBlockPanelButtons(
+              request,
+              blockDefinition,
               program,
               blockDefinitionIsEnumerator,
               blockDescriptionModalButton,
@@ -366,6 +368,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   private DivTag renderBlockPanelButtons(
+      Http.Request request,
+      BlockDefinition blockDefinition,
       ProgramDefinition program,
       boolean blockDefinitionIsEnumerator,
       ButtonTag blockDescriptionModalButton,
@@ -373,35 +377,43 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Boolean canDelete) {
 
     // Add buttons to change the block.
-    DivTag buttons = div().withClasses("flex", "flex-row", "gap-4");
+    DivTag buttonsContainer = div().withClasses("flex", "flex-row", "gap-4");
 
     // Buttons are only needed when the view is used for editing
-    buttons.with(blockDescriptionModalButton);
-    buttons.condWith(
+    buttonsContainer.with(blockDescriptionModalButton);
+    buttonsContainer.condWith(
         blockDefinitionIsEnumerator,
-        button("Create repeated screen")
-            .withType("submit")
-            .withId("create-repeated-block-button")
-            .withForm(CREATE_REPEATED_BLOCK_FORM_ID)
-            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON));
+        form(
+                makeCsrfTokenInputTag(request),
+                input()
+                    .withType("hidden")
+                    .withName(ENUMERATOR_ID_FORM_FIELD)
+                    .withValue(String.valueOf(blockDefinition.id())),
+                button("Create repeated screen")
+                    .withType("submit")
+                    .withId("create-repeated-block-button")
+                    .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON))
+            .withMethod(HttpVerbs.POST)
+            .withAction(
+                controllers.admin.routes.AdminProgramBlocksController.create(program.id()).url()));
 
     // TODO: Maybe add alpha variants to button color on hover over so we do not have
     //  to hard-code what the color will be when button is in hover state?
 
     // Only add the delete button if there is more than one screen in the program
     if (program.blockDefinitions().size() > 1) {
-      buttons.with(div().withClass("flex-grow"));
+      buttonsContainer.with(div().withClass("flex-grow"));
       if (canDelete) {
-        buttons.with(blockDeleteModalButton);
+        buttonsContainer.with(blockDeleteModalButton);
       } else {
-        buttons.with(
+        buttonsContainer.with(
             blockDeleteModalButton
                 .withCondDisabled(!canDelete)
                 .withCondTitle(
                     !canDelete, "A screen can only be deleted when it has no repeated screens."));
       }
     }
-    return buttons;
+    return buttonsContainer;
   }
 
   /** Creates the UI that is used to display or edit the visibility setting of a specified block. */
