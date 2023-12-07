@@ -174,7 +174,7 @@ describe('Program list page.', () => {
     await adminPrograms.expectActiveProgram(programOne)
   })
 
-  it('publishing all programs shows a modal with information about universal questions', async () => {
+  it('publishing all programs with universal questions feature flag on shows a modal with information about universal questions', async () => {
     const {page, adminPrograms, adminQuestions} = ctx
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'universal_questions')
@@ -214,7 +214,7 @@ describe('Program list page.', () => {
     expect(await page.innerText('#publish-all-programs-modal')).toContain(
       'program two (Publicly visible) - Contains 1 of 2 universal questions',
     )
-    await validateScreenshot(page, 'publish-all-programs-modal')
+    await validateScreenshot(page, 'publish-all-programs-modal-with-uq')
     // Publish the programs
     await adminQuestions.clickSubmitButtonAndNavigate(
       'Publish all draft programs and questions',
@@ -223,5 +223,36 @@ describe('Program list page.', () => {
     await adminPrograms.expectDoesNotHaveDraftProgram(programTwo)
     await adminPrograms.expectActiveProgram(programOne)
     await adminPrograms.expectActiveProgram(programTwo)
+  })
+
+  it('publishing all programs shows a modal', async () => {
+    const {page, adminPrograms, adminQuestions} = ctx
+    await loginAsAdmin(page)
+    // Create programs and questions (including universal questions)
+    const programOne = 'program one'
+    await adminPrograms.addProgram(programOne)
+    const nameQuestion = 'name'
+    await adminQuestions.addNameQuestion({
+      questionName: nameQuestion,
+    })
+    // Add question to program
+    await adminPrograms.gotoEditDraftProgramPage(programOne)
+    await adminPrograms.addQuestionFromQuestionBank(nameQuestion)
+    // Trigger the modal
+    await adminPrograms.gotoAdminProgramsPage()
+    await page.click('#publish-all-programs-modal-button')
+    expect(await page.innerText('#publish-all-programs-modal')).toContain(
+      'program one (Publicly visible)',
+    )
+    expect(await page.innerText('#publish-all-programs-modal')).not.toContain(
+      'universal questions',
+    )
+    await validateScreenshot(page, 'publish-all-programs-modal')
+    // Publish the programs
+    await adminQuestions.clickSubmitButtonAndNavigate(
+      'Publish all draft programs and questions',
+    )
+    await adminPrograms.expectDoesNotHaveDraftProgram(programOne)
+    await adminPrograms.expectActiveProgram(programOne)
   })
 })
