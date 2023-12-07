@@ -244,7 +244,7 @@ type ToastMessage = {
   id: string
   canDismiss: boolean
   canIgnore: boolean
-  condOnStorageKey: string | null
+  condOnStorageKey?: string | null
   content: string
   duration: number
   type: string

@@ -22,6 +22,8 @@ import * as preview from './preview'
 import * as enumerator from './enumerator'
 import * as phoneNumber from './phone'
 import * as adminQuestionEdit from './admin_question_edit'
+import {ToastController} from './toast'
+
 import htmx from 'htmx.org'
 
 declare global {
@@ -53,4 +55,23 @@ window.addEventListener('load', () => {
   enumerator.init()
   phoneNumber.init()
   adminQuestionEdit.init()
+})
+
+interface HtmxErrorEvent extends Event {
+  detail: {
+    xhr: XMLHttpRequest
+  }
+}
+
+document.body.addEventListener('htmx:responseError', function (event: Event) {
+  const thisEvent = event as HtmxErrorEvent
+
+  ToastController.showToastMessage({
+    id: `htmx-response-error-${Math.random()}`,
+    canDismiss: true,
+    canIgnore: false,
+    content: thisEvent.detail.xhr.responseText,
+    duration: 0,
+    type: 'error',
+  })
 })

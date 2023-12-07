@@ -7,7 +7,6 @@ import static views.ViewUtils.ProgramDisplayType.DRAFT;
 import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
-import controllers.BadRequestException;
 import controllers.CiviFormController;
 import forms.BlockForm;
 import java.util.Optional;
@@ -249,7 +248,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
               .render(request, programService.getProgramDefinition(programId), blockId)
               .render());
     } catch (IllegalPredicateOrderingException e) {
-      throw new BadRequestException(e.getMessage());
+      return badRequest(e.getLocalizedMessage());
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     }
