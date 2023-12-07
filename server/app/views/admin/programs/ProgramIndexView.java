@@ -81,7 +81,6 @@ public final class ProgramIndexView extends BaseHtmlView {
       ReadOnlyQuestionService readOnlyQuestionService,
       Http.Request request,
       Optional<CiviFormProfile> profile) {
-
     if (profile.isPresent()) {
       layout.setAdminType(profile.get());
     }
@@ -260,16 +259,14 @@ public final class ProgramIndexView extends BaseHtmlView {
                       .withClasses(
                           "flex", "flex-col", StyleUtils.responsiveMedium("flex-row"), "py-4");
 
-              boolean programIsMissingUniversalQuestions =
-                  !getMissingUniversalQuestions(program, universalQuestionIds).isEmpty();
-
               return Modal.builder()
                   .setModalId(program.adminName() + "-publish-modal")
                   .setLocation(Modal.Location.ADMIN_FACING)
                   .setContent(
                       publishSingleProgramForm
                           .condWith(
-                              programIsMissingUniversalQuestions, missingUniversalQuestionsWarning)
+                              getCountMissingUniversalQuestions(program, universalQuestionIds) > 0,
+                              missingUniversalQuestionsWarning)
                           .with(buttons))
                   .setModalTitle(
                       "Are you sure you want to publish "
@@ -285,11 +282,12 @@ public final class ProgramIndexView extends BaseHtmlView {
         .collect(ImmutableList.toImmutableList());
   }
 
-  private ImmutableList<Long> getMissingUniversalQuestions(
+  private int getCountMissingUniversalQuestions(
       ProgramDefinition program, ImmutableList<Long> universalQuestionIds) {
     return universalQuestionIds.stream()
         .filter(id -> !program.getQuestionIdsInProgram().contains(id))
-        .collect(ImmutableList.toImmutableList());
+        .collect(ImmutableList.toImmutableList())
+        .size();
   }
 
   private Optional<Modal> maybeRenderPublishAllModal(
@@ -341,7 +339,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                                     sortedDraftPrograms,
                                     program ->
                                         renderPublishModalProgramItem(
-                                            program, universalQuestionIds)))),
+                                            program, universalQuestionIds, request)))),
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_QUESTION)
                     .with(
@@ -380,7 +378,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private LiTag renderPublishModalProgramItem(
-      ProgramDefinition program, ImmutableList<Long> universalQuestionIds) {
+      ProgramDefinition program, ImmutableList<Long> universalQuestionIds, Http.Request request) {
     String visibilityText = "";
     switch (program.displayMode()) {
       case HIDDEN_IN_INDEX:
@@ -393,24 +391,28 @@ public final class ProgramIndexView extends BaseHtmlView {
         break;
     }
 
-    ImmutableList<Long> missingUniversalQuestionIds =
-        getMissingUniversalQuestions(program, universalQuestionIds);
-    int countTotalUniversalQuestions = universalQuestionIds.size();
+    int countMissingUniversalQuestionIds =
+        getCountMissingUniversalQuestions(program, universalQuestionIds);
     String universalQuestionsText = "";
-    if (missingUniversalQuestionIds.isEmpty()) {
+    if (countMissingUniversalQuestionIds == 0) {
       universalQuestionsText = "all";
     } else {
+      int countTotalUniversalQuestions = universalQuestionIds.size();
       universalQuestionsText =
           countTotalUniversalQuestions
-              - missingUniversalQuestionIds.size()
+              - countMissingUniversalQuestionIds
               + " of "
               + countTotalUniversalQuestions;
     }
 
+    boolean shouldShowUniversalQuestionsCount = settingsManifest.getUniversalQuestions(request);
+
     return li().with(
             span(program.localizedName().getDefault()).withClasses("font-medium"),
-            span(visibilityText + " "),
-            span(" - " + "Contains " + universalQuestionsText + " universal questions "),
+            span(visibilityText + " ")
+                .condWith(
+                    shouldShowUniversalQuestionsCount,
+                    span(" - " + "Contains " + universalQuestionsText + " universal questions ")),
             new LinkElement()
                 .setText("Edit")
                 .setHref(controllers.admin.routes.AdminProgramController.edit(program.id()).url())

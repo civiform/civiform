@@ -176,10 +176,8 @@ describe('Program list page.', () => {
 
   it('publishing all programs shows a modal with information about universal questions', async () => {
     const {page, adminPrograms, adminQuestions} = ctx
-
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'universal_questions')
-
     // Create programs and questions (including universal questions)
     const programOne = 'program one'
     await adminPrograms.addProgram(programOne)
