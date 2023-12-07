@@ -222,5 +222,8 @@ GET     /dev/icons                       controllers.dev.IconsController.index(r
 GET     /dev/feature/:flag/disable     controllers.dev.FeatureFlagOverrideController.disable(request: Request, flag: String)
 GET     /dev/feature/:flag/enable      controllers.dev.FeatureFlagOverrideController.enable(request: Request, flag: String)
 
+# Display user profile
+GET     /dev/profile                   controllers.dev.ProfileController.index(request: Request)
+
 ## Prometheus metrics export
 GET     /metrics          controllers.monitoring.MetricsController.getMetrics()
