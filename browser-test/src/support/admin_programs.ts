@@ -673,7 +673,7 @@ export class AdminPrograms {
   }
 
   private static PUBLISH_ALL_MODAL_TITLE =
-    'All draft programs will be published'
+    'Do you want to publish all draft programs?'
 
   publishAllProgramsModalLocator() {
     return this.page.locator(
@@ -684,7 +684,9 @@ export class AdminPrograms {
   async publishAllDrafts() {
     await this.gotoAdminProgramsPage()
     const modal = await this.openPublishAllDraftsModal()
-    const confirmHandle = (await modal.$('button:has-text("Confirm")'))!
+    const confirmHandle = (await modal.$(
+      'button:has-text("Publish all draft programs and questions")',
+    ))!
     await confirmHandle.click()
 
     await waitForPageJsLoad(this.page)
