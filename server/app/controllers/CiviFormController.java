@@ -76,15 +76,11 @@ public class CiviFormController extends Controller {
   /** Retrieves the applicant id from the user profile, if present. */
   protected Optional<Long> getApplicantId(Http.Request request) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
-    if (profile.isEmpty()) {
+    if (profile.map(CiviFormProfile::getProfileData).isEmpty()) {
       return Optional.empty();
     }
 
     CiviFormProfileData profileData = profile.orElseThrow().getProfileData();
-    if (profileData == null) {
-      return Optional.empty();
-    }
-
     return Optional.ofNullable(
         profileData.getAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, Long.class));
   }
