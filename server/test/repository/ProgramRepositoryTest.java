@@ -3,6 +3,7 @@ package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import auth.CiviFormProfile;
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -52,11 +53,13 @@ public class ProgramRepositoryTest extends ResetPostgres {
   private SyncCacheApi programCache;
   private SyncCacheApi versionsByProgramCache;
   private SettingsManifest mockSettingsManifest;
+  private CiviFormProfile mockCiviFormProfile;
 
   @Before
   public void setup() {
     versionRepo = instanceOf(VersionRepository.class);
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    mockCiviFormProfile = Mockito.mock(CiviFormProfile.class);
     programCache = instanceOf(SyncCacheApi.class);
     versionsByProgramCache = instanceOf(SyncCacheApi.class);
     repo =
@@ -64,6 +67,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             instanceOf(DatabaseExecutionContext.class),
             Providers.of(versionRepo),
             mockSettingsManifest,
+            mockCiviFormProfile,
             programCache,
             versionsByProgramCache);
   }
