@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.time.Instant;
@@ -201,8 +202,35 @@ public abstract class QuestionDefinition {
   /** Get the default validation predicates for this question type. */
   abstract ValidationPredicates getDefaultValidationPredicates();
 
-  /** Validate that all required fields are present and valid for the question. */
+  /**
+   * Overload of {@code validate()} that sets {@code previousDefinition} to empty.
+   *
+   * <p>See {@link #validate(Optional)} for the implications of not providing a {@code
+   * previousDefinition} when validating.
+   */
   public final ImmutableSet<CiviFormError> validate() {
+    return validate(Optional.empty());
+  }
+
+  /**
+   * Validate that all required fields are present and valid for the question.
+   *
+   * <p>If {@code previousDefinition} is provided, only the admin names of the new {@link
+   * QuestionOption} need to pass validation.
+   *
+   * @param previousDefinition the optional previous version of the {@link QuestionDefinition}
+   * @throws IllegalArgumentException if the previousDefinition is not of the same type as this
+   *     definition.
+   */
+  public final ImmutableSet<CiviFormError> validate(
+      Optional<QuestionDefinition> previousDefinition) {
+    if (previousDefinition.isPresent()
+        && previousDefinition.get().getQuestionType() != getQuestionType()) {
+      throw new IllegalArgumentException(
+          "The previous version of the question definition must be of the same question type as the"
+              + " updated version.");
+    }
+
     ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
     if (config.questionText().isEmpty()) {
       errors.add(CiviFormError.of("Question text cannot be blank"));
@@ -242,7 +270,14 @@ public abstract class QuestionDefinition {
         errors.add(CiviFormError.of("Multi-option questions cannot have blank admin names"));
       }
 
+      var existingAdminNames =
+          previousDefinition
+              .map(qd -> (MultiOptionQuestionDefinition) qd)
+              .map(MultiOptionQuestionDefinition::getOptionAdminNames)
+              .orElse(ImmutableList.of());
       if (multiOptionQuestionDefinition.getOptionAdminNames().stream()
+          // This is O(n^2) but the list is small and it's simpler than creating a Set
+          .filter(n -> !existingAdminNames.contains(n))
           .anyMatch(s -> !s.matches("[0-9a-zA-Z_-]+"))) {
         errors.add(
             CiviFormError.of(
