@@ -185,7 +185,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                             .withClasses("flex", "flex-grow", "-mx-2")
                             .with(
                                 div()
-                                  .withClasses("shadow-lg pt-6 w-2/12 border-r border-gray-200")
+                                    .withClasses("shadow-lg pt-6 w-2/12 border-r border-gray-200")
                                     .attr("hx-swap", "outerHTML")
                                     .attr(
                                         "hx-get",
