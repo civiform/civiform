@@ -5,7 +5,6 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.h2;
 import static j2html.TagCreator.hr;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
@@ -81,8 +80,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .getBundle(request)
             .setTitle("CiviForm")
             .addMainContent(
-                renderHeader(tiGroup.getName()),
-                h2(tiGroup.getDescription()).withClasses("ml-2"),
+                renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
                 hr(),
                 renderHeader("Add Client").withId("add-client"),
                 requiredFieldsExplanationContent(),

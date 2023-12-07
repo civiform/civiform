@@ -68,4 +68,22 @@
   .cf-question-bank-hidden .cf-question-bank-glasspane {
     @apply opacity-0;
   }
+
+  @media screen and (min-width: 640px) {
+    /* When expanded, the banner header was moving to the center because of margin-auto */
+    .usa-banner__header--expanded .usa-banner__inner {
+      margin-left: 0px;
+    }
+  }
+
+  /* Rather than having a focus outline around the checkbox or radio button,
+  it is around the label */
+  input[type='radio']:focus,
+  input[type='checkbox']:focus {
+    @apply outline-none;
+  }
+  /* Mimics the focus outline styles from the checkbox or radio input on the label */
+  .cf-radio-option:focus-within {
+    @apply border-4;
+  }
 }

@@ -109,32 +109,54 @@ public final class QuestionService {
   }
 
   /**
+   * Overload of {@code update()} that defaults {@code previousDefinition} to empty.
+   *
+   * <p>See {@link #update(Optional, QuestionDefinition)} for the implications of not providing a
+   * {@code previousDefinition} when updating.
+   *
+   * @param updatedDefinition the {@link QuestionDefinition} to update
+   * @return the updated {@link QuestionDefinition} or a {@link CiviFormError}
+   */
+  public ErrorAnd<QuestionDefinition, CiviFormError> update(QuestionDefinition updatedDefinition)
+      throws InvalidUpdateException {
+    return update(Optional.empty(), updatedDefinition);
+  }
+
+  /**
    * Destructive overwrite of a question at a given path.
    *
+   * <p>The {@code previousDefinition} is used during validation. See {@link
+   * QuestionDefinition#validate(Optional)} for the implications of not including a {@code
+   * previousDefinition} when validating.
+   *
    * <p>The write will fail if:
+   * <li>The QuestionDefinition is not persisted yet.
+   * <li>The path is different from the original path.
+   * <li>NOTE: This does not update the version.
    *
-   * <p>- The QuestionDefinition is not persisted yet.
-   *
-   * <p>- The path is different from the original path.
-   *
-   * <p>NOTE: This does not update the version.
+   * @param previousDefinition the previous version of the {@link QuestionDefinition}, defaults to
+   *     empty.
+   * @param updatedDefinition the {@link QuestionDefinition} to update
+   * @return the updated {@link QuestionDefinition} or a {@link CiviFormError}
+   * @throws InvalidUpdateException if a question with the provided ID does not already exist
    */
-  public ErrorAnd<QuestionDefinition, CiviFormError> update(QuestionDefinition questionDefinition)
+  public ErrorAnd<QuestionDefinition, CiviFormError> update(
+      Optional<QuestionDefinition> previousDefinition, QuestionDefinition updatedDefinition)
       throws InvalidUpdateException {
-    if (!questionDefinition.isPersisted()) {
+    if (!updatedDefinition.isPersisted()) {
       throw new InvalidUpdateException("question definition is not persisted");
     }
-    ImmutableSet<CiviFormError> validationErrors = questionDefinition.validate();
+    ImmutableSet<CiviFormError> validationErrors = updatedDefinition.validate(previousDefinition);
 
     Optional<QuestionModel> maybeQuestion =
-        questionRepository.lookupQuestion(questionDefinition.getId()).toCompletableFuture().join();
+        questionRepository.lookupQuestion(updatedDefinition.getId()).toCompletableFuture().join();
     if (maybeQuestion.isEmpty()) {
       throw new InvalidUpdateException(
-          String.format("question with id %d does not exist", questionDefinition.getId()));
+          String.format("question with id %d does not exist", updatedDefinition.getId()));
     }
     QuestionModel question = maybeQuestion.get();
     ImmutableSet<CiviFormError> immutableMemberErrors =
-        validateQuestionImmutableMembers(question.getQuestionDefinition(), questionDefinition);
+        validateQuestionImmutableMembers(question.getQuestionDefinition(), updatedDefinition);
 
     ImmutableSet<CiviFormError> errors =
         ImmutableSet.<CiviFormError>builder()
@@ -145,7 +167,7 @@ public final class QuestionService {
       return ErrorAnd.error(errors);
     }
 
-    question = questionRepository.createOrUpdateDraft(questionDefinition);
+    question = questionRepository.createOrUpdateDraft(updatedDefinition);
     return ErrorAnd.of(question.getQuestionDefinition());
   }
 
