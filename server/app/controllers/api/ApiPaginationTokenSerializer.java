@@ -36,7 +36,7 @@ import services.CryptographicUtils;
  * the provided token matches the freshly computed signature of the provided payload.
  */
 public final class ApiPaginationTokenSerializer {
-  public static final ObjectMapper MAPPER =
+  private static final ObjectMapper MAPPER =
       new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
 
   private final String signingSecret;

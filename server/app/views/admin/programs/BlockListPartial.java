@@ -1,6 +1,5 @@
 package views.admin.programs;
 
-import static controllers.api.ApiPaginationTokenSerializer.MAPPER;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
@@ -12,10 +11,8 @@ import static services.program.ProgramDefinition.Direction.DOWN;
 import static services.program.ProgramDefinition.Direction.UP;
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.assistedinject.Assisted;
 import controllers.admin.routes;
 import j2html.tags.specialized.DivTag;
@@ -24,6 +21,7 @@ import play.mvc.Http;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
+import views.HtmxVals;
 import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.components.Icons;
@@ -172,59 +170,42 @@ public final class BlockListPartial extends BaseHtmlView {
       long programId,
       ImmutableList<BlockDefinition> blockDefinitions,
       BlockDefinition blockDefinition) {
-    try {
-      String moveFormAction =
-          routes.AdminProgramBlocksController.move(programId, blockDefinition.id()).url();
-      // Move up button is invisible for the first block
-      String moveUpInvisible =
-          blockDefinition.id() == blockDefinitions.get(0).id() ? "invisible" : "";
-      DivTag moveUp =
-          div(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON))
-              .attr("hx-post", moveFormAction)
-              .attr("hx-target", "#blockList")
-              .attr("hx-swap", "outerHTML")
-              .attr(
-                  "hx-vals",
-                  MAPPER.writeValueAsString(
-                      ImmutableMap.of(
-                          "csrfToken",
-                          getCsrfToken(request),
-                          "direction",
-                          UP.name(),
-                          "programDisplayType",
-                          programDisplayType.name())))
-              .withClass(moveUpInvisible);
+    String moveFormAction =
+        routes.AdminProgramBlocksController.move(programId, blockDefinition.id()).url();
+    // Move up button is invisible for the first block
+    String moveUpInvisible =
+        blockDefinition.id() == blockDefinitions.get(0).id() ? "invisible" : "";
+    DivTag moveUp =
+        div(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON))
+            .attr("hx-post", moveFormAction)
+            .attr("hx-target", "#blockList")
+            .attr("hx-swap", "outerHTML")
+            .attr(
+                "hx-vals",
+                HtmxVals.serializeVals("direction", UP.name(), "csrfToken", getCsrfToken(request)))
+            .withClass(moveUpInvisible);
 
-      // Move down button is invisible for the last block
-      String moveDownInvisible =
-          blockDefinition.id() == blockDefinitions.get(blockDefinitions.size() - 1).id()
-              ? "invisible"
-              : "";
-      DivTag moveDown =
-          div(
-                  submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON),
-                  input()
-                      .isHidden()
-                      .withName("direction")
-                      .withValue(ProgramDefinition.Direction.DOWN.name()))
-              .attr("hx-post", moveFormAction)
-              .attr("hx-target", "#blockList")
-              .attr("hx-swap", "outerHTML")
-              .attr(
-                  "hx-vals",
-                  MAPPER.writeValueAsString(
-                      ImmutableMap.of(
-                          "csrfToken",
-                          getCsrfToken(request),
-                          "direction",
-                          DOWN.name(),
-                          "programDisplayType",
-                          programDisplayType.name())))
-              .withClasses("transform", "rotate-180", moveDownInvisible);
+    // Move down button is invisible for the last block
+    String moveDownInvisible =
+        blockDefinition.id() == blockDefinitions.get(blockDefinitions.size() - 1).id()
+            ? "invisible"
+            : "";
+    DivTag moveDown =
+        div(
+                submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON),
+                input()
+                    .isHidden()
+                    .withName("direction")
+                    .withValue(ProgramDefinition.Direction.DOWN.name()))
+            .attr("hx-post", moveFormAction)
+            .attr("hx-target", "#blockList")
+            .attr("hx-swap", "outerHTML")
+            .attr(
+                "hx-vals",
+                HtmxVals.serializeVals(
+                    "direction", DOWN.name(), "csrfToken", getCsrfToken(request)))
+            .withClasses("transform", "rotate-180", moveDownInvisible);
 
-      return div().withClasses("flex", "flex-col", "self-center").with(moveUp, moveDown);
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
-    }
+    return div().withClasses("flex", "flex-col", "self-center").with(moveUp, moveDown);
   }
 }

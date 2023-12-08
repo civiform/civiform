@@ -44,6 +44,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.StaticContentQuestionDefinition;
 import services.settings.SettingsManifest;
 import views.HtmlBundle;
+import views.HtmxVals;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
@@ -194,9 +195,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                     .attr("hx-trigger", "load")
                                     .attr(
                                         "hx-vals",
-                                        "{ \"programDisplayType\": \""
-                                            + programDisplayType.name()
-                                            + "\" }"))
+                                      HtmxVals.serializeVals("programDisplayType", programDisplayType.name())))
                             .with(
                                 renderBlockPanel(
                                     programDefinition,
