@@ -34,6 +34,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   private ProfileFactory profileFactory;
   private TrustedIntermediaryGroupModel tiGroup;
   private TrustedIntermediaryGroupModel tiGroup2;
+  AccountModel testAccount;
+  ApplicantModel testApplicant;
 
   @Before
   public void setup() {
@@ -48,6 +50,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     profileFactory.createFakeTrustedIntermediary();
     tiGroup = repo.listTrustedIntermediaryGroups().get(0);
     tiGroup2 = repo.listTrustedIntermediaryGroups().get(1);
+    testAccount = setupTiClientAccount("email2123", tiGroup);
+    testApplicant = setTiClientApplicant(testAccount, "clientFirst", "2021-12-12");
   }
 
   @After
@@ -381,8 +385,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
-  public void editTiClientInfo_AllPass_NameUpdate() throws ApplicantNotFoundException {
-    AccountModel account = setupTiClientAccount("email21", tiGroup);
+  public void editTiClientInfo_AllPass_NameEmailUpdate() throws ApplicantNotFoundException {
+    AccountModel account = setupTiClientAccount("emailOld", tiGroup);
     ApplicantModel applicant = setTiClientApplicant(account, "clientFirst", "2021-12-12");
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
@@ -398,7 +402,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "dob",
                         "2022-07-07",
                         "emailAddress",
-                        "email21",
+                        "emailNew",
                         "tiNote",
                         "unitTest",
                         "phoneNumber",
@@ -417,12 +421,11 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         .isEqualTo("4259879090");
     assertThat(applicantFinal.getApplicantData().getApplicantFullName().get())
         .isEqualTo("clientFirst, middle, ClientLast");
+    assertThat(accountFinal.getEmailAddress()).isEqualTo("emailNew");
   }
 
   @Test
-  public void editTiClientInfo_PhoneFailsValidation() throws ApplicantNotFoundException {
-    AccountModel account = setupTiClientAccount("email2123", tiGroup);
-    ApplicantModel applicant = setTiClientApplicant(account, "clientFirst", "2021-12-12");
+  public void editTiClientInfo_PhoneLengthValidationFail() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             fakeRequest()
@@ -444,10 +447,157 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "42598790")));
     Form<EditTiClientInfoForm> form =
         formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
-    Form<EditTiClientInfoForm> returnForm = service.updateClientInfo(form, tiGroup, account.id);
+    Form<EditTiClientInfoForm> returnForm = service.updateClientInfo(form, tiGroup, testAccount.id);
     assertThat(returnForm.error("phoneNumber").get().message())
         .isEqualTo("A phone number must contain 10 digits");
-    assertThat(applicant.getApplicantData().getPhoneNumber()).isEmpty();
+  }
+
+  @Test
+  public void editTiClientInfo_PhoneNumberValidationFail() throws ApplicantNotFoundException {
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(
+            fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "clientFirst",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "ClientLast",
+                        "dob",
+                        "2022-07-07",
+                        "emailAddress",
+                        "email2123",
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "0000000000")));
+    Form<EditTiClientInfoForm> form =
+        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<EditTiClientInfoForm> returnForm = service.updateClientInfo(form, tiGroup, testAccount.id);
+    assertThat(returnForm.error("phoneNumber").get().message())
+        .isEqualTo("This phone number is not valid");
+  }
+
+  @Test
+  public void editTiClientInfo_PhoneNumberNotDigitsValidationFail()
+      throws ApplicantNotFoundException {
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(
+            fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "clientFirst",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "ClientLast",
+                        "dob",
+                        "2022-07-07",
+                        "emailAddress",
+                        "email2123",
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "0000000er0")));
+    Form<EditTiClientInfoForm> form =
+        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<EditTiClientInfoForm> returnForm = service.updateClientInfo(form, tiGroup, testAccount.id);
+    assertThat(returnForm.error("phoneNumber").get().message())
+        .isEqualTo("A phone number must contain only digits");
+  }
+
+  @Test
+  public void editTiClientInfo_DOBValidationFail() throws ApplicantNotFoundException {
+    AccountModel account = setupTiClientAccount("email1123", tiGroup);
+    ApplicantModel applicant = setTiClientApplicant(account, "clientFirst", "2021-12-12");
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(
+            fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "clientFirst",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "ClientLast",
+                        "dob",
+                        "2040-07-07",
+                        "emailAddress",
+                        "email2123",
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "42598790")));
+    Form<EditTiClientInfoForm> form =
+        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<EditTiClientInfoForm> returnForm = service.updateClientInfo(form, tiGroup, account.id);
+    assertThat(returnForm.error("dob").get().message())
+        .isEqualTo("Date of Birth should be in the past");
+    assertThat(applicant.getApplicantData().getDateOfBirth()).isNotEmpty();
+  }
+
+  @Test
+  public void editTiClientInfo_FirstNameValidationFail() throws ApplicantNotFoundException {
+    AccountModel account = setupTiClientAccount("email121", tiGroup);
+    ApplicantModel applicant = setTiClientApplicant(account, "clientFirst", "2021-12-12");
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(
+            fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "ClientLast",
+                        "dob",
+                        "2040-07-07",
+                        "emailAddress",
+                        "email2123",
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "42598790")));
+    Form<EditTiClientInfoForm> form =
+        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<EditTiClientInfoForm> returnForm = service.updateClientInfo(form, tiGroup, account.id);
+    assertThat(returnForm.error("firstName").get().message()).isEqualTo("First name required");
+    assertThat(applicant.getApplicantData().getDateOfBirth()).isNotEmpty();
+  }
+
+  @Test
+  public void editTiClientInfo_LastNameValidationFail() throws ApplicantNotFoundException {
+    AccountModel account = setupTiClientAccount("email121", tiGroup);
+    ApplicantModel applicant = setTiClientApplicant(account, "clientFirst", "2021-12-12");
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(
+            fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "first",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "",
+                        "dob",
+                        "2040-07-07",
+                        "emailAddress",
+                        "email2123",
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "42598790")));
+    Form<EditTiClientInfoForm> form =
+        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<EditTiClientInfoForm> returnForm = service.updateClientInfo(form, tiGroup, account.id);
+    assertThat(returnForm.error("lastName").get().message()).isEqualTo("Last name required");
+    assertThat(applicant.getApplicantData().getDateOfBirth()).isNotEmpty();
   }
 
   @Test
@@ -477,17 +627,6 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         .isInstanceOf(ApplicantNotFoundException.class)
         .hasMessage("Applicant not found for ID 1");
   }
-  //  @Test
-  //  public void updateApplicantDateOfBirth_throwsApplicantNotFoundException() {
-  //    Http.RequestBuilder requestBuilder =
-  //        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-07-07")));
-  //    Form<UpdateApplicantDobForm> form =
-  //        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
-  //    assertThatThrownBy(() -> service.updateApplicantDateOfBirth(tiGroup, (long) 0, form))
-  //        .isInstanceOf(ApplicantNotFoundException.class)
-  //        .hasMessage("Applicant not found for ID 0");
-  //  }
-  //
   //  @Test
   //  public void updateApplicantDateOfBirth_throwsApplicantNotFoundExceptionDueToIncorrectTIGroup()
   // {
