@@ -1,6 +1,7 @@
 package services.question.types;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -38,13 +39,17 @@ public abstract class QuestionDefinitionConfig {
 
   abstract boolean universal();
 
+  abstract ImmutableList<AnswerActionType> actions();
+
   /**
-   * Used to create a new {@link QuestionDefinitionConfig}. We default the universal field to false
-   * here to avoid having to explicitly set it to false everywhere that is using a builder and not
-   * trying to create a universal question.
+   * Used to create a new {@link QuestionDefinitionConfig}. We default some fields here to avoid
+   * having to explicitly set default values everywhere that is using a builder and not trying to
+   * use these fields.
    */
   public static RequiredName builder() {
-    return new AutoValue_QuestionDefinitionConfig.Builder().setUniversal(false);
+    return new AutoValue_QuestionDefinitionConfig.Builder()
+        .setUniversal(false)
+        .setActions(ImmutableList.of());
   }
 
   /** Used to create a new {@link QuestionDefinitionConfig.Builder} based on an existing one. */
@@ -87,6 +92,8 @@ public abstract class QuestionDefinitionConfig {
     abstract Builder setQuestionHelpTextInternal(LocalizedStrings questionHelpText);
 
     public abstract Builder setUniversal(boolean universal);
+
+    public abstract Builder setActions(ImmutableList<AnswerActionType> actions);
 
     public abstract QuestionDefinitionConfig build();
   }

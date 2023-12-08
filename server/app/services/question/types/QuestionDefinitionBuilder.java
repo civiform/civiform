@@ -156,6 +156,11 @@ public final class QuestionDefinitionBuilder {
     return this;
   }
 
+  public QuestionDefinitionBuilder setActions(ImmutableList<AnswerActionType> actions) {
+    builder.setActions(actions);
+    return this;
+  }
+
   /**
    * Calls {@code build} and throws a {@link RuntimeException} if the {@link QuestionType} is
    * invalid.

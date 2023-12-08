@@ -68,6 +68,14 @@ public abstract class QuestionDefinition {
     return config.universal();
   }
 
+  public final ImmutableList<AnswerActionType> getActions() {
+    return config.actions();
+  }
+
+  public final boolean containsAction(AnswerActionType action) {
+    return config.actions().contains(action);
+  }
+
   /**
    * Get the name of this question.
    *

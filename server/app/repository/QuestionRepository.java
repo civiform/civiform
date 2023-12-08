@@ -22,6 +22,7 @@ import models.QuestionModel;
 import models.QuestionTag;
 import models.VersionModel;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.AnswerActionType;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
@@ -109,6 +110,15 @@ public final class QuestionRepository {
         if (!definition.isUniversal()) {
           newDraftQuestion.removeTag(QuestionTag.UNIVERSAL);
         }
+
+        // Same deal here.  We have to remove any tags for actions that are not present.
+        AnswerActionType.getActionsForQuestionType(definition.getQuestionType())
+            .forEach(
+                action -> {
+                  if (!definition.containsAction(action)) {
+                    newDraftQuestion.removeTag(action.getTag());
+                  }
+                });
 
         newDraftQuestion.addVersion(draftVersion).save();
         draftVersion.refresh();

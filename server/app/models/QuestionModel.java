@@ -31,6 +31,7 @@ import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.AnswerActionType;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -153,8 +154,8 @@ public class QuestionModel extends BaseModel {
             .setQuestionType(QuestionType.valueOf(questionType))
             .setValidationPredicatesString(validationPredicates)
             .setLastModifiedTime(Optional.ofNullable(lastModifiedTime))
-            .setUniversal(questionTags.contains(QuestionTag.UNIVERSAL));
-
+            .setUniversal(questionTags.contains(QuestionTag.UNIVERSAL))
+            .setActions(getActionListFromTags(questionTags));
     setEnumeratorEntityType(builder);
 
     // Build accounting for legacy columns
@@ -163,6 +164,12 @@ public class QuestionModel extends BaseModel {
     setQuestionOptions(builder);
 
     this.questionDefinition = builder.build();
+  }
+
+  private ImmutableList<AnswerActionType> getActionListFromTags(List<QuestionTag> tags) {
+    return ImmutableList.copyOf(AnswerActionType.values()).stream()
+        .filter(action -> tags.contains(action.getTag()))
+        .collect(ImmutableList.toImmutableList());
   }
 
   /**
@@ -276,6 +283,10 @@ public class QuestionModel extends BaseModel {
     } else {
       initTags();
     }
+
+    // Add tags for actions in the actions list. Note that this must come after we've
+    // done initTags above, either in this function or in addTag previously.
+    questionDefinition.getActions().forEach(action -> addTag(action.getTag()));
 
     return this;
   }

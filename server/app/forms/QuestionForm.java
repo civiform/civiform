@@ -2,6 +2,7 @@ package forms;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -11,6 +12,7 @@ import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.UrlUtils;
 import services.export.CsvExporterService;
+import services.question.types.AnswerActionType;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
@@ -28,6 +30,7 @@ public abstract class QuestionForm {
   private QuestionDefinition qd;
   private String redirectUrl;
   private boolean isUniversal;
+  private ImmutableList<AnswerActionType> actions;
 
   protected QuestionForm() {
     questionName = "";
@@ -38,6 +41,7 @@ public abstract class QuestionForm {
     questionExportState = Optional.of("");
     redirectUrl = "";
     isUniversal = false;
+    actions = ImmutableList.of();
   }
 
   protected QuestionForm(QuestionDefinition qd) {
@@ -61,6 +65,7 @@ public abstract class QuestionForm {
     }
 
     isUniversal = qd.isUniversal();
+    actions = qd.getActions();
   }
 
   public final String getQuestionName() {
@@ -139,7 +144,8 @@ public abstract class QuestionForm {
             .setEnumeratorId(enumeratorId)
             .setQuestionText(questionTextMap)
             .setQuestionHelpText(questionHelpTextMap)
-            .setUniversal(isUniversal);
+            .setUniversal(isUniversal)
+            .setActions(actions);
     return builder;
   }
 
@@ -191,5 +197,50 @@ public abstract class QuestionForm {
   // Awkwardly named, but must match the field name
   public final void setIsUniversal(boolean universal) {
     this.isUniversal = universal;
+  }
+
+  public final ImmutableList<AnswerActionType> actions() {
+    return this.actions;
+  }
+
+  private void setActionState(AnswerActionType action, boolean isSet) {
+    boolean present = this.actions.contains(action);
+    if (isSet) {
+      this.actions =
+          present
+              ? this.actions
+              : new ImmutableList.Builder<AnswerActionType>()
+                  .addAll(this.actions)
+                  .add(action)
+                  .build();
+    } else {
+      this.actions =
+          present
+              ? this.actions().stream()
+                  .filter(a -> a != action)
+                  .collect(ImmutableList.toImmutableList())
+              : this.actions;
+    }
+  }
+
+  // The names of these functions must match up to the fieldName value in the ActionType
+  public final void setActionApplicantInfoDob(boolean val) {
+    setActionState(AnswerActionType.APPLICANT_INFO_DOB, val);
+  }
+
+  public final void setActionApplicantInfoEmail(boolean val) {
+    setActionState(AnswerActionType.APPLICANT_INFO_EMAIL, val);
+  }
+
+  public final void setActionApplicantInfoName(boolean val) {
+    setActionState(AnswerActionType.APPLICANT_INFO_NAME, val);
+  }
+
+  public final void setActionApplicantInfoPhone(boolean val) {
+    setActionState(AnswerActionType.APPLICANT_INFO_PHONE, val);
+  }
+
+  public final void setActionDifferent(boolean val) {
+    setActionState(AnswerActionType.DIFFERENT_NAME_ACTION, val);
   }
 }

@@ -1,5 +1,6 @@
 package services.question.types;
 
+import com.google.common.collect.ImmutableList;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
@@ -70,6 +71,11 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
     return false;
   }
 
+  @Override
+  ImmutableList<AnswerActionType> actions() {
+    return ImmutableList.of();
+  }
+
   /** Used to create a new {@link Builder} based on an existing one. */
   public static class Builder extends QuestionDefinitionConfig.Builder {
 
@@ -133,6 +139,11 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
 
     @Override
     public QuestionDefinitionConfig.Builder setUniversal(boolean Universal) {
+      return this;
+    }
+
+    @Override
+    public QuestionDefinitionConfig.Builder setActions(ImmutableList<AnswerActionType> actions) {
       return this;
     }
 
