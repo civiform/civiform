@@ -5,6 +5,7 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.hr;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;

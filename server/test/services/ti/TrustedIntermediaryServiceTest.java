@@ -9,7 +9,7 @@ import auth.ProfileFactory;
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
-import forms.UpdateApplicantDobForm;
+import forms.EditTiClientInfoForm;
 import java.util.Optional;
 import models.AccountModel;
 import models.ApplicantModel;
@@ -22,7 +22,6 @@ import play.data.FormFactory;
 import play.mvc.Http;
 import repository.AccountRepository;
 import repository.SearchParameters;
-import services.WellKnownPaths;
 import services.applicant.ApplicantData;
 import services.applicant.exception.ApplicantNotFoundException;
 
@@ -301,9 +300,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
 
   @Test
   public void getManagedAccounts_SearchByDob() {
-    setupTIAccount("First", "2022-07-08", "email1", tiGroup);
-    setupTIAccount("Second", "2022-07-08", "email2", tiGroup);
-    setupTIAccount("Third", "2022-12-12", "email3", tiGroup);
+    setupTiClientAccountWithApplicant("First", "2022-07-08", "email1", tiGroup);
+    setupTiClientAccountWithApplicant("Second", "2022-07-08", "email2", tiGroup);
+    setupTiClientAccountWithApplicant("Third", "2022-12-12", "email3", tiGroup);
     SearchParameters searchParameters =
         SearchParameters.builder()
             .setNameQuery(Optional.empty())
@@ -317,9 +316,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
 
   @Test
   public void getManagedAccounts_SearchByName() {
-    setupTIAccount("First", "2022-07-08", "email10", tiGroup);
-    setupTIAccount("Emily", "2022-07-08", "email20", tiGroup);
-    setupTIAccount("Third", "2022-07-10", "email30", tiGroup);
+    setupTiClientAccountWithApplicant("First", "2022-07-08", "email10", tiGroup);
+    setupTiClientAccountWithApplicant("Emily", "2022-07-08", "email20", tiGroup);
+    setupTiClientAccountWithApplicant("Third", "2022-07-10", "email30", tiGroup);
     SearchParameters searchParameters =
         SearchParameters.builder()
             .setNameQuery(Optional.of("Emily"))
@@ -333,9 +332,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
 
   @Test
   public void getManagedAccounts_ExpectUnformattedDobException() {
-    setupTIAccount("First", "2022-07-08", "email11", tiGroup);
-    setupTIAccount("Second", "2022-10-10", "email21", tiGroup);
-    setupTIAccount("Third", "2022-07-10", "email31", tiGroup);
+    setupTiClientAccountWithApplicant("First", "2022-07-08", "email11", tiGroup);
+    setupTiClientAccountWithApplicant("Second", "2022-10-10", "email21", tiGroup);
+    setupTiClientAccountWithApplicant("Third", "2022-07-10", "email31", tiGroup);
     SearchParameters searchParameters =
         SearchParameters.builder()
             .setNameQuery(Optional.empty())
@@ -348,7 +347,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         .isEqualTo("Please enter date in MM/dd/yyyy format");
   }
 
-  private void setupTIAccount(
+  private void setupTiClientAccountWithApplicant(
       String firstName, String dob, String email, TrustedIntermediaryGroupModel tiGroup) {
     AccountModel account = new AccountModel();
     account.setEmailAddress(email);
@@ -362,91 +361,212 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     applicant.save();
   }
 
-  @Test
-  public void updateApplicantDateOfBirth_throwsApplicantNotFoundException() {
-    Http.RequestBuilder requestBuilder =
-        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-07-07")));
-    Form<UpdateApplicantDobForm> form =
-        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
-    assertThatThrownBy(() -> service.updateApplicantDateOfBirth(tiGroup, (long) 0, form))
-        .isInstanceOf(ApplicantNotFoundException.class)
-        .hasMessage("Applicant not found for ID 0");
-  }
-
-  @Test
-  public void updateApplicantDateOfBirth_throwsApplicantNotFoundExceptionDueToIncorrectTIGroup() {
-    setupTIAccount("First", "2021-11-11", "fake@email.com", tiGroup);
-    Http.RequestBuilder requestBuilder =
-        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-07-07")));
-    Form<UpdateApplicantDobForm> form =
-        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
-    AccountModel account = tiGroup.getManagedAccounts().stream().findAny().get();
-    assertThatThrownBy(() -> service.updateApplicantDateOfBirth(tiGroup2, account.id, form))
-        .isInstanceOf(ApplicantNotFoundException.class)
-        .hasMessage("Applicant not found for ID " + account.id);
-  }
-
-  @Test
-  public void updateApplicantDateOfBirth_unformattedDate() throws ApplicantNotFoundException {
-    setupTIAccount("First", "2021-11-11", "fake@email.com", tiGroup);
-    Http.RequestBuilder requestBuilder =
-        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-20-20")));
-    Form<UpdateApplicantDobForm> form =
-        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
-    AccountModel account = repo.lookupAccountByEmail("fake@email.com").get();
-    Form<UpdateApplicantDobForm> returnedForm =
-        service.updateApplicantDateOfBirth(tiGroup, account.id, form);
-    assertThat(returnedForm.hasErrors()).isTrue();
-    assertThat(returnedForm.error("dob").get().message())
-        .isEqualTo("Date of Birth must be in MM/dd/yyyy format");
-  }
-
-  @Test
-  public void updateApplicantDateOfBirth_ApplicantDobUpdated() throws ApplicantNotFoundException {
-    setupTIAccount("First", "2021-11-11", "fake@email.com", tiGroup);
-    Http.RequestBuilder requestBuilder =
-        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2021-09-09")));
-    Form<UpdateApplicantDobForm> form =
-        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
-    AccountModel account = repo.lookupAccountByEmail("fake@email.com").get();
-    Form<UpdateApplicantDobForm> returnedForm =
-        service.updateApplicantDateOfBirth(tiGroup, account.id, form);
-    assertThat(returnedForm.hasErrors()).isFalse();
-    assertThat(account.newestApplicant().get().getApplicantData().getDateOfBirth().get().toString())
-        .isEqualTo("2021-09-09");
-  }
-
-  @Test
-  public void updateApplicantDateOfBirth_handlesOldDataFormat() throws ApplicantNotFoundException {
+  private AccountModel setupTiClientAccount(String email, TrustedIntermediaryGroupModel tiGroup) {
     AccountModel account = new AccountModel();
-    account.setEmailAddress("fake@email.com");
+    account.setEmailAddress(email);
     account.setManagedByGroup(tiGroup);
     account.save();
+    return account;
+  }
+
+  private ApplicantModel setTiClientApplicant(AccountModel account, String firstName, String dob) {
     ApplicantModel applicant = new ApplicantModel();
     applicant.setAccount(account);
     ApplicantData applicantData = applicant.getApplicantData();
-    applicantData.setUserName("First", "", "Last");
-    // Set the date with the deprecated path
-    applicantData.putDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED, "2021-11-11");
+    applicantData.setUserName(firstName, "", "Last");
+    applicantData.setDateOfBirth(dob);
     applicant.save();
-
-    Http.RequestBuilder requestBuilder =
-        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2021-09-09")));
-    Form<UpdateApplicantDobForm> form =
-        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
-    AccountModel fetchedAccount = repo.lookupAccountByEmail("fake@email.com").get();
-    Form<UpdateApplicantDobForm> returnedForm =
-        service.updateApplicantDateOfBirth(tiGroup, fetchedAccount.id, form);
-    assertThat(returnedForm.hasErrors()).isFalse();
-    System.out.println(fetchedAccount.newestApplicant().get().getApplicantData().asJsonString());
-    assertThat(
-            fetchedAccount
-                .newestApplicant()
-                .get()
-                .getApplicantData()
-                .getDateOfBirth()
-                .get()
-                .toString())
-        .isEqualTo("2021-09-09");
+    account.save();
+    return applicant;
   }
+
+  @Test
+  public void editTiClientInfo_AllPass_NameUpdate() throws ApplicantNotFoundException {
+    AccountModel account = setupTiClientAccount("email21", tiGroup);
+    ApplicantModel applicant = setTiClientApplicant(account, "clientFirst", "2021-12-12");
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(
+            fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "clientFirst",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "ClientLast",
+                        "dob",
+                        "2022-07-07",
+                        "emailAddress",
+                        "email21",
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "4259879090")));
+    Form<EditTiClientInfoForm> form =
+        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<EditTiClientInfoForm> returnForm = service.updateClientInfo(form, tiGroup, account.id);
+    assertThat(returnForm).isEqualTo(form);
+    AccountModel accountFinal = repo.lookupAccount(account.id).get();
+    ApplicantModel applicantFinal = repo.lookupApplicantSync(applicant.id).get();
+
+    assertThat(accountFinal.getTiNote()).isEqualTo("unitTest");
+    assertThat(applicantFinal.getApplicantData().getDateOfBirth().get().toString())
+        .isEqualTo("2022-07-07");
+    assertThat(applicantFinal.getApplicantData().getPhoneNumber().get().toString())
+        .isEqualTo("4259879090");
+    assertThat(applicantFinal.getApplicantData().getApplicantFullName().get())
+        .isEqualTo("clientFirst, middle, ClientLast");
+  }
+
+  @Test
+  public void editTiClientInfo_PhoneFailsValidation() throws ApplicantNotFoundException {
+    AccountModel account = setupTiClientAccount("email2123", tiGroup);
+    ApplicantModel applicant = setTiClientApplicant(account, "clientFirst", "2021-12-12");
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(
+            fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "clientFirst",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "ClientLast",
+                        "dob",
+                        "2022-07-07",
+                        "emailAddress",
+                        "email2123",
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "42598790")));
+    Form<EditTiClientInfoForm> form =
+        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<EditTiClientInfoForm> returnForm = service.updateClientInfo(form, tiGroup, account.id);
+    assertThat(returnForm.error("phoneNumber").get().message())
+        .isEqualTo("A phone number must contain 10 digits");
+    assertThat(applicant.getApplicantData().getPhoneNumber()).isEmpty();
+  }
+
+  @Test
+  public void editTiClientInfo_throwsException() throws ApplicantNotFoundException {
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(
+            fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "clientFirst",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "ClientLast",
+                        "dob",
+                        "2022-07-07",
+                        "emailAddress",
+                        "email21",
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "4259879090")));
+    Form<EditTiClientInfoForm> form =
+        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    assertThatThrownBy(() -> service.updateClientInfo(form, tiGroup, 1L))
+        .isInstanceOf(ApplicantNotFoundException.class)
+        .hasMessage("Applicant not found for ID 1");
+  }
+  //  @Test
+  //  public void updateApplicantDateOfBirth_throwsApplicantNotFoundException() {
+  //    Http.RequestBuilder requestBuilder =
+  //        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-07-07")));
+  //    Form<UpdateApplicantDobForm> form =
+  //        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
+  //    assertThatThrownBy(() -> service.updateApplicantDateOfBirth(tiGroup, (long) 0, form))
+  //        .isInstanceOf(ApplicantNotFoundException.class)
+  //        .hasMessage("Applicant not found for ID 0");
+  //  }
+  //
+  //  @Test
+  //  public void updateApplicantDateOfBirth_throwsApplicantNotFoundExceptionDueToIncorrectTIGroup()
+  // {
+  //    setupTIAccount("First", "2021-11-11", "fake@email.com", tiGroup);
+  //    Http.RequestBuilder requestBuilder =
+  //        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-07-07")));
+  //    Form<UpdateApplicantDobForm> form =
+  //        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
+  //    AccountModel account = tiGroup.getManagedAccounts().stream().findAny().get();
+  //    assertThatThrownBy(() -> service.updateApplicantDateOfBirth(tiGroup2, account.id, form))
+  //        .isInstanceOf(ApplicantNotFoundException.class)
+  //        .hasMessage("Applicant not found for ID " + account.id);
+  //  }
+  //
+  //  @Test
+  //  public void updateApplicantDateOfBirth_unformattedDate() throws ApplicantNotFoundException {
+  //    setupTIAccount("First", "2021-11-11", "fake@email.com", tiGroup);
+  //    Http.RequestBuilder requestBuilder =
+  //        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-20-20")));
+  //    Form<UpdateApplicantDobForm> form =
+  //        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
+  //    AccountModel account = repo.lookupAccountByEmail("fake@email.com").get();
+  //    Form<UpdateApplicantDobForm> returnedForm =
+  //        service.updateApplicantDateOfBirth(tiGroup, account.id, form);
+  //    assertThat(returnedForm.hasErrors()).isTrue();
+  //    assertThat(returnedForm.error("dob").get().message())
+  //        .isEqualTo("Date of Birth must be in MM/dd/yyyy format");
+  //  }
+  //
+  //  @Test
+  //  public void updateApplicantDateOfBirth_ApplicantDobUpdated() throws ApplicantNotFoundException
+  // {
+  //    setupTIAccount("First", "2021-11-11", "fake@email.com", tiGroup);
+  //    Http.RequestBuilder requestBuilder =
+  //        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2021-09-09")));
+  //    Form<UpdateApplicantDobForm> form =
+  //        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
+  //    AccountModel account = repo.lookupAccountByEmail("fake@email.com").get();
+  //    Form<UpdateApplicantDobForm> returnedForm =
+  //        service.updateApplicantDateOfBirth(tiGroup, account.id, form);
+  //    assertThat(returnedForm.hasErrors()).isFalse();
+  //
+  // assertThat(account.newestApplicant().get().getApplicantData().getDateOfBirth().get().toString())
+  //        .isEqualTo("2021-09-09");
+  //  }
+  //
+  //  @Test
+  //  public void updateApplicantDateOfBirth_handlesOldDataFormat() throws
+  // ApplicantNotFoundException {
+  //    AccountModel account = new AccountModel();
+  //    account.setEmailAddress("fake@email.com");
+  //    account.setManagedByGroup(tiGroup);
+  //    account.save();
+  //    ApplicantModel applicant = new ApplicantModel();
+  //    applicant.setAccount(account);
+  //    ApplicantData applicantData = applicant.getApplicantData();
+  //    applicantData.setUserName("First", "", "Last");
+  //    // Set the date with the deprecated path
+  //    applicantData.putDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED, "2021-11-11");
+  //    applicant.save();
+  //
+  //    Http.RequestBuilder requestBuilder =
+  //        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2021-09-09")));
+  //    Form<UpdateApplicantDobForm> form =
+  //        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
+  //    AccountModel fetchedAccount = repo.lookupAccountByEmail("fake@email.com").get();
+  //    Form<UpdateApplicantDobForm> returnedForm =
+  //        service.updateApplicantDateOfBirth(tiGroup, fetchedAccount.id, form);
+  //    assertThat(returnedForm.hasErrors()).isFalse();
+  //
+  // System.out.println(fetchedAccount.newestApplicant().get().getApplicantData().asJsonString());
+  //    assertThat(
+  //            fetchedAccount
+  //                .newestApplicant()
+  //                .get()
+  //                .getApplicantData()
+  //                .getDateOfBirth()
+  //                .get()
+  //                .toString())
+  //        .isEqualTo("2021-09-09");
+  //  }
 }

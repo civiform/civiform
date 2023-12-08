@@ -139,18 +139,18 @@ public final class TrustedIntermediaryService {
   }
 
   private Form<EditTiClientInfoForm> validatePhoneNumber(Form<EditTiClientInfoForm> form) {
-    if (Strings.isNullOrEmpty(form.value().get().getPhoneNumber())) {
-      String phoneNumber = form.value().get().getPhoneNumber();
-      if (phoneNumber.length() < 10) {
-        return form.withError(FORM_FIELD_NAME_DOB, "A phone number must contain 10 digits");
+    String phoneNumber = form.value().get().getPhoneNumber();
+    if (!Strings.isNullOrEmpty(phoneNumber)) {
+      if (phoneNumber.length() != 10) {
+        return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain 10 digits");
       }
       if (!phoneNumber.matches("[0-9]+")) {
-        return form.withError(FORM_FIELD_NAME_DOB, "A phone number must contain only digits");
+        return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain only digits");
       }
       try {
         Phonenumber.PhoneNumber phonenumber = PHONE_NUMBER_UTIL.parse(phoneNumber, "US");
         if (!PHONE_NUMBER_UTIL.isValidNumber(phonenumber)) {
-          return form.withError(FORM_FIELD_NAME_DOB, "This phone number is not valid");
+          return form.withError(FORM_FIELD_NAME_PHONE, "This phone number is not valid");
         }
       } catch (NumberParseException e) {
         throw new RuntimeException(e);
@@ -158,6 +158,7 @@ public final class TrustedIntermediaryService {
     }
     return form;
   }
+
   private Form<EditTiClientInfoForm> validateDateOfBirth(Form<EditTiClientInfoForm> form) {
     Optional<String> errorMessage = validateDateOfBirth(form.value().get().getDob());
     if (errorMessage.isPresent()) {
@@ -167,8 +168,8 @@ public final class TrustedIntermediaryService {
   }
 
   public Form<EditTiClientInfoForm> updateClientInfo(
-    Form<EditTiClientInfoForm> form, TrustedIntermediaryGroupModel tiGroup, Long accountId)
-    throws ApplicantNotFoundException {
+      Form<EditTiClientInfoForm> form, TrustedIntermediaryGroupModel tiGroup, Long accountId)
+      throws ApplicantNotFoundException {
     // validate functions return the form w/ validation errors if applicable
     form = validateFirstNameForEditClient(form);
     form = validateLastNameForEditClient(form);
@@ -178,48 +179,49 @@ public final class TrustedIntermediaryService {
       return form;
     }
     Optional<AccountModel> accountMaybe =
-      tiGroup.getManagedAccounts().stream()
-        .filter(account -> account.id.equals(accountId))
-        .findAny();
+        tiGroup.getManagedAccounts().stream()
+            .filter(account -> account.id.equals(accountId))
+            .findAny();
     if (accountMaybe.isEmpty() || accountMaybe.get().newestApplicant().isEmpty()) {
       throw new ApplicantNotFoundException(accountId);
     }
     ApplicantModel applicant = accountMaybe.get().newestApplicant().get();
     ApplicantData applicantData = applicant.getApplicantData();
 
-    //name update
+    // name update
     String firstName = form.get().getFirstName();
     String middleName = form.get().getMiddleName();
     String lastName = form.get().getLastName();
-     String currentFullName =  applicantData
-              .getApplicantFullName()
-              .get();
-     String newFullName = applicantData.buildApplicantFullName(Optional.of(firstName), Optional.of(middleName), Optional.of(lastName)).get();
-     if(!currentFullName.equals(newFullName)) {
-       accountRepository.updateClientName(firstName, middleName, lastName, applicant);
-     }
-      // DOB update
+    String currentFullName = applicantData.getApplicantFullName().get();
+    String newFullName =
+        applicantData
+            .buildApplicantFullName(
+                Optional.of(firstName), Optional.of(middleName), Optional.of(lastName))
+            .get();
+    if (!currentFullName.equals(newFullName)) {
+      accountRepository.updateClientName(firstName, middleName, lastName, applicant);
+    }
+    // DOB update
     String newDob = form.get().getDob();
     LocalDate localDate = LocalDate.parse(newDob, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     if (!applicantData.getDateOfBirth().get().equals(localDate)) {
-      accountRepository.updateClientDob(newDob,applicant);
+      accountRepository.updateClientDob(newDob, applicant);
     }
-    //Phone number update
+    // Phone number update
     Optional<String> currentPhone = applicantData.getPhoneNumber();
     String newPhoneNumber = form.get().getPhoneNumber();
     if (!currentPhone.isPresent() || !currentPhone.get().equals(newPhoneNumber)) {
-      accountRepository.updateClientPhoneNumber(newPhoneNumber,applicant);
+      accountRepository.updateClientPhoneNumber(newPhoneNumber, applicant);
     }
-    //tiNote update
+    // tiNote update
     AccountModel currentAccount = applicant.getAccount();
     String newTiNote = form.get().getTiNote();
-    if(currentAccount.getTiNote().isEmpty() || !currentAccount.getTiNote().equals(newTiNote)) {
-      accountRepository.updateClientTiNote(newTiNote,currentAccount);
-    }
-    //email update
+    accountRepository.updateClientTiNote(newTiNote, currentAccount);
+
+    // email update
     String newEmail = form.get().getEmailAddress();
     if (checkEmailChange(newEmail, currentAccount)
-      && accountRepository.lookupAccountByEmail(newEmail).isEmpty()) {
+        && accountRepository.lookupAccountByEmail(newEmail).isEmpty()) {
       accountRepository.updateClientEmail(newEmail, accountId);
     }
     return form;
@@ -280,5 +282,4 @@ public final class TrustedIntermediaryService {
                                 searchParameters.nameQuery().get().toLowerCase(Locale.ROOT)))))
         .collect(ImmutableList.toImmutableList());
   }
-
 }
