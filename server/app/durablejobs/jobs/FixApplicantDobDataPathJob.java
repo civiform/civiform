@@ -42,7 +42,7 @@ public final class FixApplicantDobDataPathJob extends DurableJob {
               applicantData
                   .getDocumentContext()
                   .delete(WellKnownPaths.APPLICANT_DOB_DEPRECATED.toString());
-              applicantData.setDateOfBirth(dob.toString());
+              applicant.setDateOfBirth(dob);
               applicant.save();
             });
   }

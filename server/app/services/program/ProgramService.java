@@ -1350,6 +1350,16 @@ public final class ProgramService {
     return updateProgramDefinitionWithBlockDefinitions(programDefinition, newBlocks);
   }
 
+  // This is used when we want to hydrate the question definitions in the program
+  // definition, regardless if eligibility is enabled or not. This is used for
+  // finding which questions have actions associated with them during application
+  // submission.
+  public CompletionStage<ProgramDefinition> syncQuestionsToSingleProgramDefinition(
+      ProgramDefinition programDefinition) {
+    return syncQuestionsToProgramDefinitions(ImmutableList.of(programDefinition), true)
+        .thenApplyAsync(definitions -> definitions.get(0));
+  }
+
   /**
    * Sync all {@link QuestionDefinition}s in a list of {@link ProgramDefinition}s asynchronously, by
    * querying for questions then updating each {@link ProgramDefinition}s.
@@ -1360,7 +1370,7 @@ public final class ProgramService {
    *     question is not found.
    */
   public CompletionStage<ImmutableList<ProgramDefinition>> syncQuestionsToProgramDefinitions(
-      ImmutableList<ProgramDefinition> programDefinitions) {
+      ImmutableList<ProgramDefinition> programDefinitions, boolean force) {
 
     /* TEMP BUG FIX
      * Because some of the programs are not in the active version,
@@ -1379,7 +1389,7 @@ public final class ProgramService {
       ProgramModel p = programDef.toProgram();
       p.refresh();
       // We only need to get the question data if the program has eligibility conditions.
-      if (programDef.hasEligibilityEnabled()) {
+      if (force || programDef.hasEligibilityEnabled()) {
         VersionModel v =
             programRepository.getVersionsForProgram(p).stream().findAny().orElseThrow();
         ReadOnlyQuestionService questionServiceForVersion = versionToQuestionService.get(v.id);
@@ -1396,7 +1406,7 @@ public final class ProgramService {
         programDefinitions.stream()
             .map(
                 programDef -> {
-                  if (!programDef.hasEligibilityEnabled()) {
+                  if (!(force || programDef.hasEligibilityEnabled())) {
                     return programDef;
                   }
                   try {
