@@ -246,8 +246,12 @@ public final class ViewUtils {
    * @param text Optional text label to include with the toggle.
    * @return ButtonTag containing the toggle.
    */
-  public static ButtonTag makeToggleButton(
-      String fieldName, boolean enabled, Optional<String> idPrefix, Optional<String> text) {
+  public static DivTag makeToggleButton(
+      String fieldName,
+      boolean enabled,
+      Optional<String> idPrefix,
+      Optional<String> text,
+      boolean hidden) {
     String buttonId = idPrefix.map((v) -> v + "-toggle").orElse("");
     String inputId = idPrefix.map((v) -> v + "-toggle-input").orElse("");
     String backgroundId = idPrefix.map((v) -> v + "-toggle-background").orElse("");
@@ -257,7 +261,6 @@ public final class ViewUtils {
     ButtonTag button =
         TagCreator.button()
             .withClasses(
-                "cf-toggle",
                 "flex",
                 "px-0",
                 "gap-2",
@@ -302,7 +305,7 @@ public final class ViewUtils {
                                 "cf-toggle-nub")
                             .withCondId(idPresent, nubId)));
     text.ifPresent(button::withText);
-    return button;
+    return div().withClass("cf-toggle").withCondHidden(hidden).with(button);
   }
 
   /**
@@ -355,8 +358,9 @@ public final class ViewUtils {
    * @param maybeTitle An optional title to be included in the alert.
    * @return DivTag containing the alert.
    */
-  public static DivTag makeAlert(String text, Optional<String> maybeTitle, String... classes) {
+  public static DivTag makeAlert(String text, Optional<String> maybeTitle, boolean hidden, String... classes) {
     return div()
+        .withCondHidden(hidden)
         .withClasses("usa-alert", String.join(" ", classes))
         .with(
             div()
@@ -367,7 +371,16 @@ public final class ViewUtils {
                 .with(p().withClass("usa-alert__text").withText(text)));
   }
 
+  // Clean this up
+  public static DivTag makeAlert(String text, Optional<String> maybeTitle, String... classes) {
+    return makeAlert(text, maybeTitle, false, classes);
+  }
+
   public static DivTag makeAlertInfoSlim(String text) {
-    return makeAlert(text, Optional.empty(), BaseStyles.ALERT_INFO, BaseStyles.ALERT_SLIM);
+    return makeAlert(text, Optional.empty(), false, BaseStyles.ALERT_INFO, BaseStyles.ALERT_SLIM);
+  }
+
+  public static DivTag makeAlertInfoSlim(String text, boolean hidden, String classes) {
+    return makeAlert(text, Optional.empty(), hidden, BaseStyles.ALERT_INFO, BaseStyles.ALERT_SLIM, classes);
   }
 }
