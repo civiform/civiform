@@ -18,6 +18,7 @@ import forms.QuestionFormBuilder;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import java.util.Optional;
@@ -28,8 +29,10 @@ import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.export.CsvExporterService;
+import services.question.QuestionService;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.AnswerActionType;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -58,6 +61,7 @@ public final class QuestionEditView extends BaseHtmlView {
   private final Messages messages;
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final SettingsManifest settingsManifest;
+  private final QuestionService questionService;
 
   private static final String NO_ENUMERATOR_DISPLAY_STRING = "does not repeat";
   private static final String NO_ENUMERATOR_ID_STRING = "";
@@ -69,12 +73,14 @@ public final class QuestionEditView extends BaseHtmlView {
       AdminLayoutFactory layoutFactory,
       MessagesApi messagesApi,
       FileUploadViewStrategy fileUploadViewStrategy,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      QuestionService questionService) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.questionService = checkNotNull(questionService);
   }
 
   /** Render a fresh New Question Form. */
@@ -431,6 +437,10 @@ public final class QuestionEditView extends BaseHtmlView {
     if (settingsManifest.getUniversalQuestions(request)) {
       questionSettingsContentBuilder.add(buildUniversalQuestion(questionForm));
     }
+    if (questionForm.getEnumeratorId().isEmpty()
+        && AnswerActionType.getActionableTypes().contains(questionType)) {
+      questionSettingsContentBuilder.add(buildActionsSection(questionForm));
+    }
     if (!CsvExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
       questionSettingsContentBuilder.add(buildDemographicFields(questionForm, submittable));
     }
@@ -443,6 +453,55 @@ public final class QuestionEditView extends BaseHtmlView {
     }
 
     return formTag;
+  }
+
+  private FieldsetTag buildActionsSection(QuestionForm questionForm) {
+    FieldsetTag result =
+        fieldset()
+            .withId("answer-actions")
+            .with(legend("Answer Actions").withClass(BaseStyles.INPUT_LABEL));
+    AnswerActionType.getActionsForQuestionType(questionForm.getQuestionType())
+        .forEach(
+            action -> {
+              Optional<QuestionDefinition> currentQuestionForAction =
+                  questionService.getReadOnlyQuestionServiceSync().getUpToDateQuestions().stream()
+                      .filter(qd -> qd.getActions().contains(action))
+                      .findFirst();
+              boolean differentQuestionHasAction =
+                  currentQuestionForAction
+                      .map(question -> !question.getName().equals(questionForm.getQuestionName()))
+                      .orElse(false);
+              DivTag actionSubsection =
+                  div()
+                      .withClass("cf-action-subsection")
+                      .with(
+                          p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
+                              .with(
+                                  span(action.name()),
+                                  ViewUtils.makeToggleButton(
+                                      /* fieldName= */ action.getFieldName(),
+                                      /* enabled= */ questionForm.actions().contains(action),
+                                      /* idPrefix= */ Optional.of(action.getFieldName()),
+                                      /* text= */ Optional.of(action.getDescription()),
+                                      /* hidden= */ !questionForm.isUniversal()
+                                          || differentQuestionHasAction)));
+              actionSubsection.with(
+                  ViewUtils.makeAlertInfoSlim(
+                      "You cannot set this action since the question is not a universal question.",
+                      /* hidden= */ questionForm.isUniversal(),
+                      /* classes= */ "cf-action-universal-alert"));
+              actionSubsection.condWith(
+                  differentQuestionHasAction,
+                  ViewUtils.makeAlertInfoSlim(
+                      String.format(
+                          "You cannot set this action since this action is already set on a"
+                              + " question named %s.",
+                          currentQuestionForAction.map(QuestionDefinition::getName).orElse("")),
+                      /* hidden= */ false,
+                      /* classes= */ "cf-action-already-set-alert"));
+              result.with(actionSubsection);
+            });
+    return result;
   }
 
   private DomContent buildUniversalQuestion(QuestionForm questionForm) {
@@ -458,7 +517,8 @@ public final class QuestionEditView extends BaseHtmlView {
                 /* fieldName= */ "isUniversal",
                 /* enabled= */ questionForm.isUniversal(),
                 /* idPrefix= */ Optional.of("universal"),
-                /* text= */ Optional.of("Set as a universal question")));
+                /* text= */ Optional.of("Set as a universal question"),
+                /* hidden= */ false));
   }
 
   private DomContent buildDemographicFields(QuestionForm questionForm, boolean submittable) {
