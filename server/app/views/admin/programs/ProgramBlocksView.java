@@ -195,7 +195,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                     .attr("hx-trigger", "load")
                                     .attr(
                                         "hx-vals",
-                                      HtmxVals.serializeVals("programDisplayType", programDisplayType.name())))
+                                        HtmxVals.serializeVals(
+                                            "programDisplayType", programDisplayType.name())))
                             .with(
                                 renderBlockPanel(
                                     programDefinition,
