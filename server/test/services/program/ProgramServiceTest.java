@@ -433,12 +433,7 @@ public class ProgramServiceTest extends ResetPostgres {
   public void validateProgramDataForCreate_returnsErrors() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
-            "",
-            "",
-            "",
-            "",
-            DisplayMode.PUBLIC.getValue(),
-            ImmutableList.copyOf(new ArrayList<>()));
+            "", "", "", "", DisplayMode.PUBLIC.getValue(), ImmutableList.copyOf(new ArrayList<>()));
 
     assertThat(result)
         .containsExactlyInAnyOrder(
