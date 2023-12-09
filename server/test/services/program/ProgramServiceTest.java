@@ -485,6 +485,7 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition originalProgramDefinition =
         ps.createProgramDefinition(
                 "name-one",
+                "description",
                 "display name",
                 "display description",
                 "",
