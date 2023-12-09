@@ -463,8 +463,7 @@ public class ProgramServiceTest extends ResetPostgres {
   public void validateProgramDataForCreate_requiresTIListInSelectTiMode() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
-            "description",
-            "display name",
+            "program",
             "display desc",
             "https://usa.gov",
             DisplayMode.SELECT_TI.getValue(),
@@ -474,7 +473,6 @@ public class ProgramServiceTest extends ResetPostgres {
         .containsExactly(
             CiviFormError.of("One or more TI Org must be selected for program visibility"));
   }
-
   @Test
   public void validateProgramDataForCreate_protectsAgainstProgramSlugCollisions() {
     // Two programs with names that are different but slugify to same value.
@@ -517,7 +515,7 @@ public class ProgramServiceTest extends ResetPostgres {
   public void validateProgramDataForCreate_returnsNoErrorsForValidData() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
-            "description",
+            "name-two",
             "display name",
             "display description",
             "https://usa.gov",
@@ -534,7 +532,7 @@ public class ProgramServiceTest extends ResetPostgres {
     tiGroups.add(3L);
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
-            "description",
+            "name-two",
             "display name",
             "display description",
             "https://usa.gov",
