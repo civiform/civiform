@@ -445,10 +445,10 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   @Parameters({"name with spaces", "DiFfErEnT-cAsEs", "special-characters-$#@"})
-  public void validateProgramDataForCreate_requiresSlug() {
+  public void validateProgramDataForCreate_requiresSlug(String adminName)) {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
-            "description",
+            adminName,
             "display name",
             "display desc",
             "https://usa.gov",
@@ -485,7 +485,6 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition originalProgramDefinition =
         ps.createProgramDefinition(
                 "name-one",
-                "description",
                 "display name",
                 "display description",
                 "",
@@ -505,7 +504,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
-            "description",
+            "name-one",
             "display name",
             "display desc",
             "https://usa.gov",
@@ -647,8 +646,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getErrors())
         .containsOnly(
             CiviFormError.of("A public display name for the program is required"),
-            CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program note is required"));
+            CiviFormError.of("A public description for the program is required"));
   }
 
   @Test
