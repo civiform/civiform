@@ -464,6 +464,7 @@ public class ProgramServiceTest extends ResetPostgres {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
             "program",
+            "display name",
             "display desc",
             "https://usa.gov",
             DisplayMode.SELECT_TI.getValue(),
@@ -473,6 +474,7 @@ public class ProgramServiceTest extends ResetPostgres {
         .containsExactly(
             CiviFormError.of("One or more TI Org must be selected for program visibility"));
   }
+
   @Test
   public void validateProgramDataForCreate_protectsAgainstProgramSlugCollisions() {
     // Two programs with names that are different but slugify to same value.
