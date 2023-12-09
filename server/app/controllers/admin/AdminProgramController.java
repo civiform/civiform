@@ -111,7 +111,6 @@ public final class AdminProgramController extends CiviFormController {
     ImmutableSet<CiviFormError> errors =
         programService.validateProgramDataForCreate(
             programData.getAdminName(),
-            programData.getAdminDescription(),
             programData.getLocalizedDisplayName(),
             programData.getLocalizedDisplayDescription(),
             programData.getExternalLink(),
@@ -232,7 +231,6 @@ public final class AdminProgramController extends CiviFormController {
     // Display any errors with the form input to the user.
     ImmutableSet<CiviFormError> validationErrors =
         programService.validateProgramDataForUpdate(
-            programData.getAdminDescription(),
             programData.getLocalizedDisplayName(),
             programData.getLocalizedDisplayDescription(),
             programData.getExternalLink(),

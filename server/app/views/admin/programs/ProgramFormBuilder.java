@@ -119,6 +119,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setId("program-display-description-textarea")
             .setFieldName("localizedDisplayDescription")
             .setLabelText("Describe this program for the public")
+            .setRequired(true)
             .setValue(displayDescription)
             .getTextareaTag(),
         programUrlField(adminName, editExistingProgram),
@@ -183,7 +184,6 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
             .setLabelText("Program note for administrative use only")
-            .setRequired(true)
             .setValue(adminDescription)
             .getTextareaTag());
     if (settingsManifest.getIntakeFormEnabled(request)) {
