@@ -437,7 +437,6 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "",
             "",
-            "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.copyOf(new ArrayList<>()));
 
@@ -451,10 +450,9 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   @Parameters({"name with spaces", "DiFfErEnT-cAsEs", "special-characters-$#@"})
-  public void validateProgramDataForCreate_requiresSlug(String adminName) {
+  public void validateProgramDataForCreate_requiresSlug() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
-            adminName,
             "description",
             "display name",
             "display desc",
@@ -472,7 +470,6 @@ public class ProgramServiceTest extends ResetPostgres {
   public void validateProgramDataForCreate_requiresTIListInSelectTiMode() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
-            "program",
             "description",
             "display name",
             "display desc",
@@ -529,7 +526,6 @@ public class ProgramServiceTest extends ResetPostgres {
 
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
-            "name-one",
             "description",
             "display name",
             "display desc",
@@ -544,7 +540,6 @@ public class ProgramServiceTest extends ResetPostgres {
   public void validateProgramDataForCreate_returnsNoErrorsForValidData() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
-            "name-two",
             "description",
             "display name",
             "display description",
@@ -562,7 +557,6 @@ public class ProgramServiceTest extends ResetPostgres {
     tiGroups.add(3L);
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
-            "name-two",
             "description",
             "display name",
             "display description",
