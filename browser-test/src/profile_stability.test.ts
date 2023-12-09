@@ -10,13 +10,13 @@ describe('user HTTP sessions', () => {
     clientName: string
   }
 
-  // TODO(#6069): Get this to work as a prober test.
-  if (isHermeticTestEnvironment()) {
-    // This test ensures that an existing user profile, stored in a browser cookie,
-    // is recognized and properly deserialized by the server.
-    //
-    // This guards against changes that unexpectedly affect serialization.
-    it('recognizes the profile from a frozen cookie', async () => {
+  // This test ensures that an existing user profile, stored in a browser cookie,
+  // is recognized and properly deserialized by the server.
+  //
+  // This guards against changes that unexpectedly affect serialization.
+  it('recognizes the profile from a frozen cookie', async () => {
+    // TODO(#6069): Get this to work as a prober test.
+    if (isHermeticTestEnvironment()) {
       const {hostname} = new URL(BASE_URL)
       const frozenCookie = {
         name: 'PLAY_SESSION',
@@ -41,6 +41,6 @@ describe('user HTTP sessions', () => {
         expect(profile.roles[0]).toEqual('ROLE_APPLICANT')
         expect(profile.clientName).toEqual('GuestClient')
       }
-    })
-  }
+    }
+  })
 })
