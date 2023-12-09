@@ -341,12 +341,7 @@ public final class ProgramService {
       ImmutableList<Long> tiGroups) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     errorsBuilder.addAll(
-        validateProgramData(
-            displayName,
-            displayDescription,
-            externalLink,
-            displayMode,
-            tiGroups));
+        validateProgramData(displayName, displayDescription, externalLink, displayMode, tiGroups));
     if (adminName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
