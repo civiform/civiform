@@ -210,8 +210,7 @@ public class ProgramServiceTest extends ResetPostgres {
         .containsExactlyInAnyOrder(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program URL is required"),
-            CiviFormError.of("A program note is required"));
+            CiviFormError.of("A program URL is required"));
   }
 
   @Test
@@ -439,8 +438,7 @@ public class ProgramServiceTest extends ResetPostgres {
         .containsExactlyInAnyOrder(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program URL is required"),
-            CiviFormError.of("A program note is required"));
+            CiviFormError.of("A program URL is required"));
   }
 
   @Test

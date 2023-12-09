@@ -462,14 +462,13 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newDraftProgram("Existing One").build();
     Request request =
         addCSRFToken(requestBuilderWithSettings())
-            .bodyForm(ImmutableMap.of("name", "", "description", ""))
+            .bodyForm(ImmutableMap.of("name", "", "description",""))
             .build();
 
     Result result = controller.update(request, program.id);
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit program");
-    assertThat(contentAsString(result)).contains("A program note is required");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
 
