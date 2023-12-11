@@ -1,7 +1,7 @@
 package forms;
 
 /** Form for editing TI client information. */
-public class EditTiClientInfoForm {
+public final class EditTiClientInfoForm {
   private String firstName;
   private String middleName;
   private String lastName;
