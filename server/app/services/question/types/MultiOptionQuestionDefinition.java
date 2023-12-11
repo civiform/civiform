@@ -40,6 +40,7 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
     this.questionOptions = questionOptions;
     this.multiOptionQuestionType = multiOptionQuestionType;
   }
+
   // If we are using a dropdown or radio button, set the SINGLE_SELECT_PREDICATE to ensure
   // only one selection can be made.
   private static QuestionDefinitionConfig fixValidationPredicates(

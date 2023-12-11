@@ -4,8 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import controllers.AssetsFinder;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.ScriptTag;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -14,6 +16,7 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.quality.Strictness;
 import services.DateConverter;
+import views.style.BaseStyles;
 
 public class ViewUtilsTest {
 
@@ -46,5 +49,27 @@ public class ViewUtilsTest {
 
     assertThat(result.render())
         .isEqualTo("<link href=\"/full/asset/path.css\" rel=\"stylesheet\">");
+  }
+
+  @Test
+  public void makeAlert_createsAlertComponentWithTheCorrectClasses() {
+    DivTag alertComponent =
+        ViewUtils.makeAlert(
+            "some text", Optional.of("title"), BaseStyles.ALERT_INFO, BaseStyles.ALERT_SLIM);
+    assertThat(alertComponent.render())
+        .isEqualTo(
+            "<div class=\"usa-alert usa-alert--info usa-alert--slim\"><div"
+                + " class=\"usa-alert__body\"><h4 class=\"usa-alert__heading\">title</h4><p"
+                + " class=\"usa-alert__text\">some text</p></div></div>");
+  }
+
+  @Test
+  public void makeAlert_doesNotIncludeTitleIfNoneIsPresent() {
+    DivTag alertComponent =
+        ViewUtils.makeAlert("some text", Optional.empty(), BaseStyles.ALERT_WARNING);
+    assertThat(alertComponent.render())
+        .isEqualTo(
+            "<div class=\"usa-alert usa-alert--warning\"><div class=\"usa-alert__body\"><p"
+                + " class=\"usa-alert__text\">some text</p></div></div>");
   }
 }

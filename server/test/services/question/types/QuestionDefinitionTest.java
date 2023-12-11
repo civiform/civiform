@@ -1,6 +1,7 @@
 package services.question.types;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.google.common.collect.ImmutableList;
@@ -370,6 +371,20 @@ public class QuestionDefinitionTest {
   }
 
   @Test
+  public void validate_nameIsNotEntityMetadata() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            configBuilder
+                .setName("entity metadata")
+                .setDescription("test")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "Entity Metadata Test"))
+                .build());
+    assertThat(question.validate())
+        .containsOnly(
+            CiviFormError.of("Administrative identifier 'entity metadata' is not allowed"));
+  }
+
+  @Test
   public void validate_multiOptionQuestion_withoutOptions_returnsError() {
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()
@@ -476,6 +491,92 @@ public class QuestionDefinitionTest {
             CiviFormError.of(
                 "Multi-option admin names can only contain letters, numbers, underscores, and"
                     + " dashes"));
+  }
+
+  @Test
+  public void
+      validate_multiOptionQuestion_withInvalidOptionAdminNameInPreviousDefinition_doesNotReturnError() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("test")
+            .setDescription("test")
+            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    ImmutableList<QuestionOption> previousQuestionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "a' invalid", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "b_valid", LocalizedStrings.withDefaultValue("b")));
+    QuestionDefinition previousQuestion =
+        new MultiOptionQuestionDefinition(
+            config, previousQuestionOptions, MultiOptionQuestionType.CHECKBOX);
+
+    ImmutableList<QuestionOption> updatedQuestionOptions =
+        ImmutableList.<QuestionOption>builder()
+            .addAll(previousQuestionOptions)
+            .add(QuestionOption.create(2L, "c_valid", LocalizedStrings.withDefaultValue("c")))
+            .build();
+    QuestionDefinition updatedQuestion =
+        new MultiOptionQuestionDefinition(
+            config, updatedQuestionOptions, MultiOptionQuestionType.CHECKBOX);
+
+    assertThat(updatedQuestion.validate(Optional.of(previousQuestion))).isEmpty();
+  }
+
+  @Test
+  public void
+      validate_multiOptionQuestion_withInvalidOptionAdminNameInPreviousAndUpdatedDefinition_returnsError() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("test")
+            .setDescription("test")
+            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    ImmutableList<QuestionOption> previousQuestionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "a' invalid", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "b_valid", LocalizedStrings.withDefaultValue("b")));
+    QuestionDefinition previousQuestion =
+        new MultiOptionQuestionDefinition(
+            config, previousQuestionOptions, MultiOptionQuestionType.CHECKBOX);
+
+    ImmutableList<QuestionOption> updatedQuestionOptions =
+        ImmutableList.<QuestionOption>builder()
+            .addAll(previousQuestionOptions)
+            .add(QuestionOption.create(2L, "c invalid", LocalizedStrings.withDefaultValue("c")))
+            .build();
+    QuestionDefinition updatedQuestion =
+        new MultiOptionQuestionDefinition(
+            config, updatedQuestionOptions, MultiOptionQuestionType.CHECKBOX);
+
+    assertThat(updatedQuestion.validate(Optional.of(previousQuestion)))
+        .containsOnly(
+            CiviFormError.of(
+                "Multi-option admin names can only contain letters, numbers, underscores, and"
+                    + " dashes"));
+  }
+
+  @Test
+  public void validate_throwsExceptionWhenQuestionTypesMismatched() {
+    QuestionDefinitionConfig config = configBuilder.build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "a_one-1", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "b_two-2", LocalizedStrings.withDefaultValue("b")));
+    QuestionDefinition previousQuestion =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.CHECKBOX);
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.DROPDOWN);
+
+    var throwableAssert =
+        assertThatThrownBy(() -> question.validate(Optional.of(previousQuestion)))
+            .isInstanceOf(IllegalArgumentException.class);
+    throwableAssert.hasMessage(
+        "The previous version of the question definition must be of the same question type as the"
+            + " updated version.");
   }
 
   private static ImmutableList<Object[]> getMultiOptionQuestionValidationTestData() {

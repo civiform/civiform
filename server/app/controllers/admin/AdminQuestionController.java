@@ -150,7 +150,7 @@ public final class AdminQuestionController extends CiviFormController {
 
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = getBuilder(Optional.empty(), questionForm).build();
+      questionDefinition = questionForm.getBuilder().build();
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       return badRequest(e.getMessage());
@@ -290,7 +290,7 @@ public final class AdminQuestionController extends CiviFormController {
 
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndUpdatedQuestionDefinition;
     try {
-      errorAndUpdatedQuestionDefinition = service.update(questionDefinition);
+      errorAndUpdatedQuestionDefinition = service.update(maybeExisting, questionDefinition);
     } catch (InvalidUpdateException e) {
       // Ill-formed update request.
       return badRequest(e.toString());
