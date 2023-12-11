@@ -44,9 +44,8 @@ export class TIDashboard {
     const rowText = await row.innerText()
     expect(rowText).toContain(client.emailAddress)
     // date of birth rendered as <input> rather than plain text.
-    expect(await row.locator('input[name="dob"]').inputValue()).toEqual(
-      client.dobDate,
-    )
+    expect(rowText).toContain(client.dobDate);
+    
   }
 
   async expectDashboardNotContainClient(client: ClientInformation) {
