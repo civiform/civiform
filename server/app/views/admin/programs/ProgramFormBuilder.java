@@ -184,7 +184,6 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
             .setLabelText("Program note for administrative use only")
-            .setRequired(true)
             .setValue(adminDescription)
             .getTextareaTag());
     if (settingsManifest.getIntakeFormEnabled(request)) {

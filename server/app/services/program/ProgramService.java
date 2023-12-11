@@ -66,7 +66,6 @@ public final class ProgramService {
       "A public description for the program is required";
   private static final String MISSING_DISPLAY_MODE_MSG =
       "A program visibility option must be selected";
-  private static final String MISSING_ADMIN_DESCRIPTION_MSG = "A program note is required";
   private static final String MISSING_ADMIN_NAME_MSG = "A program URL is required";
   private static final String INVALID_ADMIN_NAME_MSG =
       "A program URL may only contain lowercase letters, numbers, and dashes";
@@ -280,7 +279,6 @@ public final class ProgramService {
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForCreate(
             adminName,
-            adminDescription,
             defaultDisplayName,
             defaultDisplayDescription,
             externalLink,
@@ -327,7 +325,6 @@ public final class ProgramService {
    *
    * @param adminName a name for this program for internal use by admins - this is immutable once
    *     set
-   * @param adminDescription the description of this program - visible only to admins
    * @param displayName a name for this program
    * @param displayDescription the description of what the program provides
    * @param externalLink A link to an external page containing additional program details
@@ -337,7 +334,6 @@ public final class ProgramService {
    */
   public ImmutableSet<CiviFormError> validateProgramDataForCreate(
       String adminName,
-      String adminDescription,
       String displayName,
       String displayDescription,
       String externalLink,
@@ -345,13 +341,7 @@ public final class ProgramService {
       ImmutableList<Long> tiGroups) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     errorsBuilder.addAll(
-        validateProgramData(
-            adminDescription,
-            displayName,
-            displayDescription,
-            externalLink,
-            displayMode,
-            tiGroups));
+        validateProgramData(displayName, displayDescription, externalLink, displayMode, tiGroups));
     if (adminName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
@@ -412,7 +402,7 @@ public final class ProgramService {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForUpdate(
-            adminDescription, displayName, displayDescription, externalLink, displayMode, tiGroups);
+            displayName, displayDescription, externalLink, displayMode, tiGroups);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -520,7 +510,6 @@ public final class ProgramService {
    * Checks if the provided data would be valid to update an existing program with. Does not
    * actually update any programs.
    *
-   * @param adminDescription the description of this program - visible only to admins
    * @param displayName a name for this program
    * @param displayDescription the description of what the program provides
    * @param externalLink A link to an external page containing additional program details
@@ -528,14 +517,13 @@ public final class ProgramService {
    * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
    */
   public ImmutableSet<CiviFormError> validateProgramDataForUpdate(
-      String adminDescription,
       String displayName,
       String displayDescription,
       String externalLink,
       String displayMode,
       ImmutableList<Long> tiGroups) {
     return validateProgramData(
-        adminDescription, displayName, displayDescription, externalLink, displayMode, tiGroups);
+        displayName, displayDescription, externalLink, displayMode, tiGroups);
   }
 
   /** Create a new draft starting from the program specified by `id`. */
@@ -549,7 +537,6 @@ public final class ProgramService {
   }
 
   private ImmutableSet<CiviFormError> validateProgramData(
-      String adminDescription,
       String displayName,
       String displayDescription,
       String externalLink,
@@ -566,9 +553,6 @@ public final class ProgramService {
     }
     if (displayMode.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_MODE_MSG));
-    }
-    if (adminDescription.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_DESCRIPTION_MSG));
     }
     if (!isValidAbsoluteLink(externalLink)) {
       errorsBuilder.add(CiviFormError.of(INVALID_PROGRAM_LINK_FORMAT_MSG));

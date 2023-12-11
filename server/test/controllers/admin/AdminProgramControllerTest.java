@@ -453,7 +453,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .bodyForm(ImmutableMap.of("name", "name", "description", "description"))
             .build();
 
-    assertThatThrownBy(() -> controller.update(request, /*programId =*/ 1L))
+    assertThatThrownBy(() -> controller.update(request, /* programId= */ 1L))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -469,7 +469,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit program");
-    assertThat(contentAsString(result)).contains("A program note is required");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
 
@@ -684,7 +683,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .bodyForm(ImmutableMap.of("eligibilityIsGating", "true"))
             .build();
 
-    assertThatThrownBy(() -> controller.setEligibilityIsGating(request, /* programId=*/ 1L))
+    assertThatThrownBy(() -> controller.setEligibilityIsGating(request, /* programId= */ 1L))
         .isInstanceOf(NotChangeableException.class);
   }
 
