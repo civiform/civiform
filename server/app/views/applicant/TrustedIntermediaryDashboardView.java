@@ -1,9 +1,12 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.hr;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.table;
@@ -38,6 +41,7 @@ import services.applicant.ApplicantPersonalInfo;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.ti.TrustedIntermediaryGroupListView;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
@@ -75,11 +79,13 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .addMainContent(
                 renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
                 hr(),
-                renderHeader("Add Client").withId("add-client"),
-                requiredFieldsExplanationContent(),
-                renderAddNewForm(tiGroup, request),
-                hr().withClasses("mt-6"),
-                renderHeader("Clients"),
+                //                renderHeader("Add Client").withId("add-client"),
+                //                requiredFieldsExplanationContent(),
+
+                //                renderAddNewForm(tiGroup, request),
+                //                hr().withClasses("mt-6"),
+                div(renderHeader("Clients").withClass("mb-0"), createModal(tiGroup, request))
+                    .withClasses("flex", "justify-between", "items-center", "mb-4"),
                 renderSearchForm(request, searchParameters),
                 renderTIApplicantsTable(
                     managedAccounts, searchParameters, page, totalPageCount, request),
@@ -98,6 +104,67 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       bundle.addToastMessages(ToastMessage.success(flash.get("success").get()).setDuration(-1));
     }
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
+  }
+
+  private DivTag createModal(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
+    String modalId = "new-client-modal";
+    String headingId = "new-client-heading";
+    String descriptionId = "new-client-description";
+
+    DivTag modalContent =
+        div()
+            .withClass("usa-modal")
+            .withId(modalId)
+            .attr("aria-labelledby", headingId)
+            .attr("aria-describedby", descriptionId)
+            .with(
+                div()
+                    .withClass("usa-modal__content")
+                    .with(
+                        div()
+                            .withClasses("mx-4", "usa-modal__main")
+                            .with(
+                                h2("Add new client")
+                                    .withClass("usa-modal__heading")
+                                    .withId(headingId))
+                            .with(
+                                div()
+                                    .withClasses("my-6", "usa-prose")
+                                    .with(renderAddNewForm(tiGroup, request))
+                                    .withId(descriptionId)))
+                    //          .with(div().withClass("usa-modal__footer")
+                    //            .with(ul().withClass("usa-button-group")
+                    //              .with(li().withClass("usa-button-group__item")
+                    //
+                    // .with(button("Save").withType("button").withClass("usa-button").attr("data-close-modal")))
+                    //              .with(li().withClass("usa-button-group__item")
+                    //
+                    // .with(button("Cancel").withType("button").withClass("usa-button
+                    // usa-button--unstyled padding-105 text-center").attr("data-close-modal")))))
+                    .with(
+                        BaseHtmlView.iconOnlyButton("Close this window")
+                            .withClasses(
+                                "usa-button usa-modal__close", ButtonStyles.CLEAR_WITH_ICON, "pt-4")
+                            .attr("data-close-modal")
+                            .with(
+                                Icons.svg(Icons.CLOSE)
+                                    .withClasses("usa-icon")
+                                    .attr("aria-hidden", "true")
+                                    .attr("focusable", "false")
+                                    .attr("role", "img"))));
+
+    DivTag container =
+        div()
+            .withClass("margin-y-3")
+            .with(
+                a("Add new client")
+                    .withHref("#" + modalId)
+                    .withClasses("usa-button", "bg-blue-600")
+                    .attr("aria-controls", modalId)
+                    .attr("data-open-modal"))
+            .with(modalContent);
+
+    return container;
   }
 
   private FormTag renderSearchForm(Http.Request request, SearchParameters searchParameters) {
@@ -175,7 +242,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         this::renderTIRow))));
   }
 
-  private DivTag renderAddNewForm(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
+  private FormTag renderAddNewForm(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
     FormTag formTag =
         form()
             .withMethod("POST")
@@ -221,17 +288,20 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                     + " organization will be responsible for communicating updates to your"
                     + " client.")
             .setValue(request.flash().get("providedEmail").orElse(""));
-    return div()
-        .with(
-            formTag.with(
-                emailField.getEmailTag(),
-                firstNameField.getInputTag(),
-                middleNameField.getInputTag(),
-                lastNameField.getInputTag(),
-                dateOfBirthField.getDateTag(),
-                makeCsrfTokenInputTag(request),
-                submitButton("Add").withClasses("ml-2", "mb-6")))
-        .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
+    return formTag.with(
+        emailField.getEmailTag(),
+        firstNameField.getInputTag(),
+        middleNameField.getInputTag(),
+        lastNameField.getInputTag(),
+        dateOfBirthField.getDateTag(),
+        makeCsrfTokenInputTag(request),
+        div()
+            .withClasses("mt-10", "flex", "flex-col")
+            .with(
+                submitButton("Save").attr("data-close-modal").withClasses(ButtonStyles.SOLID_BLUE),
+                button("Cancel")
+                    .attr("data-close-modal")
+                    .withClasses("mt-2", ButtonStyles.OUTLINED_TRANSPARENT)));
   }
 
   private TrTag renderTIRow(AccountModel ti) {
