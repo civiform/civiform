@@ -745,7 +745,7 @@
       },
       "NEW_APPLICANT_URL_SCHEMA_ENABLED": {
         "mode": "HIDDEN",
-        "description": "(NOT FOR PRODUCTION USE) Enables new URL schema that removes applicant ID from applicant actions.",
+        "description": "Enables new URL schema that removes applicant ID from applicant actions.",
         "type": "bool"
       }
     }

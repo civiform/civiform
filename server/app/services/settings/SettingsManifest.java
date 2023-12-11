@@ -885,10 +885,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE", request);
   }
 
-  /**
-   * (NOT FOR PRODUCTION USE) Enables new URL schema that removes applicant ID from applicant
-   * actions.
-   */
+  /** Enables new URL schema that removes applicant ID from applicant actions. */
   public boolean getNewApplicantUrlSchemaEnabled() {
     return getBool("NEW_APPLICANT_URL_SCHEMA_ENABLED");
   }
@@ -1845,8 +1842,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "NEW_APPLICANT_URL_SCHEMA_ENABLED",
-                      "(NOT FOR PRODUCTION USE) Enables new URL schema that removes applicant ID"
-                          + " from applicant actions.",
+                      "Enables new URL schema that removes applicant ID from applicant actions.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.HIDDEN))),
