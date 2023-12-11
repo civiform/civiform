@@ -27,7 +27,7 @@ lazy val root = (project in file("."))
       "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.16.0",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.16.0",
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.16.0",
-      "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
+      "com.google.inject.extensions" % "guice-assistedinject" % "7.0.0",
 
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
