@@ -478,16 +478,16 @@ public class ProgramServiceTest extends ResetPostgres {
   @Test
   public void validateProgramDataForUpdate_requiresTIListInSELECT_TIMode() {
     ImmutableSet<CiviFormError> result =
-      ps.validateProgramDataForUpdate(
-        "description",
-        "display name",
-        "https://usa.gov",
-        DisplayMode.SELECT_TI.getValue(),
-        ImmutableList.copyOf(new ArrayList<>()));
+        ps.validateProgramDataForUpdate(
+            "description",
+            "display name",
+            "https://usa.gov",
+            DisplayMode.SELECT_TI.getValue(),
+            ImmutableList.copyOf(new ArrayList<>()));
 
     assertThat(result)
-      .containsExactly(
-        CiviFormError.of("One or more TI Org must be selected for program visibility"));
+        .containsExactly(
+            CiviFormError.of("One or more TI Org must be selected for program visibility"));
   }
 
   @Test
