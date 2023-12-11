@@ -327,8 +327,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_PROGRAM)
                     .with(
                         p(String.format(
-                                "%d draft " + programString + " will be published:",
-                                sortedDraftPrograms.size()))
+                                "%d draft %s will be published:",
+                                sortedDraftPrograms.size(), programString))
                             .withClass("font-bold text-lg"))
                     .condWith(sortedDraftPrograms.isEmpty(), p("None").withClass("pl-5"))
                     .condWith(
@@ -344,8 +344,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_QUESTION)
                     .with(
                         p(String.format(
-                                "%d draft " + questionString + " will be published:",
-                                sortedDraftQuestions.size()))
+                                "%d draft %s will be published:",
+                                sortedDraftQuestions.size(), questionString))
                             .withClass("font-bold text-lg"))
                     .condWith(sortedDraftQuestions.isEmpty(), p("None").withClass("pl-5"))
                     .condWith(
@@ -379,13 +379,13 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private LiTag renderPublishModalProgramItem(
       ProgramDefinition program, ImmutableList<Long> universalQuestionIds, Http.Request request) {
-    String visibilityText = "";
+    String visibilityText = " ";
     switch (program.displayMode()) {
       case HIDDEN_IN_INDEX:
-        visibilityText = " (Hidden from applicants)";
+        visibilityText = " (Hidden from applicants) ";
         break;
       case PUBLIC:
-        visibilityText = " (Publicly visible)";
+        visibilityText = " (Publicly visible) ";
         break;
       default:
         break;
@@ -405,14 +405,14 @@ public final class ProgramIndexView extends BaseHtmlView {
               + countTotalUniversalQuestions;
     }
 
-    boolean shouldShowUniversalQuestionsCount = settingsManifest.getUniversalQuestions(request);
+    boolean shouldShowUniversalQuestionsCount = settingsManifest.getUniversalQuestions(request) && !universalQuestionIds.isEmpty();
 
     return li().with(
             span(program.localizedName().getDefault()).withClasses("font-medium"),
-            span(visibilityText + " ")
+            span(visibilityText)
                 .condWith(
                     shouldShowUniversalQuestionsCount,
-                    span(" - " + "Contains " + universalQuestionsText + " universal questions ")),
+                    span(" - Contains " + universalQuestionsText + " universal questions ")),
             new LinkElement()
                 .setText("Edit")
                 .setHref(controllers.admin.routes.AdminProgramController.edit(program.id()).url())
