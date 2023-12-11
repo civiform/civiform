@@ -38,7 +38,7 @@
   "dependencies": {
     "@uswds/uswds": "^3.6.0",
     "cleave.js": "1.6.0",
-    "markdown-it": "^13.0.1"
+    "markdown-it": "^14.0.0"
   },
   "browserslist": [
     "> 2%",
