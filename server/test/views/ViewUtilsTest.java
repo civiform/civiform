@@ -7,6 +7,7 @@ import controllers.AssetsFinder;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.ScriptTag;
+import static j2html.TagCreator.p;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
@@ -71,5 +72,15 @@ public class ViewUtilsTest {
         .isEqualTo(
             "<div class=\"usa-alert usa-alert--warning\"><div class=\"usa-alert__body\"><p"
                 + " class=\"usa-alert__text\">some text</p></div></div>");
+  }
+
+  @Test
+  public void makeUSWDSModal_doesNotIncludeFooterIfHasFooterIsFalse() {
+    DivTag modal =
+      ViewUtils.makeUSWDSModal(p("Welcome to the test modal!"), "test-modal",
+        "header", "Button text", false, "", "");
+    assertThat(modal.render())
+      .doesNotContain("usa-modal__footer");
+
   }
 }
