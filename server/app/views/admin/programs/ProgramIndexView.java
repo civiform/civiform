@@ -93,6 +93,8 @@ public final class ProgramIndexView extends BaseHtmlView {
         "Create, edit and publish programs in "
             + settingsManifest.getWhitelabelCivicEntityShortName(request).get();
 
+    // TODO: Figure out how to simplify logic so getUpToDateQuestions() can be used in place of
+    // getActiveAndDraftQuestions()
     ImmutableList<Long> universalQuestionIds =
         readOnlyQuestionService.getUpToDateQuestions().stream()
             .filter(QuestionDefinition::isUniversal)
@@ -405,7 +407,8 @@ public final class ProgramIndexView extends BaseHtmlView {
               + countTotalUniversalQuestions;
     }
 
-    boolean shouldShowUniversalQuestionsCount = settingsManifest.getUniversalQuestions(request) && !universalQuestionIds.isEmpty();
+    boolean shouldShowUniversalQuestionsCount =
+        settingsManifest.getUniversalQuestions(request) && !universalQuestionIds.isEmpty();
 
     return li().with(
             span(program.localizedName().getDefault()).withClasses("font-medium"),
