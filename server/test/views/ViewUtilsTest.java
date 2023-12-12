@@ -1,5 +1,6 @@
 package views;
 
+import static j2html.TagCreator.p;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -7,7 +8,6 @@ import controllers.AssetsFinder;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.ScriptTag;
-import static j2html.TagCreator.p;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
@@ -77,10 +77,8 @@ public class ViewUtilsTest {
   @Test
   public void makeUSWDSModal_doesNotIncludeFooterIfHasFooterIsFalse() {
     DivTag modal =
-      ViewUtils.makeUSWDSModal(p("Welcome to the test modal!"), "test-modal",
-        "header", "Button text", false, "", "");
-    assertThat(modal.render())
-      .doesNotContain("usa-modal__footer");
-
+        ViewUtils.makeUSWDSModal(
+            p("Welcome to the test modal!"), "test-modal", "header", "Button text", false, "", "");
+    assertThat(modal.render()).doesNotContain("usa-modal__footer");
   }
 }
