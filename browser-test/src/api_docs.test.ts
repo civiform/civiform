@@ -1,6 +1,7 @@
 import {
   createTestContext,
   dropTables,
+  isHermeticTestEnvironment,
   loginAsAdmin,
   logout,
   seedPrograms,
@@ -20,7 +21,7 @@ describe('Viewing API docs', () => {
   it('Views active API docs', async () => {
     // TODO: fix the problem with these test on probers
     // https://github.com/civiform/civiform/issues/6158
-    if (isHermeticTestEnvironment())
+    if (isHermeticTestEnvironment()) {
       const {page, adminPrograms} = ctx
 
       await page.goto(BASE_URL)
@@ -80,20 +81,20 @@ describe('Viewing API docs', () => {
   })
 
   it('Views draft API docs when available', async () => {
-   if (isHermeticTestEnvironment()) {
-     const {page} = ctx
+    if (isHermeticTestEnvironment()) {
+      const {page} = ctx
 
-     await page.goto(BASE_URL)
-     await loginAsAdmin(page)
-     await page.click('text=API docs')
+      await page.goto(BASE_URL)
+      await loginAsAdmin(page)
+      await page.click('text=API docs')
 
-     await page.selectOption('#select-slug', {value: 'minimal-sample-program'})
-     await page.selectOption('#select-version', {value: 'draft'})
-     expect(await page.textContent('html')).toContain(
-       '"program_name" : "minimal-sample-program"',
-     )
-     await validateScreenshot(page, 'draft-available')
-   }
+      await page.selectOption('#select-slug', {value: 'minimal-sample-program'})
+      await page.selectOption('#select-version', {value: 'draft'})
+      expect(await page.textContent('html')).toContain(
+        '"program_name" : "minimal-sample-program"',
+      )
+      await validateScreenshot(page, 'draft-available')
+    }
   })
 
   it('Shows error on draft API docs when no draft available', async () => {
