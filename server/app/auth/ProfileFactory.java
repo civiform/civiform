@@ -52,14 +52,14 @@ public final class ProfileFactory {
   public CiviFormProfileData createNewApplicant() {
     CiviFormProfileData profileData = create(new Role[] {Role.ROLE_APPLICANT});
 
-    // Store the applicant id in the profile.
-    //
-    // The profile ID corresponds to the *account* id, but controllers need the applicant id. We
-    // store it in the profile for easy retrieval without a db lookup.
-    wrapProfileData(profileData)
-        .getAccount()
-        .thenAccept(account -> profileData.populateApplicantId(account))
-        .join();
+    if (settingsManifest.getNewApplicantUrlSchemaEnabled()) {
+      // Store the applicant id in the profile.
+      //
+      // The profile ID corresponds to the *account* id, but controllers need the applicant id. We
+      // store it in the profile for easy retrieval without a db lookup.
+      CiviFormProfile profile = wrapProfileData(profileData);
+      profile.getAccount().thenAccept(account -> profile.storeApplicantIdInProfile(account)).join();
+    }
 
     return profileData;
   }
@@ -121,7 +121,7 @@ public final class ProfileFactory {
   public CiviFormProfile wrap(ApplicantModel applicant) {
     CiviFormProfileData profileData = new CiviFormProfileData(applicant.getAccount().id);
     CiviFormProfile profile = wrapProfileData(profileData);
-    profile.getAccount().thenAccept(account -> profileData.populateApplicantId(account)).join();
+    profile.getAccount().thenAccept(account -> profile.storeApplicantIdInProfile(account)).join();
     return profile;
   }
 

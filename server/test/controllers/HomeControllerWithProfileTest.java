@@ -45,6 +45,7 @@ public class HomeControllerWithProfileTest extends WithMockedProfiles {
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    when(mockSettingsManifest.getNewApplicantUrlSchemaEnabled()).thenReturn(true);
     LanguageUtils languageUtils =
         new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
 
@@ -55,8 +56,9 @@ public class HomeControllerWithProfileTest extends WithMockedProfiles {
             instanceOf(MessagesApi.class),
             instanceOf(HttpExecutionContext.class),
             languageUtils,
-            new ApplicantRoutes());
+            new ApplicantRoutes(mockSettingsManifest));
     Result result = controller.index(fakeRequest().build()).toCompletableFuture().join();
-    assertThat(result.redirectLocation()).hasValue("/programs");
+    assertThat(result.redirectLocation()).isNotEmpty();
+    assertThat(result.redirectLocation().orElseThrow()).endsWith("/programs");
   }
 }

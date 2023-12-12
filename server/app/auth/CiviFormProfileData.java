@@ -1,6 +1,5 @@
 package auth;
 
-import static auth.ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
@@ -84,17 +83,5 @@ public class CiviFormProfileData extends CommonProfile {
             },
             dbContext)
         .join();
-  }
-
-  /**
-   * Stores applicant id in user profile.
-   *
-   * <p>This allows us to know the applicant id instead of having to specify it in the URL path, or
-   * looking up the account each time and finding the corresponding applicant id.
-   */
-  public void populateApplicantId(AccountModel account) {
-    // Accounts correspond to a single applicant.
-    Long applicantId = account.ownedApplicantIds().stream().findAny().orElseThrow();
-    addAttribute(APPLICANT_ID_ATTRIBUTE_NAME, applicantId);
   }
 }

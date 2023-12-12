@@ -1,6 +1,8 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
@@ -12,6 +14,7 @@ import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
+import services.settings.SettingsManifest;
 
 public class ApplicantRoutesTest extends ResetPostgres {
 
@@ -19,6 +22,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   private static long applicantId = 123L;
   private static long applicantAccountId = 456L;
   private static long tiAccountId = 789L;
+  private static SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
 
   // Class to hold counter values.
   static class Counts {
@@ -43,13 +47,26 @@ public class ApplicantRoutesTest extends ResetPostgres {
     return counts;
   }
 
+  private void setNewApplicantUrlSchemaEnabled(boolean enabled) {
+    when(mockSettingsManifest.getNewApplicantUrlSchemaEnabled()).thenAnswer(invocation -> enabled);
+  }
+
+  private void enableNewApplicantUrlSchema() {
+    setNewApplicantUrlSchemaEnabled(true);
+  }
+
+  private void disableNewApplicantUrlSchema() {
+    setNewApplicantUrlSchemaEnabled(false);
+  }
+
   @Before
   public void setup() {
     profileFactory = instanceOf(ProfileFactory.class);
   }
 
   @Test
-  public void testIndexRouteForApplicantWithIdInProfile() {
+  public void testIndexRouteForApplicantWithIdInProfile_newSchemaEnabled() {
+    enableNewApplicantUrlSchema();
     Counts before = getApplicantIdInProfileCounts();
 
     CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
@@ -57,7 +74,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(applicantId));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
-    assertThat(new ApplicantRoutes().index(applicantProfile, applicantId).url())
+    assertThat(new ApplicantRoutes(mockSettingsManifest).index(applicantProfile, applicantId).url())
         .isEqualTo("/programs");
 
     Counts after = getApplicantIdInProfileCounts();
@@ -66,7 +83,27 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
+  public void testIndexRouteForApplicantWithIdInProfile_newSchemaDisabled() {
+    disableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(applicantId));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedIndexUrl = String.format("/applicants/%d/programs", applicantId);
+    assertThat(new ApplicantRoutes(mockSettingsManifest).index(applicantProfile, applicantId).url())
+        .isEqualTo(expectedIndexUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present + 1);
+    assertThat(after.absent).isEqualTo(before.absent);
+  }
+
+  @Test
   public void testIndexRouteForApplicantWithoutIdInProfile() {
+    enableNewApplicantUrlSchema();
     Counts before = getApplicantIdInProfileCounts();
 
     CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
@@ -74,7 +111,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedIndexUrl = String.format("/applicants/%d/programs", applicantId);
-    assertThat(new ApplicantRoutes().index(applicantProfile, applicantId).url())
+    assertThat(new ApplicantRoutes(mockSettingsManifest).index(applicantProfile, applicantId).url())
         .isEqualTo(expectedIndexUrl);
 
     Counts after = getApplicantIdInProfileCounts();
@@ -84,6 +121,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
   @Test
   public void testIndexRouteForTrustedIntermediary() {
+    enableNewApplicantUrlSchema();
     Counts before = getApplicantIdInProfileCounts();
 
     CiviFormProfileData profileData = new CiviFormProfileData(tiAccountId);
@@ -91,7 +129,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedIndexUrl = String.format("/applicants/%d/programs", applicantId);
-    assertThat(new ApplicantRoutes().index(tiProfile, applicantId).url())
+    assertThat(new ApplicantRoutes(mockSettingsManifest).index(tiProfile, applicantId).url())
         .isEqualTo(expectedIndexUrl);
 
     Counts after = getApplicantIdInProfileCounts();

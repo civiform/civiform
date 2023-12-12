@@ -1,11 +1,11 @@
 package auth;
 
+import static java.util.Comparator.comparing;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -48,7 +48,8 @@ public class CiviFormProfile {
 
   /** Get the latest {@link ApplicantModel} associated with the profile. */
   public CompletableFuture<ApplicantModel> getApplicant() {
-    if (profileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME)) {
+    if (settingsManifest.getNewApplicantUrlSchemaEnabled()
+        && profileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME)) {
       long applicantId =
           profileData.getAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, Long.class);
       return accountRepository
@@ -64,11 +65,12 @@ public class CiviFormProfile {
     // which requires an extra db fetch.
     return this.getAccount()
         .thenApplyAsync(
-            (a) ->
-                a.getApplicants().stream()
-                    .min(Comparator.comparing(ApplicantModel::getWhenCreated))
-                    .orElseThrow(),
-            httpContext.current());
+            (account) -> getApplicantForAccount(account).orElseThrow(), httpContext.current());
+  }
+
+  private Optional<ApplicantModel> getApplicantForAccount(AccountModel account) {
+    // Accounts (should) correspond to a single applicant.
+    return account.getApplicants().stream().min(comparing(ApplicantModel::getWhenCreated));
   }
 
   /** Look up the {@link AccountModel} associated with the profile from database. */
@@ -280,5 +282,36 @@ public class CiviFormProfile {
                   String.format(
                       "Account %s is not authorized to access program %s.", getId(), programName));
             });
+  }
+
+  /**
+   * Stores applicant id in user profile.
+   *
+   * <p>This allows us to know the applicant id instead of having to specify it in the URL path, or
+   * looking up the account each time and finding the corresponding applicant id.
+   */
+  void storeApplicantIdInProfile(Long applicantId) {
+    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
+      return;
+    }
+
+    if (!profileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME)) {
+      profileData.addAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, applicantId);
+    }
+  }
+
+  /**
+   * Stores applicant id corresponding to this account in user profile.
+   *
+   * <p>This allows us to know the applicant id instead of having to specify it in the URL path, or
+   * looking up the account each time and finding the corresponding applicant id.
+   */
+  void storeApplicantIdInProfile(AccountModel account) {
+    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
+      return;
+    }
+
+    Long applicantId = getApplicantForAccount(account).orElseThrow().id;
+    storeApplicantIdInProfile(applicantId);
   }
 }

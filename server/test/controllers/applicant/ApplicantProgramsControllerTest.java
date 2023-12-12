@@ -159,12 +159,12 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void index_withProgram_includesApplyButtonWithRedirect() {
+  public void indexWithApplicantId_withProgram_includesApplyButtonWithRedirect() {
     ProgramModel program = resourceCreator().insertActiveProgram("program");
 
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    // The applicant id is not required since the applicant profile contains the id.
-    Result result = controller.index(request).toCompletableFuture().join();
+    Result result =
+        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))

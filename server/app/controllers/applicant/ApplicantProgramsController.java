@@ -24,6 +24,7 @@ import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.Block;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.settings.SettingsManifest;
 import views.applicant.ApplicantProgramInfoView;
 import views.applicant.ProgramIndexView;
 import views.components.ToastMessage;
@@ -40,6 +41,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final ProgramIndexView programIndexView;
   private final ApplicantProgramInfoView programInfoView;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantProgramsController(
@@ -49,13 +51,15 @@ public final class ApplicantProgramsController extends CiviFormController {
       ProgramIndexView programIndexView,
       ApplicantProgramInfoView programInfoView,
       ProfileUtils profileUtils,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.programIndexView = checkNotNull(programIndexView);
     this.programInfoView = checkNotNull(programInfoView);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   @Secure
@@ -106,10 +110,18 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> index(Request request) {
-    // The route for this action should only be computed if the applicant ID is available in the
-    // session.
-    long applicantId = getApplicantId(request).orElseThrow();
-    return indexWithApplicantId(request, applicantId);
+    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
+      // This route is only operative for the new URL schema, so send the user home.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    Optional<Long> applicantId = getApplicantId(request);
+    if (applicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+    return indexWithApplicantId(request, applicantId.orElseThrow());
   }
 
   @Secure

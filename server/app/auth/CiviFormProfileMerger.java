@@ -84,17 +84,9 @@ public final class CiviFormProfileMerger {
       // Ideally, the applicant id would already be populated in `guestProfile`. However, there
       // could be profiles in user sessions that were created before we started populating this
       // info.
-      storeApplicantIdInProfile(guestProfile.orElseThrow(), applicantInDatabase.orElseThrow());
+      guestProfile.orElseThrow().storeApplicantIdInProfile(applicantInDatabase.orElseThrow().id);
     }
     return guestProfile;
-  }
-
-  private void storeApplicantIdInProfile(CiviFormProfile profile, ApplicantModel applicant) {
-    if (!profile.getProfileData().containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME)) {
-      profile
-          .getProfileData()
-          .addAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, applicant.id);
-    }
   }
 
   private CiviFormProfile mergeProfiles(
