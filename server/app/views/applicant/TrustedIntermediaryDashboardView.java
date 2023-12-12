@@ -1,22 +1,18 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.h2;
 import static j2html.TagCreator.hr;
 import static j2html.TagCreator.input;
-import static j2html.TagCreator.li;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
-import static j2html.TagCreator.ul;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -43,6 +39,7 @@ import services.DateConverter;
 import services.applicant.ApplicantPersonalInfo;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.admin.ti.TrustedIntermediaryGroupListView;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
@@ -85,8 +82,14 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 hr(),
                 div(
                         renderHeader("Clients").withClass("mb-0"),
-                        createUSWDSModal(
-                            newClientForm, "new-client", "Add new client", "Add new client", false))
+                        ViewUtils.makeUSWDSModal(
+                            newClientForm,
+                            "new-client",
+                            "Add new client",
+                            "Add new client",
+                            false,
+                            "Save",
+                            "Cancel"))
                     .withClasses("flex", "justify-between", "items-center", "mb-4"),
                 renderSearchForm(request, searchParameters),
                 renderTIApplicantsTable(
@@ -106,84 +109,6 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       bundle.addToastMessages(ToastMessage.success(flash.get("success").get()).setDuration(-1));
     }
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
-  }
-
-  private DivTag createUSWDSModal(
-      ContainerTag content,
-      String elementIdPrefix,
-      String headerText,
-      String linkButtonText,
-      boolean hasFooter) {
-    // These are the html element ids
-    String modalId = elementIdPrefix + "-modal";
-    String headingId = elementIdPrefix + "-heading";
-    String descriptionId = elementIdPrefix + "-description";
-
-    DivTag modalContent =
-        div()
-            .withClass("usa-modal")
-            .withId(modalId)
-            .attr("aria-labelledby", headingId)
-            .attr("aria-describedby", descriptionId)
-            .with(
-                div()
-                    .withClass("usa-modal__content")
-                    .with(
-                        div()
-                            .withClasses("mx-4", "usa-modal__main")
-                            .with(h2(headerText).withClass("usa-modal__heading").withId(headingId))
-                            .with(
-                                div()
-                                    .withClasses("my-6", "usa-prose")
-                                    .with(content)
-                                    .withId(descriptionId))
-                            .condWith(
-                                hasFooter,
-                                div()
-                                    .withClass("usa-modal__footer")
-                                    .with(
-                                        ul().withClass("usa-button-group")
-                                            .with(
-                                                li().withClass("usa-button-group__item")
-                                                    .with(
-                                                        button("Save")
-                                                            .withType("button")
-                                                            .withClass("usa-button")
-                                                            .attr("data-close-modal")))
-                                            .with(
-                                                li().withClass("usa-button-group__item")
-                                                    .with(
-                                                        button("Cancel")
-                                                            .withType("button")
-                                                            .withClass(
-                                                                "usa-button usa-button--unstyled"
-                                                                    + " padding-105 text-center")
-                                                            .attr("data-close-modal"))))))
-                    .with(
-                        BaseHtmlView.iconOnlyButton("Close this window")
-                            .withClasses(
-                                "usa-button usa-modal__close", ButtonStyles.CLEAR_WITH_ICON, "pt-4")
-                            .attr("data-close-modal")
-                            .with(
-                                Icons.svg(Icons.CLOSE)
-                                    .withClasses("usa-icon")
-                                    .attr("aria-hidden", "true")
-                                    .attr("focusable", "false")
-                                    .attr("role", "img"))));
-
-    // This div has the button that opens the modal
-    DivTag linkDiv =
-        div()
-            .withClass("margin-y-3")
-            .with(
-                a(linkButtonText)
-                    .withHref("#" + modalId)
-                    .withClasses("usa-button", "bg-blue-600")
-                    .attr("aria-controls", modalId)
-                    .attr("data-open-modal"))
-            .with(modalContent);
-
-    return linkDiv;
   }
 
   private FormTag renderSearchForm(Http.Request request, SearchParameters searchParameters) {
