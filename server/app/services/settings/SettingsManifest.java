@@ -877,6 +877,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("PROGRAM_CARD_IMAGES", request);
   }
 
+  /**
+   * Add programs cards to the confirmation screen that an applicant sees after finishing an
+   * application.
+   */
+  public boolean getSuggestProgramsOnApplicationConfirmationPage(RequestHeader request) {
+    return getBool("SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.of(
           "Branding",
@@ -1817,6 +1825,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "PROGRAM_CARD_IMAGES",
                       "Enables images on program cards, both for admins to upload them and for"
                           + " applicants to view them.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE",
+                      "Add programs cards to the confirmation screen that an applicant sees after"
+                          + " finishing an application.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),
