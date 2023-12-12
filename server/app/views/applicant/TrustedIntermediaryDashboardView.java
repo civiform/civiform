@@ -9,17 +9,20 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.hr;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.li;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
+import static j2html.TagCreator.ul;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.ti.routes;
+import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TdTag;
@@ -72,6 +75,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       Http.Request request,
       Messages messages,
       Long currentTisApplicantId) {
+    ContainerTag newClientForm = renderAddNewForm(tiGroup, request);
     HtmlBundle bundle =
         layout
             .getBundle(request)
@@ -79,12 +83,10 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .addMainContent(
                 renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
                 hr(),
-                //                renderHeader("Add Client").withId("add-client"),
-                //                requiredFieldsExplanationContent(),
-
-                //                renderAddNewForm(tiGroup, request),
-                //                hr().withClasses("mt-6"),
-                div(renderHeader("Clients").withClass("mb-0"), createModal(tiGroup, request))
+                div(
+                        renderHeader("Clients").withClass("mb-0"),
+                        createUSWDSModal(
+                            newClientForm, "new-client", "Add new client", "Add new client", false))
                     .withClasses("flex", "justify-between", "items-center", "mb-4"),
                 renderSearchForm(request, searchParameters),
                 renderTIApplicantsTable(
@@ -106,10 +108,16 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
   }
 
-  private DivTag createModal(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
-    String modalId = "new-client-modal";
-    String headingId = "new-client-heading";
-    String descriptionId = "new-client-description";
+  private DivTag createUSWDSModal(
+      ContainerTag content,
+      String elementIdPrefix,
+      String headerText,
+      String linkButtonText,
+      boolean hasFooter) {
+    // These are the html element ids
+    String modalId = elementIdPrefix + "-modal";
+    String headingId = elementIdPrefix + "-heading";
+    String descriptionId = elementIdPrefix + "-description";
 
     DivTag modalContent =
         div()
@@ -123,24 +131,34 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                     .with(
                         div()
                             .withClasses("mx-4", "usa-modal__main")
-                            .with(
-                                h2("Add new client")
-                                    .withClass("usa-modal__heading")
-                                    .withId(headingId))
+                            .with(h2(headerText).withClass("usa-modal__heading").withId(headingId))
                             .with(
                                 div()
                                     .withClasses("my-6", "usa-prose")
-                                    .with(renderAddNewForm(tiGroup, request))
-                                    .withId(descriptionId)))
-                    //          .with(div().withClass("usa-modal__footer")
-                    //            .with(ul().withClass("usa-button-group")
-                    //              .with(li().withClass("usa-button-group__item")
-                    //
-                    // .with(button("Save").withType("button").withClass("usa-button").attr("data-close-modal")))
-                    //              .with(li().withClass("usa-button-group__item")
-                    //
-                    // .with(button("Cancel").withType("button").withClass("usa-button
-                    // usa-button--unstyled padding-105 text-center").attr("data-close-modal")))))
+                                    .with(content)
+                                    .withId(descriptionId))
+                            .condWith(
+                                hasFooter,
+                                div()
+                                    .withClass("usa-modal__footer")
+                                    .with(
+                                        ul().withClass("usa-button-group")
+                                            .with(
+                                                li().withClass("usa-button-group__item")
+                                                    .with(
+                                                        button("Save")
+                                                            .withType("button")
+                                                            .withClass("usa-button")
+                                                            .attr("data-close-modal")))
+                                            .with(
+                                                li().withClass("usa-button-group__item")
+                                                    .with(
+                                                        button("Cancel")
+                                                            .withType("button")
+                                                            .withClass(
+                                                                "usa-button usa-button--unstyled"
+                                                                    + " padding-105 text-center")
+                                                            .attr("data-close-modal"))))))
                     .with(
                         BaseHtmlView.iconOnlyButton("Close this window")
                             .withClasses(
@@ -153,18 +171,19 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                                     .attr("focusable", "false")
                                     .attr("role", "img"))));
 
-    DivTag container =
+    // This div has the button that opens the modal
+    DivTag linkDiv =
         div()
             .withClass("margin-y-3")
             .with(
-                a("Add new client")
+                a(linkButtonText)
                     .withHref("#" + modalId)
                     .withClasses("usa-button", "bg-blue-600")
                     .attr("aria-controls", modalId)
                     .attr("data-open-modal"))
             .with(modalContent);
 
-    return container;
+    return linkDiv;
   }
 
   private FormTag renderSearchForm(Http.Request request, SearchParameters searchParameters) {
