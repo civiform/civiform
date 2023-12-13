@@ -143,10 +143,8 @@ public final class ProgramCardFactory {
     boolean shouldShowUniversalQuestionsCount =
         settingsManifest.getUniversalQuestions(request)
             && programRow.maybeUniversalQuestionsText().isPresent();
-    String universalQuestionsText = "";
-    if (shouldShowUniversalQuestionsCount) {
-      universalQuestionsText = programRow.maybeUniversalQuestionsText().get();
-    }
+    String universalQuestionsText =
+        shouldShowUniversalQuestionsCount ? programRow.maybeUniversalQuestionsText().get() : "";
 
     return div()
         .withClasses(

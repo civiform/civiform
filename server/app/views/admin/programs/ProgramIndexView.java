@@ -396,14 +396,10 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     Optional<String> maybeUniversalQuestionsText =
         generateUniversalQuestionText(program, universalQuestionIds);
-
     boolean shouldShowUniversalQuestionsCount =
         settingsManifest.getUniversalQuestions(request) && maybeUniversalQuestionsText.isPresent();
-
-    String universalQuestionsText = "";
-    if (shouldShowUniversalQuestionsCount) {
-      universalQuestionsText = maybeUniversalQuestionsText.get();
-    }
+    String universalQuestionsText =
+        shouldShowUniversalQuestionsCount ? maybeUniversalQuestionsText.get() : "";
 
     return li().with(
             span(program.localizedName().getDefault()).withClasses("font-medium"),
