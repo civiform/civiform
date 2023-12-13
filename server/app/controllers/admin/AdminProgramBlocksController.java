@@ -236,15 +236,13 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
     Direction direction = Direction.valueOf(requestData.get("direction"));
-    ViewUtils.ProgramDisplayType programDisplayType =
-        ViewUtils.ProgramDisplayType.valueOf(requestData.get("programDisplayType"));
 
     try {
       programService.moveBlock(programId, blockId, direction);
 
       return ok(
           blockListPartialFactory
-              .create(programDisplayType)
+              .create(DRAFT)
               .render(request, programService.getProgramDefinition(programId), blockId)
               .render());
     } catch (IllegalPredicateOrderingException e) {
