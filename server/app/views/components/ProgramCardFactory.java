@@ -142,9 +142,7 @@ public final class ProgramCardFactory {
 
     boolean shouldShowUniversalQuestionsCount =
         settingsManifest.getUniversalQuestions(request)
-            && programRow.maybeUniversalQuestionsText().isPresent();
-    String universalQuestionsText =
-        shouldShowUniversalQuestionsCount ? programRow.maybeUniversalQuestionsText().get() : "";
+            && programRow.universalQuestionsText().isPresent();
 
     return div()
         .withClasses(
@@ -164,7 +162,9 @@ public final class ProgramCardFactory {
                             span(blockCount == 1 ? " screen, " : " screens, "),
                             span(String.format("%d", questionCount)).withClass("font-semibold"),
                             span(questionCount == 1 ? " question" : " questions"))
-                        .condWith(shouldShowUniversalQuestionsCount, p(universalQuestionsText))),
+                        .condWith(
+                            shouldShowUniversalQuestionsCount,
+                            p(programRow.universalQuestionsText().orElse("")))),
             div().withClass("flex-grow"),
             div()
                 .withClasses("flex", "space-x-2", "pr-6", "font-medium")
@@ -244,7 +244,7 @@ public final class ProgramCardFactory {
 
       abstract ImmutableList<ButtonTag> extraRowActions();
 
-      abstract Optional<String> maybeUniversalQuestionsText();
+      abstract Optional<String> universalQuestionsText();
 
       public static Builder builder() {
         return new AutoValue_ProgramCardFactory_ProgramCardData_ProgramRow.Builder();
@@ -258,7 +258,7 @@ public final class ProgramCardFactory {
 
         public abstract Builder setExtraRowActions(ImmutableList<ButtonTag> v);
 
-        public abstract Builder setMaybeUniversalQuestionsText(Optional<String> v);
+        public abstract Builder setUniversalQuestionsText(Optional<String> v);
 
         public abstract ProgramRow build();
       }

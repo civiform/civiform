@@ -398,13 +398,13 @@ public final class ProgramIndexView extends BaseHtmlView {
         generateUniversalQuestionText(program, universalQuestionIds);
     boolean shouldShowUniversalQuestionsCount =
         settingsManifest.getUniversalQuestions(request) && maybeUniversalQuestionsText.isPresent();
-    String universalQuestionsText =
-        shouldShowUniversalQuestionsCount ? maybeUniversalQuestionsText.get() : "";
 
     return li().with(
             span(program.localizedName().getDefault()).withClasses("font-medium"),
             span(visibilityText)
-                .condWith(shouldShowUniversalQuestionsCount, span(" - " + universalQuestionsText)),
+                .condWith(
+                    shouldShowUniversalQuestionsCount,
+                    span(" - " + maybeUniversalQuestionsText.orElse(""))),
             new LinkElement()
                 .setText("Edit")
                 .setHref(controllers.admin.routes.AdminProgramController.edit(program.id()).url())
@@ -475,7 +475,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                   .setProgram(draftProgram.get())
                   .setRowActions(ImmutableList.copyOf(draftRowActions))
                   .setExtraRowActions(ImmutableList.copyOf(draftRowExtraActions))
-                  .setMaybeUniversalQuestionsText(
+                  .setUniversalQuestionsText(
                       generateUniversalQuestionText(draftProgram.get(), universalQuestionIds))
                   .build());
     }
@@ -500,7 +500,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                   .setProgram(activeProgram.get())
                   .setRowActions(ImmutableList.copyOf(activeRowActions))
                   .setExtraRowActions(ImmutableList.copyOf(activeRowExtraActions))
-                  .setMaybeUniversalQuestionsText(
+                  .setUniversalQuestionsText(
                       generateUniversalQuestionText(activeProgram.get(), universalQuestionIds))
                   .build());
     }
@@ -519,16 +519,13 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (countAllUniversalQuestions == 0) {
       return Optional.empty();
     }
-    String text = "";
-    if (countMissingUniversalQuestionIds == 0) {
-      text = "all";
-    } else {
-      text =
-          countAllUniversalQuestions
-              - countMissingUniversalQuestionIds
-              + " of "
-              + countAllUniversalQuestions;
-    }
+    String text =
+        countMissingUniversalQuestionIds == 0
+            ? "all"
+            : countAllUniversalQuestions
+                - countMissingUniversalQuestionIds
+                + " of "
+                + countAllUniversalQuestions;
     return Optional.of("Contains " + text + " universal questions ");
   }
 
