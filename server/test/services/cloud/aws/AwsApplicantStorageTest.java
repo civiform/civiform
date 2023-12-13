@@ -27,7 +27,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
             instanceOf(ApplicationLifecycle.class));
 
     SignedS3UploadRequest uploadRequest =
-      awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
+        awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
     assertThat(uploadRequest.actionLink()).contains("amazonaws.com");
   }
@@ -35,7 +35,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
   @Test
   public void getSignedUploadRequest_devEnv_actionLinkIsLocalStack() {
     AwsApplicantStorage awsApplicantStorage =
-      new AwsApplicantStorage(
+        new AwsApplicantStorage(
             instanceOf(AwsRegion.class),
             instanceOf(Credentials.class),
             instanceOf(Config.class),
@@ -43,7 +43,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
             instanceOf(ApplicationLifecycle.class));
 
     SignedS3UploadRequest uploadRequest =
-      awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
+        awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
     assertThat(uploadRequest.actionLink()).contains("localstack");
     assertThat(uploadRequest.actionLink()).doesNotContain("amazonaws.com");
@@ -54,7 +54,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
     AwsRegion region = instanceOf(AwsRegion.class);
     Credentials credentials = instanceOf(Credentials.class);
     AwsApplicantStorage awsApplicantStorage =
-      new AwsApplicantStorage(
+        new AwsApplicantStorage(
             region,
             credentials,
             instanceOf(Config.class),
@@ -62,7 +62,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
             instanceOf(ApplicationLifecycle.class));
 
     SignedS3UploadRequest uploadRequest =
-      awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
+        awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
     assertThat(uploadRequest.accessKey()).isEqualTo(credentials.getCredentials().accessKeyId());
     assertThat(uploadRequest.secretKey()).isEqualTo(credentials.getCredentials().secretAccessKey());
@@ -74,7 +74,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
     AwsApplicantStorage awsApplicantStorage = instanceOf(AwsApplicantStorage.class);
 
     SignedS3UploadRequest uploadRequest =
-      awsApplicantStorage.getSignedUploadRequest("test/fake/fakeFile.png", "redirect");
+        awsApplicantStorage.getSignedUploadRequest("test/fake/fakeFile.png", "redirect");
 
     assertThat(uploadRequest.key()).isEqualTo("test/fake/fakeFile.png");
   }
@@ -84,7 +84,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
     AwsApplicantStorage awsApplicantStorage = instanceOf(AwsApplicantStorage.class);
 
     SignedS3UploadRequest uploadRequest =
-      awsApplicantStorage.getSignedUploadRequest("fileKey", "http://redirect.to.here");
+        awsApplicantStorage.getSignedUploadRequest("fileKey", "http://redirect.to.here");
 
     assertThat(uploadRequest.successActionRedirect()).isEqualTo("http://redirect.to.here");
   }
@@ -99,7 +99,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
     when(credentials.getCredentials()).thenReturn(sessionCredentials);
     when(sessionCredentials.sessionToken()).thenReturn("testSessionToken");
     AwsApplicantStorage awsApplicantStorage =
-      new AwsApplicantStorage(
+        new AwsApplicantStorage(
             instanceOf(AwsRegion.class),
             credentials,
             instanceOf(Config.class),
@@ -107,7 +107,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
             instanceOf(ApplicationLifecycle.class));
 
     SignedS3UploadRequest uploadRequest =
-      awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
+        awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
     assertThat(uploadRequest.securityToken()).isEqualTo("testSessionToken");
   }
@@ -129,7 +129,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
             instanceOf(ApplicationLifecycle.class));
 
     SignedS3UploadRequest uploadRequest =
-      awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
+        awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
     assertThat(uploadRequest.securityToken()).isEmpty();
   }
