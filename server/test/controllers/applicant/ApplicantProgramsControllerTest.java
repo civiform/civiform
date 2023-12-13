@@ -211,12 +211,15 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void show_includesApplyButton() {
+  public void showWithApplicantId_includesApplyButton() {
     ProgramModel program = resourceCreator().insertActiveProgram("program");
 
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
-        controller.show(request, String.valueOf(program.id)).toCompletableFuture().join();
+        controller
+            .showWithApplicantId(request, currentApplicant.id, program.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -225,28 +228,14 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void show_invalidProgram_returnsBadRequest() {
+  public void showWithApplicantId_invalidProgram_returnsBadRequest() {
     Result result =
-        controller.show(requestBuilderWithSettings().build(), "9999").toCompletableFuture().join();
+        controller
+            .showWithApplicantId(requestBuilderWithSettings().build(), currentApplicant.id, 9999)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
-  }
-
-  @Test
-  // Tests the behavior of the `show()` method when
-  // - the parameter contains a numeric value, representing a program id
-  // - the applicant id is present in the profile
-  public void show_withNumericProgramParam_idInProfile_viewsById() {
-    ProgramModel program = resourceCreator().insertActiveProgram("program");
-
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    String numericProgramParam = String.valueOf(program.id);
-    Result result = controller.show(request, numericProgramParam).toCompletableFuture().join();
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result))
-        .contains(
-            routes.ApplicantProgramReviewController.review(currentApplicant.id, program.id).url());
   }
 
   @Test

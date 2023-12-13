@@ -192,11 +192,17 @@ public final class ApplicantProgramsController extends CiviFormController {
   public CompletionStage<Result> show(Request request, String programParam) {
     if (StringUtils.isNumeric(programParam)) {
       // The path parameter specifies a program by (numeric) id.
-
-      // The route for this action should only be computed if the applicant ID is available in the
-      // session, so it should not throw.
-      long applicantId = getApplicantId(request).orElseThrow();
-      return showWithApplicantId(request, applicantId, Long.parseLong(programParam));
+      if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
+        // This route is only operative for the new URL schema, so send the user home.
+        return CompletableFuture.completedFuture(redirectToHome());
+      }
+      Optional<Long> applicantId = getApplicantId(request);
+      if (applicantId.isEmpty()) {
+        // This route should not have been computed for the user in this case, but they may have
+        // gotten the URL from another source.
+        return CompletableFuture.completedFuture(redirectToHome());
+      }
+      return showWithApplicantId(request, applicantId.orElseThrow(), Long.parseLong(programParam));
     } else {
       return programSlugHandler.showProgram(this, request, programParam);
     }

@@ -152,7 +152,10 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedShowUrl = String.format("/programs/%d", programId);
-    assertThat(new ApplicantRoutes(mockSettingsManifest).show(applicantProfile, applicantId, programId).url())
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .show(applicantProfile, applicantId, programId)
+                .url())
         .isEqualTo(expectedShowUrl);
 
     Counts after = getApplicantIdInProfileCounts();
@@ -168,12 +171,15 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
-      ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(applicantId));
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(applicantId));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedShowUrl = String.format("/applicants/%d/programs/%d", applicantId, programId);
-    assertThat(new ApplicantRoutes(mockSettingsManifest).show(applicantProfile, applicantId, programId).url())
-      .isEqualTo(expectedShowUrl);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .show(applicantProfile, applicantId, programId)
+                .url())
+        .isEqualTo(expectedShowUrl);
 
     Counts after = getApplicantIdInProfileCounts();
     assertThat(after.present).isEqualTo(before.present + 1);
@@ -191,7 +197,10 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedShowUrl = String.format("/applicants/%d/programs/%d", applicantId, programId);
-    assertThat(new ApplicantRoutes(mockSettingsManifest).show(applicantProfile, applicantId, programId).url())
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .show(applicantProfile, applicantId, programId)
+                .url())
         .isEqualTo(expectedShowUrl);
 
     Counts after = getApplicantIdInProfileCounts();
@@ -209,7 +218,8 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedShowUrl = String.format("/applicants/%d/programs/%d", applicantId, programId);
-    assertThat(new ApplicantRoutes(mockSettingsManifest).show(tiProfile, applicantId, programId).url())
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest).show(tiProfile, applicantId, programId).url())
         .isEqualTo(expectedShowUrl);
 
     Counts after = getApplicantIdInProfileCounts();
