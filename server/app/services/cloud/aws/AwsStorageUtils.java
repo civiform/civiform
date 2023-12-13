@@ -13,7 +13,8 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.endpoints.S3EndpointProvider;
 
 /** Class providing helper methods for working with AWS Simple Storage Service (S3). */
-public class AwsStorageHelpers {
+public final class AwsStorageUtils {
+  private AwsStorageUtils() {}
   /**
    * The duration that a signed upload or download request URL from {@link #getSignedUploadRequest}
    * is valid for use.

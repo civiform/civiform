@@ -3,7 +3,7 @@ package services.cloud.aws;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static services.cloud.aws.AwsStorageHelpers.AWS_PRESIGNED_URL_DURATION;
+import static services.cloud.aws.AwsStorageUtils.AWS_PRESIGNED_URL_DURATION;
 
 import com.typesafe.config.Config;
 import java.net.URI;
@@ -87,7 +87,7 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
   @Override
   public SignedS3UploadRequest getSignedUploadRequest(
       String fileKey, String successActionRedirect) {
-    return AwsStorageHelpers.getSignedUploadRequest(
+    return AwsStorageUtils.getSignedUploadRequest(
         credentials,
         region,
         fileLimitMb,
@@ -159,7 +159,7 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
 
     @Override
     public String actionLink() {
-      return AwsStorageHelpers.prodAwsActionLink(bucket, region);
+      return AwsStorageUtils.prodAwsActionLink(bucket, region);
     }
 
     @Override
@@ -174,7 +174,7 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
 
     LocalStackClient(Config config) {
       this.config = config;
-      String localEndpoint = AwsStorageHelpers.localStackEndpoint(config);
+      String localEndpoint = AwsStorageUtils.localStackEndpoint(config);
       try {
         URI localUri = new URI(localEndpoint);
         presigner = S3Presigner.builder().endpointOverride(localUri).region(region).build();
@@ -190,7 +190,7 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
 
     @Override
     public String actionLink() {
-      return AwsStorageHelpers.localStackActionLink(config, bucket, region);
+      return AwsStorageUtils.localStackActionLink(config, bucket, region);
     }
 
     @Override

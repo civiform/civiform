@@ -40,7 +40,7 @@ public final class AwsPublicStorage implements PublicStorageClient {
   @Override
   public SignedS3UploadRequest getSignedUploadRequest(
       String fileKey, String successRedirectActionLink) {
-    return AwsStorageHelpers.getSignedUploadRequest(
+    return AwsStorageUtils.getSignedUploadRequest(
         credentials,
         region,
         fileLimitMb,
@@ -70,7 +70,7 @@ public final class AwsPublicStorage implements PublicStorageClient {
   class AwsClient implements Client {
     @Override
     public String actionLink() {
-      return AwsStorageHelpers.prodAwsActionLink(bucket, region);
+      return AwsStorageUtils.prodAwsActionLink(bucket, region);
     }
   }
 
@@ -83,7 +83,7 @@ public final class AwsPublicStorage implements PublicStorageClient {
 
     @Override
     public String actionLink() {
-      return AwsStorageHelpers.localStackActionLink(config, bucket, region);
+      return AwsStorageUtils.localStackActionLink(config, bucket, region);
     }
   }
 }

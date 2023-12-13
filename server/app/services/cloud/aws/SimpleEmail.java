@@ -1,7 +1,7 @@
 package services.cloud.aws;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static services.cloud.aws.AwsStorageHelpers.AWS_LOCAL_ENDPOINT_CONF_PATH;
+import static services.cloud.aws.AwsStorageUtils.AWS_LOCAL_ENDPOINT_CONF_PATH;
 
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
