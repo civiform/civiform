@@ -1,23 +1,28 @@
 package views.fileupload;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static j2html.TagCreator.form;
 
 import com.google.common.collect.ImmutableList;
+import j2html.TagCreator;
+import j2html.tags.specialized.FooterTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
 import play.mvc.Http;
 import services.cloud.StorageUploadRequest;
+import views.applicant.fileupload.ApplicantFileUploadRenderer;
 
 /**
- * Class to render a <form> that supports file upload.
+ * Class to render a <form> that supports file upload. Must be subclassed by each cloud storage
+ * provider CiviForm supports.
  *
  * <p>This class supports rendering file upload forms for both applicants *and* admins. See {@link
- * views.applicant.fileupload.FileUploadViewStrategy} for additional rendering for *applicant* file
- * upload.
+ * ApplicantFileUploadRenderer} for additional rendering for *applicant* file upload.
  */
-public abstract class FileUploadRenderer {
+public abstract class FileUploadViewStrategy {
+  /** Returns a top-level <form> element to use for file upload. */
   public FormTag renderFileUploadFormElement(StorageUploadRequest request) {
     return form()
         .withEnctype("multipart/form-data")
@@ -39,11 +44,16 @@ public abstract class FileUploadRenderer {
       ImmutableList<String> ariaDescribedByIds,
       boolean hasErrors);
 
+  /** Creates a list of footer tags needed on a page rendering a file upload form. */
+  public ImmutableList<FooterTag> footerTags() {
+    return extraScriptTags().stream().map(TagCreator::footer).collect(toImmutableList());
+  }
+
   /**
    * Returns strategy-specific class to add to the <form> element. It helps to distinguish
    * client-side different strategies (AWS or Azure).
    */
   protected abstract String getUploadFormClass();
 
-  public abstract ImmutableList<ScriptTag> extraScriptTags();
+  protected abstract ImmutableList<ScriptTag> extraScriptTags();
 }

@@ -924,12 +924,13 @@ public final class ProgramService {
     return Optional.of(newStrings);
   }
 
-  /** TODO */
+  /**
+   * Sets a key that can be used to fetch the summary image for the given program from cloud
+   * storage.
+   */
   public ProgramDefinition setSummaryImageFileKey(long programId, String fileKey)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
-    // TODO: Handle deletion
-    // TODO: Warning if image description not set first
     programDefinition =
         programDefinition.toBuilder().setSummaryImageFileKey(Optional.of(fileKey)).build();
     return programRepository

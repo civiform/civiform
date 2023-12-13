@@ -56,7 +56,7 @@ import views.applicant.AddressCorrectionBlockView;
 import views.applicant.ApplicantProgramBlockEditView;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
 import views.applicant.IneligibleBlockView;
-import views.applicant.fileupload.FileUploadViewStrategy;
+import views.applicant.fileupload.ApplicantFileUploadRenderer;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
@@ -97,7 +97,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ProfileUtils profileUtils,
       Config configuration,
       SettingsManifest settingsManifest,
-      FileUploadViewStrategy fileUploadViewStrategy,
+      ApplicantFileUploadRenderer applicantFileUploadRenderer,
       IneligibleBlockView ineligibleBlockView,
       AddressCorrectionBlockView addressCorrectionBlockView,
       AddressSuggestionJsonSerializer addressSuggestionJsonSerializer,
@@ -116,7 +116,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.addressCorrectionBlockView = checkNotNull(addressCorrectionBlockView);
     this.addressSuggestionJsonSerializer = checkNotNull(addressSuggestionJsonSerializer);
     this.editView =
-        editViewFactory.create(new ApplicantQuestionRendererFactory(fileUploadViewStrategy));
+        editViewFactory.create(new ApplicantQuestionRendererFactory(applicantFileUploadRenderer));
     this.programService = checkNotNull(programService);
   }
 

@@ -14,15 +14,15 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
-import views.applicant.fileupload.FileUploadViewStrategy;
+import views.applicant.fileupload.ApplicantFileUploadRenderer;
 
 /** A helper class for constructing type-specific applicant question renderers. */
 public final class ApplicantQuestionRendererFactory {
 
-  private final FileUploadViewStrategy fileUploadViewStrategy;
+  private final ApplicantFileUploadRenderer applicantFileUploadRenderer;
 
-  public ApplicantQuestionRendererFactory(FileUploadViewStrategy fileUploadViewStrategy) {
-    this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
+  public ApplicantQuestionRendererFactory(ApplicantFileUploadRenderer applicantFileUploadRenderer) {
+    this.applicantFileUploadRenderer = checkNotNull(applicantFileUploadRenderer);
   }
 
   public ApplicantQuestionRenderer getSampleRenderer(QuestionType questionType)
@@ -50,7 +50,7 @@ public final class ApplicantQuestionRendererFactory {
       case EMAIL:
         return new EmailQuestionRenderer(question);
       case FILEUPLOAD:
-        return new FileUploadQuestionRenderer(question, fileUploadViewStrategy);
+        return new FileUploadQuestionRenderer(question, applicantFileUploadRenderer);
       case ID:
         return new IdQuestionRenderer(question);
       case NAME:

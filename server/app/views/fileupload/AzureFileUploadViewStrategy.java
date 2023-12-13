@@ -13,12 +13,12 @@ import services.cloud.StorageUploadRequest;
 import services.cloud.azure.BlobStorageUploadRequest;
 import views.ViewUtils;
 
-public final class AzureFileUploadRenderer extends FileUploadRenderer {
+public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
 
   private final ViewUtils viewUtils;
 
   @Inject
-  AzureFileUploadRenderer(ViewUtils viewUtils) {
+  AzureFileUploadViewStrategy(ViewUtils viewUtils) {
     this.viewUtils = checkNotNull(viewUtils);
   }
 

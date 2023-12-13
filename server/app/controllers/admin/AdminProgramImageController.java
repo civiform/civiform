@@ -6,7 +6,6 @@ import auth.Authorizers;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
 import forms.admin.ProgramImageDescriptionForm;
-import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -80,20 +79,21 @@ public final class AdminProgramImageController extends CiviFormController {
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
 
-    // From ApplicantProgramBlocksController#updateFile
-    Optional<String> bucket = request.queryString("bucket");
-    Optional<String> key = request.queryString("key");
-    System.out.println("bucket = " + bucket + "  key=" + key);
-    // TODO: There's some azure stuff here
+    String unusedBucket =
+        request
+            .queryString("bucket")
+            .orElseThrow(() -> new IllegalArgumentException("Request must contain bucket name"));
+    // TODO(#5676): Verify the bucket name is for the public bucket?
 
-    if (bucket.isEmpty() || key.isEmpty()) {
-      throw new IllegalArgumentException(); // TODO
-      // return failedFuture(
-      //    new IllegalArgumentException("missing file key and bucket names"));
-    }
+    String key =
+        request
+            .queryString("key")
+            .orElseThrow(() -> new IllegalArgumentException("Request must contain file key name"));
+    // TODO(#5676): If Azure support is needed, see ApplicantProgramBlocksController#updateFile for
+    // some additional Azure-specific logic that's needed.
 
     // TODO(#5676): Verify description has been set before allowing image upload.
-    programService.setSummaryImageFileKey(programId, key.get());
+    programService.setSummaryImageFileKey(programId, key);
     final String indexUrl = routes.AdminProgramImageController.index(programId).url();
     return redirect(indexUrl).flashing("success", "Image set");
   }

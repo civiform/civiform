@@ -2,8 +2,6 @@ package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
-import static j2html.TagCreator.footer;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.label;
@@ -36,17 +34,18 @@ import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.ToastMessage;
-import views.fileupload.FileUploadRenderer;
+import views.fileupload.FileUploadViewStrategy;
 
 /** A view for admins to update the image associated with a particular program. */
 public final class ProgramImageView extends BaseHtmlView {
+  // TODO(#5676): Should we prohibit gifs?
   private static final String MIME_TYPES_IMAGES = "image/*";
   private static final String IMAGE_DESCRIPTION_FORM_ID = "image-description-form";
   private static final String IMAGE_FILE_UPLOAD_FORM_ID = "image-file-upload-form";
   private final AdminLayout layout;
   private final String baseUrl;
   private final FormFactory formFactory;
-  private final FileUploadRenderer fileUploadRenderer;
+  private final FileUploadViewStrategy fileUploadViewStrategy;
   private final PublicStorageClient publicStorageClient;
   // The ID used to associate the file input field with its screen reader label.
   private final String fileInputId;
@@ -56,12 +55,12 @@ public final class ProgramImageView extends BaseHtmlView {
       AdminLayoutFactory layoutFactory,
       Config config,
       FormFactory formFactory,
-      FileUploadRenderer fileUploadRenderer,
+      FileUploadViewStrategy fileUploadViewStrategy,
       PublicStorageClient publicStorageClient) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.formFactory = checkNotNull(formFactory);
-    this.fileUploadRenderer = checkNotNull(fileUploadRenderer);
+    this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
     this.publicStorageClient = checkNotNull(publicStorageClient);
     this.fileInputId = RandomStringUtils.randomAlphabetic(8);
   }
@@ -127,6 +126,7 @@ public final class ProgramImageView extends BaseHtmlView {
   private DivTag createImageUploadForm(ProgramDefinition program) {
     // TODO(#5676): If there's already a file uploaded, render its name.
     // TODO(#5676): Warn admins of recommended image size and dimensions.
+    // TODO(#5676): Allow admins to remove an already-uploaded file.
 
     String key = PublicFileNameFormatter.formatPublicProgramImageFilename(program.id());
     String onSuccessRedirectUrl =
@@ -134,22 +134,20 @@ public final class ProgramImageView extends BaseHtmlView {
     StorageUploadRequest storageUploadRequest =
         publicStorageClient.getSignedUploadRequest(key, onSuccessRedirectUrl);
     FormTag form =
-        fileUploadRenderer
+        fileUploadViewStrategy
             .renderFileUploadFormElement(storageUploadRequest)
             .withId(IMAGE_FILE_UPLOAD_FORM_ID);
     ImmutableList<InputTag> additionalFileUploadInputs =
-        fileUploadRenderer.fileUploadFields(
+        fileUploadViewStrategy.fileUploadFields(
             Optional.of(storageUploadRequest),
             MIME_TYPES_IMAGES,
             fileInputId,
             /* ariaDescribedByIds= */ ImmutableList.of(),
             /* hasErrors= */ false);
 
-    // TODO: Extra script tags
     FormTag fullForm =
         form.with(additionalFileUploadInputs)
             .with(
-                // TODO(#5676): Replace with final UX once we have it.
                 label()
                     .withFor(fileInputId)
                     .with(
@@ -164,13 +162,14 @@ public final class ProgramImageView extends BaseHtmlView {
                                 "mb-2",
                                 "cursor-pointer")));
 
+    // TODO(#5676): Replace with final UX once we have it.
     return div()
         .with(fullForm)
         .with(
             submitButton("Save image")
                 .withForm(IMAGE_FILE_UPLOAD_FORM_ID)
                 .withClasses(ButtonStyles.SOLID_BLUE, "mb-2"))
-        .with(each(fileUploadRenderer.extraScriptTags(), tag -> footer(tag)));
+        .with(fileUploadViewStrategy.footerTags());
   }
 
   private DivTag renderCurrentImage(ProgramDefinition program) {

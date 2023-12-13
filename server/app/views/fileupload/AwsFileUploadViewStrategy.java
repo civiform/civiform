@@ -1,4 +1,4 @@
-package views.applicant.fileupload;
+package views.fileupload;
 
 import static j2html.TagCreator.input;
 
@@ -10,9 +10,8 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import services.cloud.StorageUploadRequest;
 import services.cloud.aws.SignedS3UploadRequest;
-import views.fileupload.FileUploadRenderer;
 
-public final class AwsFileUploadRenderer extends FileUploadRenderer {
+public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
   public ImmutableList<InputTag> fileUploadFields(

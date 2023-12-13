@@ -2,7 +2,6 @@ package views.applicant.fileupload;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
-import static j2html.TagCreator.footer;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.p;
 
@@ -19,11 +18,11 @@ import play.mvc.Http.HttpVerbs;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
-import services.cloud.FileNameFormatter;
+import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.StorageUploadRequest;
 import views.ApplicationBaseView;
 import views.components.ButtonStyles;
-import views.fileupload.FileUploadRenderer;
+import views.fileupload.FileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.FileUploadQuestionRenderer;
@@ -31,11 +30,8 @@ import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
-/**
- * A strategy pattern that abstracts out the logic of file upload/download for applicants into the
- * different cloud providers.
- */
-public class FileUploadViewStrategy extends ApplicationBaseView {
+/** A helper class for rendering the file upload question for applicants. */
+public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
 
   private static final String MIME_TYPES_IMAGES_AND_PDF = "image/*,.pdf";
   private static final String BLOCK_FORM_ID = "cf-block-form";
@@ -46,11 +42,11 @@ public class FileUploadViewStrategy extends ApplicationBaseView {
   private static final String FILEUPLOAD_SKIP_BUTTON_ID = "fileupload-skip-button";
   private static final String FILEUPLOAD_CONTINUE_BUTTON_ID = "fileupload-continue-button";
 
-  private final FileUploadRenderer fileUploadRenderer;
+  private final FileUploadViewStrategy fileUploadViewStrategy;
 
   @Inject
-  public FileUploadViewStrategy(FileUploadRenderer fileUploadRenderer) {
-    this.fileUploadRenderer = fileUploadRenderer;
+  public ApplicantFileUploadRenderer(FileUploadViewStrategy fileUploadViewStrategy) {
+    this.fileUploadViewStrategy = fileUploadViewStrategy;
   }
 
   /**
@@ -62,7 +58,7 @@ public class FileUploadViewStrategy extends ApplicationBaseView {
    * @param hasErrors whether this file upload input is displaying errors.
    * @return a container tag with the necessary fields
    */
-  public final DivTag signedFileUploadFields(
+  public DivTag signedFileUploadFields(
       ApplicantQuestionRendererParams params,
       FileUploadQuestion fileUploadQuestion,
       String fileInputId,
@@ -84,7 +80,7 @@ public class FileUploadViewStrategy extends ApplicationBaseView {
                         "data-upload-text",
                         params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName())));
     result.with(
-        fileUploadRenderer.fileUploadFields(
+        fileUploadViewStrategy.fileUploadFields(
             params.signedFileUploadRequest(),
             MIME_TYPES_IMAGES_AND_PDF,
             fileInputId,
@@ -108,7 +104,7 @@ public class FileUploadViewStrategy extends ApplicationBaseView {
    * @param applicantQuestionRendererFactory a class for rendering applicant questions.
    * @return a container tag with the submit view
    */
-  public final DivTag renderFileUploadBlock(
+  public DivTag renderFileUploadBlock(
       Params params, ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
     String onSuccessRedirectUrl =
         params.baseUrl()
@@ -120,7 +116,7 @@ public class FileUploadViewStrategy extends ApplicationBaseView {
                 .url();
 
     String key =
-        FileNameFormatter.formatFileUploadQuestionFilename(
+        ApplicantFileNameFormatter.formatFileUploadQuestionFilename(
             params.applicantId(), params.programId(), params.block().getId());
     StorageUploadRequest signedRequest =
         params.applicantStorageClient().getSignedUploadRequest(key, onSuccessRedirectUrl);
@@ -133,7 +129,7 @@ public class FileUploadViewStrategy extends ApplicationBaseView {
             .build();
 
     FormTag uploadForm =
-        fileUploadRenderer
+        fileUploadViewStrategy
             .renderFileUploadFormElement(signedRequest)
             .withId(BLOCK_FORM_ID)
             .with(requiredFieldsExplanationContent(params.messages()));
@@ -147,8 +143,7 @@ public class FileUploadViewStrategy extends ApplicationBaseView {
     DivTag skipForms = renderDeleteAndContinueFileUploadForms(params);
     DivTag buttons = renderFileUploadBottomNavButtons(params);
 
-    return div(uploadForm, skipForms, buttons)
-        .with(each(fileUploadRenderer.extraScriptTags(), tag -> footer(tag)));
+    return div(uploadForm, skipForms, buttons).with(fileUploadViewStrategy.footerTags());
   }
 
   /**

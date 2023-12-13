@@ -24,7 +24,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.question.types.QuestionDefinition;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
-import views.applicant.fileupload.FileUploadViewStrategy;
+import views.applicant.fileupload.ApplicantFileUploadRenderer;
 import views.components.ButtonStyles;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
@@ -36,16 +36,16 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   private final String BLOCK_FORM_ID = "cf-block-form";
 
   private final ApplicantLayout layout;
-  private final FileUploadViewStrategy fileUploadStrategy;
+  private final ApplicantFileUploadRenderer applicantFileUploadRenderer;
   private final ApplicantQuestionRendererFactory applicantQuestionRendererFactory;
 
   @Inject
   ApplicantProgramBlockEditView(
       ApplicantLayout layout,
-      FileUploadViewStrategy fileUploadStrategy,
+      ApplicantFileUploadRenderer applicantFileUploadRenderer,
       @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
     this.layout = checkNotNull(layout);
-    this.fileUploadStrategy = checkNotNull(fileUploadStrategy);
+    this.applicantFileUploadRenderer = checkNotNull(applicantFileUploadRenderer);
     this.applicantQuestionRendererFactory = checkNotNull(applicantQuestionRendererFactory);
   }
 
@@ -120,7 +120,8 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
 
   private ContainerTag<?> renderBlockWithSubmitForm(Params params) {
     if (params.block().isFileUpload()) {
-      return fileUploadStrategy.renderFileUploadBlock(params, applicantQuestionRendererFactory);
+      return applicantFileUploadRenderer.renderFileUploadBlock(
+          params, applicantQuestionRendererFactory);
     }
 
     FormTag form = form();

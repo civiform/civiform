@@ -33,7 +33,7 @@ public interface ApplicantStorageClient {
    * prefixedOriginalFileName will either be in the format "dev/${filename}" or
    * applicant-%d/program-%d/block-%s/${filename}" where "${filename}" is the name of the uploaded
    * file which is set by a user. For more information on prefixed filenames, see {@link
-   * services.cloud.FileNameFormatter}
+   * ApplicantFileNameFormatter}
    *
    * @param fileKey The file key to be accessed from cloud storage.
    * @param prefixedOriginalFileName The file name set by the user (optional).
