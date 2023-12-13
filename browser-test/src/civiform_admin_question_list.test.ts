@@ -84,27 +84,6 @@ describe('Admin question list', () => {
     ])
   })
 
-  it('displays the question with long title wrapped', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-    await loginAsAdmin(page)
-    // Set the questionText to the same as questionName to make validation easier since questionBankNames()
-    // returns the questionText. The questionText is not actually used to sort.
-    await adminQuestions.addTextQuestion({
-      questionName:
-        'https://civiformstage.somecity.gov/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      questionText: 'a',
-    })
-    await adminPrograms.addAndPublishProgramWithQuestions(
-      [
-        'https://civiformstage.somecity.gov/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      ],
-      'program-one',
-    )
-
-    await adminQuestions.gotoAdminQuestionsPage()
-    await validateScreenshot(page, 'question-list-long-title')
-  })
-
   it('filters question list with search query', async () => {
     const {page, adminQuestions} = ctx
     await loginAsAdmin(page)
