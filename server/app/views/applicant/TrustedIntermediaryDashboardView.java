@@ -261,12 +261,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   private TdTag renderUpdateClientInfoCell(AccountModel account,Http.Request request) {
     DivTag modal = ViewUtils.makeUSWDSModal(createFormTagForAccount(account,request), "edit" + account.id + "modal", "Edit Client",
       "Edit",false,"Save","Cancel" );
-    return td().with(
-            a().with(
-                    button("Edit")
-                        .withId("edit" + account.id + "modal")
-                        .withClasses("text-xs", "ml-3")
-                        .with(modal)));
+    return td().with(modal);
   }
 
   private TdTag renderDateOfBirthCell(AccountModel account) {
