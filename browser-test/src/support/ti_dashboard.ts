@@ -1,5 +1,5 @@
 import {Page} from 'playwright'
-import {waitForPageJsLoad} from './wait'
+import {waitForPageJsLoad,waitForAnyModal} from './wait'
 
 /*
  * This class is to test Civiform in the TI path
@@ -33,8 +33,17 @@ export class TIDashboard {
   }
 
   async updateClientDateOfBirth(client: ClientInformation, newDobDate: string) {
-    await this.page.locator('id=date-of-birth-update').fill(newDobDate)
-    await this.page.click('text="Update DOB"')
+
+    //await page.click('#program-update-button')
+
+
+//    expect(await modal.innerText()).toContain(`Confirm pre-screener change?`)
+    await this.page.click('button:text("Edit")')
+    let modal = await waitForAnyModal(this.page)
+    await this.page.fill('label:has-text("dob")', newDobDate)
+    await this.page.click('text="Save"')
+
+
   }
 
   async expectDashboardContainClient(client: ClientInformation) {
