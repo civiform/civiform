@@ -75,17 +75,17 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .addMainContent(
                 renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
                 hr(),
-                renderHeader("Add Client").withId("add-client"),
+                renderSubHeader("Add Client").withId("add-client").withClass("my-4"),
                 requiredFieldsExplanationContent(),
                 renderAddNewForm(tiGroup, request),
                 hr().withClasses("mt-6"),
-                renderHeader("Clients"),
+                renderSubHeader("Clients").withClass("my-4"),
                 renderSearchForm(request, searchParameters),
                 renderTIApplicantsTable(
                     managedAccounts, searchParameters, page, totalPageCount, request),
                 hr().withClasses("mt-6"),
-                renderHeader("Trusted Intermediary Members"),
-                renderTIMembersTable(tiGroup).withClasses("ml-2"))
+                renderSubHeader("Organization members").withClass("my-4"),
+                renderTIMembersTable(tiGroup).withClass("pt-2"))
             .addMainStyles("px-20", "max-w-screen-xl");
 
     Http.Flash flash = request.flash();
