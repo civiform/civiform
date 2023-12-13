@@ -144,4 +144,13 @@ public class AwsPublicStorageTest extends ResetPostgres {
 
     assertThat(uploadRequest.securityToken()).isEmpty();
   }
+
+  @Test
+  public void getPublicDisplayUrl_hasActionLinkAndFileKey() {
+    AwsPublicStorage awsPublicStorage = instanceOf(AwsPublicStorage.class);
+
+    String publicDisplayUrl = awsPublicStorage.getPublicDisplayUrl("fake-file-key");
+
+    assertThat(publicDisplayUrl).isEqualTo("fake-action-link/fake-file-key");
+  }
 }

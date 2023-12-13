@@ -70,7 +70,7 @@ public final class AwsPublicStorage implements PublicStorageClient {
   class AwsClient implements Client {
     @Override
     public String actionLink() {
-      return AwsStorageHelpers.awsActionLink(bucket, region);
+      return AwsStorageHelpers.prodAwsActionLink(bucket, region);
     }
   }
 

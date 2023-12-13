@@ -92,7 +92,7 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
         region,
         fileLimitMb,
         bucket,
-        /* actionLink= */ client.actionLink(),
+        client.actionLink(),
         fileKey,
         successActionRedirect);
   }
@@ -159,7 +159,7 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
 
     @Override
     public String actionLink() {
-      return AwsStorageHelpers.awsActionLink(bucket, region);
+      return AwsStorageHelpers.prodAwsActionLink(bucket, region);
     }
 
     @Override
@@ -174,10 +174,10 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
 
     LocalStackClient(Config config) {
       this.config = config;
-      String localS3Endpoint = AwsStorageHelpers.localStackEndpoint(config);
+      String localEndpoint = AwsStorageHelpers.localStackEndpoint(config);
       try {
-        URI localS3Uri = new URI(localS3Endpoint);
-        presigner = S3Presigner.builder().endpointOverride(localS3Uri).region(region).build();
+        URI localUri = new URI(localEndpoint);
+        presigner = S3Presigner.builder().endpointOverride(localUri).region(region).build();
       } catch (URISyntaxException e) {
         throw new RuntimeException(e);
       }

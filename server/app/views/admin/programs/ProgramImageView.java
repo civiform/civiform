@@ -28,7 +28,9 @@ public final class ProgramImageView extends BaseHtmlView {
   private final AdminLayout layout;
   private final FormFactory formFactory;
 
-  @SuppressWarnings("unused") // TODO(#5676): Use this to upload and render the program image.
+  // TODO(#5676): Use this to upload and render the program image. (Include it for now so we can
+  // verify it can be injected.)
+  @SuppressWarnings("all")
   private final PublicStorageClient publicStorageClient;
 
   @Inject

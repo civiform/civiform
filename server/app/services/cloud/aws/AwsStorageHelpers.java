@@ -58,8 +58,8 @@ public class AwsStorageHelpers {
     return builder.build();
   }
 
-  /** Returns the action link to use when uploading or downloading to a real AWS instance. */
-  public static String awsActionLink(String bucketName, Region region) {
+  /** Returns the action link to use when uploading or downloading to a production AWS instance. */
+  public static String prodAwsActionLink(String bucketName, Region region) {
     return String.format("https://%s.s3.%s.amazonaws.com/", bucketName, region.id());
   }
 
