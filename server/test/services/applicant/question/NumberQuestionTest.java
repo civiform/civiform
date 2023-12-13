@@ -117,11 +117,11 @@ public class NumberQuestionTest extends ResetPostgres {
 
   @Test
   @Parameters({
-    "-1,Number must be a positive whole number and can only contain numeric characters 0-9.",
-    "0,Must be at least 50.",
-    "49,Must be at least 50.",
-    "101,Must be at most 100.",
-    "999,Must be at most 100."
+    "-1,Error: Number must be a positive whole number and can only contain numeric characters 0-9.",
+    "0,Error: Must be at least 50.",
+    "49,Error: Must be at least 50.",
+    "101,Error: Must be at most 100.",
+    "999,Error: Must be at most 100."
   })
   public void withMinAndMaxValue_withInvalidValue_failsValidation(
       long value, String expectedErrorMessage) {

@@ -102,10 +102,10 @@ public class IdQuestionTest extends ResetPostgres {
 
   @Test
   @Parameters({
-    ",Must contain at least 3 characters.",
-    "1,Must contain at least 3 characters.",
-    "12334,Must contain at most 4 characters.",
-    "abc,Must contain only numbers."
+    ",Error: Must contain at least 3 characters.",
+    "1,Error: Must contain at least 3 characters.",
+    "12334,Error: Must contain at most 4 characters.",
+    "abc,Error: Must contain only numbers."
   })
   public void withMinAndMaxLength_withInvalidApplicantData_failsValidation(
       String value, String expectedErrorMessage) {
