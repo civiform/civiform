@@ -85,8 +85,11 @@ describe('Program list page.', () => {
     expect(await page.innerText('.cf-admin-program-card')).not.toContain(
       'universal questions',
     )
-    
-    await validateScreenshot(page, 'program-list-view-no-universal-questions-text')
+
+    await validateScreenshot(
+      page,
+      'program-list-view-no-universal-questions-text',
+    )
 
     // Create a universal question
     const textQuestion = 'text'
@@ -97,8 +100,11 @@ describe('Program list page.', () => {
     await adminPrograms.gotoAdminProgramsPage()
     expect(await page.innerText('.cf-admin-program-card')).toContain(
       'universal questions',
-    )    
-    await validateScreenshot(page, 'program-list-view-with-universal-questions-text')    
+    )
+    await validateScreenshot(
+      page,
+      'program-list-view-with-universal-questions-text',
+    )
   })
 
   async function expectProgramListElements(
