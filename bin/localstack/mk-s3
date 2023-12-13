@@ -8,20 +8,23 @@ source bin/localstack/lib.sh
 APPLICANT_BUCKET_NAME="civiform-local-s3"
 PUBLIC_BUCKET_NAME="civiform-local-s3-public"
 
-function localstack::create_bucket() {
- echo "s3api get-bucket-location --bucket ${1} \
- || s3api create-bucket
+function check_bucket() {
+  echo "s3api get-bucket-location --bucket ${1}"
+}
+
+function create_bucket() {
+  echo "s3api create-bucket
   --bucket ${1}
   --region us-west-2
   --create-bucket-configuration LocationConstraint=us-west-2"
 }
 
-make_applicant_bucket=$(localstack::create_bucket ${APPLICANT_BUCKET_NAME})
-make_public_bucket=$(localstack::create_bucket ${PUBLIC_BUCKET_NAME})
+function check_or_create_bucket() {
+  check_with_bucket=$(check_bucket ${1})
+  create_with_bucket=$(create_bucket ${1})
+  localstack::run_command "${check_with_bucket}" \
+    || localstack::run_command "${create_with_bucket}"
+}
 
-echo "App command=${make_applicant_bucket}"
-
-# TODO: Update purge
-
-localstack::run_command "${make_applicant_bucket}"
-localstack::run_command "${make_public_bucket}"
+check_or_create_bucket ${APPLICANT_BUCKET_NAME}
+check_or_create_bucket ${PUBLIC_BUCKET_NAME}

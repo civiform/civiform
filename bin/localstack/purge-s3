@@ -6,3 +6,4 @@ source bin/lib.sh
 source bin/localstack/lib.sh
 
 localstack::run_command "s3 rm s3://civiform-local-s3/ --recursive"
+localstack::run_command "s3 rm s3://civiform-local-s3-public/ --recursive"

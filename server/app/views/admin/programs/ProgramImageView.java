@@ -13,7 +13,6 @@ import play.data.FormFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
-import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -28,19 +27,10 @@ public final class ProgramImageView extends BaseHtmlView {
   private final AdminLayout layout;
   private final FormFactory formFactory;
 
-  // TODO(#5676): Use this to upload and render the program image. (Include it for now so we can
-  // verify it can be injected.)
-  @SuppressWarnings("all")
-  private final PublicStorageClient publicStorageClient;
-
   @Inject
-  public ProgramImageView(
-      AdminLayoutFactory layoutFactory,
-      FormFactory formFactory,
-      PublicStorageClient publicStorageClient) {
+  public ProgramImageView(AdminLayoutFactory layoutFactory, FormFactory formFactory) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.formFactory = checkNotNull(formFactory);
-    this.publicStorageClient = checkNotNull(publicStorageClient);
   }
 
   /**
