@@ -84,6 +84,22 @@ describe('Admin question list', () => {
     ])
   })
 
+  it('displays the question with long title wrapped', async () => {
+    const {page, adminQuestions} = ctx
+    await loginAsAdmin(page)
+    await adminQuestions.addTextQuestion({
+      questionName: 'https://civiformstage.somecity.gov/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      questionText: 'first question',
+    })
+
+    await adminQuestions.gotoAdminQuestionsPage()
+
+    await page.locator('#question-bank-filter').fill('first')
+    expect(await adminQuestions.questionBankNames()).toEqual(['first question'])
+    await page.locator('#question-bank-filter').fill('')
+    await validateScreenshot(page, 'question-list-long-title')
+  })
+
   it('filters question list with search query', async () => {
     const {page, adminQuestions} = ctx
     await loginAsAdmin(page)
