@@ -210,8 +210,7 @@ public class ProgramServiceTest extends ResetPostgres {
         .containsExactlyInAnyOrder(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program URL is required"),
-            CiviFormError.of("A program note is required"));
+            CiviFormError.of("A program URL is required"));
   }
 
   @Test
@@ -433,20 +432,13 @@ public class ProgramServiceTest extends ResetPostgres {
   public void validateProgramDataForCreate_returnsErrors() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
-            "",
-            "",
-            "",
-            "",
-            "",
-            DisplayMode.PUBLIC.getValue(),
-            ImmutableList.copyOf(new ArrayList<>()));
+            "", "", "", "", DisplayMode.PUBLIC.getValue(), ImmutableList.copyOf(new ArrayList<>()));
 
     assertThat(result)
         .containsExactlyInAnyOrder(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program URL is required"),
-            CiviFormError.of("A program note is required"));
+            CiviFormError.of("A program URL is required"));
   }
 
   @Test
@@ -455,7 +447,6 @@ public class ProgramServiceTest extends ResetPostgres {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
             adminName,
-            "description",
             "display name",
             "display desc",
             "https://usa.gov",
@@ -473,7 +464,6 @@ public class ProgramServiceTest extends ResetPostgres {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
             "program",
-            "description",
             "display name",
             "display desc",
             "https://usa.gov",
@@ -489,7 +479,6 @@ public class ProgramServiceTest extends ResetPostgres {
   public void validateProgramDataForUpdate_requiresTIListInSELECT_TIMode() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForUpdate(
-            "program",
             "description",
             "display name",
             "https://usa.gov",
@@ -530,7 +519,6 @@ public class ProgramServiceTest extends ResetPostgres {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
             "name-one",
-            "description",
             "display name",
             "display desc",
             "https://usa.gov",
@@ -545,7 +533,6 @@ public class ProgramServiceTest extends ResetPostgres {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
             "name-two",
-            "description",
             "display name",
             "display description",
             "https://usa.gov",
@@ -563,7 +550,6 @@ public class ProgramServiceTest extends ResetPostgres {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
             "name-two",
-            "description",
             "display name",
             "display description",
             "https://usa.gov",
@@ -674,8 +660,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getErrors())
         .containsOnly(
             CiviFormError.of("A public display name for the program is required"),
-            CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program note is required"));
+            CiviFormError.of("A public description for the program is required"));
   }
 
   @Test

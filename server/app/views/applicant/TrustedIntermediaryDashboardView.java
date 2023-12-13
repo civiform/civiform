@@ -5,7 +5,6 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.h2;
 import static j2html.TagCreator.hr;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
@@ -24,7 +23,6 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -42,11 +40,11 @@ import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.admin.ti.TrustedIntermediaryGroupListView;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
-import views.components.Modal;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -57,8 +55,6 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final DateConverter dateConverter;
   public static final String OPTIONAL_INDICATOR = " (optional)";
-  private static final String DEFAULT_CLIENT_MODAL_CONTENT = "No client selected.";
-  private final List<Modal> editClientModals = new ArrayList<>();
 
   @Inject
   public TrustedIntermediaryDashboardView(ApplicantLayout layout, DateConverter dateConverter) {
@@ -83,18 +79,17 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .addMainContent(
                 renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
                 hr(),
-                renderHeader("Add Client").withId("add-client"),
+                renderSubHeader("Add Client").withId("add-client").withClass("my-4"),
                 requiredFieldsExplanationContent(),
                 renderAddNewForm(tiGroup, request),
                 hr().withClasses("mt-6"),
-                renderHeader("Clients"),
+                renderSubHeader("Clients").withClass("my-4"),
                 renderSearchForm(request, searchParameters),
-                renderTIApplicantsTable(managedAccounts, searchParameters, page, totalPageCount),
+                renderTIApplicantsTable(managedAccounts, searchParameters, page, totalPageCount,request),
                 hr().withClasses("mt-6"),
-                renderHeader("Trusted Intermediary Members"),
-                renderTIMembersTable(tiGroup).withClasses("ml-2"))
-            .addMainStyles("px-20", "max-w-screen-xl")
-            .addModals(generateModals(managedAccounts, request));
+                renderSubHeader("Organization members").withClass("my-4"),
+                renderTIMembersTable(tiGroup).withClass("pt-2"))
+            .addMainStyles("px-20", "max-w-screen-xl");
 
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
@@ -107,98 +102,6 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     }
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
   }
-
-  private List<Modal> generateModals(
-      ImmutableList<AccountModel> managedAccounts, Http.Request request) {
-    for (AccountModel account : managedAccounts) {
-      ApplicantData applicantData = account.newestApplicant().get().getApplicantData();
-      FormTag formTag =
-          form()
-              .withId("edit-ti")
-              .withMethod("POST")
-              .withAction(routes.TrustedIntermediaryController.updateClientInfo(account.id).url());
-      List<String> names =
-          Splitter.onPattern(",").splitToList(applicantData.getApplicantFullName().get());
-      FieldWithLabel firstNameField =
-          FieldWithLabel.input()
-              .setId("first-name-input")
-              .setFieldName("firstName")
-              .setLabelText("First Name")
-              .setRequired(true)
-              .setValue(names.get(0));
-      FieldWithLabel middleNameField =
-          FieldWithLabel.input()
-              .setId("middle-name-input")
-              .setFieldName("middleName")
-              .setLabelText("Middle Name")
-              .setValue(names.get(1));
-      FieldWithLabel lastNameField =
-          FieldWithLabel.input()
-              .setId("last-name-input")
-              .setFieldName("lastName")
-              .setLabelText("Last Name")
-              .setRequired(true)
-              .setValue(names.get(2));
-      FieldWithLabel phoneNumberField =
-          FieldWithLabel.input()
-              .setId("current-phone-number-input")
-              .setPlaceholderText("(xxx) xxx-xxxx")
-              .setFieldName("phoneNumber")
-              .setLabelText("Phone Number")
-              .setValue(applicantData.getPhoneNumber().orElse(""));
-      FieldWithLabel emailField =
-          FieldWithLabel.email()
-              .setId("email-input")
-              .setFieldName("emailAddress")
-              .setLabelText("Email Address")
-              .setToolTipIcon(Icons.INFO)
-              .setToolTipText(
-                  "Add an email address for your client to receive status updates about their"
-                      + " application automatically. Without an email, you or your community-based"
-                      + " organization will be responsible for communicating updates to your"
-                      + " client.")
-              .setValue(account.getEmailAddress());
-      FieldWithLabel dateOfBirthField =
-          FieldWithLabel.date()
-              .setId("date-of-birth-input")
-              .setFieldName("dob")
-              .setLabelText("Date Of Birth")
-              .setRequired(true)
-              .setValue(
-                  applicantData
-                      .getDateOfBirth()
-                      .map(this.dateConverter::formatIso8601Date)
-                      .orElse(""));
-      FieldWithLabel tiNoteField =
-          FieldWithLabel.input()
-              .setId("ti-note-input")
-              .setFieldName("tiNote")
-              .setLabelText("Notes")
-              .setValue(account.getTiNote());
-      editClientModals.add(
-          Modal.builder()
-              .setModalId("edit-" + account.id + "-modal")
-              .setLocation(Modal.Location.ADMIN_FACING)
-              .setContent(
-                  div()
-                      .with(
-                          formTag.with(
-                              firstNameField.getInputTag(),
-                              middleNameField.getInputTag(),
-                              lastNameField.getInputTag(),
-                              phoneNumberField.getInputTag(),
-                              emailField.getEmailTag(),
-                              dateOfBirthField.getDateTag(),
-                              tiNoteField.getInputTag(),
-                              makeCsrfTokenInputTag(request),
-                              submitButton("Save").withClasses("ml-2", "mb-6"))))
-              .setModalTitle("Edit Client")
-              .setWidth(Modal.Width.THIRD)
-              .build());
-    }
-    return editClientModals;
-  }
-
   private FormTag renderSearchForm(Http.Request request, SearchParameters searchParameters) {
     return form()
         .withClass("w-1/4")
@@ -235,7 +138,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       ImmutableList<AccountModel> managedAccounts,
       SearchParameters searchParameters,
       int page,
-      int totalPageCount) {
+      int totalPageCount,Http.Request request) {
     DivTag main =
         div(table()
                 .withClasses("border", "border-gray-300", "shadow-md", "flex-auto")
@@ -246,7 +149,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                             managedAccounts.stream()
                                 .sorted(Comparator.comparing(AccountModel::getApplicantName))
                                 .collect(Collectors.toList()),
-                            account -> renderApplicantRow(account)))))
+                            account -> renderApplicantRow(account,request)))))
             .withClasses("mb-16");
     return main.with(
         renderPaginationDiv(
@@ -342,7 +245,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderStatusCell(ti));
   }
 
-  private TrTag renderApplicantRow(AccountModel applicant) {
+  private TrTag renderApplicantRow(AccountModel applicant,Http.Request request) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             "border-b",
@@ -352,32 +255,18 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderApplicantInfoCell(applicant))
         .with(renderActionsCell(applicant))
         .with(renderDateOfBirthCell(applicant))
-        .with(renderUpdateClientInfoCell(applicant));
+        .with(renderUpdateClientInfoCell(applicant,request));
   }
 
-  private TdTag renderUpdateClientInfoCell(AccountModel account) {
-    Modal modal = getModal(account.id);
+  private TdTag renderUpdateClientInfoCell(AccountModel account,Http.Request request) {
+    DivTag modal = ViewUtils.makeUSWDSModal(createFormTagForAccount(account,request), "edit" + account.id + "modal", "Edit Client",
+      "Edit",false,"Save","Cancel" );
     return td().with(
             a().with(
                     button("Edit")
                         .withId("edit" + account.id + "modal")
                         .withClasses("text-xs", "ml-3")
-                        .withId(modal.getTriggerButtonId())));
-  }
-
-  private Modal getModal(Long id) {
-    for (Modal modal : editClientModals) {
-      if (modal.modalId().contains(id.toString())) {
-        return modal;
-      }
-    }
-    return Modal.builder()
-        .setModalId("edit-modal")
-        .setLocation(Modal.Location.ADMIN_FACING)
-        .setContent(div().with(h2(DEFAULT_CLIENT_MODAL_CONTENT)))
-        .setModalTitle("Edit Client")
-        .setWidth(Modal.Width.THIRD)
-        .build();
+                        .with(modal)));
   }
 
   private TdTag renderDateOfBirthCell(AccountModel account) {
@@ -394,6 +283,83 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .orElse("");
     return td().with(div(String.format(currentDob)).withClasses("font-semibold"))
         .withClasses(BaseStyles.TABLE_CELL_STYLES);
+  }
+  private FormTag createFormTagForAccount(AccountModel account,Http.Request request){
+    ApplicantData applicantData = account.newestApplicant().get().getApplicantData();
+    FormTag formTag =
+      form()
+        .withId("edit-ti")
+        .withMethod("POST")
+        .withAction(routes.TrustedIntermediaryController.updateClientInfo(account.id).url());
+    List<String> names =
+      Splitter.onPattern(",").splitToList(applicantData.getApplicantFullName().get());
+    FieldWithLabel firstNameField =
+      FieldWithLabel.input()
+        .setId("first-name-input")
+        .setFieldName("firstName")
+        .setLabelText("First Name")
+        .setRequired(true)
+        .setValue(names.get(0));
+    FieldWithLabel middleNameField =
+      FieldWithLabel.input()
+        .setId("middle-name-input")
+        .setFieldName("middleName")
+        .setLabelText("Middle Name")
+        .setValue(names.get(1));
+    FieldWithLabel lastNameField =
+      FieldWithLabel.input()
+        .setId("last-name-input")
+        .setFieldName("lastName")
+        .setLabelText("Last Name")
+        .setRequired(true)
+        .setValue(names.get(2));
+    FieldWithLabel phoneNumberField =
+      FieldWithLabel.input()
+        .setId("current-phone-number-input")
+        .setPlaceholderText("(xxx) xxx-xxxx")
+        .setFieldName("phoneNumber")
+        .setLabelText("Phone Number")
+        .setValue(applicantData.getPhoneNumber().orElse(""));
+    FieldWithLabel emailField =
+      FieldWithLabel.email()
+        .setId("email-input")
+        .setFieldName("emailAddress")
+        .setLabelText("Email Address")
+        .setToolTipIcon(Icons.INFO)
+        .setToolTipText(
+          "Add an email address for your client to receive status updates about their"
+            + " application automatically. Without an email, you or your community-based"
+            + " organization will be responsible for communicating updates to your"
+            + " client.")
+        .setValue(account.getEmailAddress());
+    FieldWithLabel dateOfBirthField =
+      FieldWithLabel.date()
+        .setId("date-of-birth-input")
+        .setFieldName("dob")
+        .setLabelText("Date Of Birth")
+        .setRequired(true)
+        .setValue(
+          applicantData
+            .getDateOfBirth()
+            .map(this.dateConverter::formatIso8601Date)
+            .orElse(""));
+    FieldWithLabel tiNoteField =
+      FieldWithLabel.input()
+        .setId("ti-note-input")
+        .setFieldName("tiNote")
+        .setLabelText("Notes")
+        .setValue(account.getTiNote());
+
+    return  formTag.with(
+      firstNameField.getInputTag(),
+      middleNameField.getInputTag(),
+      lastNameField.getInputTag(),
+      phoneNumberField.getInputTag(),
+      emailField.getEmailTag(),
+      dateOfBirthField.getDateTag(),
+      tiNoteField.getInputTag(),
+      makeCsrfTokenInputTag(request),
+      submitButton("Save").withClasses("ml-2", "mb-6"));
   }
 
   private TdTag renderApplicantInfoCell(AccountModel applicantAccount) {

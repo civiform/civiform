@@ -371,6 +371,20 @@ public class QuestionDefinitionTest {
   }
 
   @Test
+  public void validate_nameIsNotEntityMetadata() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            configBuilder
+                .setName("entity metadata")
+                .setDescription("test")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "Entity Metadata Test"))
+                .build());
+    assertThat(question.validate())
+        .containsOnly(
+            CiviFormError.of("Administrative identifier 'entity metadata' is not allowed"));
+  }
+
+  @Test
   public void validate_multiOptionQuestion_withoutOptions_returnsError() {
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()

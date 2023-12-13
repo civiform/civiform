@@ -1,16 +1,20 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.li;
 import static j2html.TagCreator.link;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.script;
 import static j2html.TagCreator.span;
+import static j2html.TagCreator.ul;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -30,6 +34,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import services.DateConverter;
 import services.question.types.QuestionDefinition;
+import views.components.ButtonStyles;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.style.BaseStyles;
@@ -369,5 +374,100 @@ public final class ViewUtils {
 
   public static DivTag makeAlertInfoSlim(String text) {
     return makeAlert(text, Optional.empty(), BaseStyles.ALERT_INFO, BaseStyles.ALERT_SLIM);
+  }
+
+  /**
+   * Makes a USWDS Modal component that opens via a button click.
+   * https://designsystem.digital.gov/components/modal/
+   *
+   * @param body The HTML element that will be the main content of the modal.
+   * @param elementIdPrefix The prefix for the HTML element ids.
+   * @param headerText The header text for the modal.
+   * @param linkButtonText The text that will be on the button that opens the modal.
+   * @param hasFooter A boolean value that determines whether to include a footer with action
+   *     buttons. If the main content has a form, the buttons will already be included with the
+   *     form, so no need for the footer.
+   * @param firstButtonText Text for the first footer button.
+   * @param secondButtonText Text for the second footer button.
+   * @return DivTag containing the button that opens the modal and the modal itself.
+   */
+  public static DivTag makeUSWDSModal(
+      ContainerTag body,
+      String elementIdPrefix,
+      String headerText,
+      String linkButtonText,
+      boolean hasFooter,
+      String firstButtonText,
+      String secondButtonText) {
+    // These are the html element ids
+    String modalId = elementIdPrefix + "-modal";
+    String headingId = elementIdPrefix + "-heading";
+    String descriptionId = elementIdPrefix + "-description";
+
+    DivTag modalContent =
+        div()
+            .withClass("usa-modal")
+            .withId(modalId)
+            .attr("aria-labelledby", headingId)
+            .attr("aria-describedby", descriptionId)
+            .with(
+                div()
+                    .withClass("usa-modal__content")
+                    .with(
+                        div()
+                            .withClasses("mx-4", "usa-modal__main")
+                            .with(h2(headerText).withClass("usa-modal__heading").withId(headingId))
+                            .with(
+                                div()
+                                    .withClasses("my-6", "usa-prose")
+                                    .with(body)
+                                    .withId(descriptionId))
+                            .condWith(
+                                hasFooter,
+                                div()
+                                    .withClass("usa-modal__footer")
+                                    .with(
+                                        ul().withClass("usa-button-group")
+                                            .with(
+                                                li().withClass("usa-button-group__item")
+                                                    .with(
+                                                        button(firstButtonText)
+                                                            .withType("button")
+                                                            .withClass("usa-button")
+                                                            .attr("data-close-modal")))
+                                            .with(
+                                                li().withClass("usa-button-group__item")
+                                                    .with(
+                                                        button(secondButtonText)
+                                                            .withType("button")
+                                                            .withClass(
+                                                                "usa-button usa-button--unstyled"
+                                                                    + " padding-105 text-center")
+                                                            .attr("data-close-modal"))))))
+                    .with(
+                        BaseHtmlView.iconOnlyButton("Close this window")
+                            .withClasses(
+                                "usa-button usa-modal__close", ButtonStyles.CLEAR_WITH_ICON, "pt-4")
+                            .attr("data-close-modal")
+                            .with(
+                                Icons.svg(Icons.CLOSE)
+                                    .withClasses("usa-icon")
+                                    .attr("aria-hidden", "true")
+                                    .attr("focusable", "false")
+                                    .attr("role", "img"))));
+
+    // This div has the button that opens the modal
+    DivTag linkDiv =
+        div()
+            .withClass("margin-y-3")
+            .with(
+                a(linkButtonText)
+                    .withHref("#" + modalId)
+                    .withClasses("usa-button", "bg-blue-600")
+                    .attr("aria-controls", modalId)
+                    .attr("data-open-modal"))
+            .with(modalContent);
+
+    return linkDiv;
   }
 }
