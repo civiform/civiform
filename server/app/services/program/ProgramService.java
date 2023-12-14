@@ -350,9 +350,8 @@ public final class ProgramService {
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
       errorsBuilder.add(CiviFormError.of(INVALID_ADMIN_NAME_MSG));
     } else if (StringUtils.isNumeric(MainModule.SLUGIFIER.slugify(adminName))) {
-      errorsBuilder.add(CiviFormError.of(INVALID_PROGRAM_SLUG_MSG);
-    }
-    else if (hasProgramNameCollision(adminName)) {
+      errorsBuilder.add(CiviFormError.of(INVALID_PROGRAM_SLUG_MSG));
+    } else if (hasProgramNameCollision(adminName)) {
       errorsBuilder.add(CiviFormError.of("A program URL of " + adminName + " already exists"));
     }
     return errorsBuilder.build();

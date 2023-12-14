@@ -463,18 +463,16 @@ public class ProgramServiceTest extends ResetPostgres {
   @Parameters({"name with spaces", "DiFfErEnT-cAsEs", "special-characters-$#@"})
   public void validateProgramDataForCreate_requiresSlugBeingAlphanumerical() {
     ImmutableSet<CiviFormError> result =
-      ps.validateProgramDataForCreate(
-        "123456",
-        "display name",
-        "display desc",
-        "https://usa.gov",
-        DisplayMode.PUBLIC.getValue(),
-        ImmutableList.copyOf(new ArrayList<>()));
+        ps.validateProgramDataForCreate(
+            "123456",
+            "display name",
+            "display desc",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.copyOf(new ArrayList<>()));
 
     assertThat(result)
-      .containsExactly(
-        CiviFormError.of(
-          "A program URL may only at least one letter"));
+        .containsExactly(CiviFormError.of("A program URL may only at least one letter"));
   }
 
   @Test
