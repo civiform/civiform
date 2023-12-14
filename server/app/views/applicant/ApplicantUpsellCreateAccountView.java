@@ -124,8 +124,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
 
     var htmlBundle =
         createHtmlBundle(request, layout, title, bannerMessage, loginPromptModal, content);
-
-    var relevantPrograms = applicantPrograms.unapplied();
+    var relevantPrograms = applicantPrograms.unappliedAndPotentiallyEligible();
 
     var otherProgramsContent =
         div()

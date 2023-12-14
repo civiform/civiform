@@ -1413,6 +1413,14 @@ public final class ApplicantService {
 
     public abstract ImmutableList<ApplicantProgramData> unapplied();
 
+    public ImmutableList<ApplicantProgramData> unappliedAndPotentiallyEligible() {
+      return unapplied().stream()
+          .filter(
+              (ApplicantService.ApplicantProgramData applicantProgramData) ->
+                  applicantProgramData.isProgramMaybeEligible().orElse(true))
+          .collect(ImmutableList.toImmutableList());
+    }
+
     static Builder builder() {
       return new AutoValue_ApplicantService_ApplicationPrograms.Builder();
     }
