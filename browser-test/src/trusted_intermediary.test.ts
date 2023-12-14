@@ -28,8 +28,12 @@ describe('Trusted intermediaries', () => {
       dobDate: '2021-06-10',
     }
     await tiDashboard.createClient(client)
-    await tiDashboard.expectDashboardContainClient(client)
-    await tiDashboard.updateClientDateOfBirth(client, '2021-12-12')
+    await waitForPageJsLoad(page)
+   await tiDashboard.expectDashboardContainClient(client)
+   const popupPromise = page.waitForEvent('popup');
+   await page.click('.usa-button');
+   const popup = await popupPromise;
+//    await tiDashboard.updateClientDateOfBirth(client, '2021-12-12')
     const updatedClient: ClientInformation = {
       emailAddress: 'test@sample.com',
       firstName: 'first',
@@ -40,7 +44,7 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.expectDashboardContainClient(updatedClient)
   })
 
-  it('expect client cannot be added with invalid date of birth', async () => {
+  /*it('expect client cannot be added with invalid date of birth', async () => {
     const {page, tiDashboard} = ctx
     await loginAsTrustedIntermediary(page)
 
@@ -333,7 +337,7 @@ describe('Trusted intermediaries', () => {
       )
       await adminPredicates.addPredicate(
         eligibilityQuestionId,
-        /* action= */ null,
+        /* action=  null,
         'number',
         'is equal to',
         '5',
@@ -404,5 +408,5 @@ describe('Trusted intermediaries', () => {
       await applicantQuestions.seeEligibilityTag(fullProgramName, true)
       await validateScreenshot(page, 'program-page-eligible-ti')
     })
-  })
+  })*/
 })

@@ -38,6 +38,23 @@ export const waitForAnyModal = async (
 }
 
 /**
+ * Waits for any USA modal to be displayed.
+ */
+export const waitForAnyUSAModal = async (
+  page: Page | Frame,
+): Promise<ElementHandle<HTMLElement>> => {
+  return (await page.waitForSelector(
+    '.usa-modal:not(.hidden)',
+  )) as unknown as ElementHandle<HTMLElement>
+}
+/**
+ * Dismisses an open usa modal.
+ */
+export const dismissUSAModal = async (page: Page | Frame) => {
+  await page.click('.usa-modal:not(.hidden) .usa-modal-close')
+}
+
+/**
  * Dismisses an open modal.
  */
 export const dismissModal = async (page: Page | Frame) => {
