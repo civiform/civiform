@@ -14,7 +14,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
-import views.applicant.fileupload.ApplicantFileUploadRenderer;
+import views.applicant.ApplicantFileUploadRenderer;
 
 /** A helper class for constructing type-specific applicant question renderers. */
 public final class ApplicantQuestionRendererFactory {

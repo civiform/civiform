@@ -12,7 +12,7 @@ import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
 import play.mvc.Http;
 import services.cloud.StorageUploadRequest;
-import views.applicant.fileupload.ApplicantFileUploadRenderer;
+import views.applicant.ApplicantFileUploadRenderer;
 
 /**
  * Class to render a <form> that supports file upload. Must be subclassed by each cloud storage

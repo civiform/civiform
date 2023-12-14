@@ -1,4 +1,4 @@
-package views.applicant.fileupload;
+package views.applicant;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;

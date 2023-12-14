@@ -56,7 +56,7 @@ import views.applicant.AddressCorrectionBlockView;
 import views.applicant.ApplicantProgramBlockEditView;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
 import views.applicant.IneligibleBlockView;
-import views.applicant.fileupload.ApplicantFileUploadRenderer;
+import views.applicant.ApplicantFileUploadRenderer;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;

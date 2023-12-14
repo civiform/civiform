@@ -24,7 +24,6 @@ import services.applicant.question.ApplicantQuestion;
 import services.question.types.QuestionDefinition;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
-import views.applicant.fileupload.ApplicantFileUploadRenderer;
 import views.components.ButtonStyles;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
