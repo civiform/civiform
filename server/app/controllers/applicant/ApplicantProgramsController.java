@@ -213,7 +213,8 @@ public final class ApplicantProgramsController extends CiviFormController {
   }
 
   @Secure
-  public CompletionStage<Result> edit(Request request, long applicantId, long programId) {
+  public CompletionStage<Result> editWithApplicantId(
+      Request request, long applicantId, long programId) {
     Optional<CiviFormProfile> requesterProfile = profileUtils.currentUserProfile(request);
 
     // If the user doesn't have a profile, send them home.
@@ -268,5 +269,21 @@ public final class ApplicantProgramsController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
+  }
+
+  @Secure
+  public CompletionStage<Result> edit(Request request, long programId) {
+    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
+      // This route is only operative for the new URL schema, so send the user home.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    Optional<Long> applicantId = getApplicantId(request);
+    if (applicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+    return editWithApplicantId(request, applicantId.orElseThrow(), programId);
   }
 }
