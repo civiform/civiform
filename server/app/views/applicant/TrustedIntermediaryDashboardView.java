@@ -1,7 +1,6 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -85,7 +84,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 hr().withClasses("mt-6"),
                 renderSubHeader("Clients").withClass("my-4"),
                 renderSearchForm(request, searchParameters),
-                renderTIApplicantsTable(managedAccounts, searchParameters, page, totalPageCount,request),
+                renderTIApplicantsTable(
+                    managedAccounts, searchParameters, page, totalPageCount, request),
                 hr().withClasses("mt-6"),
                 renderSubHeader("Organization members").withClass("my-4"),
                 renderTIMembersTable(tiGroup).withClass("pt-2"))
@@ -102,6 +102,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     }
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
   }
+
   private FormTag renderSearchForm(Http.Request request, SearchParameters searchParameters) {
     return form()
         .withClass("w-1/4")
@@ -138,7 +139,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       ImmutableList<AccountModel> managedAccounts,
       SearchParameters searchParameters,
       int page,
-      int totalPageCount,Http.Request request) {
+      int totalPageCount,
+      Http.Request request) {
     DivTag main =
         div(table()
                 .withClasses("border", "border-gray-300", "shadow-md", "flex-auto")
@@ -149,7 +151,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                             managedAccounts.stream()
                                 .sorted(Comparator.comparing(AccountModel::getApplicantName))
                                 .collect(Collectors.toList()),
-                            account -> renderApplicantRow(account,request)))))
+                            account -> renderApplicantRow(account, request)))))
             .withClasses("mb-16");
     return main.with(
         renderPaginationDiv(
@@ -245,7 +247,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderStatusCell(ti));
   }
 
-  private TrTag renderApplicantRow(AccountModel applicant,Http.Request request) {
+  private TrTag renderApplicantRow(AccountModel applicant, Http.Request request) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             "border-b",
@@ -255,12 +257,19 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderApplicantInfoCell(applicant))
         .with(renderActionsCell(applicant))
         .with(renderDateOfBirthCell(applicant))
-        .with(renderUpdateClientInfoCell(applicant,request));
+        .with(renderUpdateClientInfoCell(applicant, request));
   }
 
-  private TdTag renderUpdateClientInfoCell(AccountModel account,Http.Request request) {
-    DivTag modal = ViewUtils.makeUSWDSModal(createFormTagForAccount(account,request), "edit-" + account.id, "Edit Client",
-      "Edit",false,"Save","Cancel" );
+  private TdTag renderUpdateClientInfoCell(AccountModel account, Http.Request request) {
+    DivTag modal =
+        ViewUtils.makeUSWDSModal(
+            /* body= */ createFormTagForAccount(account, request),
+            /* elementIdPrefix= */ "edit-" + account.id,
+            /* headerText= */ "Edit Client",
+            /* linkButtonText= */ "Edit",
+            /* hasFooter= */ false,
+            /* firstButtonText= */ "Save",
+            /* secondButtonText= */ "Cancel");
     return td().with(modal);
   }
 
@@ -279,82 +288,83 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return td().with(div(String.format(currentDob)).withClasses("font-semibold"))
         .withClasses(BaseStyles.TABLE_CELL_STYLES);
   }
-  private FormTag createFormTagForAccount(AccountModel account,Http.Request request){
+
+  private FormTag createFormTagForAccount(AccountModel account, Http.Request request) {
     ApplicantData applicantData = account.newestApplicant().get().getApplicantData();
     FormTag formTag =
-      form()
-        .withId("edit-ti")
-        .withMethod("POST")
-        .withAction(routes.TrustedIntermediaryController.updateClientInfo(account.id).url());
+        form()
+            .withId("edit-ti")
+            .withMethod("POST")
+            .withAction(routes.TrustedIntermediaryController.updateClientInfo(account.id).url());
     List<String> names =
-      Splitter.onPattern(",").splitToList(applicantData.getApplicantFullName().get());
+        Splitter.onPattern(",").splitToList(applicantData.getApplicantFullName().get());
     FieldWithLabel firstNameField =
-      FieldWithLabel.input()
-        .setId("first-name-input")
-        .setFieldName("firstName")
-        .setLabelText("First Name")
-        .setRequired(true)
-        .setValue(names.get(0));
+        FieldWithLabel.input()
+            .setId("modal-first-name-input")
+            .setFieldName("firstName")
+            .setLabelText("First Name")
+            .setRequired(true)
+            .setValue(names.get(0));
     FieldWithLabel middleNameField =
-      FieldWithLabel.input()
-        .setId("middle-name-input")
-        .setFieldName("middleName")
-        .setLabelText("Middle Name")
-        .setValue(names.get(1));
+        FieldWithLabel.input()
+            .setId("modal-middle-name-input")
+            .setFieldName("middleName")
+            .setLabelText("Middle Name")
+            .setValue(names.get(1));
     FieldWithLabel lastNameField =
-      FieldWithLabel.input()
-        .setId("last-name-input")
-        .setFieldName("lastName")
-        .setLabelText("Last Name")
-        .setRequired(true)
-        .setValue(names.get(2));
+        FieldWithLabel.input()
+            .setId("modal-last-name-input")
+            .setFieldName("lastName")
+            .setLabelText("Last Name")
+            .setRequired(true)
+            .setValue(names.get(2));
     FieldWithLabel phoneNumberField =
-      FieldWithLabel.input()
-        .setId("current-phone-number-input")
-        .setPlaceholderText("(xxx) xxx-xxxx")
-        .setFieldName("phoneNumber")
-        .setLabelText("Phone Number")
-        .setValue(applicantData.getPhoneNumber().orElse(""));
+        FieldWithLabel.input()
+            .setId("modal-phone-number-input")
+            .setPlaceholderText("(xxx) xxx-xxxx")
+            .setFieldName("phoneNumber")
+            .setLabelText("Phone Number")
+            .setValue(applicantData.getPhoneNumber().orElse(""));
     FieldWithLabel emailField =
-      FieldWithLabel.email()
-        .setId("email-input")
-        .setFieldName("emailAddress")
-        .setLabelText("Email Address")
-        .setToolTipIcon(Icons.INFO)
-        .setToolTipText(
-          "Add an email address for your client to receive status updates about their"
-            + " application automatically. Without an email, you or your community-based"
-            + " organization will be responsible for communicating updates to your"
-            + " client.")
-        .setValue(account.getEmailAddress());
+        FieldWithLabel.email()
+            .setId("modal-email-input")
+            .setFieldName("emailAddress")
+            .setLabelText("Email Address")
+            .setToolTipIcon(Icons.INFO)
+            .setToolTipText(
+                "Add an email address for your client to receive status updates about their"
+                    + " application automatically. Without an email, you or your community-based"
+                    + " organization will be responsible for communicating updates to your"
+                    + " client.")
+            .setValue(account.getEmailAddress());
     FieldWithLabel dateOfBirthField =
-      FieldWithLabel.date()
-        .setId("date-of-birth-input")
-        .setFieldName("dob")
-        .setLabelText("Date Of Birth")
-        .setRequired(true)
-        .setValue(
-          applicantData
-            .getDateOfBirth()
-            .map(this.dateConverter::formatIso8601Date)
-            .orElse(""));
+        FieldWithLabel.date()
+            .setId("modal-date-of-birth-input")
+            .setFieldName("dob")
+            .setLabelText("Date Of Birth")
+            .setRequired(true)
+            .setValue(
+                applicantData
+                    .getDateOfBirth()
+                    .map(this.dateConverter::formatIso8601Date)
+                    .orElse(""));
     FieldWithLabel tiNoteField =
-      FieldWithLabel.input()
-        .setId("ti-note-input")
-        .setFieldName("tiNote")
-        .setLabelText("Notes")
-        .setValue(account.getTiNote());
+        FieldWithLabel.input()
+            .setId("modal-ti-note-input")
+            .setFieldName("tiNote")
+            .setLabelText("Notes")
+            .setValue(account.getTiNote());
 
-    return  formTag.with(
-      firstNameField.getInputTag(),
-      middleNameField.getInputTag(),
-      lastNameField.getInputTag(),
-      phoneNumberField.getInputTag(),
-      emailField.getEmailTag(),
-      dateOfBirthField.getDateTag(),
-      tiNoteField.getInputTag(),
-      makeCsrfTokenInputTag(request),
-      submitButton("Save").withClasses("ml-2", "mb-6"));
+    return formTag.with(
+        firstNameField.getInputTag(),
+        middleNameField.getInputTag(),
+        lastNameField.getInputTag(),
+        phoneNumberField.getInputTag(),
+        emailField.getEmailTag(),
+        dateOfBirthField.getDateTag(),
+        tiNoteField.getInputTag(),
+        makeCsrfTokenInputTag(request),
+        submitButton("Save").withId("update-client-save").withClasses("ml-2", "mb-6"));
   }
 
   private TdTag renderApplicantInfoCell(AccountModel applicantAccount) {

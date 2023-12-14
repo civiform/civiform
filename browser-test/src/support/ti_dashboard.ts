@@ -1,5 +1,5 @@
 import {Page} from 'playwright'
-import {waitForPageJsLoad,waitForAnyUSAModal,dismissUSAModal} from './wait'
+import {waitForPageJsLoad} from './wait'
 
 /*
  * This class is to test Civiform in the TI path
@@ -33,27 +33,17 @@ export class TIDashboard {
   }
 
   async updateClientDateOfBirth(client: ClientInformation, newDobDate: string) {
-    let modal = await waitForAnyUSAModal(this.page)
-    expect(await modal.innerText()).toContain(`dob`)
+    await this.page
+      .getByRole('row')
+      .filter({hasText: client.emailAddress})
+      .getByRole('button', {name: 'Edit'})
+      .click()
 
+    await this.page.waitForSelector('h2:has-text("Edit Client")')
+    // const text = await page.innerHTML('div[class="usa-modal"]')
+    await this.page.fill('#modal-date-of-birth-input', newDobDate)
+    await this.page.click('#update-client-save')
   }
-
-
-//     //await page.click('#program-update-button')
-
-//     const popupPromise = this.page.waitForEvent('popup')
-//     await this.page.click('text=Edit')
-//     const popup = await popupPromise
-
-// //    expect(await modal.innerText()).toContain(`Confirm pre-screener change?`)
-//     await this.page.click('text="Edit"')
-//     //const popupPromise = this.page.waitForEvent('popup')
-//     //const popup = await popupPromise
-//     //await popup.fill('label:has-text("dob")', newDobDate)
-
-//     await this.page.click('text="Save"')
-
- // }
 
   async expectDashboardContainClient(client: ClientInformation) {
     const row = this.page.locator(
@@ -62,8 +52,7 @@ export class TIDashboard {
     const rowText = await row.innerText()
     expect(rowText).toContain(client.emailAddress)
     // date of birth rendered as <input> rather than plain text.
-    expect(rowText).toContain(client.dobDate);
-    
+    expect(rowText).toContain(client.dobDate)
   }
 
   async expectDashboardNotContainClient(client: ClientInformation) {
