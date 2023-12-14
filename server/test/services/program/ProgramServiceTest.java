@@ -460,6 +460,24 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  @Parameters({"name with spaces", "DiFfErEnT-cAsEs", "special-characters-$#@"})
+  public void validateProgramDataForCreate_requiresSlugBeingAlphanumerical() {
+    ImmutableSet<CiviFormError> result =
+      ps.validateProgramDataForCreate(
+        "123456",
+        "display name",
+        "display desc",
+        "https://usa.gov",
+        DisplayMode.PUBLIC.getValue(),
+        ImmutableList.copyOf(new ArrayList<>()));
+
+    assertThat(result)
+      .containsExactly(
+        CiviFormError.of(
+          "A program URL may only contain lowercase letters, numbers, and dashes"));
+  }
+
+  @Test
   public void validateProgramDataForCreate_requiresTIListInSelectTiMode() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
