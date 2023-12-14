@@ -24,15 +24,12 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import play.Environment;
-import services.cloud.StorageClient;
+import services.cloud.ApplicantStorageClient;
 import services.cloud.StorageServiceName;
 
-/**
- * BlobStorage provides methods to create federated links for users of CiviForm to upload and
- * download files directly to and from Azure Blob Storage.
- */
+/** An Azure Blob Storage implementation of {@link ApplicantStorageClient}. */
 @Singleton
-public class BlobStorage implements StorageClient {
+public class AzureApplicantStorage implements ApplicantStorageClient {
 
   public static final String AZURE_STORAGE_ACCT_CONF_PATH = "azure.blob.account";
   public static final String AZURE_CONTAINER_CONF_PATH = "azure.blob.container";
@@ -52,7 +49,7 @@ public class BlobStorage implements StorageClient {
   private final ZoneId zoneId;
 
   @Inject
-  public BlobStorage(
+  public AzureApplicantStorage(
       Credentials credentials, Config config, Environment environment, ZoneId zoneId) {
 
     this.credentials = checkNotNull(credentials);

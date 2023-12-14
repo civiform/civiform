@@ -30,7 +30,7 @@ import software.amazon.awssdk.utils.BinaryUtils;
  *
  * <p>SignedS3UploadRequest provides a builder to construct an object from necessary information.
  * That said, users of this class most likely want to obtain an constructed object from {@link
- * SimpleStorage#getSignedUploadRequest}.
+ * AwsApplicantStorage#getSignedUploadRequest}.
  */
 @AutoValue
 public abstract class SignedS3UploadRequest implements StorageUploadRequest {
