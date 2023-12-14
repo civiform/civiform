@@ -19,6 +19,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
   public void getSignedUploadRequest_prodEnv_actionLinkIsProdAws() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
+            instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             instanceOf(Credentials.class),
             instanceOf(Config.class),
@@ -34,6 +35,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
   public void getSignedUploadRequest_devEnv_actionLinkIsLocalStack() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
+            instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             instanceOf(Credentials.class),
             instanceOf(Config.class),
@@ -52,7 +54,11 @@ public class AwsPublicStorageTest extends ResetPostgres {
     Credentials credentials = instanceOf(Credentials.class);
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
-            region, credentials, instanceOf(Config.class), instanceOf(Environment.class));
+            instanceOf(AwsStorageUtils.class),
+            region,
+            credentials,
+            instanceOf(Config.class),
+            instanceOf(Environment.class));
 
     SignedS3UploadRequest uploadRequest =
         awsPublicStorage.getSignedUploadRequest("fileKey", "redirect");
@@ -113,6 +119,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
     when(sessionCredentials.sessionToken()).thenReturn("testSessionToken");
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
+            instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             credentials,
             instanceOf(Config.class),
@@ -134,6 +141,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
 
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
+            instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             credentials,
             instanceOf(Config.class),

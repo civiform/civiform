@@ -12,9 +12,10 @@ import software.amazon.awssdk.regions.Region;
 /** An AWS Simple Storage Service (S3) implementation of public storage. */
 @Singleton
 public final class AwsPublicStorage implements PublicStorageClient {
-  private static final String AWS_PUBLIC_S3_BUCKET_CONF_PATH = "aws.s3.publicbucket";
-  private static final String AWS_PUBLIC_S3_FILE_LIMIT_CONF_PATH = "aws.s3.publicfilelimitmb";
+  private static final String AWS_PUBLIC_S3_BUCKET_CONF_PATH = "aws.s3.public_bucket";
+  private static final String AWS_PUBLIC_S3_FILE_LIMIT_CONF_PATH = "aws.s3.public_file_limit_mb";
 
+  private final AwsStorageUtils awsStorageUtils;
   private final Region region;
   private final Credentials credentials;
   private final String bucket;
@@ -23,13 +24,18 @@ public final class AwsPublicStorage implements PublicStorageClient {
 
   @Inject
   public AwsPublicStorage(
-      AwsRegion region, Credentials credentials, Config config, Environment environment) {
+      AwsStorageUtils awsStorageUtils,
+      AwsRegion region,
+      Credentials credentials,
+      Config config,
+      Environment environment) {
+    this.awsStorageUtils = checkNotNull(awsStorageUtils);
     this.region = checkNotNull(region).get();
     this.credentials = checkNotNull(credentials);
     this.bucket = checkNotNull(config).getString(AWS_PUBLIC_S3_BUCKET_CONF_PATH);
     this.fileLimitMb = checkNotNull(config).getInt(AWS_PUBLIC_S3_FILE_LIMIT_CONF_PATH);
     if (environment.isDev()) {
-      client = new LocalStackClient(config);
+      client = new LocalStackClient(config, awsStorageUtils);
     } else if (environment.isTest()) {
       client = new NullClient();
     } else {
@@ -40,7 +46,7 @@ public final class AwsPublicStorage implements PublicStorageClient {
   @Override
   public SignedS3UploadRequest getSignedUploadRequest(
       String fileKey, String successRedirectActionLink) {
-    return AwsStorageUtils.getSignedUploadRequest(
+    return awsStorageUtils.getSignedUploadRequest(
         credentials,
         region,
         fileLimitMb,
@@ -70,20 +76,22 @@ public final class AwsPublicStorage implements PublicStorageClient {
   class AwsClient implements Client {
     @Override
     public String actionLink() {
-      return AwsStorageUtils.prodAwsActionLink(bucket, region);
+      return awsStorageUtils.prodAwsActionLink(bucket, region);
     }
   }
 
   class LocalStackClient implements Client {
     private final Config config;
+    private final AwsStorageUtils awsStorageUtils;
 
-    LocalStackClient(Config config) {
-      this.config = config;
+    LocalStackClient(Config config, AwsStorageUtils awsStorageUtils) {
+      this.config = checkNotNull(config);
+      this.awsStorageUtils = checkNotNull(awsStorageUtils);
     }
 
     @Override
     public String actionLink() {
-      return AwsStorageUtils.localStackActionLink(config, bucket, region);
+      return awsStorageUtils.localStackActionLink(config, bucket, region);
     }
   }
 }

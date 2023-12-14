@@ -20,6 +20,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
   public void getSignedUploadRequest_prodEnv_actionLinkIsProdAws() {
     AwsApplicantStorage awsApplicantStorage =
         new AwsApplicantStorage(
+            instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             instanceOf(Credentials.class),
             instanceOf(Config.class),
@@ -36,6 +37,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
   public void getSignedUploadRequest_devEnv_actionLinkIsLocalStack() {
     AwsApplicantStorage awsApplicantStorage =
         new AwsApplicantStorage(
+            instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             instanceOf(Credentials.class),
             instanceOf(Config.class),
@@ -55,6 +57,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
     Credentials credentials = instanceOf(Credentials.class);
     AwsApplicantStorage awsApplicantStorage =
         new AwsApplicantStorage(
+            instanceOf(AwsStorageUtils.class),
             region,
             credentials,
             instanceOf(Config.class),
@@ -120,6 +123,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
     when(sessionCredentials.sessionToken()).thenReturn("testSessionToken");
     AwsApplicantStorage awsApplicantStorage =
         new AwsApplicantStorage(
+            instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             credentials,
             instanceOf(Config.class),
@@ -142,6 +146,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
 
     AwsApplicantStorage awsApplicantStorage =
         new AwsApplicantStorage(
+            instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             credentials,
             instanceOf(Config.class),

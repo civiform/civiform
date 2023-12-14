@@ -31,6 +31,7 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
   private static final String AWS_S3_BUCKET_CONF_PATH = "aws.s3.bucket";
   private static final String AWS_S3_FILE_LIMIT_CONF_PATH = "aws.s3.filelimitmb";
 
+  private final AwsStorageUtils awsStorageUtils;
   private final Region region;
   private final Credentials credentials;
   private final String bucket;
@@ -39,21 +40,23 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
 
   @Inject
   public AwsApplicantStorage(
+      AwsStorageUtils awsStorageUtils,
       AwsRegion region,
       Credentials credentials,
       Config config,
       Environment environment,
       ApplicationLifecycle appLifecycle) {
+    this.awsStorageUtils = checkNotNull(awsStorageUtils);
     this.region = checkNotNull(region).get();
     this.credentials = checkNotNull(credentials);
     this.bucket = checkNotNull(config).getString(AWS_S3_BUCKET_CONF_PATH);
     this.fileLimitMb = checkNotNull(config).getInt(AWS_S3_FILE_LIMIT_CONF_PATH);
     if (environment.isDev()) {
-      client = new LocalStackClient(config);
+      client = new LocalStackClient(config, awsStorageUtils);
     } else if (environment.isTest()) {
       client = new NullClient();
     } else {
-      client = new AwsClient();
+      client = new AwsClient(awsStorageUtils);
     }
 
     appLifecycle.addStopHook(
@@ -87,7 +90,7 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
   @Override
   public SignedS3UploadRequest getSignedUploadRequest(
       String fileKey, String successActionRedirect) {
-    return AwsStorageUtils.getSignedUploadRequest(
+    return awsStorageUtils.getSignedUploadRequest(
         credentials,
         region,
         fileLimitMb,
@@ -145,10 +148,11 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
   }
 
   class AwsClient implements Client {
-
+    private final AwsStorageUtils awsStorageUtils;
     private final S3Presigner presigner;
 
-    AwsClient() {
+    AwsClient(AwsStorageUtils awsStorageUtils) {
+      this.awsStorageUtils = checkNotNull(awsStorageUtils);
       presigner = S3Presigner.builder().region(region).build();
     }
 
@@ -159,7 +163,7 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
 
     @Override
     public String actionLink() {
-      return AwsStorageUtils.prodAwsActionLink(bucket, region);
+      return awsStorageUtils.prodAwsActionLink(bucket, region);
     }
 
     @Override
@@ -170,11 +174,13 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
 
   class LocalStackClient implements Client {
     private final Config config;
+    private final AwsStorageUtils awsStorageUtils;
     private final S3Presigner presigner;
 
-    LocalStackClient(Config config) {
-      this.config = config;
-      String localEndpoint = AwsStorageUtils.localStackEndpoint(config);
+    LocalStackClient(Config config, AwsStorageUtils awsStorageUtils) {
+      this.config = checkNotNull(config);
+      this.awsStorageUtils = checkNotNull(awsStorageUtils);
+      String localEndpoint = awsStorageUtils.localStackEndpoint(config);
       try {
         URI localUri = new URI(localEndpoint);
         presigner = S3Presigner.builder().endpointOverride(localUri).region(region).build();
@@ -190,7 +196,7 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
 
     @Override
     public String actionLink() {
-      return AwsStorageUtils.localStackActionLink(config, bucket, region);
+      return awsStorageUtils.localStackActionLink(config, bucket, region);
     }
 
     @Override

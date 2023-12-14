@@ -14,7 +14,6 @@ import software.amazon.awssdk.services.s3.endpoints.S3EndpointProvider;
 
 /** Class providing helper methods for working with AWS Simple Storage Service (S3). */
 public final class AwsStorageUtils {
-  private AwsStorageUtils() {}
 
   /**
    * The duration that a signed upload or download request URL from {@link #getSignedUploadRequest}
@@ -32,7 +31,7 @@ public final class AwsStorageUtils {
    * Returns a signed upload request to upload a file with the given {@code fileKey} to the given
    * {@code bucketName}.
    */
-  public static SignedS3UploadRequest getSignedUploadRequest(
+  public SignedS3UploadRequest getSignedUploadRequest(
       Credentials credentials,
       Region region,
       int fileLimitMb,
@@ -61,12 +60,12 @@ public final class AwsStorageUtils {
   }
 
   /** Returns the action link to use when uploading or downloading to a production AWS instance. */
-  public static String prodAwsActionLink(String bucketName, Region region) {
+  public String prodAwsActionLink(String bucketName, Region region) {
     return String.format("https://%s.s3.%s.amazonaws.com/", bucketName, region.id());
   }
 
   /** Returns the action link to use when uploading or downloading to LocalStack. */
-  public static String localStackActionLink(Config config, String bucketName, Region region) {
+  public String localStackActionLink(Config config, String bucketName, Region region) {
     try {
       return S3EndpointProvider.defaultProvider()
           .resolveEndpoint(
@@ -81,7 +80,7 @@ public final class AwsStorageUtils {
   }
 
   /** Returns the endpoint to use to connect with LocalStack. */
-  public static String localStackEndpoint(Config config) {
+  public String localStackEndpoint(Config config) {
     String localEndpoint = checkNotNull(config).getString(AWS_LOCAL_ENDPOINT_CONF_PATH);
     try {
       URI localUri = new URI(localEndpoint);
