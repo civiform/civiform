@@ -126,28 +126,30 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
         createHtmlBundle(request, layout, title, bannerMessage, loginPromptModal, content);
     var relevantPrograms = applicantPrograms.unappliedAndPotentiallyEligible();
 
-    var otherProgramsContent =
+    if (relevantPrograms.size() > 0) {
+      var otherProgramsContent =
         div()
-            .withClasses("p-4 sm:p-6 my-6 bg-blue-100")
-            .with(
-                h2(messages.at(CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR.getKeyName()))
-                    .withClasses("mb-4 font-bold"),
-                applicantProgramDisplayPartial.programCardsSection(
-                    request,
-                    messages,
-                    personalInfo,
-                    /* sectionTitle= */ Optional.empty(),
-                    applicantProgramDisplayPartial.programCardsContainerStyles(
-                        ApplicantProgramDisplayPartial.ContainerWidth.MEDIUM,
-                        relevantPrograms.size()),
-                    applicantId,
-                    locale,
-                    relevantPrograms,
-                    MessageKey.BUTTON_APPLY,
-                    MessageKey.BUTTON_APPLY_SR,
-                    htmlBundle));
+          .withClasses("p-4 sm:p-6 my-6 bg-blue-100")
+          .with(
+            h2(messages.at(CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR.getKeyName()))
+              .withClasses("mb-4 font-bold"),
+            applicantProgramDisplayPartial.programCardsSection(
+              request,
+              messages,
+              personalInfo,
+              /* sectionTitle= */ Optional.empty(),
+              applicantProgramDisplayPartial.programCardsContainerStyles(
+                ApplicantProgramDisplayPartial.ContainerWidth.MEDIUM,
+                relevantPrograms.size()),
+              applicantId,
+              locale,
+              relevantPrograms,
+              MessageKey.BUTTON_APPLY,
+              MessageKey.BUTTON_APPLY_SR,
+              htmlBundle));
 
-    htmlBundle.addMainContent(otherProgramsContent);
+      htmlBundle.addMainContent(otherProgramsContent);
+    }
 
     return layout.renderWithNav(request, personalInfo, messages, htmlBundle, applicantId);
   }
