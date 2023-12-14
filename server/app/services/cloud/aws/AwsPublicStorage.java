@@ -36,10 +36,10 @@ public final class AwsPublicStorage implements PublicStorageClient {
     this.fileLimitMb = checkNotNull(config).getInt(AWS_PUBLIC_S3_FILE_LIMIT_CONF_PATH);
     if (environment.isDev()) {
       client = new LocalStackClient(config, awsStorageUtils);
-    } else if (environment.isTest()) {
-      client = new NullClient();
-    } else {
+    } else if (environment.isProd()) {
       client = new AwsClient();
+    } else {
+      client = new NullClient();
     }
   }
 

@@ -25,6 +25,7 @@ import views.applicant.ApplicantProgramBlockEditViewFactory;
 public class CloudStorageModule extends AbstractModule {
   private final Config config;
 
+  // Environment must always be provided as a param, even if it's unused.
   public CloudStorageModule(Environment unused, Config config) {
     this.config = checkNotNull(config);
   }

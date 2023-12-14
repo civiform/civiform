@@ -49,6 +49,23 @@ public class AwsPublicStorageTest extends ResetPostgres {
   }
 
   @Test
+  public void getSignedUploadRequest_testEnv_notLocalStackOrProdAws() {
+    AwsPublicStorage awsPublicStorage =
+            new AwsPublicStorage(
+                    instanceOf(AwsStorageUtils.class),
+                    instanceOf(AwsRegion.class),
+                    instanceOf(Credentials.class),
+                    instanceOf(Config.class),
+                    new Environment(new File("."), Environment.class.getClassLoader(), Mode.TEST));
+
+    SignedS3UploadRequest uploadRequest =
+            awsPublicStorage.getSignedUploadRequest("fileKey", "redirect");
+
+    assertThat(uploadRequest.actionLink()).doesNotContain("localstack");
+    assertThat(uploadRequest.actionLink()).doesNotContain("amazonaws.com");
+  }
+
+  @Test
   public void getSignedUploadRequest_hasCredentialsAndRegion() {
     AwsRegion region = instanceOf(AwsRegion.class);
     Credentials credentials = instanceOf(Credentials.class);
