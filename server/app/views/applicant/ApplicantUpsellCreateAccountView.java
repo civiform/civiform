@@ -3,6 +3,7 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.section;
+import static services.MessageKey.CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR;
 import static views.applicant.AuthenticateUpsellCreator.createLoginButton;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.applicant.AuthenticateUpsellCreator.createNewAccountButton;
@@ -22,6 +23,7 @@ import play.twirl.api.Content;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
+import services.applicant.ApplicantService;
 import services.settings.SettingsManifest;
 import views.components.ButtonStyles;
 import views.components.Modal;
@@ -33,14 +35,17 @@ import views.style.ReferenceClasses;
 public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView {
 
   private final ApplicantLayout layout;
+  private final ApplicantProgramDisplayPartial applicantProgramDisplayPartial;
   private final String authProviderName;
   private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantUpsellCreateAccountView(
       ApplicantLayout layout,
+      ApplicantProgramDisplayPartial applicantProgramDisplayPartial,
       SettingsManifest settingsManifest,
       @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
+    this.applicantProgramDisplayPartial = checkNotNull(applicantProgramDisplayPartial);
     this.layout = checkNotNull(layout);
     this.settingsManifest = settingsManifest;
     this.authProviderName = checkNotNull(authProviderName);
@@ -49,6 +54,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
   /** Renders a sign-up page with a baked-in redirect. */
   public Content render(
       Http.Request request,
+      ApplicantService.ApplicationPrograms relevantPrograms,
       String redirectTo,
       AccountModel account,
       Locale locale,
@@ -95,6 +101,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                     applicantId));
 
     String title = messages.at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName());
+
     var content =
         createMainContent(
             title,
@@ -106,18 +113,39 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                     .with(
                         TextFormatter.formatText(
                             customConfirmationMessage.getOrDefault(locale),
-                            /*preserveEmptyLines= */ true,
-                            /*addRequiredIndicator= */ false))
+                            /* preserveEmptyLines= */ true,
+                            /* addRequiredIndicator= */ false))
                     .withClasses("mb-4")),
             shouldUpsell,
             messages,
             authProviderName,
             actionButtons);
+
+    var otherProgramsContent =
+        applicantProgramDisplayPartial.programCardsSection(
+            request,
+            messages,
+            personalInfo,
+            Optional.of(CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR),
+            "",
+            applicantId,
+            locale,
+            relevantPrograms.unapplied(),
+            MessageKey.BUTTON_APPLY,
+            MessageKey.BUTTON_APPLY_SR,
+            layout.getBundle(request));
+
     return layout.renderWithNav(
         request,
         personalInfo,
         messages,
-        createHtmlBundle(request, layout, title, bannerMessage, loginPromptModal, content),
+        createHtmlBundle(
+            request,
+            layout,
+            title,
+            bannerMessage,
+            loginPromptModal,
+            div(content, otherProgramsContent)),
         applicantId);
   }
 }

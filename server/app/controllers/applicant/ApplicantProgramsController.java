@@ -67,9 +67,9 @@ public final class ApplicantProgramsController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    Optional<ToastMessage> banner = request.flash().get("banner").map(m -> ToastMessage.alert(m));
+    Optional<ToastMessage> banner = request.flash().get("banner").map(ToastMessage::alert);
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId);
+        applicantService.getPersonalInfo(applicantId);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
@@ -77,8 +77,8 @@ public final class ApplicantProgramsController extends CiviFormController {
             v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile.get()),
             httpContext.current())
         .thenApplyAsync(
-            applicationPrograms -> {
-              return ok(programIndexView.render(
+            applicationPrograms ->
+              ok(programIndexView.render(
                       messagesApi.preferred(request),
                       request,
                       applicantId,
@@ -88,8 +88,8 @@ public final class ApplicantProgramsController extends CiviFormController {
                   // If the user has been to the index page, any existing redirects should be
                   // cleared to avoid an experience where they're unexpectedly redirected after
                   // logging in.
-                  .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
-            },
+                  .removingFromSession(request, REDIRECT_TO_SESSION_KEY)
+            ,
             httpContext.current())
         .exceptionally(
             ex -> {

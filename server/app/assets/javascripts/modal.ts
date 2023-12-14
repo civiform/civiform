@@ -9,6 +9,7 @@ export class ModalController {
   static attachModalListeners(modalContainer: Element, modal: HTMLElement) {
     // Connect the modal to its button
     const modalButton = document.querySelector(`#${modal.id}-button`)
+    debugger
     if (modalButton) {
       modalButton.addEventListener(
         'click',
