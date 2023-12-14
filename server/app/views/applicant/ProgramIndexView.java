@@ -185,7 +185,8 @@ public final class ProgramIndexView extends BaseHtmlView {
     // The different program card containers should have the same styling, by using the program
     // count of the larger set of programs
     String cardContainerStyles =
-      applicantProgramDisplayPartial.programCardsContainerStyles(
+        applicantProgramDisplayPartial.programCardsContainerStyles(
+            ApplicantProgramDisplayPartial.ContainerWidth.FULL,
             Math.max(
                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
                 relevantPrograms.inProgress().size()));

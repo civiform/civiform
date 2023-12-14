@@ -78,18 +78,17 @@ public final class ApplicantProgramsController extends CiviFormController {
             httpContext.current())
         .thenApplyAsync(
             applicationPrograms ->
-              ok(programIndexView.render(
-                      messagesApi.preferred(request),
-                      request,
-                      applicantId,
-                      applicantStage.toCompletableFuture().join(),
-                      applicationPrograms,
-                      banner))
-                  // If the user has been to the index page, any existing redirects should be
-                  // cleared to avoid an experience where they're unexpectedly redirected after
-                  // logging in.
-                  .removingFromSession(request, REDIRECT_TO_SESSION_KEY)
-            ,
+                ok(programIndexView.render(
+                        messagesApi.preferred(request),
+                        request,
+                        applicantId,
+                        applicantStage.toCompletableFuture().join(),
+                        applicationPrograms,
+                        banner))
+                    // If the user has been to the index page, any existing redirects should be
+                    // cleared to avoid an experience where they're unexpectedly redirected after
+                    // logging in.
+                    .removingFromSession(request, REDIRECT_TO_SESSION_KEY),
             httpContext.current())
         .exceptionally(
             ex -> {

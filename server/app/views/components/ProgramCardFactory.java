@@ -46,14 +46,14 @@ public final class ProgramCardFactory {
     DivTag statusDiv = div();
     if (cardData.draftProgram().isPresent()) {
       statusDiv =
-          statusDiv.with(renderProgramRow(/* isActive = */ false, cardData.draftProgram().get()));
+          statusDiv.with(renderProgramRow(/* isActive= */ false, cardData.draftProgram().get()));
     }
 
     if (cardData.activeProgram().isPresent()) {
       statusDiv =
           statusDiv.with(
               renderProgramRow(
-                  /* isActive = */ true,
+                  /* isActive= */ true,
                   cardData.activeProgram().get(),
                   cardData.draftProgram().isPresent() ? "border-t" : ""));
     }
@@ -76,8 +76,8 @@ public final class ProgramCardFactory {
                             .with(
                                 TextFormatter.formatText(
                                     programDescriptionText,
-                                    /*preserveEmptyLines=*/ false,
-                                    /*addRequiredIndicator=*/ false))
+                                    /* preserveEmptyLines= */ false,
+                                    /* addRequiredIndicator= */ false))
                             .withClasses("line-clamp-2", "text-gray-700", "text-base"))
                     .condWith(
                         shouldShowCommonIntakeFormIndicator(request, displayProgram),

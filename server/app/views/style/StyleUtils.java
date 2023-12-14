@@ -17,6 +17,7 @@ public final class StyleUtils {
   public static String RESPONSIVE_LG = "lg";
   public static String RESPONSIVE_XL = "xl";
   public static String RESPONSIVE_2XL = "2xl";
+  public static String RESPONSIVE_3XL = "3xl";
 
   public static String applyUtilityClass(String utility, String... styles) {
     return applyUtilityClass(utility, Stream.of(styles));
@@ -104,6 +105,10 @@ public final class StyleUtils {
 
   public static String responsive2XLarge(String... styles) {
     return applyUtilityClass(RESPONSIVE_2XL, styles);
+  }
+
+  public static String responsive3XLarge(String... styles) {
+    return applyUtilityClass(RESPONSIVE_3XL, styles);
   }
 
   public static String responsive2XLarge(ImmutableList<String> styles) {

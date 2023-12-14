@@ -3,7 +3,6 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
-import static j2html.TagCreator.html;
 import static j2html.TagCreator.section;
 import static services.MessageKey.CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR;
 import static views.applicant.AuthenticateUpsellCreator.createLoginButton;
@@ -123,41 +122,34 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
             authProviderName,
             actionButtons);
 
-    var htmlBundle = createHtmlBundle(
-      request,
-      layout,
-      title,
-      bannerMessage,
-      loginPromptModal,
-      content);
+    var htmlBundle =
+        createHtmlBundle(request, layout, title, bannerMessage, loginPromptModal, content);
 
     var relevantPrograms = applicantPrograms.unapplied();
 
     var otherProgramsContent =
-      div()
-        .withClasses("p-4 sm:p-6 my-6 bg-blue-100")
-        .with(
-          h2(messages.at(CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR.getKeyName())).withClasses("mb-4 font-bold"),
-          applicantProgramDisplayPartial.programCardsSection(
-            request,
-            messages,
-            personalInfo,
-            /* sectionTitle= */ Optional.empty(),
-            applicantProgramDisplayPartial.programCardsContainerStyles(relevantPrograms.size()),
-            applicantId,
-            locale,
-            relevantPrograms,
-            MessageKey.BUTTON_APPLY,
-            MessageKey.BUTTON_APPLY_SR,
-            htmlBundle));
+        div()
+            .withClasses("p-4 sm:p-6 my-6 bg-blue-100")
+            .with(
+                h2(messages.at(CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR.getKeyName()))
+                    .withClasses("mb-4 font-bold"),
+                applicantProgramDisplayPartial.programCardsSection(
+                    request,
+                    messages,
+                    personalInfo,
+                    /* sectionTitle= */ Optional.empty(),
+                    applicantProgramDisplayPartial.programCardsContainerStyles(
+                        ApplicantProgramDisplayPartial.ContainerWidth.MEDIUM,
+                        relevantPrograms.size()),
+                    applicantId,
+                    locale,
+                    relevantPrograms,
+                    MessageKey.BUTTON_APPLY,
+                    MessageKey.BUTTON_APPLY_SR,
+                    htmlBundle));
 
     htmlBundle.addMainContent(otherProgramsContent);
 
-    return layout.renderWithNav(
-        request,
-        personalInfo,
-        messages,
-        htmlBundle,
-        applicantId);
+    return layout.renderWithNav(request, personalInfo, messages, htmlBundle, applicantId);
   }
 }
