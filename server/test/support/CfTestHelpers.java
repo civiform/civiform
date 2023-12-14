@@ -190,13 +190,4 @@ public class CfTestHelpers {
 
     return new ResultWithFinalRequestUri(currentResult, currentRequestUri);
   }
-
-  public static Http.RequestBuilder addQueryStringToRequest(
-      Http.RequestBuilder request, ImmutableMap<String, String> query) {
-    String queryString =
-        query.entrySet().stream()
-            .map(entry -> String.format("%s=%s", entry.getKey(), entry.getValue()))
-            .collect(Collectors.joining("&"));
-    return request.uri(request.uri() + "?" + queryString);
-  }
 }
