@@ -16,10 +16,8 @@ export class AdminProgramImage {
     await waitForPageJsLoad(this.page)
   }
 
-  async setImageFileAndSubmit() {
-    await this.page
-      .locator('input[type=file]')
-      .setInputFiles('src/assets/program-summary-image.png')
+  async setImageFileAndSubmit(imageFileName: string) {
+    await this.page.locator('input[type=file]').setInputFiles(imageFileName)
     await this.page.click('button:has-text("Save image")')
     await waitForPageJsLoad(this.page)
   }

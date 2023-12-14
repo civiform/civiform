@@ -7,6 +7,7 @@ import {
   validateAccessibility,
   validateScreenshot,
 } from './support'
+import {AdminProgramImage} from './support/admin_program_image'
 import {ProgramVisibility} from './support/admin_programs'
 
 describe('applicant program index page', () => {
@@ -245,4 +246,55 @@ describe('applicant program index page', () => {
     await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
     await validateScreenshot(page, 'other-program-shows-previously-answered')
   })
+})
+
+fdescribe('applicant program index page with images', () => {
+  const ctx = createTestContext()
+
+  it('shows program with wide image', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    const programName = 'Horizontal Image Program'
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramImagePage(programName)
+    await adminProgramImage.setImageFileAndSubmit(
+      'src/assets/program-summary-image-horizontal.png',
+    )
+    await adminPrograms.publishAllDrafts()
+    await logout(page)
+
+    await validateScreenshot(page, 'program-with-wide-image')
+  })
+
+  it('shows program with tall image', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    const programName = 'Horizontal Image Program'
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramImagePage(programName)
+    await adminProgramImage.setImageFileAndSubmit(
+      'src/assets/program-summary-image-vertical.png',
+    )
+    await adminPrograms.publishAllDrafts()
+    await logout(page)
+
+    await validateScreenshot(page, 'program-with-tall-image')
+  })
+
+  it('shows program with image and status', async () => {
+    // see program-list-with-status screen
+  })
+
+  it('shows programs with and without images', async () => {
+    // TODO: Have multiple lines
+    // TODO: Also have one with a status+image next to neither
+  })
+
+  it('shows programs with and without images in all sections', async () => {
+    // common intake, in progress, submitted, not started
+  })
+
+  // TODO(#5676): Test with a very small image.
 })

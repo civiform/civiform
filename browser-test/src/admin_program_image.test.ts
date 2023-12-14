@@ -129,7 +129,9 @@ describe('Admin can manage program image', () => {
     it('adds new image', async () => {
       const {page, adminProgramImage} = ctx
 
-      await adminProgramImage.setImageFileAndSubmit()
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-horizontal.png',
+      )
       await adminProgramImage.expectProgramImagePage(programName)
       await validateToastMessage(
         page,

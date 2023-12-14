@@ -54,6 +54,8 @@ describe('views render well on mobile', () => {
     await validateScreenshot(page, 'mobile-initial-load')
   })
 
+  // TODO: With image
+
   it('modal', async () => {
     const {page} = ctx
     await validateAccessibility(page)

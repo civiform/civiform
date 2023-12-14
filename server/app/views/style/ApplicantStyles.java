@@ -48,7 +48,7 @@ public final class ApplicantStyles {
           "grid",
           "grid-cols-1",
           "gap-4",
-          "place-items-center",
+          "items-start",
           StyleUtils.responsiveSmall("grid-cols-1"),
           StyleUtils.responsiveLarge("gap-8"));
   public static final String PROGRAM_CARD =
@@ -57,15 +57,13 @@ public final class ApplicantStyles {
           // This width is closely tied to the grid layout in ProgramIndexView.java. Increasing the
           // card size may cause them to overlap on smaller screen sizes.
           StyleUtils.responsiveSmall("w-72"),
-          "h-80",
           "bg-white",
           "rounded-xl",
           "shadow-md",
           "border",
           "border-gray-200",
           "flex",
-          "flex-col",
-          "gap-4");
+          "flex-col");
 
   public static final String PROGRAM_INFORMATION_BOX =
       StyleUtils.joinStyles(
