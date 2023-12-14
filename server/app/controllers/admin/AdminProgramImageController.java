@@ -14,6 +14,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
 import services.LocalizedStrings;
+import services.cloud.PublicFileNameFormatter;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.admin.programs.ProgramImageView;
@@ -91,6 +92,10 @@ public final class AdminProgramImageController extends CiviFormController {
             .orElseThrow(() -> new IllegalArgumentException("Request must contain file key name"));
     // TODO(#5676): If Azure support is needed, see ApplicantProgramBlocksController#updateFile for
     // some additional Azure-specific logic that's needed.
+
+    if (!PublicFileNameFormatter.isFileKeyForPublicProgramImage(key)) {
+      throw new IllegalArgumentException("Key incorrectly formatted for public program image file");
+    }
 
     programService.setSummaryImageFileKey(programId, key);
     final String indexUrl = routes.AdminProgramImageController.index(programId).url();

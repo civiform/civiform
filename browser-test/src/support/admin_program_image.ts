@@ -16,6 +16,14 @@ export class AdminProgramImage {
     await waitForPageJsLoad(this.page)
   }
 
+  async setImageFileAndSubmit() {
+    await this.page
+      .locator('input[type=file]')
+      .setInputFiles('src/assets/program-summary-image.png')
+    await this.page.click('button:has-text("Save image")')
+    await waitForPageJsLoad(this.page)
+  }
+
   async expectProgramImagePage(programName: string) {
     expect(await this.page.innerText('h1')).toContain(
       `Manage program image for ${programName}`,
@@ -33,5 +41,9 @@ export class AdminProgramImage {
 
   descriptionClearedToastMessage() {
     return `Image description removed`
+  }
+
+  imageUpdatedToastMessage() {
+    return `Image set`
   }
 }

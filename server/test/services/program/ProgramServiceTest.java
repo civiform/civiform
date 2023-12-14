@@ -2833,4 +2833,26 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThat(result.localizedSummaryImageDescription().isPresent()).isFalse();
   }
+
+  @Test
+  public void setSummaryImageFileKey_missingProgram_throws() {
+    assertThatThrownBy(() -> ps.setSummaryImageFileKey(Long.MAX_VALUE, "fileKey"))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID:");
+  }
+
+  @Test
+  public void setSummaryImageFileKey_keySet() throws ProgramNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+
+    ProgramDefinition result1 = ps.setSummaryImageFileKey(program.id(), "fileKey1.png");
+
+    assertThat(result1.summaryImageFileKey().isPresent()).isTrue();
+    assertThat(result1.summaryImageFileKey().get()).isEqualTo("fileKey1.png");
+
+    ProgramDefinition result2 = ps.setSummaryImageFileKey(program.id(), "fileKey2.png");
+
+    assertThat(result2.summaryImageFileKey().isPresent()).isTrue();
+    assertThat(result2.summaryImageFileKey().get()).isEqualTo("fileKey2.png");
+  }
 }

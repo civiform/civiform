@@ -22,8 +22,18 @@ public class AzurePublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void getPublicDisplayUrl_throwsUnsupported() {
+  public void getPublicDisplayUrl_incorrectlyFormatted_throws() {
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> azurePublicStorage.getPublicDisplayUrl("fake-file-key"))
+        .withMessageContaining("key incorrectly formatted");
+  }
+
+  @Test
+  public void getPublicDisplayUrl_correctlyFormatted_throwsUnsupported() {
     assertThatExceptionOfType(UnsupportedOperationException.class)
-        .isThrownBy(() -> azurePublicStorage.getPublicDisplayUrl("fileKey"));
+        .isThrownBy(
+            () ->
+                azurePublicStorage.getPublicDisplayUrl(
+                    "program-summary-image/program-10/myFile.jpeg"));
   }
 }

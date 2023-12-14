@@ -14,7 +14,7 @@ public final class ApplicantFileNameFormatter {
    *
    * <p>If this key is changed, also check with {@link PublicFileNameFormatter} to verify that the
    * names don't conflict, and possibly update the check in {@link
-   * PublicFileNameFormatter#isFileKeyForPublicUse(String)}.
+   * PublicFileNameFormatter#isFileKeyForPublicProgramImage(String)}.
    */
   public static String formatFileUploadQuestionFilename(
       long applicantId, long programId, String blockId) {

@@ -1,6 +1,7 @@
 package services.cloud.aws;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -171,11 +172,22 @@ public class AwsPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void getPublicDisplayUrl_hasActionLinkAndFileKey() {
+  public void getPublicDisplayUrl_incorrectlyFormatted_throws() {
     AwsPublicStorage awsPublicStorage = instanceOf(AwsPublicStorage.class);
 
-    String publicDisplayUrl = awsPublicStorage.getPublicDisplayUrl("fake-file-key");
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> awsPublicStorage.getPublicDisplayUrl("fake-file-key"))
+        .withMessageContaining("key incorrectly formatted");
+  }
 
-    assertThat(publicDisplayUrl).isEqualTo("fake-action-link/fake-file-key");
+  @Test
+  public void getPublicDisplayUrl_correctlyFormatted_hasActionLinkAndFileKey() {
+    AwsPublicStorage awsPublicStorage = instanceOf(AwsPublicStorage.class);
+
+    String publicDisplayUrl =
+        awsPublicStorage.getPublicDisplayUrl("program-summary-image/program-10/myFile.jpeg");
+
+    assertThat(publicDisplayUrl)
+        .isEqualTo("fake-action-link/program-summary-image/program-10/myFile.jpeg");
   }
 }

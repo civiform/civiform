@@ -16,9 +16,8 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.InputTag;
-import java.util.Optional;
-
 import j2html.tags.specialized.LabelTag;
+import java.util.Optional;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.data.Form;
 import play.data.FormFactory;
@@ -140,23 +139,22 @@ public final class ProgramImageView extends BaseHtmlView {
             /* ariaDescribedByIds= */ ImmutableList.of(),
             /* hasErrors= */ false);
 
-    LabelTag chooseFileButton = label()
+    LabelTag chooseFileButton =
+        label()
             .withFor(fileInputId)
             .with(
-                    span()
-                            .attr("role", "button")
-                            .attr("tabindex", 0)
-                            .withText("Choose program image")
-                            .withClasses(
-                                    ButtonStyles.OUTLINED_TRANSPARENT,
-                                    "w-64",
-                                    "mt-10",
-                                    "mb-2",
-                                    "cursor-pointer"));
+                span()
+                    .attr("role", "button")
+                    .attr("tabindex", 0)
+                    .withText("Choose program image")
+                    .withClasses(
+                        ButtonStyles.OUTLINED_TRANSPARENT,
+                        "w-64",
+                        "mt-10",
+                        "mb-2",
+                        "cursor-pointer"));
 
-    FormTag fullForm =
-        form.with(fileUploadFormInputs)
-            .with(chooseFileButton);
+    FormTag fullForm = form.with(fileUploadFormInputs).with(chooseFileButton);
 
     // TODO(#5676): Replace with final UX once we have it.
     return div()
@@ -175,7 +173,7 @@ public final class ProgramImageView extends BaseHtmlView {
   private StorageUploadRequest createStorageUploadRequest(ProgramDefinition program) {
     String key = PublicFileNameFormatter.formatPublicProgramImageFilename(program.id());
     String onSuccessRedirectUrl =
-            baseUrl + routes.AdminProgramImageController.updateFileKey(program.id()).url();
+        baseUrl + routes.AdminProgramImageController.updateFileKey(program.id()).url();
     return publicStorageClient.getSignedUploadRequest(key, onSuccessRedirectUrl);
   }
 

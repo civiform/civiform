@@ -11,19 +11,16 @@ public class PublicFileNameFormatter {
    * in the DB. It must be unique, so be cautious with changing the logic here.
    */
   public static String formatPublicProgramImageFilename(long programId) {
-    return String.format("program-card-images/program-%d/${filename}", programId);
+    return String.format("program-summary-image/program-%d/${filename}", programId);
   }
 
   /**
-   * Returns true if the file key suitably identifies a public file, and false if the key is
-   * incorrectly formatted for public files.
+   * Returns true if the file key suitably identifies a public program image file and false
+   * otherwise.
    *
    * <p>{@link PublicStorageClient} implementations must use this check before accessing a file.
    */
-  public static boolean isFileKeyForPublicUse(String fileKey) {
-    return fileKey.startsWith("program-card-images")
-        // Specifically verify that this file key does **not** match the format in {@link
-        // ApplicantFileNameFormatter}.
-        && !fileKey.contains("applicant-");
+  public static boolean isFileKeyForPublicProgramImage(String fileKey) {
+    return fileKey.startsWith("program-summary-image/program-");
   }
 }
