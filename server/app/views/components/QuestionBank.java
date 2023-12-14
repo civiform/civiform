@@ -4,6 +4,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 
 import com.google.common.collect.ImmutableList;
+import controllers.admin.routes;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import java.util.List;
@@ -21,10 +22,13 @@ public final class QuestionBank {
   private static final DivTag renderFilter() {
     InputTag filterInput =
         input()
-            .withId("question-bank-filter")
-            .withType("text")
+            .withType("search")
             .withName("questionFilter")
             .withPlaceholder("Search questions")
+            .attr("hx-get", routes.AdminQuestionController.hxQuestionList().url())
+            .attr("hx-trigger", "input changed delay:250ms, search")
+            .attr("hx-target", "#questions-list-non-universal")
+            .attr("hx-indicator", ".htmx-indicator")
             .withClasses(
                 "h-10",
                 "px-10",
@@ -37,9 +41,16 @@ public final class QuestionBank {
                 "shadow",
                 StyleUtils.focus("outline-none"));
 
+    DivTag indicator =
+        div(Icons.svg(Icons.COG).withClasses("h-4", "w-4"))
+            .withClasses(
+                "htmx-indicator", "animate-spin", "absolute", "right-12", "ml-4", "mt-3", "mr-4");
+
     SvgTag filterIcon = Icons.svg(Icons.SEARCH).withClasses("h-4", "w-4");
     DivTag filterIconDiv = div().withClasses("absolute", "ml-4", "mt-3", "mr-4").with(filterIcon);
-    return div().withClasses("flex-grow", "mr-4", "relative").with(filterIconDiv, filterInput);
+    return div()
+        .withClasses("flex-grow", "mr-4", "relative")
+        .with(filterIconDiv, filterInput, indicator);
   }
 
   /**

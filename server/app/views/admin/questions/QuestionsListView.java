@@ -82,7 +82,7 @@ public final class QuestionsListView extends BaseHtmlView {
     String title = "All Questions";
 
     Pair<DivTag, ImmutableList<Modal>> questionRowsAndModals =
-        renderAllQuestionRows(activeAndDraftQuestions, request);
+        renderAllQuestionRows(activeAndDraftQuestions, request, Optional.empty());
 
     DivTag contentDiv =
         div()
@@ -122,6 +122,13 @@ public final class QuestionsListView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
+  public DivTag renderQuestionListPartial(
+      ActiveAndDraftQuestions activeAndDraftQuestions,
+      Http.Request request,
+      Optional<String> filter) {
+    return renderAllQuestionRows(activeAndDraftQuestions, request, filter).getLeft();
+  }
+
   private DivTag renderSummary(ActiveAndDraftQuestions activeAndDraftQuestions) {
     // The total question count should be equivalent to the number of rows in the displayed table,
     // where we have a single entry for a question that is active and has a draft.
@@ -146,7 +153,9 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private Pair<DivTag, ImmutableList<Modal>> renderAllQuestionRows(
-      ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
+      ActiveAndDraftQuestions activeAndDraftQuestions,
+      Http.Request request,
+      Optional<String> filter) {
     ImmutableList<QuestionCardData> cards =
         activeAndDraftQuestions.getQuestionNames().stream()
             .map(
@@ -185,8 +194,15 @@ public final class QuestionsListView extends BaseHtmlView {
     ImmutableList.Builder<DomContent> archivedQuestionRows = ImmutableList.builder();
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
     for (QuestionCardData card : cards) {
-      Pair<DivTag, ImmutableList<Modal>> rowAndModals =
-          renderQuestionCard(card, activeAndDraftQuestions, request);
+      Optional<Pair<DivTag, ImmutableList<Modal>>> maybeRowAndModals =
+          renderQuestionCard(card, activeAndDraftQuestions, request, filter);
+
+      if (maybeRowAndModals.isEmpty()) {
+        continue;
+      }
+
+      var rowAndModals = maybeRowAndModals.get();
+
       if (isQuestionPendingDeletion(card, activeAndDraftQuestions)) {
         archivedQuestionRows.add(rowAndModals.getLeft());
       } else if (getDisplayQuestion(card).isUniversal()
@@ -260,10 +276,11 @@ public final class QuestionsListView extends BaseHtmlView {
    * Renders a card in the question list. The card contains question text, help text, active and
    * draft versions, list of programs questions is used in and buttons to edit the question.
    */
-  private Pair<DivTag, ImmutableList<Modal>> renderQuestionCard(
+  private Optional<Pair<DivTag, ImmutableList<Modal>>> renderQuestionCard(
       QuestionCardData cardData,
       ActiveAndDraftQuestions activeAndDraftQuestions,
-      Http.Request request) {
+      Http.Request request,
+      Optional<String> filter) {
     if (cardData.draftQuestion().isEmpty() && cardData.activeQuestion().isEmpty()) {
       throw new IllegalArgumentException("Did not receive a valid question.");
     }
@@ -306,6 +323,13 @@ public final class QuestionsListView extends BaseHtmlView {
                 span("Admin note: ").withClasses("font-bold"),
                 span(latestDefinition.getDescription()));
 
+    if (filter.isPresent()) {
+      if (!latestDefinition.getName().contains(filter.get())
+          && !latestDefinition.getQuestionText().getDefault().contains(filter.get())) {
+        return Optional.empty();
+      }
+    }
+
     DivTag rowWithAdminNote =
         div()
             .withClasses(
@@ -331,7 +355,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .withData(
                 QuestionSortOption.NUM_PROGRAMS.getDataAttribute(),
                 Integer.toString(cardData.referencingPrograms().getTotalNumReferencingPrograms()));
-    return Pair.of(rowWithAdminNote, modals.build());
+    return Optional.of(Pair.of(rowWithAdminNote, modals.build()));
   }
 
   /**
