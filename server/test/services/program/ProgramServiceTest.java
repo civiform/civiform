@@ -474,7 +474,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result)
       .containsExactly(
         CiviFormError.of(
-          "A program URL may only contain lowercase letters, numbers, and dashes"));
+          "A program URL may only at least one letter"));
   }
 
   @Test
