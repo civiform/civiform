@@ -144,7 +144,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                                             programs.getDraftProgramDefinition(name),
                                             request,
                                             profile,
-                                            publishSingleProgramModals))
+                                            publishSingleProgramModals,
+                                            universalQuestionIds))
                                 .sorted(
                                     ProgramCardFactory
                                         .programTypeThenLastModifiedThenNameComparator())
@@ -393,29 +394,17 @@ public final class ProgramIndexView extends BaseHtmlView {
         break;
     }
 
-    int countMissingUniversalQuestionIds =
-        getCountMissingUniversalQuestions(program, universalQuestionIds);
-    String universalQuestionsText = "";
-    if (countMissingUniversalQuestionIds == 0) {
-      universalQuestionsText = "all";
-    } else {
-      int countTotalUniversalQuestions = universalQuestionIds.size();
-      universalQuestionsText =
-          countTotalUniversalQuestions
-              - countMissingUniversalQuestionIds
-              + " of "
-              + countTotalUniversalQuestions;
-    }
-
+    Optional<String> maybeUniversalQuestionsText =
+        generateUniversalQuestionText(program, universalQuestionIds);
     boolean shouldShowUniversalQuestionsCount =
-        settingsManifest.getUniversalQuestions(request) && !universalQuestionIds.isEmpty();
+        settingsManifest.getUniversalQuestions(request) && maybeUniversalQuestionsText.isPresent();
 
     return li().with(
             span(program.localizedName().getDefault()).withClasses("font-medium"),
             span(visibilityText)
                 .condWith(
                     shouldShowUniversalQuestionsCount,
-                    span(" - Contains " + universalQuestionsText + " universal questions ")),
+                    span(" - " + maybeUniversalQuestionsText.orElse(""))),
             new LinkElement()
                 .setText("Edit")
                 .setHref(controllers.admin.routes.AdminProgramController.edit(program.id()).url())
@@ -449,7 +438,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       Optional<ProgramDefinition> draftProgram,
       Http.Request request,
       Optional<CiviFormProfile> profile,
-      ImmutableList<Modal> publishSingleProgramModals) {
+      ImmutableList<Modal> publishSingleProgramModals,
+      ImmutableList<Long> universalQuestionIds) {
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> draftRow = Optional.empty();
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> activeRow = Optional.empty();
     if (draftProgram.isPresent()) {
@@ -485,6 +475,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                   .setProgram(draftProgram.get())
                   .setRowActions(ImmutableList.copyOf(draftRowActions))
                   .setExtraRowActions(ImmutableList.copyOf(draftRowExtraActions))
+                  .setUniversalQuestionsText(
+                      generateUniversalQuestionText(draftProgram.get(), universalQuestionIds))
                   .build());
     }
 
@@ -508,6 +500,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                   .setProgram(activeProgram.get())
                   .setRowActions(ImmutableList.copyOf(activeRowActions))
                   .setExtraRowActions(ImmutableList.copyOf(activeRowExtraActions))
+                  .setUniversalQuestionsText(
+                      generateUniversalQuestionText(activeProgram.get(), universalQuestionIds))
                   .build());
     }
 
@@ -515,6 +509,24 @@ public final class ProgramIndexView extends BaseHtmlView {
         .setActiveProgram(activeRow)
         .setDraftProgram(draftRow)
         .build();
+  }
+
+  Optional<String> generateUniversalQuestionText(
+      ProgramDefinition program, ImmutableList<Long> universalQuestionIds) {
+    int countMissingUniversalQuestionIds =
+        getCountMissingUniversalQuestions(program, universalQuestionIds);
+    int countAllUniversalQuestions = universalQuestionIds.size();
+    if (countAllUniversalQuestions == 0) {
+      return Optional.empty();
+    }
+    String text =
+        countMissingUniversalQuestionIds == 0
+            ? "all"
+            : countAllUniversalQuestions
+                - countMissingUniversalQuestionIds
+                + " of "
+                + countAllUniversalQuestions;
+    return Optional.of("Contains " + text + " universal questions ");
   }
 
   ButtonTag renderShareLink(ProgramDefinition program) {
