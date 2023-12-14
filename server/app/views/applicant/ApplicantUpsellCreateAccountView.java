@@ -2,6 +2,7 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.html;
 import static j2html.TagCreator.section;
 import static services.MessageKey.CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR;
 import static views.applicant.AuthenticateUpsellCreator.createLoginButton;
@@ -121,6 +122,14 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
             authProviderName,
             actionButtons);
 
+    var htmlBundle = createHtmlBundle(
+      request,
+      layout,
+      title,
+      bannerMessage,
+      loginPromptModal,
+      content);
+
     var otherProgramsContent =
         applicantProgramDisplayPartial.programCardsSection(
             request,
@@ -133,19 +142,15 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
             relevantPrograms.unapplied(),
             MessageKey.BUTTON_APPLY,
             MessageKey.BUTTON_APPLY_SR,
-            layout.getBundle(request));
+            htmlBundle);
+
+    htmlBundle.addMainContent(otherProgramsContent);
 
     return layout.renderWithNav(
         request,
         personalInfo,
         messages,
-        createHtmlBundle(
-            request,
-            layout,
-            title,
-            bannerMessage,
-            loginPromptModal,
-            div(content, otherProgramsContent)),
+        htmlBundle,
         applicantId);
   }
 }
