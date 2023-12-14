@@ -17,6 +17,8 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.InputTag;
 import java.util.Optional;
+
+import j2html.tags.specialized.LabelTag;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.data.Form;
 import play.data.FormFactory;
@@ -42,6 +44,7 @@ public final class ProgramImageView extends BaseHtmlView {
   private static final String MIME_TYPES_IMAGES = "image/*";
   private static final String IMAGE_DESCRIPTION_FORM_ID = "image-description-form";
   private static final String IMAGE_FILE_UPLOAD_FORM_ID = "image-file-upload-form";
+
   private final AdminLayout layout;
   private final String baseUrl;
   private final FormFactory formFactory;
@@ -124,43 +127,36 @@ public final class ProgramImageView extends BaseHtmlView {
   }
 
   private DivTag createImageUploadForm(ProgramDefinition program) {
-    // TODO(#5676): If there's already a file uploaded, render its name.
-    // TODO(#5676): Warn admins of recommended image size and dimensions.
-    // TODO(#5676): Allow admins to remove an already-uploaded file.
-
-    String key = PublicFileNameFormatter.formatPublicProgramImageFilename(program.id());
-    String onSuccessRedirectUrl =
-        baseUrl + routes.AdminProgramImageController.updateFileKey(program.id()).url();
-    StorageUploadRequest storageUploadRequest =
-        publicStorageClient.getSignedUploadRequest(key, onSuccessRedirectUrl);
+    StorageUploadRequest storageUploadRequest = createStorageUploadRequest(program);
     FormTag form =
         fileUploadViewStrategy
             .renderFileUploadFormElement(storageUploadRequest)
             .withId(IMAGE_FILE_UPLOAD_FORM_ID);
-    ImmutableList<InputTag> additionalFileUploadInputs =
-        fileUploadViewStrategy.fileUploadFields(
+    ImmutableList<InputTag> fileUploadFormInputs =
+        fileUploadViewStrategy.fileUploadFormInputs(
             Optional.of(storageUploadRequest),
             MIME_TYPES_IMAGES,
             fileInputId,
             /* ariaDescribedByIds= */ ImmutableList.of(),
             /* hasErrors= */ false);
 
-    FormTag fullForm =
-        form.with(additionalFileUploadInputs)
+    LabelTag chooseFileButton = label()
+            .withFor(fileInputId)
             .with(
-                label()
-                    .withFor(fileInputId)
-                    .with(
-                        span()
+                    span()
                             .attr("role", "button")
                             .attr("tabindex", 0)
                             .withText("Choose program image")
                             .withClasses(
-                                ButtonStyles.OUTLINED_TRANSPARENT,
-                                "w-64",
-                                "mt-10",
-                                "mb-2",
-                                "cursor-pointer")));
+                                    ButtonStyles.OUTLINED_TRANSPARENT,
+                                    "w-64",
+                                    "mt-10",
+                                    "mb-2",
+                                    "cursor-pointer"));
+
+    FormTag fullForm =
+        form.with(fileUploadFormInputs)
+            .with(chooseFileButton);
 
     // TODO(#5676): Replace with final UX once we have it.
     return div()
@@ -170,6 +166,17 @@ public final class ProgramImageView extends BaseHtmlView {
                 .withForm(IMAGE_FILE_UPLOAD_FORM_ID)
                 .withClasses(ButtonStyles.SOLID_BLUE, "mb-2"))
         .with(fileUploadViewStrategy.footerTags());
+
+    // TODO(#5676): If there's already a file uploaded, render its name.
+    // TODO(#5676): Warn admins of recommended image size and dimensions.
+    // TODO(#5676): Allow admins to remove an already-uploaded file.
+  }
+
+  private StorageUploadRequest createStorageUploadRequest(ProgramDefinition program) {
+    String key = PublicFileNameFormatter.formatPublicProgramImageFilename(program.id());
+    String onSuccessRedirectUrl =
+            baseUrl + routes.AdminProgramImageController.updateFileKey(program.id()).url();
+    return publicStorageClient.getSignedUploadRequest(key, onSuccessRedirectUrl);
   }
 
   private DivTag renderCurrentImage(ProgramDefinition program) {

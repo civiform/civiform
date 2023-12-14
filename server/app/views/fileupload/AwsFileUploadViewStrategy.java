@@ -14,7 +14,7 @@ import services.cloud.aws.SignedS3UploadRequest;
 public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
-  public ImmutableList<InputTag> fileUploadFields(
+  public ImmutableList<InputTag> fileUploadFormInputs(
       Optional<StorageUploadRequest> request,
       String acceptedMimeTypes,
       String fileInputId,

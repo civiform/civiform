@@ -3,7 +3,7 @@ package services.cloud;
 /**
  * Formats file names for files that will be **publicly accessible**.
  *
- * <p>See {@link ApplicantFileNameFormatter} for formatting applicant files.
+ * <p>See {@link ApplicantFileNameFormatter} for formatting applicant file names.
  */
 public class PublicFileNameFormatter {
   /**
@@ -18,7 +18,7 @@ public class PublicFileNameFormatter {
    * Returns true if the file key suitably identifies a public file, and false if the key is
    * incorrectly formatted for public files.
    *
-   * <p>Must be checked in {@link PublicStorageClient} implementations before accessing a file.
+   * <p>{@link PublicStorageClient} implementations must use this check before accessing a file.
    */
   public static boolean isFileKeyForPublicUse(String fileKey) {
     return fileKey.startsWith("program-card-images")

@@ -16,7 +16,7 @@ import views.applicant.ApplicantFileUploadRenderer;
 
 /**
  * Class to render a <form> that supports file upload. Must be subclassed by each cloud storage
- * provider CiviForm supports.
+ * provider that CiviForm supports.
  *
  * <p>This class supports rendering file upload forms for both applicants *and* admins. See {@link
  * ApplicantFileUploadRenderer} for additional rendering for *applicant* file upload.
@@ -37,7 +37,7 @@ public abstract class FileUploadViewStrategy {
    * @param fileInputId an ID associates the file <input> field. Can be used to associate custom
    *     screen reader functionality with the file input.
    */
-  public abstract ImmutableList<InputTag> fileUploadFields(
+  public abstract ImmutableList<InputTag> fileUploadFormInputs(
       Optional<StorageUploadRequest> request,
       String acceptedMimeTypes,
       String fileInputId,

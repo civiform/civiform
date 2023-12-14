@@ -92,7 +92,6 @@ public final class AdminProgramImageController extends CiviFormController {
     // TODO(#5676): If Azure support is needed, see ApplicantProgramBlocksController#updateFile for
     // some additional Azure-specific logic that's needed.
 
-    // TODO(#5676): Verify description has been set before allowing image upload.
     programService.setSummaryImageFileKey(programId, key);
     final String indexUrl = routes.AdminProgramImageController.index(programId).url();
     return redirect(indexUrl).flashing("success", "Image set");
