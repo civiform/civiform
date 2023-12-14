@@ -11,7 +11,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 import javax.inject.Provider;
 import org.mockito.MockedStatic;
 import org.pac4j.oidc.client.OidcClient;
