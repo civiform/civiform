@@ -54,6 +54,7 @@ import views.components.TextFormatter;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 
 final class ApplicantProgramDisplayPartial extends BaseHtmlView {
 
@@ -108,6 +109,21 @@ final class ApplicantProgramDisplayPartial extends BaseHtmlView {
                             sectionTitle.isPresent(),
                             bundle))));
   }
+
+  /**
+   * This method generates a list of style classes with responsive column counts. The number of
+   * columns should not exceed the number of programs, or the program card container will not be
+   * centered.
+   */
+  String programCardsContainerStyles(int numPrograms) {
+    return StyleUtils.joinStyles(
+      ApplicantStyles.PROGRAM_CARDS_CONTAINER_BASE,
+      numPrograms >= 2 ? StyleUtils.responsiveMedium("grid-cols-2") : "",
+      numPrograms >= 3 ? StyleUtils.responsiveLarge("grid-cols-3") : "",
+      numPrograms >= 4 ? StyleUtils.responsiveXLarge("grid-cols-4") : "",
+      numPrograms >= 5 ? StyleUtils.responsive2XLarge("grid-cols-5") : "");
+  }
+
 
   private LiTag programCard(
       Http.Request request,

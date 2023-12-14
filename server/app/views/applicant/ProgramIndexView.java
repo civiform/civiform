@@ -185,7 +185,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     // The different program card containers should have the same styling, by using the program
     // count of the larger set of programs
     String cardContainerStyles =
-        programCardsContainerStyles(
+      applicantProgramDisplayPartial.programCardsContainerStyles(
             Math.max(
                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
                 relevantPrograms.inProgress().size()));
@@ -305,19 +305,5 @@ public final class ProgramIndexView extends BaseHtmlView {
                 buttonText,
                 buttonScreenReaderText,
                 bundle));
-  }
-
-  /**
-   * This method generates a list of style classes with responsive column counts. The number of
-   * columns should not exceed the number of programs, or the program card container will not be
-   * centered.
-   */
-  private String programCardsContainerStyles(int numPrograms) {
-    return StyleUtils.joinStyles(
-        ApplicantStyles.PROGRAM_CARDS_CONTAINER_BASE,
-        numPrograms >= 2 ? StyleUtils.responsiveMedium("grid-cols-2") : "",
-        numPrograms >= 3 ? StyleUtils.responsiveLarge("grid-cols-3") : "",
-        numPrograms >= 4 ? StyleUtils.responsiveXLarge("grid-cols-4") : "",
-        numPrograms >= 5 ? StyleUtils.responsive2XLarge("grid-cols-5") : "");
   }
 }

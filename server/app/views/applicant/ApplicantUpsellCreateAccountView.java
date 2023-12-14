@@ -2,6 +2,7 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.html;
 import static j2html.TagCreator.section;
 import static services.MessageKey.CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR;
@@ -55,7 +56,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
   /** Renders a sign-up page with a baked-in redirect. */
   public Content render(
       Http.Request request,
-      ApplicantService.ApplicationPrograms relevantPrograms,
+      ApplicantService.ApplicationPrograms applicantPrograms,
       String redirectTo,
       AccountModel account,
       Locale locale,
@@ -130,19 +131,25 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
       loginPromptModal,
       content);
 
+    var relevantPrograms = applicantPrograms.unapplied();
+
     var otherProgramsContent =
-        applicantProgramDisplayPartial.programCardsSection(
+      div()
+        .withClasses("p-4 sm:p-6 my-6 bg-blue-100")
+        .with(
+          h2(messages.at(CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR.getKeyName())).withClasses("mb-4 font-bold"),
+          applicantProgramDisplayPartial.programCardsSection(
             request,
             messages,
             personalInfo,
-            Optional.of(CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR),
-            "",
+            /* sectionTitle= */ Optional.empty(),
+            applicantProgramDisplayPartial.programCardsContainerStyles(relevantPrograms.size()),
             applicantId,
             locale,
-            relevantPrograms.unapplied(),
+            relevantPrograms,
             MessageKey.BUTTON_APPLY,
             MessageKey.BUTTON_APPLY_SR,
-            htmlBundle);
+            htmlBundle));
 
     htmlBundle.addMainContent(otherProgramsContent);
 
