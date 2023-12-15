@@ -442,28 +442,94 @@ public final class ApplicantService {
         new ApplicationEventModel(application, /* creator= */ Optional.empty(), details));
   }
 
+  CompletionStage<ApplicationModel> saveActionAnswers(ApplicationModel application) {
+    ProgramModel applicationProgram = application.getProgram();
+    ApplicantModel applicant = application.getApplicant();
+    ApplicantData applicantData = application.getApplicantData();
+    return programService
+        .syncQuestionsToSingleProgramDefinition(applicationProgram.getProgramDefinition())
+        .thenComposeAsync(
+            programDefinition -> {
+              programDefinition
+                  .getQuestionsWithPrimaryApplicantInfoTagsInProgram()
+                  .forEach(
+                      question -> {
+                        Path path = Path.create("applicant").join(question.getQuestionNameKey());
+                        question
+                            .getPrimaryApplicantInfoTags()
+                            .forEach(
+                                action -> {
+                                  switch (action) {
+                                    case APPLICANT_NAME:
+                                      applicant.setFirstName(
+                                          applicantData
+                                              .readString(path.join(Scalar.FIRST_NAME))
+                                              .orElseThrow());
+                                      // Middle name is optional
+                                      applicant.setMiddleName(
+                                          applicantData
+                                              .readString(path.join(Scalar.MIDDLE_NAME))
+                                              .orElse(""));
+                                      applicant.setLastName(
+                                          applicantData
+                                              .readString(path.join(Scalar.LAST_NAME))
+                                              .orElseThrow());
+                                      break;
+                                    case APPLICANT_EMAIL:
+                                      applicant.setEmailAddress(
+                                          applicantData
+                                              .readString(path.join(Scalar.EMAIL))
+                                              .orElseThrow());
+                                      break;
+                                    case APPLICANT_PHONE:
+                                      applicant.setCountryCode(
+                                          applicantData
+                                              .readString(path.join(Scalar.COUNTRY_CODE))
+                                              .orElseThrow());
+                                      applicant.setPhoneNumber(
+                                          applicantData
+                                              .readString(path.join(Scalar.PHONE_NUMBER))
+                                              .orElseThrow());
+                                      break;
+                                    case APPLICANT_DOB:
+                                      applicant.setDateOfBirth(
+                                          applicantData
+                                              .readDate(path.join(Scalar.DATE))
+                                              .orElseThrow());
+                                      break;
+                                    default:
+                                      break;
+                                  }
+                                });
+                      });
+              applicant.save();
+              return CompletableFuture.completedFuture(application);
+            });
+  }
+
   @VisibleForTesting
   CompletionStage<ApplicationModel> submitApplication(
       long applicantId, long programId, Optional<String> tiSubmitterEmail) {
-    CompletableFuture<ApplicantPersonalInfo> applicantLabelFuture =
-        getPersonalInfo(applicantId).toCompletableFuture();
     CompletableFuture<Optional<ApplicationModel>> applicationFuture =
         applicationRepository
             .submitApplication(applicantId, programId, tiSubmitterEmail)
             .toCompletableFuture();
-    return CompletableFuture.allOf(applicantLabelFuture, applicationFuture)
+    return applicationFuture
         .thenComposeAsync(
-            (v) -> {
-              Optional<ApplicationModel> applicationMaybe = applicationFuture.join();
+            applicationMaybe -> {
               if (applicationMaybe.isEmpty()) {
                 return CompletableFuture.failedFuture(
                     new ApplicationSubmissionException(applicantId, programId));
               }
-
-              ApplicationModel application = applicationMaybe.get();
+              return CompletableFuture.completedFuture(applicationMaybe.get());
+            })
+        .thenComposeAsync(application -> saveActionAnswers(application))
+        .thenComposeAsync(
+            application -> {
               ProgramModel applicationProgram = application.getProgram();
               ProgramDefinition programDefinition = applicationProgram.getProgramDefinition();
               String programName = programDefinition.adminName();
+
               Optional<StatusDefinitions.Status> maybeDefaultStatus =
                   applicationProgram.getDefaultStatus();
 
@@ -490,25 +556,34 @@ public final class ApplicantService {
                                       maybeDefaultStatus)
                                   .toCompletableFuture())
                       .orElse(CompletableFuture.completedFuture(null));
-
-              ApplicantPersonalInfo applicantPersonalInfo = applicantLabelFuture.join();
-              Optional<String> applicantEmail =
+              ApplicantPersonalInfo applicantPersonalInfo =
+                  getPersonalInfo(Optional.of(application.getApplicant()));
+              Optional<ImmutableSet<String>> applicantEmails =
                   applicantPersonalInfo.getType() == ApplicantType.LOGGED_IN
                       ? applicantPersonalInfo.loggedIn().email()
-                      : Optional.empty();
-
-              CompletableFuture<Void> notifyApplicantFuture =
-                  applicantEmail
-                      .map(
-                          email ->
-                              notifyApplicant(
+                      : applicantPersonalInfo.getType() == ApplicantType.TI_PARTIALLY_CREATED
+                          ? applicantPersonalInfo.tiPartiallyCreated().email()
+                          : applicantPersonalInfo.guest().email();
+              CompletableFuture<Void> notifyApplicantFuture;
+              if (applicantEmails.isEmpty() || applicantEmails.get().isEmpty()) {
+                notifyApplicantFuture = CompletableFuture.completedFuture(null);
+              } else {
+                ImmutableList<CompletableFuture<Void>> futures =
+                    applicantEmails.get().stream()
+                        .map(
+                            email -> {
+                              return notifyApplicant(
                                       applicantId,
                                       application.id,
                                       email,
                                       programDefinition,
                                       maybeDefaultStatus)
-                                  .toCompletableFuture())
-                      .orElse(CompletableFuture.completedFuture(null));
+                                  .toCompletableFuture();
+                            })
+                        .collect(ImmutableList.toImmutableList());
+                notifyApplicantFuture =
+                    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+              }
 
               return CompletableFuture.allOf(
                       updateStatusFuture,
@@ -736,46 +811,52 @@ public final class ApplicantService {
         httpExecutionContext.current());
   }
 
+  public ApplicantPersonalInfo getPersonalInfo(Optional<ApplicantModel> applicant) {
+    boolean hasAuthorityId =
+        applicant.isPresent()
+            && !Strings.isNullOrEmpty(applicant.get().getAccount().getAuthorityId());
+    boolean isManagedByTi =
+        applicant.isPresent() && applicant.get().getAccount().getManagedByGroup().isPresent();
+
+    Representation.Builder builder = Representation.builder();
+
+    Optional<String> name = applicant.get().getApplicantData().getApplicantName();
+    if (name.isPresent() && !Strings.isNullOrEmpty(name.get())) {
+      builder.setName(name.get());
+    }
+    String accountEmailAddress = applicant.get().getAccount().getEmailAddress();
+    Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
+    ImmutableSet.Builder<String> emailAddressesBuilder = ImmutableSet.builder();
+    if (!Strings.isNullOrEmpty(accountEmailAddress)) {
+      emailAddressesBuilder.add(accountEmailAddress);
+    }
+    applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));
+    ImmutableSet<String> emailAddresses = emailAddressesBuilder.build();
+    if (!emailAddresses.isEmpty()) {
+      builder.setEmail(emailAddresses);
+    }
+
+    if (!hasAuthorityId && !isManagedByTi) {
+      // The authority ID is the source of truth for whether a user is logged in. However,
+      // if they were created by a TI, we skip this return and return later on with a more
+      // specific oneof value.
+      return ApplicantPersonalInfo.ofGuestUser(builder.build());
+    }
+
+    if (hasAuthorityId) {
+      return ApplicantPersonalInfo.ofLoggedInUser(builder.build());
+    } else {
+      return ApplicantPersonalInfo.ofTiPartiallyCreated(builder.build());
+    }
+  }
+
   /**
    * Returns an ApplicantPersonalInfo, which represents some contact/display info for an applicant.
    */
   public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId) {
     return accountRepository
         .lookupApplicant(applicantId)
-        .thenApplyAsync(
-            applicant -> {
-              boolean hasAuthorityId =
-                  applicant.isPresent()
-                      && !Strings.isNullOrEmpty(applicant.get().getAccount().getAuthorityId());
-              boolean isManagedByTi =
-                  applicant.isPresent()
-                      && applicant.get().getAccount().getManagedByGroup().isPresent();
-
-              if (!hasAuthorityId && !isManagedByTi) {
-                // The authority ID is the source of truth for whether a user is logged in. However,
-                // if they were created by a TI, we skip this return and return later on with a more
-                // specific oneof value.
-                return ApplicantPersonalInfo.ofGuestUser();
-              }
-
-              Representation.Builder builder = Representation.builder();
-
-              Optional<String> name = applicant.get().getApplicantData().getApplicantName();
-              if (name.isPresent() && !Strings.isNullOrEmpty(name.get())) {
-                builder.setName(name.get());
-              }
-              String emailAddress = applicant.get().getAccount().getEmailAddress();
-              if (!Strings.isNullOrEmpty(emailAddress)) {
-                builder.setEmail(emailAddress);
-              }
-
-              if (hasAuthorityId) {
-                return ApplicantPersonalInfo.ofLoggedInUser(builder.build());
-              } else {
-                return ApplicantPersonalInfo.ofTiPartiallyCreated(builder.build());
-              }
-            },
-            httpExecutionContext.current());
+        .thenApplyAsync(applicant -> getPersonalInfo(applicant), httpExecutionContext.current());
   }
 
   /** Return the preferred locale of the given applicant id. */
@@ -858,7 +939,8 @@ public final class ApplicantService {
                       .collect(Collectors.toList());
               programDefinitionsList.addAll(activeProgramDefinitions);
               return programService.syncQuestionsToProgramDefinitions(
-                  programDefinitionsList.stream().collect(ImmutableList.toImmutableList()));
+                  programDefinitionsList.stream().collect(ImmutableList.toImmutableList()),
+                  /* force= */ false);
             })
         .thenApplyAsync(
             allPrograms -> {
