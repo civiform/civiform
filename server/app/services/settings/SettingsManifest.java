@@ -885,6 +885,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE", request);
   }
 
+  /** Enables new URL schema that removes applicant ID from applicant actions. */
+  public boolean getNewApplicantUrlSchemaEnabled() {
+    return getBool("NEW_APPLICANT_URL_SCHEMA_ENABLED");
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.of(
           "Branding",
@@ -1834,7 +1839,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " finishing an application.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE))),
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "NEW_APPLICANT_URL_SCHEMA_ENABLED",
+                      "Enables new URL schema that removes applicant ID from applicant actions.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.HIDDEN))),
           "Miscellaneous",
           SettingsSection.create(
               "Miscellaneous",
