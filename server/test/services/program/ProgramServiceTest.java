@@ -461,7 +461,8 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   @Parameters({"123", "235", "56789"})
-  public void validateProgramDataForCreate_requiresSlugBeingAlphanumerical(String adminName) {
+  public void validateProgramDataForCreate_requiresSlugBeingAlphanumerical_failsIfNoLetters(
+      String adminName) {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
             adminName,
@@ -473,6 +474,22 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThat(result)
         .containsExactly(CiviFormError.of("A program URL must contain at least one letter"));
+  }
+
+  @Test
+  @Parameters({"a7859", "b8419", "c-302"})
+  public void validateProgramDataForCreate_requiresSlugBeingAlphanumerical_validIfOneLetter(
+      String adminName) {
+    ImmutableSet<CiviFormError> result =
+        ps.validateProgramDataForCreate(
+            adminName,
+            "display name",
+            "display desc",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.copyOf(new ArrayList<>()));
+
+    assertThat(result).isEmpty();
   }
 
   @Test
