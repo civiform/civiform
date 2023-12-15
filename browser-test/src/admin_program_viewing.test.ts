@@ -207,6 +207,6 @@ describe('admin program view page', () => {
     await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
     await adminPrograms.expectProgramBlockEditPage(programName)
 
-    await validateScreenshot(page, 'view-program-start-editing')
+    await validateScreenshot(page, 'view-program-start-editing-with-long-description')
   })
 })
