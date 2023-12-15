@@ -94,7 +94,8 @@ public final class ApplicantProgramsController extends CiviFormController {
                       applicantStage.toCompletableFuture().join(),
                       applicationPrograms,
                       banner,
-                      requesterProfile.orElseThrow()))
+                      requesterProfile.orElseThrow(
+                          () -> new MissingOptionalException(CiviFormProfile.class))))
                   // If the user has been to the index page, any existing redirects should be
                   // cleared to avoid an experience where they're unexpectedly redirected after
                   // logging in.
@@ -202,7 +203,10 @@ public final class ApplicantProgramsController extends CiviFormController {
         // gotten the URL from another source.
         return CompletableFuture.completedFuture(redirectToHome());
       }
-      return showWithApplicantId(request, applicantId.orElseThrow(), Long.parseLong(programParam));
+      return showWithApplicantId(
+          request,
+          applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)),
+          Long.parseLong(programParam));
     } else {
       return programSlugHandler.showProgram(this, request, programParam);
     }

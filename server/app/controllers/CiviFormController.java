@@ -80,7 +80,10 @@ public class CiviFormController extends Controller {
       return Optional.empty();
     }
 
-    CiviFormProfileData profileData = profile.orElseThrow().getProfileData();
+    CiviFormProfileData profileData =
+        profile
+            .orElseThrow(() -> new MissingOptionalException(CiviFormProfileData.class))
+            .getProfileData();
     return Optional.ofNullable(
         profileData.getAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, Long.class));
   }
