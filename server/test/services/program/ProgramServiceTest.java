@@ -460,11 +460,11 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  @Parameters({"name with spaces", "DiFfErEnT-cAsEs", "special-characters-$#@"})
-  public void validateProgramDataForCreate_requiresSlugBeingAlphanumerical() {
+  @Parameters({"123", "235", "56789"})
+  public void validateProgramDataForCreate_requiresSlugBeingAlphanumerical(String adminName) {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
-            "123456",
+            adminName,
             "display name",
             "display desc",
             "https://usa.gov",
