@@ -28,7 +28,6 @@ import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
 import org.pac4j.oidc.profile.OidcProfile;
 import services.CiviFormError;
-import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
 import services.ti.EmailAddressExistsException;
 import services.ti.NoSuchTrustedIntermediaryError;
@@ -310,9 +309,9 @@ public final class AccountRepository {
     newAccount.save();
     ApplicantModel applicant = new ApplicantModel();
     applicant.setAccount(newAccount);
-    ApplicantData applicantData = applicant.getApplicantData();
-    applicantData.setUserName(form.getFirstName(), form.getMiddleName(), form.getLastName());
-    applicantData.setDateOfBirth(form.getDob());
+    applicant.setFirstName(form.getFirstName());
+    applicant.setMiddleName(form.getMiddleName());
+    applicant.setLastName(form.getLastName());
     applicant.save();
   }
 

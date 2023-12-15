@@ -145,13 +145,12 @@ public final class TrustedIntermediaryService {
     return allAccounts.stream()
         .filter(
             account ->
-                ((account.newestApplicant().get().getApplicantData().getDateOfBirth().isPresent()
+                ((account.newestApplicant().get().getDateOfBirth().isPresent()
                         && searchParameters.dateQuery().isPresent()
                         && !searchParameters.dateQuery().get().isEmpty()
                         && account
                             .newestApplicant()
                             .get()
-                            .getApplicantData()
                             .getDateOfBirth()
                             .get()
                             .equals(
@@ -200,7 +199,7 @@ public final class TrustedIntermediaryService {
       throw new ApplicantNotFoundException(accountId);
     }
     ApplicantModel applicant = optionalAccount.get().newestApplicant().get();
-    applicant.getApplicantData().setDateOfBirth(form.get().getDob());
+    applicant.setDateOfBirth(form.get().getDob());
     accountRepository.updateApplicant(applicant).toCompletableFuture().join();
     return form;
   }

@@ -264,7 +264,6 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     String currentDob =
         newestApplicant
             .get()
-            .getApplicantData()
             .getDateOfBirth()
             .map(this.dateConverter::formatIso8601Date)
             .orElse("");
