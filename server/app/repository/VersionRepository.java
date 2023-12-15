@@ -469,6 +469,14 @@ public final class VersionRepository {
     }
     return getQuestionsForVersionWithoutCache(version);
   }
+  /**
+   * Returns the questions for a version if the version is present.
+   */
+  public ImmutableList<QuestionModel> getQuestionsForVersion(Optional<VersionModel> maybeVersion) {
+    return maybeVersion.isPresent()
+        ? getQuestionsForVersion(maybeVersion.get())
+        : ImmutableList.of();
+  }
 
   /** Returns the questions for a version without using the cache. */
   public ImmutableList<QuestionModel> getQuestionsForVersionWithoutCache(VersionModel version) {
@@ -483,6 +491,12 @@ public final class VersionRepository {
     return getProgramsForVersion(version).stream()
         .filter(p -> p.getProgramDefinition().adminName().equals(name))
         .findAny();
+  }
+  
+  public Optional<ProgramModel> getProgramByNameForVersion(String name, Optional<VersionModel> maybeVersion) {
+    return getProgramsForVersion(maybeVersion).stream()
+      .filter(p -> p.getProgramDefinition().adminName().equals(name))
+      .findAny();
   }
 
   /** Returns the names of all the programs. */
@@ -506,6 +520,13 @@ public final class VersionRepository {
           String.valueOf(version.id), () -> version.getPrograms());
     }
     return getProgramsForVersionWithoutCache(version);
+  }
+  /**
+   * Returns the programs for a version if the version is present.
+   */
+
+  public ImmutableList<ProgramModel> getProgramsForVersion(Optional<VersionModel> version) {
+    return version.isPresent() ? getProgramsForVersion(version.get()) : ImmutableList.of();
   }
 
   /** Returns the programs for a version without using the cache. */
@@ -545,7 +566,7 @@ public final class VersionRepository {
             .setProfileLocation(profileLocationBuilder.create("getLatestVersionOfQuestion"))
             .findSingleAttribute();
     Optional<QuestionModel> draftQuestion =
-        getQuestionsForVersion(getDraftVersionOrCreate()).stream()
+        getQuestionsForVersion(getDraftVersion()).stream()
             .filter(question -> question.getQuestionDefinition().getName().equals(questionName))
             .findFirst();
     if (draftQuestion.isPresent()) {
@@ -589,7 +610,7 @@ public final class VersionRepository {
   }
 
   public boolean isDraft(QuestionModel question) {
-    return getQuestionsForVersion(getDraftVersionOrCreate()).stream()
+    return getQuestionsForVersion(getDraftVersion()).stream()
         .anyMatch(draftQuestion -> draftQuestion.id.equals(question.id));
   }
 
@@ -600,7 +621,7 @@ public final class VersionRepository {
 
   /** Returns true if the program with the provided id is a member of the current draft version. */
   public boolean isDraftProgram(Long programId) {
-    return getProgramsForVersion(getDraftVersionOrCreate()).stream()
+    return getProgramsForVersion(getDraftVersion()).stream()
         .anyMatch(draftProgram -> draftProgram.id.equals(programId));
   }
 
@@ -754,7 +775,7 @@ public final class VersionRepository {
    */
   public void updateProgramsThatReferenceQuestion(long oldQuestionId) {
     // Update all DRAFT program revisions that reference the question.
-    getProgramsForVersion(getDraftVersionOrCreate()).stream()
+    getProgramsForVersion(getDraftVersion()).stream()
         .filter(program -> program.getProgramDefinition().hasQuestion(oldQuestionId))
         .forEach(this::updateQuestionVersions);
 
@@ -765,7 +786,7 @@ public final class VersionRepository {
         .filter(
             program ->
                 getProgramByNameForVersion(
-                        program.getProgramDefinition().adminName(), getDraftVersionOrCreate())
+                        program.getProgramDefinition().adminName(), getDraftVersion())
                     .isEmpty())
         .forEach(programRepository::createOrUpdateDraft);
   }

@@ -241,7 +241,7 @@ public final class ProgramService {
     return Streams.concat(
             versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()).stream(),
             versionRepository
-                .getProgramsForVersion(versionRepository.getDraftVersionOrCreate())
+                .getProgramsForVersion(versionRepository.getDraftVersion())
                 .stream())
         .anyMatch(p -> p.id.equals(program.id));
   }
