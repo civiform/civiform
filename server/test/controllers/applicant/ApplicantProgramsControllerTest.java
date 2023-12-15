@@ -155,7 +155,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains(routes.ApplicantProgramsController.view(currentApplicant.id, program.id).url());
+        .contains(
+            routes.ApplicantProgramsController.showWithApplicantId(currentApplicant.id, program.id)
+                .url());
   }
 
   @Test
@@ -169,7 +171,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains(routes.ApplicantProgramsController.view(currentApplicant.id, program.id).url());
+        .contains(
+            routes.ApplicantProgramsController.showWithApplicantId(currentApplicant.id, program.id)
+                .url());
   }
 
   @Test
@@ -207,12 +211,15 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void view_includesApplyButton() {
+  public void showWithApplicantId_includesApplyButton() {
     ProgramModel program = resourceCreator().insertActiveProgram("program");
 
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
-        controller.view(request, currentApplicant.id, program.id).toCompletableFuture().join();
+        controller
+            .showWithApplicantId(request, currentApplicant.id, program.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -221,10 +228,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void view_invalidProgram_returnsBadRequest() {
+  public void showWithApplicantId_invalidProgram_returnsBadRequest() {
     Result result =
         controller
-            .view(requestBuilderWithSettings().build(), currentApplicant.id, 9999L)
+            .showWithApplicantId(requestBuilderWithSettings().build(), currentApplicant.id, 9999)
             .toCompletableFuture()
             .join();
 
@@ -232,18 +239,25 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void view_applicantWithoutProfile_redirectsToHome() {
+  // Tests the behavior of the `show()` method when the parameter contains an alphanumeric value,
+  // representing a program slug.
+  public void show_withStringProgramParam_showsByProgramSlug() {
     ProgramModel program = resourceCreator().insertActiveProgram("program");
 
+    // Set preferred locale so that browser doesn't get redirected to set it. This way we get a
+    // meaningful redirect location.
+    currentApplicant.getApplicantData().setPreferredLocale(Locale.US);
+    currentApplicant.save();
+
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result =
-        controller
-            .view(request, applicantWithoutProfile.id, program.id)
-            .toCompletableFuture()
-            .join();
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result = controller.show(request, alphaNumProgramParam).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation()).hasValue("/");
+    assertThat(result.redirectLocation())
+        .contains(
+            routes.ApplicantProgramReviewController.review(currentApplicant.id, program.id).url());
   }
 
   @Test

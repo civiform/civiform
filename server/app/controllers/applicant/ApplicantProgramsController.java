@@ -13,6 +13,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
@@ -43,6 +44,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final ProgramIndexView programIndexView;
   private final ApplicantProgramInfoView programInfoView;
   private final SettingsManifest settingsManifest;
+  private final ProgramSlugHandler programSlugHandler;
 
   @Inject
   public ApplicantProgramsController(
@@ -53,7 +55,8 @@ public final class ApplicantProgramsController extends CiviFormController {
       ApplicantProgramInfoView programInfoView,
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      ProgramSlugHandler programSlugHandler) {
     super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
@@ -61,6 +64,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.programIndexView = checkNotNull(programIndexView);
     this.programInfoView = checkNotNull(programInfoView);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.programSlugHandler = checkNotNull(programSlugHandler);
   }
 
   @Secure
@@ -89,7 +93,9 @@ public final class ApplicantProgramsController extends CiviFormController {
                       applicantId,
                       applicantStage.toCompletableFuture().join(),
                       applicationPrograms,
-                      banner))
+                      banner,
+                      requesterProfile.orElseThrow(
+                          () -> new MissingOptionalException(CiviFormProfile.class))))
                   // If the user has been to the index page, any existing redirects should be
                   // cleared to avoid an experience where they're unexpectedly redirected after
                   // logging in.
@@ -127,7 +133,8 @@ public final class ApplicantProgramsController extends CiviFormController {
   }
 
   @Secure
-  public CompletionStage<Result> view(Request request, long applicantId, long programId) {
+  public CompletionStage<Result> showWithApplicantId(
+      Request request, long applicantId, long programId) {
     Optional<CiviFormProfile> requesterProfile = profileUtils.currentUserProfile(request);
 
     // If the user doesn't have a profile, send them home.
@@ -174,6 +181,35 @@ public final class ApplicantProgramsController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
+  }
+
+  // This controller method disambiguates between two routes:
+  //
+  // - /programs/<program-id>
+  // - /programs/<program-slug>
+  //
+  // Because the second use is public, this controller is not annotated as @Secure. For the first
+  // use, the delegated-to method *is* annotated as such.
+  public CompletionStage<Result> show(Request request, String programParam) {
+    if (StringUtils.isNumeric(programParam)) {
+      // The path parameter specifies a program by (numeric) id.
+      if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
+        // This route is only operative for the new URL schema, so send the user home.
+        return CompletableFuture.completedFuture(redirectToHome());
+      }
+      Optional<Long> applicantId = getApplicantId(request);
+      if (applicantId.isEmpty()) {
+        // This route should not have been computed for the user in this case, but they may have
+        // gotten the URL from another source.
+        return CompletableFuture.completedFuture(redirectToHome());
+      }
+      return showWithApplicantId(
+          request,
+          applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)),
+          Long.parseLong(programParam));
+    } else {
+      return programSlugHandler.showProgram(this, request, programParam);
+    }
   }
 
   @Secure
@@ -232,9 +268,5 @@ public final class ApplicantProgramsController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
-  }
-
-  private static Result redirectToHome() {
-    return redirect(controllers.routes.HomeController.index().url());
   }
 }

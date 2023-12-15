@@ -22,6 +22,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   private static long applicantId = 123L;
   private static long applicantAccountId = 456L;
   private static long tiAccountId = 789L;
+  private static long programId = 321L;
   private static SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
 
   // Class to hold counter values.
@@ -65,11 +66,12 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  public void testIndexRouteForApplicantWithIdInProfile_newSchemaEnabled() {
+  public void testIndexRoute_forApplicantWithIdInProfile_newSchemaEnabled() {
     enableNewApplicantUrlSchema();
     Counts before = getApplicantIdInProfileCounts();
 
     CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(applicantId));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
@@ -83,7 +85,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  public void testIndexRouteForApplicantWithIdInProfile_newSchemaDisabled() {
+  public void testIndexRoute_forApplicantWithIdInProfile_newSchemaDisabled() {
     disableNewApplicantUrlSchema();
     Counts before = getApplicantIdInProfileCounts();
 
@@ -102,11 +104,12 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  public void testIndexRouteForApplicantWithoutIdInProfile() {
+  public void testIndexRoute_forApplicantWithoutIdInProfile() {
     enableNewApplicantUrlSchema();
     Counts before = getApplicantIdInProfileCounts();
 
     CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
@@ -120,7 +123,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  public void testIndexRouteForTrustedIntermediary() {
+  public void testIndexRoute_forTrustedIntermediary() {
     enableNewApplicantUrlSchema();
     Counts before = getApplicantIdInProfileCounts();
 
@@ -131,6 +134,93 @@ public class ApplicantRoutesTest extends ResetPostgres {
     String expectedIndexUrl = String.format("/applicants/%d/programs", applicantId);
     assertThat(new ApplicantRoutes(mockSettingsManifest).index(tiProfile, applicantId).url())
         .isEqualTo(expectedIndexUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present);
+    assertThat(after.absent).isEqualTo(before.absent + 1);
+  }
+
+  @Test
+  public void testShowRoute_forApplicantWithIdInProfile_newSchemaEnabled() {
+    enableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(applicantId));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedShowUrl = String.format("/programs/%d", programId);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .show(applicantProfile, applicantId, programId)
+                .url())
+        .isEqualTo(expectedShowUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present + 1);
+    assertThat(after.absent).isEqualTo(before.absent);
+  }
+
+  @Test
+  public void testShowRoute_forApplicantWithIdInProfile_newSchemaDisabled() {
+    disableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(applicantId));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedShowUrl = String.format("/applicants/%d/programs/%d", applicantId, programId);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .show(applicantProfile, applicantId, programId)
+                .url())
+        .isEqualTo(expectedShowUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present + 1);
+    assertThat(after.absent).isEqualTo(before.absent);
+  }
+
+  @Test
+  public void testShowRoute_forApplicantWithoutIdInProfile() {
+    enableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedShowUrl = String.format("/applicants/%d/programs/%d", applicantId, programId);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .show(applicantProfile, applicantId, programId)
+                .url())
+        .isEqualTo(expectedShowUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present);
+    assertThat(after.absent).isEqualTo(before.absent + 1);
+  }
+
+  @Test
+  public void testShowRoute_forTrustedIntermediary() {
+    enableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(tiAccountId);
+    profileData.addRole(Role.ROLE_TI.toString());
+    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedShowUrl = String.format("/applicants/%d/programs/%d", applicantId, programId);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest).show(tiProfile, applicantId, programId).url())
+        .isEqualTo(expectedShowUrl);
 
     Counts after = getApplicantIdInProfileCounts();
     assertThat(after.present).isEqualTo(before.present);
