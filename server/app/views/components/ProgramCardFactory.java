@@ -47,73 +47,73 @@ public final class ProgramCardFactory {
     DivTag statusDiv = div();
     if (cardData.draftProgram().isPresent()) {
       statusDiv =
-        statusDiv.with(
-          renderProgramRow(request, /* isActive= */ false, cardData.draftProgram().get()));
+          statusDiv.with(
+              renderProgramRow(request, /* isActive= */ false, cardData.draftProgram().get()));
     }
 
     if (cardData.activeProgram().isPresent()) {
       statusDiv =
-        statusDiv.with(
-          renderProgramRow(
-            request,
-            /* isActive= */ true,
-            cardData.activeProgram().get(),
-            cardData.draftProgram().isPresent() ? "border-t" : ""));
+          statusDiv.with(
+              renderProgramRow(
+                  request,
+                  /* isActive= */ true,
+                  cardData.activeProgram().get(),
+                  cardData.draftProgram().isPresent() ? "border-t" : ""));
     }
 
     DivTag titleAndStatus =
-      div()
-        .withClass("flex")
-        .with(
-          div()
-            .withClasses("w-1/3", "py-7")
+        div()
+            .withClass("flex")
             .with(
-              p(programTitleText)
-                .withClasses(
-                  ReferenceClasses.ADMIN_PROGRAM_CARD_TITLE,
-                  "text-black",
-                  "font-bold",
-                  "text-xl"))
-            .with(
-              div()
-                .with(
-                  TextFormatter.formatText(
-                    programDescriptionText,
-                    /* preserveEmptyLines= */ false,
-                    /* addRequiredIndicator= */ false))
-                .withClasses("line-clamp-2", "text-gray-700", "text-base"))
-            .condWith(
-              shouldShowCommonIntakeFormIndicator(request, displayProgram),
-              div()
-                .withClasses("text-black", "items-center", "flex", "pt-4")
-                .with(
-                  Icons.svg(Icons.CHECK)
-                    .withClasses("inline-block", "ml-3", "mr-2", "w-5", "h-5"))
-                .with(span("Pre-screener").withClasses("text-base", "font-semibold"))),
-          statusDiv.withClasses(
-            "flex-grow", "text-sm", StyleUtils.responsiveLarge("text-base")));
+                div()
+                    .withClasses("w-1/3", "py-7")
+                    .with(
+                        p(programTitleText)
+                            .withClasses(
+                                ReferenceClasses.ADMIN_PROGRAM_CARD_TITLE,
+                                "text-black",
+                                "font-bold",
+                                "text-xl"))
+                    .with(
+                        div()
+                            .with(
+                                TextFormatter.formatText(
+                                    programDescriptionText,
+                                    /* preserveEmptyLines= */ false,
+                                    /* addRequiredIndicator= */ false))
+                            .withClasses("line-clamp-2", "text-gray-700", "text-base"))
+                    .condWith(
+                        shouldShowCommonIntakeFormIndicator(request, displayProgram),
+                        div()
+                            .withClasses("text-black", "items-center", "flex", "pt-4")
+                            .with(
+                                Icons.svg(Icons.CHECK)
+                                    .withClasses("inline-block", "ml-3", "mr-2", "w-5", "h-5"))
+                            .with(span("Pre-screener").withClasses("text-base", "font-semibold"))),
+                statusDiv.withClasses(
+                    "flex-grow", "text-sm", StyleUtils.responsiveLarge("text-base")));
 
     return div()
-      .withClasses(
-        ReferenceClasses.ADMIN_PROGRAM_CARD,
-        "w-full",
-        "my-4",
-        "pl-6",
-        "border",
-        "border-gray-300",
-        "rounded-lg")
-      .with(titleAndStatus)
-      .condWith(
-        !adminNoteText.isBlank(),
-        p().withClasses("w-3/4", "mb-8", "pt-4", "line-clamp-3", "text-gray-700", "text-base")
-          .with(span("Admin note: ").withClasses("font-semibold"), span(adminNoteText)));
+        .withClasses(
+            ReferenceClasses.ADMIN_PROGRAM_CARD,
+            "w-full",
+            "my-4",
+            "pl-6",
+            "border",
+            "border-gray-300",
+            "rounded-lg")
+        .with(titleAndStatus)
+        .condWith(
+            !adminNoteText.isBlank(),
+            p().withClasses("w-3/4", "mb-8", "pt-4", "line-clamp-3", "text-gray-700", "text-base")
+                .with(span("Admin note: ").withClasses("font-semibold"), span(adminNoteText)));
   }
 
   private DivTag renderProgramRow(
-    Http.Request request,
-    boolean isActive,
-    ProgramCardData.ProgramRow programRow,
-    String... extraStyles) {
+      Http.Request request,
+      boolean isActive,
+      ProgramCardData.ProgramRow programRow,
+      String... extraStyles) {
     ProgramDefinition program = programRow.program();
     String updatedPrefix = "Edited on ";
     Optional<Instant> updatedTime = program.lastModifiedTime();
@@ -126,73 +126,73 @@ public final class ProgramCardFactory {
 
     String extraActionsButtonId = "extra-actions-" + program.id();
     ButtonTag extraActionsButton =
-      ViewUtils.makeSvgTextButton("", Icons.MORE_VERT)
-        .withId(extraActionsButtonId)
-        .withClasses(
-          ButtonStyles.CLEAR_WITH_ICON,
-          ReferenceClasses.WITH_DROPDOWN,
-          "h-12",
-          programRow.extraRowActions().size() == 0 ? "invisible" : "");
+        ViewUtils.makeSvgTextButton("", Icons.MORE_VERT)
+            .withId(extraActionsButtonId)
+            .withClasses(
+                ButtonStyles.CLEAR_WITH_ICON,
+                ReferenceClasses.WITH_DROPDOWN,
+                "h-12",
+                programRow.extraRowActions().size() == 0 ? "invisible" : "");
 
     PTag badge =
-      ViewUtils.makeLifecycleBadge(
-        isActive ? ProgramDisplayType.ACTIVE : ProgramDisplayType.DRAFT,
-        "ml-2",
-        StyleUtils.responsiveXLarge("ml-8"));
+        ViewUtils.makeLifecycleBadge(
+            isActive ? ProgramDisplayType.ACTIVE : ProgramDisplayType.DRAFT,
+            "ml-2",
+            StyleUtils.responsiveXLarge("ml-8"));
 
     boolean shouldShowUniversalQuestionsCount =
-      settingsManifest.getUniversalQuestions(request)
-        && programRow.universalQuestionsText().isPresent();
+        settingsManifest.getUniversalQuestions(request)
+            && programRow.universalQuestionsText().isPresent();
 
     return div()
-      .withClasses(
-        "py-7",
-        "flex",
-        "flex-row",
-        StyleUtils.hover("bg-gray-100"),
-        StyleUtils.joinStyles(extraStyles))
-      .with(
-        badge,
-        div()
-          .withClasses("ml-4", StyleUtils.responsiveXLarge("ml-10"))
-          .with(
-            viewUtils.renderEditOnText(updatedPrefix, updatedTime),
-            p().with(
-                span(String.format("%d", blockCount)).withClass("font-semibold"),
-                span(blockCount == 1 ? " screen, " : " screens, "),
-                span(String.format("%d", questionCount)).withClass("font-semibold"),
-                span(questionCount == 1 ? " question" : " questions"))
-              .condWith(
-                shouldShowUniversalQuestionsCount,
-                p(programRow.universalQuestionsText().orElse("")))),
-        div().withClass("flex-grow"),
-        div()
-          .withClasses("flex", "space-x-2", "pr-6", "font-medium")
-          .with(programRow.rowActions())
-          .with(
+        .withClasses(
+            "py-7",
+            "flex",
+            "flex-row",
+            StyleUtils.hover("bg-gray-100"),
+            StyleUtils.joinStyles(extraStyles))
+        .with(
+            badge,
             div()
-              .withClass("relative")
-              .with(
-                extraActionsButton,
-                div()
-                  .withId(extraActionsButtonId + "-dropdown")
-                  .withClasses(
-                    "hidden",
-                    "flex",
-                    "flex-col",
-                    "border",
-                    "bg-white",
-                    "absolute",
-                    "right-0",
-                    "w-56",
-                    "z-50")
-                  .with(programRow.extraRowActions()))));
+                .withClasses("ml-4", StyleUtils.responsiveXLarge("ml-10"))
+                .with(
+                    viewUtils.renderEditOnText(updatedPrefix, updatedTime),
+                    p().with(
+                            span(String.format("%d", blockCount)).withClass("font-semibold"),
+                            span(blockCount == 1 ? " screen, " : " screens, "),
+                            span(String.format("%d", questionCount)).withClass("font-semibold"),
+                            span(questionCount == 1 ? " question" : " questions"))
+                        .condWith(
+                            shouldShowUniversalQuestionsCount,
+                            p(programRow.universalQuestionsText().orElse("")))),
+            div().withClass("flex-grow"),
+            div()
+                .withClasses("flex", "space-x-2", "pr-6", "font-medium")
+                .with(programRow.rowActions())
+                .with(
+                    div()
+                        .withClass("relative")
+                        .with(
+                            extraActionsButton,
+                            div()
+                                .withId(extraActionsButtonId + "-dropdown")
+                                .withClasses(
+                                    "hidden",
+                                    "flex",
+                                    "flex-col",
+                                    "border",
+                                    "bg-white",
+                                    "absolute",
+                                    "right-0",
+                                    "w-56",
+                                    "z-50")
+                                .with(programRow.extraRowActions()))));
   }
 
   private boolean shouldShowCommonIntakeFormIndicator(
-    Request request, ProgramDefinition displayProgram) {
+      Request request, ProgramDefinition displayProgram) {
     return settingsManifest.getIntakeFormEnabled(request)
-      && displayProgram.programType().equals(ProgramType.COMMON_INTAKE_FORM);
+        && displayProgram.programType().equals(ProgramType.COMMON_INTAKE_FORM);
   }
 
   private static ProgramDefinition getDisplayProgram(ProgramCardData cardData) {
@@ -204,17 +204,17 @@ public final class ProgramCardFactory {
 
   public static Comparator<ProgramCardData> programTypeThenLastModifiedThenNameComparator() {
     Comparator<ProgramCardData> c =
-      Comparator.comparingInt(
-        (cardData) ->
-          getDisplayProgram(cardData).programType().equals(ProgramType.COMMON_INTAKE_FORM)
-            ? 0
-            : 1);
+        Comparator.comparingInt(
+            (cardData) ->
+                getDisplayProgram(cardData).programType().equals(ProgramType.COMMON_INTAKE_FORM)
+                    ? 0
+                    : 1);
     return c.thenComparing(
-        cardData -> getDisplayProgram(cardData).lastModifiedTime().orElse(Instant.EPOCH),
-        Comparator.reverseOrder())
-      .thenComparing(
-        cardData ->
-          getDisplayProgram(cardData).localizedName().getDefault().toLowerCase(Locale.ROOT));
+            cardData -> getDisplayProgram(cardData).lastModifiedTime().orElse(Instant.EPOCH),
+            Comparator.reverseOrder())
+        .thenComparing(
+            cardData ->
+                getDisplayProgram(cardData).localizedName().getDefault().toLowerCase(Locale.ROOT));
   }
 
   @AutoValue
