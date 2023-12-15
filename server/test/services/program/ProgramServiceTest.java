@@ -472,7 +472,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.copyOf(new ArrayList<>()));
 
     assertThat(result)
-        .containsExactly(CiviFormError.of("A program URL may only at least one letter"));
+        .containsExactly(CiviFormError.of("A program URL must contain at least one letter"));
   }
 
   @Test

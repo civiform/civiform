@@ -71,7 +71,7 @@ public final class ProgramService {
   private static final String INVALID_ADMIN_NAME_MSG =
       "A program URL may only contain lowercase letters, numbers, and dashes";
   private static final String INVALID_PROGRAM_SLUG_MSG =
-      "A program URL may only at least one letter";
+      "A program URL must contain at least one letter";
   private static final String INVALID_PROGRAM_LINK_FORMAT_MSG =
       "A program link must begin with 'http://' or 'https://'";
   private static final String MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE =
