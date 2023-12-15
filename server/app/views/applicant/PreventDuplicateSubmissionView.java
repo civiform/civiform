@@ -84,7 +84,7 @@ public final class PreventDuplicateSubmissionView extends ApplicationBaseView {
         applicantName.isPresent()
             ? ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder().setName(applicantName).build())
-            : ApplicantPersonalInfo.ofGuestUser(),
+            : ApplicantPersonalInfo.ofGuestUser(Representation.builder().build()),
         messages,
         bundle,
         applicantId);
