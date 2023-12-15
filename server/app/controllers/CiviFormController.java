@@ -2,9 +2,11 @@ package controllers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
+import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -73,7 +75,10 @@ public class CiviFormController extends Controller {
   /** Retrieves the applicant id from the user profile, if present. */
   protected Optional<Long> getApplicantId(Http.Request request) {
     CiviFormProfileData profileData =
-        profileUtils.currentUserProfile(request).orElseThrow().getProfileData();
+        profileUtils
+            .currentUserProfile(request)
+            .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class))
+            .getProfileData();
 
     if (profileData == null) {
       return Optional.empty();

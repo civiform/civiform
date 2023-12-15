@@ -4,6 +4,7 @@ import static java.util.Comparator.comparing;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import auth.controllers.MissingOptionalException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
@@ -56,7 +57,8 @@ public class CiviFormProfile {
           .lookupApplicant(applicantId)
           .thenApply(
               optionalApplicant -> {
-                return optionalApplicant.orElseThrow();
+                return optionalApplicant.orElseThrow(
+                    () -> new MissingOptionalException(ApplicantModel.class));
               })
           .toCompletableFuture();
     }
@@ -65,7 +67,10 @@ public class CiviFormProfile {
     // which requires an extra db fetch.
     return this.getAccount()
         .thenApplyAsync(
-            (account) -> getApplicantForAccount(account).orElseThrow(), httpContext.current());
+            (account) ->
+                getApplicantForAccount(account)
+                    .orElseThrow(() -> new MissingOptionalException(ApplicantModel.class)),
+            httpContext.current());
   }
 
   private Optional<ApplicantModel> getApplicantForAccount(AccountModel account) {
@@ -311,7 +316,10 @@ public class CiviFormProfile {
       return;
     }
 
-    Long applicantId = getApplicantForAccount(account).orElseThrow().id;
+    Long applicantId =
+        getApplicantForAccount(account)
+            .orElseThrow(() -> new MissingOptionalException(ApplicantModel.class))
+            .id;
     storeApplicantIdInProfile(applicantId);
   }
 }

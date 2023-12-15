@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 import static play.test.Helpers.fakeRequest;
 
 import auth.ProfileUtils;
+import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import controllers.applicant.ApplicantRoutes;
@@ -59,6 +60,8 @@ public class HomeControllerWithProfileTest extends WithMockedProfiles {
             new ApplicantRoutes(mockSettingsManifest));
     Result result = controller.index(fakeRequest().build()).toCompletableFuture().join();
     assertThat(result.redirectLocation()).isNotEmpty();
-    assertThat(result.redirectLocation().orElseThrow()).endsWith("/programs");
+    assertThat(
+            result.redirectLocation().orElseThrow(() -> new MissingOptionalException(String.class)))
+        .endsWith("/programs");
   }
 }

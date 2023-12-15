@@ -1,10 +1,12 @@
 package controllers.applicant;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import auth.controllers.MissingOptionalException;
 import controllers.CiviFormController;
 import forms.ApplicantInformationForm;
 import java.util.Locale;
@@ -53,12 +55,12 @@ public final class ApplicantInformationController extends CiviFormController {
       VersionRepository versionRepository,
       ApplicantRoutes applicantRoutes) {
     super(profileUtils, versionRepository);
-    this.httpExecutionContext = httpExecutionContext;
-    this.messagesApi = messagesApi;
-    this.repository = repository;
-    this.formFactory = formFactory;
-    this.layout = layout;
-    this.applicantRoutes = applicantRoutes;
+    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.messagesApi = checkNotNull(messagesApi);
+    this.repository = checkNotNull(repository);
+    this.formFactory = checkNotNull(formFactory);
+    this.layout = checkNotNull(layout);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   /**
@@ -94,7 +96,10 @@ public final class ApplicantInformationController extends CiviFormController {
                             /* page= */ Optional.of(1))
                         .url();
               } else {
-                CiviFormProfile profile = profileUtils.currentUserProfile(request).orElseThrow();
+                CiviFormProfile profile =
+                    profileUtils
+                        .currentUserProfile(request)
+                        .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class));
                 redirectLink = applicantRoutes.index(profile, applicantId).url();
               }
 
@@ -134,7 +139,10 @@ public final class ApplicantInformationController extends CiviFormController {
     ApplicantInformationForm infoForm = form.bindFromRequest(request).get();
     String redirectLocation;
     Session session;
-    CiviFormProfile profile = profileUtils.currentUserProfile(request).orElseThrow();
+    CiviFormProfile profile =
+        profileUtils
+            .currentUserProfile(request)
+            .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class));
 
     if (infoForm.getRedirectLink().isEmpty()) {
       redirectLocation = applicantRoutes.index(profile, applicantId).url();

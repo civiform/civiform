@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import java.util.NoSuchElementException;
@@ -145,7 +146,8 @@ public final class UpsellController extends CiviFormController {
                         applicantPersonalInfo.join(),
                         applicantId,
                         programId,
-                        profile.orElseThrow(),
+                        profile.orElseThrow(
+                            () -> new MissingOptionalException(CiviFormProfile.class)),
                         maybeEligiblePrograms.orElseGet(ImmutableList::of),
                         messagesApi.preferred(request),
                         toastMessage,
@@ -161,7 +163,8 @@ public final class UpsellController extends CiviFormController {
                       roApplicantProgramService.join().getCustomConfirmationMessage(),
                       applicantPersonalInfo.join(),
                       applicantId,
-                      profile.orElseThrow(),
+                      profile.orElseThrow(
+                          () -> new MissingOptionalException(CiviFormProfile.class)),
                       applicationId,
                       messagesApi.preferred(request),
                       toastMessage,

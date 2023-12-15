@@ -6,6 +6,7 @@ import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAM_SLUG_LOGIN
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import java.util.Optional;
@@ -316,7 +317,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           roApplicantProgramService,
                           messagesApi.preferred(request),
                           applicantId,
-                          profileUtils.currentUserProfile(request).orElseThrow()));
+                          profileUtils
+                              .currentUserProfile(request)
+                              .orElseThrow(
+                                  () -> new MissingOptionalException(CiviFormProfile.class))));
                 }
                 throw new RuntimeException(cause);
               }

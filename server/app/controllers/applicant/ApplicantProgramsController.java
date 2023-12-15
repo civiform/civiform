@@ -6,6 +6,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import auth.controllers.MissingOptionalException;
 import controllers.CiviFormController;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -121,7 +122,8 @@ public final class ApplicantProgramsController extends CiviFormController {
       // gotten the URL from another source.
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return indexWithApplicantId(request, applicantId.orElseThrow());
+    return indexWithApplicantId(
+        request, applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)));
   }
 
   @Secure

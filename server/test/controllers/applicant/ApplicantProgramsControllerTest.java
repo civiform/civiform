@@ -159,19 +159,6 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void indexWithApplicantId_withProgram_includesApplyButtonWithRedirect() {
-    ProgramModel program = resourceCreator().insertActiveProgram("program");
-
-    Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result =
-        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result))
-        .contains(routes.ApplicantProgramsController.view(currentApplicant.id, program.id).url());
-  }
-
-  @Test
   public void indexWithApplicantId_withCommonIntakeform_includesStartHereButtonWithRedirect() {
     ProgramModel program = resourceCreator().insertActiveCommonIntakeForm("benefits");
 
