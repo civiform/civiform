@@ -438,7 +438,6 @@ public final class ProgramIndexView extends BaseHtmlView {
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
     Optional<ImgTag> programImage = createProgramImage(request, program);
-    System.out.println("programImage= " + programImage + "  ispresent=" + programImage.isPresent());
 
     ContainerTag title =
         nestedUnderSubheading
@@ -529,7 +528,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         .withClasses(ReferenceClasses.APPLY_BUTTON, ButtonStyles.SOLID_BLUE_TEXT_SM, "mx-auto");
 
     DivTag actionDiv =
-        div(content).withClasses("w-full", "pt-4", "mb-6", "flex-grow", "flex", "items-end");
+        div(content).withClasses("w-full", "mt-4", "mb-6", "flex-grow", "flex", "items-end");
     LiTag finalDiv =
         li().withId(baseId)
             .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
@@ -562,11 +561,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                 "w-full",
                 "aspect-video",
                 "object-cover",
-                "rounded-b-lg")); // TODO: Why doesn't aspect-[16/9] work?
-
-    // TODO: alt-text
-    // object-cover says to scale the image so that the full <img> region is occupied by the image
-    // (possibly cropping parts of the image out)
+                "rounded-b-lg"));
+    // TODO(#5676): Add alt-text to image.
   }
 
   /**

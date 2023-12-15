@@ -256,13 +256,13 @@ describe('applicant program index page with images', () => {
 
   it('shows program with wide image', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
-    const programName = 'Horizontal Image Program'
+    const programName = 'Wide Image Program'
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_card_images')
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramImagePage(programName)
     await adminProgramImage.setImageFileAndSubmit(
-      'src/assets/program-summary-image-horizontal.png',
+      'src/assets/program-summary-image-wide.png',
     )
     await adminPrograms.publishAllDrafts()
     await logout(page)
@@ -272,13 +272,13 @@ describe('applicant program index page with images', () => {
 
   it('shows program with tall image', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
-    const programName = 'Horizontal Image Program'
+    const programName = 'Tall Image Program'
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_card_images')
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramImagePage(programName)
     await adminProgramImage.setImageFileAndSubmit(
-      'src/assets/program-summary-image-vertical.png',
+      'src/assets/program-summary-image-tall.png',
     )
     await adminPrograms.publishAllDrafts()
     await logout(page)
@@ -295,10 +295,10 @@ describe('applicant program index page with images', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramImagePage(programName)
     await adminProgramImage.setImageFileAndSubmit(
-      'src/assets/program-summary-image-vertical.png',
+      'src/assets/program-summary-image-tall.png',
     )
     await adminPrograms.publishAllDrafts()
-    // Disable the flag before logging out
+    // Then disable the flag before logging out
     await disableFeatureFlag(page, 'program_card_images')
     await logout(page)
 
@@ -309,15 +309,16 @@ describe('applicant program index page with images', () => {
   it('shows program with image and status', async () => {
     const {page, adminPrograms, adminProgramStatuses, adminProgramImage} = ctx
     const programName = 'Image And Status Program'
-    const approvedStatusName = 'Approved'
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_card_images')
 
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramImagePage(programName)
     await adminProgramImage.setImageFileAndSubmit(
-      'src/assets/program-summary-image-horizontal.png',
+      'src/assets/program-summary-image-wide.png',
     )
+
+    const approvedStatusName = 'Approved'
     await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
     await adminProgramStatuses.createStatus(approvedStatusName)
     await adminPrograms.publishProgram(programName)
@@ -332,8 +333,7 @@ describe('applicant program index page with images', () => {
   })
 
   // This test puts programs with different specs in the different sections of the homepage
-  // (Common Intake, In Progress, Submitted, Not Started) to verify to verify that
-  // different card formats appear correctly next to each other and across sections.
+  // to verify that different card formats appear correctly next to each other and across sections.
   fit('shows programs with and without images in all sections', async () => {
     const {
       page,
@@ -346,7 +346,7 @@ describe('applicant program index page with images', () => {
     await enableFeatureFlag(page, 'intake_form_enabled')
     await enableFeatureFlag(page, 'program_card_images')
 
-    // Common Intake
+    // Common Intake: Basic (no image or status)
     await loginAsAdmin(page)
     const commonIntakeFormProgramName = 'Benefits finder'
     await adminPrograms.addProgram(
@@ -358,7 +358,7 @@ describe('applicant program index page with images', () => {
       /* isCommonIntake= */ true,
     )
 
-    // In Progress with image
+    // In Progress: Image
     const programNameInProgressImage = 'In Progress Program [Image]'
     await adminPrograms.addProgram(programNameInProgressImage)
     await adminQuestions.addTextQuestion({
@@ -373,7 +373,7 @@ describe('applicant program index page with images', () => {
 
     await adminPrograms.goToProgramImagePage(programNameInProgressImage)
     await adminProgramImage.setImageFileAndSubmit(
-      'src/assets/program-summary-image-horizontal.png',
+      'src/assets/program-summary-image-wide.png',
     )
     await adminPrograms.publishAllDrafts()
     await logout(page)
@@ -385,18 +385,17 @@ describe('applicant program index page with images', () => {
     await applicantQuestions.gotoApplicantHomePage()
     await logout(page)
 
-    // Submitted #1: Image & status
+    // Submitted #1: Image and status
     const programNameSubmittedWithImageAndStatus =
       'Submitted Program [Image and Status]'
     const approvedStatusName = 'Approved'
     await loginAsAdmin(page)
-
     await adminPrograms.addProgram(programNameSubmittedWithImageAndStatus)
     await adminPrograms.goToProgramImagePage(
       programNameSubmittedWithImageAndStatus,
     )
     await adminProgramImage.setImageFileAndSubmit(
-      'src/assets/program-summary-image-horizontal.png',
+      'src/assets/program-summary-image-wide.png',
     )
     await adminPrograms.gotoDraftProgramManageStatusesPage(
       programNameSubmittedWithImageAndStatus,
@@ -414,11 +413,12 @@ describe('applicant program index page with images', () => {
       approvedStatusName,
     )
 
-    // Submitted #2: No image or status
+    // Submitted #2: Basic
     const programNameSubmittedBasic = 'Submitted Program [Basic]'
     await loginAsAdmin(page)
     await adminPrograms.addProgram(programNameSubmittedBasic)
     await adminPrograms.publishProgram(programNameSubmittedBasic)
+    await adminPrograms.expectActiveProgram(programNameSubmittedBasic)
     await logout(page)
 
     await loginAsTestUser(page)
@@ -452,7 +452,7 @@ describe('applicant program index page with images', () => {
     await adminPrograms.addProgram(programNameSubmittedImage)
     await adminPrograms.goToProgramImagePage(programNameSubmittedImage)
     await adminProgramImage.setImageFileAndSubmit(
-      'src/assets/program-summary-image-horizontal.png',
+      'src/assets/program-summary-image-wide.png',
     )
     await adminPrograms.publishAllDrafts()
     await logout(page)
@@ -471,12 +471,12 @@ describe('applicant program index page with images', () => {
     await adminPrograms.addProgram(programNameNotStartedImage)
     await adminPrograms.goToProgramImagePage(programNameNotStartedImage)
     await adminProgramImage.setImageFileAndSubmit(
-      'src/assets/program-summary-image-horizontal.png',
+      'src/assets/program-summary-image-wide.png',
     )
-
-    // Verify homepage
     await adminPrograms.publishAllDrafts()
     await logout(page)
+
+    // Verify homepage
     await loginAsTestUser(page)
     await validateScreenshot(page, 'program-image-all-types')
   })
