@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import javax.annotation.Nullable;
+import models.ApplicantModel;
 import services.CfJsonDocumentContext;
 import services.LocalizedStrings;
 import services.Path;
@@ -37,18 +37,30 @@ public class ApplicantData extends CfJsonDocumentContext {
 
   private Optional<ImmutableMap<Path, String>> failedUpdates;
 
+  private ApplicantModel applicant;
+
   public ApplicantData() {
-    this(EMPTY_APPLICANT_DATA_JSON);
+    this(EMPTY_APPLICANT_DATA_JSON, null);
   }
 
-  public ApplicantData(String jsonData) {
-    this(Optional.empty(), jsonData);
+  public ApplicantData(ApplicantModel applicant) {
+    this(EMPTY_APPLICANT_DATA_JSON, applicant);
   }
 
-  public ApplicantData(Optional<Locale> preferredLocale, String jsonData) {
+  public ApplicantData(String jsonData, ApplicantModel applicant) {
+    this(Optional.empty(), jsonData, applicant);
+  }
+
+  public ApplicantData(
+      Optional<Locale> preferredLocale, String jsonData, ApplicantModel applicant) {
     super(JsonPathProvider.getJsonPath().parse(checkNotNull(jsonData)));
     this.preferredLocale = preferredLocale;
     this.failedUpdates = Optional.empty();
+    this.applicant = applicant;
+  }
+
+  public ApplicantModel getApplicant() {
+    return applicant;
   }
 
   /** Returns true if this applicant has set their preferred locale, and false otherwise. */
@@ -67,31 +79,30 @@ public class ApplicantData extends CfJsonDocumentContext {
   }
 
   public Optional<String> getApplicantName() {
-    if (!hasPath(WellKnownPaths.APPLICANT_FIRST_NAME)) {
+    Optional<String> firstName = applicant.getFirstName();
+    Optional<String> lastName = applicant.getLastName();
+    if (firstName.isEmpty()) {
       return Optional.empty();
     }
-    String firstName = readString(WellKnownPaths.APPLICANT_FIRST_NAME).get();
-    if (hasPath(WellKnownPaths.APPLICANT_LAST_NAME)) {
-      String lastName = readString(WellKnownPaths.APPLICANT_LAST_NAME).get();
-      return Optional.of(String.format("%s, %s", lastName, firstName));
-    }
-    return Optional.of(firstName);
+    return lastName.isEmpty()
+        ? Optional.of(firstName.get())
+        : Optional.of(String.format("%s, %s", lastName.get(), firstName.get()));
   }
 
   public void setUserName(String displayName) {
     String firstName;
-    String lastName = null;
-    String middleName = null;
+    Optional<String> lastName = Optional.empty();
+    Optional<String> middleName = Optional.empty();
     List<String> listSplit = Splitter.on(' ').splitToList(displayName);
     switch (listSplit.size()) {
       case 2:
         firstName = listSplit.get(0);
-        lastName = listSplit.get(1);
+        lastName = Optional.of(listSplit.get(1));
         break;
       case 3:
         firstName = listSplit.get(0);
-        middleName = listSplit.get(1);
-        lastName = listSplit.get(2);
+        middleName = Optional.of(listSplit.get(1));
+        lastName = Optional.of(listSplit.get(2));
         break;
       case 1:
         // fallthrough
@@ -103,16 +114,10 @@ public class ApplicantData extends CfJsonDocumentContext {
   }
 
   public void setUserName(
-      String firstName, @Nullable String middleName, @Nullable String lastName) {
-    if (!hasPath(WellKnownPaths.APPLICANT_FIRST_NAME)) {
-      putString(WellKnownPaths.APPLICANT_FIRST_NAME, firstName);
-    }
-    if (middleName != null && !hasPath(WellKnownPaths.APPLICANT_MIDDLE_NAME)) {
-      putString(WellKnownPaths.APPLICANT_MIDDLE_NAME, middleName);
-    }
-    if (lastName != null && !hasPath(WellKnownPaths.APPLICANT_LAST_NAME)) {
-      putString(WellKnownPaths.APPLICANT_LAST_NAME, lastName);
-    }
+      String firstName, Optional<String> middleName, Optional<String> lastName) {
+    applicant.setFirstName(firstName);
+    middleName.ifPresent(applicant::setMiddleName);
+    lastName.ifPresent(applicant::setLastName);
   }
 
   @Override
@@ -146,25 +151,8 @@ public class ApplicantData extends CfJsonDocumentContext {
     return getFailedUpdates().containsKey(path);
   }
 
-  public Optional<LocalDate> getDateOfBirth() {
-    Path dobPath = WellKnownPaths.APPLICANT_DOB;
-    if (!hasPath(dobPath)) {
-      return getDeprecatedDateOfBirth();
-    }
-    return readDate(dobPath);
-  }
-
   public Optional<LocalDate> getDeprecatedDateOfBirth() {
     return readDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED);
-  }
-
-  public void setDateOfBirth(String dateOfBirth) {
-    Path deprecatedDobPath = WellKnownPaths.APPLICANT_DOB_DEPRECATED;
-    if (hasPath(deprecatedDobPath)) {
-      putDate(deprecatedDobPath, dateOfBirth);
-    } else {
-      putDate(WellKnownPaths.APPLICANT_DOB, dateOfBirth);
-    }
   }
 
   /**
@@ -173,10 +161,11 @@ public class ApplicantData extends CfJsonDocumentContext {
    */
   public boolean isDuplicateOf(ApplicantData other) {
     // Copy data and clear fields not required for comparison.
-    ApplicantData thisApplicantData = new ApplicantData(this.preferredLocale, this.asJsonString());
+    ApplicantData thisApplicantData =
+        new ApplicantData(this.preferredLocale, this.asJsonString(), this.applicant);
     clearFieldsNotRequiredForComparison(thisApplicantData);
     ApplicantData otherApplicantData =
-        new ApplicantData(other.preferredLocale, other.asJsonString());
+        new ApplicantData(other.preferredLocale, other.asJsonString(), other.applicant);
     clearFieldsNotRequiredForComparison(otherApplicantData);
 
     return thisApplicantData.asJsonString().equals(otherApplicantData.asJsonString());
