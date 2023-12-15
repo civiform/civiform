@@ -20,11 +20,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import models.AccountModel;
-import models.ApplicationModel;
-import models.LifecycleStage;
-import models.ProgramModel;
-import models.VersionModel;
+
+import models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.cache.NamedCache;
@@ -35,9 +32,11 @@ import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.Path;
 import services.WellKnownPaths;
+import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
 import services.program.ProgramDraftNotFoundException;
 import services.program.ProgramNotFoundException;
+import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 
 /**
@@ -372,6 +371,35 @@ public final class ProgramRepository {
         pagedQuery.hasNext(),
         pagedQuery.getTotalPageCount(),
         pagedQuery.getList().stream().collect(ImmutableList.toImmutableList()));
+  }
+
+  public ImmutableSet<Path> getAllHistoricalQuestionsPathsInProgram(String programName) {
+//    Query<QuestionModel> questionModelQuery =
+//      database
+//        .find(QuestionModel.class)
+//        .select("name")
+//        .where()
+//        .eq("id", programId)
+//        .setMaxRows(1)
+//        .query();
+
+  var programs =
+    database.find(ProgramModel.class)
+      .where()
+      .eq("name", programName)
+      .query()
+      .findList()
+      .stream().collect(ImmutableList.toImmutableList());
+
+  // idk what happens with enumerators here. they don't work
+  var questionNames = programs.stream()
+    .flatMap(pm -> pm.getProgramDefinition().blockDefinitions().stream())
+    .flatMap(bd -> bd.programQuestionDefinitions().stream())
+//    .map(pqd -> pqd.getQuestionDefinition().getName())
+    .map(pqd -> pqd.getQuestionDefinition().getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH))
+    .collect(ImmutableSet.toImmutableSet());
+
+  return questionNames;
   }
 
   private Query<ProgramModel> allProgramVersionsQuery(long programId) {

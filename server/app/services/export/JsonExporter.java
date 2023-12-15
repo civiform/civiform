@@ -114,6 +114,9 @@ public final class JsonExporter {
 
   private ApplicationExportData buildApplicationExportData(
       ApplicationModel application, ProgramDefinition programDefinition) {
+
+
+
     ReadOnlyApplicantProgramService roApplicantProgramService =
         applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
 
