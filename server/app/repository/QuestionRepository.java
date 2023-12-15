@@ -144,9 +144,7 @@ public final class QuestionRepository {
     // TODO: This seems error prone as a question could be present as a DRAFT and ACTIVE.
     // Investigate further.
     Stream.concat(
-            versionRepository
-                .getQuestionsForVersion(versionRepository.getDraftVersionOrCreate())
-                .stream(),
+            versionRepository.getQuestionsForVersion(versionRepository.getDraftVersion()).stream(),
             versionRepository.getQuestionsForVersion(versionRepository.getActiveVersion()).stream())
         // Find questions that reference the old enumerator ID.
         .filter(

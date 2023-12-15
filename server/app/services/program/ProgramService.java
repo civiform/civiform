@@ -240,9 +240,7 @@ public final class ProgramService {
   private boolean isActiveOrDraftProgram(ProgramModel program) {
     return Streams.concat(
             versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()).stream(),
-            versionRepository
-                .getProgramsForVersion(versionRepository.getDraftVersionOrCreate())
-                .stream())
+            versionRepository.getProgramsForVersion(versionRepository.getDraftVersion()).stream())
         .anyMatch(p -> p.id.equals(program.id));
   }
 
