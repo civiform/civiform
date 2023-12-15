@@ -469,9 +469,8 @@ public final class VersionRepository {
     }
     return getQuestionsForVersionWithoutCache(version);
   }
-  /**
-   * Returns the questions for a version if the version is present.
-   */
+
+  /** Returns the questions for a version if the version is present. */
   public ImmutableList<QuestionModel> getQuestionsForVersion(Optional<VersionModel> maybeVersion) {
     return maybeVersion.isPresent()
         ? getQuestionsForVersion(maybeVersion.get())
@@ -492,11 +491,12 @@ public final class VersionRepository {
         .filter(p -> p.getProgramDefinition().adminName().equals(name))
         .findAny();
   }
-  
-  public Optional<ProgramModel> getProgramByNameForVersion(String name, Optional<VersionModel> maybeVersion) {
+
+  public Optional<ProgramModel> getProgramByNameForVersion(
+      String name, Optional<VersionModel> maybeVersion) {
     return getProgramsForVersion(maybeVersion).stream()
-      .filter(p -> p.getProgramDefinition().adminName().equals(name))
-      .findAny();
+        .filter(p -> p.getProgramDefinition().adminName().equals(name))
+        .findAny();
   }
 
   /** Returns the names of all the programs. */
@@ -521,10 +521,8 @@ public final class VersionRepository {
     }
     return getProgramsForVersionWithoutCache(version);
   }
-  /**
-   * Returns the programs for a version if the version is present.
-   */
 
+  /** Returns the programs for a version if the version is present. */
   public ImmutableList<ProgramModel> getProgramsForVersion(Optional<VersionModel> version) {
     return version.isPresent() ? getProgramsForVersion(version.get()) : ImmutableList.of();
   }
