@@ -202,7 +202,7 @@ describe('admin program view page', () => {
       'required question',
     )
 
-    await validateScreenshot(page, 'view-program-block-2')
+    await validateScreenshot(page, 'view-program-block-2-with-long-description')
 
     await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
     await adminPrograms.expectProgramBlockEditPage(programName)
