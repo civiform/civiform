@@ -6,6 +6,7 @@ import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAM_SLUG_LOGIN
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import java.util.Optional;
@@ -59,6 +60,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final PreventDuplicateSubmissionView preventDuplicateSubmissionView;
   private final SettingsManifest settingsManifest;
   private final ProgramService programService;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public ApplicantProgramReviewController(
@@ -71,7 +73,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
       ProfileUtils profileUtils,
       SettingsManifest settingsManifest,
       ProgramService programService,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      ApplicantRoutes applicantRoutes) {
     super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
@@ -81,6 +84,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.preventDuplicateSubmissionView = checkNotNull(preventDuplicateSubmissionView);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programService = checkNotNull(programService);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   public CompletionStage<Result> review(Request request, long applicantId, long programId) {
@@ -258,7 +262,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       applicantId,
                       programId,
                       applicationId,
-                      routes.ApplicantProgramsController.index(applicantId).url());
+                      applicantRoutes.index(submittingProfile, applicantId).url());
               return found(endOfProgramSubmission);
             },
             httpExecutionContext.current())
@@ -312,7 +316,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           request,
                           roApplicantProgramService,
                           messagesApi.preferred(request),
-                          applicantId));
+                          applicantId,
+                          profileUtils
+                              .currentUserProfile(request)
+                              .orElseThrow(
+                                  () -> new MissingOptionalException(CiviFormProfile.class))));
                 }
                 throw new RuntimeException(cause);
               }

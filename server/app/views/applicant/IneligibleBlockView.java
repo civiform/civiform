@@ -9,6 +9,7 @@ import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.ul;
 
 import auth.CiviFormProfile;
+import controllers.applicant.ApplicantRoutes;
 import controllers.applicant.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
@@ -36,10 +37,12 @@ import views.style.StyleUtils;
 public final class IneligibleBlockView extends ApplicationBaseView {
 
   private final ApplicantLayout layout;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
-  IneligibleBlockView(ApplicantLayout layout) {
+  IneligibleBlockView(ApplicantLayout layout, ApplicantRoutes applicantRoutes) {
     this.layout = checkNotNull(layout);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   public Content render(
@@ -100,7 +103,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                     .with(div().withClasses("flex-grow"))
                     .with(
                         new LinkElement()
-                            .setHref(routes.ApplicantProgramsController.index(applicantId).url())
+                            .setHref(applicantRoutes.index(submittingProfile, applicantId).url())
                             .setText(
                                 messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
                             .asButton()
