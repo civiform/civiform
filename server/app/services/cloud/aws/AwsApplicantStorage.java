@@ -17,7 +17,7 @@ import javax.inject.Singleton;
 import org.mockito.Mockito;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
-import services.cloud.StorageClient;
+import services.cloud.ApplicantStorageClient;
 import services.cloud.StorageServiceName;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
@@ -28,12 +28,9 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
-/**
- * SimpleStorage provides methods to create federated links for users of CiviForm to upload and
- * download files directly to and from AWS Simple Storage Service (S3).
- */
+/** An AWS Simple Storage Service (S3) implementation of {@link ApplicantStorageClient}. */
 @Singleton
-public class SimpleStorage implements StorageClient {
+public class AwsApplicantStorage implements ApplicantStorageClient {
 
   public static final String AWS_S3_BUCKET_CONF_PATH = "aws.s3.bucket";
   public static final Duration AWS_PRESIGNED_URL_DURATION = Duration.ofMinutes(10);
@@ -46,7 +43,7 @@ public class SimpleStorage implements StorageClient {
   private final Client client;
 
   @Inject
-  public SimpleStorage(
+  public AwsApplicantStorage(
       AwsRegion region,
       Credentials credentials,
       Config config,
