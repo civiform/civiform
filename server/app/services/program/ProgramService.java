@@ -31,6 +31,7 @@ import models.DisplayMode;
 import models.ProgramModel;
 import models.VersionModel;
 import modules.MainModule;
+import org.apache.commons.lang3.StringUtils;
 import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.AccountRepository;
@@ -69,6 +70,8 @@ public final class ProgramService {
   private static final String MISSING_ADMIN_NAME_MSG = "A program URL is required";
   private static final String INVALID_ADMIN_NAME_MSG =
       "A program URL may only contain lowercase letters, numbers, and dashes";
+  private static final String INVALID_PROGRAM_SLUG_MSG =
+      "A program URL must contain at least one letter";
   private static final String INVALID_PROGRAM_LINK_FORMAT_MSG =
       "A program link must begin with 'http://' or 'https://'";
   private static final String MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE =
@@ -346,6 +349,8 @@ public final class ProgramService {
       errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
       errorsBuilder.add(CiviFormError.of(INVALID_ADMIN_NAME_MSG));
+    } else if (StringUtils.isNumeric(MainModule.SLUGIFIER.slugify(adminName))) {
+      errorsBuilder.add(CiviFormError.of(INVALID_PROGRAM_SLUG_MSG));
     } else if (hasProgramNameCollision(adminName)) {
       errorsBuilder.add(CiviFormError.of("A program URL of " + adminName + " already exists"));
     }
