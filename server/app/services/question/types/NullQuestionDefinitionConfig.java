@@ -1,10 +1,12 @@
 package services.question.types;
 
+import com.google.common.collect.ImmutableList;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
+import services.question.PrimaryApplicantInfoTag;
 
 /**
  * This is an empty QuestionDefinitionConfig that is used when the system can't find the question.
@@ -70,6 +72,11 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
     return false;
   }
 
+  @Override
+  ImmutableList<PrimaryApplicantInfoTag> primaryApplicantInfoTags() {
+    return ImmutableList.of();
+  }
+
   /** Used to create a new {@link Builder} based on an existing one. */
   public static class Builder extends QuestionDefinitionConfig.Builder {
 
@@ -133,6 +140,11 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
 
     @Override
     public QuestionDefinitionConfig.Builder setUniversal(boolean Universal) {
+      return this;
+    }
+
+    @Override
+    public QuestionDefinitionConfig.Builder setPrimaryApplicantInfoTags(ImmutableList<PrimaryApplicantInfoTag> primaryApplicantInfoTags) {
       return this;
     }
 

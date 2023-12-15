@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
@@ -153,6 +154,11 @@ public final class QuestionDefinitionBuilder {
 
   public QuestionDefinitionBuilder setUniversal(boolean universal) {
     builder.setUniversal(universal);
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setPrimaryApplicantInfoTags(ImmutableList<PrimaryApplicantInfoTag> primaryApplicantInfoTags) {
+    builder.setPrimaryApplicantInfoTags(primaryApplicantInfoTags);
     return this;
   }
 

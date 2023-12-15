@@ -28,6 +28,7 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -153,8 +154,8 @@ public class QuestionModel extends BaseModel {
             .setQuestionType(QuestionType.valueOf(questionType))
             .setValidationPredicatesString(validationPredicates)
             .setLastModifiedTime(Optional.ofNullable(lastModifiedTime))
-            .setUniversal(questionTags.contains(QuestionTag.UNIVERSAL));
-
+            .setUniversal(questionTags.contains(QuestionTag.UNIVERSAL))
+            .setPrimaryApplicantInfoTags(getPrimaryApplicantInfoTagsFromQuestionTags(questionTags));
     setEnumeratorEntityType(builder);
 
     // Build accounting for legacy columns
@@ -163,6 +164,12 @@ public class QuestionModel extends BaseModel {
     setQuestionOptions(builder);
 
     this.questionDefinition = builder.build();
+  }
+
+  private ImmutableList<PrimaryApplicantInfoTag> getPrimaryApplicantInfoTagsFromQuestionTags(List<QuestionTag> questionTags) {
+    return ImmutableList.copyOf(PrimaryApplicantInfoTag.values()).stream()
+        .filter(primaryApplicantInfoTag -> questionTags.contains(primaryApplicantInfoTag.getQuestionTag()))
+        .collect(ImmutableList.toImmutableList());
   }
 
   /**
@@ -276,6 +283,10 @@ public class QuestionModel extends BaseModel {
     } else {
       initTags();
     }
+
+    // Add QuestionTags for PrimaryApplicantInfoTags in the list. Note that this must come after we've
+    // done initTags above, either in this function or in addTag previously.
+    questionDefinition.getPrimaryApplicantInfoTags().forEach(primaryApplicantInfoTag -> addTag(primaryApplicantInfoTag.getQuestionTag()));
 
     return this;
   }

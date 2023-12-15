@@ -21,6 +21,7 @@ import services.Path;
 import services.applicant.RepeatedEntity;
 import services.applicant.question.Scalar;
 import services.export.enums.ApiPathSegment;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
 
 /** Superclass for all question types. */
@@ -66,6 +67,14 @@ public abstract class QuestionDefinition {
   /** True if the question is marked as a universal question. */
   public final boolean isUniversal() {
     return config.universal();
+  }
+
+  public final ImmutableList<PrimaryApplicantInfoTag> getPrimaryApplicantInfoTags() {
+    return config.primaryApplicantInfoTags();
+  }
+
+  public final boolean containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag primaryApplicantInfoTag) {
+    return config.primaryApplicantInfoTags().contains(primaryApplicantInfoTag);
   }
 
   /**
