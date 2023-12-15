@@ -1,13 +1,16 @@
 import {
   createTestContext,
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
+  loginAsProgramAdmin,
   loginAsTestUser,
   logout,
+  testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
 } from './support'
-import {AdminProgramImage} from './support/admin_program_image'
+import {Page} from 'playwright'
 import {ProgramVisibility} from './support/admin_programs'
 
 describe('applicant program index page', () => {
@@ -248,7 +251,7 @@ describe('applicant program index page', () => {
   })
 })
 
-fdescribe('applicant program index page with images', () => {
+describe('applicant program index page with images', () => {
   const ctx = createTestContext()
 
   it('shows program with wide image', async () => {
@@ -264,7 +267,7 @@ fdescribe('applicant program index page with images', () => {
     await adminPrograms.publishAllDrafts()
     await logout(page)
 
-    await validateScreenshot(page, 'program-with-wide-image')
+    await validateScreenshot(page, 'program-image-wide')
   })
 
   it('shows program with tall image', async () => {
@@ -280,21 +283,224 @@ fdescribe('applicant program index page with images', () => {
     await adminPrograms.publishAllDrafts()
     await logout(page)
 
-    await validateScreenshot(page, 'program-with-tall-image')
+    await validateScreenshot(page, 'program-image-tall')
+  })
+
+  it('no program image if flag off', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    const programName = 'Image Flag Off Program'
+    await loginAsAdmin(page)
+    // Enable the flag and set an image as the admin
+    await enableFeatureFlag(page, 'program_card_images')
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramImagePage(programName)
+    await adminProgramImage.setImageFileAndSubmit(
+      'src/assets/program-summary-image-vertical.png',
+    )
+    await adminPrograms.publishAllDrafts()
+    // Disable the flag before logging out
+    await disableFeatureFlag(page, 'program_card_images')
+    await logout(page)
+
+    // Verify the user doesn't see the image
+    await validateScreenshot(page, 'program-image-flag-off')
   })
 
   it('shows program with image and status', async () => {
-    // see program-list-with-status screen
+    const {page, adminPrograms, adminProgramStatuses, adminProgramImage} = ctx
+    const programName = 'Image And Status Program'
+    const approvedStatusName = 'Approved'
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramImagePage(programName)
+    await adminProgramImage.setImageFileAndSubmit(
+      'src/assets/program-summary-image-horizontal.png',
+    )
+    await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
+    await adminProgramStatuses.createStatus(approvedStatusName)
+    await adminPrograms.publishProgram(programName)
+    await adminPrograms.expectActiveProgram(programName)
+    await logout(page)
+
+    await submitApplicationAndApplyStatus(page, programName, approvedStatusName)
+
+    // Verify program card shows both the Accepted status and image
+    await loginAsTestUser(page)
+    await validateScreenshot(page, 'program-image-with-status')
   })
 
-  it('shows programs with and without images', async () => {
-    // TODO: Have multiple lines
-    // TODO: Also have one with a status+image next to neither
-  })
+  // This test puts programs with different specs in the different sections of the homepage
+  // (Common Intake, In Progress, Submitted, Not Started) to verify to verify that
+  // different card formats appear correctly next to each other and across sections.
+  fit('shows programs with and without images in all sections', async () => {
+    const {
+      page,
+      adminPrograms,
+      adminProgramStatuses,
+      adminProgramImage,
+      adminQuestions,
+      applicantQuestions,
+    } = ctx
+    await enableFeatureFlag(page, 'intake_form_enabled')
+    await enableFeatureFlag(page, 'program_card_images')
 
-  it('shows programs with and without images in all sections', async () => {
-    // common intake, in progress, submitted, not started
+    // Common Intake
+    await loginAsAdmin(page)
+    const commonIntakeFormProgramName = 'Benefits finder'
+    await adminPrograms.addProgram(
+      commonIntakeFormProgramName,
+      'program description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      /* isCommonIntake= */ true,
+    )
+
+    // In Progress with image
+    const programNameInProgressImage = 'In Progress Program [Image]'
+    await adminPrograms.addProgram(programNameInProgressImage)
+    await adminQuestions.addTextQuestion({
+      questionName: 'first-q',
+      questionText: 'first question text',
+    })
+    await adminPrograms.addProgramBlock(
+      programNameInProgressImage,
+      'first block',
+      ['first-q'],
+    )
+
+    await adminPrograms.goToProgramImagePage(programNameInProgressImage)
+    await adminProgramImage.setImageFileAndSubmit(
+      'src/assets/program-summary-image-horizontal.png',
+    )
+    await adminPrograms.publishAllDrafts()
+    await logout(page)
+
+    await loginAsTestUser(page)
+    await applicantQuestions.applyProgram(programNameInProgressImage)
+    await applicantQuestions.answerTextQuestion('first answer')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.gotoApplicantHomePage()
+    await logout(page)
+
+    // Submitted #1: Image & status
+    const programNameSubmittedWithImageAndStatus =
+      'Submitted Program [Image and Status]'
+    const approvedStatusName = 'Approved'
+    await loginAsAdmin(page)
+
+    await adminPrograms.addProgram(programNameSubmittedWithImageAndStatus)
+    await adminPrograms.goToProgramImagePage(
+      programNameSubmittedWithImageAndStatus,
+    )
+    await adminProgramImage.setImageFileAndSubmit(
+      'src/assets/program-summary-image-horizontal.png',
+    )
+    await adminPrograms.gotoDraftProgramManageStatusesPage(
+      programNameSubmittedWithImageAndStatus,
+    )
+    await adminProgramStatuses.createStatus(approvedStatusName)
+    await adminPrograms.publishProgram(programNameSubmittedWithImageAndStatus)
+    await adminPrograms.expectActiveProgram(
+      programNameSubmittedWithImageAndStatus,
+    )
+    await logout(page)
+
+    await submitApplicationAndApplyStatus(
+      page,
+      programNameSubmittedWithImageAndStatus,
+      approvedStatusName,
+    )
+
+    // Submitted #2: No image or status
+    const programNameSubmittedBasic = 'Submitted Program [Basic]'
+    await loginAsAdmin(page)
+    await adminPrograms.addProgram(programNameSubmittedBasic)
+    await adminPrograms.publishProgram(programNameSubmittedBasic)
+    await logout(page)
+
+    await loginAsTestUser(page)
+    await applicantQuestions.clickApplyProgramButton(programNameSubmittedBasic)
+    await applicantQuestions.submitFromReviewPage()
+    await logout(page)
+
+    // Submitted #3: Status
+    const programNameSubmittedWithStatus = 'Submitted Program [Status]'
+    await loginAsAdmin(page)
+
+    await adminPrograms.addProgram(programNameSubmittedWithStatus)
+    await adminPrograms.gotoDraftProgramManageStatusesPage(
+      programNameSubmittedWithStatus,
+    )
+    await adminProgramStatuses.createStatus(approvedStatusName)
+    await adminPrograms.publishProgram(programNameSubmittedWithStatus)
+    await adminPrograms.expectActiveProgram(programNameSubmittedWithStatus)
+    await logout(page)
+
+    await submitApplicationAndApplyStatus(
+      page,
+      programNameSubmittedWithStatus,
+      approvedStatusName,
+    )
+
+    // Submitted #4 (on new row): Image
+    const programNameSubmittedImage = 'Submitted Program [Image]'
+    await loginAsAdmin(page)
+
+    await adminPrograms.addProgram(programNameSubmittedImage)
+    await adminPrograms.goToProgramImagePage(programNameSubmittedImage)
+    await adminProgramImage.setImageFileAndSubmit(
+      'src/assets/program-summary-image-horizontal.png',
+    )
+    await adminPrograms.publishAllDrafts()
+    await logout(page)
+
+    await loginAsTestUser(page)
+    await applicantQuestions.clickApplyProgramButton(programNameSubmittedImage)
+    await applicantQuestions.submitFromReviewPage()
+    await logout(page)
+
+    // Not Started #1: Basic
+    await loginAsAdmin(page)
+    await adminPrograms.addProgram('Not Started Program [Basic]')
+
+    // Not Started #2: Image
+    const programNameNotStartedImage = 'Not Started Program [Image]'
+    await adminPrograms.addProgram(programNameNotStartedImage)
+    await adminPrograms.goToProgramImagePage(programNameNotStartedImage)
+    await adminProgramImage.setImageFileAndSubmit(
+      'src/assets/program-summary-image-horizontal.png',
+    )
+
+    // Verify homepage
+    await adminPrograms.publishAllDrafts()
+    await logout(page)
+    await loginAsTestUser(page)
+    await validateScreenshot(page, 'program-image-all-types')
   })
 
   // TODO(#5676): Test with a very small image.
+
+  async function submitApplicationAndApplyStatus(
+    page: Page,
+    programName: string,
+    statusName: string,
+  ) {
+    const {adminPrograms, applicantQuestions} = ctx
+    // Submit an application as a test user.
+    await loginAsTestUser(page)
+    await applicantQuestions.clickApplyProgramButton(programName)
+    await applicantQuestions.submitFromReviewPage()
+    await logout(page)
+
+    // Set a status as a program admin
+    await loginAsProgramAdmin(page)
+    await adminPrograms.viewApplications(programName)
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+    const modal = await adminPrograms.setStatusOptionAndAwaitModal(statusName)
+    await adminPrograms.confirmStatusUpdateModal(modal)
+    await logout(page)
+  }
 })
