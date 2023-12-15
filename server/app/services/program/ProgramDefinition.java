@@ -581,6 +581,16 @@ public abstract class ProgramDefinition {
         .collect(toImmutableList());
   }
 
+  /** Returns a list of {@link QuestionDefinition} that are marked with PrimaryApplicantInfoTags. */
+  public ImmutableList<QuestionDefinition> getQuestionsWithPrimaryApplicantInfoTagsInProgram() {
+    return blockDefinitions().stream()
+        .map(BlockDefinition::programQuestionDefinitions)
+        .flatMap(ImmutableList::stream)
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .filter(question -> !question.getPrimaryApplicantInfoTags().isEmpty())
+        .collect(toImmutableList());
+  }
+
   /**
    * Returns a list of the question definitions that may be used to define eligibility predicates on
    * the block definition with the id {@code blockId}.
