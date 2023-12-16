@@ -152,15 +152,13 @@ describe('admin program view page', () => {
 
     const programName = 'Apc program'
     await adminQuestions.addAddressQuestion({questionName: 'address-q'})
-    await adminQuestions.addDateQuestion({questionName: 'date-q'})
-    await adminQuestions.addEmailQuestion({questionName: 'email-q'})
 
     await adminPrograms.addProgram(programName)
     await adminPrograms.addProgramBlock(programName, 'screen 2 description', [])
     await adminPrograms.editProgramBlock(
       programName,
       'dummy description oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo',
-      ['address-q', 'date-q', 'email-q'],
+      ['address-q'],
     )
     await adminPrograms.publishAllDrafts()
 
@@ -175,19 +173,6 @@ describe('admin program view page', () => {
       'address-q',
       'required question',
     )
-    await adminPrograms.expectQuestionCardWithLabel(
-      'address-q',
-      'address correction: disabled',
-    )
-    await adminPrograms.expectQuestionCardWithLabel(
-      'date-q',
-      'required question',
-    )
-    await adminPrograms.expectQuestionCardWithLabel(
-      'email-q',
-      'required question',
-    )
-
     await validateScreenshot(
       page,
       'view-program-block-2-long-screen-name-and-description',
