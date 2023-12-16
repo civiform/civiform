@@ -128,7 +128,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             bundle));
 
     return layout.renderWithNav(
-        request, personalInfo, messages, bundle, /*includeAdminLogin=*/ true, applicantId);
+        request, personalInfo, messages, bundle, /* includeAdminLogin= */ true, applicantId);
   }
 
   private DivTag topContent(
@@ -425,8 +425,8 @@ public final class ProgramIndexView extends BaseHtmlView {
     ImmutableList<DomContent> descriptionContent =
         TextFormatter.formatText(
             program.localizedDescription().getOrDefault(preferredLocale),
-            /*preserveEmptyLines= */ false,
-            /*addRequiredIndicator= */ false);
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ false);
     DivTag description =
         div()
             .withId(baseId + "-description")
