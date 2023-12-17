@@ -646,7 +646,6 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
-    // await this.page.fill('#block-name-input', blockName)
     await this.page.type('textarea', blockDescription)
     await this.page.click('#update-block-button:not([disabled])')
     // Wait for submit and redirect back to this page.
