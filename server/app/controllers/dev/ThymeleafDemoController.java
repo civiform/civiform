@@ -31,6 +31,8 @@ public final class ThymeleafDemoController extends Controller {
 
     context.setVariable("tailwindStylesheet", assetsFinder.path("stylesheets/tailwind.css"));
     context.setVariable("adminJsBundle", assetsFinder.path("dist/admin.bundle.js"));
+    context.setVariable("ApiDocsController", controllers.api.routes.ApiDocsController);
+    context.setVariable("malicious", "<script>alert('honk')</script>");
 
     String content = templateEngine.process("dev/ThymeleafDemo", context);
     return ok(content).as(Http.MimeTypes.HTML);

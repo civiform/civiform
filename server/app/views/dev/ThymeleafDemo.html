@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:hx="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8">
   <title>Title</title>
@@ -10,10 +11,16 @@
 </head>
 <body>
 
-<div th:text="#{content.guestDescription('Thymeleaf Demo')}" class="w-1/2 p-4 mb-4">
+<button hx:get="${ApiDocsController.activeDocsForSlug('foo')}"
+        th:text="${ApiDocsController.activeDocsForSlug('foo')}"></button>
+<button hx:get="${ApiDocsController.activeDocsForSlug(malicious)}"
+        th:text="${ApiDocsController.activeDocsForSlug(malicious)}"></button>
+
+<div th:text="#{content.guestDescription('Thymeleaf Demo')}"
+     class="w-1/2 p-4 mb-4">
 </div>
 
-<div th:insert="~{dev/ThymeleafComponentsDemo :: toggle-on}"  class="mb-2"></div>
+<div th:insert="~{dev/ThymeleafComponentsDemo :: toggle-on}" class="mb-2"></div>
 <div th:insert="~{dev/ThymeleafComponentsDemo :: toggle-off}"></div>
 
 </body>
