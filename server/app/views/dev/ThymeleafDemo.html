@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+
+  <link th:href="${tailwindStylesheet}" type="text/css" rel="stylesheet">
+  <script th:src="${adminJsBundle}" type="text/javascript"></script>
+</head>
+<body>
+
+<div th:text="#{content.guestDescription('Thymeleaf Demo')}" class="w-1/2 p-4 mb-4">
+</div>
+
+<div th:insert="~{dev/ThymeleafComponentsDemo :: toggle-on}"  class="mb-2"></div>
+<div th:insert="~{dev/ThymeleafComponentsDemo :: toggle-off}"></div>
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+
+<button th:fragment="toggle-on"
+        class="flex gap-2 items-center text-gray-400 font-medium bg-transparent rounded-full hover:bg-gray-400 hover:text-gray-300"
+        hx-swap="outerHTML"
+        hx-get="/dev/thymeleafDemo/components/toggle/off">
+  <p class="hover-group:text-white">optional</p>
+  <input hidden="" name="toggle" value="on">
+  <div class="relative">
+    <div class="bg-gray-600 w-14 h-8 rounded-full"></div>
+    <div class="absolute bg-white left-1 top-1 w-6 h-6 rounded-full"></div>
+  </div>
+</button>
+
+<button th:fragment="toggle-off"
+        class="flex gap-2 items-center text-black font-medium bg-transparent rounded-full hover:bg-gray-400 hover:text-gray-300"
+        hx-swap="outerHTML"
+        hx-get="/dev/thymeleafDemo/components/toggle/on">
+  <p class="hover-group:text-white">optional</p>
+  <input hidden="" name="toggle" value="off">
+  <div class="relative">
+    <div class="bg-blue-600 w-14 h-8 rounded-full"></div>
+    <div class="absolute bg-white right-1 top-1 w-6 h-6 rounded-full"></div>
+  </div>
+</button>
+
+</body>
+</html>
