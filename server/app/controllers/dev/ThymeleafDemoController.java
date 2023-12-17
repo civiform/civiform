@@ -11,7 +11,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 
-public class ThymeleafDemoController extends Controller {
+public final class ThymeleafDemoController extends Controller {
   private final TemplateEngine templateEngine;
   private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
   private final AssetsFinder assetsFinder;

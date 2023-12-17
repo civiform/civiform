@@ -20,7 +20,7 @@ import play.api.i18n.Lang;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 
-public class ThymeleafModule extends AbstractModule {
+public final class ThymeleafModule extends AbstractModule {
 
   @Provides
   public TemplateEngine provideTemplateEngine(
