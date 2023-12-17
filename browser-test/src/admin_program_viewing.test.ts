@@ -104,8 +104,12 @@ describe('admin program view page', () => {
 
     await adminPrograms.addProgram(programName)
     await adminPrograms.addProgramBlock(programName, 'screen 2 description', [])
-    await adminPrograms.editProgramBlock(
+    await adminPrograms.editProgramBlockWithBlockName(
       programName,
+      'Screen 2 oooooooooooooooooooooooooooooooooooooooooooooooooo' +
+        'ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' +
+        'ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' +
+        'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo',
       'dummy description ooooooooooooooooooooooooooooooooooooo' +
         'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' +
         'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' +
