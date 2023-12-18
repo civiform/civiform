@@ -6,6 +6,7 @@ import static j2html.TagCreator.form;
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
 import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FooterTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
@@ -44,6 +45,27 @@ public abstract class FileUploadViewStrategy {
       String fileInputId,
       ImmutableList<String> ariaDescribedByIds,
       boolean hasErrors);
+
+  /**
+   * Creates the <input type="file"> element needed for the file upload form.
+   *
+   * @param useUswds true if the USWDS file input component should be used and false if our custom file input component should be used.
+   */
+  protected Tag<?> fileInputElement(boolean useUswds) {
+    if (useUswds) {
+      return uswdsFileInputElement();
+    } else {
+      return customFileInputElement();
+    }
+  }
+
+  private InputTag customFileInputElement() {
+
+  }
+
+  private DivTag uswdsFileInputElement() {
+
+  }
 
   /** Creates a list of footer tags needed on a page rendering a file upload form. */
   public ImmutableList<FooterTag> footerTags() {
