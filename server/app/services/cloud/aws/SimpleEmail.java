@@ -1,6 +1,7 @@
 package services.cloud.aws;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static services.cloud.aws.AwsStorageUtils.AWS_LOCAL_ENDPOINT_CONF_PATH;
 
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
@@ -135,8 +136,6 @@ public final class SimpleEmail {
   }
 
   static class LocalStackClient implements Client {
-    private static final String AWS_LOCAL_ENDPOINT_CONF_PATH = "aws.local.endpoint";
-
     private final String localEndpoint;
     private final SesClient client;
 

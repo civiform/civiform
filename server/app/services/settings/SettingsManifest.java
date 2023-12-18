@@ -506,6 +506,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("AWS_S3_FILE_LIMIT_MB");
   }
 
+  /** s3 bucket to store **publicly accessible** files in. */
+  public Optional<String> getAwsS3PublicBucketName() {
+    return getString("AWS_S3_PUBLIC_BUCKET_NAME");
+  }
+
+  /** The max size (in Mb) of **publicly accessible** files uploaded to s3. */
+  public Optional<String> getAwsS3PublicFileLimitMb() {
+    return getString("AWS_S3_PUBLIC_FILE_LIMIT_MB");
+  }
+
   /** The azure account name where the blob storage service exists. */
   public Optional<String> getAzureStorageAccountName() {
     return getString("AZURE_STORAGE_ACCOUNT_NAME");
@@ -1464,6 +1474,19 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingDescription.create(
                               "AWS_S3_FILE_LIMIT_MB",
                               "The max size (in Mb) of files uploaded to s3.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
+                              "AWS_S3_PUBLIC_BUCKET_NAME",
+                              "s3 bucket to store **publicly accessible** files in.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
+                              "AWS_S3_PUBLIC_FILE_LIMIT_MB",
+                              "The max size (in Mb) of **publicly accessible** files uploaded to"
+                                  + " s3.",
                               /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
