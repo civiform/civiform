@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.img;
+import static j2html.TagCreator.input;
+import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -126,8 +128,7 @@ public final class ProgramImageView extends BaseHtmlView {
             .withId(IMAGE_FILE_UPLOAD_FORM_ID);
     ImmutableList<InputTag> additionalFileUploadFormInputs =
         fileUploadViewStrategy.additionalFileUploadFormInputs(Optional.of(storageUploadRequest));
-    DivTag fileInputElement =
-        fileUploadViewStrategy.adminProgramImageFileInputElement(MIME_TYPES_IMAGES);
+    DivTag fileInputElement = fileInputFormElement();
 
     FormTag fullForm =
         form.with(additionalFileUploadFormInputs)
@@ -156,6 +157,23 @@ public final class ProgramImageView extends BaseHtmlView {
     String onSuccessRedirectUrl =
         baseUrl + routes.AdminProgramImageController.updateFileKey(program.id()).url();
     return publicStorageClient.getSignedUploadRequest(key, onSuccessRedirectUrl);
+  }
+
+  /** Creates the <input type="file"> element needed for admins to upload program images. */
+  private DivTag fileInputFormElement() {
+    return div()
+        .withClasses("usa-form-group", "mb-2")
+        .with(
+            span("File size must be at most 500 KB.")
+                .withId("file-input-size-hint")
+                .withClass("usa-hint"))
+        .with(
+            input()
+                .attr("aria-describedby", "file-input-size-hint")
+                .withType("file")
+                .withName("file")
+                .withClasses("usa-file-input")
+                .withAccept(MIME_TYPES_IMAGES));
   }
 
   private DivTag renderCurrentImage(ProgramDefinition program) {
