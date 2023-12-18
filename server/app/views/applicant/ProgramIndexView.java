@@ -525,10 +525,10 @@ public final class ProgramIndexView extends BaseHtmlView {
             "aria-label",
             messages.at(
                 buttonSrText.getKeyName(), program.localizedName().getOrDefault(preferredLocale)))
-        .withClasses(ReferenceClasses.APPLY_BUTTON, ButtonStyles.SOLID_BLUE_TEXT_SM, "mx-auto");
+        .withClasses(ReferenceClasses.APPLY_BUTTON, ButtonStyles.SOLID_BLUE_TEXT_SM);
 
     DivTag actionDiv =
-        div(content).withClasses("w-full", "mt-4", "mb-6", "items-end");
+        div(content).withClasses("mt-4", "mb-6", "flex", "items-center", "justify-center");
     LiTag finalDiv =
         li().withId(baseId)
             .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
@@ -554,6 +554,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       return Optional.empty();
     }
     // TODO(#5676): Can we detect if the image URL is invalid and then not show it?
+    // TODO(#5676): Include a placeholder while the image is loading.
 
     return Optional.of(
         img()
