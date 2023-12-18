@@ -383,7 +383,7 @@ async function loginAsTestUserAwsStaging(
   await page.fill('input[name=username]', TEST_USER_LOGIN)
   await page.fill('input[name=password]', TEST_USER_PASSWORD)
   await Promise.all([
-    page.waitForURL(isTi ? '**/admin/**' : '/programs', {
+    page.waitForURL(isTi ? '**/admin/**' : '**/programs', {
       waitUntil: 'networkidle',
     }),
     // Auth0 has an additional hidden "Continue" button that does nothing for some reason
