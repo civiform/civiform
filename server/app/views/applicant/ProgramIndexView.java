@@ -460,7 +460,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .with(descriptionContent);
 
     DivTag programData =
-        div().withId(baseId + "-data").withClasses("w-full", "px-4", "pt-4", "overflow-auto");
+        div().withId(baseId + "-data").withClasses("w-full", "px-4", "pt-4", "h-56", "overflow-auto");
     if (cardData.latestSubmittedApplicationStatus().isPresent()) {
       programData.with(
           programCardApplicationStatus(
@@ -528,7 +528,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         .withClasses(ReferenceClasses.APPLY_BUTTON, ButtonStyles.SOLID_BLUE_TEXT_SM, "mx-auto");
 
     DivTag actionDiv =
-        div(content).withClasses("w-full", "mt-4", "mb-6", "flex-grow", "flex", "items-end");
+        div(content).withClasses("w-full", "mt-4", "mb-6", "items-end");
     LiTag finalDiv =
         li().withId(baseId)
             .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)

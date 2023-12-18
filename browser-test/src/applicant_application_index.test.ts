@@ -334,7 +334,7 @@ describe('applicant program index page with images', () => {
 
   // This test puts programs with different specs in the different sections of the homepage
   // to verify that different card formats appear correctly next to each other and across sections.
-  fit('shows programs with and without images in all sections', async () => {
+  it('shows programs with and without images in all sections', async () => {
     const {
       page,
       adminPrograms,
