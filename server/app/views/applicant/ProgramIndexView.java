@@ -460,7 +460,9 @@ public final class ProgramIndexView extends BaseHtmlView {
             .with(descriptionContent);
 
     DivTag programData =
-        div().withId(baseId + "-data").withClasses("w-full", "px-4", "pt-4", "h-56", "overflow-auto");
+        div()
+            .withId(baseId + "-data")
+            .withClasses("w-full", "px-4", "pt-4", "h-56", "overflow-auto");
     if (cardData.latestSubmittedApplicationStatus().isPresent()) {
       programData.with(
           programCardApplicationStatus(
@@ -559,11 +561,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return Optional.of(
         img()
             .withSrc(publicStorageClient.getPublicDisplayUrl(program.summaryImageFileKey().get()))
-            .withClasses(
-                "w-full",
-                "aspect-video",
-                "object-cover",
-                "rounded-b-lg"));
+            .withClasses("w-full", "aspect-video", "object-cover", "rounded-b-lg"));
     // TODO(#5676): Add alt-text to image.
   }
 
