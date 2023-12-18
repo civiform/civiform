@@ -147,12 +147,7 @@ public final class ProgramImageView extends BaseHtmlView {
                     .attr("role", "button")
                     .attr("tabindex", 0)
                     .withText("Choose program image")
-                    .withClasses(
-                        ButtonStyles.OUTLINED_TRANSPARENT,
-                        "w-64",
-                        "mt-10",
-                        "mb-2",
-                        "cursor-pointer"));
+                    .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "w-64", "mt-10", "mb-2"));
 
     FormTag fullForm = form.with(fileUploadFormInputs).with(chooseFileButton);
 
@@ -171,7 +166,7 @@ public final class ProgramImageView extends BaseHtmlView {
   }
 
   private StorageUploadRequest createStorageUploadRequest(ProgramDefinition program) {
-    String key = PublicFileNameFormatter.formatPublicProgramImageFilename(program.id());
+    String key = PublicFileNameFormatter.formatPublicProgramImageFileKey(program.id());
     String onSuccessRedirectUrl =
         baseUrl + routes.AdminProgramImageController.updateFileKey(program.id()).url();
     return publicStorageClient.getSignedUploadRequest(key, onSuccessRedirectUrl);

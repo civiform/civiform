@@ -100,7 +100,7 @@ public abstract class ProgramDefinition {
   /** A description of the program's summary image, used for alt text. */
   public abstract Optional<LocalizedStrings> localizedSummaryImageDescription();
 
-  /** A key usted to fetch the program's summary image from cloud storage. */
+  /** A key used to fetch the program's summary image from cloud storage. */
   public abstract Optional<String> summaryImageFileKey();
 
   /**

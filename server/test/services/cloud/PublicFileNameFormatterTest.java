@@ -7,20 +7,20 @@ import org.junit.Test;
 public class PublicFileNameFormatterTest {
   @Test
   public void formatPublicProgramImageFilename_isCorrectlyFormatted() {
-    String filename = PublicFileNameFormatter.formatPublicProgramImageFilename(156);
+    String filename = PublicFileNameFormatter.formatPublicProgramImageFileKey(156);
 
     assertThat(filename).isEqualTo("program-summary-image/program-156/${filename}");
   }
 
   @Test
-  public void isFileKeyForPublicProgramImage_isCorrect_true() {
-    String filename = PublicFileNameFormatter.formatPublicProgramImageFilename(156);
+  public void isFileKeyForPublicProgramImage_keyFromFormatMethod_isTrue() {
+    String filename = PublicFileNameFormatter.formatPublicProgramImageFileKey(156);
 
     assertThat(PublicFileNameFormatter.isFileKeyForPublicProgramImage(filename)).isTrue();
   }
 
   @Test
-  public void isFileKeyForPublicProgramImage_isApplicantFile_false() {
+  public void isFileKeyForPublicProgramImage_applicantFile_isFalse() {
     assertThat(
             PublicFileNameFormatter.isFileKeyForPublicProgramImage(
                 "applicant-10/program-2/block-3/myFile.png"))
@@ -28,7 +28,7 @@ public class PublicFileNameFormatterTest {
   }
 
   @Test
-  public void isFileKeyForPublicProgramImage_isEmpty_false() {
+  public void isFileKeyForPublicProgramImage_empty_isFalse() {
     assertThat(PublicFileNameFormatter.isFileKeyForPublicProgramImage("")).isFalse();
   }
 }
