@@ -1,8 +1,12 @@
 package views.fileupload;
 
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
+import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
+import j2html.tags.Tag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.ScriptTag;
@@ -14,7 +18,7 @@ import services.cloud.aws.SignedS3UploadRequest;
 public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
-  public ImmutableList<InputTag> fileUploadFormInputs(
+  public ImmutableList<Tag<?>> fileUploadFormInputs(
       Optional<StorageUploadRequest> request,
       String acceptedMimeTypes,
       String fileInputId,
@@ -24,7 +28,7 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
       return ImmutableList.of();
     }
     SignedS3UploadRequest signedRequest = castStorageRequest(request.get());
-    ImmutableList.Builder<InputTag> builder = ImmutableList.builder();
+    ImmutableList.Builder<Tag<?>> builder = ImmutableList.builder();
     builder.add(
         input().withType("hidden").withName("key").withValue(signedRequest.key()),
         input()
@@ -57,17 +61,24 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
     // https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-HTTPPOSTForms.html
     // for more context.
     builder.add(
-        input()
-            .withId(fileInputId)
-            .condAttr(hasErrors, "aria-invalid", "true")
-            .condAttr(
-                !ariaDescribedByIds.isEmpty(),
-                "aria-describedby",
-                StringUtils.join(ariaDescribedByIds, " "))
-            .withType("file")
-            .withName("file")
-            .withClass("hidden")
-            .withAccept(acceptedMimeTypes));
+            div().withClasses("usa-form-group", "mb-2")
+                    //.with(label().withFor(fileInputId).withClass("usa-label"))
+                    .with(span("File size must be at most 500 KB.").withId("file-input-size-hint").withClass("usa-hint"))
+                            .with(
+                                    input()
+                                            .withId(fileInputId)
+                                            .condAttr(hasErrors, "aria-invalid", "true")
+                                            .attr("aria-describedby", "file-input-size-hint")
+                                          //  .condAttr(
+                                           //         !ariaDescribedByIds.isEmpty(),
+                                          //          "aria-describedby",
+                                          //          StringUtils.join(ariaDescribedByIds, " "))
+                                            .withType("file")
+                                            .withName("file")
+                                            .withClasses("usa-file-input", "w-full")
+                                            .withAccept(acceptedMimeTypes))
+                            )
+       ;
     return builder.build();
   }
 

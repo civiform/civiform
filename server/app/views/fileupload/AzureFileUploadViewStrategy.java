@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.input;
 
 import com.google.common.collect.ImmutableList;
+import j2html.tags.Tag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
@@ -23,7 +24,7 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  public ImmutableList<InputTag> fileUploadFormInputs(
+  public ImmutableList<Tag<?>> fileUploadFormInputs(
       Optional<StorageUploadRequest> request,
       String acceptedMimeTypes,
       String fileInputId,
@@ -33,7 +34,7 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
       return ImmutableList.of();
     }
     BlobStorageUploadRequest signedRequest = castStorageRequest(request.get());
-    ImmutableList.Builder<InputTag> builder = ImmutableList.builder();
+    ImmutableList.Builder<Tag<?>> builder = ImmutableList.builder();
     builder.add(
         input().withType("hidden").withName("fileName").withValue(signedRequest.fileName()),
         input().withType("hidden").withName("sasToken").withValue(signedRequest.sasToken()),
@@ -47,6 +48,7 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
             .withType("hidden")
             .withName("successActionRedirect")
             .withValue(signedRequest.successActionRedirect()),
+        // TODO: USWDS here also
         input()
             .withId(fileInputId)
             .condAttr(hasErrors, "aria-invalid", "true")

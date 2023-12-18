@@ -5,6 +5,7 @@ import static j2html.TagCreator.form;
 
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
+import j2html.tags.Tag;
 import j2html.tags.specialized.FooterTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
@@ -37,7 +38,7 @@ public abstract class FileUploadViewStrategy {
    * @param fileInputId an ID associates the file <input> field. Can be used to associate custom
    *     screen reader functionality with the file input.
    */
-  public abstract ImmutableList<InputTag> fileUploadFormInputs(
+  public abstract ImmutableList<Tag<?>> fileUploadFormInputs(
       Optional<StorageUploadRequest> request,
       String acceptedMimeTypes,
       String fileInputId,

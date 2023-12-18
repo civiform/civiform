@@ -12,6 +12,7 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
 import forms.admin.ProgramImageDescriptionForm;
+import j2html.tags.Tag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.ImgTag;
@@ -131,7 +132,7 @@ public final class ProgramImageView extends BaseHtmlView {
         fileUploadViewStrategy
             .renderFileUploadFormElement(storageUploadRequest)
             .withId(IMAGE_FILE_UPLOAD_FORM_ID);
-    ImmutableList<InputTag> fileUploadFormInputs =
+    ImmutableList<Tag<?>> fileUploadFormInputs =
         fileUploadViewStrategy.fileUploadFormInputs(
             Optional.of(storageUploadRequest),
             MIME_TYPES_IMAGES,
@@ -139,17 +140,7 @@ public final class ProgramImageView extends BaseHtmlView {
             /* ariaDescribedByIds= */ ImmutableList.of(),
             /* hasErrors= */ false);
 
-    LabelTag chooseFileButton =
-        label()
-            .withFor(fileInputId)
-            .with(
-                span()
-                    .attr("role", "button")
-                    .attr("tabindex", 0)
-                    .withText("Choose program image")
-                    .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "w-64", "mt-10", "mb-2"));
-
-    FormTag fullForm = form.with(fileUploadFormInputs).with(chooseFileButton);
+    FormTag fullForm = form.with(fileUploadFormInputs);
 
     // TODO(#5676): Replace with final UX once we have it.
     return div()
