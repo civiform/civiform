@@ -164,7 +164,8 @@ public final class ProgramImageView extends BaseHtmlView {
     return div()
         .withClasses("usa-form-group", "mb-2")
         .with(
-            span("File size must be at most 500 KB.")
+            // TODO(#5676): Get final copy for the size warning message.
+            span("File size must be at most 1 MB.")
                 .withId("file-input-size-hint")
                 .withClass("usa-hint"))
         .with(
