@@ -10,7 +10,6 @@ import static j2html.TagCreator.ul;
 
 import auth.CiviFormProfile;
 import controllers.applicant.ApplicantRoutes;
-import controllers.applicant.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.UlTag;
@@ -111,8 +110,8 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                     .with(
                         new LinkElement()
                             .setHref(
-                                routes.ApplicantProgramReviewController.review(
-                                        applicantId, programId)
+                                applicantRoutes
+                                    .review(submittingProfile, applicantId, programId)
                                     .url())
                             .setText(messages.at(MessageKey.BUTTON_GO_BACK_AND_EDIT.getKeyName()))
                             .asButton()

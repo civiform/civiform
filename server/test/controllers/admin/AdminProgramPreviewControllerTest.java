@@ -29,7 +29,7 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .hasValue(
-            controllers.applicant.routes.ApplicantProgramReviewController.review(
+            controllers.applicant.routes.ApplicantProgramReviewController.reviewWithApplicantId(
                     adminAccount.ownedApplicantIds().get(0), programId)
                 .url());
   }

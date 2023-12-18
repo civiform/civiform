@@ -89,7 +89,7 @@ public final class ApplicantRoutes {
    * @param profile - Profile corresponding to the logged-in user (applicant or TI).
    * @param applicantId - ID of applicant for whom the action should be performed.
    * @param programId - ID of program to edit
-   * @return Route for the applicant action
+   * @return Route for the applicant edit action
    */
   public Call edit(CiviFormProfile profile, long applicantId, long programId) {
     if (includeApplicantIdInRoute(profile)) {
@@ -97,6 +97,22 @@ public final class ApplicantRoutes {
           applicantId, programId);
     } else {
       return routes.ApplicantProgramsController.edit(programId);
+    }
+  }
+
+  /**
+   * Returns the route corresponding to the applicant review action.
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programId - ID of program to review
+   * @return Route for the applicant review action
+   */
+  public Call review(CiviFormProfile profile, long applicantId, long programId) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramReviewController.reviewWithApplicantId(applicantId, programId);
+    } else {
+      return routes.ApplicantProgramReviewController.review(programId);
     }
   }
 }

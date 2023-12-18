@@ -63,7 +63,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     assertThat(result.redirectLocation())
         .contains(
-            controllers.applicant.routes.ApplicantProgramReviewController.review(
+            controllers.applicant.routes.ApplicantProgramReviewController.reviewWithApplicantId(
                     applicant.id, programDefinition.id())
                 .url());
   }
@@ -155,6 +155,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     LanguageUtils languageUtils =
         new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
     CiviFormController controller = instanceOf(CiviFormController.class);
+    ApplicantRoutes applicantRoutes = instanceOf(ApplicantRoutes.class);
 
     ProgramSlugHandler handler =
         new ProgramSlugHandler(
@@ -162,7 +163,8 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ApplicantService.class),
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramService.class),
-            languageUtils);
+            languageUtils,
+            applicantRoutes);
     Result result =
         handler
             .showProgram(
@@ -173,7 +175,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             .join();
     assertThat(result.redirectLocation())
         .contains(
-            controllers.applicant.routes.ApplicantProgramReviewController.review(
+            controllers.applicant.routes.ApplicantProgramReviewController.reviewWithApplicantId(
                     applicant.id, programDefinition.id())
                 .url());
   }
@@ -189,6 +191,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     LanguageUtils languageUtils =
         new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
     CiviFormController controller = instanceOf(CiviFormController.class);
+    ApplicantRoutes applicantRoutes = instanceOf(ApplicantRoutes.class);
 
     ProgramSlugHandler handler =
         new ProgramSlugHandler(
@@ -196,7 +199,8 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ApplicantService.class),
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramService.class),
-            languageUtils);
+            languageUtils,
+            applicantRoutes);
     Result result =
         handler
             .showProgram(
@@ -207,7 +211,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             .join();
     assertThat(result.redirectLocation())
         .contains(
-            controllers.applicant.routes.ApplicantProgramReviewController.review(
+            controllers.applicant.routes.ApplicantProgramReviewController.reviewWithApplicantId(
                     applicant.id, programDefinition.id())
                 .url());
   }

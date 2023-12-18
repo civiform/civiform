@@ -80,9 +80,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
           redirectButton(
                   "go-back-and-edit",
                   messages.at(MessageKey.BUTTON_GO_BACK_AND_EDIT.getKeyName()),
-                  controllers.applicant.routes.ApplicantProgramReviewController.review(
-                          applicantId, programId)
-                      .url())
+                  applicantRoutes.review(profile, applicantId, programId).url())
               .withClasses(ButtonStyles.OUTLINED_TRANSPARENT));
     }
 
