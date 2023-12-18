@@ -112,7 +112,7 @@ describe('Admin can manage program image', () => {
     })
   })
 
-  describe('image file', () => {
+  describe('image file upload', () => {
     const programName = 'Test program'
 
     beforeEach(async () => {
