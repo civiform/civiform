@@ -80,9 +80,9 @@ public final class AdminProgramImageController extends CiviFormController {
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
 
-    @SuppressWarnings(
-        "unused") // We need to check that the bucket exists even if we don't use it so that we know
-                  // the request was formatted correctly.
+    // We need to check that the bucket exists even if we don't use it so that we know the request
+    // was formatted correctly.
+    @SuppressWarnings("unused")
     String bucket =
         request
             .queryString("bucket")
