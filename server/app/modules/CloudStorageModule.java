@@ -14,12 +14,12 @@ import services.cloud.aws.AwsApplicantStorage;
 import services.cloud.aws.AwsPublicStorage;
 import services.cloud.azure.AzureApplicantStorage;
 import services.cloud.azure.AzurePublicStorage;
-import views.AwsFileUploadViewStrategy;
-import views.AzureFileUploadViewStrategy;
 import views.BaseHtmlView;
-import views.FileUploadViewStrategy;
 import views.applicant.ApplicantProgramBlockEditView;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
+import views.fileupload.AwsFileUploadViewStrategy;
+import views.fileupload.AzureFileUploadViewStrategy;
+import views.fileupload.FileUploadViewStrategy;
 
 /** Configures and initializes the classes for interacting with file storage backends. */
 public class CloudStorageModule extends AbstractModule {

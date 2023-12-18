@@ -10,7 +10,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import repository.ResetPostgres;
 import services.question.types.QuestionDefinition;
-import views.FileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
@@ -25,7 +24,7 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
   private static ApplicantProgramBlockEditView EMPTY_VIEW =
       new ApplicantProgramBlockEditView(
           Mockito.mock(ApplicantLayout.class),
-          Mockito.mock(FileUploadViewStrategy.class),
+          Mockito.mock(ApplicantFileUploadRenderer.class),
           Mockito.mock(ApplicantQuestionRendererFactory.class));
 
   @Test

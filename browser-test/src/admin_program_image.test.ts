@@ -111,4 +111,30 @@ describe('Admin can manage program image', () => {
       )
     })
   })
+
+  describe('image file upload', () => {
+    const programName = 'Test program'
+
+    beforeEach(async () => {
+      const {page, adminPrograms} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_card_images')
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.goToProgramImagePage(programName)
+    })
+
+    it('adds new image', async () => {
+      const {page, adminProgramImage} = ctx
+
+      await adminProgramImage.setImageFileAndSubmit()
+      await adminProgramImage.expectProgramImagePage(programName)
+      await validateToastMessage(
+        page,
+        adminProgramImage.imageUpdatedToastMessage(),
+      )
+
+      await dismissToast(page)
+      await validateScreenshot(page, 'program-image-with-image')
+    })
+  })
 })

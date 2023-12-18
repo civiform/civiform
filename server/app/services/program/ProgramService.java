@@ -925,6 +925,20 @@ public final class ProgramService {
   }
 
   /**
+   * Sets a key that can be used to fetch the summary image for the given program from cloud
+   * storage.
+   */
+  public ProgramDefinition setSummaryImageFileKey(long programId, String fileKey)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    programDefinition =
+        programDefinition.toBuilder().setSummaryImageFileKey(Optional.of(fileKey)).build();
+    return programRepository
+        .updateProgramSync(programDefinition.toProgram())
+        .getProgramDefinition();
+  }
+
+  /**
    * Adds an empty {@link BlockDefinition} to the end of a given program.
    *
    * @param programId the ID of the program to update

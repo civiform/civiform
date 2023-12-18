@@ -120,6 +120,14 @@ public class ProgramModel extends BaseModel {
    */
   @DbJsonB @Nullable private LocalizedStrings localizedSummaryImageDescription;
 
+  /**
+   * A key used to fetch the program's summary image from cloud storage.
+   *
+   * <p>Null if the program doesn't have a summary image. See note on {@code
+   * localizedSummaryImageDescription} for null vs Optional.
+   */
+  @Nullable private String summaryImageFileKey;
+
   @ManyToMany(mappedBy = "programs")
   @JoinTable(
       name = "versions_programs",
@@ -174,6 +182,7 @@ public class ProgramModel extends BaseModel {
     this.acls = definition.acls();
     this.localizedSummaryImageDescription =
         definition.localizedSummaryImageDescription().orElse(null);
+    this.summaryImageFileKey = definition.summaryImageFileKey().orElse(null);
 
     orderBlockDefinitionsBeforeUpdate();
 
@@ -233,6 +242,7 @@ public class ProgramModel extends BaseModel {
     acls = programDefinition.acls();
     localizedSummaryImageDescription =
         programDefinition.localizedSummaryImageDescription().orElse(null);
+    summaryImageFileKey = programDefinition.summaryImageFileKey().orElse(null);
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -261,6 +271,7 @@ public class ProgramModel extends BaseModel {
     setLocalizedDescription(builder);
     setLocalizedConfirmationMessage(builder);
     setLocalizedSummaryImageDescription(builder);
+    setSummaryImageFileKey(builder);
     this.programDefinition = builder.build();
   }
 
@@ -303,6 +314,16 @@ public class ProgramModel extends BaseModel {
       // See docs on `this.localizedSummaryImageDescription` -- a null field here means an
       // Optional.empty field for the program definition.
       builder.setLocalizedSummaryImageDescription(Optional.empty());
+    }
+  }
+
+  private void setSummaryImageFileKey(ProgramDefinition.Builder builder) {
+    if (summaryImageFileKey != null) {
+      builder.setSummaryImageFileKey(Optional.of(summaryImageFileKey));
+    } else {
+      // See docs on `this.summaryImageFileKey` -- a null field here means an
+      // Optional.empty field for the program definition.
+      builder.setSummaryImageFileKey(Optional.empty());
     }
   }
 

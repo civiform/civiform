@@ -11,7 +11,7 @@ import software.amazon.awssdk.regions.Region;
 
 /** An AWS Simple Storage Service (S3) implementation of public storage. */
 @Singleton
-public final class AwsPublicStorage implements PublicStorageClient {
+public final class AwsPublicStorage extends PublicStorageClient {
   private static final String AWS_PUBLIC_S3_BUCKET_CONF_PATH = "aws.s3.public_bucket";
   private static final String AWS_PUBLIC_S3_FILE_LIMIT_CONF_PATH = "aws.s3.public_file_limit_mb";
 
@@ -58,7 +58,7 @@ public final class AwsPublicStorage implements PublicStorageClient {
 
   /** Returns a direct cloud storage URL to the file with the given key. */
   @Override
-  public String getPublicDisplayUrl(String fileKey) {
+  protected String getPublicDisplayUrlInternal(String fileKey) {
     return client.actionLink() + "/" + fileKey;
   }
 

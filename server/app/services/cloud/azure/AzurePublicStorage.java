@@ -4,7 +4,7 @@ import services.cloud.PublicStorageClient;
 import services.cloud.StorageUploadRequest;
 
 /** An Azure Blob Storage implementation of public storage. */
-public class AzurePublicStorage implements PublicStorageClient {
+public class AzurePublicStorage extends PublicStorageClient {
   @Override
   public StorageUploadRequest getSignedUploadRequest(
       String fileKey, String successRedirectActionLink) {
@@ -14,7 +14,7 @@ public class AzurePublicStorage implements PublicStorageClient {
 
   /** Returns a direct cloud storage URL to the file with the given key. */
   @Override
-  public String getPublicDisplayUrl(String fileKey) {
+  protected String getPublicDisplayUrlInternal(String fileKey) {
     // TODO(#5676): Implement for Azure.
     throw new UnsupportedOperationException("not implemented");
   }

@@ -15,7 +15,8 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
-import views.AwsFileUploadViewStrategy;
+import views.applicant.ApplicantFileUploadRenderer;
+import views.fileupload.AwsFileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
 @RunWith(JUnitParamsRunner.class)
@@ -38,7 +39,8 @@ public class ApplicantQuestionRendererFactoryTest {
     }
 
     ApplicantQuestionRendererFactory factory =
-        new ApplicantQuestionRendererFactory(new AwsFileUploadViewStrategy());
+        new ApplicantQuestionRendererFactory(
+            new ApplicantFileUploadRenderer(new AwsFileUploadViewStrategy()));
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 
@@ -59,7 +61,8 @@ public class ApplicantQuestionRendererFactoryTest {
 
     // Multi-input questions should be wrapped in fieldsets for screen reader users.
     ApplicantQuestionRendererFactory factory =
-        new ApplicantQuestionRendererFactory(new AwsFileUploadViewStrategy());
+        new ApplicantQuestionRendererFactory(
+            new ApplicantFileUploadRenderer(new AwsFileUploadViewStrategy()));
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 

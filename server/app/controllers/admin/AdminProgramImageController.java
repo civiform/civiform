@@ -14,6 +14,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
 import services.LocalizedStrings;
+import services.cloud.PublicFileNameFormatter;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.admin.programs.ProgramImageView;
@@ -72,5 +73,35 @@ public final class AdminProgramImageController extends CiviFormController {
 
     final String indexUrl = routes.AdminProgramImageController.index(programId).url();
     return redirect(indexUrl).flashing("success", toastMessage);
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result updateFileKey(Http.Request request, long programId)
+      throws ProgramNotFoundException {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    // We need to check that the bucket exists even if we don't use it so that we know the request
+    // was formatted correctly.
+    @SuppressWarnings("unused")
+    String bucket =
+        request
+            .queryString("bucket")
+            .orElseThrow(() -> new IllegalArgumentException("Request must contain bucket name"));
+    // TODO(#5676): Verify the bucket name is for the public bucket?
+
+    String key =
+        request
+            .queryString("key")
+            .orElseThrow(() -> new IllegalArgumentException("Request must contain file key name"));
+    // TODO(#5676): If Azure support is needed, see ApplicantProgramBlocksController#updateFile for
+    // some additional Azure-specific logic that's needed.
+
+    if (!PublicFileNameFormatter.isFileKeyForPublicProgramImage(key)) {
+      throw new IllegalArgumentException("Key incorrectly formatted for public program image file");
+    }
+
+    programService.setSummaryImageFileKey(programId, key);
+    final String indexUrl = routes.AdminProgramImageController.index(programId).url();
+    return redirect(indexUrl).flashing("success", "Image set");
   }
 }

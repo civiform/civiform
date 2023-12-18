@@ -1,10 +1,11 @@
-package views;
+package views.fileupload;
 
 import static j2html.TagCreator.input;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import services.cloud.StorageUploadRequest;
@@ -13,8 +14,9 @@ import services.cloud.aws.SignedS3UploadRequest;
 public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
-  protected ImmutableList<InputTag> fileUploadFields(
+  public ImmutableList<InputTag> fileUploadFormInputs(
       Optional<StorageUploadRequest> request,
+      String acceptedMimeTypes,
       String fileInputId,
       ImmutableList<String> ariaDescribedByIds,
       boolean hasErrors) {
@@ -65,15 +67,14 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
             .withType("file")
             .withName("file")
             .withClass("hidden")
-            .withAccept(MIME_TYPES_IMAGES_AND_PDF));
+            .withAccept(acceptedMimeTypes));
     return builder.build();
   }
 
   @Override
-  protected FormTag renderFileUploadFormElement(Params params, StorageUploadRequest request) {
+  public FormTag renderFileUploadFormElement(StorageUploadRequest request) {
     SignedS3UploadRequest signedRequest = castStorageRequest(request);
-    return super.renderFileUploadFormElement(params, request)
-        .withAction(signedRequest.actionLink());
+    return super.renderFileUploadFormElement(request).withAction(signedRequest.actionLink());
   }
 
   private SignedS3UploadRequest castStorageRequest(StorageUploadRequest request) {
@@ -87,5 +88,10 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
   @Override
   protected String getUploadFormClass() {
     return "aws-upload";
+  }
+
+  @Override
+  public ImmutableList<ScriptTag> extraScriptTags() {
+    return ImmutableList.of();
   }
 }

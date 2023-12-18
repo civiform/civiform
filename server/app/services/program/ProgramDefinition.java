@@ -100,6 +100,9 @@ public abstract class ProgramDefinition {
   /** A description of the program's summary image, used for alt text. */
   public abstract Optional<LocalizedStrings> localizedSummaryImageDescription();
 
+  /** A key used to fetch the program's summary image from cloud storage. */
+  public abstract Optional<String> summaryImageFileKey();
+
   /**
    * Returns a program definition with block definitions such that each enumerator block is
    * immediately followed by all of its repeated and nested repeated blocks. This method should be
@@ -758,6 +761,8 @@ public abstract class ProgramDefinition {
 
     public abstract Builder setLocalizedSummaryImageDescription(
         Optional<LocalizedStrings> localizedSummaryImageDescription);
+
+    public abstract Builder setSummaryImageFileKey(Optional<String> fileKey);
 
     public abstract ProgramDefinition build();
 
