@@ -80,12 +80,10 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                         "data-upload-text",
                         params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName())));
     result.with(
-        fileUploadViewStrategy.fileUploadFormInputs(
-            params.signedFileUploadRequest(),
-            MIME_TYPES_IMAGES_AND_PDF,
-            fileInputId,
-            ariaDescribedByIds,
-            hasErrors));
+        fileUploadViewStrategy.additionalFileUploadFormInputs(params.signedFileUploadRequest()));
+    result.with(
+        fileUploadViewStrategy.applicationFileInputElement(
+            MIME_TYPES_IMAGES_AND_PDF, fileInputId, ariaDescribedByIds, hasErrors));
     result.with(
         div(fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()))
             .withId(fileInputId + "-required-error")
