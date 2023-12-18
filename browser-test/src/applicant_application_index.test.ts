@@ -482,6 +482,7 @@ describe('applicant program index page with images', () => {
   })
 
   // TODO(#5676): Test with a very small image.
+  // TODO(#5676): Add validateAccessibility tests once the alt-text is added.
 
   async function submitApplicationAndApplyStatus(
     page: Page,

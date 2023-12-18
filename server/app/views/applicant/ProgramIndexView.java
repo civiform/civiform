@@ -553,6 +553,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (!PublicFileNameFormatter.isFileKeyForPublicProgramImage(summaryImageFileKey)) {
       return Optional.empty();
     }
+    // TODO(#5676): Can we detect if the image URL is invalid and then not show it?
 
     return Optional.of(
         img()
