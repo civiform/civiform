@@ -1,9 +1,13 @@
 package controllers.admin;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import auth.controllers.MissingOptionalException;
 import controllers.CiviFormController;
+import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
@@ -16,11 +20,15 @@ import repository.VersionRepository;
 
 /** Controller for admins previewing a program as an applicant. */
 public final class AdminProgramPreviewController extends CiviFormController {
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public AdminProgramPreviewController(
-      ProfileUtils profileUtils, VersionRepository versionRepository) {
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository,
+      ApplicantRoutes applicantRoutes) {
     super(profileUtils, versionRepository);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   /**
@@ -36,8 +44,10 @@ public final class AdminProgramPreviewController extends CiviFormController {
 
     try {
       return redirect(
-          controllers.applicant.routes.ApplicantProgramReviewController.review(
-              profile.get().getApplicant().get().id, programId));
+          applicantRoutes.review(
+              profile.orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class)),
+              profile.get().getApplicant().get().id,
+              programId));
     } catch (ExecutionException | InterruptedException e) {
       throw new RuntimeException(e);
     }

@@ -45,6 +45,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final ApplicantProgramInfoView programInfoView;
   private final SettingsManifest settingsManifest;
   private final ProgramSlugHandler programSlugHandler;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public ApplicantProgramsController(
@@ -56,7 +57,8 @@ public final class ApplicantProgramsController extends CiviFormController {
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
       SettingsManifest settingsManifest,
-      ProgramSlugHandler programSlugHandler) {
+      ProgramSlugHandler programSlugHandler,
+      ApplicantRoutes applicantRoutes) {
     super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
@@ -65,6 +67,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.programInfoView = checkNotNull(programInfoView);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programSlugHandler = checkNotNull(programSlugHandler);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   @Secure
@@ -157,7 +160,10 @@ public final class ApplicantProgramsController extends CiviFormController {
                       .map(ApplicantProgramData::program)
                       .filter(program -> program.id() == programId)
                       .findFirst();
-
+              CiviFormProfile profile =
+                  profileUtils
+                      .currentUserProfile(request)
+                      .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class));
               if (programDefinition.isPresent()) {
                 return ok(
                     programInfoView.render(
@@ -165,7 +171,8 @@ public final class ApplicantProgramsController extends CiviFormController {
                         programDefinition.get(),
                         request,
                         applicantId,
-                        applicantStage.toCompletableFuture().join()));
+                        applicantStage.toCompletableFuture().join(),
+                        profile));
               }
               return badRequest();
             },
@@ -247,8 +254,11 @@ public final class ApplicantProgramsController extends CiviFormController {
                 return supplyAsync(
                     () ->
                         redirect(
-                            routes.ApplicantProgramReviewController.review(
-                                applicantId, programId)));
+                            applicantRoutes.review(
+                                requesterProfile.orElseThrow(
+                                    () -> new MissingOptionalException(CiviFormProfile.class)),
+                                applicantId,
+                                programId)));
               }
               return supplyAsync(resultMaybe::get);
             },

@@ -224,7 +224,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
         .contains(
-            routes.ApplicantProgramReviewController.review(currentApplicant.id, program.id).url());
+            routes.ApplicantProgramReviewController.reviewWithApplicantId(
+                    currentApplicant.id, program.id)
+                .url());
   }
 
   @Test
@@ -257,7 +259,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .contains(
-            routes.ApplicantProgramReviewController.review(currentApplicant.id, program.id).url());
+            routes.ApplicantProgramReviewController.reviewWithApplicantId(
+                    currentApplicant.id, program.id)
+                .url());
   }
 
   @Test

@@ -87,7 +87,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
-  public CompletionStage<Result> review(Request request, long applicantId, long programId) {
+  @Secure
+  public CompletionStage<Result> reviewWithApplicantId(
+      Request request, long applicantId, long programId) {
     Optional<CiviFormProfile> submittingProfile = profileUtils.currentUserProfile(request);
 
     // If the user isn't already logged in within their browser session, send them home.
@@ -182,6 +184,25 @@ public class ApplicantProgramReviewController extends CiviFormController {
             });
   }
 
+  @Secure
+  public CompletionStage<Result> review(Request request, long programId) {
+    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
+      // This route is only operative for the new URL schema, so send the user home.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    Optional<Long> applicantId = getApplicantId(request);
+    if (applicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+    return reviewWithApplicantId(
+        request,
+        applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)),
+        programId);
+  }
+
   /**
    * Handles application submission. For applicants, submits the application. For admins previewing
    * the program, does not submit the application and simply redirects to the program page.
@@ -274,7 +295,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 Throwable cause = ex.getCause();
                 if (cause instanceof ApplicationSubmissionException) {
                   Call reviewPage =
-                      routes.ApplicantProgramReviewController.review(applicantId, programId);
+                      applicantRoutes.review(submittingProfile, applicantId, programId);
                   String errorMsg =
                       messagesApi
                           .preferred(request)
@@ -287,7 +308,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           .preferred(request)
                           .at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName());
                   Call reviewPage =
-                      routes.ApplicantProgramReviewController.review(applicantId, programId);
+                      applicantRoutes.review(submittingProfile, applicantId, programId);
                   return redirect(reviewPage).flashing("error", errorMsg);
                 }
                 if (cause instanceof ApplicationNotEligibleException) {
