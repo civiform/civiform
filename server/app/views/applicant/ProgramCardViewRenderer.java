@@ -1,5 +1,6 @@
 package views.applicant;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h3;
@@ -34,6 +35,7 @@ import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http;
 import services.MessageKey;
@@ -55,8 +57,33 @@ import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
-public final class ProgramCardView {
-  public static LiTag programCard(
+/** Methods related to rendering an individual program information card. */
+public final class ProgramCardViewRenderer {
+  private final ApplicantRoutes applicantRoutes;
+  private final ProfileUtils profileUtils;
+  private final PublicStorageClient publicStorageClient;
+  private final SettingsManifest settingsManifest;
+
+  @Inject
+  public ProgramCardViewRenderer(
+      ApplicantRoutes applicantRoutes,
+      ProfileUtils profileUtils,
+      SettingsManifest settingsManifest,
+      PublicStorageClient publicStorageClient) {
+    this.applicantRoutes = applicantRoutes;
+    this.publicStorageClient = checkNotNull(publicStorageClient);
+    this.profileUtils = checkNotNull(profileUtils);
+    this.settingsManifest = checkNotNull(settingsManifest);
+  }
+
+  /**
+   * Creates and returns DOM representing a program card using the information provided in {@code
+   * cardData}.
+   *
+   * @param nestedUnderSubheading true if this card appears under a heading (like "In Progress") and
+   *     false otherwise.
+   */
+  public LiTag createProgramCard(
       Http.Request request,
       Messages messages,
       ApplicantPersonalInfo.ApplicantType applicantType,
@@ -68,11 +95,7 @@ public final class ProgramCardView {
       boolean nestedUnderSubheading,
       HtmlBundle bundle,
       CiviFormProfile profile,
-      ZoneId zoneId,
-      ApplicantRoutes applicantRoutes,
-      ProfileUtils profileUtils,
-      SettingsManifest settingsManifest,
-      PublicStorageClient publicStorageClient) {
+      ZoneId zoneId) {
     ProgramDefinition program = cardData.program();
 
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
@@ -224,7 +247,7 @@ public final class ProgramCardView {
     return cardData.program().eligibilityIsGating() || cardData.isProgramMaybeEligible().get();
   }
 
-  private static PTag programCardApplicationStatus(
+  private PTag programCardApplicationStatus(
       Messages messages, Locale preferredLocale, StatusDefinitions.Status status) {
     return p().withClasses(
             "border",
@@ -247,7 +270,7 @@ public final class ProgramCardView {
                 .withClasses("p-2", "text-xs", "font-medium", BaseStyles.TEXT_SEATTLE_BLUE));
   }
 
-  private static PTag eligibilityTag(
+  private PTag eligibilityTag(
       Http.Request request, Messages messages, boolean isEligible, ProfileUtils profileUtils) {
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
     boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
@@ -280,8 +303,7 @@ public final class ProgramCardView {
             span(messages.at(tagText)).withClasses("p-2", "text-xs", "font-medium", textColor));
   }
 
-  private static DivTag programCardSubmittedDate(
-      Messages messages, Instant submittedDate, ZoneId zoneId) {
+  private DivTag programCardSubmittedDate(Messages messages, Instant submittedDate, ZoneId zoneId) {
     TranslationUtils.TranslatedStringSplitResult translateResult =
         TranslationUtils.splitTranslatedSingleArgString(messages, MessageKey.SUBMITTED_DATE);
     String beforeContent = translateResult.beforeInterpretedContent();

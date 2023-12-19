@@ -11,9 +11,7 @@ import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import annotations.BindingAnnotations;
 import auth.CiviFormProfile;
-import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
-import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
@@ -29,7 +27,6 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
-import services.cloud.PublicStorageClient;
 import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -45,27 +42,21 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
   private final SettingsManifest settingsManifest;
-  private final ProfileUtils profileUtils;
-  private final PublicStorageClient publicStorageClient;
   private final String authProviderName;
+  private final ProgramCardViewRenderer programCardViewRenderer;
   private final ZoneId zoneId;
-  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public ProgramIndexView(
       ApplicantLayout layout,
       ZoneId zoneId,
       SettingsManifest settingsManifest,
-      ProfileUtils profileUtils,
-      PublicStorageClient publicStorageClient,
       @BindingAnnotations.ApplicantAuthProviderName String authProviderName,
-      ApplicantRoutes applicantRoutes) {
+      ProgramCardViewRenderer programCardViewRenderer) {
     this.layout = checkNotNull(layout);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.profileUtils = checkNotNull(profileUtils);
-    this.publicStorageClient = checkNotNull(publicStorageClient);
     this.authProviderName = checkNotNull(authProviderName);
-    this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.programCardViewRenderer = checkNotNull(programCardViewRenderer);
     this.zoneId = checkNotNull(zoneId);
   }
 
@@ -376,7 +367,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 each(
                     cards,
                     (card) ->
-                        ProgramCardView.programCard(
+                        programCardViewRenderer.createProgramCard(
                             request,
                             messages,
                             personalInfo.getType(),
@@ -388,9 +379,6 @@ public final class ProgramIndexView extends BaseHtmlView {
                             /* nestedUnderSubheading= */ sectionTitle.isPresent(),
                             bundle,
                             profile,
-                            zoneId,
-                            applicantRoutes,
-                            profileUtils,
-                            settingsManifest,
-                            publicStorageClient))));}
+                            zoneId))));
+  }
 }

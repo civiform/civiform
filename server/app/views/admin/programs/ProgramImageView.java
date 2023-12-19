@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
-import controllers.applicant.ApplicantRoutes;
 import forms.admin.ProgramImageDescriptionForm;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -19,6 +18,7 @@ import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LiTag;
 import java.time.ZoneId;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import play.data.Form;
 import play.data.FormFactory;
 import play.i18n.Messages;
@@ -33,12 +33,11 @@ import services.cloud.PublicFileNameFormatter;
 import services.cloud.PublicStorageClient;
 import services.cloud.StorageUploadRequest;
 import services.program.ProgramDefinition;
-import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
-import views.applicant.ProgramCardView;
+import views.applicant.ProgramCardViewRenderer;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.ToastMessage;
@@ -53,37 +52,33 @@ public final class ProgramImageView extends BaseHtmlView {
 
   private final AdminLayout layout;
   private final String baseUrl;
-  private final ApplicantRoutes applicantRoutes;
   private final FormFactory formFactory;
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final MessagesApi messagesApi;
-
+  private final ProgramCardViewRenderer programCardViewRenderer;
   private final ProfileUtils profileUtils;
   private final PublicStorageClient publicStorageClient;
-  private final SettingsManifest settingsManifest;
   private final ZoneId zoneId;
 
   @Inject
   public ProgramImageView(
       AdminLayoutFactory layoutFactory,
-      ApplicantRoutes applicantRoutes,
       Config config,
       FormFactory formFactory,
       FileUploadViewStrategy fileUploadViewStrategy,
       MessagesApi messagesApi,
+      ProgramCardViewRenderer programCardViewRenderer,
       ProfileUtils profileUtils,
       PublicStorageClient publicStorageClient,
-      SettingsManifest settingsManifest,
       ZoneId zoneId) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
-    this.applicantRoutes = applicantRoutes;
     this.formFactory = checkNotNull(formFactory);
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
-    this.publicStorageClient = checkNotNull(publicStorageClient);
     this.messagesApi = checkNotNull(messagesApi);
+    this.programCardViewRenderer = programCardViewRenderer;
     this.profileUtils = checkNotNull(profileUtils);
-    this.settingsManifest = checkNotNull(settingsManifest);
+    this.publicStorageClient = checkNotNull(publicStorageClient);
     this.zoneId = zoneId;
   }
 
@@ -196,27 +191,30 @@ public final class ProgramImageView extends BaseHtmlView {
         profileUtils
             .currentUserProfile(request)
             .orElseThrow(() -> new RuntimeException("Unable to resolve profile"));
+    Long applicantId;
+    try {
+      applicantId = profile.getApplicant().get().id;
+    } catch (ExecutionException | InterruptedException e) {
+      throw new RuntimeException(e);
+    }
     Messages messages = messagesApi.preferred(request);
     ApplicantService.ApplicantProgramData card =
         ApplicantService.ApplicantProgramData.builder().setProgram(program).build();
+
     LiTag programCard =
-        ProgramCardView.programCard(
+        programCardViewRenderer.createProgramCard(
             request,
             messages,
             ApplicantPersonalInfo.ApplicantType.GUEST,
             card,
-            Long.valueOf(profile.getId()),
+            applicantId,
             messages.lang().toLocale(),
             MessageKey.BUTTON_APPLY,
             MessageKey.BUTTON_APPLY_SR,
             /* nestedUnderSubheading= */ false,
             layout.getBundle(request),
             profile,
-            zoneId,
-            applicantRoutes,
-            profileUtils,
-            settingsManifest,
-            publicStorageClient);
+            zoneId);
 
     return div().with(h2("What the applicant will see").withClasses("mb-4")).with(programCard);
   }
