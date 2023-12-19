@@ -99,7 +99,7 @@ public final class ProgramImageView extends BaseHtmlView {
 
     DivTag imageUploadAndCurrentCardContainer =
         div()
-            .withClasses("grid", "grid-cols-2", "w-full")
+            .withClasses("grid", "grid-cols-2", "gap-2", "w-full")
             .with(createImageUploadForm(programDefinition))
             .with(renderCurrentProgramCard(request, programDefinition));
     mainContent.with(imageUploadAndCurrentCardContainer);
@@ -167,6 +167,7 @@ public final class ProgramImageView extends BaseHtmlView {
             // for more context.
             .with(fileInputElement);
 
+    // TODO(#5676): Replace with final UX once we have it.
     return div()
         .with(fullForm)
         .with(
@@ -209,7 +210,7 @@ public final class ProgramImageView extends BaseHtmlView {
             request,
             messages,
             // An admin does have an associated applicant account, so consider them logged in so
-            // that the "Apply" button takes them to a preview of the program.
+            // that the "Apply" button on the preview card takes them to the full program preview.
             ApplicantPersonalInfo.ApplicantType.LOGGED_IN,
             card,
             applicantId,
@@ -222,9 +223,9 @@ public final class ProgramImageView extends BaseHtmlView {
             zoneId);
     return div().with(h2("What the applicant will see").withClasses("mb-4")).with(programCard);
     // Note: The "Program details" link inside the card preview will not work if the admin hasn't
-    // provided a custom external link. This is because that link redirects to
-    // ApplicantProgramsController#showWithApplicantId, which only allows access to the current
-    // versions of programs. When editing a program image, that program is in draft form, so the
+    // provided a custom external link. This is because the default "Program details" link redirects
+    // to ApplicantProgramsController#showWithApplicantId, which only allows access to the published
+    // versions of programs. When editing a program image, the program is in draft form, so the
     // controller prevents access.
   }
 }
