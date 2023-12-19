@@ -82,4 +82,21 @@ public final class ApplicantRoutes {
           String.valueOf(programId));
     }
   }
+
+  /**
+   * Returns the route corresponding to the applicant edit action.
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programId - ID of program to edit
+   * @return Route for the applicant action
+   */
+  public Call edit(CiviFormProfile profile, long applicantId, long programId) {
+    if (includeApplicantIdInRoute(profile)) {
+      return controllers.applicant.routes.ApplicantProgramsController.editWithApplicantId(
+          applicantId, programId);
+    } else {
+      return routes.ApplicantProgramsController.edit(programId);
+    }
+  }
 }

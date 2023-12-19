@@ -264,7 +264,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void edit_differentApplicant_redirectsToHome() {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
-        controller.edit(request, currentApplicant.id + 1, 1L).toCompletableFuture().join();
+        controller
+            .editWithApplicantId(request, currentApplicant.id + 1, 1L)
+            .toCompletableFuture()
+            .join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue("/");
   }
@@ -273,7 +276,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void edit_applicantWithoutProfile_redirectsToHome() {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
-        controller.edit(request, applicantWithoutProfile.id, 1L).toCompletableFuture().join();
+        controller
+            .editWithApplicantId(request, applicantWithoutProfile.id, 1L)
+            .toCompletableFuture()
+            .join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue("/");
   }
@@ -283,7 +289,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram = ProgramBuilder.newDraftProgram().build();
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
-        controller.edit(request, currentApplicant.id, draftProgram.id).toCompletableFuture().join();
+        controller
+            .editWithApplicantId(request, currentApplicant.id, draftProgram.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue("/");
@@ -296,7 +305,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     ProgramModel draftProgram = ProgramBuilder.newDraftProgram().build();
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
-        controller.edit(request, adminApplicantId, draftProgram.id).toCompletableFuture().join();
+        controller
+            .editWithApplicantId(request, adminApplicantId, draftProgram.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
@@ -305,7 +317,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void edit_invalidProgram_returnsBadRequest() {
     Result result =
         controller
-            .edit(requestBuilderWithSettings().build(), currentApplicant.id, 9999L)
+            .editWithApplicantId(requestBuilderWithSettings().build(), currentApplicant.id, 9999L)
             .toCompletableFuture()
             .join();
 
@@ -318,7 +330,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
         controller
-            .edit(request, currentApplicant.id, obsoleteProgram.id)
+            .editWithApplicantId(request, currentApplicant.id, obsoleteProgram.id)
             .toCompletableFuture()
             .join();
 
@@ -335,7 +347,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
-        controller.edit(request, currentApplicant.id, program.id).toCompletableFuture().join();
+        controller
+            .editWithApplicantId(request, currentApplicant.id, program.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
@@ -365,7 +380,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
-        controller.edit(request, currentApplicant.id, program.id).toCompletableFuture().join();
+        controller
+            .editWithApplicantId(request, currentApplicant.id, program.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
@@ -383,7 +401,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
-        controller.edit(request, currentApplicant.id, program.id).toCompletableFuture().join();
+        controller
+            .editWithApplicantId(request, currentApplicant.id, program.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())

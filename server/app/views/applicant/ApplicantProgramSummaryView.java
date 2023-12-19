@@ -7,9 +7,11 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 
+import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.applicant.ApplicantRoutes;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
@@ -46,13 +48,18 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final DateConverter dateConverter;
   private final SettingsManifest settingsManifest;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public ApplicantProgramSummaryView(
-      ApplicantLayout layout, DateConverter dateConverter, SettingsManifest settingsManifest) {
+      ApplicantLayout layout,
+      DateConverter dateConverter,
+      SettingsManifest settingsManifest,
+      ApplicantRoutes applicantRoutes) {
     this.layout = checkNotNull(layout);
     this.dateConverter = checkNotNull(dateConverter);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   /**
@@ -103,7 +110,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
               .withClasses(ReferenceClasses.SUBMIT_BUTTON, ButtonStyles.SOLID_BLUE, "mx-auto");
     } else {
       String applyUrl =
-          routes.ApplicantProgramsController.edit(params.applicantId(), params.programId()).url();
+          applicantRoutes.edit(params.profile(), params.applicantId(), params.programId()).url();
       continueOrSubmitButton =
           a().withHref(applyUrl)
               .withText(messages.at(MessageKey.BUTTON_CONTINUE.getKeyName()))
@@ -331,6 +338,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     abstract Optional<Modal> loginPromptModal();
 
+    abstract CiviFormProfile profile();
+
     @AutoValue.Builder
     public abstract static class Builder {
 
@@ -357,6 +366,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       public abstract Builder setTotalBlockCount(int totalBlockCount);
 
       public abstract Builder setLoginPromptModal(Modal loginPromptModal);
+
+      public abstract Builder setProfile(CiviFormProfile profile);
 
       public abstract Params build();
     }

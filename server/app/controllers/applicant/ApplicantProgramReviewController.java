@@ -135,7 +135,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           ImmutableList.of(flashBanner, flashSuccessBanner, notEligibleBanner))
                       .setMessages(messages)
                       .setProgramId(programId)
-                      .setRequest(request);
+                      .setRequest(request)
+                      .setProfile(
+                          submittingProfile.orElseThrow(
+                              () -> new MissingOptionalException(CiviFormProfile.class)));
 
               // Show a login prompt on the review page if we were redirected from a program slug
               // and user is a guest.
