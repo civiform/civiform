@@ -57,7 +57,7 @@ import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
-/** Methods related to rendering an individual program information card. */
+/** A renderer to create an individual program information card. */
 public final class ProgramCardViewRenderer {
   private final ApplicantRoutes applicantRoutes;
   private final ProfileUtils profileUtils;
@@ -70,9 +70,9 @@ public final class ProgramCardViewRenderer {
       ProfileUtils profileUtils,
       SettingsManifest settingsManifest,
       PublicStorageClient publicStorageClient) {
-    this.applicantRoutes = applicantRoutes;
-    this.publicStorageClient = checkNotNull(publicStorageClient);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
     this.profileUtils = checkNotNull(profileUtils);
+    this.publicStorageClient = checkNotNull(publicStorageClient);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
@@ -80,6 +80,10 @@ public final class ProgramCardViewRenderer {
    * Creates and returns DOM representing a program card using the information provided in {@code
    * cardData}.
    *
+   * @param buttonTitle a message key for the text displayed on the action button on the bottom of
+   *     the card.
+   * @param buttonSrText a message key for the screen reader text for the action button on the
+   *     bottom of the card.
    * @param nestedUnderSubheading true if this card appears under a heading (like "In Progress") and
    *     false otherwise.
    */
@@ -127,16 +131,20 @@ public final class ProgramCardViewRenderer {
         div()
             .withId(baseId + "-data")
             .withClasses("w-full", "px-4", "pt-4", "h-56", "overflow-auto");
+
     if (cardData.latestSubmittedApplicationStatus().isPresent()) {
       programData.with(
           programCardApplicationStatus(
               messages, preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
     }
+
     if (shouldShowEligibilityTag(cardData)) {
       programData.with(
           eligibilityTag(request, messages, cardData.isProgramMaybeEligible().get(), profileUtils));
     }
+
     programData.with(title, description);
+
     // Use external link if it is present else use the default Program details page
     String programDetailsLink =
         program.externalLink().isEmpty()

@@ -55,8 +55,8 @@ public final class ProgramImageView extends BaseHtmlView {
   private final FormFactory formFactory;
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final MessagesApi messagesApi;
-  private final ProgramCardViewRenderer programCardViewRenderer;
   private final ProfileUtils profileUtils;
+  private final ProgramCardViewRenderer programCardViewRenderer;
   private final PublicStorageClient publicStorageClient;
   private final ZoneId zoneId;
 
@@ -76,10 +76,10 @@ public final class ProgramImageView extends BaseHtmlView {
     this.formFactory = checkNotNull(formFactory);
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
     this.messagesApi = checkNotNull(messagesApi);
-    this.programCardViewRenderer = programCardViewRenderer;
     this.profileUtils = checkNotNull(profileUtils);
+    this.programCardViewRenderer = checkNotNull(programCardViewRenderer);
     this.publicStorageClient = checkNotNull(publicStorageClient);
-    this.zoneId = zoneId;
+    this.zoneId = checkNotNull(zoneId);
   }
 
   /**
@@ -197,7 +197,10 @@ public final class ProgramImageView extends BaseHtmlView {
     } catch (ExecutionException | InterruptedException e) {
       throw new RuntimeException(e);
     }
+
     Messages messages = messagesApi.preferred(request);
+    // We don't need to fill in any applicant data besides the program information since this is
+    // just for a card preview
     ApplicantService.ApplicantProgramData card =
         ApplicantService.ApplicantProgramData.builder().setProgram(program).build();
 
@@ -205,7 +208,9 @@ public final class ProgramImageView extends BaseHtmlView {
         programCardViewRenderer.createProgramCard(
             request,
             messages,
-            ApplicantPersonalInfo.ApplicantType.GUEST,
+            // An admin does have an associated applicant account, so consider them logged in so
+            // that the "Apply" button takes them to a preview of the program.
+            ApplicantPersonalInfo.ApplicantType.LOGGED_IN,
             card,
             applicantId,
             messages.lang().toLocale(),
@@ -215,7 +220,11 @@ public final class ProgramImageView extends BaseHtmlView {
             layout.getBundle(request),
             profile,
             zoneId);
-
     return div().with(h2("What the applicant will see").withClasses("mb-4")).with(programCard);
+    // Note: The "Program details" link inside the card preview will not work if the admin hasn't
+    // provided a custom external link. This is because that link redirects to
+    // ApplicantProgramsController#showWithApplicantId, which only allows access to the current
+    // versions of programs. When editing a program image, that program is in draft form, so the
+    // controller prevents access.
   }
 }

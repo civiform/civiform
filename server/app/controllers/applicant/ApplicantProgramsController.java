@@ -171,7 +171,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                         applicantStage.toCompletableFuture().join(),
                         profile));
               }
-              return badRequest();
+              return badRequest(String.format("Program %d not found", programId));
             },
             httpContext.current())
         .exceptionally(
