@@ -115,4 +115,20 @@ public final class ApplicantRoutes {
       return routes.ApplicantProgramReviewController.review(programId);
     }
   }
+
+  /**
+   * Returns the route corresponding to the applicant submit action.
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programId - ID of program to review
+   * @return Route for the applicant submit action
+   */
+  public Call submit(CiviFormProfile profile, long applicantId, long programId) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramReviewController.submitWithApplicantId(applicantId, programId);
+    } else {
+      return routes.ApplicantProgramReviewController.submit(programId);
+    }
+  }
 }
