@@ -128,14 +128,12 @@ public final class ProgramImageView extends BaseHtmlView {
             .withId(IMAGE_FILE_UPLOAD_FORM_ID);
     ImmutableList<InputTag> additionalFileUploadFormInputs =
         fileUploadViewStrategy.additionalFileUploadFormInputs(Optional.of(storageUploadRequest));
-    DivTag fileInputElement = fileInputFormElement();
-
+    DivTag fileInputElement = createFileInputFormElement();
     FormTag fullForm =
         form.with(additionalFileUploadFormInputs)
-            // It's critical that the "file" field be the last input
-            // element for the form since S3 will ignore any fields
-            // after that. See #2653 /
-            // https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-HTTPPOSTForms.html
+            // It's critical that the "file" field be the last input element for the form since S3
+            // will ignore any fields after that.
+            // See #2653 / https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-HTTPPOSTForms.html
             // for more context.
             .with(fileInputElement);
 
@@ -160,7 +158,7 @@ public final class ProgramImageView extends BaseHtmlView {
   }
 
   /** Creates the <input type="file"> element needed for admins to upload program images. */
-  private DivTag fileInputFormElement() {
+  private DivTag createFileInputFormElement() {
     return div()
         .withClasses("usa-form-group", "mb-2")
         .with(
@@ -170,10 +168,10 @@ public final class ProgramImageView extends BaseHtmlView {
                 .withClass("usa-hint"))
         .with(
             input()
-                .attr("aria-describedby", "file-input-size-hint")
                 .withType("file")
                 .withName("file")
                 .withClasses("usa-file-input")
+                .attr("aria-describedby", "file-input-size-hint")
                 .withAccept(MIME_TYPES_IMAGES));
   }
 
