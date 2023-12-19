@@ -57,13 +57,14 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     long badApplicantId = applicant.id + 1000;
     Request request =
         requestBuilderWithSettings(
-                routes.ApplicantProgramBlocksController.edit(
+                routes.ApplicantProgramBlocksController.editWithApplicantId(
                     badApplicantId, program.id, "1", /* questionName= */ Optional.empty()))
             .build();
 
     Result result =
         subject
-            .edit(request, badApplicantId, program.id, "1", /* questionName= */ Optional.empty())
+            .editWithApplicantId(
+                request, badApplicantId, program.id, "1", /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -81,12 +82,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramBlocksController.edit(
+                    routes.ApplicantProgramBlocksController.editWithApplicantId(
                         applicant.id, program.id, "1", /* questionName= */ Optional.empty())))
             .build();
     Result result =
         subject
-            .edit(request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .editWithApplicantId(
+                request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -106,12 +108,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramBlocksController.edit(
+                    routes.ApplicantProgramBlocksController.editWithApplicantId(
                         applicant.id, program.id, "1", /* questionName= */ Optional.empty())))
             .build();
     Result result =
         subject
-            .edit(request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .editWithApplicantId(
+                request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -125,12 +128,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramBlocksController.edit(
+                    routes.ApplicantProgramBlocksController.editWithApplicantId(
                         applicant.id, program.id, "1", /* questionName= */ Optional.empty())))
             .build();
     Result result =
         subject
-            .edit(
+            .editWithApplicantId(
                 request,
                 applicant.id,
                 obsoleteProgram.id,
@@ -147,7 +150,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramBlocksController.edit(
+                    routes.ApplicantProgramBlocksController.editWithApplicantId(
                         applicant.id,
                         program.id + 1000,
                         "1",
@@ -156,7 +159,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .edit(
+            .editWithApplicantId(
                 request, applicant.id, program.id + 1000, "1", /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
@@ -169,13 +172,14 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramBlocksController.edit(
+                    routes.ApplicantProgramBlocksController.editWithApplicantId(
                         applicant.id, program.id, "1", /* questionName= */ Optional.empty())))
             .build();
 
     Result result =
         subject
-            .edit(request, applicant.id, program.id, "1", /* questionName= */ Optional.empty())
+            .editWithApplicantId(
+                request, applicant.id, program.id, "1", /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -186,13 +190,14 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void edit_toABlockThatDoesNotExist_returns404() {
     Request request =
         requestBuilderWithSettings(
-                routes.ApplicantProgramBlocksController.edit(
+                routes.ApplicantProgramBlocksController.editWithApplicantId(
                     applicant.id, program.id, "9999", /* questionName= */ Optional.empty()))
             .build();
 
     Result result =
         subject
-            .edit(request, applicant.id, program.id, "9999", /* questionName= */ Optional.empty())
+            .editWithApplicantId(
+                request, applicant.id, program.id, "9999", /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -204,14 +209,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                        routes.ApplicantProgramBlocksController.edit(
+                        routes.ApplicantProgramBlocksController.editWithApplicantId(
                             applicant.id, program.id, "1", /* questionName= */ Optional.empty()))
                     .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()))
             .build();
 
     Result result =
         subject
-            .edit(request, applicant.id, program.id, "1", /* questionName= */ Optional.empty())
+            .editWithApplicantId(
+                request, applicant.id, program.id, "1", /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -250,7 +256,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Result result =
         subject
-            .edit(request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .editWithApplicantId(
+                request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -275,7 +282,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Result result =
         subject
-            .edit(request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .editWithApplicantId(
+                request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -294,7 +302,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Result result =
         subject
-            .edit(
+            .editWithApplicantId(
                 request,
                 applicant.id,
                 obsoleteProgram.id,
@@ -340,7 +348,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Result result =
         subject
-            .edit(request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .editWithApplicantId(
+                request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -365,7 +374,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Result result =
         subject
-            .edit(request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .editWithApplicantId(
+                request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -384,7 +394,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Result result =
         subject
-            .edit(
+            .editWithApplicantId(
                 request,
                 applicant.id,
                 obsoleteProgram.id,
@@ -528,7 +538,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
-        routes.ApplicantProgramBlocksController.edit(
+        routes.ApplicantProgramBlocksController.editWithApplicantId(
                 applicant.id, program.id, /* blockId= */ "2", /* questionName= */ Optional.empty())
             .url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
@@ -659,7 +669,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Result result =
         subject
-            .edit(request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .editWithApplicantId(
+                request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -684,7 +695,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Result result =
         subject
-            .edit(request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .editWithApplicantId(
+                request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -703,7 +715,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Result result =
         subject
-            .edit(
+            .editWithApplicantId(
                 request,
                 applicant.id,
                 obsoleteProgram.id,
@@ -825,7 +837,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
-        routes.ApplicantProgramBlocksController.edit(
+        routes.ApplicantProgramBlocksController.editWithApplicantId(
                 applicant.id, program.id, /* blockId= */ "2", /* questionName= */ Optional.empty())
             .url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);

@@ -11,6 +11,7 @@ import auth.Role;
 import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.CollectorRegistry;
 import java.util.Collections;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
@@ -23,6 +24,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   private static long applicantAccountId = 456L;
   private static long tiAccountId = 789L;
   private static long programId = 321L;
+  private static String blockId = "test_block";
   private static SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
 
   // Class to hold counter values.
@@ -495,6 +497,98 @@ public class ApplicantRoutesTest extends ResetPostgres {
                 .submit(tiProfile, applicantId, programId)
                 .url())
         .isEqualTo(expectedSubmitUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present);
+    assertThat(after.absent).isEqualTo(before.absent + 1);
+  }
+
+  @Test
+  public void testBlockEditRoute_forApplicantWithIdInProfile_newSchemaEnabled() {
+    enableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(applicantId));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedBlockEditUrl = String.format("/programs/%d/blocks/%s/edit", programId, blockId);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .blockEdit(applicantProfile, applicantId, programId, blockId, Optional.empty())
+                .url())
+        .isEqualTo(expectedBlockEditUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present + 1);
+    assertThat(after.absent).isEqualTo(before.absent);
+  }
+
+  @Test
+  public void testBlockEditRoute_forApplicantWithIdInProfile_newSchemaDisabled() {
+    disableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(applicantId));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedBlockEditUrl =
+        String.format("/applicants/%d/programs/%d/blocks/%s/edit", applicantId, programId, blockId);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .blockEdit(applicantProfile, applicantId, programId, blockId, Optional.empty())
+                .url())
+        .isEqualTo(expectedBlockEditUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present + 1);
+    assertThat(after.absent).isEqualTo(before.absent);
+  }
+
+  @Test
+  public void testBlockEditRoute_forApplicantWithoutIdInProfile() {
+    enableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedBlockEditUrl =
+        String.format("/applicants/%d/programs/%d/blocks/%s/edit", applicantId, programId, blockId);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .blockEdit(applicantProfile, applicantId, programId, blockId, Optional.empty())
+                .url())
+        .isEqualTo(expectedBlockEditUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present);
+    assertThat(after.absent).isEqualTo(before.absent + 1);
+  }
+
+  @Test
+  public void testBlockRoute_forTrustedIntermediary() {
+    enableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(tiAccountId);
+    profileData.addRole(Role.ROLE_TI.toString());
+    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedBlockEditUrl =
+        String.format("/applicants/%d/programs/%d/blocks/%s/edit", applicantId, programId, blockId);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .blockEdit(tiProfile, applicantId, programId, blockId, Optional.empty())
+                .url())
+        .isEqualTo(expectedBlockEditUrl);
 
     Counts after = getApplicantIdInProfileCounts();
     assertThat(after.present).isEqualTo(before.present);

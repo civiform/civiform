@@ -237,11 +237,16 @@ public final class ApplicantProgramsController extends CiviFormController {
         .thenApplyAsync(
             roApplicantService -> {
               Optional<Block> blockMaybe = roApplicantService.getFirstIncompleteOrStaticBlock();
+              CiviFormProfile profile =
+                  profileUtils
+                      .currentUserProfile(request)
+                      .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class));
               return blockMaybe.flatMap(
                   block ->
                       Optional.of(
                           found(
-                              routes.ApplicantProgramBlocksController.edit(
+                              applicantRoutes.blockEdit(
+                                  profile,
                                   applicantId,
                                   programId,
                                   block.getId(),

@@ -359,7 +359,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
         .hasValue(
-            routes.ApplicantProgramBlocksController.edit(
+            routes.ApplicantProgramBlocksController.editWithApplicantId(
                     currentApplicant.id, program.id, "1", /* questionName= */ Optional.empty())
                 .url());
   }
@@ -392,7 +392,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
         .hasValue(
-            routes.ApplicantProgramBlocksController.edit(
+            routes.ApplicantProgramBlocksController.editWithApplicantId(
                     currentApplicant.id, program.id, "2", /* questionName= */ Optional.empty())
                 .url());
   }

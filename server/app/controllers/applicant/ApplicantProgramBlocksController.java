@@ -135,13 +135,41 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * page is shown.
    */
   @Secure
-  public CompletionStage<Result> edit(
+  public CompletionStage<Result> editWithApplicantId(
       Request request,
       long applicantId,
       long programId,
       String blockId,
       Optional<String> questionName) {
     return editOrReview(request, applicantId, programId, blockId, false, questionName);
+  }
+
+  /**
+   * Renders all questions in the block of the program and presents to the applicant.
+   *
+   * <p>The difference between `edit` and `review` is the next block the applicant will see after
+   * submitting the answers.
+   *
+   * <p>`edit` takes the applicant to the next in-progress block, see {@link
+   * ReadOnlyApplicantProgramService#getInProgressBlocks()}. If there are no more blocks, summary
+   * page is shown.
+   */
+  @Secure
+  public CompletionStage<Result> edit(
+      Request request, long programId, String blockId, Optional<String> questionName) {
+    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
+      // This route is only operative for the new URL schema, so send the user home.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    Optional<Long> applicantId = getApplicantId(request);
+    if (applicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+    return editWithApplicantId(
+        request, applicantId.orElseThrow(), programId, blockId, questionName);
   }
 
   /**
@@ -653,7 +681,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     return supplyAsync(
         () ->
             redirect(
-                    routes.ApplicantProgramBlocksController.edit(
+                    applicantRoutes.blockEdit(
+                        profile,
                         applicantId,
                         programId,
                         nextBlockIdMaybe.get(),

@@ -94,7 +94,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
           && currentRepeatedEntity.isPresent()) {
         applicationSummary.with(renderRepeatedEntitySection(currentRepeatedEntity.get(), messages));
       }
-      applicationSummary.with(renderQuestionSummary(answerData, messages, params.applicantId()));
+      applicationSummary.with(
+          renderQuestionSummary(answerData, messages, params.applicantId(), params.profile()));
       previousRepeatedEntity = currentRepeatedEntity;
     }
 
@@ -165,7 +166,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
   }
 
   /** Renders {@code data} including the question and any existing answer to it. */
-  private DivTag renderQuestionSummary(AnswerData data, Messages messages, long applicantId) {
+  private DivTag renderQuestionSummary(
+      AnswerData data, Messages messages, long applicantId, CiviFormProfile profile) {
     DivTag questionContent =
         div(div()
                 .with(
@@ -243,8 +245,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     } else {
       editElement
           .setHref(
-              routes.ApplicantProgramBlocksController.edit(
-                      applicantId, data.programId(), data.blockId(), questionName)
+              applicantRoutes
+                  .blockEdit(profile, applicantId, data.programId(), data.blockId(), questionName)
                   .url())
           .setText(messages.at(MessageKey.LINK_ANSWER.getKeyName()))
           .setIcon(Icons.ARROW_FORWARD, LinkElement.IconPosition.END);
