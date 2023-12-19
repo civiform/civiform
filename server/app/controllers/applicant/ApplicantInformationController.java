@@ -6,7 +6,6 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import auth.controllers.MissingOptionalException;
 import controllers.CiviFormController;
 import forms.ApplicantInformationForm;
 import java.util.Locale;
@@ -96,10 +95,7 @@ public final class ApplicantInformationController extends CiviFormController {
                             /* page= */ Optional.of(1))
                         .url();
               } else {
-                CiviFormProfile profile =
-                    profileUtils
-                        .currentUserProfile(request)
-                        .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class));
+                CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
                 redirectLink = applicantRoutes.index(profile, applicantId).url();
               }
 
@@ -139,10 +135,7 @@ public final class ApplicantInformationController extends CiviFormController {
     ApplicantInformationForm infoForm = form.bindFromRequest(request).get();
     String redirectLocation;
     Session session;
-    CiviFormProfile profile =
-        profileUtils
-            .currentUserProfile(request)
-            .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class));
+    CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
 
     if (infoForm.getRedirectLink().isEmpty()) {
       redirectLocation = applicantRoutes.index(profile, applicantId).url();
