@@ -151,6 +151,7 @@ POST    /applicants/:applicantId                                            cont
 GET     /programs                   controllers.applicant.ApplicantProgramsController.index(request: Request)
 GET     /programs/:programId/edit   controllers.applicant.ApplicantProgramsController.edit(request: Request, programId: Long)
 GET     /programs/:programId/review controllers.applicant.ApplicantProgramReviewController.review(request: Request, programId: Long)
+POST    /programs/:programId/submit controllers.applicant.ApplicantProgramReviewController.submit(request: Request, programId: Long)
 # This route is special. It may specify a program by id or by program
 # slug. Since Play doesn't allow overloaded controller methods, accept
 # the path parameter as a string and decide how to handle it in the
@@ -167,7 +168,7 @@ GET     /applicants/:applicantId/programs                                       
 GET     /applicants/:applicantId/programs/:programId                                           controllers.applicant.ApplicantProgramsController.showWithApplicantId(request: Request, applicantId: Long, programId: Long)
 GET     /applicants/:applicantId/programs/:programId/edit                                      controllers.applicant.ApplicantProgramsController.editWithApplicantId(request: Request, applicantId: Long, programId: Long)
 GET     /applicants/:applicantId/programs/:programId/review                                    controllers.applicant.ApplicantProgramReviewController.reviewWithApplicantId(request: Request, applicantId: Long, programId: Long)
-POST    /applicants/:applicantId/programs/:programId/submit                                    controllers.applicant.ApplicantProgramReviewController.submit(request: Request, applicantId: Long, programId: Long)
+POST    /applicants/:applicantId/programs/:programId/submit                                    controllers.applicant.ApplicantProgramReviewController.submitWithApplicantId(request: Request, applicantId: Long, programId: Long)
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit                      controllers.applicant.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: String, questionName: java.util.Optional[String])
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/review                    controllers.applicant.ApplicantProgramBlocksController.review(request: Request, applicantId: Long, programId: Long, blockId: String, questionName: java.util.Optional[String])
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/confirmAddress/:inReview  controllers.applicant.ApplicantProgramBlocksController.confirmAddress(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)

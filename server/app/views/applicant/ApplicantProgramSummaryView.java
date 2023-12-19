@@ -100,8 +100,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     // Add submit action (POST).
     String submitLink =
-        routes.ApplicantProgramReviewController.submit(params.applicantId(), params.programId())
-            .url();
+        applicantRoutes.submit(params.profile(), params.applicantId(), params.programId()).url();
 
     ContainerTag continueOrSubmitButton;
     if (params.completedBlockCount() == params.totalBlockCount()) {

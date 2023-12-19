@@ -208,7 +208,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
    * the program, does not submit the application and simply redirects to the program page.
    */
   @Secure
-  public CompletionStage<Result> submit(Request request, long applicantId, long programId) {
+  public CompletionStage<Result> submitWithApplicantId(
+      Request request, long applicantId, long programId) {
     Optional<CiviFormProfile> submittingProfile = profileUtils.currentUserProfile(request);
 
     // If the user isn't already logged in within their browser session, send them home.
@@ -236,6 +237,29 @@ public class ApplicantProgramReviewController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
+  }
+
+  /**
+   * Handles application submission. For applicants, submits the application. For admins previewing
+   * the program, does not submit the application and simply redirects to the program page.
+   */
+  @Secure
+  public CompletionStage<Result> submit(Request request, long programId) {
+    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
+      // This route is only operative for the new URL schema, so send the user home.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    Optional<Long> applicantId = getApplicantId(request);
+    if (applicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+    return submitWithApplicantId(
+        request,
+        applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)),
+        programId);
   }
 
   /** Returns true if eligibility is gating and the application is ineligible, false otherwise. */

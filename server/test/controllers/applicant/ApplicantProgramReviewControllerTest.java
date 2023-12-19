@@ -294,10 +294,14 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                        routes.ApplicantProgramReviewController.submit(applicantId, programId))
+                        routes.ApplicantProgramReviewController.submitWithApplicantId(
+                            applicantId, programId))
                     .header(skipUserProfile, shouldSkipUserProfile.toString()))
             .build();
-    return subject.submit(request, applicantId, programId).toCompletableFuture().join();
+    return subject
+        .submitWithApplicantId(request, applicantId, programId)
+        .toCompletableFuture()
+        .join();
   }
 
   private void answer(long programId) {
