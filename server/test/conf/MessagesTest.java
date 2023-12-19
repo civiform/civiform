@@ -134,7 +134,7 @@ public class MessagesTest {
         Arrays.stream(MessageKey.values()).map(MessageKey::getKeyName).collect(toImmutableList());
 
     // TODO(#5893) remove when translations are completed.
-    messageKeys.concat(
+    Stream.of(messageKeys,
         ImmutableList.of(
             "content.adminFooterPromptNew",
             "content.commonIntakeConfirmationNew",
@@ -149,7 +149,7 @@ public class MessagesTest {
             "content.saveTimeServices",
             "title.commonIntakeConfirmationNew",
             "title.commonIntakeConfirmationTiNew",
-            "title.getStartedSection"));
+            "title.getStartedSection")).collect(toImmutableList());
 
     assertThat(keysInPrimaryFile).containsExactlyInAnyOrderElementsOf(messageKeys);
   }
