@@ -151,7 +151,10 @@ public class MessagesTest {
             "title.getStartedSection");
 
     // TODO(#5893) remove when translations are completed.
-    ImmutableList<String> messageKeysAndUntranslatedKeys = Stream.of(messageKeys, untranslatedKeys);
+    ImmutableList<String> messageKeysAndUntranslatedKeys =
+        Stream.of(messageKeys, untranslatedKeys)
+            .flatMap(ImmutableList::stream)
+            .collect(toImmutableList());
 
     assertThat(keysInPrimaryFile)
         .containsExactlyInAnyOrderElementsOf(messageKeysAndUntranslatedKeys);
