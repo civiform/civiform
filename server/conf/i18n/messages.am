@@ -47,6 +47,8 @@ button.guestLogin=እንደ እንግዳ ቀጥል
 content.loginDisabledPrompt=በመለያ መግባት በአሁኑ ጊዜ ተሰናክሏል
 content.adminLoginPrompt=ሌላ ነገር እየፈለጉ ነው?
 content.adminFooterPrompt=እርስዎ የጥቅማጥቅሞች አስተዳዳሪ ነዎት?
+# Text at the bottom of the home page to prompt administrators to go to the administrator login page
+content.adminFooterPromptNew=Are you an administrator?
 link.adminLogin=የአስተዳዳሪ መግቢያ
 
 #--------------------------------------------------------------------------#
@@ -81,13 +83,23 @@ button.editCommonIntakeSr=ለ{0} የገባ መረጃን ያርትዑ
 button.continueCommonIntakeSr={0}ን መሙላት ይቀጥሉ
 content.submittedDate={0} ገብቷል
 content.benefits=ጥቅማጥቅሞችን ያግኙ
+# Title of the page where applicants can go to find programs
+content.findPrograms=Find programs
 content.description=CiviForm በ{0} ውስጥ ብቁ ሊሆኑ የሚችሉባቸውን ጥቅማጥቅሞች እንዲያገኙ ያግዝዎታል። ከታች አንድ ማመልከቻ በመምረጥ ይጀምሩ።
+# Content that explains the benefit of using CiviForm. We'll fill in the name of the city or state.
+content.findProgramsDescription=CiviForm helps you find programs you may be eligible for in {0}. Get started by choosing an application below.
 content.saveTime=ለጥቅማጥቅሞች ሲያመለክቱ ጊዜ ይቆጥቡ
+# Content on the home page to describe the benefit of CiviForm
+content.saveTimeServices=Save time applying for programs and services
 content.guestDescription=ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ እና ተመሳሳዩን መረጃ እንደገና ሳያስገቡ ለብዙ ጥቅማጥቅሞች ያመልክቱ። እንዲሁም ማመልከቻዎችን በማንኛውም ጊዜ ማርትዕ እና የመተግበሪያዎን ሁኔታዎች ማረጋገጥ ይችላሉ።
+# Content explaining the benefits of creating an account, with the authentication provider filled in.
+content.guestDescriptionNew=Log in to your {0} account or create an account and apply to programs without having to enter the same information again. You can also edit applications at any time and check your application statuses.
 link.programDetails=የፕሮግራም ዝርዝሮች
 link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=ፕሮግራሞች እና አገልግሎቶች
 title.findServicesSection=የሚያግዙዎትን አገልግሎቶች ያግኙ
+# A section of the site that the users should start with
+title.getStartedSection=Get Started
 title.allProgramsSection=ሁሉም ፕሮግራሞች ({0})
 title.status=ሁኔታ
 title.inProgressProgramsUpdated=በሂደት ላይ
@@ -144,14 +156,30 @@ content.confirmed=ለ{0} በማመልከትዎ እናመሰግናለን። ማ�
 title.createAnAccount=መለያ ይፍጠሩ ወይም ይግቡ
 content.pleaseCreateAccount=አሁን ወደ የከተማ መለያ ውስጥ ከገቡ መረጃዎ ይቀመጥ እና በማንኛውም ጊዜ በመመለስ የወደፊት ማመልከቻዎችን ማጠናቀቅ ይችላሉ። አስቀድመው መለያ ከሌለዎት የመግቢያ ገጹ እንዲመዘገቡ ያስችልዎታል። አስቀድመው ያስገቡትን ማንኛውም ውሂብ አያጡም።
 content.generalLoginModalPrompt=ወደ መለያ አልገቡም። ያለ መለያ ማመልከቻን ማርትዕ፣ የማመልከቻዎን ሁኔታ መፈተሽ ወይም ለሌላ ጥቅማጥቅሞች በፍጥነት ማመልከት አይችሉም።
+# Content explaining the benefits of being logged into your account.
+content.generalLoginModalPromptNew=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other programs quickly.
 content.initialLoginModalPrompt=ከመቀጠልዎ በፊት ወደ የእርስዎ {0} መለያ ይግቡ ወይም መለያ ይፍጠሩ። ተመሳሳይ መረጃ እንደገና ማስገባት ሳይኖርብዎ ለብዙ ጥቅማጥቅሞች ማመልከት ይችላሉ። እንዲሁም ማመልከቻዎችን ማርትዕ እና የማመልከቻ ሁኔታዎችዎን መፈተሽ ይችላሉ።
+# Content explaining the benefits of being logged into your account, with {0} as the authentication provider.
+content.initialLoginModalPromptNew=Before you continue, log in to your {0} account or create an account. You''ll be able to apply for multiple programs without having to enter the same information again. You can also edit applications and check your application statuses.
 button.continueWithoutAnAccount=ያለ መለያ ቀጥል
 title.commonIntakeConfirmation=እርስዎ ብቁ ሊሆኑ የሚችሉባቸው ጥቅማጥቅሞች
+# Title of the section containing programs the applicant may qualify for.
+title.commonIntakeConfirmationNew=Programs you may qualify for
 title.commonIntakeConfirmationTi=ደንበኛዎ ብቁ ሊሆኑ የሚችሉባቸው ጥቅማጥቅሞች
+# Title of the section containing programs the applicant may qualify for, when someone is filling out the application on behalf of their client.
+title.commonIntakeConfirmationTiNew=Programs your client may qualify for
 content.commonIntakeConfirmation=«ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ እርስዎ እነዚህን ጥቅማጥቅሞች ሊያገኙ ይችላሉ።
+# Text explaining next steps in order to enroll in programs
+content.commonIntakeConfirmationNew=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
 content.commonIntakeConfirmationTi=«ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ ደንበኛዎ እነዚህን ጥቅማጥቅሞች ሊያገኙ ይችላሉ።
+# Text explaining next steps in order to enroll in programs, when filling out the application on behalf of a client
+content.commonIntakeConfirmationTiNew=Your client may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
 content.commonIntakeNoMatchingPrograms=ቅድመ-ማጣሪያው እርስዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለጥቅማጥቅሞች ማመልከት ይችላሉ። ወይም ተጨማሪ የጥቅማጥቅም ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
+# Content explaining that the screener application couldn't find eligible programs, but allows users to find other programs through another website (substituted for {0})
+content.commonIntakeNoMatchingProgramsNew=The pre-screener could not find programs you may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
 content.commonIntakeNoMatchingProgramsTi=ቅድመ-ማጣሪያው ደንበኛዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለጥቅማጥቅሞች ማመልከት ይችላሉ። ወይም ተጨማሪ የጥቅማጥቅም ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
+# Content explaining that the screener application couldn't find eligible programs, but allows users to find other programs on behalf of their client through another website (substituted for {0})
+content.commonIntakeNoMatchingProgramsTiNew=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
 content.commonIntakeNoMatchingProgramsNextStep=እንዲሁም የእርስዎን ምላሾች ለማርትዕ ወደ ቀዳሚው ገጽ መመለስ ይችላሉ።
 button.downloadPdf=PDF አውርድ
 button.applyToPrograms=ለፕሮግራሞች ያመልክቱ
