@@ -230,12 +230,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramBlocksController.previous(
+                    routes.ApplicantProgramBlocksController.previousWithApplicantId(
                         applicant.id, program.id, 0, true)))
             .build();
 
     Result result =
-        subject.previous(request, applicant.id, program.id, 0, true).toCompletableFuture().join();
+        subject
+            .previousWithApplicantId(request, applicant.id, program.id, 0, true)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
   }
@@ -251,7 +254,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramBlocksController.previous(
+                    routes.ApplicantProgramBlocksController.previousWithApplicantId(
                         applicant.id, program.id, 0, true)))
             .build();
     Result result =
@@ -277,7 +280,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramBlocksController.previous(
+                    routes.ApplicantProgramBlocksController.previousWithApplicantId(
                         applicant.id, program.id, 0, true)))
             .build();
     Result result =
@@ -297,7 +300,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramBlocksController.previous(
+                    routes.ApplicantProgramBlocksController.previousWithApplicantId(
                         applicant.id, program.id, 0, true)))
             .build();
     Result result =
