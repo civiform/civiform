@@ -176,6 +176,12 @@ public final class ProgramImageView extends BaseHtmlView {
     if (program.summaryImageFileKey().isEmpty()) {
       return div();
     }
+
+    String summaryImageFileKey = program.summaryImageFileKey().get();
+    if (!PublicFileNameFormatter.isFileKeyForPublicProgramImage(summaryImageFileKey)) {
+      return div();
+    }
+
     ImgTag image =
         img().withSrc(publicStorageClient.getPublicDisplayUrl(program.summaryImageFileKey().get()));
     return div().with(image);

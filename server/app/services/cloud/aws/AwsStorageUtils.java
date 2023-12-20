@@ -7,6 +7,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.concurrent.ExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.regions.Region;
@@ -26,6 +28,8 @@ public final class AwsStorageUtils {
    * (LocalStack).
    */
   public static final String AWS_LOCAL_ENDPOINT_CONF_PATH = "aws.local.endpoint";
+
+  private static final Logger logger = LoggerFactory.getLogger(AwsStorageUtils.class);
 
   /**
    * Returns a signed upload request to upload a file with the given {@code fileKey} to the given
@@ -75,7 +79,8 @@ public final class AwsStorageUtils {
           .url()
           .toString();
     } catch (ExecutionException | InterruptedException e) {
-      throw new RuntimeException(e);
+      logger.warn("Unable to create a Localstack action link; returning empty string");
+      return "";
     }
   }
 
@@ -86,7 +91,8 @@ public final class AwsStorageUtils {
       URI localUri = new URI(localEndpoint);
       return String.format("%s://s3.%s", localUri.getScheme(), localUri.getAuthority());
     } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
+      logger.warn("Unable to create a Localstack endpoint URL; returning empty string");
+      return "";
     }
   }
 }
