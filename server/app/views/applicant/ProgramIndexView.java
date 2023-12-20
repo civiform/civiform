@@ -531,7 +531,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     DivTag actionDiv =
         div(content).withClasses("mt-4", "mb-6", "flex", "items-center", "justify-center");
-    LiTag finalDiv =
+    LiTag cardListItem =
         li().withId(baseId)
             .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
             .with(
@@ -539,9 +539,9 @@ public final class ProgramIndexView extends BaseHtmlView {
                 div()
                     .withClasses(
                         "block", "shrink-0", BaseStyles.BG_SEATTLE_BLUE, "rounded-t-xl", "h-3"));
-    programImage.ifPresent(finalDiv::with);
+    programImage.ifPresent(cardListItem::with);
 
-    return finalDiv.with(programData).with(actionDiv);
+    return cardListItem.with(programData).with(actionDiv);
   }
 
   private Optional<ImgTag> createProgramImage(Http.Request request, ProgramDefinition program) {
