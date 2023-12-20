@@ -6,15 +6,17 @@ labels: PRD, TDD
 assignees: ''
 ---
 
-#### Problem Statement: 
-A brief explanation of the problem being solved. 
+#### Problem Statement:
 
-#### Solution: 
-A concise one or two sentences about the solution being proposed in this PRD or TDD. 
+A brief explanation of the problem being solved.
 
-#### Link to PRD: 
+#### Solution:
 
-#### Link to TDD: 
+A concise one or two sentences about the solution being proposed in this PRD or TDD.
+
+#### Link to PRD:
+
+#### Link to TDD:
 
 #### Checklist (remove this section after completion)
 
@@ -25,5 +27,6 @@ A concise one or two sentences about the solution being proposed in this PRD or 
 - [ ] In the project, set `Status` to the current status of the PRD / TDD. `In progress` if you're drafting, `Needs review` if it is ready for review or in the process of review, `Done` if the document is finalized.
 - [ ] In the project, set `Quarter` to the quarter this PRD / TDD is being worked on
 
-#### Addtional Context: 
-Any additional context to be added here. 
+#### Additional Context:
+
+Any additional context to be added here.
