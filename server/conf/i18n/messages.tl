@@ -47,6 +47,8 @@ button.guestLogin=Magpatuloy bilang panauhin
 content.loginDisabledPrompt=Kasalukuyang naka-disable ang pag-log in sa account
 content.adminLoginPrompt=Naghahanap ng iba?
 content.adminFooterPrompt=Isa ka bang administrator ng mga benepisyo?
+# Text at the bottom of the home page to prompt administrators to go to the administrator login page
+content.adminFooterPromptNew=Are you an administrator?
 link.adminLogin=Admin login
 
 #--------------------------------------------------------------------------#
@@ -81,13 +83,23 @@ button.editCommonIntakeSr=I-edit ang isinumiteng impormasyon para sa {0}
 button.continueCommonIntakeSr=Ipagpatuloy ang pagsasagot ng {0}
 content.submittedDate=Isinumite noong {0}
 content.benefits=Kumuha ng mga benepisyo
+# Title of the page where applicants can go to find programs
+content.findPrograms=Find programs
 content.description=Matutulungan ka ng CiviForm na humanap ng mga benepisyo kung saan posibleng kwalipikado ka sa {0}. Magsimula sa pamamagitan ng pagpili ng aplikasyon sa ibaba.
+# Content that explains the benefit of using CiviForm. We'll fill in the name of the city or state.
+content.findProgramsDescription=CiviForm helps you find programs you may be eligible for in {0}. Get started by choosing an application below.
 content.saveTime=Makatipid sa oras kapag nag-a-apply para sa mga benepisyo
+# Content on the home page to describe the benefit of CiviForm
+content.saveTimeServices=Save time applying for programs and services
 content.guestDescription=Mag-log in sa iyong {0} account o gumawa ng account at mag-apply para sa maraming benepisyo nang hindi kailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon anumang oras at tumingin sa mga status ng iyong aplikasyon.
+# Content explaining the benefits of creating an account, with the authentication provider filled in.
+content.guestDescriptionNew=Log in to your {0} account or create an account and apply to programs without having to enter the same information again. You can also edit applications at any time and check your application statuses.
 link.programDetails=Mga detalya ng programa
 link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=Mga programa at mga serbisyo
 title.findServicesSection=Humanap ng mga serbisyong makakatulong sa iyo
+# A section of the site that the users should start with
+title.getStartedSection=Get Started
 title.allProgramsSection=Lahat ng programa ({0})
 title.status=Status
 title.inProgressProgramsUpdated=Kasalukuyang ginagawa
@@ -144,14 +156,30 @@ content.confirmed=Salamat sa pag-aplay sa {0}.  Ang inyong aplikasyon ay natangg
 title.createAnAccount=Gumawa ng account o magsign-in
 content.pleaseCreateAccount=Kung kayo ay magsign-in ngayon sa isang account ng lungsod, ang inyong impormasyon ay maitatabi at maaring balikan anumang oras upang makumpleto ang mga aplikasyon sa hinaharap. Kung kayo ay wala pang account, pahihintulutan kayo ng pahina ng log-in upang makapagrehistro. Hindi kayo mawawalan ng anumang data na inyo nang nailagay.
 content.generalLoginModalPrompt=Hindi ka naka-log in sa isang account. Hindi mo magagawang mabilis na mag-edit ng aplikasyon, tingnan ang status ng iyong aplikasyon, o mag-apply para sa iba pang benepisyo nang walang account.
+# Content explaining the benefits of being logged into your account.
+content.generalLoginModalPromptNew=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other programs quickly.
 content.initialLoginModalPrompt=Bago ka magpatuloy, mag-log in sa iyong {0} account o gumawa ng account. Magagawa mong mag-apply para sa maraming benepisyo nang hindi kailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon at tumingin ng mga status ng iyong aplikasyon.
+# Content explaining the benefits of being logged into your account, with {0} as the authentication provider.
+content.initialLoginModalPromptNew=Before you continue, log in to your {0} account or create an account. You''ll be able to apply for multiple programs without having to enter the same information again. You can also edit applications and check your application statuses.
 button.continueWithoutAnAccount=Magpatuloy nang walang account
 title.commonIntakeConfirmation=Mga benepisyo kung saan puwede kang maging kwalipikado
+# Title of the section containing programs the applicant may qualify for.
+title.commonIntakeConfirmationNew=Programs you may qualify for
 title.commonIntakeConfirmationTi=Mga benepisyo kung saan puwedeng maging kwalipikado ang iyong client
+# Title of the section containing programs the applicant may qualify for, when someone is filling out the application on behalf of their client.
+title.commonIntakeConfirmationTiNew=Programs your client may qualify for
 content.commonIntakeConfirmation=Puwede mong makuha ang mga benepisyong ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
+# Text explaining next steps in order to enroll in programs
+content.commonIntakeConfirmationNew=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
 content.commonIntakeConfirmationTi=Puwedeng makuha ng iyong client ang mga benepisyong ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
+# Text explaining next steps in order to enroll in programs, when filling out the application on behalf of a client
+content.commonIntakeConfirmationTiNew=Your client may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
 content.commonIntakeNoMatchingPrograms=Hindi makahanap ang pre-screener ng mga programa kung saan puwede kang maging kwalipikado sa panahong ito. Pero puwede kang mag-apply sa mga benepisyo anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tingnan ang mga karagdagang programa para sa benepisyo, puwede kang pumunta sa {0}
+# Content explaining that the screener application couldn't find eligible programs, but allows users to find other programs through another website (substituted for {0})
+content.commonIntakeNoMatchingProgramsNew=The pre-screener could not find programs you may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
 content.commonIntakeNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga programa kung saan puwedeng maging kwalipikado ang iyong client sa panahong ito. Pero puwede kang mag-apply sa mga benepisyo anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tingnan ang mga karagdagang programa para sa benepisyo, puwede kang pumunta sa {0}
+# Content explaining that the screener application couldn't find eligible programs, but allows users to find other programs on behalf of their client through another website (substituted for {0})
+content.commonIntakeNoMatchingProgramsTiNew=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
 content.commonIntakeNoMatchingProgramsNextStep=Puwede ka ring bumalik sa nakaraang page para i-edit ang iyong mga sagot.
 button.downloadPdf=I-download ang PDF
 button.applyToPrograms=Mag-apply sa mga programa
