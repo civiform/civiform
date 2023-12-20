@@ -8,7 +8,6 @@ import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
 import javax.inject.Inject;
-import org.apache.commons.lang3.StringUtils;
 import services.cloud.StorageUploadRequest;
 import services.cloud.azure.BlobStorageUploadRequest;
 import views.ViewUtils;
@@ -23,12 +22,8 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  public ImmutableList<InputTag> fileUploadFormInputs(
-      Optional<StorageUploadRequest> request,
-      String acceptedMimeTypes,
-      String fileInputId,
-      ImmutableList<String> ariaDescribedByIds,
-      boolean hasErrors) {
+  public ImmutableList<InputTag> additionalFileUploadFormInputs(
+      Optional<StorageUploadRequest> request) {
     if (request.isEmpty()) {
       return ImmutableList.of();
     }
@@ -46,18 +41,7 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
         input()
             .withType("hidden")
             .withName("successActionRedirect")
-            .withValue(signedRequest.successActionRedirect()),
-        input()
-            .withId(fileInputId)
-            .condAttr(hasErrors, "aria-invalid", "true")
-            .condAttr(
-                !ariaDescribedByIds.isEmpty(),
-                "aria-describedby",
-                StringUtils.join(ariaDescribedByIds, " "))
-            .withType("file")
-            .withName("file")
-            .withClass("hidden")
-            .withAccept(acceptedMimeTypes));
+            .withValue(signedRequest.successActionRedirect()));
     return builder.build();
   }
 

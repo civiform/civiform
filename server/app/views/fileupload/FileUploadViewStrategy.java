@@ -1,10 +1,14 @@
 package views.fileupload;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.input;
+import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FooterTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
@@ -31,22 +35,31 @@ public abstract class FileUploadViewStrategy {
   }
 
   /**
-   * Creates a list of all the input tags required for the file upload form to correctly connect to
-   * and authenticate with the cloud storage provider.
+   * Creates a list of all the **additional** input tags required for the file upload form to
+   * correctly connect to and authenticate with the cloud storage provider.
    *
-   * @param fileInputId an ID associates the file <input> field. Can be used to associate custom
-   *     screen reader functionality with the file input.
+   * <p>Important: This specifically does *not* include the required <input type="file"> element.
    */
-  public abstract ImmutableList<InputTag> fileUploadFormInputs(
-      Optional<StorageUploadRequest> request,
-      String acceptedMimeTypes,
-      String fileInputId,
-      ImmutableList<String> ariaDescribedByIds,
-      boolean hasErrors);
+  public abstract ImmutableList<InputTag> additionalFileUploadFormInputs(
+      Optional<StorageUploadRequest> request);
 
   /** Creates a list of footer tags needed on a page rendering a file upload form. */
   public ImmutableList<FooterTag> footerTags() {
     return extraScriptTags().stream().map(TagCreator::footer).collect(toImmutableList());
+  }
+
+  /** Creates a <input type="file"> element that uses the USWDS file input UI component. */
+  public DivTag createUswdsFileInputFormElement(String acceptedMimeTypes, String hintText) {
+    return div()
+        .withClasses("usa-form-group", "mb-2")
+        .with(span(hintText).withId("file-input-hint").withClass("usa-hint"))
+        .with(
+            input()
+                .withType("file")
+                .withName("file")
+                .withClasses("usa-file-input")
+                .attr("aria-describedby", "file-input-hint")
+                .withAccept(acceptedMimeTypes));
   }
 
   /**

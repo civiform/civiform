@@ -3,6 +3,7 @@ package views.applicant;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
 
 import com.google.common.base.Preconditions;
@@ -12,8 +13,10 @@ import j2html.TagCreator;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.InputTag;
 import java.util.Optional;
 import javax.inject.Inject;
+import org.apache.commons.lang3.StringUtils;
 import play.mvc.Http.HttpVerbs;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
@@ -80,12 +83,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                         "data-upload-text",
                         params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName())));
     result.with(
-        fileUploadViewStrategy.fileUploadFormInputs(
-            params.signedFileUploadRequest(),
-            MIME_TYPES_IMAGES_AND_PDF,
-            fileInputId,
-            ariaDescribedByIds,
-            hasErrors));
+        fileUploadViewStrategy.additionalFileUploadFormInputs(params.signedFileUploadRequest()));
+    result.with(createFileInputFormElement(fileInputId, ariaDescribedByIds, hasErrors));
     result.with(
         div(fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()))
             .withId(fileInputId + "-required-error")
@@ -144,6 +143,30 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     DivTag buttons = renderFileUploadBottomNavButtons(params);
 
     return div(uploadForm, skipForms, buttons).with(fileUploadViewStrategy.footerTags());
+  }
+
+  /**
+   * Creates the <input type="file"> element needed for the file upload <form>.
+   *
+   * <p>Note: This likely could be migrated to use the USWDS file input component instead -- see
+   * {@link FileUploadViewStrategy#createUswdsFileInputFormElement}.
+   *
+   * @param fileInputId an ID associated with the file <input> field. Can be used to associate
+   *     custom screen reader functionality with the file input.
+   */
+  private InputTag createFileInputFormElement(
+      String fileInputId, ImmutableList<String> ariaDescribedByIds, boolean hasErrors) {
+    return input()
+        .withId(fileInputId)
+        .condAttr(hasErrors, "aria-invalid", "true")
+        .condAttr(
+            !ariaDescribedByIds.isEmpty(),
+            "aria-describedby",
+            StringUtils.join(ariaDescribedByIds, " "))
+        .withType("file")
+        .withName("file")
+        .withClass("hidden")
+        .withAccept(MIME_TYPES_IMAGES_AND_PDF);
   }
 
   /**

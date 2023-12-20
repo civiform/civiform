@@ -4,8 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.img;
-import static j2html.TagCreator.label;
-import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -16,9 +14,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.InputTag;
-import j2html.tags.specialized.LabelTag;
 import java.util.Optional;
-import org.apache.commons.lang3.RandomStringUtils;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
@@ -49,8 +45,6 @@ public final class ProgramImageView extends BaseHtmlView {
   private final FormFactory formFactory;
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final PublicStorageClient publicStorageClient;
-  // The ID used to associate the file input field with its screen reader label.
-  private final String fileInputId;
 
   @Inject
   public ProgramImageView(
@@ -64,7 +58,6 @@ public final class ProgramImageView extends BaseHtmlView {
     this.formFactory = checkNotNull(formFactory);
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
     this.publicStorageClient = checkNotNull(publicStorageClient);
-    this.fileInputId = RandomStringUtils.randomAlphabetic(8);
   }
 
   /**
@@ -131,25 +124,20 @@ public final class ProgramImageView extends BaseHtmlView {
         fileUploadViewStrategy
             .renderFileUploadFormElement(storageUploadRequest)
             .withId(IMAGE_FILE_UPLOAD_FORM_ID);
-    ImmutableList<InputTag> fileUploadFormInputs =
-        fileUploadViewStrategy.fileUploadFormInputs(
-            Optional.of(storageUploadRequest),
-            MIME_TYPES_IMAGES,
-            fileInputId,
-            /* ariaDescribedByIds= */ ImmutableList.of(),
-            /* hasErrors= */ false);
-
-    LabelTag chooseFileButton =
-        label()
-            .withFor(fileInputId)
-            .with(
-                span()
-                    .attr("role", "button")
-                    .attr("tabindex", 0)
-                    .withText("Choose program image")
-                    .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "w-64", "mt-10", "mb-2"));
-
-    FormTag fullForm = form.with(fileUploadFormInputs).with(chooseFileButton);
+    ImmutableList<InputTag> additionalFileUploadFormInputs =
+        fileUploadViewStrategy.additionalFileUploadFormInputs(Optional.of(storageUploadRequest));
+    DivTag fileInputElement =
+        fileUploadViewStrategy.createUswdsFileInputFormElement(
+            /* acceptedMimeTypes= */ MIME_TYPES_IMAGES,
+            // TODO(#5676): Get final copy for the size warning message.
+            /* hintText= */ "File size must be at most 1 MB.");
+    FormTag fullForm =
+        form.with(additionalFileUploadFormInputs)
+            // It's critical that the "file" field be the last input element for the form since S3
+            // will ignore any fields after that.
+            // See #2653 / https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-HTTPPOSTForms.html
+            // for more context.
+            .with(fileInputElement);
 
     // TODO(#5676): Replace with final UX once we have it.
     return div()
@@ -160,7 +148,6 @@ public final class ProgramImageView extends BaseHtmlView {
                 .withClasses(ButtonStyles.SOLID_BLUE, "mb-2"))
         .with(fileUploadViewStrategy.footerTags());
 
-    // TODO(#5676): If there's already a file uploaded, render its name.
     // TODO(#5676): Warn admins of recommended image size and dimensions.
     // TODO(#5676): Allow admins to remove an already-uploaded file.
   }

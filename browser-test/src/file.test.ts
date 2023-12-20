@@ -52,6 +52,22 @@ describe('file upload applicant flow', () => {
       await validateScreenshot(page, 'file-errors')
     })
 
+    it('form is correctly formatted', async () => {
+      const {page, applicantQuestions} = ctx
+
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.clickNext()
+
+      const formInputs = await page
+        .locator('#cf-block-form')
+        .locator('input')
+        .all()
+      const lastFormInput = formInputs[formInputs.length - 1]
+
+      // AWS requires that the <input type="file"> element to be the last <input> in the <form>
+      expect(await lastFormInput.getAttribute('type')).toBe('file')
+    })
+
     it('does not show errors initially', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
