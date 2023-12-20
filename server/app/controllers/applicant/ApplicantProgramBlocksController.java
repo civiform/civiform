@@ -227,7 +227,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
   /** Handles the applicant's selection from the address correction options. */
   @Secure
-  public CompletionStage<Result> confirmAddress(
+  public CompletionStage<Result> confirmAddressWithApplicantId(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
 
     DynamicForm form = formFactory.form().bindFromRequest(request);
@@ -239,6 +239,25 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             maybeAddressJson.orElseThrow(() -> new RuntimeException("Address JSON missing")));
     return confirmAddressWithSuggestions(
         request, applicantId, programId, blockId, inReview, selectedAddress, suggestions);
+  }
+
+  /** Handles the applicant's selection from the address correction options. */
+  @Secure
+  public CompletionStage<Result> confirmAddress(
+      Request request, long programId, String blockId, boolean inReview) {
+    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
+      // This route is only operative for the new URL schema, so send the user home.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    Optional<Long> applicantId = getApplicantId(request);
+    if (applicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+    return confirmAddressWithApplicantId(
+        request, applicantId.orElseThrow(), programId, blockId, inReview);
   }
 
   /** Saves the selected corrected address to the db and redirects the user to the next screen */

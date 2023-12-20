@@ -12,11 +12,15 @@ import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.CollectorRegistry;
 import java.util.Collections;
 import java.util.Optional;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import repository.ResetPostgres;
 import services.settings.SettingsManifest;
 
+@RunWith(JUnitParamsRunner.class)
 public class ApplicantRoutesTest extends ResetPostgres {
 
   private ProfileFactory profileFactory;
@@ -685,6 +689,115 @@ public class ApplicantRoutesTest extends ResetPostgres {
                 .blockReview(tiProfile, applicantId, programId, blockId, Optional.empty())
                 .url())
         .isEqualTo(expectedBlockReviewUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present);
+    assertThat(after.absent).isEqualTo(before.absent + 1);
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void testConfirmAddressRoute_forApplicantWithIdInProfile_newSchemaEnabled(
+      String inReview) {
+    enableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(applicantId));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedConfirmAddressUrl =
+        String.format("/programs/%d/blocks/%s/confirmAddress/%s", programId, blockId, inReview);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .confirmAddress(
+                    applicantProfile, applicantId, programId, blockId, Boolean.valueOf(inReview))
+                .url())
+        .isEqualTo(expectedConfirmAddressUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present + 1);
+    assertThat(after.absent).isEqualTo(before.absent);
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void testConfirmAddressRoute_forApplicantWithIdInProfile_newSchemaDisabled(
+      String inReview) {
+    disableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(applicantId));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedConfirmAddressUrl =
+        String.format(
+            "/applicants/%d/programs/%d/blocks/%s/confirmAddress/%s",
+            applicantId, programId, blockId, inReview);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .confirmAddress(
+                    applicantProfile, applicantId, programId, blockId, Boolean.valueOf(inReview))
+                .url())
+        .isEqualTo(expectedConfirmAddressUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present + 1);
+    assertThat(after.absent).isEqualTo(before.absent);
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void testConfirmAddressRoute_forApplicantWithoutIdInProfile(String inReview) {
+    enableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedConfirmAddressUrl =
+        String.format(
+            "/applicants/%d/programs/%d/blocks/%s/confirmAddress/%s",
+            applicantId, programId, blockId, inReview);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .confirmAddress(
+                    applicantProfile, applicantId, programId, blockId, Boolean.valueOf(inReview))
+                .url())
+        .isEqualTo(expectedConfirmAddressUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present);
+    assertThat(after.absent).isEqualTo(before.absent + 1);
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void testConfirmAddressRoute_forTrustedIntermediary(String inReview) {
+    enableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(tiAccountId);
+    profileData.addRole(Role.ROLE_TI.toString());
+    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedConfirmAddressUrl =
+        String.format(
+            "/applicants/%d/programs/%d/blocks/%s/confirmAddress/%s",
+            applicantId, programId, blockId, inReview);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .confirmAddress(
+                    tiProfile, applicantId, programId, blockId, Boolean.valueOf(inReview))
+                .url())
+        .isEqualTo(expectedConfirmAddressUrl);
 
     Counts after = getApplicantIdInProfileCounts();
     assertThat(after.present).isEqualTo(before.present);
