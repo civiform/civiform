@@ -7,7 +7,9 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.label;
 
+import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
+import controllers.applicant.ApplicantRoutes;
 import controllers.applicant.routes;
 import j2html.TagCreator;
 import j2html.tags.specialized.ATag;
@@ -44,10 +46,12 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   public static final String USER_KEEPING_ADDRESS_VALUE = "USER_KEEPING_ADDRESS_VALUE";
   public static final String SELECTED_ADDRESS_NAME = "selectedAddress";
   private final ApplicantLayout layout;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
-  AddressCorrectionBlockView(ApplicantLayout layout) {
+  AddressCorrectionBlockView(ApplicantLayout layout, ApplicantRoutes applicantRoutes) {
     this.layout = checkNotNull(layout);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   public Content render(
@@ -116,7 +120,11 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
               .withClasses("mb-8")
               .with(
                   renderAsEnteredHeading(
-                      params.applicantId(), params.programId(), params.block().getId(), messages),
+                      params.applicantId(),
+                      params.programId(),
+                      params.block().getId(),
+                      messages,
+                      params.profile()),
                   renderAddress(
                       addressAsEntered,
                       /* selected= */ !anySuggestions,
@@ -140,7 +148,11 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   }
 
   private DivTag renderAsEnteredHeading(
-      long applicantId, long programId, String blockId, Messages messages) {
+      long applicantId,
+      long programId,
+      String blockId,
+      Messages messages,
+      CiviFormProfile profile) {
     DivTag containerDiv = div().withClass("flex flex-nowrap mb-2");
 
     ATag editElement =
@@ -148,8 +160,13 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
             .setStyles(
                 "bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"), "mb-2")
             .setHref(
-                routes.ApplicantProgramBlocksController.review(
-                        applicantId, programId, blockId, /* questionName= */ Optional.empty())
+                applicantRoutes
+                    .blockReview(
+                        profile,
+                        applicantId,
+                        programId,
+                        blockId,
+                        /* questionName= */ Optional.empty())
                     .url())
             .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
             .setIcon(Icons.EDIT, LinkElement.IconPosition.START)
