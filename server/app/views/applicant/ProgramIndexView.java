@@ -8,6 +8,7 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
+import static j2html.TagCreator.img;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.ol;
 import static j2html.TagCreator.p;
@@ -31,6 +32,7 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.H2Tag;
+import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.PTag;
 import java.time.Instant;
@@ -49,6 +51,8 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
+import services.cloud.PublicFileNameFormatter;
+import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions;
 import services.settings.SettingsManifest;
@@ -73,6 +77,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final SettingsManifest settingsManifest;
   private final ProfileUtils profileUtils;
+  private final PublicStorageClient publicStorageClient;
   private final String authProviderName;
   private final ZoneId zoneId;
   private final ApplicantRoutes applicantRoutes;
@@ -83,11 +88,13 @@ public final class ProgramIndexView extends BaseHtmlView {
       ZoneId zoneId,
       SettingsManifest settingsManifest,
       ProfileUtils profileUtils,
+      PublicStorageClient publicStorageClient,
       @BindingAnnotations.ApplicantAuthProviderName String authProviderName,
       ApplicantRoutes applicantRoutes) {
     this.layout = checkNotNull(layout);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.profileUtils = checkNotNull(profileUtils);
+    this.publicStorageClient = checkNotNull(publicStorageClient);
     this.authProviderName = checkNotNull(authProviderName);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.zoneId = checkNotNull(zoneId);
@@ -430,6 +437,8 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
+    Optional<ImgTag> programImage = createProgramImage(request, program);
+
     ContainerTag title =
         nestedUnderSubheading
             ? h4().withId(baseId + "-title")
@@ -451,7 +460,9 @@ public final class ProgramIndexView extends BaseHtmlView {
             .with(descriptionContent);
 
     DivTag programData =
-        div().withId(baseId + "-data").withClasses("w-full", "px-4", "overflow-auto");
+        div()
+            .withId(baseId + "-data")
+            .withClasses("w-full", "px-4", "pt-4", "h-56", "overflow-auto");
     if (cardData.latestSubmittedApplicationStatus().isPresent()) {
       programData.with(
           programCardApplicationStatus(
@@ -516,18 +527,42 @@ public final class ProgramIndexView extends BaseHtmlView {
             "aria-label",
             messages.at(
                 buttonSrText.getKeyName(), program.localizedName().getOrDefault(preferredLocale)))
-        .withClasses(ReferenceClasses.APPLY_BUTTON, ButtonStyles.SOLID_BLUE_TEXT_SM, "mx-auto");
+        .withClasses(ReferenceClasses.APPLY_BUTTON, ButtonStyles.SOLID_BLUE_TEXT_SM);
 
-    DivTag actionDiv = div(content).withClasses("w-full", "mb-6", "flex-grow", "flex", "items-end");
-    return li().withId(baseId)
-        .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
-        .with(
-            // The visual bar at the top of each program card.
-            div()
-                .withClasses(
-                    "block", "shrink-0", BaseStyles.BG_SEATTLE_BLUE, "rounded-t-xl", "h-3"))
-        .with(programData)
-        .with(actionDiv);
+    DivTag actionDiv =
+        div(content).withClasses("mt-4", "mb-6", "flex", "items-center", "justify-center");
+    LiTag cardListItem =
+        li().withId(baseId)
+            .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
+            .with(
+                // The visual bar at the top of each program card.
+                div()
+                    .withClasses(
+                        "block", "shrink-0", BaseStyles.BG_SEATTLE_BLUE, "rounded-t-xl", "h-3"));
+    programImage.ifPresent(cardListItem::with);
+
+    return cardListItem.with(programData).with(actionDiv);
+  }
+
+  private Optional<ImgTag> createProgramImage(Http.Request request, ProgramDefinition program) {
+    if (!settingsManifest.getProgramCardImages(request)) {
+      return Optional.empty();
+    }
+    if (program.summaryImageFileKey().isEmpty()) {
+      return Optional.empty();
+    }
+    String summaryImageFileKey = program.summaryImageFileKey().get();
+    if (!PublicFileNameFormatter.isFileKeyForPublicProgramImage(summaryImageFileKey)) {
+      return Optional.empty();
+    }
+    // TODO(#5676): Can we detect if the image URL is invalid and then not show it?
+    // TODO(#5676): Include a placeholder while the image is loading.
+
+    return Optional.of(
+        img()
+            .withSrc(publicStorageClient.getPublicDisplayUrl(program.summaryImageFileKey().get()))
+            .withClasses("w-full", "aspect-video", "object-cover", "rounded-b-lg"));
+    // TODO(#5676): Add alt-text to image.
   }
 
   /**
