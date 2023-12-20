@@ -6,6 +6,7 @@ import auth.CiviFormProfile;
 import auth.ProfileFactory;
 import com.google.inject.Inject;
 import io.prometheus.client.Counter;
+import java.util.Optional;
 import play.api.mvc.Call;
 import services.settings.SettingsManifest;
 
@@ -129,6 +130,28 @@ public final class ApplicantRoutes {
       return routes.ApplicantProgramReviewController.submitWithApplicantId(applicantId, programId);
     } else {
       return routes.ApplicantProgramReviewController.submit(programId);
+    }
+  }
+
+  /**
+   * Returns the route corresponding to the applicant block edit action.
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programId - ID of program to review
+   * @return Route for the applicant block edit action
+   */
+  public Call blockEdit(
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String blockId,
+      Optional<String> questionName) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramBlocksController.editWithApplicantId(
+          applicantId, programId, blockId, questionName);
+    } else {
+      return routes.ApplicantProgramBlocksController.edit(programId, blockId, questionName);
     }
   }
 }
