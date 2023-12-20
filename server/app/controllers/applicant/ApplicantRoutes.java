@@ -154,4 +154,26 @@ public final class ApplicantRoutes {
       return routes.ApplicantProgramBlocksController.edit(programId, blockId, questionName);
     }
   }
+
+  /**
+   * Returns the route corresponding to the applicant block review action.
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programId - ID of program to review
+   * @return Route for the applicant block review action
+   */
+  public Call blockReview(
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String blockId,
+      Optional<String> questionName) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramBlocksController.reviewWithApplicantId(
+          applicantId, programId, blockId, questionName);
+    } else {
+      return routes.ApplicantProgramBlocksController.review(programId, blockId, questionName);
+    }
+  }
 }

@@ -183,15 +183,46 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *
    * <p>`review` takes the applicant to the first incomplete block. If there are no more blocks,
    * summary page is shown.
+   *
+   * <p>`questionName` is present when answering a question or reviewing an answer.
    */
   @Secure
-  public CompletionStage<Result> review(
+  public CompletionStage<Result> reviewWithApplicantId(
       Request request,
       long applicantId,
       long programId,
       String blockId,
       Optional<String> questionName) {
     return editOrReview(request, applicantId, programId, blockId, true, questionName);
+  }
+
+  /**
+   * Renders all questions in the block of the program and presents to the applicant.
+   *
+   * <p>The difference between `edit` and `review` is the next block the applicant will see after
+   * submitting the answers.
+   *
+   * <p>`review` takes the applicant to the first incomplete block. If there are no more blocks,
+   * summary page is shown.
+   *
+   * <p>`questionName` is present when answering a question or reviewing an answer.
+   */
+  @Secure
+  public CompletionStage<Result> review(
+      Request request, long programId, String blockId, Optional<String> questionName) {
+    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
+      // This route is only operative for the new URL schema, so send the user home.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    Optional<Long> applicantId = getApplicantId(request);
+    if (applicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+    return reviewWithApplicantId(
+        request, applicantId.orElseThrow(), programId, blockId, questionName);
   }
 
   /** Handles the applicant's selection from the address correction options. */
@@ -658,7 +689,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return supplyAsync(
           () ->
               redirect(
-                      routes.ApplicantProgramBlocksController.review(
+                      applicantRoutes.blockReview(
+                          profile,
                           applicantId,
                           programId,
                           nextBlockIdMaybe.get(),

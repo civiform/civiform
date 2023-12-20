@@ -12,7 +12,6 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.ApplicantRoutes;
-import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
 import java.time.LocalDate;
@@ -237,8 +236,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     if (data.isAnswered()) {
       editElement
           .setHref(
-              routes.ApplicantProgramBlocksController.review(
-                      applicantId, data.programId(), data.blockId(), questionName)
+              applicantRoutes
+                  .blockReview(profile, applicantId, data.programId(), data.blockId(), questionName)
                   .url())
           .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
           .setIcon(Icons.EDIT, LinkElement.IconPosition.START);
