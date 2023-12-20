@@ -10,7 +10,6 @@ import static j2html.TagCreator.label;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.ApplicantRoutes;
-import controllers.applicant.routes;
 import j2html.TagCreator;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
@@ -92,8 +91,13 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
       ImmutableList<AddressSuggestion> suggestions,
       Boolean isEligibilityEnabled) {
     String formAction =
-        routes.ApplicantProgramBlocksController.confirmAddress(
-                params.applicantId(), params.programId(), params.block().getId(), params.inReview())
+        applicantRoutes
+            .confirmAddress(
+                params.profile(),
+                params.applicantId(),
+                params.programId(),
+                params.block().getId(),
+                params.inReview())
             .url();
 
     FormTag form =

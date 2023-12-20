@@ -139,6 +139,8 @@ public final class ApplicantRoutes {
    * @param profile - Profile corresponding to the logged-in user (applicant or TI).
    * @param applicantId - ID of applicant for whom the action should be performed.
    * @param programId - ID of program to review
+   * @param blockId - ID of the block to edit
+   * @param questionName - Name of question being edited, if applicable
    * @return Route for the applicant block edit action
    */
   public Call blockEdit(
@@ -161,6 +163,8 @@ public final class ApplicantRoutes {
    * @param profile - Profile corresponding to the logged-in user (applicant or TI).
    * @param applicantId - ID of applicant for whom the action should be performed.
    * @param programId - ID of program to review
+   * @param blockId - ID of block to review
+   * @param questionName - Name of the question being reviewed, if applicable.
    * @return Route for the applicant block review action
    */
   public Call blockReview(
@@ -174,6 +178,26 @@ public final class ApplicantRoutes {
           applicantId, programId, blockId, questionName);
     } else {
       return routes.ApplicantProgramBlocksController.review(programId, blockId, questionName);
+    }
+  }
+
+  /**
+   * Returns the route corresponding to the applicant confirm address action.
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programId - ID of program to review
+   * @param blockId - ID of the block containing the address
+   * @param inReview - true if executing the review action (as opposed to edit)
+   * @return Route for the applicant confirm address action
+   */
+  public Call confirmAddress(
+      CiviFormProfile profile, long applicantId, long programId, String blockId, boolean inReview) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
+          applicantId, programId, blockId, inReview);
+    } else {
+      return routes.ApplicantProgramBlocksController.confirmAddress(programId, blockId, inReview);
     }
   }
 }
