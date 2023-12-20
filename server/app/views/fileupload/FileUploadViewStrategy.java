@@ -1,10 +1,14 @@
 package views.fileupload;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.input;
+import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FooterTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
@@ -42,6 +46,20 @@ public abstract class FileUploadViewStrategy {
   /** Creates a list of footer tags needed on a page rendering a file upload form. */
   public ImmutableList<FooterTag> footerTags() {
     return extraScriptTags().stream().map(TagCreator::footer).collect(toImmutableList());
+  }
+
+  /** Creates a <input type="file"> element that uses the USWDS file input UI component. */
+  public DivTag createUswdsFileInputFormElement(String acceptedMimeTypes, String hintText) {
+    return div()
+        .withClasses("usa-form-group", "mb-2")
+        .with(span(hintText).withId("file-input-hint").withClass("usa-hint"))
+        .with(
+            input()
+                .withType("file")
+                .withName("file")
+                .withClasses("usa-file-input")
+                .attr("aria-describedby", "file-input-hint")
+                .withAccept(acceptedMimeTypes));
   }
 
   /**

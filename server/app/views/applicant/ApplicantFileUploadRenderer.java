@@ -24,7 +24,6 @@ import services.applicant.question.FileUploadQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.StorageUploadRequest;
 import views.ApplicationBaseView;
-import views.admin.programs.ProgramImageView;
 import views.components.ButtonStyles;
 import views.fileupload.FileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererFactory;
@@ -150,7 +149,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
    * Creates the <input type="file"> element needed for the file upload <form>.
    *
    * <p>Note: This likely could be migrated to use the USWDS file input component instead -- see
-   * {@link ProgramImageView#createFileInputFormElement()}.
+   * {@link FileUploadViewStrategy#createUswdsFileInputFormElement}.
    *
    * @param fileInputId an ID associated with the file <input> field. Can be used to associate
    *     custom screen reader functionality with the file input.

@@ -4,8 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.img;
-import static j2html.TagCreator.input;
-import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -128,7 +126,11 @@ public final class ProgramImageView extends BaseHtmlView {
             .withId(IMAGE_FILE_UPLOAD_FORM_ID);
     ImmutableList<InputTag> additionalFileUploadFormInputs =
         fileUploadViewStrategy.additionalFileUploadFormInputs(Optional.of(storageUploadRequest));
-    DivTag fileInputElement = createFileInputFormElement();
+    DivTag fileInputElement =
+        fileUploadViewStrategy.createUswdsFileInputFormElement(
+            /* acceptedMimeTypes= */ MIME_TYPES_IMAGES,
+            // TODO(#5676): Get final copy for the size warning message.
+            /* hintText= */ "File size must be at most 1 MB.");
     FormTag fullForm =
         form.with(additionalFileUploadFormInputs)
             // It's critical that the "file" field be the last input element for the form since S3
@@ -155,24 +157,6 @@ public final class ProgramImageView extends BaseHtmlView {
     String onSuccessRedirectUrl =
         baseUrl + routes.AdminProgramImageController.updateFileKey(program.id()).url();
     return publicStorageClient.getSignedUploadRequest(key, onSuccessRedirectUrl);
-  }
-
-  /** Creates the <input type="file"> element needed for admins to upload program images. */
-  private DivTag createFileInputFormElement() {
-    return div()
-        .withClasses("usa-form-group", "mb-2")
-        .with(
-            // TODO(#5676): Get final copy for the size warning message.
-            span("File size must be at most 1 MB.")
-                .withId("file-input-size-hint")
-                .withClass("usa-hint"))
-        .with(
-            input()
-                .withType("file")
-                .withName("file")
-                .withClasses("usa-file-input")
-                .attr("aria-describedby", "file-input-size-hint")
-                .withAccept(MIME_TYPES_IMAGES));
   }
 
   private DivTag renderCurrentImage(ProgramDefinition program) {
