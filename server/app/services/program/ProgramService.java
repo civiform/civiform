@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import controllers.BadRequestException;
 import forms.BlockForm;
@@ -226,9 +225,9 @@ public final class ProgramService {
   private CompletionStage<ProgramDefinition> syncProgramAssociations(ProgramModel program) {
     VersionModel activeVersion = versionRepository.getActiveVersion();
     VersionModel maxVersionForProgram =
-      programRepository.getVersionsForProgram(program).stream()
-        .max(Comparator.comparingLong(p -> p.id))
-        .orElseThrow();
+        programRepository.getVersionsForProgram(program).stream()
+            .max(Comparator.comparingLong(p -> p.id))
+            .orElseThrow();
     // If the max version is greater than the active version, it is a draft
     if (maxVersionForProgram.id > activeVersion.id) {
       // This method makes multiple calls to get questions for the active and
@@ -1652,9 +1651,9 @@ public final class ProgramService {
    */
   private CompletionStage<ProgramDefinition> syncProgramDefinitionQuestions(
       ProgramDefinition programDefinition) {
-    // Note: This method is also used for non question updates.  We should
-    // have a focused method for that because getReadOnlyQuestionService() makes
-    // multiple calls to get question data for the active and draft versions.
+    // Note: This method is also used for non question updates.
+    // TODO(#6249) We should have a focused method for that because getReadOnlyQuestionService()
+    // makes multiple calls to get question data for the active and draft versions.
     return questionService
         .getReadOnlyQuestionService()
         .thenApplyAsync(
