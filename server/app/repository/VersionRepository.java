@@ -18,6 +18,7 @@ import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -61,6 +62,7 @@ public final class VersionRepository {
       new QueryProfileLocationBuilder("VersionRepository");
   private final Database database;
   private final ProgramRepository programRepository;
+  private final QuestionRepository questionRepository;
   private final DatabaseExecutionContext databaseExecutionContext;
   private final SettingsManifest settingsManifest;
   private final SyncCacheApi questionsByVersionCache;
@@ -71,6 +73,7 @@ public final class VersionRepository {
   @Inject
   public VersionRepository(
       ProgramRepository programRepository,
+      QuestionRepository questionRepository,
       DatabaseExecutionContext databaseExecutionContext,
       SettingsManifest settingsManifest,
       @NamedCache("version-questions") SyncCacheApi questionsByVersionCache,
@@ -79,6 +82,7 @@ public final class VersionRepository {
       @NamedCache("program-versions") SyncCacheApi versionsByProgramCache) {
     this.database = DB.getDefault();
     this.programRepository = checkNotNull(programRepository);
+    this.questionRepository = checkNotNull(questionRepository);
     this.databaseExecutionContext = checkNotNull(databaseExecutionContext);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.questionsByVersionCache = checkNotNull(questionsByVersionCache);
@@ -440,7 +444,7 @@ public final class VersionRepository {
   /** Returns the names of all the questions for a particular version. */
   public ImmutableSet<String> getQuestionNamesForVersion(VersionModel version) {
     return getQuestionsForVersion(version).stream()
-        .map(QuestionModel::getQuestionDefinition)
+        .map(q -> questionRepository.getQuestionDefinition(q))
         .map(QuestionDefinition::getName)
         .collect(ImmutableSet.toImmutableSet());
   }
@@ -451,7 +455,7 @@ public final class VersionRepository {
    */
   public Optional<QuestionModel> getQuestionByNameForVersion(String name, VersionModel version) {
     return getQuestionsForVersion(version).stream()
-        .filter(q -> q.getQuestionDefinition().getName().equals(name))
+        .filter(q -> questionRepository.getQuestionDefinition(q).getName().equals(name))
         .findAny();
   }
 
@@ -468,6 +472,19 @@ public final class VersionRepository {
           String.valueOf(version.id), () -> version.getQuestions());
     }
     return getQuestionsForVersionWithoutCache(version);
+  }
+
+  public ImmutableList<QuestionDefinition> getQuestionDefinitionsForVersion(VersionModel version) {
+    return getQuestionsForVersion(version).stream()
+        .map(q -> questionRepository.getQuestionDefinition(q))
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  public ImmutableList<QuestionDefinition> getQuestionDefinitionsForVersion(
+      Optional<VersionModel> maybeVersion) {
+    return getQuestionsForVersion(maybeVersion).stream()
+        .map(q -> questionRepository.getQuestionDefinition(q))
+        .collect(ImmutableList.toImmutableList());
   }
 
   /** Returns the questions for a version if the version is present. */
@@ -565,13 +582,20 @@ public final class VersionRepository {
             .findSingleAttribute();
     Optional<QuestionModel> draftQuestion =
         getQuestionsForVersion(getDraftVersion()).stream()
-            .filter(question -> question.getQuestionDefinition().getName().equals(questionName))
+            .filter(
+                question ->
+                    questionRepository
+                        .getQuestionDefinition(question)
+                        .getName()
+                        .equals(questionName))
             .findFirst();
     if (draftQuestion.isPresent()) {
       return draftQuestion;
     }
     return getQuestionsForVersion(getActiveVersion()).stream()
-        .filter(question -> question.getQuestionDefinition().getName().equals(questionName))
+        .filter(
+            question ->
+                questionRepository.getQuestionDefinition(question).getName().equals(questionName))
         .findFirst();
   }
 
@@ -612,9 +636,15 @@ public final class VersionRepository {
         .anyMatch(draftQuestion -> draftQuestion.id.equals(question.id));
   }
 
-  /** Returns true if the program is a member of the current draft version. */
+  /** Returns true if the program contains a version in draft. */
   public boolean isDraft(ProgramModel program) {
-    return isDraftProgram(program.id);
+    VersionModel activeVersion = getActiveVersion();
+    VersionModel maxVersionForProgram =
+        programRepository.getVersionsForProgram(program).stream()
+            .max(Comparator.comparingLong(p -> p.id))
+            .orElseThrow();
+    // If the max version is less than the active version, it is a draft
+    return maxVersionForProgram.id > activeVersion.id;
   }
 
   /** Returns true if the program with the provided id is a member of the current draft version. */
@@ -640,7 +670,7 @@ public final class VersionRepository {
     removeCacheForVersion(String.valueOf(activeVersion.id));
     ImmutableList<QuestionDefinition> newActiveQuestions =
         getQuestionsForVersionWithoutCache(activeVersion).stream()
-            .map(question -> question.getQuestionDefinition())
+            .map(question -> questionRepository.getQuestionDefinition(question))
             .collect(ImmutableList.toImmutableList());
     // Check there aren't any duplicate questions in the new active version
     validateNoDuplicateQuestions(newActiveQuestions);
@@ -840,7 +870,7 @@ public final class VersionRepository {
    */
   private ImmutableMap<Long, String> getQuestionIdToNameMap(VersionModel version) {
     return getQuestionsForVersion(version).stream()
-        .map(QuestionModel::getQuestionDefinition)
+        .map(q -> questionRepository.getQuestionDefinition(q))
         .collect(
             ImmutableMap.toImmutableMap(QuestionDefinition::getId, QuestionDefinition::getName));
   }

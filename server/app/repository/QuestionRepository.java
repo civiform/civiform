@@ -21,9 +21,12 @@ import javax.inject.Provider;
 import models.QuestionModel;
 import models.QuestionTag;
 import models.VersionModel;
+import play.cache.NamedCache;
+import play.cache.SyncCacheApi;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.settings.SettingsManifest;
 
 /**
  * QuestionRepository performs complicated operations on {@link QuestionModel} that often involve
@@ -36,14 +39,20 @@ public final class QuestionRepository {
   private final Database database;
   private final DatabaseExecutionContext executionContext;
   private final Provider<VersionRepository> versionRepositoryProvider;
+  private final SettingsManifest settingsManifest;
+  private final SyncCacheApi questionDefCache;
 
   @Inject
   public QuestionRepository(
       DatabaseExecutionContext executionContext,
-      Provider<VersionRepository> versionRepositoryProvider) {
+      Provider<VersionRepository> versionRepositoryProvider,
+      SettingsManifest settingsManifest,
+      @NamedCache("questionDefinition") SyncCacheApi questionDefCache) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
     this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.questionDefCache = checkNotNull(questionDefCache);
   }
 
   public CompletionStage<Set<QuestionModel>> listQuestions() {
@@ -55,6 +64,15 @@ public final class QuestionRepository {
                 .setProfileLocation(queryProfileLocationBuilder.create("listQuestions"))
                 .findSet(),
         executionContext);
+  }
+
+  public QuestionDefinition getQuestionDefinition(QuestionModel question) {
+    if (settingsManifest.getQuestionCacheEnabled()
+        && !versionRepositoryProvider.get().isDraft(question)) {
+      return questionDefCache.getOrElseUpdate(
+          String.valueOf(question.id), () -> question.getQuestionDefinition());
+    }
+    return question.getQuestionDefinition();
   }
 
   public CompletionStage<Optional<QuestionModel>> lookupQuestion(long id) {
@@ -208,8 +226,8 @@ public final class QuestionRepository {
         .findList()
         .stream()
         .filter(question -> activeQuestionIds.contains(question.id))
-        .sorted(Comparator.comparing(question -> question.getQuestionDefinition().getName()))
-        .map(QuestionModel::getQuestionDefinition)
+        .sorted(Comparator.comparing(question -> getQuestionDefinition(question).getName()))
+        .map(q -> getQuestionDefinition(q))
         .collect(ImmutableList.toImmutableList());
   }
 
@@ -228,7 +246,7 @@ public final class QuestionRepository {
         .asc("id")
         .findList()
         .stream()
-        .map(QuestionModel::getQuestionDefinition)
+        .map(q -> getQuestionDefinition(q))
         .collect(
             ImmutableMap.toImmutableMap(
                 QuestionDefinition::getName,
