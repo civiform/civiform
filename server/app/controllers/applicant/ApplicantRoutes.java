@@ -6,6 +6,7 @@ import auth.CiviFormProfile;
 import auth.ProfileFactory;
 import com.google.inject.Inject;
 import io.prometheus.client.Counter;
+import java.util.Optional;
 import play.api.mvc.Call;
 import services.settings.SettingsManifest;
 
@@ -80,6 +81,77 @@ public final class ApplicantRoutes {
       // id or an alphanum slug, we must pass the parameter as the more general type.
       return controllers.applicant.routes.ApplicantProgramsController.show(
           String.valueOf(programId));
+    }
+  }
+
+  /**
+   * Returns the route corresponding to the applicant edit action.
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programId - ID of program to edit
+   * @return Route for the applicant edit action
+   */
+  public Call edit(CiviFormProfile profile, long applicantId, long programId) {
+    if (includeApplicantIdInRoute(profile)) {
+      return controllers.applicant.routes.ApplicantProgramsController.editWithApplicantId(
+          applicantId, programId);
+    } else {
+      return routes.ApplicantProgramsController.edit(programId);
+    }
+  }
+
+  /**
+   * Returns the route corresponding to the applicant review action.
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programId - ID of program to review
+   * @return Route for the applicant review action
+   */
+  public Call review(CiviFormProfile profile, long applicantId, long programId) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramReviewController.reviewWithApplicantId(applicantId, programId);
+    } else {
+      return routes.ApplicantProgramReviewController.review(programId);
+    }
+  }
+
+  /**
+   * Returns the route corresponding to the applicant submit action.
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programId - ID of program to review
+   * @return Route for the applicant submit action
+   */
+  public Call submit(CiviFormProfile profile, long applicantId, long programId) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramReviewController.submitWithApplicantId(applicantId, programId);
+    } else {
+      return routes.ApplicantProgramReviewController.submit(programId);
+    }
+  }
+
+  /**
+   * Returns the route corresponding to the applicant block edit action.
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programId - ID of program to review
+   * @return Route for the applicant block edit action
+   */
+  public Call blockEdit(
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String blockId,
+      Optional<String> questionName) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramBlocksController.editWithApplicantId(
+          applicantId, programId, blockId, questionName);
+    } else {
+      return routes.ApplicantProgramBlocksController.edit(programId, blockId, questionName);
     }
   }
 }

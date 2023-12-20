@@ -8,7 +8,6 @@ import static j2html.TagCreator.p;
 
 import auth.CiviFormProfile;
 import controllers.applicant.ApplicantRoutes;
-import controllers.applicant.routes;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -64,8 +63,11 @@ public final class PreventDuplicateSubmissionView extends ApplicationBaseView {
                         redirectButton(
                                 "continue-editing-button",
                                 messages.at(MessageKey.BUTTON_CONTINUE_EDITING.getKeyName()),
-                                routes.ApplicantProgramReviewController.review(
-                                        applicantId, roApplicantProgramService.getProgramId())
+                                applicantRoutes
+                                    .review(
+                                        profile,
+                                        applicantId,
+                                        roApplicantProgramService.getProgramId())
                                     .url())
                             .withClasses(ButtonStyles.SOLID_BLUE),
                         redirectButton(

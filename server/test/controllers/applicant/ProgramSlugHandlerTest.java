@@ -64,7 +64,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation())
         .contains(
             controllers.applicant.routes.ApplicantProgramReviewController.review(
-                    applicant.id, programDefinition.id())
+                    programDefinition.id())
                 .url());
   }
 
@@ -148,13 +148,14 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   public void programBySlug_testLanguageSelectorNotShownOneLanguage() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    ApplicantModel applicant = createApplicantWithMockedProfile();
+    createApplicantWithMockedProfile();
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     LanguageUtils languageUtils =
         new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
     CiviFormController controller = instanceOf(CiviFormController.class);
+    ApplicantRoutes applicantRoutes = instanceOf(ApplicantRoutes.class);
 
     ProgramSlugHandler handler =
         new ProgramSlugHandler(
@@ -162,7 +163,8 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ApplicantService.class),
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramService.class),
-            languageUtils);
+            languageUtils,
+            applicantRoutes);
     Result result =
         handler
             .showProgram(
@@ -174,7 +176,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation())
         .contains(
             controllers.applicant.routes.ApplicantProgramReviewController.review(
-                    applicant.id, programDefinition.id())
+                    programDefinition.id())
                 .url());
   }
 
@@ -182,13 +184,14 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   public void programBySlug_testLanguageSelectorNotShownNoLanguage() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    ApplicantModel applicant = createApplicantWithMockedProfile();
+    createApplicantWithMockedProfile();
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of());
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     LanguageUtils languageUtils =
         new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
     CiviFormController controller = instanceOf(CiviFormController.class);
+    ApplicantRoutes applicantRoutes = instanceOf(ApplicantRoutes.class);
 
     ProgramSlugHandler handler =
         new ProgramSlugHandler(
@@ -196,7 +199,8 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ApplicantService.class),
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramService.class),
-            languageUtils);
+            languageUtils,
+            applicantRoutes);
     Result result =
         handler
             .showProgram(
@@ -208,7 +212,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation())
         .contains(
             controllers.applicant.routes.ApplicantProgramReviewController.review(
-                    applicant.id, programDefinition.id())
+                    programDefinition.id())
                 .url());
   }
 }

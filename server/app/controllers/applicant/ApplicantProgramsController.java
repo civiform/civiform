@@ -45,6 +45,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final ApplicantProgramInfoView programInfoView;
   private final SettingsManifest settingsManifest;
   private final ProgramSlugHandler programSlugHandler;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public ApplicantProgramsController(
@@ -56,7 +57,8 @@ public final class ApplicantProgramsController extends CiviFormController {
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
       SettingsManifest settingsManifest,
-      ProgramSlugHandler programSlugHandler) {
+      ProgramSlugHandler programSlugHandler,
+      ApplicantRoutes applicantRoutes) {
     super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
@@ -65,6 +67,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.programInfoView = checkNotNull(programInfoView);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programSlugHandler = checkNotNull(programSlugHandler);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   @Secure
@@ -157,7 +160,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                       .map(ApplicantProgramData::program)
                       .filter(program -> program.id() == programId)
                       .findFirst();
-
+              CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
               if (programDefinition.isPresent()) {
                 return ok(
                     programInfoView.render(
@@ -165,7 +168,8 @@ public final class ApplicantProgramsController extends CiviFormController {
                         programDefinition.get(),
                         request,
                         applicantId,
-                        applicantStage.toCompletableFuture().join()));
+                        applicantStage.toCompletableFuture().join(),
+                        profile));
               }
               return badRequest();
             },
@@ -213,7 +217,8 @@ public final class ApplicantProgramsController extends CiviFormController {
   }
 
   @Secure
-  public CompletionStage<Result> edit(Request request, long applicantId, long programId) {
+  public CompletionStage<Result> editWithApplicantId(
+      Request request, long applicantId, long programId) {
     Optional<CiviFormProfile> requesterProfile = profileUtils.currentUserProfile(request);
 
     // If the user doesn't have a profile, send them home.
@@ -229,11 +234,13 @@ public final class ApplicantProgramsController extends CiviFormController {
         .thenApplyAsync(
             roApplicantService -> {
               Optional<Block> blockMaybe = roApplicantService.getFirstIncompleteOrStaticBlock();
+              CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
               return blockMaybe.flatMap(
                   block ->
                       Optional.of(
                           found(
-                              routes.ApplicantProgramBlocksController.edit(
+                              applicantRoutes.blockEdit(
+                                  profile,
                                   applicantId,
                                   programId,
                                   block.getId(),
@@ -243,11 +250,9 @@ public final class ApplicantProgramsController extends CiviFormController {
         .thenComposeAsync(
             resultMaybe -> {
               if (resultMaybe.isEmpty()) {
+                CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
                 return supplyAsync(
-                    () ->
-                        redirect(
-                            routes.ApplicantProgramReviewController.review(
-                                applicantId, programId)));
+                    () -> redirect(applicantRoutes.review(profile, applicantId, programId)));
               }
               return supplyAsync(resultMaybe::get);
             },
@@ -268,5 +273,21 @@ public final class ApplicantProgramsController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
+  }
+
+  @Secure
+  public CompletionStage<Result> edit(Request request, long programId) {
+    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
+      // This route is only operative for the new URL schema, so send the user home.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    Optional<Long> applicantId = getApplicantId(request);
+    if (applicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+    return editWithApplicantId(request, applicantId.orElseThrow(), programId);
   }
 }

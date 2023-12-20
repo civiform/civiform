@@ -279,10 +279,14 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                        routes.ApplicantProgramReviewController.review(applicantId, programId))
+                        routes.ApplicantProgramReviewController.reviewWithApplicantId(
+                            applicantId, programId))
                     .header(skipUserProfile, shouldSkipUserProfile.toString()))
             .build();
-    return subject.review(request, applicantId, programId).toCompletableFuture().join();
+    return subject
+        .reviewWithApplicantId(request, applicantId, programId)
+        .toCompletableFuture()
+        .join();
   }
 
   public Result submit(long applicantId, long programId) {
@@ -290,10 +294,14 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                        routes.ApplicantProgramReviewController.submit(applicantId, programId))
+                        routes.ApplicantProgramReviewController.submitWithApplicantId(
+                            applicantId, programId))
                     .header(skipUserProfile, shouldSkipUserProfile.toString()))
             .build();
-    return subject.submit(request, applicantId, programId).toCompletableFuture().join();
+    return subject
+        .submitWithApplicantId(request, applicantId, programId)
+        .toCompletableFuture()
+        .join();
   }
 
   private void answer(long programId) {

@@ -87,7 +87,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
-  public CompletionStage<Result> review(Request request, long applicantId, long programId) {
+  @Secure
+  public CompletionStage<Result> reviewWithApplicantId(
+      Request request, long applicantId, long programId) {
     Optional<CiviFormProfile> submittingProfile = profileUtils.currentUserProfile(request);
 
     // If the user isn't already logged in within their browser session, send them home.
@@ -135,7 +137,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           ImmutableList.of(flashBanner, flashSuccessBanner, notEligibleBanner))
                       .setMessages(messages)
                       .setProgramId(programId)
-                      .setRequest(request);
+                      .setRequest(request)
+                      .setProfile(
+                          submittingProfile.orElseThrow(
+                              () -> new MissingOptionalException(CiviFormProfile.class)));
 
               // Show a login prompt on the review page if we were redirected from a program slug
               // and user is a guest.
@@ -179,12 +184,32 @@ public class ApplicantProgramReviewController extends CiviFormController {
             });
   }
 
+  @Secure
+  public CompletionStage<Result> review(Request request, long programId) {
+    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
+      // This route is only operative for the new URL schema, so send the user home.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    Optional<Long> applicantId = getApplicantId(request);
+    if (applicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+    return reviewWithApplicantId(
+        request,
+        applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)),
+        programId);
+  }
+
   /**
    * Handles application submission. For applicants, submits the application. For admins previewing
    * the program, does not submit the application and simply redirects to the program page.
    */
   @Secure
-  public CompletionStage<Result> submit(Request request, long applicantId, long programId) {
+  public CompletionStage<Result> submitWithApplicantId(
+      Request request, long applicantId, long programId) {
     Optional<CiviFormProfile> submittingProfile = profileUtils.currentUserProfile(request);
 
     // If the user isn't already logged in within their browser session, send them home.
@@ -212,6 +237,29 @@ public class ApplicantProgramReviewController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
+  }
+
+  /**
+   * Handles application submission. For applicants, submits the application. For admins previewing
+   * the program, does not submit the application and simply redirects to the program page.
+   */
+  @Secure
+  public CompletionStage<Result> submit(Request request, long programId) {
+    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
+      // This route is only operative for the new URL schema, so send the user home.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    Optional<Long> applicantId = getApplicantId(request);
+    if (applicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+    return submitWithApplicantId(
+        request,
+        applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)),
+        programId);
   }
 
   /** Returns true if eligibility is gating and the application is ineligible, false otherwise. */
@@ -271,7 +319,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 Throwable cause = ex.getCause();
                 if (cause instanceof ApplicationSubmissionException) {
                   Call reviewPage =
-                      routes.ApplicantProgramReviewController.review(applicantId, programId);
+                      applicantRoutes.review(submittingProfile, applicantId, programId);
                   String errorMsg =
                       messagesApi
                           .preferred(request)
@@ -284,7 +332,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           .preferred(request)
                           .at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName());
                   Call reviewPage =
-                      routes.ApplicantProgramReviewController.review(applicantId, programId);
+                      applicantRoutes.review(submittingProfile, applicantId, programId);
                   return redirect(reviewPage).flashing("error", errorMsg);
                 }
                 if (cause instanceof ApplicationNotEligibleException) {
@@ -316,10 +364,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           roApplicantProgramService,
                           messagesApi.preferred(request),
                           applicantId,
-                          profileUtils
-                              .currentUserProfile(request)
-                              .orElseThrow(
-                                  () -> new MissingOptionalException(CiviFormProfile.class))));
+                          profileUtils.currentUserProfileOrThrow(request)));
                 }
                 throw new RuntimeException(cause);
               }

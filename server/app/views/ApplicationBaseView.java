@@ -5,7 +5,9 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.span;
 
+import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
+import controllers.applicant.ApplicantRoutes;
 import controllers.applicant.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.PTag;
@@ -26,9 +28,9 @@ public class ApplicationBaseView extends BaseHtmlView {
   final String REVIEW_APPLICATION_BUTTON_ID = "review-application-button";
 
   protected ATag renderReviewButton(ApplicationBaseView.Params params) {
+    ApplicantRoutes applicantRoutes = params.applicantRoutes();
     String reviewUrl =
-        routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
-            .url();
+        applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
     return a().withHref(reviewUrl)
         .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
         .withId(REVIEW_APPLICATION_BUTTON_ID)
@@ -45,9 +47,9 @@ public class ApplicationBaseView extends BaseHtmlView {
                   params.applicantId(), params.programId(), previousBlockIndex, params.inReview())
               .url();
     } else {
+      ApplicantRoutes applicantRoutes = params.applicantRoutes();
       redirectUrl =
-          routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
-              .url();
+          applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
     }
     return a().withHref(redirectUrl)
         .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
@@ -95,6 +97,10 @@ public class ApplicationBaseView extends BaseHtmlView {
 
     public abstract Optional<String> applicantSelectedQuestionName();
 
+    public abstract ApplicantRoutes applicantRoutes();
+
+    public abstract CiviFormProfile profile();
+
     @AutoValue.Builder
     public abstract static class Builder {
       public abstract Builder setRequest(Http.Request request);
@@ -130,6 +136,10 @@ public class ApplicationBaseView extends BaseHtmlView {
       public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo personalInfo);
 
       public abstract Builder setApplicantSelectedQuestionName(Optional<String> questionName);
+
+      public abstract Builder setApplicantRoutes(ApplicantRoutes applicantRoutes);
+
+      public abstract Builder setProfile(CiviFormProfile profile);
 
       public abstract Params build();
     }

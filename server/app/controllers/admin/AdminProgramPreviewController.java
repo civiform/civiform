@@ -1,10 +1,12 @@
 package controllers.admin;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
-import java.util.Optional;
+import controllers.applicant.ApplicantRoutes;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
@@ -16,11 +18,15 @@ import repository.VersionRepository;
 
 /** Controller for admins previewing a program as an applicant. */
 public final class AdminProgramPreviewController extends CiviFormController {
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public AdminProgramPreviewController(
-      ProfileUtils profileUtils, VersionRepository versionRepository) {
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository,
+      ApplicantRoutes applicantRoutes) {
     super(profileUtils, versionRepository);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   /**
@@ -29,15 +35,10 @@ public final class AdminProgramPreviewController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result preview(Request request, long programId) {
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
-    if (profile.isEmpty()) {
-      throw new RuntimeException("Unable to resolve profile.");
-    }
+    CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
 
     try {
-      return redirect(
-          controllers.applicant.routes.ApplicantProgramReviewController.review(
-              profile.get().getApplicant().get().id, programId));
+      return redirect(applicantRoutes.review(profile, profile.getApplicant().get().id, programId));
     } catch (ExecutionException | InterruptedException e) {
       throw new RuntimeException(e);
     }

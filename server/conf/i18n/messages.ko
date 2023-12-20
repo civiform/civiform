@@ -47,6 +47,8 @@ button.guestLogin=게스트로 계속
 content.loginDisabledPrompt=계정 로그인이 현재 사용 중지됨
 content.adminLoginPrompt=다른 내용을 찾고 있나요?
 content.adminFooterPrompt=혜택 관리자이신가요?
+# Text at the bottom of the home page to prompt administrators to go to the administrator login page
+content.adminFooterPromptNew=Are you an administrator?
 link.adminLogin=관리자 로그인
 
 #--------------------------------------------------------------------------#
@@ -81,13 +83,23 @@ button.editCommonIntakeSr={0}에 대해 제출한 정보 수정
 button.continueCommonIntakeSr={0} 계속 작성
 content.submittedDate=제출 날짜: {0}
 content.benefits=혜택 받기
+# Title of the page where applicants can go to find programs
+content.findPrograms=Find programs
 content.description=CiviForm을 통해 {0}에서 받을 수 있는 혜택을 확인해 보세요. 먼저 아래에서 신청서를 선택하세요.
+# Content that explains the benefit of using CiviForm. We'll fill in the name of the city or state.
+content.findProgramsDescription=CiviForm helps you find programs you may be eligible for in {0}. Get started by choosing an application below.
 content.saveTime=혜택을 신청할 때 시간을 절약해 보세요
+# Content on the home page to describe the benefit of CiviForm
+content.saveTimeServices=Save time applying for programs and services
 content.guestDescription={0} 계정에 로그인하거나 계정을 만들면 같은 정보를 다시 입력할 필요 없이 여러 가지 혜택을 신청할 수 있습니다. 언제든지 신청서를 수정하고 신청서 상태를 확인할 수도 있습니다.
+# Content explaining the benefits of creating an account, with the authentication provider filled in.
+content.guestDescriptionNew=Log in to your {0} account or create an account and apply to programs without having to enter the same information again. You can also edit applications at any time and check your application statuses.
 link.programDetails=프로그램 세부정보
 link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=프로그램 및 서비스
 title.findServicesSection=유용한 서비스 찾기
+# A section of the site that the users should start with
+title.getStartedSection=Get Started
 title.allProgramsSection=모든 프로그램({0})
 title.status=상태
 title.inProgressProgramsUpdated=진행 중
@@ -144,14 +156,30 @@ content.confirmed={0}에 신청해 주셔서 감사합니다. 신청을 접수�
 title.createAnAccount=계정 만들기 또는 로그인
 content.pleaseCreateAccount=시 계정에 로그인하면 정보가 저장되며 나중에 언제든지 돌아와서 신청서를 마저 작성할 수 있습니다. 아직 계정이 없다면 로그인 페이지에서 계정을 새로 등록할 수 있습니다. 이미 입력한 데이터는 그대로 유지됩니다.
 content.generalLoginModalPrompt=계정에 로그인되어 있지 않습니다. 계정이 없으면 신청서를 수정하거나, 신청서 상태를 확인하거나, 빠르게 다른 혜택을 신청할 수 없습니다.
+# Content explaining the benefits of being logged into your account.
+content.generalLoginModalPromptNew=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other programs quickly.
 content.initialLoginModalPrompt=계속하기 전에 {0} 계정에 로그인하거나 계정을 만드세요. 그러면 같은 정보를 다시 입력할 필요 없이 여러 가지 혜택을 신청할 수 있습니다. 신청서를 수정하고 신청서 상>태를 확인할 수도 있습니다.
+# Content explaining the benefits of being logged into your account, with {0} as the authentication provider.
+content.initialLoginModalPromptNew=Before you continue, log in to your {0} account or create an account. You''ll be able to apply for multiple programs without having to enter the same information again. You can also edit applications and check your application statuses.
 button.continueWithoutAnAccount=계정 없이 계속
 title.commonIntakeConfirmation=다음 혜택의 자격요건에 해당될 수 있습니다
+# Title of the section containing programs the applicant may qualify for.
+title.commonIntakeConfirmationNew=Programs you may qualify for
 title.commonIntakeConfirmationTi=고객이 다음 혜택의 자격요건에 해당될 수 있습니다
+# Title of the section containing programs the applicant may qualify for, when someone is filling out the application on behalf of their client.
+title.commonIntakeConfirmationTiNew=Programs your client may qualify for
 content.commonIntakeConfirmation='프로그램 신청'을 클릭하여 온라인으로 신청한 경우 이러한 혜택이 제공될 수도 있습니다.
+# Text explaining next steps in order to enroll in programs
+content.commonIntakeConfirmationNew=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
 content.commonIntakeConfirmationTi='프로그램 신청'을 클릭하여 온라인으로 신청한 경우 고객에게 이러한 혜택이 제공될 수도 있습니다.
+# Text explaining next steps in order to enroll in programs, when filling out the application on behalf of a client
+content.commonIntakeConfirmationTiNew=Your client may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
 content.commonIntakeNoMatchingPrograms=이번에는 사전 선별 과정에서 자격요건을 충족할 수도 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 혜택을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 추가로 받을 수 있는 혜택 프로그램을 확인할 수 있습니다.
+# Content explaining that the screener application couldn't find eligible programs, but allows users to find other programs through another website (substituted for {0})
+content.commonIntakeNoMatchingProgramsNew=The pre-screener could not find programs you may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
 content.commonIntakeNoMatchingProgramsTi=이번에는 사전 선별 과정에서 고객이 자격요건을 충족할 수도 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 혜택을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 추가로 받을 수 있는 혜택 프로그램을 확인할 수 있습니다.
+# Content explaining that the screener application couldn't find eligible programs, but allows users to find other programs on behalf of their client through another website (substituted for {0})
+content.commonIntakeNoMatchingProgramsTiNew=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
 content.commonIntakeNoMatchingProgramsNextStep=이전 페이지로 돌아가 응답을 수정할 수도 있습니다.
 button.downloadPdf=PDF 다운로드
 button.applyToPrograms=프로그램 신청

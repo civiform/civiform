@@ -487,10 +487,7 @@ public final class ProgramIndexView extends BaseHtmlView {
           programCardSubmittedDate(messages, cardData.latestSubmittedApplicationTime().get()));
     }
 
-    String actionUrl =
-        controllers.applicant.routes.ApplicantProgramReviewController.review(
-                applicantId, program.id())
-            .url();
+    String actionUrl = applicantRoutes.review(profile, applicantId, program.id()).url();
 
     Modal loginPromptModal =
         createLoginPromptModal(
