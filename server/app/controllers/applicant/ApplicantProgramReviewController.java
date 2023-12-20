@@ -364,10 +364,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           roApplicantProgramService,
                           messagesApi.preferred(request),
                           applicantId,
-                          profileUtils
-                              .currentUserProfile(request)
-                              .orElseThrow(
-                                  () -> new MissingOptionalException(CiviFormProfile.class))));
+                          profileUtils.currentUserProfileOrThrow(request)));
                 }
                 throw new RuntimeException(cause);
               }

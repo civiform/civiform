@@ -5,10 +5,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import auth.controllers.MissingOptionalException;
 import controllers.CiviFormController;
 import controllers.applicant.ApplicantRoutes;
-import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
@@ -37,17 +35,10 @@ public final class AdminProgramPreviewController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result preview(Request request, long programId) {
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
-    if (profile.isEmpty()) {
-      throw new RuntimeException("Unable to resolve profile.");
-    }
+    CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
 
     try {
-      return redirect(
-          applicantRoutes.review(
-              profile.orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class)),
-              profile.get().getApplicant().get().id,
-              programId));
+      return redirect(applicantRoutes.review(profile, profile.getApplicant().get().id, programId));
     } catch (ExecutionException | InterruptedException e) {
       throw new RuntimeException(e);
     }

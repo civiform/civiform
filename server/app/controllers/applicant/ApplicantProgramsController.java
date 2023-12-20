@@ -160,10 +160,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                       .map(ApplicantProgramData::program)
                       .filter(program -> program.id() == programId)
                       .findFirst();
-              CiviFormProfile profile =
-                  profileUtils
-                      .currentUserProfile(request)
-                      .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class));
+              CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
               if (programDefinition.isPresent()) {
                 return ok(
                     programInfoView.render(
@@ -237,10 +234,7 @@ public final class ApplicantProgramsController extends CiviFormController {
         .thenApplyAsync(
             roApplicantService -> {
               Optional<Block> blockMaybe = roApplicantService.getFirstIncompleteOrStaticBlock();
-              CiviFormProfile profile =
-                  profileUtils
-                      .currentUserProfile(request)
-                      .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class));
+              CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
               return blockMaybe.flatMap(
                   block ->
                       Optional.of(
@@ -256,14 +250,9 @@ public final class ApplicantProgramsController extends CiviFormController {
         .thenComposeAsync(
             resultMaybe -> {
               if (resultMaybe.isEmpty()) {
+                CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
                 return supplyAsync(
-                    () ->
-                        redirect(
-                            applicantRoutes.review(
-                                requesterProfile.orElseThrow(
-                                    () -> new MissingOptionalException(CiviFormProfile.class)),
-                                applicantId,
-                                programId)));
+                    () -> redirect(applicantRoutes.review(profile, applicantId, programId)));
               }
               return supplyAsync(resultMaybe::get);
             },

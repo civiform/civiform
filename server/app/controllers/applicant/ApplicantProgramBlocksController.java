@@ -7,7 +7,6 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -242,10 +241,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenComposeAsync(
             roApplicantProgramService -> {
               removeAddressJsonFromSession(request);
-              CiviFormProfile profile =
-                  profileUtils
-                      .currentUserProfile(request)
-                      .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class));
+              CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
               return renderErrorOrRedirectToNextBlock(
                   request,
                   profile,
@@ -286,10 +282,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 httpExecutionContext.current())
             .toCompletableFuture();
 
-    CiviFormProfile profile =
-        profileUtils
-            .currentUserProfile(request)
-            .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class));
+    CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
 
     CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
         applicantStage
@@ -373,10 +366,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
               if (block.isPresent()) {
                 ApplicantPersonalInfo personalInfo = applicantStage.toCompletableFuture().join();
-                CiviFormProfile profile =
-                    profileUtils
-                        .currentUserProfile(request)
-                        .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class));
+                CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
                 return ok(
                     editView.render(
                         applicationBaseViewParamsBuilder(
@@ -488,10 +478,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             httpExecutionContext.current())
         .thenComposeAsync(
             (roApplicantProgramService) -> {
-              CiviFormProfile profile =
-                  profileUtils
-                      .currentUserProfile(request)
-                      .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class));
+              CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
               return renderErrorOrRedirectToNextBlock(
                   request,
                   profile,
@@ -546,10 +533,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             httpExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService -> {
-              CiviFormProfile profile =
-                  profileUtils
-                      .currentUserProfile(request)
-                      .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class));
+              CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
               return renderErrorOrRedirectToNextBlock(
                   request,
                   profile,
@@ -735,10 +719,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Boolean isEligibilityEnabledOnThisBlock =
           thisBlockUpdated.getLeafAddressNodeServiceAreaIds().isPresent();
 
-      CiviFormProfile profile =
-          profileUtils
-              .currentUserProfile(request)
-              .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class));
+      CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
 
       return CompletableFuture.completedFuture(
           ok(addressCorrectionBlockView.render(
