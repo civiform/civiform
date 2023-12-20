@@ -538,8 +538,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
-        routes.ApplicantProgramBlocksController.editWithApplicantId(
-                applicant.id, program.id, /* blockId= */ "2", /* questionName= */ Optional.empty())
+        routes.ApplicantProgramBlocksController.edit(
+                program.id, /* blockId= */ "2", /* questionName= */ Optional.empty())
             .url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
   }
@@ -584,9 +584,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     // check that the address correction screen is skipped and the user is redirected to the review
     // screen
-    String reviewRoute =
-        routes.ApplicantProgramReviewController.reviewWithApplicantId(applicant.id, program.id)
-            .url();
+    String reviewRoute = routes.ApplicantProgramReviewController.review(program.id).url();
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
@@ -623,9 +621,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
-    String reviewRoute =
-        routes.ApplicantProgramReviewController.reviewWithApplicantId(applicant.id, program.id)
-            .url();
+    String reviewRoute = routes.ApplicantProgramReviewController.review(program.id).url();
 
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
   }
@@ -837,8 +833,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
-        routes.ApplicantProgramBlocksController.editWithApplicantId(
-                applicant.id, program.id, /* blockId= */ "2", /* questionName= */ Optional.empty())
+        routes.ApplicantProgramBlocksController.edit(
+                program.id, /* blockId= */ "2", /* questionName= */ Optional.empty())
             .url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
   }
@@ -870,9 +866,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
-    String reviewRoute =
-        routes.ApplicantProgramReviewController.reviewWithApplicantId(applicant.id, program.id)
-            .url();
+    String reviewRoute = routes.ApplicantProgramReviewController.review(program.id).url();
 
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
   }

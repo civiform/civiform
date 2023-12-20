@@ -63,8 +63,8 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     assertThat(result.redirectLocation())
         .contains(
-            controllers.applicant.routes.ApplicantProgramReviewController.reviewWithApplicantId(
-                    applicant.id, programDefinition.id())
+            controllers.applicant.routes.ApplicantProgramReviewController.review(
+                    programDefinition.id())
                 .url());
   }
 
@@ -148,7 +148,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   public void programBySlug_testLanguageSelectorNotShownOneLanguage() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    ApplicantModel applicant = createApplicantWithMockedProfile();
+    createApplicantWithMockedProfile();
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
@@ -175,8 +175,8 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             .join();
     assertThat(result.redirectLocation())
         .contains(
-            controllers.applicant.routes.ApplicantProgramReviewController.reviewWithApplicantId(
-                    applicant.id, programDefinition.id())
+            controllers.applicant.routes.ApplicantProgramReviewController.review(
+                    programDefinition.id())
                 .url());
   }
 
@@ -184,7 +184,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   public void programBySlug_testLanguageSelectorNotShownNoLanguage() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    ApplicantModel applicant = createApplicantWithMockedProfile();
+    createApplicantWithMockedProfile();
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of());
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
@@ -211,8 +211,8 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             .join();
     assertThat(result.redirectLocation())
         .contains(
-            controllers.applicant.routes.ApplicantProgramReviewController.reviewWithApplicantId(
-                    applicant.id, programDefinition.id())
+            controllers.applicant.routes.ApplicantProgramReviewController.review(
+                    programDefinition.id())
                 .url());
   }
 }
