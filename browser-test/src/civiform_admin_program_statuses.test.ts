@@ -82,6 +82,18 @@ describe('modify program statuses', () => {
       await dismissModal(page)
     })
 
+    it('fails to create status exceeding 35 character limit', async () => {
+      const {page, adminProgramStatuses} = ctx
+      await adminProgramStatuses.createStatus(
+        'looooooooooooooooooooooooooooooooooog',
+      )
+      await adminProgramStatuses.expectProgramManageStatusesPage(programName)
+      await adminProgramStatuses.expectCreateStatusModalWithError(
+        'This field is limited to 35 characters.',
+      )
+      await dismissModal(page)
+    })
+
     it('fails to create status with an existing name', async () => {
       const {page, adminProgramStatuses} = ctx
       await adminProgramStatuses.createStatus('Existing status')
