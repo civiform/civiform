@@ -10,7 +10,6 @@ import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
-import controllers.WithMockedProfiles;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import junitparams.JUnitParamsRunner;
@@ -20,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.program.ProgramDefinition;
@@ -28,21 +28,19 @@ import services.program.ProgramService;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
-public class AdminProgramImageControllerTest extends WithMockedProfiles {
+public class AdminProgramImageControllerTest extends ResetPostgres {
 
   private ProgramService programService;
   private AdminProgramImageController controller;
 
   @Before
   public void setup() {
-    resetDatabase();
     programService = instanceOf(ProgramService.class);
     controller = instanceOf(AdminProgramImageController.class);
   }
 
   @Test
   public void index_ok_get() throws ProgramNotFoundException {
-    createGlobalAdminWithMockedProfile();
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
 
     Result result = controller.index(addCSRFToken(fakeRequest().method("GET")).build(), program.id);
@@ -71,18 +69,7 @@ public class AdminProgramImageControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void index_noAdminProfile_throws() {
-    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
-
-    assertThatThrownBy(
-            () -> controller.index(addCSRFToken(fakeRequest().method("GET")).build(), program.id))
-        .isInstanceOf(RuntimeException.class);
-  }
-
-  @Test
   public void index_programHasDescription_displayed() throws ProgramNotFoundException {
-    createGlobalAdminWithMockedProfile();
-
     ProgramModel program =
         ProgramBuilder.newDraftProgram("test name")
             .setLocalizedSummaryImageDescription(

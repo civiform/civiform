@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.p;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -17,6 +18,7 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LiTag;
 import java.time.ZoneId;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import play.data.Form;
@@ -67,8 +69,8 @@ public final class ProgramImageView extends BaseHtmlView {
       FormFactory formFactory,
       FileUploadViewStrategy fileUploadViewStrategy,
       MessagesApi messagesApi,
-      ProgramCardViewRenderer programCardViewRenderer,
       ProfileUtils profileUtils,
+      ProgramCardViewRenderer programCardViewRenderer,
       PublicStorageClient publicStorageClient,
       ZoneId zoneId) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
@@ -188,20 +190,20 @@ public final class ProgramImageView extends BaseHtmlView {
   }
 
   private DivTag renderCurrentProgramCard(Http.Request request, ProgramDefinition program) {
-    CiviFormProfile profile =
-        profileUtils
-            .currentUserProfile(request)
-            .orElseThrow(() -> new RuntimeException("Unable to resolve profile"));
+    DivTag currentProgramCardSection =
+        div().with(h2("What the applicant will see").withClasses("mb-4"));
+
+    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
     Long applicantId;
     try {
-      applicantId = profile.getApplicant().get().id;
-    } catch (ExecutionException | InterruptedException e) {
-      throw new RuntimeException(e);
+      applicantId = profile.get().getApplicant().get().id;
+    } catch (NoSuchElementException | ExecutionException | InterruptedException e) {
+      return currentProgramCardSection.with(p("Applicant preview cannot be rendered"));
     }
 
     Messages messages = messagesApi.preferred(request);
     // We don't need to fill in any applicant data besides the program information since this is
-    // just for a card preview
+    // just for a card preview.
     ApplicantService.ApplicantProgramData card =
         ApplicantService.ApplicantProgramData.builder().setProgram(program).build();
 
@@ -209,7 +211,7 @@ public final class ProgramImageView extends BaseHtmlView {
         programCardViewRenderer.createProgramCard(
             request,
             messages,
-            // An admin does have an associated applicant account, so consider them logged in so
+            // An admin *does* have an associated applicant account, so consider them logged in so
             // that the "Apply" button on the preview card takes them to the full program preview.
             ApplicantPersonalInfo.ApplicantType.LOGGED_IN,
             card,
@@ -219,13 +221,13 @@ public final class ProgramImageView extends BaseHtmlView {
             MessageKey.BUTTON_APPLY_SR,
             /* nestedUnderSubheading= */ false,
             layout.getBundle(request),
-            profile,
+            profile.get(),
             zoneId);
-    return div().with(h2("What the applicant will see").withClasses("mb-4")).with(programCard);
+    return currentProgramCardSection.with(programCard);
     // Note: The "Program details" link inside the card preview will not work if the admin hasn't
     // provided a custom external link. This is because the default "Program details" link redirects
     // to ApplicantProgramsController#showWithApplicantId, which only allows access to the published
-    // versions of programs. When editing a program image, the program is in draft form, so the
-    // controller prevents access.
+    // versions of programs. When editing a program image, the program is in *draft* form and has a
+    // different ID, so ApplicantProgramsController prevents access.
   }
 }
