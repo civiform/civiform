@@ -79,7 +79,7 @@ public final class AwsStorageUtils {
           .url()
           .toString();
     } catch (ExecutionException | InterruptedException e) {
-      logger.warn("Unable to create a Localstack action link; returning empty string");
+      logger.warn("Unable to create a Localstack action link. Returning empty string");
       return "";
     }
   }
@@ -91,7 +91,7 @@ public final class AwsStorageUtils {
       URI localUri = new URI(localEndpoint);
       return String.format("%s://s3.%s", localUri.getScheme(), localUri.getAuthority());
     } catch (URISyntaxException e) {
-      logger.warn("Unable to create a Localstack endpoint URL; returning empty string");
+      logger.warn("Unable to create a Localstack endpoint URL. Returning empty string");
       return "";
     }
   }
