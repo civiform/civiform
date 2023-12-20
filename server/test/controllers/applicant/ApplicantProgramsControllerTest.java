@@ -155,9 +155,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains(
-            routes.ApplicantProgramsController.showWithApplicantId(currentApplicant.id, program.id)
-                .url());
+        .contains(routes.ApplicantProgramsController.show(String.valueOf(program.id)).url());
   }
 
   @Test
@@ -171,9 +169,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains(
-            routes.ApplicantProgramsController.showWithApplicantId(currentApplicant.id, program.id)
-                .url());
+        .contains(routes.ApplicantProgramsController.show(String.valueOf(program.id)).url());
   }
 
   @Test
@@ -223,10 +219,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains(
-            routes.ApplicantProgramReviewController.reviewWithApplicantId(
-                    currentApplicant.id, program.id)
-                .url());
+        .contains(routes.ApplicantProgramReviewController.review(program.id).url());
   }
 
   @Test
@@ -258,10 +251,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .contains(
-            routes.ApplicantProgramReviewController.reviewWithApplicantId(
-                    currentApplicant.id, program.id)
-                .url());
+        .contains(routes.ApplicantProgramReviewController.review(program.id).url());
   }
 
   @Test
@@ -359,8 +349,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
         .hasValue(
-            routes.ApplicantProgramBlocksController.editWithApplicantId(
-                    currentApplicant.id, program.id, "1", /* questionName= */ Optional.empty())
+            routes.ApplicantProgramBlocksController.edit(
+                    program.id, "1", /* questionName= */ Optional.empty())
                 .url());
   }
 
@@ -392,8 +382,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
         .hasValue(
-            routes.ApplicantProgramBlocksController.editWithApplicantId(
-                    currentApplicant.id, program.id, "2", /* questionName= */ Optional.empty())
+            routes.ApplicantProgramBlocksController.edit(
+                    program.id, "2", /* questionName= */ Optional.empty())
                 .url());
   }
 
