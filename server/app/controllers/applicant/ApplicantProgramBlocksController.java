@@ -133,6 +133,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * <p>`edit` takes the applicant to the next in-progress block, see {@link
    * ReadOnlyApplicantProgramService#getInProgressBlocks()}. If there are no more blocks, summary
    * page is shown.
+   *
+   * <p>`questionName` is present when answering a question or reviewing an answer.
    */
   @Secure
   public CompletionStage<Result> editWithApplicantId(
@@ -153,6 +155,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * <p>`edit` takes the applicant to the next in-progress block, see {@link
    * ReadOnlyApplicantProgramService#getInProgressBlocks()}. If there are no more blocks, summary
    * page is shown.
+   *
+   * <p>`questionName` is present when answering a question or reviewing an answer.
    */
   @Secure
   public CompletionStage<Result> edit(
