@@ -10,7 +10,6 @@ import static j2html.TagCreator.p;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.ApplicantRoutes;
-import controllers.applicant.routes;
 import j2html.TagCreator;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -233,8 +232,13 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
    */
   private DivTag renderDeleteAndContinueFileUploadForms(Params params) {
     String formAction =
-        routes.ApplicantProgramBlocksController.update(
-                params.applicantId(), params.programId(), params.block().getId(), params.inReview())
+        applicantRoutes
+            .updateBlock(
+                params.profile(),
+                params.applicantId(),
+                params.programId(),
+                params.block().getId(),
+                params.inReview())
             .url();
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder()
