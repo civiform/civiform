@@ -134,7 +134,16 @@ public class DevDatabaseSeedController extends Controller {
     return ok("The cache has been cleared");
   }
 
+  /**
+   * Clear cache if it is enabled in settings.
+   *
+   * <p>Note: this is not safe to do in most deployed instances, because there may be multiple
+   * tasks, but we assume all dev instances only have one task.
+   */
   private void clearCacheIfEnabled() {
+    if (!isDevOrStaging) {
+      return;
+    }
     if (settingsManifest.getVersionCacheEnabled()) {
       programsByVersionCache.removeAll().toCompletableFuture().join();
       questionsByVersionCache.removeAll().toCompletableFuture().join();
