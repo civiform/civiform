@@ -21,6 +21,8 @@ import java.time.ZoneId;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+
+import j2html.tags.specialized.NavTag;
 import play.data.Form;
 import play.data.FormFactory;
 import play.i18n.Messages;
@@ -36,12 +38,14 @@ import services.cloud.PublicStorageClient;
 import services.cloud.StorageUploadRequest;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
+import views.Breadcrumb;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
 import views.applicant.ProgramCardViewRenderer;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
+import views.components.Icons;
 import views.components.ToastMessage;
 import views.fileupload.FileUploadViewStrategy;
 
@@ -53,6 +57,7 @@ public final class ProgramImageView extends BaseHtmlView {
   private static final String IMAGE_FILE_UPLOAD_FORM_ID = "image-file-upload-form";
 
   private final AdminLayout layout;
+  private final Breadcrumb breadcrumb;
   private final String baseUrl;
   private final FormFactory formFactory;
   private final FileUploadViewStrategy fileUploadViewStrategy;
@@ -65,6 +70,7 @@ public final class ProgramImageView extends BaseHtmlView {
   @Inject
   public ProgramImageView(
       AdminLayoutFactory layoutFactory,
+      Breadcrumb breadcrumb,
       Config config,
       FormFactory formFactory,
       FileUploadViewStrategy fileUploadViewStrategy,
@@ -74,6 +80,7 @@ public final class ProgramImageView extends BaseHtmlView {
       PublicStorageClient publicStorageClient,
       ZoneId zoneId) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
+    this.breadcrumb = breadcrumb;
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.formFactory = checkNotNull(formFactory);
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
@@ -96,6 +103,7 @@ public final class ProgramImageView extends BaseHtmlView {
     DivTag mainContent =
         div()
             .withClasses("my-10", "mx-20")
+                .with(createBreadcrumbNav(programDefinition))
             .with(renderHeader(title))
             .with(createImageDescriptionForm(request, programDefinition));
 
@@ -116,6 +124,20 @@ public final class ProgramImageView extends BaseHtmlView {
     }
 
     return layout.renderCentered(htmlBundle);
+  }
+
+  private NavTag createBreadcrumbNav(ProgramDefinition program) {
+    ImmutableList.Builder<LiTag> breadcrumbList = ImmutableList.builder();
+    breadcrumbList.add(
+            breadcrumb.createBreadcrumbItem("Edit Program", "href", Optional.empty())
+    );
+    breadcrumbList.add(
+            breadcrumb.createBreadcrumbItem(program.localizedName().getDefault(), "href", Optional.empty())
+    );
+    breadcrumbList.add(
+            breadcrumb.createBreadcrumbItem("Program image upload", "href", Optional.of(Icons.FILEUPLOAD))
+    );
+    return breadcrumb.createBreadcrumb(breadcrumbList.build());
   }
 
   private FormTag createImageDescriptionForm(
