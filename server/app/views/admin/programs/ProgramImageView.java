@@ -198,7 +198,8 @@ public final class ProgramImageView extends BaseHtmlView {
     try {
       applicantId = profile.get().getApplicant().get().id;
     } catch (NoSuchElementException | ExecutionException | InterruptedException e) {
-      return currentProgramCardSection.with(p("Applicant preview cannot be rendered"));
+      return currentProgramCardSection.with(
+          p("Applicant preview cannot be rendered: Applicant ID for admin could not be fetched."));
     }
 
     Messages messages = messagesApi.preferred(request);
