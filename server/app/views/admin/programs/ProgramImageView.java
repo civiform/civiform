@@ -17,12 +17,11 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LiTag;
+import j2html.tags.specialized.NavTag;
 import java.time.ZoneId;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-
-import j2html.tags.specialized.NavTag;
 import play.data.Form;
 import play.data.FormFactory;
 import play.i18n.Messages;
@@ -103,7 +102,8 @@ public final class ProgramImageView extends BaseHtmlView {
     DivTag mainContent =
         div()
             .withClasses("my-10", "mx-20")
-                .with(createBreadcrumbNav(programDefinition))
+            // TODO: Should be outside the main area bc it needs less margin
+            .with(createBreadcrumbNav(programDefinition))
             .with(renderHeader(title))
             .with(createImageDescriptionForm(request, programDefinition));
 
@@ -128,15 +128,15 @@ public final class ProgramImageView extends BaseHtmlView {
 
   private NavTag createBreadcrumbNav(ProgramDefinition program) {
     ImmutableList.Builder<LiTag> breadcrumbList = ImmutableList.builder();
+    // TODO: Make autovalue class
     breadcrumbList.add(
-            breadcrumb.createBreadcrumbItem("Edit Program", "href", Optional.empty())
-    );
+        breadcrumb.createBreadcrumbItem("Edit Program", Optional.of("href"), Optional.empty()));
     breadcrumbList.add(
-            breadcrumb.createBreadcrumbItem(program.localizedName().getDefault(), "href", Optional.empty())
-    );
+        breadcrumb.createBreadcrumbItem(
+            program.localizedName().getDefault(), Optional.of("href"), Optional.empty()));
     breadcrumbList.add(
-            breadcrumb.createBreadcrumbItem("Program image upload", "href", Optional.of(Icons.FILEUPLOAD))
-    );
+        breadcrumb.createBreadcrumbItem(
+            "Program image upload", Optional.empty(), Optional.of(Icons.FILEUPLOAD)));
     return breadcrumb.createBreadcrumb(breadcrumbList.build());
   }
 
