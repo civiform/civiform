@@ -634,13 +634,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     long badApplicantId = applicant.id + 1000;
     RequestBuilder request =
         requestBuilderWithSettings(
-            routes.ApplicantProgramBlocksController.updateFile(
+            routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
                 badApplicantId, program.id, /* blockId= */ "2", /* inReview= */ false));
     addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
 
     Result result =
         subject
-            .updateFile(
+            .updateFileWithApplicantId(
                 request.build(),
                 badApplicantId,
                 program.id,
@@ -663,7 +663,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramBlocksController.updateFile(
+                    routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
                         applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)))
             .build();
     Result result =
@@ -689,7 +689,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramBlocksController.updateFile(
+                    routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
                         applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)))
             .build();
     Result result =
@@ -709,7 +709,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramBlocksController.updateFile(
+                    routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
                         applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)))
             .build();
     Result result =
@@ -731,13 +731,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     long badProgramId = program.id + 1000;
     RequestBuilder request =
         requestBuilderWithSettings(
-            routes.ApplicantProgramBlocksController.updateFile(
+            routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
                 applicant.id, badProgramId, /* blockId= */ "2", /* inReview= */ false));
     addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
 
     Result result =
         subject
-            .updateFile(
+            .updateFileWithApplicantId(
                 request.build(),
                 applicant.id,
                 badProgramId,
@@ -754,13 +754,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     String badBlockId = "1000";
     RequestBuilder request =
         requestBuilderWithSettings(
-            routes.ApplicantProgramBlocksController.updateFile(
+            routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
                 applicant.id, program.id, badBlockId, /* inReview= */ false));
     addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
 
     Result result =
         subject
-            .updateFile(
+            .updateFileWithApplicantId(
                 request.build(), applicant.id, program.id, badBlockId, /* inReview= */ false)
             .toCompletableFuture()
             .join();
@@ -773,13 +773,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     String badBlockId = "1";
     RequestBuilder request =
         requestBuilderWithSettings(
-            routes.ApplicantProgramBlocksController.updateFile(
+            routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
                 applicant.id, program.id, badBlockId, /* inReview= */ false));
     addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
 
     Result result =
         subject
-            .updateFile(
+            .updateFileWithApplicantId(
                 request.build(), applicant.id, program.id, badBlockId, /* inReview= */ false)
             .toCompletableFuture()
             .join();
@@ -791,12 +791,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void updateFile_missingFileKeyAndBucket_returnsBadRequest() {
     RequestBuilder request =
         requestBuilderWithSettings(
-            routes.ApplicantProgramBlocksController.updateFile(
+            routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
                 applicant.id, program.id, /* blockId= */ "2", /* inReview= */ false));
 
     Result result =
         subject
-            .updateFile(
+            .updateFileWithApplicantId(
                 request.build(),
                 applicant.id,
                 program.id,
@@ -819,13 +819,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     RequestBuilder request =
         requestBuilderWithSettings(
-            routes.ApplicantProgramBlocksController.updateFile(
+            routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
                 applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false));
     addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
 
     Result result =
         subject
-            .updateFile(
+            .updateFileWithApplicantId(
                 request.build(),
                 applicant.id,
                 program.id,
@@ -852,13 +852,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     RequestBuilder request =
         requestBuilderWithSettings(
-            routes.ApplicantProgramBlocksController.updateFile(
+            routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
                 applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false));
     addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
 
     Result result =
         subject
-            .updateFile(
+            .updateFileWithApplicantId(
                 request.build(),
                 applicant.id,
                 program.id,
@@ -895,13 +895,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     RequestBuilder request =
         requestBuilderWithSettings(
-            routes.ApplicantProgramBlocksController.updateFile(
+            routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
                 applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false));
     addQueryString(request, ImmutableMap.of("key", fileKey, "bucket", "fake-bucket"));
 
     Result result =
         subject
-            .updateFile(
+            .updateFileWithApplicantId(
                 request.build(),
                 applicant.id,
                 program.id,

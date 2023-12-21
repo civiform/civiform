@@ -481,7 +481,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * users to the next block or review page.
    */
   @Secure
-  public CompletionStage<Result> updateFile(
+  public CompletionStage<Result> updateFileWithApplicantId(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
@@ -560,6 +560,30 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             },
             httpExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
+  }
+
+  /**
+   * Used by the file upload question. We let users directly upload files to S3 bucket from
+   * browsers. On success, users are redirected to this method. The redirect is a GET method with
+   * file key in the query string. We parse and store them in the database for record and redirect
+   * users to the next block or review page.
+   */
+  @Secure
+  public CompletionStage<Result> updateFile(
+      Request request, long programId, String blockId, boolean inReview) {
+    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
+      // This route is only operative for the new URL schema, so send the user home.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    Optional<Long> applicantId = getApplicantId(request);
+    if (applicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+    return updateFileWithApplicantId(
+        request, applicantId.orElseThrow(), programId, blockId, inReview);
   }
 
   /**
