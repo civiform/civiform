@@ -3,18 +3,23 @@ package views.questiontypes;
 import static j2html.TagCreator.document;
 import static j2html.TagCreator.html;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableSet;
+import controllers.applicant.ApplicantRoutes;
 import j2html.tags.specialized.DivTag;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.applicant.ApplicantFileUploadRenderer;
 import views.fileupload.AwsFileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
@@ -30,6 +35,13 @@ public class ApplicantQuestionRendererFactoryTest {
           .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
           .build();
 
+  private final SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+
+  @Before
+  public void setupMock() {
+    when(mockSettingsManifest.getNewApplicantUrlSchemaEnabled()).thenReturn(true);
+  }
+
   @Test
   @Parameters(source = QuestionType.class)
   public void rendererExistsForAllTypes(QuestionType type) throws UnsupportedQuestionTypeException {
@@ -38,9 +50,11 @@ public class ApplicantQuestionRendererFactoryTest {
       return;
     }
 
+    var applicantRoutes = new ApplicantRoutes(mockSettingsManifest);
+
     ApplicantQuestionRendererFactory factory =
         new ApplicantQuestionRendererFactory(
-            new ApplicantFileUploadRenderer(new AwsFileUploadViewStrategy()));
+            new ApplicantFileUploadRenderer(new AwsFileUploadViewStrategy(), applicantRoutes));
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 
@@ -59,10 +73,12 @@ public class ApplicantQuestionRendererFactoryTest {
       return;
     }
 
+    var applicantRoutes = new ApplicantRoutes(mockSettingsManifest);
+
     // Multi-input questions should be wrapped in fieldsets for screen reader users.
     ApplicantQuestionRendererFactory factory =
         new ApplicantQuestionRendererFactory(
-            new ApplicantFileUploadRenderer(new AwsFileUploadViewStrategy()));
+            new ApplicantFileUploadRenderer(new AwsFileUploadViewStrategy(), applicantRoutes));
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 

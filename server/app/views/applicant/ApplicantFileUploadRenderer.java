@@ -1,5 +1,6 @@
 package views.applicant;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -8,6 +9,7 @@ import static j2html.TagCreator.p;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import controllers.applicant.ApplicantRoutes;
 import controllers.applicant.routes;
 import j2html.TagCreator;
 import j2html.tags.specialized.ButtonTag;
@@ -46,10 +48,13 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
   private static final String FILEUPLOAD_CONTINUE_BUTTON_ID = "fileupload-continue-button";
 
   private final FileUploadViewStrategy fileUploadViewStrategy;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
-  public ApplicantFileUploadRenderer(FileUploadViewStrategy fileUploadViewStrategy) {
-    this.fileUploadViewStrategy = fileUploadViewStrategy;
+  public ApplicantFileUploadRenderer(
+      FileUploadViewStrategy fileUploadViewStrategy, ApplicantRoutes applicantRoutes) {
+    this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   /**
@@ -107,7 +112,9 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
       Params params, ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
     String onSuccessRedirectUrl =
         params.baseUrl()
-            + routes.ApplicantProgramBlocksController.updateFile(
+            + applicantRoutes
+                .updateFile(
+                    params.profile(),
                     params.applicantId(),
                     params.programId(),
                     params.block().getId(),
