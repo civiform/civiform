@@ -78,7 +78,7 @@ public class ViewUtilsTest {
   public void makeUSWDSModal_doesNotIncludeFooterIfHasFooterIsFalse() {
     DivTag modal =
         ViewUtils.makeUSWDSModal(
-            p("Welcome to the test modal!"), "test-modal", "header", "Button text", false, "", "");
+            p("Welcome to the test modal!"), "test-modal", "header", "Button text", false, "", "",false);
     assertThat(modal.render()).doesNotContain("usa-modal__footer");
   }
 }

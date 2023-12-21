@@ -40,11 +40,43 @@ export class TIDashboard {
       .click()
 
     await this.page.waitForSelector('h2:has-text("Edit Client")')
-    // const text = await page.innerHTML('div[class="usa-modal"]')
     await this.page.fill('#modal-date-of-birth-input', newDobDate)
     await this.page.click('#update-client-save')
   }
+  async updateClientEmailAddress(client: ClientInformation, newEmail: string) {
+    await this.page
+      .getByRole('row')
+      .filter({hasText: client.emailAddress})
+      .getByRole('button', {name: 'Edit'})
+      .click()
 
+    await this.page.waitForSelector('h2:has-text("Edit Client")')
+    await this.page.fill('#modal-email-input', newEmail)
+    await this.page.click('#update-client-save')
+  }
+  async updateClientTiNoteAndPhone(client:ClientInformation,tiNote:string,phone:string){
+    await this.page
+    .getByRole('row')
+    .filter({hasText: client.emailAddress})
+    .getByRole('button', {name: 'Edit'})
+    .click()
+
+  await this.page.waitForSelector('h2:has-text("Edit Client")')
+  await this.page.fill('#modal-phone-number-input', phone)
+  await this.page.fill('#modal-ti-note-input', tiNote)
+  await this.page.click('#update-client-save')
+  }
+  async expectClientContainsTiNoteAndPhone(client:ClientInformation,tiNote:string,phone:string){
+    await this.page
+    .getByRole('row')
+    .filter({hasText: client.emailAddress})
+    .getByRole('button', {name: 'Edit'})
+    .click()
+
+  await this.page.waitForSelector('h2:has-text("Edit Client")')
+  await expect(this.page.innerHTML('#modal-ti-note-input')).toContain(tiNote)
+  await expect(this.page.innerHTML('#modal-phone-number-input')).toContain(phone)
+  }
   async expectDashboardContainClient(client: ClientInformation) {
     const row = this.page.locator(
       `.cf-admin-question-table-row:has-text("${client.lastName}, ${client.firstName}")`,

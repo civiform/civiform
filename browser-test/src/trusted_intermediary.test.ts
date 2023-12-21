@@ -30,16 +30,6 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.createClient(client)
     await waitForPageJsLoad(page)
     await tiDashboard.updateClientDateOfBirth(client, '2021-12-12')
-    // await page
-    //   .getByRole('row')
-    //   .filter({hasText: client.emailAddress})
-    //   .getByRole('button', {name: 'Edit'})
-    //   .click()
-
-    // await page.waitForSelector('h2:has-text("Edit Client")')
-    // // const text = await page.innerHTML('div[class="usa-modal"]')
-    // await page.fill('#modal-date-of-birth-input', '2021-12-12')
-    // await page.click('#update-client-save')
 
     const updatedClient: ClientInformation = {
       emailAddress: 'test@sample.com',
@@ -49,6 +39,49 @@ describe('Trusted intermediaries', () => {
       dobDate: '2021-12-12',
     }
     await tiDashboard.expectDashboardContainClient(updatedClient)
+  })
+  it('expect Client Email Address to be Updated', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'test@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-06-10',
+    }
+    await tiDashboard.createClient(client)
+    await waitForPageJsLoad(page)
+    await tiDashboard.updateClientEmailAddress(client, 'new@email.com')
+
+    const updatedClient: ClientInformation = {
+      emailAddress: 'new@email.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-06-10',
+    }
+    await tiDashboard.expectDashboardContainClient(updatedClient)
+  })
+  it('expect Client Ti Notes And Phone to be Updated', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'test@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-06-10',
+    }
+    await tiDashboard.createClient(client)
+    await waitForPageJsLoad(page)
+    await tiDashboard.updateClientTiNoteAndPhone(client, 'Housing Assitance','4256007121')
+    await waitForPageJsLoad(page)
+    await tiDashboard.expectClientContainsTiNoteAndPhone(client,'Housing Assitance','(425) 600-7121')
   })
 
   it('expect client cannot be added with invalid date of birth', async () => {

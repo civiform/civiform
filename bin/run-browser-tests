@@ -13,7 +13,7 @@ bin/pull-image
 # --init enables https://github.com/krallin/tini
 docker run --rm -it \
   -v "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
-  -e RECORD_VIDEO="${RECORD_VIDEO}" \
+  -e RECORD_VIDEO=1 \
   -e TEST_CIVIC_ENTITY_SHORT_NAME="${TEST_CIVIC_ENTITY_SHORT_NAME:-TestCity}" \
   --network "${DOCKER_NETWORK_NAME}" \
   --init \

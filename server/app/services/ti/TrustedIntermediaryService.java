@@ -141,6 +141,7 @@ public final class TrustedIntermediaryService {
   private Form<EditTiClientInfoForm> validatePhoneNumber(Form<EditTiClientInfoForm> form) {
     String phoneNumber = form.value().get().getPhoneNumber();
     if (!Strings.isNullOrEmpty(phoneNumber)) {
+      phoneNumber = phoneNumber.replaceAll("[^0-9]", "");
       if (phoneNumber.length() != 10) {
         return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain 10 digits");
       }
@@ -185,6 +186,10 @@ public final class TrustedIntermediaryService {
     if (accountMaybe.isEmpty() || accountMaybe.get().newestApplicant().isEmpty()) {
       throw new ApplicantNotFoundException(accountId);
     }
+    form = validateEmailAddress(form,accountMaybe.get());
+    if(form.hasErrors()){
+      return form;
+    }
     ApplicantModel applicant = accountMaybe.get().newestApplicant().get();
     ApplicantData applicantData = applicant.getApplicantData();
 
@@ -223,6 +228,20 @@ public final class TrustedIntermediaryService {
     if (checkEmailChange(newEmail, currentAccount)
         && accountRepository.lookupAccountByEmail(newEmail).isEmpty()) {
       accountRepository.updateClientEmail(newEmail, accountId);
+    }
+    return form;
+  }
+  private Form<EditTiClientInfoForm> validateEmailAddress(Form<EditTiClientInfoForm> form, AccountModel currentAccount) {
+    String newEmail = form.get().getEmailAddress();
+    //email addresses not a requirement for TI Client
+    if(Strings.isNullOrEmpty(newEmail))
+    {
+      return form;
+    }
+    if (checkEmailChange(newEmail, currentAccount)
+      && accountRepository.lookupAccountByEmail(newEmail).isEmpty()) {
+      return form.withError(FORM_FIELD_NAME_EMAIL_ADDRESS,"Email address already in use. Cannot update applicant if an account already"
+        + " exists.");
     }
     return form;
   }

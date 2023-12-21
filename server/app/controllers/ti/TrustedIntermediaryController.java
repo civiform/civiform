@@ -1,5 +1,6 @@
 package controllers.ti;
 
+import static play.mvc.Results.badRequest;
 import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 import static play.mvc.Results.redirect;
@@ -92,7 +93,7 @@ public final class TrustedIntermediaryController {
     }
     PaginationInfo<AccountModel> pageInfo =
         PaginationInfo.paginate(
-            trustedIntermediarySearchResult.getAccounts().get(), PAGE_SIZE, page.get());
+          trustedIntermediarySearchResult.getAccounts().get(), PAGE_SIZE, page.get());
 
     Optional<String> applicantName =
         civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName();
@@ -108,7 +109,7 @@ public final class TrustedIntermediaryController {
             searchParameters,
             request,
             messagesApi.preferred(request),
-            civiformProfile.get().getApplicant().toCompletableFuture().join().id));
+            civiformProfile.get().getApplicant().toCompletableFuture().join().id,Optional.empty(),Optional.empty()));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -119,24 +120,48 @@ public final class TrustedIntermediaryController {
     }
 
     Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
-        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+      accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
       return unauthorized();
     }
     Form<EditTiClientInfoForm> form =
-        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(request);
+      formFactory.form(EditTiClientInfoForm.class).bindFromRequest(request);
     form = tiService.updateClientInfo(form, trustedIntermediaryGroup.get(), id);
-    if (!form.hasErrors()) {
-      return redirect(
+
+    if (form.hasErrors()) {
+      Optional<String> applicantName =
+        civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName();
+      SearchParameters searchParameters = SearchParameters.builder().setNameQuery(Optional.empty()).setDateQuery(Optional.empty()).build();
+      TrustedIntermediarySearchResult trustedIntermediarySearchResult =
+        tiService.getManagedAccounts(searchParameters, trustedIntermediaryGroup.get());
+      PaginationInfo<AccountModel> pageInfo =
+        PaginationInfo.paginate(
+          trustedIntermediarySearchResult.getAccounts().get(), PAGE_SIZE,/* page = */1);
+      return badRequest(
+        tiDashboardView.render(
+          trustedIntermediaryGroup.get(),
+          ApplicantPersonalInfo.ofLoggedInUser(
+            Representation.builder().setName(applicantName).build()),
+          pageInfo.getPageItems(),
+          pageInfo.getPageCount(),
+          pageInfo.getPage(),
+          searchParameters,
+          request,
+          messagesApi.preferred(request),
+          civiformProfile.get().getApplicant().toCompletableFuture().join().id,
+        Optional.of(id),
+        Optional.of(form)));
+    }
+
+    return redirect(
               routes.TrustedIntermediaryController.dashboard(
                       /* nameQuery= */ Optional.empty(),
                       /* dateQuery= */ Optional.empty(),
                       /* page= */ Optional.empty())
                   .url())
           .flashing("success", "Applicant Info is updated");
-    }
 
-    return redirectToDashboardWithUpdateClientInfoError(getValidationErrors(form.errors()));
+
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -198,16 +223,16 @@ public final class TrustedIntermediaryController {
   }
 
   // temp
-  private Result redirectToDashboardWithUpdateClientInfoError(String errorMessage) {
-    return redirect(
-            routes.TrustedIntermediaryController.dashboard(
-                    /* paramName=  nameQuery */
-                    Optional.empty(),
-                    /* paramName=  searchDate */
-                    Optional.empty(),
-                    /* paramName=  page */
-                    Optional.of(1))
-                .url())
-        .flashing("error", errorMessage);
-  }
+//  private Result redirectToDashboardWithUpdateClientInfoError(String errorMessage) {
+//    return redirect(
+//            routes.TrustedIntermediaryController.dashboard(
+//                    /* paramName=  nameQuery */
+//                    Optional.empty(),
+//                    /* paramName=  searchDate */
+//                    Optional.empty(),
+//                    /* paramName=  page */
+//                    Optional.of(1))
+//                .url())
+//        .flashing("error", errorMessage);
+//  }
 }

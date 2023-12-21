@@ -1,18 +1,6 @@
 package views.applicant;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
-import static j2html.TagCreator.form;
-import static j2html.TagCreator.hr;
-import static j2html.TagCreator.table;
-import static j2html.TagCreator.tbody;
-import static j2html.TagCreator.td;
-import static j2html.TagCreator.th;
-import static j2html.TagCreator.thead;
-import static j2html.TagCreator.tr;
-
-import annotations.BindingAnnotations;
+import annotations.BindingAnnotations.EnUsLang;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -24,10 +12,6 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
@@ -52,16 +36,32 @@ import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import annotations.BindingAnnotations.EnUsLang;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.each;
+import static j2html.TagCreator.form;
+import static j2html.TagCreator.hr;
+import static j2html.TagCreator.table;
+import static j2html.TagCreator.tbody;
+import static j2html.TagCreator.td;
+import static j2html.TagCreator.th;
+import static j2html.TagCreator.thead;
+import static j2html.TagCreator.tr;
 
 /** Renders a page for a trusted intermediary to manage their clients. */
-public class TrustedIntermediaryDashboardView extends BaseHtmlView {
+public class TiEditClientView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final DateConverter dateConverter;
   public static final String OPTIONAL_INDICATOR = " (optional)";
   private final Messages enUsMessages;
   @Inject
-  public TrustedIntermediaryDashboardView(ApplicantLayout layout, DateConverter dateConverter, @EnUsLang Messages enUsMessages) {
+  public TiEditClientView(ApplicantLayout layout, DateConverter dateConverter, @EnUsLang Messages enUsMessages) {
     this.layout = checkNotNull(layout);
     this.dateConverter = checkNotNull(dateConverter);
     this.enUsMessages = checkNotNull(enUsMessages);
@@ -70,13 +70,10 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   public Content render(
       TrustedIntermediaryGroupModel tiGroup,
       ApplicantPersonalInfo personalInfo,
-      ImmutableList<AccountModel> managedAccounts,
-      int totalPageCount,
-      int page,
-      SearchParameters searchParameters,
+      AccountModel currentAccounts,
       Http.Request request,
       Messages messages,
-      Long currentTisApplicantId, Optional<Long> accountId, Optional<Form<EditTiClientInfoForm>> editTiClientInfoForm) {
+      Long currentTisApplicantId) {
     HtmlBundle bundle =
         layout
             .getBundle(request)
@@ -84,17 +81,10 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .addMainContent(
                 renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
                 hr(),
-                renderSubHeader("Add Client").withId("add-client").withClass("my-4"),
+                renderSubHeader("Edit Client").withId("edit-client").withClass("my-4"),
                 requiredFieldsExplanationContent(),
-                renderAddNewForm(tiGroup, request),
-                hr().withClasses("mt-6"),
-                renderSubHeader("Clients").withClass("my-4"),
-                renderSearchForm(request, searchParameters),
-                renderTIApplicantsTable(
-                    managedAccounts, searchParameters, page, totalPageCount, request,accountId,editTiClientInfoForm),
-                hr().withClasses("mt-6"),
-                renderSubHeader("Organization members").withClass("my-4"),
-                renderTIMembersTable(tiGroup).withClass("pt-2"))
+                renderEditClientForm(Account,request),
+                hr().withClasses("mt-6"))
             .addMainStyles("px-20", "max-w-screen-xl");
 
     Http.Flash flash = request.flash();
@@ -109,177 +99,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
   }
 
-  private FormTag renderSearchForm(Http.Request request, SearchParameters searchParameters) {
-    return form()
-        .withClass("w-1/4")
-        .withMethod("GET")
-        .withAction(
-            routes.TrustedIntermediaryController.dashboard(
-                    /* paramName=  nameQuery */
-                    Optional.empty(),
-                    /* paramName=  dateQuery */
-                    Optional.empty(),
-                    /* paramName=  page */
-                    Optional.empty())
-                .url())
-        .with(
-            FieldWithLabel.input()
-                .setId("name-query")
-                .setFieldName("nameQuery")
-                .setValue(searchParameters.nameQuery().orElse(""))
-                .setLabelText("Search by Name")
-                .getInputTag()
-                .withClasses("w-full"),
-            FieldWithLabel.date()
-                .setId("search-date")
-                .setFieldName("dateQuery")
-                .setValue(searchParameters.dateQuery().orElse(""))
-                .setLabelText("Search Date of Birth")
-                .getInputTag()
-                .withClass("w-full"),
-            makeCsrfTokenInputTag(request),
-            submitButton("Search").withClasses("m-2"));
-  }
-
-  private DivTag renderTIApplicantsTable(
-      ImmutableList<AccountModel> managedAccounts,
-      SearchParameters searchParameters,
-      int page,
-      int totalPageCount,
-      Http.Request request, Optional<Long> accountId, Optional<Form<EditTiClientInfoForm>> editTiClientInfoForm) {
-    DivTag main;
-    if(accountId.isPresent()){
-      AccountModel account = managedAccounts.get(0);
-      main = div(table()
-        .withClasses("border", "border-gray-300", "shadow-md", "flex-auto")
-        .with(renderApplicantTableHeader())
-        .with(
-          tbody(
-        renderApplicantRow(account, request,editTiClientInfoForm))))
-        .withClasses("mb-16");
-  }
-    else {
-      main =
-        div(table()
-          .withClasses("border", "border-gray-300", "shadow-md", "flex-auto")
-          .with(renderApplicantTableHeader())
-          .with(
-            tbody(
-              each(
-                managedAccounts.stream()
-                  .sorted(Comparator.comparing(AccountModel::getApplicantName))
-                  .collect(Collectors.toList()),
-                account -> renderApplicantRow(account, request, editTiClientInfoForm)))))
-          .withClasses("mb-16");
-    }
-    return main.with(
-        renderPaginationDiv(
-            page,
-            totalPageCount,
-            pageNumber ->
-                routes.TrustedIntermediaryController.dashboard(
-                    searchParameters.nameQuery(),
-                    searchParameters.dateQuery(),
-                    Optional.of(pageNumber))));
-  }
-
-  private DivTag renderTIMembersTable(TrustedIntermediaryGroupModel tiGroup) {
-    return div(
-        table()
-            .withClasses("border", "border-gray-300", "shadow-md", "w-3/4")
-            .with(renderGroupTableHeader())
-            .with(
-                tbody(
-                    each(
-                        tiGroup.getTrustedIntermediaries().stream()
-                            .sorted(Comparator.comparing(AccountModel::getApplicantName))
-                            .collect(Collectors.toList()),
-                        this::renderTIRow))));
-  }
-
-  private DivTag renderAddNewForm(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
-    FormTag formTag =
-        form()
-            .withMethod("POST")
-            .withAction(routes.TrustedIntermediaryController.addApplicant(tiGroup.id).url());
-    FieldWithLabel firstNameField =
-        FieldWithLabel.input()
-            .setId("first-name-input")
-            .setFieldName("firstName")
-            .setLabelText("First Name")
-            .setRequired(true)
-            .setValue(request.flash().get("providedFirstName").orElse(""));
-    FieldWithLabel middleNameField =
-        FieldWithLabel.input()
-            .setId("middle-name-input")
-            .setFieldName("middleName")
-            .setLabelText("Middle Name" + OPTIONAL_INDICATOR)
-            .setValue(request.flash().get("providedMiddleName").orElse(""));
-    FieldWithLabel lastNameField =
-        FieldWithLabel.input()
-            .setId("last-name-input")
-            .setFieldName("lastName")
-            .setLabelText("Last Name")
-            .setRequired(true)
-            .setValue(request.flash().get("providedLastName").orElse(""));
-    // TODO: do something with this field.  currently doesn't do anything. Add a Path
-    // to WellKnownPaths referencing the canonical date of birth question.
-    FieldWithLabel dateOfBirthField =
-        FieldWithLabel.date()
-            .setId("date-of-birth-input")
-            .setFieldName("dob")
-            .setLabelText("Date Of Birth")
-            .setRequired(true)
-            .setValue(request.flash().get("providedDob").orElse(""));
-    FieldWithLabel emailField =
-        FieldWithLabel.email()
-            .setId("email-input")
-            .setFieldName("emailAddress")
-            .setLabelText("Email Address" + OPTIONAL_INDICATOR)
-            .setToolTipIcon(Icons.INFO)
-            .setToolTipText(
-                "Add an email address for your client to receive status updates about their"
-                    + " application automatically. Without an email, you or your community-based"
-                    + " organization will be responsible for communicating updates to your"
-                    + " client.")
-            .setValue(request.flash().get("providedEmail").orElse(""));
-    return div()
-        .with(
-            formTag.with(
-                emailField.getEmailTag(),
-                firstNameField.getInputTag(),
-                middleNameField.getInputTag(),
-                lastNameField.getInputTag(),
-                dateOfBirthField.getDateTag(),
-                makeCsrfTokenInputTag(request),
-                submitButton("Add").withClasses("ml-2", "mb-6")))
-        .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
-  }
-
-  private TrTag renderTIRow(AccountModel ti) {
-    return tr().withClasses(
-            ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
-            "border-b",
-            "border-gray-300",
-            StyleUtils.even("bg-gray-100"))
-        .with(renderInfoCell(ti))
-        .with(renderStatusCell(ti));
-  }
-
-  private TrTag renderApplicantRow(AccountModel applicant, Http.Request request, Optional<Form<EditTiClientInfoForm>> editTiClientInfoForm) {
-    return tr().withClasses(
-            ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
-            "border-b",
-            "border-gray-300",
-            StyleUtils.even("bg-gray-100"))
-        .with(renderInfoCell(applicant))
-        .with(renderApplicantInfoCell(applicant))
-        .with(renderActionsCell(applicant))
-        .with(renderDateOfBirthCell(applicant))
-        .with(renderUpdateClientInfoCell(applicant, request,editTiClientInfoForm));
-  }
-
-  private TdTag renderUpdateClientInfoCell(AccountModel account, Http.Request request, Optional<Form<EditTiClientInfoForm>> editTiClientInfoForm) {
+  private TdTag renderEditClientForm(AccountModel account, Http.Request request, Optional<Form<EditTiClientInfoForm>> editTiClientInfoForm) {
     Boolean showModal = false;
     if(editTiClientInfoForm.isPresent())
     {
@@ -318,28 +138,28 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       return field;
     }
     if(maybeForm.get().hasErrors()) {
-      Form<EditTiClientInfoForm> form = maybeForm.get();
-      switch (key) {
-        case TrustedIntermediaryService.FORM_FIELD_NAME_DOB:
-          field.setValue(form.get().getDob());
-          break;
-        case TrustedIntermediaryService.FORM_FIELD_NAME_EMAIL_ADDRESS:
-          field.setValue(form.get().getEmailAddress());
-          break;
-        case TrustedIntermediaryService.FORM_FIELD_NAME_PHONE:
-          field.setValue(form.get().getPhoneNumber());
-          break;
-        case TrustedIntermediaryService.FORM_FIELD_NAME_FIRST_NAME:
-          field.setValue(form.get().getFirstName());
-          break;
-        case TrustedIntermediaryService.FORM_FIELD_NAME_LAST_NAME:
-          field.setValue(form.get().getLastName());
-          break;
+        Form<EditTiClientInfoForm> form = maybeForm.get();
+        switch (key) {
+            case TrustedIntermediaryService.FORM_FIELD_NAME_DOB:
+                field.setValue(form.get().getDob());
+                break;
+            case TrustedIntermediaryService.FORM_FIELD_NAME_EMAIL_ADDRESS:
+                field.setValue(form.get().getEmailAddress());
+                break;
+            case TrustedIntermediaryService.FORM_FIELD_NAME_PHONE:
+                field.setValue(form.get().getPhoneNumber());
+                break;
+            case TrustedIntermediaryService.FORM_FIELD_NAME_FIRST_NAME:
+                field.setValue(form.get().getFirstName());
+                break;
+            case TrustedIntermediaryService.FORM_FIELD_NAME_LAST_NAME:
+                field.setValue(form.get().getLastName());
+                break;
 
-      }
-      if (form.error(key).isPresent()) {
-        field.setFieldErrors(enUsMessages, form.error(key).get());
-      }
+        }
+        if (form.error(key).isPresent()) {
+            field.setFieldErrors(enUsMessages, form.error(key).get());
+        }
     }
 
     return field;

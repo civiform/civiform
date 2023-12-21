@@ -398,7 +398,7 @@ public final class ViewUtils {
       String linkButtonText,
       boolean hasFooter,
       String firstButtonText,
-      String secondButtonText) {
+      String secondButtonText, boolean showModal) {
     // These are the html element ids
     String modalId = elementIdPrefix + "-modal";
     String headingId = elementIdPrefix + "-heading";
@@ -406,7 +406,7 @@ public final class ViewUtils {
 
     DivTag modalContent =
         div()
-            .withClass("usa-modal")
+            .withClass("ishidden usa-modal")
             .withId(modalId)
             .attr("aria-labelledby", headingId)
             .attr("aria-describedby", descriptionId)
@@ -467,7 +467,10 @@ public final class ViewUtils {
                     .attr("aria-controls", modalId)
                     .attr("data-open-modal"))
             .with(modalContent);
-
+if(showModal)
+{
+  linkDiv.attr("showBox");
+}
     return linkDiv;
   }
 }
