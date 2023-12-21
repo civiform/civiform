@@ -320,7 +320,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
   /** Navigates to the previous page of the application. */
   @Secure
-  public CompletionStage<Result> previous(
+  public CompletionStage<Result> previousWithApplicantId(
       Request request, long applicantId, long programId, int previousBlockIndex, boolean inReview) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
@@ -387,6 +387,25 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
+  }
+
+  /** Navigates to the previous page of the application. */
+  @Secure
+  public CompletionStage<Result> previous(
+      Request request, long programId, int previousBlockIndex, boolean inReview) {
+    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
+      // This route is only operative for the new URL schema, so send the user home.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    Optional<Long> applicantId = getApplicantId(request);
+    if (applicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+    return previousWithApplicantId(
+        request, applicantId.orElseThrow(), programId, previousBlockIndex, inReview);
   }
 
   @Secure

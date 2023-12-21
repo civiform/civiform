@@ -200,4 +200,29 @@ public final class ApplicantRoutes {
       return routes.ApplicantProgramBlocksController.confirmAddress(programId, blockId, inReview);
     }
   }
+
+  /**
+   * Returns the route corresponding to the applicant previous block action.
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programId - ID of program to review
+   * @param previousBlockIndex - index of the previous block
+   * @param inReview - true if executing the review action (as opposed to edit)
+   * @return Route for the applicant previous block action
+   */
+  public Call blockPrevious(
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      int previousBlockIndex,
+      boolean inReview) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramBlocksController.previousWithApplicantId(
+          applicantId, programId, previousBlockIndex, inReview);
+    } else {
+      return routes.ApplicantProgramBlocksController.previous(
+          programId, previousBlockIndex, inReview);
+    }
+  }
 }
