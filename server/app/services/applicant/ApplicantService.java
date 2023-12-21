@@ -1138,13 +1138,13 @@ public final class ApplicantService {
      */
     public abstract Optional<LifecycleStage> latestApplicationLifecycleStage();
 
-    static Builder builder() {
+    public static Builder builder() {
       return new AutoValue_ApplicantService_ApplicantProgramData.Builder();
     }
 
     @AutoValue.Builder
-    abstract static class Builder {
-      abstract Builder setProgram(ProgramDefinition v);
+    public abstract static class Builder {
+      public abstract Builder setProgram(ProgramDefinition v);
 
       abstract Builder setIsProgramMaybeEligible(Optional<Boolean> v);
 
@@ -1154,7 +1154,7 @@ public final class ApplicantService {
 
       abstract Builder setLatestApplicationLifecycleStage(Optional<LifecycleStage> v);
 
-      abstract ApplicantProgramData build();
+      public abstract ApplicantProgramData build();
     }
   }
 
