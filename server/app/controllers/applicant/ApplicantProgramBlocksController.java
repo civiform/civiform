@@ -599,7 +599,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * </ul>
    */
   @Secure
-  public CompletionStage<Result> update(
+  public CompletionStage<Result> updateWithApplicantId(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
@@ -639,6 +639,35 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             },
             httpExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
+  }
+
+  /**
+   * Accepts, validates and saves submission of applicant data for {@code blockId}.
+   *
+   * <p>Returns the applicable next step in the flow:
+   *
+   * <ul>
+   *   <li>If there are errors renders the edit page for the same block with the errors.
+   *   <li>If {@code inReview} then the next incomplete block is shown.
+   *   <li>If not {@code inReview} the next visible block is shown.
+   *   <li>If there is no next block the program review page is shown.
+   * </ul>
+   */
+  @Secure
+  public CompletionStage<Result> update(
+      Request request, long programId, String blockId, boolean inReview) {
+    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
+      // This route is only operative for the new URL schema, so send the user home.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    Optional<Long> applicantId = getApplicantId(request);
+    if (applicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+    return updateWithApplicantId(request, applicantId.orElseThrow(), programId, blockId, inReview);
   }
 
   private CompletionStage<Result> renderErrorOrRedirectToNextBlock(

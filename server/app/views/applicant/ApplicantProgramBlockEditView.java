@@ -8,7 +8,7 @@ import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMo
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.assistedinject.Assisted;
-import controllers.applicant.routes;
+import controllers.applicant.ApplicantRoutes;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -37,15 +37,18 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   private final ApplicantLayout layout;
   private final ApplicantFileUploadRenderer applicantFileUploadRenderer;
   private final ApplicantQuestionRendererFactory applicantQuestionRendererFactory;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   ApplicantProgramBlockEditView(
       ApplicantLayout layout,
       ApplicantFileUploadRenderer applicantFileUploadRenderer,
-      @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
+      @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
+      ApplicantRoutes applicantRoutes) {
     this.layout = checkNotNull(layout);
     this.applicantFileUploadRenderer = checkNotNull(applicantFileUploadRenderer);
     this.applicantQuestionRendererFactory = checkNotNull(applicantQuestionRendererFactory);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   public Content render(Params params) {
@@ -142,8 +145,13 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     }
 
     String formAction =
-        routes.ApplicantProgramBlocksController.update(
-                params.applicantId(), params.programId(), params.block().getId(), params.inReview())
+        applicantRoutes
+            .updateBlock(
+                params.profile(),
+                params.applicantId(),
+                params.programId(),
+                params.block().getId(),
+                params.inReview())
             .url();
 
     AtomicInteger ordinalErrorCount = new AtomicInteger(0);
