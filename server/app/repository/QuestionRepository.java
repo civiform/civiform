@@ -57,6 +57,10 @@ public final class QuestionRepository {
         executionContext);
   }
 
+  public QuestionDefinition getQuestionDefinition(QuestionModel question) {
+    return question.getQuestionDefinition();
+  }
+
   public CompletionStage<Optional<QuestionModel>> lookupQuestion(long id) {
     return supplyAsync(
         () ->
@@ -149,8 +153,7 @@ public final class QuestionRepository {
         // Find questions that reference the old enumerator ID.
         .filter(
             question ->
-                question
-                    .getQuestionDefinition()
+                getQuestionDefinition(question)
                     .getEnumeratorId()
                     .equals(Optional.of(oldEnumeratorId)))
         // Update to the new enumerator ID.
@@ -158,7 +161,7 @@ public final class QuestionRepository {
             question -> {
               try {
                 createOrUpdateDraft(
-                    new QuestionDefinitionBuilder(question.getQuestionDefinition())
+                    new QuestionDefinitionBuilder(getQuestionDefinition(question))
                         .setEnumeratorId(Optional.of(newEnumeratorId))
                         .build());
               } catch (UnsupportedQuestionTypeException e) {
@@ -208,8 +211,8 @@ public final class QuestionRepository {
         .findList()
         .stream()
         .filter(question -> activeQuestionIds.contains(question.id))
-        .sorted(Comparator.comparing(question -> question.getQuestionDefinition().getName()))
-        .map(QuestionModel::getQuestionDefinition)
+        .sorted(Comparator.comparing(question -> getQuestionDefinition(question).getName()))
+        .map(q -> getQuestionDefinition(q))
         .collect(ImmutableList.toImmutableList());
   }
 
@@ -228,7 +231,7 @@ public final class QuestionRepository {
         .asc("id")
         .findList()
         .stream()
-        .map(QuestionModel::getQuestionDefinition)
+        .map(this::getQuestionDefinition)
         .collect(
             ImmutableMap.toImmutableMap(
                 QuestionDefinition::getName,
@@ -236,7 +239,7 @@ public final class QuestionRepository {
                 (q1, q2) -> q1.getId() > q2.getId() ? q1 : q2));
   }
 
-  private static final class ConflictDetector {
+  private final class ConflictDetector {
     private Optional<QuestionModel> conflictedQuestion = Optional.empty();
     private final Optional<Long> enumeratorId;
     private final String questionPathSegment;
@@ -254,7 +257,7 @@ public final class QuestionRepository {
     }
 
     private boolean hasConflict(QuestionModel question) {
-      QuestionDefinition definition = question.getQuestionDefinition();
+      QuestionDefinition definition = getQuestionDefinition(question);
       boolean isSameName = definition.getName().equals(questionName);
       boolean isSameEnumId = definition.getEnumeratorId().equals(enumeratorId);
       boolean isSamePath = definition.getQuestionPathSegment().equals(questionPathSegment);

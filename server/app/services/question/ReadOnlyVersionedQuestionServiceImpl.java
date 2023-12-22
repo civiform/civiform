@@ -2,7 +2,6 @@ package services.question;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import models.QuestionModel;
 import models.VersionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +26,7 @@ public final class ReadOnlyVersionedQuestionServiceImpl implements ReadOnlyQuest
   public ReadOnlyVersionedQuestionServiceImpl(
       VersionModel version, VersionRepository versionRepository) {
     questionsById =
-        versionRepository.getQuestionsForVersion(version).stream()
-            .map(QuestionModel::getQuestionDefinition)
+        versionRepository.getQuestionDefinitionsForVersion(version).stream()
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
   }
 
