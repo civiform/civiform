@@ -51,6 +51,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     versionRepository =
         new VersionRepository(
             instanceOf(ProgramRepository.class),
+            instanceOf(QuestionRepository.class),
             instanceOf(DatabaseExecutionContext.class),
             mockSettingsManifest,
             questionsByVersionCache,
