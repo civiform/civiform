@@ -18,6 +18,7 @@ import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -602,8 +603,13 @@ public final class VersionRepository {
   }
 
   public boolean isDraft(QuestionModel question) {
-    return getQuestionsForVersion(getDraftVersion()).stream()
-        .anyMatch(draftQuestion -> draftQuestion.id.equals(question.id));
+    VersionModel activeVersion = getActiveVersion();
+    VersionModel maxVersionForQuestion =
+        questionRepository.getVersionsForQuestion(question).stream()
+            .max(Comparator.comparingLong(q -> q.id))
+            .orElseThrow();
+    // If the max version is greater than the active version, it is a draft
+    return maxVersionForQuestion.id > activeVersion.id;
   }
 
   /** Returns true if the program is a member of the current draft version. */
