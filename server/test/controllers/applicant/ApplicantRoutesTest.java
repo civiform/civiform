@@ -29,6 +29,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   private static long tiAccountId = 789L;
   private static long programId = 321L;
   private static String blockId = "test_block";
+  private static int previousBlockIndex = 7;
   private static SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
 
   // Class to hold counter values.
@@ -798,6 +799,339 @@ public class ApplicantRoutesTest extends ResetPostgres {
                     tiProfile, applicantId, programId, blockId, Boolean.valueOf(inReview))
                 .url())
         .isEqualTo(expectedConfirmAddressUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present);
+    assertThat(after.absent).isEqualTo(before.absent + 1);
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void testPreviousRoute_forApplicantWithIdInProfile_newSchemaEnabled(String inReview) {
+    enableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(applicantId));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedPreviousUrl =
+        String.format(
+            "/programs/%d/blocks/%d/previous/%s", programId, previousBlockIndex, inReview);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .blockPrevious(
+                    applicantProfile,
+                    applicantId,
+                    programId,
+                    previousBlockIndex,
+                    Boolean.valueOf(inReview))
+                .url())
+        .isEqualTo(expectedPreviousUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present + 1);
+    assertThat(after.absent).isEqualTo(before.absent);
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void testPreviousRoute_forApplicantWithIdInProfile_newSchemaDisabled(String inReview) {
+    disableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(applicantId));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedPreviousUrl =
+        String.format(
+            "/applicants/%d/programs/%d/blocks/%d/previous/%s",
+            applicantId, programId, previousBlockIndex, inReview);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .blockPrevious(
+                    applicantProfile,
+                    applicantId,
+                    programId,
+                    previousBlockIndex,
+                    Boolean.valueOf(inReview))
+                .url())
+        .isEqualTo(expectedPreviousUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present + 1);
+    assertThat(after.absent).isEqualTo(before.absent);
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void testPreviousRoute_forApplicantWithoutIdInProfile(String inReview) {
+    enableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedPreviousUrl =
+        String.format(
+            "/applicants/%d/programs/%d/blocks/%d/previous/%s",
+            applicantId, programId, previousBlockIndex, inReview);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .blockPrevious(
+                    applicantProfile,
+                    applicantId,
+                    programId,
+                    previousBlockIndex,
+                    Boolean.valueOf(inReview))
+                .url())
+        .isEqualTo(expectedPreviousUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present);
+    assertThat(after.absent).isEqualTo(before.absent + 1);
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void testPreviousRoute_forTrustedIntermediary(String inReview) {
+    enableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(tiAccountId);
+    profileData.addRole(Role.ROLE_TI.toString());
+    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedPreviousUrl =
+        String.format(
+            "/applicants/%d/programs/%d/blocks/%d/previous/%s",
+            applicantId, programId, previousBlockIndex, inReview);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .blockPrevious(
+                    tiProfile,
+                    applicantId,
+                    programId,
+                    previousBlockIndex,
+                    Boolean.valueOf(inReview))
+                .url())
+        .isEqualTo(expectedPreviousUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present);
+    assertThat(after.absent).isEqualTo(before.absent + 1);
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void testUpdateFileRoute_forApplicantWithIdInProfile_newSchemaEnabled(String inReview) {
+    enableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(applicantId));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedUpdateFileUrl =
+        String.format("/programs/%d/blocks/%s/updateFile/%s", programId, blockId, inReview);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .updateFile(
+                    applicantProfile, applicantId, programId, blockId, Boolean.valueOf(inReview))
+                .url())
+        .isEqualTo(expectedUpdateFileUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present + 1);
+    assertThat(after.absent).isEqualTo(before.absent);
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void testUpdateFileRoute_forApplicantWithIdInProfile_newSchemaDisabled(String inReview) {
+    disableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(applicantId));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedUpdateFileUrl =
+        String.format(
+            "/applicants/%d/programs/%d/blocks/%s/updateFile/%s",
+            applicantId, programId, blockId, inReview);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .updateFile(
+                    applicantProfile, applicantId, programId, blockId, Boolean.valueOf(inReview))
+                .url())
+        .isEqualTo(expectedUpdateFileUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present + 1);
+    assertThat(after.absent).isEqualTo(before.absent);
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void testUpdateFileRoute_forApplicantWithoutIdInProfile(String inReview) {
+    enableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedUpdateFileUrl =
+        String.format(
+            "/applicants/%d/programs/%d/blocks/%s/updateFile/%s",
+            applicantId, programId, blockId, inReview);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .updateFile(
+                    applicantProfile, applicantId, programId, blockId, Boolean.valueOf(inReview))
+                .url())
+        .isEqualTo(expectedUpdateFileUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present);
+    assertThat(after.absent).isEqualTo(before.absent + 1);
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void testUpdateFileRoute_forTrustedIntermediary(String inReview) {
+    enableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(tiAccountId);
+    profileData.addRole(Role.ROLE_TI.toString());
+    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedUpdateFileUrl =
+        String.format(
+            "/applicants/%d/programs/%d/blocks/%s/updateFile/%s",
+            applicantId, programId, blockId, inReview);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .updateFile(tiProfile, applicantId, programId, blockId, Boolean.valueOf(inReview))
+                .url())
+        .isEqualTo(expectedUpdateFileUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present);
+    assertThat(after.absent).isEqualTo(before.absent + 1);
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void testUpdateBlockRoute_forApplicantWithIdInProfile_newSchemaEnabled(String inReview) {
+    enableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(applicantId));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedUpdateBlockUrl =
+        String.format("/programs/%d/blocks/%s/%s", programId, blockId, inReview);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .updateBlock(
+                    applicantProfile, applicantId, programId, blockId, Boolean.valueOf(inReview))
+                .url())
+        .isEqualTo(expectedUpdateBlockUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present + 1);
+    assertThat(after.absent).isEqualTo(before.absent);
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void testUpdateBlockRoute_forApplicantWithIdInProfile_newSchemaDisabled(String inReview) {
+    disableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(applicantId));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedUpdateBlockUrl =
+        String.format(
+            "/applicants/%d/programs/%d/blocks/%s/%s", applicantId, programId, blockId, inReview);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .updateBlock(
+                    applicantProfile, applicantId, programId, blockId, Boolean.valueOf(inReview))
+                .url())
+        .isEqualTo(expectedUpdateBlockUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present + 1);
+    assertThat(after.absent).isEqualTo(before.absent);
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void testUpdateBlockRoute_forApplicantWithoutIdInProfile(String inReview) {
+    enableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedUpdateBlockUrl =
+        String.format(
+            "/applicants/%d/programs/%d/blocks/%s/%s", applicantId, programId, blockId, inReview);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .updateBlock(
+                    applicantProfile, applicantId, programId, blockId, Boolean.valueOf(inReview))
+                .url())
+        .isEqualTo(expectedUpdateBlockUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present);
+    assertThat(after.absent).isEqualTo(before.absent + 1);
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void testUpdateBlockRoute_forTrustedIntermediary(String inReview) {
+    enableNewApplicantUrlSchema();
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(tiAccountId);
+    profileData.addRole(Role.ROLE_TI.toString());
+    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedUpdateBlockUrl =
+        String.format(
+            "/applicants/%d/programs/%d/blocks/%s/%s", applicantId, programId, blockId, inReview);
+    assertThat(
+            new ApplicantRoutes(mockSettingsManifest)
+                .updateBlock(tiProfile, applicantId, programId, blockId, Boolean.valueOf(inReview))
+                .url())
+        .isEqualTo(expectedUpdateBlockUrl);
 
     Counts after = getApplicantIdInProfileCounts();
     assertThat(after.present).isEqualTo(before.present);

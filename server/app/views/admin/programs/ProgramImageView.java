@@ -3,10 +3,11 @@ package views.admin.programs;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.img;
-import static j2html.TagCreator.label;
-import static j2html.TagCreator.span;
+import static j2html.TagCreator.h2;
+import static j2html.TagCreator.p;
 
+import auth.CiviFormProfile;
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -14,16 +15,22 @@ import controllers.admin.routes;
 import forms.admin.ProgramImageDescriptionForm;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.InputTag;
-import j2html.tags.specialized.LabelTag;
+import j2html.tags.specialized.LiTag;
+import java.time.ZoneId;
+import java.util.NoSuchElementException;
 import java.util.Optional;
-import org.apache.commons.lang3.RandomStringUtils;
+import java.util.concurrent.ExecutionException;
 import play.data.Form;
 import play.data.FormFactory;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
+import services.MessageKey;
+import services.applicant.ApplicantPersonalInfo;
+import services.applicant.ApplicantService;
 import services.cloud.PublicFileNameFormatter;
 import services.cloud.PublicStorageClient;
 import services.cloud.StorageUploadRequest;
@@ -32,6 +39,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
+import views.applicant.ProgramCardViewRenderer;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.ToastMessage;
@@ -48,9 +56,11 @@ public final class ProgramImageView extends BaseHtmlView {
   private final String baseUrl;
   private final FormFactory formFactory;
   private final FileUploadViewStrategy fileUploadViewStrategy;
+  private final MessagesApi messagesApi;
+  private final ProfileUtils profileUtils;
+  private final ProgramCardViewRenderer programCardViewRenderer;
   private final PublicStorageClient publicStorageClient;
-  // The ID used to associate the file input field with its screen reader label.
-  private final String fileInputId;
+  private final ZoneId zoneId;
 
   @Inject
   public ProgramImageView(
@@ -58,13 +68,20 @@ public final class ProgramImageView extends BaseHtmlView {
       Config config,
       FormFactory formFactory,
       FileUploadViewStrategy fileUploadViewStrategy,
-      PublicStorageClient publicStorageClient) {
+      MessagesApi messagesApi,
+      ProfileUtils profileUtils,
+      ProgramCardViewRenderer programCardViewRenderer,
+      PublicStorageClient publicStorageClient,
+      ZoneId zoneId) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.formFactory = checkNotNull(formFactory);
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
+    this.messagesApi = checkNotNull(messagesApi);
+    this.profileUtils = checkNotNull(profileUtils);
+    this.programCardViewRenderer = checkNotNull(programCardViewRenderer);
     this.publicStorageClient = checkNotNull(publicStorageClient);
-    this.fileInputId = RandomStringUtils.randomAlphabetic(8);
+    this.zoneId = checkNotNull(zoneId);
   }
 
   /**
@@ -75,15 +92,21 @@ public final class ProgramImageView extends BaseHtmlView {
     String title =
         String.format(
             "Manage program image for %s", programDefinition.localizedName().getDefault());
-    HtmlBundle htmlBundle =
-        layout
-            .getBundle(request)
-            .setTitle(title)
-            .addMainContent(
-                renderHeader(title, "my-10", "mx-10"),
-                createImageDescriptionForm(request, programDefinition),
-                createImageUploadForm(programDefinition),
-                renderCurrentImage(programDefinition));
+
+    DivTag mainContent =
+        div()
+            .withClasses("my-10", "mx-20")
+            .with(renderHeader(title))
+            .with(createImageDescriptionForm(request, programDefinition));
+
+    DivTag imageUploadAndCurrentCardContainer =
+        div()
+            .withClasses("grid", "grid-cols-2", "gap-2", "w-full")
+            .with(createImageUploadForm(programDefinition))
+            .with(renderCurrentProgramCard(request, programDefinition));
+    mainContent.with(imageUploadAndCurrentCardContainer);
+
+    HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(mainContent);
 
     // TODO(#5676): This toast code is re-implemented across multiple controllers. Can we write a
     // helper method for it?
@@ -131,25 +154,20 @@ public final class ProgramImageView extends BaseHtmlView {
         fileUploadViewStrategy
             .renderFileUploadFormElement(storageUploadRequest)
             .withId(IMAGE_FILE_UPLOAD_FORM_ID);
-    ImmutableList<InputTag> fileUploadFormInputs =
-        fileUploadViewStrategy.fileUploadFormInputs(
-            Optional.of(storageUploadRequest),
-            MIME_TYPES_IMAGES,
-            fileInputId,
-            /* ariaDescribedByIds= */ ImmutableList.of(),
-            /* hasErrors= */ false);
-
-    LabelTag chooseFileButton =
-        label()
-            .withFor(fileInputId)
-            .with(
-                span()
-                    .attr("role", "button")
-                    .attr("tabindex", 0)
-                    .withText("Choose program image")
-                    .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "w-64", "mt-10", "mb-2"));
-
-    FormTag fullForm = form.with(fileUploadFormInputs).with(chooseFileButton);
+    ImmutableList<InputTag> additionalFileUploadFormInputs =
+        fileUploadViewStrategy.additionalFileUploadFormInputs(Optional.of(storageUploadRequest));
+    DivTag fileInputElement =
+        fileUploadViewStrategy.createUswdsFileInputFormElement(
+            /* acceptedMimeTypes= */ MIME_TYPES_IMAGES,
+            // TODO(#5676): Get final copy for the size warning message.
+            /* hintText= */ "File size must be at most 1 MB.");
+    FormTag fullForm =
+        form.with(additionalFileUploadFormInputs)
+            // It's critical that the "file" field be the last input element for the form since S3
+            // will ignore any fields after that.
+            // See #2653 / https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-HTTPPOSTForms.html
+            // for more context.
+            .with(fileInputElement);
 
     // TODO(#5676): Replace with final UX once we have it.
     return div()
@@ -160,7 +178,6 @@ public final class ProgramImageView extends BaseHtmlView {
                 .withClasses(ButtonStyles.SOLID_BLUE, "mb-2"))
         .with(fileUploadViewStrategy.footerTags());
 
-    // TODO(#5676): If there's already a file uploaded, render its name.
     // TODO(#5676): Warn admins of recommended image size and dimensions.
     // TODO(#5676): Allow admins to remove an already-uploaded file.
   }
@@ -172,12 +189,46 @@ public final class ProgramImageView extends BaseHtmlView {
     return publicStorageClient.getSignedUploadRequest(key, onSuccessRedirectUrl);
   }
 
-  private DivTag renderCurrentImage(ProgramDefinition program) {
-    if (program.summaryImageFileKey().isEmpty()) {
-      return div();
+  private DivTag renderCurrentProgramCard(Http.Request request, ProgramDefinition program) {
+    DivTag currentProgramCardSection =
+        div().with(h2("What the applicant will see").withClasses("mb-4"));
+
+    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+    Long applicantId;
+    try {
+      applicantId = profile.get().getApplicant().get().id;
+    } catch (NoSuchElementException | ExecutionException | InterruptedException e) {
+      return currentProgramCardSection.with(
+          p("Applicant preview can't be rendered: Applicant ID for admin couldn't be fetched."));
     }
-    ImgTag image =
-        img().withSrc(publicStorageClient.getPublicDisplayUrl(program.summaryImageFileKey().get()));
-    return div().with(image);
+
+    Messages messages = messagesApi.preferred(request);
+    // We don't need to fill in any applicant data besides the program information since this is
+    // just for a card preview.
+    ApplicantService.ApplicantProgramData card =
+        ApplicantService.ApplicantProgramData.builder().setProgram(program).build();
+
+    LiTag programCard =
+        programCardViewRenderer.createProgramCard(
+            request,
+            messages,
+            // An admin *does* have an associated applicant account, so consider them logged in so
+            // that the "Apply" button on the preview card takes them to the full program preview.
+            ApplicantPersonalInfo.ApplicantType.LOGGED_IN,
+            card,
+            applicantId,
+            messages.lang().toLocale(),
+            MessageKey.BUTTON_APPLY,
+            MessageKey.BUTTON_APPLY_SR,
+            /* nestedUnderSubheading= */ false,
+            layout.getBundle(request),
+            profile.get(),
+            zoneId);
+    return currentProgramCardSection.with(programCard);
+    // Note: The "Program details" link inside the card preview will not work if the admin hasn't
+    // provided a custom external link. This is because the default "Program details" link redirects
+    // to ApplicantProgramsController#showWithApplicantId, which only allows access to the published
+    // versions of programs. When editing a program image, the program is in *draft* form and has a
+    // different ID, so ApplicantProgramsController prevents access.
   }
 }

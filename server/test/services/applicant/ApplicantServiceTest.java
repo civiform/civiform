@@ -836,6 +836,9 @@ public class ApplicantServiceTest extends ResetPostgres {
                         .build()))
             .getResult();
 
+    // Publish version and fetch results
+    versionRepository.publishNewSynchronizedVersion();
+
     ProgramModel firstProgram =
         ProgramBuilder.newActiveProgram("first test program", "desc")
             .withBlock()
@@ -2567,8 +2570,6 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    // Publish version and fetch results
-    versionRepository.publishNewSynchronizedVersion();
     var result =
         subject
             .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
@@ -2587,7 +2588,6 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
 
-    System.out.println("reemax setting up pqs");
     // Set up program and questions
     NameQuestionDefinition eligibleQuestion =
         createNameQuestion("question_with_matching_eligibility");
@@ -2619,7 +2619,6 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
     programWithEligibleAndIneligibleAnswers.save();
     versionRepository.publishNewSynchronizedVersion();
-    System.out.println("published 1");
 
     // Fill out application
     answerNameQuestion(
@@ -2634,7 +2633,6 @@ public class ApplicantServiceTest extends ResetPostgres {
             .id(),
         applicant.id,
         programWithEligibleAndIneligibleAnswers.id);
-    System.out.println("answered 1");
     answerNameQuestion(
         ineligibleQuestion,
         "Solána",
@@ -2648,18 +2646,12 @@ public class ApplicantServiceTest extends ResetPostgres {
         applicant.id,
         programWithEligibleAndIneligibleAnswers.id);
 
-    System.out.println("answered 2");
-
     applicationRepository
         .submitApplication(
             applicant.id, programWithEligibleAndIneligibleAnswers.id, Optional.empty())
         .toCompletableFuture()
         .join();
-    System.out.println("submitted ");
 
-    // Publish version and fetch results
-    versionRepository.publishNewSynchronizedVersion();
-    System.out.println("publish2");
     var result =
         subject
             .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
@@ -2714,8 +2706,6 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    // Publish version and fetch results
-    versionRepository.publishNewSynchronizedVersion();
     var result =
         subject
             .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
@@ -2763,8 +2753,6 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    // Publish version and fetch results
-    versionRepository.publishNewSynchronizedVersion();
     var result =
         subject
             .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)

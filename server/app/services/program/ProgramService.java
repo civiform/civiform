@@ -230,6 +230,9 @@ public final class ProgramService {
             .orElseThrow();
     // If the max version is greater than the active version, it is a draft
     if (maxVersionForProgram.id > activeVersion.id) {
+      // This method makes multiple calls to get questions for the active and
+      // draft versions, so we should only call it if we're syncing program
+      // associations for a draft program (which means we're in the admin flow).
       return syncProgramDefinitionQuestions(program.getProgramDefinition())
           .thenApply(ProgramDefinition::orderBlockDefinitions);
     }
@@ -1648,8 +1651,9 @@ public final class ProgramService {
    */
   private CompletionStage<ProgramDefinition> syncProgramDefinitionQuestions(
       ProgramDefinition programDefinition) {
-    // Note: This method is also used for non question updates.  It'd likely be
-    // good to have a focused method for that.
+    // Note: This method is also used for non question updates.
+    // TODO(#6249) We should have a focused method for that because getReadOnlyQuestionService()
+    // makes multiple calls to get question data for the active and draft versions.
     return questionService
         .getReadOnlyQuestionService()
         .thenApplyAsync(

@@ -126,10 +126,35 @@ describe('Admin can manage program image', () => {
       await adminPrograms.goToProgramImagePage(programName)
     })
 
+    it('form is correctly formatted', async () => {
+      const {page} = ctx
+
+      const formInputs = await page
+        .locator('#image-file-upload-form')
+        .locator('input')
+        .all()
+      const lastFormInput = formInputs[formInputs.length - 1]
+
+      // AWS requires that the <input type="file"> element to be the last <input> in the <form>
+      expect(await lastFormInput.getAttribute('type')).toBe('file')
+    })
+
+    it('shows uploaded image before submitting', async () => {
+      const {page, adminProgramImage} = ctx
+
+      await adminProgramImage.setImageFile(
+        'src/assets/program-summary-image-wide.png',
+      )
+
+      await validateScreenshot(page, 'program-image-with-image-before-save')
+    })
+
     it('adds new image', async () => {
       const {page, adminProgramImage} = ctx
 
-      await adminProgramImage.setImageFileAndSubmit()
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+      )
       await adminProgramImage.expectProgramImagePage(programName)
       await validateToastMessage(
         page,

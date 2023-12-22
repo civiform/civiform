@@ -67,8 +67,6 @@ public final class VersionRepository {
   private final SettingsManifest settingsManifest;
   private final SyncCacheApi questionsByVersionCache;
   private final SyncCacheApi programsByVersionCache;
-  private final SyncCacheApi programCache;
-  private final SyncCacheApi versionsByProgramCache;
 
   @Inject
   public VersionRepository(
@@ -77,9 +75,7 @@ public final class VersionRepository {
       DatabaseExecutionContext databaseExecutionContext,
       SettingsManifest settingsManifest,
       @NamedCache("version-questions") SyncCacheApi questionsByVersionCache,
-      @NamedCache("version-programs") SyncCacheApi programsByVersionCache,
-      @NamedCache("program") SyncCacheApi programCache,
-      @NamedCache("program-versions") SyncCacheApi versionsByProgramCache) {
+      @NamedCache("version-programs") SyncCacheApi programsByVersionCache) {
     this.database = DB.getDefault();
     this.programRepository = checkNotNull(programRepository);
     this.questionRepository = checkNotNull(questionRepository);
@@ -87,8 +83,6 @@ public final class VersionRepository {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.questionsByVersionCache = checkNotNull(questionsByVersionCache);
     this.programsByVersionCache = checkNotNull(programsByVersionCache);
-    this.programCache = checkNotNull(programCache);
-    this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
   }
 
   /**
@@ -151,7 +145,6 @@ public final class VersionRepository {
           .forEach(
               program -> {
                 draft.addProgram(program);
-                removeCacheForProgram(program.id);
               });
 
       // Associate any active questions that aren't present in the draft with the draft.
@@ -184,16 +177,11 @@ public final class VersionRepository {
               programToDelete -> {
                 draft.removeTombstoneForProgram(programToDelete);
                 draft.removeProgram(programToDelete);
-                removeCacheForProgram(programToDelete.id);
               });
 
       // Move forward the ACTIVE version.
       active.setLifecycleStage(LifecycleStage.OBSOLETE);
       draft.setLifecycleStage(LifecycleStage.ACTIVE);
-
-      // Clear the cache before publishing is completed.
-      removeCacheForVersion(String.valueOf(active.id));
-      removeCacheForVersion(String.valueOf(draft.id));
 
       switch (publishMode) {
         case PUBLISH_CHANGES:
@@ -265,7 +253,6 @@ public final class VersionRepository {
               program -> {
                 newDraft.addProgram(program);
                 existingDraft.removeProgram(program);
-                removeCacheForProgram(program.id);
               });
       getQuestionsForVersion(existingDraft).stream()
           .filter(
@@ -287,7 +274,6 @@ public final class VersionRepository {
           .forEach(
               program -> {
                 existingDraft.addProgram(program);
-                removeCacheForProgram(program.id);
               });
       getQuestionsForVersion(active).stream()
           .filter(
@@ -299,10 +285,6 @@ public final class VersionRepository {
       // Move forward the ACTIVE version.
       active.setLifecycleStage(LifecycleStage.OBSOLETE);
       existingDraft.setLifecycleStage(LifecycleStage.ACTIVE);
-
-      // Clear the cache before publishing is completed.
-      removeCacheForVersion(String.valueOf(existingDraft.id));
-      removeCacheForVersion(String.valueOf(active.id));
 
       existingDraft.save();
       active.save();
@@ -549,24 +531,6 @@ public final class VersionRepository {
     return version.getPrograms();
   }
 
-  private void removeCacheForVersion(String versionKey) {
-    if (settingsManifest.getVersionCacheEnabled()) {
-      questionsByVersionCache.remove(versionKey);
-      programsByVersionCache.remove(versionKey);
-    }
-  }
-
-  private void removeCacheForProgram(String programKey) {
-    if (settingsManifest.getProgramCacheEnabled()) {
-      versionsByProgramCache.remove(programKey);
-      programCache.remove(programKey);
-    }
-  }
-
-  private void removeCacheForProgram(Long programId) {
-    removeCacheForProgram(String.valueOf(programId));
-  }
-
   /**
    * Given any revision of a question, return the most recent conceptual version of it. Will return
    * the current DRAFT version if present then the current ACTIVE version.
@@ -667,7 +631,6 @@ public final class VersionRepository {
   /** Validate all programs have associated questions. */
   private void validateProgramQuestionState() {
     VersionModel activeVersion = getActiveVersion();
-    removeCacheForVersion(String.valueOf(activeVersion.id));
     ImmutableList<QuestionDefinition> newActiveQuestions =
         getQuestionsForVersionWithoutCache(activeVersion).stream()
             .map(question -> questionRepository.getQuestionDefinition(question))
