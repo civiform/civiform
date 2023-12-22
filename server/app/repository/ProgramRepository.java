@@ -72,12 +72,21 @@ public final class ProgramRepository {
   }
 
   public CompletionStage<Optional<ProgramModel>> lookupProgram(long id) {
-    // Use the cache if it is enabled and there isn't a draft version in progress.
-    if (settingsManifest.getProgramCacheEnabled()
-        && !versionRepository.get().getDraftVersion().isPresent()) {
-      return supplyAsync(
-          () -> programCache.getOrElseUpdate(String.valueOf(id), () -> lookupProgramSync(id)),
-          executionContext);
+    // Use the cache if it is enabled
+    if (settingsManifest.getProgramCacheEnabled()) {
+      String cacheKey = String.valueOf(id);
+      Optional<ProgramModel> cachedProgram = programCache.get(cacheKey);
+      if (cachedProgram.isPresent()) {
+        return supplyAsync(() -> cachedProgram, executionContext);
+      }
+      // We look up the program first, so we can determine if it is a draft and
+      // can't be cached.
+      Optional<ProgramModel> program = lookupProgramSync(id);
+      // If the program is not in the draft, we can cache it for future look-ups.
+      if (!versionRepository.get().isDraft(program.get())) {
+        programCache.set(cacheKey, program);
+      }
+      return supplyAsync(() -> program, executionContext);
     }
     return supplyAsync(() -> lookupProgramSync(id), executionContext);
   }

@@ -18,6 +18,7 @@ import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -578,7 +579,14 @@ public final class VersionRepository {
 
   /** Returns true if the program is a member of the current draft version. */
   public boolean isDraft(ProgramModel program) {
-    return isDraftProgram(program.id);
+    VersionModel activeVersion = getActiveVersion();
+    VersionModel maxVersionForProgram =
+        programRepository.getVersionsForProgram(program).stream()
+            .max(Comparator.comparingLong(p -> p.id))
+            .orElseThrow();
+
+    // If the max version is greater than the active version, it is a draft
+    return maxVersionForProgram.id > activeVersion.id;
   }
 
   /** Returns true if the program with the provided id is a member of the current draft version. */
