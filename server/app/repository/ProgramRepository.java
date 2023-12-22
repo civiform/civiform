@@ -54,6 +54,7 @@ public final class ProgramRepository {
   private final Provider<VersionRepository> versionRepository;
   private final SettingsManifest settingsManifest;
   private final SyncCacheApi programCache;
+  private final SyncCacheApi programDefCache;
   private final SyncCacheApi versionsByProgramCache;
 
   @Inject
@@ -62,12 +63,14 @@ public final class ProgramRepository {
       Provider<VersionRepository> versionRepository,
       SettingsManifest settingsManifest,
       @NamedCache("program") SyncCacheApi programCache,
+      @NamedCache("program-definition") SyncCacheApi programDefCache,
       @NamedCache("program-versions") SyncCacheApi versionsByProgramCache) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
     this.versionRepository = checkNotNull(versionRepository);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programCache = checkNotNull(programCache);
+    this.programDefCache = checkNotNull(programDefCache);
     this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
   }
 
@@ -121,6 +124,35 @@ public final class ProgramRepository {
     }
 
     return names.build();
+  }
+
+  /**
+   * Gets the program definition that contains the related question data from the cache (if
+   * enabled).
+   */
+  public Optional<ProgramDefinition> getProgramDefinitionFromCache(ProgramModel program) {
+    if (settingsManifest.getProgramCacheEnabled()) {
+      return programDefCache.get(String.valueOf(program.id));
+    }
+    return Optional.empty();
+  }
+
+  public Optional<ProgramDefinition> getProgramDefinitionFromCache(long programId) {
+    if (settingsManifest.getProgramCacheEnabled()) {
+      return programDefCache.get(String.valueOf(programId));
+    }
+    return Optional.empty();
+  }
+
+  /**
+   * Sets the program definition that contains the related question data in the cache (if enabled).
+   *
+   * <p>Draft program definition data must not be set in the cache.
+   */
+  public void setProgramDefinitionCache(long programId, ProgramDefinition programDefinition) {
+    if (settingsManifest.getProgramCacheEnabled()) {
+      programDefCache.set(String.valueOf(programId), programDefinition);
+    }
   }
 
   /**

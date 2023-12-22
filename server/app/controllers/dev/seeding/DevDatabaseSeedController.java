@@ -37,6 +37,7 @@ public class DevDatabaseSeedController extends Controller {
   private final AsyncCacheApi questionsByVersionCache;
   private final AsyncCacheApi programsByVersionCache;
   private final AsyncCacheApi programCache;
+  private final AsyncCacheApi programDefCache;
   private final AsyncCacheApi versionsByProgramCache;
 
   @Inject
@@ -51,6 +52,7 @@ public class DevDatabaseSeedController extends Controller {
       @NamedCache("version-questions") AsyncCacheApi questionsByVersionCache,
       @NamedCache("version-programs") AsyncCacheApi programsByVersionCache,
       @NamedCache("program") AsyncCacheApi programCache,
+      @NamedCache("program-definition") AsyncCacheApi programDefCache,
       @NamedCache("program-versions") AsyncCacheApi versionsByProgramCache) {
     this.devDatabaseSeedTask = checkNotNull(devDatabaseSeedTask);
     this.view = checkNotNull(view);
@@ -63,6 +65,7 @@ public class DevDatabaseSeedController extends Controller {
     this.questionsByVersionCache = checkNotNull(questionsByVersionCache);
     this.programsByVersionCache = checkNotNull(programsByVersionCache);
     this.programCache = checkNotNull(programCache);
+    this.programDefCache = checkNotNull(programDefCache);
     this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
   }
 
@@ -155,6 +158,7 @@ public class DevDatabaseSeedController extends Controller {
     }
     if (settingsManifest.getProgramCacheEnabled()) {
       programCache.removeAll().toCompletableFuture().join();
+      programDefCache.removeAll().toCompletableFuture().join();
       versionsByProgramCache.removeAll().toCompletableFuture().join();
     }
   }
