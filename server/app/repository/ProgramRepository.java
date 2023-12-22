@@ -131,10 +131,7 @@ public final class ProgramRepository {
    * enabled).
    */
   public Optional<ProgramDefinition> getFullProgramDefinitionFromCache(ProgramModel program) {
-    if (settingsManifest.getQuestionCacheEnabled()) {
-      return programDefCache.get(String.valueOf(program.id));
-    }
-    return Optional.empty();
+    return getFullProgramDefinitionFromCache(program.id);
   }
 
   public Optional<ProgramDefinition> getFullProgramDefinitionFromCache(long programId) {
