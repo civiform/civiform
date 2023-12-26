@@ -37,7 +37,6 @@ import services.cloud.PublicStorageClient;
 import services.cloud.StorageUploadRequest;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
-import views.Breadcrumb;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
@@ -46,6 +45,8 @@ import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.ToastMessage;
+import views.components.breadcrumb.BreadcrumbFactory;
+import views.components.breadcrumb.BreadcrumbItem;
 import views.fileupload.FileUploadViewStrategy;
 
 /** A view for admins to update the image associated with a particular program. */
@@ -56,7 +57,7 @@ public final class ProgramImageView extends BaseHtmlView {
   private static final String IMAGE_FILE_UPLOAD_FORM_ID = "image-file-upload-form";
 
   private final AdminLayout layout;
-  private final Breadcrumb breadcrumb;
+  private final BreadcrumbFactory breadcrumbFactory;
   private final String baseUrl;
   private final FormFactory formFactory;
   private final FileUploadViewStrategy fileUploadViewStrategy;
@@ -69,7 +70,7 @@ public final class ProgramImageView extends BaseHtmlView {
   @Inject
   public ProgramImageView(
       AdminLayoutFactory layoutFactory,
-      Breadcrumb breadcrumb,
+      BreadcrumbFactory breadcrumbFactory,
       Config config,
       FormFactory formFactory,
       FileUploadViewStrategy fileUploadViewStrategy,
@@ -79,7 +80,7 @@ public final class ProgramImageView extends BaseHtmlView {
       PublicStorageClient publicStorageClient,
       ZoneId zoneId) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
-    this.breadcrumb = breadcrumb;
+    this.breadcrumbFactory = breadcrumbFactory;
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.formFactory = checkNotNull(formFactory);
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
@@ -127,17 +128,18 @@ public final class ProgramImageView extends BaseHtmlView {
   }
 
   private NavTag createBreadcrumbNav(ProgramDefinition program) {
-    ImmutableList.Builder<LiTag> breadcrumbList = ImmutableList.builder();
-    // TODO: Make autovalue class
-    breadcrumbList.add(
-        breadcrumb.createBreadcrumbItem("Edit Program", Optional.of("href"), Optional.empty()));
-    breadcrumbList.add(
-        breadcrumb.createBreadcrumbItem(
-            program.localizedName().getDefault(), Optional.of("href"), Optional.empty()));
-    breadcrumbList.add(
-        breadcrumb.createBreadcrumbItem(
-            "Program image upload", Optional.empty(), Optional.of(Icons.FILEUPLOAD)));
-    return breadcrumb.createBreadcrumb(breadcrumbList.build());
+    ImmutableList<BreadcrumbItem> breadcrumbList =
+        ImmutableList.of(
+            BreadcrumbItem.create(
+                "Edit Programs",
+                /* href= */ baseUrl + routes.AdminProgramController.index().url(),
+                /* icon= */ null),
+            BreadcrumbItem.create(
+                program.localizedName().getDefault(),
+                /* href= */ baseUrl + routes.AdminProgramBlocksController.index(program.id()).url(),
+                /* icon= */ null),
+            BreadcrumbItem.create("Program image upload", /* href= */ null, Icons.FILEUPLOAD));
+    return breadcrumbFactory.buildBreadcrumb(breadcrumbList);
   }
 
   private FormTag createImageDescriptionForm(
