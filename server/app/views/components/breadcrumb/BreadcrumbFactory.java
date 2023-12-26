@@ -22,8 +22,8 @@ import views.components.Icons;
 public final class BreadcrumbFactory {
 
   /**
-   * Builds a breadcrumb UI component based off the given list. The first item in the list will
-   * appear first.
+   * Builds a breadcrumb UI component based off the given list. The order of items in the list
+   * determines the breadcrumb order.
    */
   public NavTag buildBreadcrumb(ImmutableList<BreadcrumbItem> breadcrumbs) {
     NavTag breadcrumbNav =
@@ -36,11 +36,11 @@ public final class BreadcrumbFactory {
 
   private LiTag createBreadcrumbItem(BreadcrumbItem breadcrumbItem) {
     LiTag liTag = li().withClasses("usa-breadcrumb__list-item", "flex");
-    if (breadcrumbItem.href() != null) {
+    if (breadcrumbItem.link() != null) {
       ATag atag = a().withClasses("usa-breadcrumb__link", "flex");
       addIconIfNeeded(breadcrumbItem.icon(), atag);
       atag.withText(breadcrumbItem.text());
-      atag.withHref(breadcrumbItem.href());
+      atag.withHref(breadcrumbItem.link());
       liTag.with(atag);
     } else {
       addIconIfNeeded(breadcrumbItem.icon(), liTag);

@@ -17,7 +17,6 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LiTag;
-import j2html.tags.specialized.NavTag;
 import java.time.ZoneId;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -96,15 +95,14 @@ public final class ProgramImageView extends BaseHtmlView {
    * image (and its alt text).
    */
   public Content render(Http.Request request, ProgramDefinition programDefinition) {
-    String title =
-        String.format(
-            "Manage program image for %s", programDefinition.localizedName().getDefault());
+    DivTag breadcrumbs = createBreadcrumbNav(programDefinition);
 
+    String title =
+            String.format(
+                    "Manage program image for %s", programDefinition.localizedName().getDefault());
     DivTag mainContent =
         div()
-            .withClasses("my-10", "mx-20")
-            // TODO: Should be outside the main area bc it needs less margin
-            .with(createBreadcrumbNav(programDefinition))
+            .withClass("mx-20")
             .with(renderHeader(title))
             .with(createImageDescriptionForm(request, programDefinition));
 
@@ -115,7 +113,11 @@ public final class ProgramImageView extends BaseHtmlView {
             .with(renderCurrentProgramCard(request, programDefinition));
     mainContent.with(imageUploadAndCurrentCardContainer);
 
-    HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(mainContent);
+    HtmlBundle htmlBundle =
+        layout
+            .getBundle(request)
+            .setTitle(title)
+            .addMainContent(div().with(breadcrumbs, mainContent));
 
     // TODO(#5676): This toast code is re-implemented across multiple controllers. Can we write a
     // helper method for it?
@@ -127,19 +129,21 @@ public final class ProgramImageView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private NavTag createBreadcrumbNav(ProgramDefinition program) {
+  private DivTag createBreadcrumbNav(ProgramDefinition program) {
     ImmutableList<BreadcrumbItem> breadcrumbList =
         ImmutableList.of(
             BreadcrumbItem.create(
                 "Edit Programs",
-                /* href= */ baseUrl + routes.AdminProgramController.index().url(),
+                /* link= */ baseUrl + routes.AdminProgramController.index().url(),
                 /* icon= */ null),
             BreadcrumbItem.create(
                 program.localizedName().getDefault(),
-                /* href= */ baseUrl + routes.AdminProgramBlocksController.index(program.id()).url(),
+                /* link= */ baseUrl + routes.AdminProgramBlocksController.index(program.id()).url(),
                 /* icon= */ null),
-            BreadcrumbItem.create("Program image upload", /* href= */ null, Icons.FILEUPLOAD));
-    return breadcrumbFactory.buildBreadcrumb(breadcrumbList);
+            BreadcrumbItem.create("Program image upload", /* link= */ null, Icons.FILEUPLOAD));
+    return div()
+        .withClasses("mt-4", "mx-10")
+        .with(breadcrumbFactory.buildBreadcrumb(breadcrumbList));
   }
 
   private FormTag createImageDescriptionForm(

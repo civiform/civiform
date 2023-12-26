@@ -7,22 +7,22 @@ import views.components.Icons;
 /** Represents a single item in a breadcrumb list. */
 @AutoValue
 public abstract class BreadcrumbItem {
-  public static BreadcrumbItem create(String text, @Nullable String href, @Nullable Icons icon) {
-    return new AutoValue_BreadcrumbItem(text, href, icon);
+  public static BreadcrumbItem create(String text, @Nullable String link, @Nullable Icons icon) {
+    return new AutoValue_BreadcrumbItem(text, link, icon);
   }
 
-  /** The text to display for this item in the breadcrumb. */
+  /** The text to display for this breadcrumb item. */
   public abstract String text();
 
   /**
    * An optional href link that represents this breadcrumb item. For example, an "Edit program ABC"
-   * breadcrumb item should have an href that takes the user to
-   * `/programs/{programId}/blocks/1/edit`.
+   * breadcrumb item should have an href that takes the user to `/programs/{ABC Program
+   * ID}/blocks/1/edit`.
    *
-   * <p>If null, the breadcrumb item is *not* rendered as a link and is just rendered as plain text.
+   * <p>If null, the breadcrumb item is rendered as plain text instead of a link.
    */
   @Nullable
-  public abstract String href();
+  public abstract String link();
 
   /**
    * An optional icon that can be rendered to the left of the breadcrumb text.
