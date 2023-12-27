@@ -225,7 +225,7 @@ class PreviewController {
       previewQuestionOptionContainer.appendChild(newPreviewOption)
     }
   }
-  // cf-applicant-question-help-text text-black text-xl
+
   private static updateFromNewQuestionText(text: string) {
     text = text || PreviewController.DEFAULT_QUESTION_TEXT
     const questionType = document.querySelector('.cf-question-type')
