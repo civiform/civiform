@@ -42,7 +42,10 @@ import views.admin.AdminLayoutFactory;
 import views.applicant.ProgramCardViewRenderer;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
+import views.components.Icons;
 import views.components.ToastMessage;
+import views.components.breadcrumb.BreadcrumbFactory;
+import views.components.breadcrumb.BreadcrumbItem;
 import views.fileupload.FileUploadViewStrategy;
 
 /** A view for admins to update the image associated with a particular program. */
@@ -53,6 +56,7 @@ public final class ProgramImageView extends BaseHtmlView {
   private static final String IMAGE_FILE_UPLOAD_FORM_ID = "image-file-upload-form";
 
   private final AdminLayout layout;
+  private final BreadcrumbFactory breadcrumbFactory;
   private final String baseUrl;
   private final FormFactory formFactory;
   private final FileUploadViewStrategy fileUploadViewStrategy;
@@ -65,6 +69,7 @@ public final class ProgramImageView extends BaseHtmlView {
   @Inject
   public ProgramImageView(
       AdminLayoutFactory layoutFactory,
+      BreadcrumbFactory breadcrumbFactory,
       Config config,
       FormFactory formFactory,
       FileUploadViewStrategy fileUploadViewStrategy,
@@ -74,6 +79,7 @@ public final class ProgramImageView extends BaseHtmlView {
       PublicStorageClient publicStorageClient,
       ZoneId zoneId) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
+    this.breadcrumbFactory = checkNotNull(breadcrumbFactory);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.formFactory = checkNotNull(formFactory);
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
@@ -89,13 +95,14 @@ public final class ProgramImageView extends BaseHtmlView {
    * image (and its alt text).
    */
   public Content render(Http.Request request, ProgramDefinition programDefinition) {
+    DivTag breadcrumbs = createBreadcrumbs(programDefinition);
+
     String title =
         String.format(
             "Manage program image for %s", programDefinition.localizedName().getDefault());
-
     DivTag mainContent =
         div()
-            .withClasses("my-10", "mx-20")
+            .withClass("mx-20")
             .with(renderHeader(title))
             .with(createImageDescriptionForm(request, programDefinition));
 
@@ -106,7 +113,11 @@ public final class ProgramImageView extends BaseHtmlView {
             .with(renderCurrentProgramCard(request, programDefinition));
     mainContent.with(imageUploadAndCurrentCardContainer);
 
-    HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(mainContent);
+    HtmlBundle htmlBundle =
+        layout
+            .getBundle(request)
+            .setTitle(title)
+            .addMainContent(div().with(breadcrumbs, mainContent));
 
     // TODO(#5676): This toast code is re-implemented across multiple controllers. Can we write a
     // helper method for it?
@@ -116,6 +127,24 @@ public final class ProgramImageView extends BaseHtmlView {
     }
 
     return layout.renderCentered(htmlBundle);
+  }
+
+  private DivTag createBreadcrumbs(ProgramDefinition program) {
+    ImmutableList<BreadcrumbItem> breadcrumbItems =
+        ImmutableList.of(
+            BreadcrumbItem.create(
+                "Edit Programs",
+                /* link= */ baseUrl + routes.AdminProgramController.index().url(),
+                /* icon= */ null),
+            BreadcrumbItem.create(
+                program.localizedName().getDefault(),
+                /* link= */ baseUrl + routes.AdminProgramBlocksController.index(program.id()).url(),
+                /* icon= */ null),
+            // TODO(#5676): Use image icon once we have it.
+            BreadcrumbItem.create("Program image upload", /* link= */ null, Icons.FILEUPLOAD));
+    return div()
+        .withClasses("mt-4", "mx-10")
+        .with(breadcrumbFactory.buildBreadcrumbTrail(breadcrumbItems));
   }
 
   private FormTag createImageDescriptionForm(
