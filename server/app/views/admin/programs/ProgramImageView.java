@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -97,21 +98,27 @@ public final class ProgramImageView extends BaseHtmlView {
   public Content render(Http.Request request, ProgramDefinition programDefinition) {
     DivTag breadcrumbs = createBreadcrumbs(programDefinition);
 
-    String title =
-        String.format(
-            "Manage program image for %s", programDefinition.localizedName().getDefault());
-    DivTag mainContent =
-        div()
-            .withClass("mx-20")
-            .with(renderHeader(title))
-            .with(createImageDescriptionForm(request, programDefinition));
+    DivTag mainContent = div().withClass("mx-20");
 
+    String title = "Program image upload";
+    DivTag titleAndDescriptionContainer =
+        div()
+            .withClasses("flex", "mt-2", "mb-10")
+            .with(
+                div()
+                    .withClass("w-2/5")
+                    .with(renderHeader(title))
+                    .with(span("Browse or drag and drop an image to upload")))
+            .with(
+                div()
+                    .withClasses("w-3/5", "mt-4")
+                    .with(createImageDescriptionForm(request, programDefinition)));
     DivTag imageUploadAndCurrentCardContainer =
         div()
             .withClasses("grid", "grid-cols-2", "gap-2", "w-full")
             .with(createImageUploadForm(programDefinition))
             .with(renderCurrentProgramCard(request, programDefinition));
-    mainContent.with(imageUploadAndCurrentCardContainer);
+    mainContent.with(titleAndDescriptionContainer, imageUploadAndCurrentCardContainer);
 
     HtmlBundle htmlBundle =
         layout
@@ -168,11 +175,12 @@ public final class ProgramImageView extends BaseHtmlView {
             makeCsrfTokenInputTag(request),
             FieldWithLabel.input()
                 .setFieldName(ProgramImageDescriptionForm.SUMMARY_IMAGE_DESCRIPTION)
-                .setLabelText("Image description")
+                .setLabelText("Enter image description (Alt Text)")
+                .setPlaceholderText("Colorful fruits and vegetables in bins")
                 .setValue(form.value().get().getSummaryImageDescription())
                 .getInputTag())
         .with(
-            submitButton("Save description")
+            submitButton("Save image description")
                 .withForm(IMAGE_DESCRIPTION_FORM_ID)
                 .withClass(ButtonStyles.SOLID_BLUE));
   }
