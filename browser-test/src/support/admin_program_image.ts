@@ -12,7 +12,7 @@ export class AdminProgramImage {
 
   async setImageDescriptionAndSubmit(description: string) {
     await this.page.fill(this.imageDescriptionLocator, description)
-    await this.page.click('button:has-text("Save image description")')
+    await this.page.click('button[form=image-description-form]')
     await waitForPageJsLoad(this.page)
   }
 
@@ -22,7 +22,7 @@ export class AdminProgramImage {
 
   async setImageFileAndSubmit(imageFileName: string) {
     await this.setImageFile(imageFileName)
-    await this.page.click('button:has-text("Save image")')
+    await this.page.click('button[form=image-file-upload-form]')
     await waitForPageJsLoad(this.page)
   }
 
