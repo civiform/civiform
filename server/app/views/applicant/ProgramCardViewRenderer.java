@@ -38,6 +38,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http;
+import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
@@ -105,7 +106,7 @@ public final class ProgramCardViewRenderer {
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
     Optional<ImgTag> programImage =
-        createProgramImage(request, program, settingsManifest, publicStorageClient);
+        createProgramImage(request, program, preferredLocale, settingsManifest, publicStorageClient);
 
     ContainerTag title =
         nestedUnderSubheading
@@ -221,6 +222,7 @@ public final class ProgramCardViewRenderer {
   private static Optional<ImgTag> createProgramImage(
       Http.Request request,
       ProgramDefinition program,
+      Locale preferredLocale,
       SettingsManifest settingsManifest,
       PublicStorageClient publicStorageClient) {
     if (!settingsManifest.getProgramCardImages(request)) {
@@ -236,11 +238,19 @@ public final class ProgramCardViewRenderer {
     // TODO(#5676): Can we detect if the image URL is invalid and then not show it?
     // TODO(#5676): Include a placeholder while the image is loading.
 
+    LocalizedStrings altText;
+    if (program.localizedSummaryImageDescription().isPresent() && program.localizedSummaryImageDescription().get().hasTranslationFor(preferredLocale)) {
+      altText = program.localizedSummaryImageDescription().get();
+    } else {
+      // Fall back to the program name if the description hasn't been set
+      altText = program.localizedName();
+    }
+
     return Optional.of(
         img()
             .withSrc(publicStorageClient.getPublicDisplayUrl(program.summaryImageFileKey().get()))
+                .withAlt(altText.getOrDefault(preferredLocale))
             .withClasses("w-full", "aspect-video", "object-cover", "rounded-b-lg"));
-    // TODO(#5676): Add alt-text to image.
   }
 
   /**
