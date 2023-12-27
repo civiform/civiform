@@ -190,14 +190,14 @@ describe('normal question lifecycle', () => {
 
   it('shows markdown format correctly in the preview when creating a new question', async () => {
     const {page, adminQuestions} = ctx
-    const questionName = '**bold text**'
+    const questionName = 'markdown formatted question'
 
     await loginAsAdmin(page)
 
     await adminQuestions.createCheckboxQuestion({
       questionName: questionName,
-      questionText: 'https://g12345.com',
-      helpText: 'Sample question help text',
+      questionText: 'https://google.com **bold**',
+      helpText: '*italic* [link](https://test.com)',
       options: [
         {adminName: 'red_admin', text: 'red'},
         {adminName: 'green_admin', text: 'green'},
