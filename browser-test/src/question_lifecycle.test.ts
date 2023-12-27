@@ -188,6 +188,26 @@ describe('normal question lifecycle', () => {
     expect(await adminNames[4].inputValue()).toContain('option4_admin')
   })
 
+  it('shows markdown format correctly in the preview when creating a new question', async () => {
+    const {page, adminQuestions} = ctx
+
+    await loginAsAdmin(page)
+
+    await adminQuestions.createCheckboxQuestion({
+      questionName: '**bold text**',
+      questionText: 'https://g12345.com',
+      helpText: 'Sample question help text',
+      options: [
+        {adminName: 'red_admin', text: 'red'},
+        {adminName: 'green_admin', text: 'green'},
+        {adminName: 'orange_admin', text: 'orange'},
+        {adminName: 'blue_admin', text: 'blue'},
+      ],
+    })
+
+    await validateScreenshot(page, 'formatted-question-preview')
+  })
+
   it('shows error when creating a dropdown question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
 

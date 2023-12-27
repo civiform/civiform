@@ -225,13 +225,11 @@ class PreviewController {
       previewQuestionOptionContainer.appendChild(newPreviewOption)
     }
   }
-
+//cf-applicant-question-help-text text-black text-xl
   private static updateFromNewQuestionText(text: string) {
     text = text || PreviewController.DEFAULT_QUESTION_TEXT
     const questionType = document.querySelector('.cf-question-type')
-    const useAdvancedFormatting =
-      questionType &&
-      questionType.textContent === PreviewController.STATIC_QUESTION_TEXT
+    const useAdvancedFormatting = questionType
     if (useAdvancedFormatting) {
       const contentElement = PreviewController.formatText(text)
       contentElement.classList.add('pr-16')
@@ -252,10 +250,14 @@ class PreviewController {
   }
 
   private static updateFromNewQuestionHelpText(helpText: string) {
-    PreviewController.setTextAndHighlightEnumeratorReferences(
-      PreviewController.QUESTION_HELP_TEXT_SELECTOR,
-      helpText,
+    const contentElement = PreviewController.formatText(helpText)
+    const contentParent = document.querySelector(
+      PreviewController.QUESTION_HELP_TEXT_SELECTOR
     )
+    if(contentParent) {
+      contentParent.innerHTML = ''
+      contentParent.appendChild(contentElement)
+    }
   }
 
   private static updateFromNewEnumeratorSelector(
