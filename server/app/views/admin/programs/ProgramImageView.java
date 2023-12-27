@@ -98,10 +98,10 @@ public final class ProgramImageView extends BaseHtmlView {
   public Content render(Http.Request request, ProgramDefinition programDefinition) {
     DivTag breadcrumbs = createBreadcrumbs(programDefinition);
 
+    String title = "Program image upload";
     DivTag mainContent = div().withClass("mx-20");
 
-    String title = "Program image upload";
-    DivTag titleAndDescriptionContainer =
+    DivTag titleAndImageDescriptionContainer =
         div()
             .withClasses("flex", "mt-2", "mb-10")
             .with(
@@ -118,7 +118,7 @@ public final class ProgramImageView extends BaseHtmlView {
             .withClasses("grid", "grid-cols-2", "gap-2", "w-full")
             .with(createImageUploadForm(programDefinition))
             .with(renderCurrentProgramCard(request, programDefinition));
-    mainContent.with(titleAndDescriptionContainer, imageUploadAndCurrentCardContainer);
+    mainContent.with(titleAndImageDescriptionContainer, imageUploadAndCurrentCardContainer);
 
     HtmlBundle htmlBundle =
         layout
