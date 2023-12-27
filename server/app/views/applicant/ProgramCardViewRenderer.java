@@ -106,7 +106,8 @@ public final class ProgramCardViewRenderer {
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
     Optional<ImgTag> programImage =
-        createProgramImage(request, program, preferredLocale, settingsManifest, publicStorageClient);
+        createProgramImage(
+            request, program, preferredLocale, settingsManifest, publicStorageClient);
 
     ContainerTag title =
         nestedUnderSubheading
@@ -239,7 +240,8 @@ public final class ProgramCardViewRenderer {
     // TODO(#5676): Include a placeholder while the image is loading.
 
     LocalizedStrings altText;
-    if (program.localizedSummaryImageDescription().isPresent() && program.localizedSummaryImageDescription().get().hasTranslationFor(preferredLocale)) {
+    if (program.localizedSummaryImageDescription().isPresent()
+        && program.localizedSummaryImageDescription().get().hasTranslationFor(preferredLocale)) {
       altText = program.localizedSummaryImageDescription().get();
     } else {
       // Fall back to the program name if the description hasn't been set
@@ -249,7 +251,7 @@ public final class ProgramCardViewRenderer {
     return Optional.of(
         img()
             .withSrc(publicStorageClient.getPublicDisplayUrl(program.summaryImageFileKey().get()))
-                .withAlt(altText.getOrDefault(preferredLocale))
+            .withAlt(altText.getOrDefault(preferredLocale))
             .withClasses("w-full", "aspect-video", "object-cover", "rounded-b-lg"));
   }
 

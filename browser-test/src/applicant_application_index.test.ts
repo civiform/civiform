@@ -252,7 +252,7 @@ describe('applicant program index page', () => {
 })
 
 // TODO(#5676): Re-enable once the deployment scripts are correctly updated.
-xdescribe('applicant program index page with images', () => {
+describe('applicant program index page with images', () => {
   const ctx = createTestContext()
 
   it('shows program with wide image', async () => {
@@ -269,6 +269,7 @@ xdescribe('applicant program index page with images', () => {
     await logout(page)
 
     await validateScreenshot(page, 'program-image-wide')
+    await validateAccessibility(page)
   })
 
   it('shows program with tall image', async () => {
@@ -480,10 +481,10 @@ xdescribe('applicant program index page with images', () => {
     // Verify homepage
     await loginAsTestUser(page)
     await validateScreenshot(page, 'program-image-all-types')
+    await validateAccessibility(page)
   })
 
   // TODO(#5676): Test with a very small image.
-  // TODO(#5676): Add validateAccessibility tests once the alt-text is added.
 
   async function submitApplicationAndApplyStatus(
     page: Page,
