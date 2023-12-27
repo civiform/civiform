@@ -16,10 +16,10 @@ public abstract class BreadcrumbItem {
 
   /**
    * An optional href link that represents this breadcrumb item. For example, an "Edit program ABC"
-   * breadcrumb item should have an href that takes the user to `/programs/{ABC Program
-   * ID}/blocks/1/edit`.
+   * breadcrumb item should have an href that takes the user to a page where the admin can make
+   * edits to program ABC.
    *
-   * <p>If null, the breadcrumb item is rendered as plain text instead of a link.
+   * <p>If null, the breadcrumb item is rendered as plain text instead of as a link.
    */
   @Nullable
   public abstract String link();

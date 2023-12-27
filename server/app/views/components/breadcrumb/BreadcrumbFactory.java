@@ -22,19 +22,25 @@ import views.components.Icons;
 public final class BreadcrumbFactory {
 
   /**
-   * Builds a breadcrumb UI component based off the given list. The order of items in the list
-   * determines the breadcrumb order.
+   * Builds a breadcrumb UI component based off the given list.
+   *
+   * @param breadcrumbItems the list of items to include in the breadcrumb. Must be non-empty. The
+   *     order of items in the list determines the breadcrumb order.
+   * @throws IllegalArgumentException if {@code breadcrumbItems} is empty.
    */
-  public NavTag buildBreadcrumb(ImmutableList<BreadcrumbItem> breadcrumbs) {
+  public NavTag buildBreadcrumb(ImmutableList<BreadcrumbItem> breadcrumbItems) {
+    if (breadcrumbItems.isEmpty()) {
+      throw new IllegalArgumentException("breadcrumbItems must be non-empty");
+    }
     NavTag breadcrumbNav =
         new NavTag().withClasses("usa-breadcrumb").attr("aria-label", "Breadcrumbs");
-    OlTag breadcrumbItems = new OlTag().withClasses("usa-breadcrumb__list", "flex");
+    OlTag breadcrumbContainer = new OlTag().withClasses("usa-breadcrumb__list", "flex");
 
-    breadcrumbItems.with(each(breadcrumbs, this::createBreadcrumbItem));
-    return breadcrumbNav.with(breadcrumbItems);
+    breadcrumbContainer.with(each(breadcrumbItems, this::createBreadcrumbHtml));
+    return breadcrumbNav.with(breadcrumbContainer);
   }
 
-  private LiTag createBreadcrumbItem(BreadcrumbItem breadcrumbItem) {
+  private LiTag createBreadcrumbHtml(BreadcrumbItem breadcrumbItem) {
     LiTag liTag = li().withClasses("usa-breadcrumb__list-item", "flex");
     if (breadcrumbItem.link() != null) {
       ATag atag = a().withClasses("usa-breadcrumb__link", "flex");

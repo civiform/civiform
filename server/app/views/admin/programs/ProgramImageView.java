@@ -79,7 +79,7 @@ public final class ProgramImageView extends BaseHtmlView {
       PublicStorageClient publicStorageClient,
       ZoneId zoneId) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
-    this.breadcrumbFactory = breadcrumbFactory;
+    this.breadcrumbFactory = checkNotNull(breadcrumbFactory);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.formFactory = checkNotNull(formFactory);
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
@@ -95,11 +95,11 @@ public final class ProgramImageView extends BaseHtmlView {
    * image (and its alt text).
    */
   public Content render(Http.Request request, ProgramDefinition programDefinition) {
-    DivTag breadcrumbs = createBreadcrumbNav(programDefinition);
+    DivTag breadcrumbs = createBreadcrumbs(programDefinition);
 
     String title =
-            String.format(
-                    "Manage program image for %s", programDefinition.localizedName().getDefault());
+        String.format(
+            "Manage program image for %s", programDefinition.localizedName().getDefault());
     DivTag mainContent =
         div()
             .withClass("mx-20")
@@ -129,8 +129,8 @@ public final class ProgramImageView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private DivTag createBreadcrumbNav(ProgramDefinition program) {
-    ImmutableList<BreadcrumbItem> breadcrumbList =
+  private DivTag createBreadcrumbs(ProgramDefinition program) {
+    ImmutableList<BreadcrumbItem> breadcrumbItems =
         ImmutableList.of(
             BreadcrumbItem.create(
                 "Edit Programs",
@@ -140,10 +140,11 @@ public final class ProgramImageView extends BaseHtmlView {
                 program.localizedName().getDefault(),
                 /* link= */ baseUrl + routes.AdminProgramBlocksController.index(program.id()).url(),
                 /* icon= */ null),
+            // TODO(#5676): Use image icon once we have it.
             BreadcrumbItem.create("Program image upload", /* link= */ null, Icons.FILEUPLOAD));
     return div()
         .withClasses("mt-4", "mx-10")
-        .with(breadcrumbFactory.buildBreadcrumb(breadcrumbList));
+        .with(breadcrumbFactory.buildBreadcrumb(breadcrumbItems));
   }
 
   private FormTag createImageDescriptionForm(
