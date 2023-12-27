@@ -12,7 +12,7 @@ export class AdminProgramImage {
 
   async setImageDescriptionAndSubmit(description: string) {
     await this.page.fill(this.imageDescriptionLocator, description)
-    await this.page.click('button:has-text("Save description")')
+    await this.page.click('button:has-text("Save image description")')
     await waitForPageJsLoad(this.page)
   }
 

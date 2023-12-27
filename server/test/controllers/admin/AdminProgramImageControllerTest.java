@@ -48,7 +48,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Program image upload");
     assertThat(contentAsString(result)).contains("test name");
-    assertThat(contentAsString(result)).contains("Image description");
+    assertThat(contentAsString(result)).contains("Enter image description");
   }
 
   @Test
