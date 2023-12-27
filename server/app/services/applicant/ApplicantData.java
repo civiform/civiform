@@ -94,11 +94,11 @@ public class ApplicantData extends CfJsonDocumentContext {
     }
     StringBuilder nameBuilder = new StringBuilder();
     nameBuilder.append(firstName.get());
-    nameBuilder.append(", ");
+    nameBuilder.append(",");
     if (middleName.isPresent()) {
       nameBuilder.append(middleName.get());
     }
-    nameBuilder.append(", ");
+    nameBuilder.append(",");
     if (lastName.isPresent()) {
       nameBuilder.append(lastName.get());
     }

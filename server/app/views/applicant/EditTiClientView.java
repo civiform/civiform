@@ -131,7 +131,7 @@ public class EditTiClientView extends BaseHtmlView {
     if (form.isPresent()
         && form.get().hasErrors()
         && !form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_FIRST_NAME).isEmpty()) {
-      firstNameField.setValue(form.get().get().getFirstName());
+      //  firstNameField.setValue(form.get().get().getFirstName());
       firstNameField.setFieldErrors(
           messages, form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_FIRST_NAME));
     }
@@ -151,7 +151,7 @@ public class EditTiClientView extends BaseHtmlView {
     if (form.isPresent()
         && form.get().hasErrors()
         && !form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_LAST_NAME).isEmpty()) {
-      lastNameField.setValue(form.get().get().getLastName());
+      // lastNameField.setValue(form.get().get().getLastName());
       lastNameField.setFieldErrors(
           messages, form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_LAST_NAME));
     }
@@ -165,7 +165,7 @@ public class EditTiClientView extends BaseHtmlView {
     if (form.isPresent()
         && form.get().hasErrors()
         && !form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_PHONE).isEmpty()) {
-      phoneNumberField.setValue(form.get().get().getPhoneNumber());
+      // phoneNumberField.setValue(form.get().get().getPhoneNumber());
       phoneNumberField.setFieldErrors(
           messages, form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_PHONE));
     }
@@ -184,7 +184,7 @@ public class EditTiClientView extends BaseHtmlView {
     if (form.isPresent()
         && form.get().hasErrors()
         && !form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_EMAIL_ADDRESS).isEmpty()) {
-      emailField.setValue(form.get().get().getEmailAddress());
+      // emailField.setValue(form.get().get().getEmailAddress());
       emailField.setFieldErrors(
           messages, form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_EMAIL_ADDRESS));
     }
@@ -202,12 +202,12 @@ public class EditTiClientView extends BaseHtmlView {
     if (form.isPresent()
         && form.get().hasErrors()
         && !form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_DOB).isEmpty()) {
-      dateOfBirthField.setValue(form.get().get().getDob());
+      //  dateOfBirthField.setValue(form.get().get().getDob());
       dateOfBirthField.setFieldErrors(
           messages, form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_DOB));
     }
     FieldWithLabel tiNoteField =
-        FieldWithLabel.input()
+        FieldWithLabel.textArea()
             .setId("ti-note-input")
             .setFieldName("tiNote")
             .setLabelText("Notes")
@@ -222,7 +222,7 @@ public class EditTiClientView extends BaseHtmlView {
                 phoneNumberField.getInputTag(),
                 emailField.getEmailTag(),
                 dateOfBirthField.getDateTag(),
-                tiNoteField.getInputTag(),
+                tiNoteField.getTextareaTag(),
                 makeCsrfTokenInputTag(request),
                 submitButton("Save").withClasses("ml-2", "mb-6")))
         .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
