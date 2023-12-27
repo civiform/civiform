@@ -46,7 +46,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     Result result = controller.index(addCSRFToken(fakeRequest().method("GET")).build(), program.id);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Manage program image");
+    assertThat(contentAsString(result)).contains("Program image upload");
     assertThat(contentAsString(result)).contains("test name");
     assertThat(contentAsString(result)).contains("Image description");
   }
@@ -257,7 +257,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void updateDescription_nonEmpty_toastsSuccess() throws ProgramNotFoundException {
+  public void updateDescription_nonEmpty_toastsSuccess() {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
 
     Result result =
@@ -274,7 +274,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void updateDescription_empty_toastsSuccess() throws ProgramNotFoundException {
+  public void updateDescription_empty_toastsSuccess() {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("test name")
             .setLocalizedSummaryImageDescription(

@@ -26,10 +26,8 @@ export class AdminProgramImage {
     await waitForPageJsLoad(this.page)
   }
 
-  async expectProgramImagePage(programName: string) {
-    expect(await this.page.innerText('h1')).toContain(
-      `Manage program image for ${programName}`,
-    )
+  async expectProgramImagePage() {
+    expect(await this.page.innerText('h1')).toContain(`Program image upload`)
   }
 
   async expectDescriptionIs(description: string) {

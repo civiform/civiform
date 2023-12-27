@@ -40,7 +40,7 @@ describe('Admin can manage program image', () => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
-      await adminProgramImage.expectProgramImagePage(programName)
+      await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectDescriptionIs('Fake image description')
       await validateToastMessage(
         page,
@@ -58,13 +58,13 @@ describe('Admin can manage program image', () => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
-      await adminProgramImage.expectProgramImagePage(programName)
+      await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectDescriptionIs('Fake image description')
 
       await adminProgramImage.setImageDescriptionAndSubmit(
         'New image description',
       )
-      await adminProgramImage.expectProgramImagePage(programName)
+      await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectDescriptionIs('New image description')
       await validateToastMessage(
         page,
@@ -79,11 +79,11 @@ describe('Admin can manage program image', () => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
-      await adminProgramImage.expectProgramImagePage(programName)
+      await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectDescriptionIs('Fake image description')
 
       await adminProgramImage.setImageDescriptionAndSubmit('')
-      await adminProgramImage.expectProgramImagePage(programName)
+      await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectDescriptionIs('')
       await validateToastMessage(
         page,
@@ -96,12 +96,12 @@ describe('Admin can manage program image', () => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
-      await adminProgramImage.expectProgramImagePage(programName)
+      await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectDescriptionIs('Fake image description')
 
       // WHEN a blank description is entered
       await adminProgramImage.setImageDescriptionAndSubmit('   ')
-      await adminProgramImage.expectProgramImagePage(programName)
+      await adminProgramImage.expectProgramImagePage()
 
       // We internally set it to completely empty
       await adminProgramImage.expectDescriptionIs('')
@@ -155,7 +155,7 @@ describe('Admin can manage program image', () => {
       await adminProgramImage.setImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
       )
-      await adminProgramImage.expectProgramImagePage(programName)
+      await adminProgramImage.expectProgramImagePage()
       await validateToastMessage(
         page,
         adminProgramImage.imageUpdatedToastMessage(),

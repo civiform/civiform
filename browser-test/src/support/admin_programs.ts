@@ -289,7 +289,7 @@ export class AdminPrograms {
     await this.expectDraftProgram(programName)
     await this.gotoEditDraftProgramPage(programName)
     await this.page.click('button:has-text("Edit program image")')
-    await this.expectProgramImagePage(programName)
+    await this.expectProgramImagePage()
   }
 
   async gotoManageProgramAdminsPage(programName: string) {
@@ -438,9 +438,9 @@ export class AdminPrograms {
     )
   }
 
-  async expectProgramImagePage(programName: string) {
+  async expectProgramImagePage() {
     const adminProgramImage = new AdminProgramImage(this.page)
-    await adminProgramImage.expectProgramImagePage(programName)
+    await adminProgramImage.expectProgramImagePage()
   }
 
   async expectManageProgramAdminsPage() {
