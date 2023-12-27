@@ -144,7 +144,7 @@ public final class ProgramImageView extends BaseHtmlView {
             BreadcrumbItem.create("Program image upload", /* link= */ null, Icons.FILEUPLOAD));
     return div()
         .withClasses("mt-4", "mx-10")
-        .with(breadcrumbFactory.buildBreadcrumb(breadcrumbItems));
+        .with(breadcrumbFactory.buildBreadcrumbTrail(breadcrumbItems));
   }
 
   private FormTag createImageDescriptionForm(

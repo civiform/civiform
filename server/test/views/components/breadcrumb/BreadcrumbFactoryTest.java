@@ -14,15 +14,15 @@ public class BreadcrumbFactoryTest {
   private final BreadcrumbFactory breadcrumbFactory = new BreadcrumbFactory();
 
   @Test
-  public void buildBreadcrumb_emptyList_throws() {
+  public void buildBreadcrumbTrail_emptyList_throws() {
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> breadcrumbFactory.buildBreadcrumb(ImmutableList.of()));
+        .isThrownBy(() -> breadcrumbFactory.buildBreadcrumbTrail(ImmutableList.of()));
   }
 
   @Test
-  public void buildBreadcrumb_hasNavWithNestedOl() {
+  public void buildBreadcrumbTrail_hasNavWithNestedOl() {
     NavTag breadcrumb =
-        breadcrumbFactory.buildBreadcrumb(
+        breadcrumbFactory.buildBreadcrumbTrail(
             ImmutableList.of(
                 BreadcrumbItem.create("Fake text", /* link= */ null, /* icon= */ null)));
 
@@ -30,9 +30,9 @@ public class BreadcrumbFactoryTest {
   }
 
   @Test
-  public void buildBreadcrumb_singleItem_singleLi() {
+  public void buildBreadcrumbTrail_singleItem_singleLi() {
     NavTag breadcrumb =
-        breadcrumbFactory.buildBreadcrumb(
+        breadcrumbFactory.buildBreadcrumbTrail(
             ImmutableList.of(
                 BreadcrumbItem.create("Fake text", /* link= */ null, /* icon= */ null)));
 
@@ -41,9 +41,9 @@ public class BreadcrumbFactoryTest {
   }
 
   @Test
-  public void buildBreadcrumb_hasTextInLi() {
+  public void buildBreadcrumbTrail_hasTextInLi() {
     NavTag breadcrumb =
-        breadcrumbFactory.buildBreadcrumb(
+        breadcrumbFactory.buildBreadcrumbTrail(
             ImmutableList.of(
                 BreadcrumbItem.create("Fake text", /* link= */ null, /* icon= */ null)));
 
@@ -51,9 +51,9 @@ public class BreadcrumbFactoryTest {
   }
 
   @Test
-  public void buildBreadcrumb_multipleItems_multipleLiInOrder() {
+  public void buildBreadcrumbTrail_multipleItems_multipleLiInOrder() {
     NavTag breadcrumb =
-        breadcrumbFactory.buildBreadcrumb(
+        breadcrumbFactory.buildBreadcrumbTrail(
             ImmutableList.of(
                 BreadcrumbItem.create("Fake text 1", /* link= */ null, /* icon= */ null),
                 BreadcrumbItem.create(
@@ -68,9 +68,9 @@ public class BreadcrumbFactoryTest {
   }
 
   @Test
-  public void buildBreadcrumb_noLink_noATag() {
+  public void buildBreadcrumbTrail_noLink_noATag() {
     NavTag breadcrumb =
-        breadcrumbFactory.buildBreadcrumb(
+        breadcrumbFactory.buildBreadcrumbTrail(
             ImmutableList.of(
                 BreadcrumbItem.create("Fake text", /* link= */ null, /* icon= */ null)));
 
@@ -78,9 +78,9 @@ public class BreadcrumbFactoryTest {
   }
 
   @Test
-  public void buildBreadcrumb_link_hasATagWithHref() {
+  public void buildBreadcrumbTrail_link_hasATagWithHref() {
     NavTag breadcrumb =
-        breadcrumbFactory.buildBreadcrumb(
+        breadcrumbFactory.buildBreadcrumbTrail(
             ImmutableList.of(
                 BreadcrumbItem.create("Fake text", /* link= */ "fake.link", /* icon= */ null)));
 
@@ -88,9 +88,9 @@ public class BreadcrumbFactoryTest {
   }
 
   @Test
-  public void buildBreadcrumb_noIcon_noSvgTag() {
+  public void buildBreadcrumbTrail_noIcon_noSvgTag() {
     NavTag breadcrumb =
-        breadcrumbFactory.buildBreadcrumb(
+        breadcrumbFactory.buildBreadcrumbTrail(
             ImmutableList.of(
                 BreadcrumbItem.create("Fake text", /* link= */ null, /* icon= */ null)));
 
@@ -98,9 +98,9 @@ public class BreadcrumbFactoryTest {
   }
 
   @Test
-  public void buildBreadcrumb_icon_hasSvgTagWithPath() {
+  public void buildBreadcrumbTrail_icon_hasSvgTagWithPath() {
     NavTag breadcrumb =
-        breadcrumbFactory.buildBreadcrumb(
+        breadcrumbFactory.buildBreadcrumbTrail(
             ImmutableList.of(
                 BreadcrumbItem.create("Fake text", /* link= */ null, /* icon= */ Icons.ADD)));
 
@@ -109,9 +109,9 @@ public class BreadcrumbFactoryTest {
   }
 
   @Test
-  public void buildBreadcrumb_linkAndIcon_hasATagWithNestedSvgTag() {
+  public void buildBreadcrumbTrail_linkAndIcon_hasATagWithNestedSvgTag() {
     NavTag breadcrumb =
-        breadcrumbFactory.buildBreadcrumb(
+        breadcrumbFactory.buildBreadcrumbTrail(
             ImmutableList.of(
                 BreadcrumbItem.create(
                     "Fake text", /* link= */ "fake.link", /* icon= */ Icons.ADD)));
@@ -120,9 +120,9 @@ public class BreadcrumbFactoryTest {
   }
 
   @Test
-  public void buildBreadcrumb_ariaCurrentPageSetOnLastItem() {
+  public void buildBreadcrumbTrail_ariaCurrentPageSetOnLastItem() {
     NavTag breadcrumb =
-        breadcrumbFactory.buildBreadcrumb(
+        breadcrumbFactory.buildBreadcrumbTrail(
             ImmutableList.of(
                 BreadcrumbItem.create("Fake text 1", /* link= */ null, /* icon= */ null),
                 BreadcrumbItem.create("Fake text 2", /* link= */ null, /* icon= */ null)));

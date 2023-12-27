@@ -29,7 +29,7 @@ public final class BreadcrumbFactory {
    *     order of items in the list determines the breadcrumb order.
    * @throws IllegalArgumentException if {@code breadcrumbItems} is empty.
    */
-  public NavTag buildBreadcrumb(ImmutableList<BreadcrumbItem> breadcrumbItems) {
+  public NavTag buildBreadcrumbTrail(ImmutableList<BreadcrumbItem> breadcrumbItems) {
     if (breadcrumbItems.isEmpty()) {
       throw new IllegalArgumentException("breadcrumbItems must be non-empty");
     }
@@ -40,7 +40,7 @@ public final class BreadcrumbFactory {
     OlTag breadcrumbContainer = new OlTag().withClasses("usa-breadcrumb__list", "flex", "p-2");
 
     List<LiTag> breadcrumbItemsHtml =
-        breadcrumbItems.stream().map(this::createBreadcrumbHtml).collect(Collectors.toList());
+        breadcrumbItems.stream().map(this::buildBreadcrumbTrailItem).collect(Collectors.toList());
     // We assume the last breadcrumb item represents the current page.
     breadcrumbItemsHtml.get(breadcrumbItemsHtml.size() - 1).attr("aria-current", "page");
 
@@ -48,7 +48,7 @@ public final class BreadcrumbFactory {
     return breadcrumbNav.with(breadcrumbContainer);
   }
 
-  private LiTag createBreadcrumbHtml(BreadcrumbItem breadcrumbItem) {
+  private LiTag buildBreadcrumbTrailItem(BreadcrumbItem breadcrumbItem) {
     LiTag liTag = li().withClasses("usa-breadcrumb__list-item", "flex");
     if (breadcrumbItem.link() != null) {
       ATag atag = a().withClasses("usa-breadcrumb__link", "flex");
