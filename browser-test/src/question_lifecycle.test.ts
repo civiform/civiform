@@ -190,11 +190,12 @@ describe('normal question lifecycle', () => {
 
   it('shows markdown format correctly in the preview when creating a new question', async () => {
     const {page, adminQuestions} = ctx
+    const questionName = '**bold text**'
 
     await loginAsAdmin(page)
 
     await adminQuestions.createCheckboxQuestion({
-      questionName: '**bold text**',
+      questionName: questionName,
       questionText: 'https://g12345.com',
       helpText: 'Sample question help text',
       options: [
@@ -205,7 +206,8 @@ describe('normal question lifecycle', () => {
       ],
     })
 
-    await validateScreenshot(page, 'formatted-question-preview')
+    await adminQuestions.gotoQuestionEditPage(questionName)
+    await validateScreenshot(page, 'question-with-markdown-formatted-preview')
   })
 
   it('shows error when creating a dropdown question and admin left an option field blank', async () => {
