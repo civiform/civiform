@@ -252,7 +252,7 @@ describe('applicant program index page', () => {
 })
 
 // TODO(#5676): Re-enable once the deployment scripts are correctly updated.
-describe('applicant program index page with images', () => {
+xdescribe('applicant program index page with images', () => {
   const ctx = createTestContext()
 
   it('shows program with wide image', async () => {
@@ -268,7 +268,7 @@ describe('applicant program index page with images', () => {
     await adminPrograms.publishAllDrafts()
     await logout(page)
 
- //   await validateScreenshot(page, 'program-image-wide')
+    await validateScreenshot(page, 'program-image-wide')
     await validateAccessibility(page)
   })
 
@@ -285,7 +285,7 @@ describe('applicant program index page with images', () => {
     await adminPrograms.publishAllDrafts()
     await logout(page)
 
-   // await validateScreenshot(page, 'program-image-tall')
+    await validateScreenshot(page, 'program-image-tall')
   })
 
   it('no program image if flag off', async () => {
@@ -305,7 +305,7 @@ describe('applicant program index page with images', () => {
     await logout(page)
 
     // Verify the user doesn't see the image
-    //await validateScreenshot(page, 'program-image-flag-off')
+    await validateScreenshot(page, 'program-image-flag-off')
   })
 
   it('shows program with image and status', async () => {
@@ -331,7 +331,7 @@ describe('applicant program index page with images', () => {
 
     // Verify program card shows both the Accepted status and image
     await loginAsTestUser(page)
-  //  await validateScreenshot(page, 'program-image-with-status')
+    await validateScreenshot(page, 'program-image-with-status')
   })
 
   // This test puts programs with different specs in the different sections of the homepage
@@ -480,7 +480,7 @@ describe('applicant program index page with images', () => {
 
     // Verify homepage
     await loginAsTestUser(page)
-  //  await validateScreenshot(page, 'program-image-all-types')
+    await validateScreenshot(page, 'program-image-all-types')
     await validateAccessibility(page)
   })
 
