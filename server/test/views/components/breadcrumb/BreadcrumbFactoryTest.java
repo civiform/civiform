@@ -24,7 +24,8 @@ public class BreadcrumbFactoryTest {
     NavTag breadcrumb =
         breadcrumbFactory.buildBreadcrumb(
             ImmutableList.of(
-                BreadcrumbItem.create("Fake text", /* link= */ null, /* icon= */ null)));
+                BreadcrumbItem.create(
+                    "Fake text", /* link= */ null, /* icon= */ null, /* isCurrentPage= */ false)));
 
     assertThat(breadcrumb.render()).containsPattern("<nav.*><ol.*>.*</ol></nav>");
   }
@@ -34,7 +35,8 @@ public class BreadcrumbFactoryTest {
     NavTag breadcrumb =
         breadcrumbFactory.buildBreadcrumb(
             ImmutableList.of(
-                BreadcrumbItem.create("Fake text", /* link= */ null, /* icon= */ null)));
+                BreadcrumbItem.create(
+                    "Fake text", /* link= */ null, /* icon= */ null, /* isCurrentPage= */ false)));
 
     int numLiTags = StringUtils.countMatches(breadcrumb.render(), "<li");
     assertThat(numLiTags).isEqualTo(1);
@@ -45,7 +47,8 @@ public class BreadcrumbFactoryTest {
     NavTag breadcrumb =
         breadcrumbFactory.buildBreadcrumb(
             ImmutableList.of(
-                BreadcrumbItem.create("Fake text", /* link= */ null, /* icon= */ null)));
+                BreadcrumbItem.create(
+                    "Fake text", /* link= */ null, /* icon= */ null, /* isCurrentPage= */ false)));
 
     assertThat(breadcrumb.render()).containsPattern("<li.*>Fake text.*</li>");
   }
@@ -55,10 +58,18 @@ public class BreadcrumbFactoryTest {
     NavTag breadcrumb =
         breadcrumbFactory.buildBreadcrumb(
             ImmutableList.of(
-                BreadcrumbItem.create("Fake text 1", /* link= */ null, /* icon= */ null),
                 BreadcrumbItem.create(
-                    "Fake text 2", /* link= */ "fake.link", /* icon= */ Icons.ADD),
-                BreadcrumbItem.create("Fake text 3", /* link= */ null, /* icon= */ Icons.DELETE)));
+                    "Fake text 1", /* link= */ null, /* icon= */ null, /* isCurrentPage= */ false),
+                BreadcrumbItem.create(
+                    "Fake text 2",
+                    /* link= */ "fake.link",
+                    /* icon= */ Icons.ADD,
+                    /* isCurrentPage= */ false),
+                BreadcrumbItem.create(
+                    "Fake text 3",
+                    /* link= */ null,
+                    /* icon= */ Icons.DELETE,
+                    /* isCurrentPage= */ false)));
 
     int numLiTags = StringUtils.countMatches(breadcrumb.render(), "<li");
     assertThat(numLiTags).isEqualTo(3);
@@ -72,7 +83,8 @@ public class BreadcrumbFactoryTest {
     NavTag breadcrumb =
         breadcrumbFactory.buildBreadcrumb(
             ImmutableList.of(
-                BreadcrumbItem.create("Fake text", /* link= */ null, /* icon= */ null)));
+                BreadcrumbItem.create(
+                    "Fake text", /* link= */ null, /* icon= */ null, /* isCurrentPage= */ false)));
 
     assertThat(breadcrumb.render()).doesNotContain("<a");
   }
@@ -82,7 +94,11 @@ public class BreadcrumbFactoryTest {
     NavTag breadcrumb =
         breadcrumbFactory.buildBreadcrumb(
             ImmutableList.of(
-                BreadcrumbItem.create("Fake text", /* link= */ "fake.link", /* icon= */ null)));
+                BreadcrumbItem.create(
+                    "Fake text",
+                    /* link= */ "fake.link",
+                    /* icon= */ null,
+                    /* isCurrentPage= */ false)));
 
     assertThat(breadcrumb.render()).containsPattern("<a.*href=\"fake.link");
   }
@@ -92,7 +108,8 @@ public class BreadcrumbFactoryTest {
     NavTag breadcrumb =
         breadcrumbFactory.buildBreadcrumb(
             ImmutableList.of(
-                BreadcrumbItem.create("Fake text", /* link= */ null, /* icon= */ null)));
+                BreadcrumbItem.create(
+                    "Fake text", /* link= */ null, /* icon= */ null, /* isCurrentPage= */ false)));
 
     assertThat(breadcrumb.render()).doesNotContain("<svg");
   }
@@ -102,7 +119,11 @@ public class BreadcrumbFactoryTest {
     NavTag breadcrumb =
         breadcrumbFactory.buildBreadcrumb(
             ImmutableList.of(
-                BreadcrumbItem.create("Fake text", /* link= */ null, /* icon= */ Icons.ADD)));
+                BreadcrumbItem.create(
+                    "Fake text",
+                    /* link= */ null,
+                    /* icon= */ Icons.ADD,
+                    /* isCurrentPage= */ false)));
 
     assertThat(breadcrumb.render()).contains("<svg");
     assertThat(breadcrumb.render()).contains(Icons.ADD.path);
@@ -114,8 +135,48 @@ public class BreadcrumbFactoryTest {
         breadcrumbFactory.buildBreadcrumb(
             ImmutableList.of(
                 BreadcrumbItem.create(
-                    "Fake text", /* link= */ "fake.link", /* icon= */ Icons.ADD)));
+                    "Fake text",
+                    /* link= */ "fake.link",
+                    /* icon= */ Icons.ADD,
+                    /* isCurrentPage= */ false)));
 
     assertThat(breadcrumb.render()).containsPattern("<a.*><svg.*>.*</svg>.*</a>");
+  }
+
+  @Test
+  public void buildBreadcrumb_multipleMarkedAsCurrentPage_throws() {
+    ImmutableList<BreadcrumbItem> breadcrumbItems =
+        ImmutableList.of(
+            BreadcrumbItem.create(
+                "Fake text 1", /* link= */ null, /* icon= */ null, /* isCurrentPage= */ true),
+            BreadcrumbItem.create(
+                "Fake text 2",
+                /* link= */ "fake.link",
+                /* icon= */ Icons.ADD,
+                /* isCurrentPage= */ false),
+            BreadcrumbItem.create(
+                "Fake text 3",
+                /* link= */ null,
+                /* icon= */ Icons.DELETE,
+                /* isCurrentPage= */ true));
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> breadcrumbFactory.buildBreadcrumb(breadcrumbItems));
+  }
+
+  @Test
+  public void buildBreadcrumb_isCurrentPageTrue_ariaCurrentSetOnlyOnCurrentPage() {
+    NavTag breadcrumb =
+        breadcrumbFactory.buildBreadcrumb(
+            ImmutableList.of(
+                BreadcrumbItem.create(
+                    "Fake text 1", /* link= */ null, /* icon= */ null, /* isCurrentPage= */ false),
+                BreadcrumbItem.create(
+                    "Fake text 2", /* link= */ null, /* icon= */ null, /* isCurrentPage= */ true)));
+
+    assertThat(breadcrumb.render())
+        .doesNotContainPattern("<li.* aria-current=\"page\".*>Fake text 1<.*/li>");
+    assertThat(breadcrumb.render())
+        .containsPattern("<li.* aria-current=\"page\".*>Fake text 2<.*/li>");
   }
 }

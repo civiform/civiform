@@ -135,13 +135,19 @@ public final class ProgramImageView extends BaseHtmlView {
             BreadcrumbItem.create(
                 "Edit Programs",
                 /* link= */ baseUrl + routes.AdminProgramController.index().url(),
-                /* icon= */ null),
+                /* icon= */ null,
+                /* isCurrentPage= */ false),
             BreadcrumbItem.create(
                 program.localizedName().getDefault(),
                 /* link= */ baseUrl + routes.AdminProgramBlocksController.index(program.id()).url(),
-                /* icon= */ null),
+                /* icon= */ null,
+                /* isCurrentPage= */ false),
             // TODO(#5676): Use image icon once we have it.
-            BreadcrumbItem.create("Program image upload", /* link= */ null, Icons.FILEUPLOAD));
+            BreadcrumbItem.create(
+                "Program image upload",
+                /* link= */ null,
+                Icons.FILEUPLOAD,
+                /* isCurrentPage= */ true));
     return div()
         .withClasses("mt-4", "mx-10")
         .with(breadcrumbFactory.buildBreadcrumb(breadcrumbItems));

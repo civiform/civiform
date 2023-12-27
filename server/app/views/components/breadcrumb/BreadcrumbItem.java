@@ -7,8 +7,9 @@ import views.components.Icons;
 /** Represents a single item in a breadcrumb list. */
 @AutoValue
 public abstract class BreadcrumbItem {
-  public static BreadcrumbItem create(String text, @Nullable String link, @Nullable Icons icon) {
-    return new AutoValue_BreadcrumbItem(text, link, icon);
+  public static BreadcrumbItem create(
+      String text, @Nullable String link, @Nullable Icons icon, boolean isCurrentPage) {
+    return new AutoValue_BreadcrumbItem(text, link, icon, isCurrentPage);
   }
 
   /** The text to display for this breadcrumb item. */
@@ -31,4 +32,7 @@ public abstract class BreadcrumbItem {
    */
   @Nullable
   public abstract Icons icon();
+
+  /** True if this breadcrumb item represents the current page and false otherwise. */
+  public abstract boolean isCurrentPage();
 }
