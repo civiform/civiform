@@ -26,7 +26,6 @@ import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.Block;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
-import services.settings.SettingsManifest;
 import views.applicant.ApplicantProgramInfoView;
 import views.applicant.ProgramIndexView;
 import views.components.ToastMessage;
@@ -43,7 +42,6 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final ProgramIndexView programIndexView;
   private final ApplicantProgramInfoView programInfoView;
-  private final SettingsManifest settingsManifest;
   private final ProgramSlugHandler programSlugHandler;
   private final ApplicantRoutes applicantRoutes;
 
@@ -56,7 +54,6 @@ public final class ApplicantProgramsController extends CiviFormController {
       ApplicantProgramInfoView programInfoView,
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
-      SettingsManifest settingsManifest,
       ProgramSlugHandler programSlugHandler,
       ApplicantRoutes applicantRoutes) {
     super(profileUtils, versionRepository);
@@ -65,7 +62,6 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.messagesApi = checkNotNull(messagesApi);
     this.programIndexView = checkNotNull(programIndexView);
     this.programInfoView = checkNotNull(programInfoView);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.programSlugHandler = checkNotNull(programSlugHandler);
     this.applicantRoutes = checkNotNull(applicantRoutes);
   }
@@ -120,11 +116,6 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> index(Request request) {
-    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
-      // This route is only operative for the new URL schema, so send the user home.
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
-
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
@@ -197,10 +188,6 @@ public final class ApplicantProgramsController extends CiviFormController {
   public CompletionStage<Result> show(Request request, String programParam) {
     if (StringUtils.isNumeric(programParam)) {
       // The path parameter specifies a program by (numeric) id.
-      if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
-        // This route is only operative for the new URL schema, so send the user home.
-        return CompletableFuture.completedFuture(redirectToHome());
-      }
       Optional<Long> applicantId = getApplicantId(request);
       if (applicantId.isEmpty()) {
         // This route should not have been computed for the user in this case, but they may have
@@ -277,11 +264,6 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> edit(Request request, long programId) {
-    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
-      // This route is only operative for the new URL schema, so send the user home.
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
-
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have

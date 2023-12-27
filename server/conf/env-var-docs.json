@@ -752,11 +752,6 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "Add programs cards to the confirmation screen that an applicant sees after finishing an application.",
         "type": "bool"
-      },
-      "NEW_APPLICANT_URL_SCHEMA_ENABLED": {
-        "mode": "HIDDEN",
-        "description": "Enables new URL schema that removes applicant ID from applicant actions.",
-        "type": "bool"
       }
     }
   }
