@@ -225,7 +225,7 @@ class PreviewController {
       previewQuestionOptionContainer.appendChild(newPreviewOption)
     }
   }
-//cf-applicant-question-help-text text-black text-xl
+  // cf-applicant-question-help-text text-black text-xl
   private static updateFromNewQuestionText(text: string) {
     text = text || PreviewController.DEFAULT_QUESTION_TEXT
     const questionType = document.querySelector('.cf-question-type')
@@ -252,9 +252,9 @@ class PreviewController {
   private static updateFromNewQuestionHelpText(helpText: string) {
     const contentElement = PreviewController.formatText(helpText)
     const contentParent = document.querySelector(
-      PreviewController.QUESTION_HELP_TEXT_SELECTOR
+      PreviewController.QUESTION_HELP_TEXT_SELECTOR,
     )
-    if(contentParent) {
+    if (contentParent) {
       contentParent.innerHTML = ''
       contentParent.appendChild(contentElement)
     }
