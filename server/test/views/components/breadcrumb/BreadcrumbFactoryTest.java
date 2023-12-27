@@ -34,7 +34,7 @@ public class BreadcrumbFactoryTest {
     NavTag breadcrumb =
         breadcrumbFactory.buildBreadcrumb(
             ImmutableList.of(
-                BreadcrumbItem.create("Fake text 1", /* link= */ null, /* icon= */ null)));
+                BreadcrumbItem.create("Fake text", /* link= */ null, /* icon= */ null)));
 
     int numLiTags = StringUtils.countMatches(breadcrumb.render(), "<li");
     assertThat(numLiTags).isEqualTo(1);
@@ -64,7 +64,7 @@ public class BreadcrumbFactoryTest {
     assertThat(numLiTags).isEqualTo(3);
     assertThat(breadcrumb.render())
         .containsPattern(
-            "<li.*>Fake text 1.*</li><li.*>Fake text 2.*</li><li.*>Fake text 3.*</li>");
+            "<li.*>Fake text 1<.*</li><li.*>Fake text 2<.*</li><li.*>Fake text 3<.*</li>");
   }
 
   @Test
@@ -78,7 +78,7 @@ public class BreadcrumbFactoryTest {
   }
 
   @Test
-  public void buildBreadcrumb_link_hasATag() {
+  public void buildBreadcrumb_link_hasATagWithHref() {
     NavTag breadcrumb =
         breadcrumbFactory.buildBreadcrumb(
             ImmutableList.of(
@@ -98,7 +98,7 @@ public class BreadcrumbFactoryTest {
   }
 
   @Test
-  public void buildBreadcrumb_icon_hasSvgTag() {
+  public void buildBreadcrumb_icon_hasSvgTagWithPath() {
     NavTag breadcrumb =
         breadcrumbFactory.buildBreadcrumb(
             ImmutableList.of(
