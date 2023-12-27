@@ -16,6 +16,7 @@ import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Query;
+import io.ebean.Transaction;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -161,6 +162,38 @@ public final class AccountRepository {
           return null;
         },
         executionContext);
+  }
+
+  public void updateClientDob(String newDob, ApplicantModel applicant) {
+    applicant.getApplicantData().setDateOfBirth(newDob);
+    applicant.save();
+  }
+
+  public void updateClientName(
+      String firstName, String middleName, String lastName, ApplicantModel applicant) {
+    applicant.getApplicantData().updateUserName(firstName, middleName, lastName);
+    applicant.save();
+  }
+
+  public void updateClientPhoneNumber(String phoneNumber, ApplicantModel applicant) {
+    applicant.getApplicantData().setPhoneNumber(phoneNumber);
+    applicant.save();
+  }
+
+  public void updateClientTiNote(String tiNote, AccountModel account) {
+    account.setTiNote(tiNote);
+    account.save();
+  }
+
+  public void updateClientEmail(String email, Long accountId) {
+    if (!Strings.isNullOrEmpty(email)) {
+      try (Transaction transaction = database.beginTransaction()) {
+        AccountModel currentAccount = lookupAccount(accountId).get();
+        currentAccount.setEmailAddress(email);
+        currentAccount.save();
+        transaction.commit();
+      }
+    }
   }
 
   public Optional<ApplicantModel> lookupApplicantSync(long id) {

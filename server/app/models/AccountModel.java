@@ -55,6 +55,17 @@ public class AccountModel extends BaseModel {
   @DbJsonB(name = "id_tokens")
   private SerializedIdTokens serializedIdTokens;
 
+  private String tiNote;
+
+  public AccountModel setTiNote(String tiNote) {
+    this.tiNote = tiNote;
+    return this;
+  }
+
+  public String getTiNote() {
+    return this.tiNote;
+  }
+
   public ImmutableList<Long> ownedApplicantIds() {
     return getApplicants().stream().map(applicant -> applicant.id).collect(toImmutableList());
   }
