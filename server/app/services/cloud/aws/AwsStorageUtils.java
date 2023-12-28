@@ -82,7 +82,7 @@ public final class AwsStorageUtils {
               .get()
               .url()
               .toString();
-      // The prod AWS action links end with a "/", so have our localstack action links do the same.
+      // The prod AWS action links end with `/`, so our LocalStack action links should do the same.
       return url + "/";
     } catch (ExecutionException | InterruptedException e) {
       logger.warn("Unable to create a Localstack action link. Returning empty string");
