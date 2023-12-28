@@ -36,9 +36,6 @@ class PreviewController {
   private static readonly DEFAULT_ENTITY_TYPE = 'Sample repeated entity type'
   private static readonly DEFAULT_OPTION_TEXT = 'Sample question option'
 
-  // This is defined in {@link QuestionType}.
-  private static readonly STATIC_QUESTION_TEXT = 'Static Text'
-
   // This regex is used to match $this and $this.parent (etc) strings so we can
   // highlight them in the question preview.
   private static readonly THIS_REGEX = /(\$this(?:\.parent)*)/g
