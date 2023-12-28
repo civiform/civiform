@@ -134,7 +134,7 @@ public final class TrustedIntermediaryService {
     return form;
   }
 
-  private Boolean checkEmailChange(String newEmail, AccountModel account) {
+  private Boolean hasEmailChanged(String newEmail, AccountModel account) {
     return !newEmail.equals(account.getEmailAddress());
   }
 
@@ -175,8 +175,8 @@ public final class TrustedIntermediaryService {
     if (Strings.isNullOrEmpty(newEmail)) {
       return form;
     }
-    if (checkEmailChange(newEmail, currentAccount)
-        && accountRepository.lookupAccountByEmail(newEmail).isEmpty()) {
+    if (hasEmailChanged(newEmail, currentAccount)
+        && accountRepository.lookupAccountByEmail(newEmail).isPresent()) {
       return form.withError(
           FORM_FIELD_NAME_EMAIL_ADDRESS,
           "Email address already in use. Cannot update applicant if an account already"
@@ -246,8 +246,9 @@ public final class TrustedIntermediaryService {
 
     // email update
     String newEmail = form.get().getEmailAddress();
-    if (checkEmailChange(newEmail, currentAccount)
-        && accountRepository.lookupAccountByEmail(newEmail).isEmpty()) {
+    if (Strings.isNullOrEmpty(newEmail)
+        || (hasEmailChanged(newEmail, currentAccount)
+            && accountRepository.lookupAccountByEmail(newEmail).isEmpty())) {
       accountRepository.updateClientEmail(newEmail, accountId);
     }
     return form;

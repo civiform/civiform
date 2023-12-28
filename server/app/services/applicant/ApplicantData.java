@@ -77,17 +77,17 @@ public class ApplicantData extends CfJsonDocumentContext {
     }
     return Optional.of(firstName);
   }
+
   public Optional<String> getApplicantFirstName() {
-    return
-        readString(WellKnownPaths.APPLICANT_FIRST_NAME);
-    }
-  public Optional<String> getApplicantMiddleName() {
-    return
-      readString(WellKnownPaths.APPLICANT_MIDDLE_NAME);
+    return readString(WellKnownPaths.APPLICANT_FIRST_NAME);
   }
+
+  public Optional<String> getApplicantMiddleName() {
+    return readString(WellKnownPaths.APPLICANT_MIDDLE_NAME);
+  }
+
   public Optional<String> getApplicantLastName() {
-    return
-      readString(WellKnownPaths.APPLICANT_LAST_NAME);
+    return readString(WellKnownPaths.APPLICANT_LAST_NAME);
   }
 
   /** Updates the TI client name in the Applicant table */

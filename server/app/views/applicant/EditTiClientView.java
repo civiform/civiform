@@ -5,7 +5,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.hr;
 
-import com.google.common.base.Splitter;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.ti.routes;
@@ -13,7 +12,6 @@ import forms.EditTiClientInfoForm;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import java.util.List;
 import java.util.Optional;
 import models.AccountModel;
 import models.TrustedIntermediaryGroupModel;

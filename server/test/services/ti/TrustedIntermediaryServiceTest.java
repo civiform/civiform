@@ -402,7 +402,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "dob",
                         "2022-07-07",
                         "emailAddress",
-                        "emailNew",
+                        "emailAllPassEditClient",
                         "tiNote",
                         "unitTest",
                         "phoneNumber",
@@ -419,9 +419,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         .isEqualTo("2022-07-07");
     assertThat(applicantFinal.getApplicantData().getPhoneNumber().get().toString())
         .isEqualTo("4259879090");
-    assertThat(applicantFinal.getApplicantData().getApplicantFullName().get())
-        .isEqualTo("clientFirst, middle, ClientLast");
-    assertThat(accountFinal.getEmailAddress()).isEqualTo("emailNew");
+    assertThat(applicantFinal.getApplicantData().getApplicantName().get())
+        .isEqualTo("ClientLast, clientFirst");
+    assertThat(accountFinal.getEmailAddress()).isEqualTo("emailAllPassEditClient");
   }
 
   @Test
@@ -506,7 +506,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     Form<EditTiClientInfoForm> returnForm = service.updateClientInfo(form, tiGroup, testAccount.id);
     assertThat(returnForm.error("phoneNumber").get().message())
-        .isEqualTo("A phone number must contain only digits");
+        .isEqualTo("A phone number must contain 10 digits");
   }
 
   @Test

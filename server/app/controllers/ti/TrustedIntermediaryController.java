@@ -178,6 +178,7 @@ public final class TrustedIntermediaryController {
   @Secure(authorizers = Authorizers.Labels.TI)
   public Result updateClientInfo(Long id, Http.Request request) throws ApplicantNotFoundException {
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
+    System.out.println("The profile is  " + civiformProfile.get().isTrustedIntermediary());
     if (civiformProfile.isEmpty()) {
       return unauthorized();
     }
