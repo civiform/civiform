@@ -269,6 +269,7 @@ xdescribe('applicant program index page with images', () => {
     await logout(page)
 
     await validateScreenshot(page, 'program-image-wide')
+    await validateAccessibility(page)
   })
 
   it('shows program with tall image', async () => {
@@ -480,10 +481,10 @@ xdescribe('applicant program index page with images', () => {
     // Verify homepage
     await loginAsTestUser(page)
     await validateScreenshot(page, 'program-image-all-types')
+    await validateAccessibility(page)
   })
 
   // TODO(#5676): Test with a very small image.
-  // TODO(#5676): Add validateAccessibility tests once the alt-text is added.
 
   async function submitApplicationAndApplyStatus(
     page: Page,

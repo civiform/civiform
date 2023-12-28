@@ -105,7 +105,8 @@ public final class ProgramCardViewRenderer {
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
     Optional<ImgTag> programImage =
-        createProgramImage(request, program, settingsManifest, publicStorageClient);
+        createProgramImage(
+            request, program, preferredLocale, settingsManifest, publicStorageClient);
 
     ContainerTag title =
         nestedUnderSubheading
@@ -221,6 +222,7 @@ public final class ProgramCardViewRenderer {
   private static Optional<ImgTag> createProgramImage(
       Http.Request request,
       ProgramDefinition program,
+      Locale preferredLocale,
       SettingsManifest settingsManifest,
       PublicStorageClient publicStorageClient) {
     if (!settingsManifest.getProgramCardImages(request)) {
@@ -239,8 +241,18 @@ public final class ProgramCardViewRenderer {
     return Optional.of(
         img()
             .withSrc(publicStorageClient.getPublicDisplayUrl(program.summaryImageFileKey().get()))
+            .withAlt(getProgramImageAltText(program, preferredLocale))
             .withClasses("w-full", "aspect-video", "object-cover", "rounded-b-lg"));
-    // TODO(#5676): Add alt-text to image.
+  }
+
+  private static String getProgramImageAltText(ProgramDefinition program, Locale preferredLocale) {
+    if (program.localizedSummaryImageDescription().isPresent()
+        && program.localizedSummaryImageDescription().get().hasTranslationFor(preferredLocale)) {
+      return program.localizedSummaryImageDescription().get().getOrDefault(preferredLocale);
+    } else {
+      // Fall back to the program name if the description hasn't been set.
+      return program.localizedName().getOrDefault(preferredLocale);
+    }
   }
 
   /**
