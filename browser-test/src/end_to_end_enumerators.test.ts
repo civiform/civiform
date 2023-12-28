@@ -37,7 +37,7 @@ describe('End to end enumerator test', () => {
     // Verify question preview has the default values.
     await adminQuestions.expectCommonPreviewValues({
       questionText: 'Sample question text',
-      questionHelpText: ' ',
+      questionHelpText:" ",
     })
     await adminQuestions.expectEnumeratorPreviewValues({
       entityNameInputLabelText: 'New entity type name #1',

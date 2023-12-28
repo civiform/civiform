@@ -250,13 +250,22 @@ class PreviewController {
   }
 
   private static updateFromNewQuestionHelpText(helpText: string) {
-    const contentElement = PreviewController.formatText(helpText)
-    const contentParent = document.querySelector(
-      PreviewController.QUESTION_HELP_TEXT_SELECTOR,
-    )
-    if (contentParent) {
-      contentParent.innerHTML = ''
-      contentParent.appendChild(contentElement)
+    const questionType = document.querySelector('.cf-applicant-question-help-text')
+    const useAdvancedFormatting = questionType
+    if (useAdvancedFormatting) {
+      const contentElement = PreviewController.formatText(helpText)
+      const contentParent = document.querySelector(
+        PreviewController.QUESTION_HELP_TEXT_SELECTOR,
+      )
+      if (contentParent) {
+        contentParent.innerHTML = ''
+        contentParent.appendChild(contentElement)
+      }
+    } else {
+      PreviewController.setTextAndHighlightEnumeratorReferences(
+        PreviewController.QUESTION_HELP_TEXT_SELECTOR,
+        helpText,
+      )
     }
   }
 
