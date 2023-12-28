@@ -38,7 +38,6 @@ import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http;
-import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
@@ -239,20 +238,21 @@ public final class ProgramCardViewRenderer {
     // TODO(#5676): Can we detect if the image URL is invalid and then not show it?
     // TODO(#5676): Include a placeholder while the image is loading.
 
-    LocalizedStrings altText;
-    if (program.localizedSummaryImageDescription().isPresent()
-        && program.localizedSummaryImageDescription().get().hasTranslationFor(preferredLocale)) {
-      altText = program.localizedSummaryImageDescription().get();
-    } else {
-      // Fall back to the program name if the description hasn't been set
-      altText = program.localizedName();
-    }
-
     return Optional.of(
         img()
             .withSrc(publicStorageClient.getPublicDisplayUrl(program.summaryImageFileKey().get()))
-            .withAlt(altText.getOrDefault(preferredLocale))
+            .withAlt(getProgramImageAltText(program, preferredLocale))
             .withClasses("w-full", "aspect-video", "object-cover", "rounded-b-lg"));
+  }
+
+  private static String getProgramImageAltText(ProgramDefinition program, Locale preferredLocale) {
+    if (program.localizedSummaryImageDescription().isPresent()
+        && program.localizedSummaryImageDescription().get().hasTranslationFor(preferredLocale)) {
+      return program.localizedSummaryImageDescription().get().getOrDefault(preferredLocale);
+    } else {
+      // Fall back to the program name if the description hasn't been set.
+      return program.localizedName().getOrDefault(preferredLocale);
+    }
   }
 
   /**
