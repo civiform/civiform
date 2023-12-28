@@ -63,13 +63,14 @@ public final class AwsPublicStorage extends PublicStorageClient {
   }
 
   interface Client {
+    /** Returns the action link that public files should be sent to. Must end in a `/`. */
     String actionLink();
   }
 
   static class NullClient implements Client {
     @Override
     public String actionLink() {
-      return "fake-action-link";
+      return "fake-action-link/";
     }
   }
 

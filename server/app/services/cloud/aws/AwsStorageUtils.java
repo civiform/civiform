@@ -71,13 +71,17 @@ public final class AwsStorageUtils {
   /** Returns the action link to use when uploading or downloading to LocalStack. */
   public String localStackActionLink(Config config, String bucketName, Region region) {
     try {
-      String url = S3EndpointProvider.defaultProvider()
-          .resolveEndpoint(
-              (builder) ->
-                  builder.endpoint(localStackEndpoint(config)).bucket(bucketName).region(region))
-          .get()
-          .url()
-          .toString();
+      String url =
+          S3EndpointProvider.defaultProvider()
+              .resolveEndpoint(
+                  (builder) ->
+                      builder
+                          .endpoint(localStackEndpoint(config))
+                          .bucket(bucketName)
+                          .region(region))
+              .get()
+              .url()
+              .toString();
       // The prod AWS action links end with a "/", so have our localstack action links do the same.
       return url + "/";
     } catch (ExecutionException | InterruptedException e) {
