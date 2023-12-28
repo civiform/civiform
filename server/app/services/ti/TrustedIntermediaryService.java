@@ -225,15 +225,8 @@ public final class TrustedIntermediaryService {
     String firstName = form.get().getFirstName();
     String middleName = form.get().getMiddleName();
     String lastName = form.get().getLastName();
-    String currentFullName = applicantData.getApplicantFullName().get();
-    String newFullName =
-        applicantData
-            .buildApplicantFullName(
-                Optional.of(firstName), Optional.of(middleName), Optional.of(lastName))
-            .get();
-    if (!currentFullName.equals(newFullName)) {
-      accountRepository.updateClientName(firstName, middleName, lastName, applicant);
-    }
+    accountRepository.updateClientName(firstName, middleName, lastName, applicant);
+
     // DOB update
     String newDob = form.get().getDob();
     LocalDate localDate = LocalDate.parse(newDob, DateTimeFormatter.ofPattern("yyyy-MM-dd"));

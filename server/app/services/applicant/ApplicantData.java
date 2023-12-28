@@ -77,32 +77,17 @@ public class ApplicantData extends CfJsonDocumentContext {
     }
     return Optional.of(firstName);
   }
-
-  /** Gets the Applicant full name for the TiEditClientInfo form by reading the database. */
-  public Optional<String> getApplicantFullName() {
-    return buildApplicantFullName(
-        readString(WellKnownPaths.APPLICANT_FIRST_NAME),
-        readString(WellKnownPaths.APPLICANT_MIDDLE_NAME),
-        readString(WellKnownPaths.APPLICANT_LAST_NAME));
+  public Optional<String> getApplicantFirstName() {
+    return
+        readString(WellKnownPaths.APPLICANT_FIRST_NAME);
+    }
+  public Optional<String> getApplicantMiddleName() {
+    return
+      readString(WellKnownPaths.APPLICANT_MIDDLE_NAME);
   }
-
-  /** Builds Applicant full name for the TiEditClientInfo form and service validation */
-  public Optional<String> buildApplicantFullName(
-      Optional<String> firstName, Optional<String> middleName, Optional<String> lastName) {
-    if (firstName.isEmpty()) {
-      return Optional.empty();
-    }
-    StringBuilder nameBuilder = new StringBuilder();
-    nameBuilder.append(firstName.get());
-    nameBuilder.append(",");
-    if (middleName.isPresent()) {
-      nameBuilder.append(middleName.get());
-    }
-    nameBuilder.append(",");
-    if (lastName.isPresent()) {
-      nameBuilder.append(lastName.get());
-    }
-    return Optional.of(nameBuilder.toString());
+  public Optional<String> getApplicantLastName() {
+    return
+      readString(WellKnownPaths.APPLICANT_LAST_NAME);
   }
 
   /** Updates the TI client name in the Applicant table */
