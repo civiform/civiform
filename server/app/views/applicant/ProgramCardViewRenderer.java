@@ -5,7 +5,6 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
-import static j2html.TagCreator.img;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
@@ -41,12 +40,11 @@ import play.mvc.Http;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
-import services.cloud.PublicFileNameFormatter;
-import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions;
 import services.settings.SettingsManifest;
 import views.HtmlBundle;
+import views.ProgramImageUtils;
 import views.TranslationUtils;
 import views.components.ButtonStyles;
 import views.components.Icons;
@@ -61,18 +59,18 @@ import views.style.ReferenceClasses;
 public final class ProgramCardViewRenderer {
   private final ApplicantRoutes applicantRoutes;
   private final ProfileUtils profileUtils;
-  private final PublicStorageClient publicStorageClient;
+  private final ProgramImageUtils programImageUtils;
   private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramCardViewRenderer(
       ApplicantRoutes applicantRoutes,
       ProfileUtils profileUtils,
-      SettingsManifest settingsManifest,
-      PublicStorageClient publicStorageClient) {
+      ProgramImageUtils programImageUtils,
+      SettingsManifest settingsManifest) {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.profileUtils = checkNotNull(profileUtils);
-    this.publicStorageClient = checkNotNull(publicStorageClient);
+    this.programImageUtils = checkNotNull(programImageUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
@@ -105,8 +103,7 @@ public final class ProgramCardViewRenderer {
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
     Optional<ImgTag> programImage =
-        createProgramImage(
-            request, program, preferredLocale, settingsManifest, publicStorageClient);
+        programImageUtils.createProgramImage(request, program, preferredLocale);
 
     ContainerTag title =
         nestedUnderSubheading
@@ -217,42 +214,6 @@ public final class ProgramCardViewRenderer {
     programImage.ifPresent(cardListItem::with);
 
     return cardListItem.with(programData).with(actionDiv);
-  }
-
-  private static Optional<ImgTag> createProgramImage(
-      Http.Request request,
-      ProgramDefinition program,
-      Locale preferredLocale,
-      SettingsManifest settingsManifest,
-      PublicStorageClient publicStorageClient) {
-    if (!settingsManifest.getProgramCardImages(request)) {
-      return Optional.empty();
-    }
-    if (program.summaryImageFileKey().isEmpty()) {
-      return Optional.empty();
-    }
-    String summaryImageFileKey = program.summaryImageFileKey().get();
-    if (!PublicFileNameFormatter.isFileKeyForPublicProgramImage(summaryImageFileKey)) {
-      return Optional.empty();
-    }
-    // TODO(#5676): Can we detect if the image URL is invalid and then not show it?
-    // TODO(#5676): Include a placeholder while the image is loading.
-
-    return Optional.of(
-        img()
-            .withSrc(publicStorageClient.getPublicDisplayUrl(program.summaryImageFileKey().get()))
-            .withAlt(getProgramImageAltText(program, preferredLocale))
-            .withClasses("w-full", "aspect-video", "object-cover", "rounded-b-lg"));
-  }
-
-  private static String getProgramImageAltText(ProgramDefinition program, Locale preferredLocale) {
-    if (program.localizedSummaryImageDescription().isPresent()
-        && program.localizedSummaryImageDescription().get().hasTranslationFor(preferredLocale)) {
-      return program.localizedSummaryImageDescription().get().getOrDefault(preferredLocale);
-    } else {
-      // Fall back to the program name if the description hasn't been set.
-      return program.localizedName().getOrDefault(preferredLocale);
-    }
   }
 
   /**

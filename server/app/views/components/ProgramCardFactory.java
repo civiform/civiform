@@ -9,6 +9,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.PTag;
 import java.time.Instant;
 import java.util.Comparator;
@@ -20,6 +21,7 @@ import play.mvc.Http.Request;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
+import views.ProgramImageUtils;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
 import views.style.ReferenceClasses;
@@ -30,11 +32,14 @@ public final class ProgramCardFactory {
 
   private final ViewUtils viewUtils;
   private final SettingsManifest settingsManifest;
+  private final ProgramImageUtils programImageUtils;
 
   @Inject
-  public ProgramCardFactory(ViewUtils viewUtils, SettingsManifest settingsManifest) {
+  public ProgramCardFactory(
+      ViewUtils viewUtils, SettingsManifest settingsManifest, ProgramImageUtils programImageUtils) {
     this.viewUtils = checkNotNull(viewUtils);
     this.settingsManifest = settingsManifest;
+    this.programImageUtils = checkNotNull(programImageUtils);
   }
 
   public DivTag renderCard(Request request, ProgramCardData cardData) {
@@ -152,6 +157,7 @@ public final class ProgramCardFactory {
             StyleUtils.hover("bg-gray-100"),
             StyleUtils.joinStyles(extraStyles))
         .with(
+            createImageIcon(program, request),
             badge,
             div()
                 .withClasses("ml-4", StyleUtils.responsiveXLarge("ml-10"))
@@ -200,6 +206,16 @@ public final class ProgramCardFactory {
       return cardData.draftProgram().get().program();
     }
     return cardData.activeProgram().get().program();
+  }
+
+  private DivTag createImageIcon(ProgramDefinition program, Http.Request request) {
+    Optional<ImgTag> image =
+        programImageUtils.createProgramImage(request, program, Locale.getDefault());
+    if (image.isPresent()) {
+      return div().withClasses("w-16", "h-9").with(image.get());
+    } else {
+      return div().withClasses("w-16", "h-9", "border", "border-gray-300");
+    }
   }
 
   public static Comparator<ProgramCardData> programTypeThenLastModifiedThenNameComparator() {
