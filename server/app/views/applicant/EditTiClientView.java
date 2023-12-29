@@ -119,7 +119,7 @@ public class EditTiClientView extends BaseHtmlView {
             .withAction(routes.TrustedIntermediaryController.updateClientInfo(account.id).url());
     FieldWithLabel firstNameField =
         FieldWithLabel.input()
-            .setId("first-name-input")
+            .setId("edit-first-name-input")
             .setFieldName("firstName")
             .setLabelText("First Name")
             .setRequired(true)
@@ -132,13 +132,13 @@ public class EditTiClientView extends BaseHtmlView {
     }
     FieldWithLabel middleNameField =
         FieldWithLabel.input()
-            .setId("middle-name-input")
+            .setId("edit-middle-name-input")
             .setFieldName("middleName")
             .setLabelText("Middle Name")
             .setValue(applicantData.getApplicantMiddleName());
     FieldWithLabel lastNameField =
         FieldWithLabel.input()
-            .setId("last-name-input")
+            .setId("edit-last-name-input")
             .setFieldName("lastName")
             .setLabelText("Last Name")
             .setRequired(true)
@@ -164,7 +164,7 @@ public class EditTiClientView extends BaseHtmlView {
     }
     FieldWithLabel emailField =
         FieldWithLabel.email()
-            .setId("email-input")
+            .setId("edit-email-input")
             .setFieldName("emailAddress")
             .setLabelText("Email Address")
             .setToolTipIcon(Icons.INFO)
@@ -182,7 +182,7 @@ public class EditTiClientView extends BaseHtmlView {
     }
     FieldWithLabel dateOfBirthField =
         FieldWithLabel.date()
-            .setId("date-of-birth-input")
+            .setId("edit-date-of-birth-input")
             .setFieldName("dob")
             .setLabelText("Date Of Birth")
             .setRequired(true)

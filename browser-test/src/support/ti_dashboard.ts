@@ -33,8 +33,16 @@ export class TIDashboard {
   }
 
   async updateClientDateOfBirth(client: ClientInformation, newDobDate: string) {
-    await this.page.locator('id=date-of-birth-update').fill(newDobDate)
-    await this.page.click('text="Update DOB"')
+    await this.page
+      .getByRole('row')
+      .filter({hasText: client.emailAddress})
+      .getByText('Edit')
+      .click()
+    await waitForPageJsLoad(this.page)
+    await this.page.waitForSelector('h2:has-text("Edit Client")')
+    await this.page.fill('#edit-date-of-birth-input', newDobDate)
+    await this.page.click('text="Save"')
+    await waitForPageJsLoad(this.page)
   }
 
   async expectDashboardContainClient(client: ClientInformation) {
@@ -43,10 +51,7 @@ export class TIDashboard {
     )
     const rowText = await row.innerText()
     expect(rowText).toContain(client.emailAddress)
-    // date of birth rendered as <input> rather than plain text.
-    expect(await row.locator('input[name="dob"]').inputValue()).toEqual(
-      client.dobDate,
-    )
+    expect(rowText).toContain(client.dobDate)
   }
 
   async expectDashboardNotContainClient(client: ClientInformation) {
