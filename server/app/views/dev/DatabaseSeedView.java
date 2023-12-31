@@ -56,8 +56,7 @@ public class DatabaseSeedView extends BaseHtmlView {
                 div()
                     .with(
                         form()
-                            .with(makeCsrfTokenInputTag(request))
-                            .with(submitButton("index", "Go to index page"))
+                            .with(submitButton("index", "Go to dev database seeder page"))
                             .withMethod("get")
                             .withAction(routes.DevDatabaseSeedController.index().url())))
             .with(
@@ -112,13 +111,13 @@ public class DatabaseSeedView extends BaseHtmlView {
                             .with(makeCsrfTokenInputTag(request))
                             .with(submitButton("index", "Go to index page"))
                             .withMethod("get")
-                            .withAction(routes.DevDatabaseSeedController.index().url())))
-            .with(
-                form()
-                    .with(makeCsrfTokenInputTag(request))
-                    .with(submitButton("data", "Go to seed data page"))
-                    .withMethod("get")
-                    .withAction(routes.DevDatabaseSeedController.data().url()));
+                            .withAction(controllers.routes.HomeController.index().url()))
+                    .with(
+                        form()
+                            .with(makeCsrfTokenInputTag(request))
+                            .with(submitButton("data", "Go to seed data page"))
+                            .withMethod("get")
+                            .withAction(routes.DevDatabaseSeedController.data().url())));
 
     HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(content);
     return layout.render(bundle);
