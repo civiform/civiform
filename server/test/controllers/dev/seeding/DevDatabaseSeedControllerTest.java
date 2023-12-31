@@ -54,8 +54,6 @@ public class DevDatabaseSeedControllerTest {
     assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
 
     // Go to seed data display page.
-    result = controller.data();
-    assertThat(result.redirectLocation()).hasValue(routes.DevDatabaseSeedController.data().url());
     result = controller.data(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("comprehensive-sample-program");
