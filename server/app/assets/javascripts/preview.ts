@@ -247,10 +247,10 @@ class PreviewController {
   }
 
   private static updateFromNewQuestionHelpText(helpText: string) {
-    const questionType = document.querySelector(
+    const questionHelpText = document.querySelector(
       '.cf-applicant-question-help-text',
     )
-    const useAdvancedFormatting = questionType
+    const useAdvancedFormatting = questionHelpText
     if (useAdvancedFormatting) {
       const contentElement = PreviewController.formatText(helpText)
       const contentParent = document.querySelector(
