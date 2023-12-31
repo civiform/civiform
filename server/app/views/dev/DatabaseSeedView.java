@@ -39,18 +39,41 @@ public class DatabaseSeedView extends BaseHtmlView {
     this.objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
   }
 
-  public Content render(
+  public Content SeedDataView(
       Request request,
       ActiveAndDraftPrograms activeAndDraftPrograms,
-      ImmutableList<QuestionDefinition> questionDefinitions,
-      Optional<String> maybeFlash) {
-
+      ImmutableList<QuestionDefinition> questionDefinitions) {
     ImmutableList<ProgramDefinition> draftPrograms = activeAndDraftPrograms.getDraftPrograms();
     ImmutableList<ProgramDefinition> activePrograms = activeAndDraftPrograms.getActivePrograms();
 
     String prettyDraftPrograms = getPrettyJson(draftPrograms);
     String prettyActivePrograms = getPrettyJson(activePrograms);
     String prettyQuestions = getPrettyJson(questionDefinitions);
+
+    DivTag content =
+        div()
+            .with(
+                div()
+                    .with(
+                        form()
+                            .with(makeCsrfTokenInputTag(request))
+                            .with(submitButton("index", "Go to index page"))
+                            .withMethod("get")
+                            .withAction(routes.DevDatabaseSeedController.index().url())))
+            .with(
+                form()
+                    .withClasses("grid", "grid-cols-2")
+                    .with(div().with(h2("Current Draft Programs:")).with(pre(prettyDraftPrograms)))
+                    .with(
+                        div().with(h2("Current Active Programs:")).with(pre(prettyActivePrograms)))
+                    .with(div().with(h2("Current Questions:")).with(pre(prettyQuestions))))
+            .withClasses("px-6", "py-6");
+
+    HtmlBundle bundle = layout.getBundle(request).addMainContent(content);
+    return layout.render(bundle);
+  }
+
+  public Content render(Request request, Optional<String> maybeFlash) {
 
     String title = "Dev database seeder";
 
@@ -89,15 +112,13 @@ public class DatabaseSeedView extends BaseHtmlView {
                             .with(makeCsrfTokenInputTag(request))
                             .with(submitButton("index", "Go to index page"))
                             .withMethod("get")
-                            .withAction(controllers.routes.HomeController.index().url())))
+                            .withAction(routes.DevDatabaseSeedController.index().url())))
             .with(
-                div()
-                    .withClasses("grid", "grid-cols-2")
-                    .with(div().with(h2("Current Draft Programs:")).with(pre(prettyDraftPrograms)))
-                    .with(
-                        div().with(h2("Current Active Programs:")).with(pre(prettyActivePrograms)))
-                    .with(div().with(h2("Current Questions:")).with(pre(prettyQuestions))))
-            .withClasses("px-6", "py-6");
+                form()
+                    .with(makeCsrfTokenInputTag(request))
+                    .with(submitButton("data", "Go to seed data page"))
+                    .withMethod("get")
+                    .withAction(routes.DevDatabaseSeedController.data().url()));
 
     HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(content);
     return layout.render(bundle);

@@ -74,12 +74,17 @@ public class DevDatabaseSeedController extends Controller {
     if (!isDevOrStaging) {
       return notFound();
     }
+    return ok(view.render(request, request.flash().get("success")));
+  }
+
+  public Result data(Request request) {
+    if (!isDevOrStaging) {
+      return notFound();
+    }
     ActiveAndDraftPrograms activeAndDraftPrograms = programService.getActiveAndDraftPrograms();
     ImmutableList<QuestionDefinition> questionDefinitions =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join().getAllQuestions();
-    return ok(
-        view.render(
-            request, activeAndDraftPrograms, questionDefinitions, request.flash().get("success")));
+    return ok(view.SeedDataView(request, activeAndDraftPrograms, questionDefinitions));
   }
 
   public Result seedQuestions() {
