@@ -207,6 +207,12 @@ describe('normal question lifecycle', () => {
     })
 
     await adminQuestions.gotoQuestionEditPage(questionName)
+    expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
+      'https://google.com</a> <strong>bold</strong>',
+    )
+    expect(await page.innerHTML('.cf-applicant-question-help-text')).toContain(
+      '<em>italic</em>',
+    )
     await validateScreenshot(page, 'question-with-markdown-formatted-preview')
   })
 

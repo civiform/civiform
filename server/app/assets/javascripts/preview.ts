@@ -349,7 +349,7 @@ class PreviewController {
     const textArray = text.split('\n')
     for (let i = 0; i < textArray.length; i++) {
       if (!textArray[i]) {
-        textArray[i] = '&nbsp;\n'
+        textArray[i] = '\n'
       }
     }
     text = textArray.join('\n')
