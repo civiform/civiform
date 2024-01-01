@@ -36,9 +36,6 @@ class PreviewController {
   private static readonly DEFAULT_ENTITY_TYPE = 'Sample repeated entity type'
   private static readonly DEFAULT_OPTION_TEXT = 'Sample question option'
 
-  // This is defined in {@link QuestionType}.
-  private static readonly STATIC_QUESTION_TEXT = 'Static Text'
-
   // This regex is used to match $this and $this.parent (etc) strings so we can
   // highlight them in the question preview.
   private static readonly THIS_REGEX = /(\$this(?:\.parent)*)/g
@@ -229,9 +226,7 @@ class PreviewController {
   private static updateFromNewQuestionText(text: string) {
     text = text || PreviewController.DEFAULT_QUESTION_TEXT
     const questionType = document.querySelector('.cf-question-type')
-    const useAdvancedFormatting =
-      questionType &&
-      questionType.textContent === PreviewController.STATIC_QUESTION_TEXT
+    const useAdvancedFormatting = questionType
     if (useAdvancedFormatting) {
       const contentElement = PreviewController.formatText(text)
       contentElement.classList.add('pr-16')
@@ -252,10 +247,25 @@ class PreviewController {
   }
 
   private static updateFromNewQuestionHelpText(helpText: string) {
-    PreviewController.setTextAndHighlightEnumeratorReferences(
-      PreviewController.QUESTION_HELP_TEXT_SELECTOR,
-      helpText,
+    const questionHelpText = document.querySelector(
+      '.cf-applicant-question-help-text',
     )
+    const useAdvancedFormatting = questionHelpText
+    if (useAdvancedFormatting) {
+      const contentElement = PreviewController.formatText(helpText)
+      const contentParent = document.querySelector(
+        PreviewController.QUESTION_HELP_TEXT_SELECTOR,
+      )
+      if (contentParent) {
+        contentParent.innerHTML = ''
+        contentParent.appendChild(contentElement)
+      }
+    } else {
+      PreviewController.setTextAndHighlightEnumeratorReferences(
+        PreviewController.QUESTION_HELP_TEXT_SELECTOR,
+        helpText,
+      )
+    }
   }
 
   private static updateFromNewEnumeratorSelector(
@@ -339,7 +349,7 @@ class PreviewController {
     const textArray = text.split('\n')
     for (let i = 0; i < textArray.length; i++) {
       if (!textArray[i]) {
-        textArray[i] = '&nbsp;\n'
+        textArray[i] = '\n'
       }
     }
     text = textArray.join('\n')
