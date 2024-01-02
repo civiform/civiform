@@ -69,7 +69,7 @@ public class DatabaseSeedView extends BaseHtmlView {
             .with(h1(title))
             .with(indexLinkTag)
             .with(
-                form()
+                div()
                     .with(makeCsrfTokenInputTag(request))
                     .withClasses("grid", "grid-cols-2")
                     .with(div().with(h2("Current Draft Programs:")).with(pre(prettyDraftPrograms)))
