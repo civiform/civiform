@@ -71,6 +71,29 @@ describe('admin program view page', () => {
     await validateScreenshot(page, 'program-list-no-image')
   })
 
+  it('program with new image in draft', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    // Start the program as having no image
+    const programName = 'New Image Program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.publishAllDrafts()
+
+    // Set a new image on the new draft program
+    await adminPrograms.createNewVersion(programName)
+    await adminPrograms.goToProgramImagePage(programName)
+    await adminProgramImage.setImageFileAndSubmit(
+      'src/assets/program-summary-image-tall.png',
+    )
+    await adminPrograms.gotoAdminProgramsPage()
+
+    // Verify that the new image is shown in the Draft row
+    // and an empty rectangle is shown in the Active row.
+    await validateScreenshot(page, 'program-list-with-new-draft-image')
+  })
+
   it('program with different active and draft image', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     await loginAsAdmin(page)
@@ -95,6 +118,30 @@ describe('admin program view page', () => {
     await validateScreenshot(
       page,
       'program-list-with-different-active-and-draft-images',
+    )
+  })
+
+  it('program with same active and draft image', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Same Image Program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramImagePage(programName)
+    await adminProgramImage.setImageFileAndSubmit(
+      'src/assets/program-summary-image-wide.png',
+    )
+    await adminPrograms.publishAllDrafts()
+
+    // Create a new draft version of the program, but don't edit the image
+    await adminPrograms.createNewVersion(programName)
+    await adminPrograms.gotoAdminProgramsPage()
+
+    // Verify that the current image is shown twice, in the Active row and Draft row
+    await validateScreenshot(
+      page,
+      'program-list-with-same-active-and-draft-image',
     )
   })
 
