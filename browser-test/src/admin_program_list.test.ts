@@ -173,12 +173,12 @@ describe('Program list page.', () => {
     await adminPrograms.addQuestionFromQuestionBank(nameQuestion)
 
     await adminPrograms.gotoAdminProgramsPage()
-    await page.click('#program-one-publish-modal-button')
-    expect(await page.innerText('#program-one-publish-modal')).toContain(
+    await page.click('#publish-modal-program-one-button')
+    expect(await page.innerText('#publish-modal-program-one')).toContain(
       'Are you sure you want to publish program one and all of its draft questions?',
     )
     // Warning should not show because there are no universal questions
-    expect(await page.innerText('#program-one-publish-modal')).not.toContain(
+    expect(await page.innerText('#publish-modal-program-one')).not.toContain(
       'Warning: This program does not use all recommended universal questions.',
     )
     await validateScreenshot(page, 'publish-single-program-modal-no-warning')
@@ -192,9 +192,9 @@ describe('Program list page.', () => {
       universal: true,
     })
     await adminPrograms.gotoAdminProgramsPage()
-    await page.click('#program-one-publish-modal-button')
+    await page.click('#publish-modal-program-one-button')
     // Warning should show because there is a universal question that is not used in this program
-    expect(await page.innerText('#program-one-publish-modal')).toContain(
+    expect(await page.innerText('#publish-modal-program-one')).toContain(
       'Warning: This program does not use all recommended universal questions.',
     )
     await validateScreenshot(page, 'publish-single-program-modal-with-warning')
@@ -205,9 +205,9 @@ describe('Program list page.', () => {
     await adminPrograms.gotoEditDraftProgramPage(programOne)
     await adminPrograms.addQuestionFromQuestionBank(textQuestion)
     await adminPrograms.gotoAdminProgramsPage()
-    await page.click('#program-one-publish-modal-button')
+    await page.click('#publish-modal-program-one-button')
     // Warning should not show because the program uses all universal questions
-    expect(await page.innerText('#program-one-publish-modal')).not.toContain(
+    expect(await page.innerText('#publish-modal-program-one')).not.toContain(
       'Warning: This program does not use all recommended universal questions.',
     )
     await adminQuestions.clickSubmitButtonAndNavigate('Publish program')

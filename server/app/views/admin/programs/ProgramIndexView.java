@@ -263,7 +263,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                           "flex", "flex-col", StyleUtils.responsiveMedium("flex-row"), "py-4");
 
               return Modal.builder()
-                  .setModalId("publish-modal-" + program.id())
+                  .setModalId("publish-modal-" + program.slug())
                   .setLocation(Modal.Location.ADMIN_FACING)
                   .setContent(
                       publishSingleProgramForm
@@ -449,7 +449,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         publishSingleProgramModals.stream()
             .forEach(
                 (modal) -> {
-                  if (modal.modalId().equals("publish-modal-" + draftProgram.get().id())) {
+                  if (modal.modalId().equals("publish-modal-" + draftProgram.get().slug())) {
                     draftRowActions.add(modal.getButton());
                   }
                 });
