@@ -263,7 +263,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                           "flex", "flex-col", StyleUtils.responsiveMedium("flex-row"), "py-4");
 
               return Modal.builder()
-                  .setModalId(program.adminName() + "-publish-modal")
+                  .setModalId("publish-modal-" + program.id())
                   .setLocation(Modal.Location.ADMIN_FACING)
                   .setContent(
                       publishSingleProgramForm
@@ -277,7 +277,6 @@ public final class ProgramIndexView extends BaseHtmlView {
                           + " and all of its draft questions?")
                   .setTriggerButtonContent(
                       makeSvgTextButton("Publish", Icons.PUBLISH)
-                          .withId(program.adminName() + "-publish-modal-button")
                           .withClasses(ButtonStyles.CLEAR_WITH_ICON))
                   .setWidth(Modal.Width.THIRD)
                   .build();
@@ -450,7 +449,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         publishSingleProgramModals.stream()
             .forEach(
                 (modal) -> {
-                  if (modal.modalId().equals(draftProgram.get().adminName() + "-publish-modal")) {
+                  if (modal.modalId().equals("publish-modal-" + draftProgram.get().id())) {
                     draftRowActions.add(modal.getButton());
                   }
                 });
