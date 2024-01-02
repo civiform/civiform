@@ -43,6 +43,9 @@ public class DatabaseSeedView extends BaseHtmlView {
       Request request,
       ActiveAndDraftPrograms activeAndDraftPrograms,
       ImmutableList<QuestionDefinition> questionDefinitions) {
+
+    String title = "Dev database seed data";
+
     ImmutableList<ProgramDefinition> draftPrograms = activeAndDraftPrograms.getDraftPrograms();
     ImmutableList<ProgramDefinition> activePrograms = activeAndDraftPrograms.getActivePrograms();
 
@@ -52,15 +55,18 @@ public class DatabaseSeedView extends BaseHtmlView {
 
     DivTag content =
         div()
+            .with(h1(title))
             .with(
                 div()
                     .with(
                         form()
+                            .with(makeCsrfTokenInputTag(request))
                             .with(submitButton("index", "Go to dev database seeder page"))
                             .withMethod("get")
                             .withAction(routes.DevDatabaseSeedController.index().url())))
             .with(
                 form()
+                    .with(makeCsrfTokenInputTag(request))
                     .withClasses("grid", "grid-cols-2")
                     .with(div().with(h2("Current Draft Programs:")).with(pre(prettyDraftPrograms)))
                     .with(
