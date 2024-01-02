@@ -39,6 +39,10 @@ public class DatabaseSeedView extends BaseHtmlView {
     this.objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
   }
 
+  /**
+   * Renders a page for a developer to view seeded data. This is only available in non-prod
+   * environments.
+   */
   public Content SeedDataView(
       Request request,
       ActiveAndDraftPrograms activeAndDraftPrograms,
@@ -74,7 +78,7 @@ public class DatabaseSeedView extends BaseHtmlView {
                     .with(div().with(h2("Current Questions:")).with(pre(prettyQuestions))))
             .withClasses("px-6", "py-6");
 
-    HtmlBundle bundle = layout.getBundle(request).addMainContent(content);
+    HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(content);
     return layout.render(bundle);
   }
 
