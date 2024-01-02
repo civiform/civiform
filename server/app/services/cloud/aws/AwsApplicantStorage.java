@@ -109,6 +109,7 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
 
     S3Presigner getPresigner();
 
+    /** Returns the action link that applicant files should be sent to. Must end in a `/`. */
     String actionLink();
 
     void close();
@@ -140,7 +141,7 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
 
     @Override
     public String actionLink() {
-      return "fake-action-link";
+      return "fake-action-link/";
     }
 
     @Override
