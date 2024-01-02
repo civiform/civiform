@@ -50,17 +50,17 @@ public final class ProgramImageUtils {
       return Optional.empty();
     }
 
-    String classes = StyleUtils.joinStyles("w-full", "aspect-video", "object-cover");
+    String styleClasses = StyleUtils.joinStyles("w-full", "aspect-video", "object-cover");
     if (isWithinProgramCard) {
       // Only round the bottom corners when showing the image in context of a program card.
-      classes = StyleUtils.joinStyles(classes, "rounded-b-lg");
+      styleClasses = StyleUtils.joinStyles(styleClasses, "rounded-b-lg");
     }
 
     return Optional.of(
         img()
             .withSrc(publicStorageClient.getPublicDisplayUrl(program.summaryImageFileKey().get()))
             .withAlt(getProgramImageAltText(program, preferredLocale))
-            .withClasses(classes));
+            .withClasses(styleClasses));
   }
 
   private static String getProgramImageAltText(ProgramDefinition program, Locale preferredLocale) {
