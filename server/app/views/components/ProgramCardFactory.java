@@ -31,15 +31,15 @@ import views.style.StyleUtils;
 public final class ProgramCardFactory {
 
   private final ViewUtils viewUtils;
-  private final SettingsManifest settingsManifest;
   private final ProgramImageUtils programImageUtils;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramCardFactory(
-      ViewUtils viewUtils, SettingsManifest settingsManifest, ProgramImageUtils programImageUtils) {
+      ViewUtils viewUtils, ProgramImageUtils programImageUtils, SettingsManifest settingsManifest) {
     this.viewUtils = checkNotNull(viewUtils);
-    this.settingsManifest = settingsManifest;
     this.programImageUtils = checkNotNull(programImageUtils);
+    this.settingsManifest = settingsManifest;
   }
 
   public DivTag renderCard(Request request, ProgramCardData cardData) {
@@ -71,7 +71,7 @@ public final class ProgramCardFactory {
             .withClass("flex")
             .with(
                 div()
-                    .withClasses("w-1/3", "py-7")
+                    .withClasses("w-1/4", "py-7")
                     .with(
                         p(programTitleText)
                             .withClasses(
@@ -209,11 +209,17 @@ public final class ProgramCardFactory {
   }
 
   private DivTag createImageIcon(ProgramDefinition program, Http.Request request) {
+    if (!settingsManifest.getProgramCardImages(request)) {
+      // If the program card images feature isn't enabled, don't make any changes to the admin page.
+      return div();
+    }
     Optional<ImgTag> image =
-        programImageUtils.createProgramImage(request, program, Locale.getDefault());
+        programImageUtils.createProgramImage(
+            request, program, Locale.getDefault(), /* isWithinProgramCard= */ false);
     if (image.isPresent()) {
       return div().withClasses("w-16", "h-9").with(image.get());
     } else {
+      // Show an empty box if there's no program image.
       return div().withClasses("w-16", "h-9", "border", "border-gray-300");
     }
   }

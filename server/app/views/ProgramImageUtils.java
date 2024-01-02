@@ -12,8 +12,9 @@ import services.cloud.PublicFileNameFormatter;
 import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
+import views.style.StyleUtils;
 
-/** TODO */
+/** Utility class for rendering program images. */
 public final class ProgramImageUtils {
   private final PublicStorageClient publicStorageClient;
 
@@ -26,9 +27,18 @@ public final class ProgramImageUtils {
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
-  /** TODO */
+  /**
+   * Returns an <img> tag with the program image if the feature is enabled and the program image
+   * data is valid. Returns an empty optional otherwise.
+   *
+   * @param isWithinProgramCard true if this image will be shown within the context of the program
+   *     card we show to applicants and false if this image will be shown on its own.
+   */
   public Optional<ImgTag> createProgramImage(
-      Http.Request request, ProgramDefinition program, Locale preferredLocale) {
+      Http.Request request,
+      ProgramDefinition program,
+      Locale preferredLocale,
+      boolean isWithinProgramCard) {
     if (!settingsManifest.getProgramCardImages(request)) {
       return Optional.empty();
     }
@@ -39,14 +49,18 @@ public final class ProgramImageUtils {
     if (!PublicFileNameFormatter.isFileKeyForPublicProgramImage(summaryImageFileKey)) {
       return Optional.empty();
     }
-    // TODO(#5676): Can we detect if the image URL is invalid and then not show it?
-    // TODO(#5676): Include a placeholder while the image is loading.
+
+    String classes = StyleUtils.joinStyles("w-full", "aspect-video", "object-cover");
+    if (isWithinProgramCard) {
+      // Only round the bottom corners when showing the image in context of a program card.
+      classes = StyleUtils.joinStyles(classes, "rounded-b-lg");
+    }
 
     return Optional.of(
         img()
             .withSrc(publicStorageClient.getPublicDisplayUrl(program.summaryImageFileKey().get()))
             .withAlt(getProgramImageAltText(program, preferredLocale))
-            .withClasses("w-full", "aspect-video", "object-cover", "rounded-b-lg"));
+            .withClasses(classes));
   }
 
   private static String getProgramImageAltText(ProgramDefinition program, Locale preferredLocale) {

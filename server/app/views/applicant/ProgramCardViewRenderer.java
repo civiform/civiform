@@ -103,7 +103,8 @@ public final class ProgramCardViewRenderer {
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
     Optional<ImgTag> programImage =
-        programImageUtils.createProgramImage(request, program, preferredLocale);
+        programImageUtils.createProgramImage(
+            request, program, preferredLocale, /* isWithinProgramCard= */ true);
 
     ContainerTag title =
         nestedUnderSubheading
