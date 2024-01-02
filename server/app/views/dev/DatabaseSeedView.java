@@ -1,6 +1,7 @@
 package views.dev;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableList;
 import controllers.dev.seeding.routes;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -43,7 +45,7 @@ public class DatabaseSeedView extends BaseHtmlView {
    * Renders a page for a developer to view seeded data. This is only available in non-prod
    * environments.
    */
-  public Content SeedDataView(
+  public Content seedDataView(
       Request request,
       ActiveAndDraftPrograms activeAndDraftPrograms,
       ImmutableList<QuestionDefinition> questionDefinitions) {
@@ -57,17 +59,15 @@ public class DatabaseSeedView extends BaseHtmlView {
     String prettyActivePrograms = getPrettyJson(activePrograms);
     String prettyQuestions = getPrettyJson(questionDefinitions);
 
+    ATag indexLinkTag =
+        a().withHref(routes.DevDatabaseSeedController.index().url())
+            .withId("index")
+            .with(submitButton("index", "Go to dev database seeder page"));
+
     DivTag content =
         div()
             .with(h1(title))
-            .with(
-                div()
-                    .with(
-                        form()
-                            .with(makeCsrfTokenInputTag(request))
-                            .with(submitButton("index", "Go to dev database seeder page"))
-                            .withMethod("get")
-                            .withAction(routes.DevDatabaseSeedController.index().url())))
+            .with(indexLinkTag)
             .with(
                 form()
                     .with(makeCsrfTokenInputTag(request))
@@ -85,6 +85,10 @@ public class DatabaseSeedView extends BaseHtmlView {
   public Content render(Request request, Optional<String> maybeFlash) {
 
     String title = "Dev database seeder";
+
+    ATag datalinkTag =
+        a().withHref(routes.DevDatabaseSeedController.data().url())
+            .with(submitButton("data", "Go to seed data page"));
 
     DivTag content =
         div()
@@ -122,12 +126,7 @@ public class DatabaseSeedView extends BaseHtmlView {
                             .with(submitButton("index", "Go to index page"))
                             .withMethod("get")
                             .withAction(controllers.routes.HomeController.index().url()))
-                    .with(
-                        form()
-                            .with(makeCsrfTokenInputTag(request))
-                            .with(submitButton("data", "Go to seed data page"))
-                            .withMethod("get")
-                            .withAction(routes.DevDatabaseSeedController.data().url())));
+                    .with(datalinkTag));
 
     HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(content);
     return layout.render(bundle);

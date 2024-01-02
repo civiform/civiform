@@ -84,7 +84,7 @@ public class DevDatabaseSeedController extends Controller {
     ActiveAndDraftPrograms activeAndDraftPrograms = programService.getActiveAndDraftPrograms();
     ImmutableList<QuestionDefinition> questionDefinitions =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join().getAllQuestions();
-    return ok(view.SeedDataView(request, activeAndDraftPrograms, questionDefinitions));
+    return ok(view.seedDataView(request, activeAndDraftPrograms, questionDefinitions));
   }
 
   public Result seedQuestions() {
