@@ -31,6 +31,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
         awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
     assertThat(uploadRequest.actionLink()).contains("amazonaws.com");
+    assertThat(uploadRequest.actionLink()).endsWith("/");
   }
 
   @Test
@@ -49,6 +50,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
 
     assertThat(uploadRequest.actionLink()).contains("localstack");
     assertThat(uploadRequest.actionLink()).doesNotContain("amazonaws.com");
+    assertThat(uploadRequest.actionLink()).endsWith("/");
   }
 
   @Test

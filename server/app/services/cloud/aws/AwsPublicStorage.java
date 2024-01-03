@@ -59,17 +59,18 @@ public final class AwsPublicStorage extends PublicStorageClient {
   /** Returns a direct cloud storage URL to the file with the given key. */
   @Override
   protected String getPublicDisplayUrlInternal(String fileKey) {
-    return client.actionLink() + "/" + fileKey;
+    return client.actionLink() + fileKey;
   }
 
   interface Client {
+    /** Returns the action link that public files should be sent to. Must end in a `/`. */
     String actionLink();
   }
 
   static class NullClient implements Client {
     @Override
     public String actionLink() {
-      return "fake-action-link";
+      return "fake-action-link/";
     }
   }
 

@@ -66,7 +66,7 @@ public final class QuestionService {
     QuestionModel question = new QuestionModel(questionDefinition);
     question.addVersion(versionRepositoryProvider.get().getDraftVersionOrCreate());
     questionRepository.insertQuestionSync(question);
-    return ErrorAnd.of(question.getQuestionDefinition());
+    return ErrorAnd.of(questionRepository.getQuestionDefinition(question));
   }
 
   /**
@@ -156,7 +156,8 @@ public final class QuestionService {
     }
     QuestionModel question = maybeQuestion.get();
     ImmutableSet<CiviFormError> immutableMemberErrors =
-        validateQuestionImmutableMembers(question.getQuestionDefinition(), updatedDefinition);
+        validateQuestionImmutableMembers(
+            questionRepository.getQuestionDefinition(question), updatedDefinition);
 
     ImmutableSet<CiviFormError> errors =
         ImmutableSet.<CiviFormError>builder()
@@ -168,7 +169,7 @@ public final class QuestionService {
     }
 
     question = questionRepository.createOrUpdateDraft(updatedDefinition);
-    return ErrorAnd.of(question.getQuestionDefinition());
+    return ErrorAnd.of(questionRepository.getQuestionDefinition(question));
   }
 
   /** If this question is archived but a new version has not been published yet, un-archive it. */
@@ -181,7 +182,7 @@ public final class QuestionService {
     ActiveAndDraftQuestions activeQuestions =
         readOnlyQuestionService().getActiveAndDraftQuestions();
     if (!activeQuestions
-        .getDeletionStatus(question.get().getQuestionDefinition().getName())
+        .getDeletionStatus(questionRepository.getQuestionDefinition(question.get()).getName())
         .equals(DeletionStatus.PENDING_DELETION)) {
       throw new InvalidUpdateException("Question is not restorable.");
     }
@@ -202,13 +203,14 @@ public final class QuestionService {
     ActiveAndDraftQuestions activeQuestions =
         readOnlyQuestionService().getActiveAndDraftQuestions();
     if (!activeQuestions
-        .getDeletionStatus(question.get().getQuestionDefinition().getName())
+        .getDeletionStatus(questionRepository.getQuestionDefinition(question.get()).getName())
         .equals(DeletionStatus.DELETABLE)) {
       throw new InvalidUpdateException("Question is not archivable.");
     }
 
     QuestionModel draftQuestion =
-        questionRepository.createOrUpdateDraft(question.get().getQuestionDefinition());
+        questionRepository.createOrUpdateDraft(
+            questionRepository.getQuestionDefinition(question.get()));
     VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     try {
       if (!versionRepositoryProvider
@@ -237,7 +239,8 @@ public final class QuestionService {
     Long activeId =
         versionRepositoryProvider
             .get()
-            .getQuestionByNameForVersion(question.getQuestionDefinition().getName(), activeVersion)
+            .getQuestionByNameForVersion(
+                questionRepository.getQuestionDefinition(question).getName(), activeVersion)
             // TODO: If nothing depends on this question then it could be removed.
             .orElseThrow(
                 () ->
@@ -248,7 +251,7 @@ public final class QuestionService {
         !draftId.equals(activeId),
         "Draft and Active IDs are the same (%s) for Question %s, this should not be possible.",
         draftId,
-        question.getQuestionDefinition().getName());
+        questionRepository.getQuestionDefinition(question).getName());
 
     VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     if (!question.removeVersion(draftVersion)) {
@@ -337,7 +340,7 @@ public final class QuestionService {
                     + " the existing question with admin ID '%s'",
                 questionDefinition.getName(),
                 questionDefinition.getQuestionPathSegment(),
-                conflict.getQuestionDefinition().getName());
+                questionRepository.getQuestionDefinition(conflict).getName());
       } else {
         errorMessage =
             String.format(
@@ -346,7 +349,7 @@ public final class QuestionService {
                 questionDefinition.getName(),
                 questionDefinition.getEnumeratorId().get(),
                 questionDefinition.getQuestionPathSegment(),
-                conflict.getQuestionDefinition().getName());
+                questionRepository.getQuestionDefinition(conflict).getName());
       }
       return ImmutableSet.of(CiviFormError.of(errorMessage));
     }
