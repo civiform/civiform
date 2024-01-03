@@ -263,7 +263,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                           "flex", "flex-col", StyleUtils.responsiveMedium("flex-row"), "py-4");
 
               return Modal.builder()
-                  .setModalId("publish-modal-" + program.slug())
+                  .setModalId(buildPublishModalId(program.slug()))
                   .setLocation(Modal.Location.ADMIN_FACING)
                   .setContent(
                       publishSingleProgramForm
@@ -282,6 +282,10 @@ public final class ProgramIndexView extends BaseHtmlView {
                   .build();
             })
         .collect(ImmutableList.toImmutableList());
+  }
+
+  private String buildPublishModalId(String programSlug) {
+    return "publish-modal-" + programSlug;
   }
 
   private int getCountMissingUniversalQuestions(
@@ -449,7 +453,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         publishSingleProgramModals.stream()
             .forEach(
                 (modal) -> {
-                  if (modal.modalId().equals("publish-modal-" + draftProgram.get().slug())) {
+                  if (modal.modalId().equals(buildPublishModalId(draftProgram.get().slug()))) {
                     draftRowActions.add(modal.getButton());
                   }
                 });
