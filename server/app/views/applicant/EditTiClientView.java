@@ -201,19 +201,27 @@ public class EditTiClientView extends BaseHtmlView {
             .setFieldName("tiNote")
             .setLabelText("Notes")
             .setValue(account.getTiNote());
-
+    String cancelUrl =
+        baseUrl
+            + controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                    /* nameQuery= */ Optional.empty(),
+                    /* dateQuery= */ Optional.empty(),
+                    /* page= */ Optional.of(1))
+                .url();
     return div()
         .with(
-            formTag.with(
-                firstNameField.getInputTag(),
-                middleNameField.getInputTag(),
-                lastNameField.getInputTag(),
-                phoneNumberField.getInputTag(),
-                emailField.getEmailTag(),
-                dateOfBirthField.getDateTag(),
-                tiNoteField.getTextareaTag(),
-                makeCsrfTokenInputTag(request),
-                submitButton("Save").withClasses("ml-2", "mb-6")))
-        .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
+            formTag
+                .with(
+                    firstNameField.getInputTag(),
+                    middleNameField.getInputTag(),
+                    lastNameField.getInputTag(),
+                    phoneNumberField.getInputTag(),
+                    emailField.getEmailTag(),
+                    dateOfBirthField.getDateTag(),
+                    tiNoteField.getTextareaTag(),
+                    makeCsrfTokenInputTag(request),
+                    submitButton("Save").withClasses("ml-2", "mb-6"),
+                    redirectButton("cancel-edit", "Cancel", cancelUrl))
+                .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6"));
   }
 }
