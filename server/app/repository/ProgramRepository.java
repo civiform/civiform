@@ -33,8 +33,6 @@ import play.libs.F;
 import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
-import services.Path;
-import services.WellKnownPaths;
 import services.program.ProgramDefinition;
 import services.program.ProgramDraftNotFoundException;
 import services.program.ProgramNotFoundException;
@@ -322,14 +320,19 @@ public final class ProgramRepository {
       String search = filters.searchNameFragment().get().trim();
 
       if (search.matches("^\\d+$")) {
-        query = query.eq("id", Integer.parseInt(search));
-      } else {
-        String firstNamePath = getApplicationObjectPath(WellKnownPaths.APPLICANT_FIRST_NAME);
-        String lastNamePath = getApplicationObjectPath(WellKnownPaths.APPLICANT_LAST_NAME);
         query =
             query
                 .or()
-                .raw("applicant.account.emailAddress ILIKE ?", "%" + search + "%")
+                .eq("id", Integer.parseInt(search))
+                .raw("applicant.phoneNumber ILIKE ?", "%" + search + "%")
+                .endOr();
+      } else {
+        String firstNamePath = "applicant.firstName";
+        String lastNamePath = "applicant.lastName";
+        query =
+            query
+                .or()
+                .raw("applicant.emailAddress ILIKE ?", "%" + search + "%")
                 .raw("submitter_email ILIKE ?", "%" + search + "%")
                 .raw(firstNamePath + " || ' ' || " + lastNamePath + " ILIKE ?", "%" + search + "%")
                 .raw(lastNamePath + " || ' ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
@@ -393,31 +396,5 @@ public final class ProgramRepository {
         .where()
         .in("name", programNameQuery)
         .query();
-  }
-
-  private String getApplicationObjectPath(Path path) {
-    StringBuilder result = new StringBuilder();
-
-    result.append("(");
-
-    // While the column type is JSONB, CiviForm writes the JSON object into the database as a
-    // string.
-    // This requires queries that interact with the JSON column to instruct postgres to parse the
-    // contents
-    // into JSON, which we do here with (object #>> '{}')::jsonb
-    result.append("(object #>> '{}')::jsonb");
-
-    int lastIndex = path.segments().size() - 1;
-    for (int i = 0; i < lastIndex; i++) {
-      result.append(" -> '");
-      result.append(path.segments().get(i));
-      result.append("'");
-    }
-
-    result.append(" ->> '");
-    result.append(path.segments().get(lastIndex));
-    result.append("')");
-
-    return result.toString();
   }
 }
