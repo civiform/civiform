@@ -219,8 +219,8 @@ public final class ProgramCardFactory {
     if (image.isPresent()) {
       return div().withClasses("w-16", "h-9").with(image.get());
     } else {
-      // Show an empty box if there's no program image.
-      return div().withClasses("w-16", "h-9", "border", "border-gray-300");
+      // Show a grayed-out placeholder image if there's no program image.
+      return div().with(Icons.svg(Icons.IMAGE).withClasses("w-16", "h-9", "text-gray-300"));
     }
   }
 
