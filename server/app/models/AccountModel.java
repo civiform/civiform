@@ -3,6 +3,7 @@ package models;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import auth.oidc.SerializedIdTokens;
+import autovalue.shaded.com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbJsonB;
@@ -63,6 +64,7 @@ public class AccountModel extends BaseModel {
   }
 
   public String getTiNote() {
+    if (Strings.isNullOrEmpty(this.tiNote)) return "";
     return this.tiNote;
   }
 

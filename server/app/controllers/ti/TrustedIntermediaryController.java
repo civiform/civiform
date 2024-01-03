@@ -137,7 +137,7 @@ public final class TrustedIntermediaryController {
             request,
             messagesApi.preferred(request),
             accountId,
-            Optional.empty()));
+            /* editClientInfoForm= */ Optional.empty()));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -178,7 +178,6 @@ public final class TrustedIntermediaryController {
   @Secure(authorizers = Authorizers.Labels.TI)
   public Result updateClientInfo(Long id, Http.Request request) throws ApplicantNotFoundException {
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
-    System.out.println("The profile is  " + civiformProfile.get().isTrustedIntermediary());
     if (civiformProfile.isEmpty()) {
       return unauthorized();
     }
@@ -191,10 +190,9 @@ public final class TrustedIntermediaryController {
     Form<EditTiClientInfoForm> form =
         formFactory.form(EditTiClientInfoForm.class).bindFromRequest(request);
     form = tiService.updateClientInfo(form, trustedIntermediaryGroup.get(), id);
-
+    Optional<String> applicantName =
+        civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName();
     if (form.hasErrors()) {
-      Optional<String> applicantName =
-          civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName();
       return ok(
           editTiClientView.render(
               trustedIntermediaryGroup.get(),
@@ -211,7 +209,7 @@ public final class TrustedIntermediaryController {
                     /* dateQuery= */ Optional.empty(),
                     /* page= */ Optional.empty())
                 .url())
-        .flashing("success", "Applicant Info is updated");
+        .flashing("success", "Applicant " + applicantName.orElse("") + " information is updated");
   }
 
   private String getValidationErrors(List<ValidationError> errors) {

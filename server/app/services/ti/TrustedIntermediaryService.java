@@ -140,22 +140,23 @@ public final class TrustedIntermediaryService {
 
   private Form<EditTiClientInfoForm> validatePhoneNumber(Form<EditTiClientInfoForm> form) {
     String phoneNumber = form.value().get().getPhoneNumber();
-    if (!Strings.isNullOrEmpty(phoneNumber)) {
-      phoneNumber = phoneNumber.replaceAll("[^0-9]", "");
-      if (phoneNumber.length() != 10) {
-        return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain 10 digits");
+    if (Strings.isNullOrEmpty(phoneNumber)) {
+      return form;
+    }
+    phoneNumber = phoneNumber.replaceAll("[^0-9]", "");
+    if (phoneNumber.length() != 10) {
+      return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain 10 digits");
+    }
+    if (!phoneNumber.matches("[0-9]+")) {
+      return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain only digits");
+    }
+    try {
+      Phonenumber.PhoneNumber phonenumber = PHONE_NUMBER_UTIL.parse(phoneNumber, "US");
+      if (!PHONE_NUMBER_UTIL.isValidNumber(phonenumber)) {
+        return form.withError(FORM_FIELD_NAME_PHONE, "This phone number is not valid");
       }
-      if (!phoneNumber.matches("[0-9]+")) {
-        return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain only digits");
-      }
-      try {
-        Phonenumber.PhoneNumber phonenumber = PHONE_NUMBER_UTIL.parse(phoneNumber, "US");
-        if (!PHONE_NUMBER_UTIL.isValidNumber(phonenumber)) {
-          return form.withError(FORM_FIELD_NAME_PHONE, "This phone number is not valid");
-        }
-      } catch (NumberParseException e) {
-        throw new RuntimeException(e);
-      }
+    } catch (NumberParseException e) {
+      throw new RuntimeException(e);
     }
     return form;
   }
@@ -229,8 +230,8 @@ public final class TrustedIntermediaryService {
 
     // DOB update
     String newDob = form.get().getDob();
-    LocalDate localDate = LocalDate.parse(newDob, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-    if (!applicantData.getDateOfBirth().get().equals(localDate)) {
+    LocalDate newDobDate = LocalDate.parse(newDob, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    if (!applicantData.getDateOfBirth().get().equals(newDobDate)) {
       accountRepository.updateClientDob(newDob, applicant);
     }
     // Phone number update

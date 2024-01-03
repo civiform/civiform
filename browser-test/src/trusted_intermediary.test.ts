@@ -108,6 +108,7 @@ describe('Trusted intermediaries', () => {
 
     await validateScreenshot(page, 'dashboard-add-clients-no-email')
   })
+
   it('expect client email address to be updated', async () => {
     const {page, tiDashboard} = ctx
     await loginAsTrustedIntermediary(page)
@@ -133,6 +134,7 @@ describe('Trusted intermediaries', () => {
     }
     await tiDashboard.expectDashboardContainClient(updatedClient)
   })
+
   it('expect client ti notes and phone to be updated', async () => {
     const {page, tiDashboard} = ctx
     await loginAsTrustedIntermediary(page)
@@ -149,17 +151,18 @@ describe('Trusted intermediaries', () => {
     await waitForPageJsLoad(page)
     await tiDashboard.updateClientTiNoteAndPhone(
       client,
-      'Housing Assitance',
+      'Housing Assistance',
       '4256007121',
     )
     await waitForPageJsLoad(page)
     await tiDashboard.expectClientContainsTiNoteAndPhone(
       client,
-      'Housing Assitance',
+      'Housing Assistance',
       '4256007121',
     )
     await validateScreenshot(page, 'edit-client-information-with-all-fields')
   })
+
   it('expect back button to land in dashboard in the edit client page', async () => {
     const {page, tiDashboard} = ctx
     await loginAsTrustedIntermediary(page)
@@ -183,8 +186,10 @@ describe('Trusted intermediaries', () => {
     await page.waitForSelector('h2:has-text("Edit Client")')
     await page.click('text=Back to client list')
     await waitForPageJsLoad(page)
+    await page.waitForSelector('h2:has-text("Add Client")')
     await validateScreenshot(page, 'back-link-leads-to-ti-dashboard')
   })
+
   it('expect field errors', async () => {
     const {page, tiDashboard} = ctx
     await loginAsTrustedIntermediary(page)

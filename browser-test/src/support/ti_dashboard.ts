@@ -31,6 +31,7 @@ export class TIDashboard {
     await this.page.fill('label:has-text("Date Of Birth")', client.dobDate)
     await this.page.click('text="Add"')
   }
+
   async updateClientEmailAddress(client: ClientInformation, newEmail: string) {
     await this.page
       .getByRole('row')
@@ -43,6 +44,7 @@ export class TIDashboard {
     await this.page.click('text="Save"')
     await waitForPageJsLoad(this.page)
   }
+
   async updateClientTiNoteAndPhone(
     client: ClientInformation,
     tiNote: string,
@@ -60,6 +62,7 @@ export class TIDashboard {
     await this.page.click('text="Save"')
     await waitForPageJsLoad(this.page)
   }
+
   async updateClientDateOfBirth(client: ClientInformation, newDobDate: string) {
     await this.page
       .getByRole('row')
