@@ -20,7 +20,7 @@ describe('admin program view page', () => {
     await validateScreenshot(page, 'program-read-only-view')
   })
 
-  it('program list has current image if images flags on', async () => {
+  it('program list has current image if images flag on', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_card_images')
@@ -37,7 +37,7 @@ describe('admin program view page', () => {
     await validateScreenshot(page, 'program-list-with-image-flag-on')
   })
 
-  it('program list does not show current image if images flags off', async () => {
+  it('program list does not show current image if images flag off', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     await loginAsAdmin(page)
     // Enable the flag to set a program image
@@ -90,7 +90,7 @@ describe('admin program view page', () => {
     await adminPrograms.gotoAdminProgramsPage()
 
     // Verify that the new image is shown in the Draft row
-    // and an empty rectangle is shown in the Active row.
+    // and a gray placeholder image icon is shown in the Active row.
     await validateScreenshot(page, 'program-list-with-new-draft-image')
   })
 
@@ -138,7 +138,7 @@ describe('admin program view page', () => {
     await adminPrograms.createNewVersion(programName)
     await adminPrograms.gotoAdminProgramsPage()
 
-    // Verify that the current image is shown twice, in the Active row and Draft row
+    // Verify that the current image is shown twice, in both the Active row and Draft row
     await validateScreenshot(
       page,
       'program-list-with-same-active-and-draft-image',
