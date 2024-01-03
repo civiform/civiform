@@ -31,7 +31,35 @@ export class TIDashboard {
     await this.page.fill('label:has-text("Date Of Birth")', client.dobDate)
     await this.page.click('text="Add"')
   }
-
+  async updateClientEmailAddress(client: ClientInformation, newEmail: string) {
+    await this.page
+      .getByRole('row')
+      .filter({hasText: client.emailAddress})
+      .getByText('Edit')
+      .click()
+    await waitForPageJsLoad(this.page)
+    await this.page.waitForSelector('h2:has-text("Edit Client")')
+    await this.page.fill('#edit-email-input', newEmail)
+    await this.page.click('text="Save"')
+    await waitForPageJsLoad(this.page)
+  }
+  async updateClientTiNoteAndPhone(
+    client: ClientInformation,
+    tiNote: string,
+    phone: string,
+  ) {
+    await this.page
+      .getByRole('row')
+      .filter({hasText: client.emailAddress})
+      .getByText('Edit')
+      .click()
+    await waitForPageJsLoad(this.page)
+    await this.page.waitForSelector('h2:has-text("Edit Client")')
+    await this.page.fill('#edit-phone-number-input', phone)
+    await this.page.fill('#edit-ti-note-input', tiNote)
+    await this.page.click('text="Save"')
+    await waitForPageJsLoad(this.page)
+  }
   async updateClientDateOfBirth(client: ClientInformation, newDobDate: string) {
     await this.page
       .getByRole('row')
@@ -43,6 +71,23 @@ export class TIDashboard {
     await this.page.fill('#edit-date-of-birth-input', newDobDate)
     await this.page.click('text="Save"')
     await waitForPageJsLoad(this.page)
+  }
+
+  async expectClientContainsTiNoteAndPhone(
+    client: ClientInformation,
+    tiNote: string,
+    phone: string,
+  ) {
+    await this.page
+      .getByRole('row')
+      .filter({hasText: client.emailAddress})
+      .getByText('Edit')
+      .click()
+    await waitForPageJsLoad(this.page)
+    await this.page.waitForSelector('h2:has-text("Edit Client")')
+    const text = await this.page.innerHTML('#edit-ti')
+    expect(text).toContain(phone)
+    expect(text).toContain(tiNote)
   }
 
   async expectDashboardContainClient(client: ClientInformation) {

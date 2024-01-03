@@ -236,17 +236,4 @@ public final class TrustedIntermediaryController {
         .flashing("providedEmail", form.value().get().getEmailAddress())
         .flashing("providedDateOfBirth", form.value().get().getDob());
   }
-
-  //  private Result redirectToDashboardWithUpdateDateOfBirthError(String errorMessage) {
-  //    return redirect(
-  //            routes.TrustedIntermediaryController.dashboard(
-  //                    /* paramName=  nameQuery */
-  //                    Optional.empty(),
-  //                    /* paramName=  searchDate */
-  //                    Optional.empty(),
-  //                    /* paramName=  page */
-  //                    Optional.of(1))
-  //                .url())
-  //        .flashing("error", errorMessage);
-  //  }
 }

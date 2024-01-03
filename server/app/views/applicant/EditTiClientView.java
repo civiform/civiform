@@ -74,8 +74,6 @@ public class EditTiClientView extends BaseHtmlView {
                 renderSubHeader("Edit Client").withId("edit-client").withClass("my-4"),
                 renderBackLink(),
                 requiredFieldsExplanationContent(),
-                // hr().withClasses("mt-6"),
-                // renderSubHeader("Clients").withClass("my-4"),
                 renderEditClientForm(
                     accountRepository.lookupAccount(accountId).get(),
                     request,
@@ -199,7 +197,7 @@ public class EditTiClientView extends BaseHtmlView {
     }
     FieldWithLabel tiNoteField =
         FieldWithLabel.textArea()
-            .setId("ti-note-input")
+            .setId("edit-ti-note-input")
             .setFieldName("tiNote")
             .setLabelText("Notes")
             .setValue(account.getTiNote());
