@@ -3,10 +3,12 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.each;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.li;
+import static j2html.TagCreator.ol;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
@@ -56,24 +58,108 @@ import views.components.TextFormatter;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 
-/** A renderer to create an individual program information card. */
+/** A renderer to display program information cards individually and in groups. */
 public final class ProgramCardViewRenderer {
   private final ApplicantRoutes applicantRoutes;
   private final ProfileUtils profileUtils;
   private final PublicStorageClient publicStorageClient;
   private final SettingsManifest settingsManifest;
+  private final ZoneId zoneId;
 
   @Inject
   public ProgramCardViewRenderer(
       ApplicantRoutes applicantRoutes,
       ProfileUtils profileUtils,
       SettingsManifest settingsManifest,
-      PublicStorageClient publicStorageClient) {
+      PublicStorageClient publicStorageClient,
+      ZoneId zoneId) {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.profileUtils = checkNotNull(profileUtils);
     this.publicStorageClient = checkNotNull(publicStorageClient);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.zoneId = checkNotNull(zoneId);
+  }
+
+  enum ContainerWidth {
+    MEDIUM,
+    FULL;
+  }
+
+  /**
+   * Generates a list of style classes with responsive column counts. The number of columns should
+   * not exceed the number of programs, or the program card container will not be centered.
+   *
+   * @param containerWidth specifies width of the container for the card collection
+   * @param numPrograms the number of programs to be displayed in the collection
+   */
+  static String programCardsContainerStyles(ContainerWidth containerWidth, int numPrograms) {
+    switch (containerWidth) {
+      case FULL:
+        return StyleUtils.joinStyles(
+            ApplicantStyles.PROGRAM_CARDS_CONTAINER_BASE,
+            numPrograms >= 2 ? StyleUtils.responsiveMedium("grid-cols-2") : "",
+            numPrograms >= 3 ? StyleUtils.responsiveLarge("grid-cols-3") : "",
+            numPrograms >= 4 ? StyleUtils.responsiveXLarge("grid-cols-4") : "",
+            numPrograms >= 5 ? StyleUtils.responsive2XLarge("grid-cols-5") : "");
+      case MEDIUM:
+        return StyleUtils.joinStyles(
+            ApplicantStyles.PROGRAM_CARDS_CONTAINER_BASE,
+            numPrograms >= 2 ? StyleUtils.responsiveMedium("grid-cols-1") : "",
+            numPrograms >= 3 ? StyleUtils.responsiveLarge("grid-cols-2") : "",
+            numPrograms >= 4 ? StyleUtils.responsive2XLarge("grid-cols-3") : "",
+            numPrograms >= 5 ? StyleUtils.responsive3XLarge("grid-cols-4") : "");
+      default:
+        throw new RuntimeException("Unrecognized container width: " + containerWidth);
+    }
+  }
+
+  /**
+   * Renders a collection of programs displayed as a group of cards, delegates to {@code
+   * createProgramCard} for individual program cards.
+   */
+  public DivTag programCardsSection(
+      Http.Request request,
+      Messages messages,
+      ApplicantPersonalInfo personalInfo,
+      Optional<MessageKey> sectionTitle,
+      String cardContainerStyles,
+      long applicantId,
+      Locale preferredLocale,
+      ImmutableList<ApplicantService.ApplicantProgramData> cards,
+      MessageKey buttonTitle,
+      MessageKey buttonSrText,
+      HtmlBundle bundle,
+      CiviFormProfile profile) {
+    String sectionHeaderId = Modal.randomModalId();
+    DivTag div = div().withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION);
+    if (sectionTitle.isPresent()) {
+      div.with(
+          h3().withId(sectionHeaderId)
+              .withText(messages.at(sectionTitle.get().getKeyName()))
+              .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE));
+    }
+    return div.with(
+        ol().condAttr(sectionTitle.isPresent(), "aria-labelledby", sectionHeaderId)
+            .withClasses(cardContainerStyles)
+            .with(
+                each(
+                    cards,
+                    (card) ->
+                        createProgramCard(
+                            request,
+                            messages,
+                            personalInfo.getType(),
+                            card,
+                            applicantId,
+                            preferredLocale,
+                            buttonTitle,
+                            buttonSrText,
+                            sectionTitle.isPresent(),
+                            bundle,
+                            profile,
+                            zoneId))));
   }
 
   /**

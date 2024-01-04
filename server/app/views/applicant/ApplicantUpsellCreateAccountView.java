@@ -38,17 +38,17 @@ import views.style.ReferenceClasses;
 public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView {
 
   private final ApplicantLayout layout;
-  private final ApplicantProgramDisplayPartial applicantProgramDisplayPartial;
+  private final ProgramCardViewRenderer programCardViewRenderer;
   private final String authProviderName;
   private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantUpsellCreateAccountView(
       ApplicantLayout layout,
-      ApplicantProgramDisplayPartial applicantProgramDisplayPartial,
+      ProgramCardViewRenderer programCardViewRenderer,
       SettingsManifest settingsManifest,
       @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
-    this.applicantProgramDisplayPartial = checkNotNull(applicantProgramDisplayPartial);
+    this.programCardViewRenderer = checkNotNull(programCardViewRenderer);
     this.layout = checkNotNull(layout);
     this.settingsManifest = settingsManifest;
     this.authProviderName = checkNotNull(authProviderName);
@@ -139,14 +139,13 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
               .with(
                   h2(messages.at(CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR.getKeyName()))
                       .withClasses("mb-4 font-bold"),
-                  applicantProgramDisplayPartial.programCardsSection(
+                  programCardViewRenderer.programCardsSection(
                       request,
                       messages,
                       personalInfo,
                       /* sectionTitle= */ Optional.empty(),
-                      applicantProgramDisplayPartial.programCardsContainerStyles(
-                          ApplicantProgramDisplayPartial.ContainerWidth.MEDIUM,
-                          relevantPrograms.size()),
+                      ProgramCardViewRenderer.programCardsContainerStyles(
+                          ProgramCardViewRenderer.ContainerWidth.MEDIUM, relevantPrograms.size()),
                       applicantId,
                       locale,
                       relevantPrograms,

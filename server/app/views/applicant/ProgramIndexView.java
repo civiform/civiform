@@ -13,6 +13,7 @@ import controllers.routes;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.H2Tag;
+import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -38,16 +39,16 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final SettingsManifest settingsManifest;
   private final String authProviderName;
-  private final ApplicantProgramDisplayPartial applicantProgramDisplayPartial;
+  private final ProgramCardViewRenderer programCardViewRenderer;
 
   @Inject
   public ProgramIndexView(
       ApplicantLayout layout,
-      ApplicantProgramDisplayPartial applicantProgramDisplayPartial,
+      ProgramCardViewRenderer programCardViewRenderer,
       SettingsManifest settingsManifest,
       @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
     this.layout = checkNotNull(layout);
-    this.applicantProgramDisplayPartial = checkNotNull(applicantProgramDisplayPartial);
+    this.programCardViewRenderer = checkNotNull(programCardViewRenderer);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.authProviderName = checkNotNull(authProviderName);
   }
@@ -189,8 +190,8 @@ public final class ProgramIndexView extends BaseHtmlView {
     // The different program card containers should have the same styling, by using the program
     // count of the larger set of programs
     String cardContainerStyles =
-        applicantProgramDisplayPartial.programCardsContainerStyles(
-            ApplicantProgramDisplayPartial.ContainerWidth.FULL,
+        programCardViewRenderer.programCardsContainerStyles(
+            ProgramCardViewRenderer.ContainerWidth.FULL,
             Math.max(
                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
                 relevantPrograms.inProgress().size()));
@@ -221,7 +222,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     if (!relevantPrograms.inProgress().isEmpty()) {
       content.with(
-          applicantProgramDisplayPartial.programCardsSection(
+          programCardViewRenderer.programCardsSection(
               request,
               messages,
               personalInfo,
@@ -237,7 +238,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
     if (!relevantPrograms.submitted().isEmpty()) {
       content.with(
-          applicantProgramDisplayPartial.programCardsSection(
+          programCardViewRenderer.programCardsSection(
               request,
               messages,
               personalInfo,
@@ -253,7 +254,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
     if (!relevantPrograms.unapplied().isEmpty()) {
       content.with(
-          applicantProgramDisplayPartial.programCardsSection(
+          programCardViewRenderer.programCardsSection(
               request,
               messages,
               personalInfo,
@@ -303,7 +304,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         .withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION)
         .with(programSectionTitle(messages.at(MessageKey.TITLE_FIND_SERVICES_SECTION.getKeyName())))
         .with(
-            applicantProgramDisplayPartial.programCardsSection(
+            programCardViewRenderer.programCardsSection(
                 request,
                 messages,
                 personalInfo,
