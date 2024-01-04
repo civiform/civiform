@@ -1117,6 +1117,11 @@ public final class ApplicantService {
    */
   @AutoValue
   public abstract static class ApplicantProgramData {
+
+    public long programId() {
+      return program().id();
+    }
+
     public abstract ProgramDefinition program();
 
     /**
@@ -1413,6 +1418,10 @@ public final class ApplicantService {
 
     public abstract ImmutableList<ApplicantProgramData> unapplied();
 
+    /**
+     * Programs the applicant has not applied to and has no questions the applicant has answered
+     * with eligibility criteria that the applicant does not meet.
+     */
     public ImmutableList<ApplicantProgramData> unappliedAndPotentiallyEligible() {
       return unapplied().stream()
           .filter(

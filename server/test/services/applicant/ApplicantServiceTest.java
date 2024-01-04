@@ -1844,6 +1844,9 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.unapplied().stream().map(ApplicantProgramData::isProgramMaybeEligible))
         .containsExactlyInAnyOrder(Optional.of(true), Optional.empty());
     assertThat(
+            result.unappliedAndPotentiallyEligible().stream().map(ApplicantProgramData::programId))
+        .containsExactlyInAnyOrder(programForUnapplied.id, programDefinition.id());
+    assertThat(
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty(), Optional.empty());
   }
@@ -2895,7 +2898,7 @@ public class ApplicantServiceTest extends ResetPostgres {
    * @param question Question to use for eligibility definition
    * @param eligibleFirstName Value to use as the eligible answer
    * @return An eligibility definition with a {@link NameQuestionDefinition} and an eligibility
-   *     condition requiring the question's {@link Scalar.FIRST_NAME} be the provided value.
+   *     condition requiring the question's {@code Scalar.FIRST_NAME} be the provided value.
    */
   private EligibilityDefinition createEligibilityDefinition(
       NameQuestionDefinition question, String eligibleFirstName) {
@@ -2915,7 +2918,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   /**
    * @param question Question to use for the eligibility definition
    * @return An eligibility definition with a {@link NameQuestionDefinition} and an eligibility
-   *     condition requiring the question's {@link Scalar.FIRST_NAME} be "eligible name".
+   *     condition requiring the question's {@code Scalar.FIRST_NAME} be "eligible name".
    */
   private EligibilityDefinition createEligibilityDefinition(NameQuestionDefinition question) {
     return createEligibilityDefinition(question, "eligible name");
@@ -2923,7 +2926,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   /**
    * Makes a program with a {@link NameQuestionDefinition} and an eligibility condition that the
-   * question's {@link Scalar.FIRST_NAME} be "eligible name"
+   * question's {@code Scalar.FIRST_NAME} be "eligible name"
    */
   private void createProgramWithEligibility(NameQuestionDefinition question) {
     EligibilityDefinition eligibilityDef =
