@@ -50,7 +50,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
       @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
     this.programCardViewRenderer = checkNotNull(programCardViewRenderer);
     this.layout = checkNotNull(layout);
-    this.settingsManifest = settingsManifest;
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.authProviderName = checkNotNull(authProviderName);
   }
 
@@ -130,6 +130,11 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
 
     var htmlBundle =
         createHtmlBundle(request, layout, title, bannerMessage, loginPromptModal, content);
+
+    if (!settingsManifest.getSuggestProgramsOnApplicationConfirmationPage(request)) {
+      return layout.renderWithNav(request, personalInfo, messages, htmlBundle, applicantId);
+    }
+
     var relevantPrograms = applicantPrograms.unappliedAndPotentiallyEligible();
 
     if (relevantPrograms.size() > 0) {

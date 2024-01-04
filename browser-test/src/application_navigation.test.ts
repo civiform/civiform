@@ -26,6 +26,10 @@ describe('Applicant navigation flow', () => {
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
+      await enableFeatureFlag(
+        page,
+        'suggest_programs_on_application_confirmation_page',
+      )
 
       await adminQuestions.addDateQuestion({questionName: 'nav-date-q'})
       await adminQuestions.addEmailQuestion({questionName: 'nav-email-q'})
@@ -1053,6 +1057,7 @@ describe('Applicant navigation flow', () => {
       // Log out admin
       await logout(page)
     })
+
     if (isLocalDevEnvironment()) {
       it('can correct address multi-block, multi-address program', async () => {
         const {page, applicantQuestions} = ctx
