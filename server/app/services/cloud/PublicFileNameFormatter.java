@@ -14,6 +14,10 @@ public final class PublicFileNameFormatter {
    *
    * <p>If this key is changed, also check with {@link ApplicantFileNameFormatter} to verify that
    * the names don't conflict.
+   *
+   * <p>If this key is changed, you may also need to update the cloud storage bucket permissions to
+   * ensure the files are still publicly visible. For AWS, see the
+   * cloud/aws/templates/aws_oidc/filestorage.tf file in the cloud-deploy-infra repository.
    */
   public static String formatPublicProgramImageFileKey(long programId) {
     return String.format("%s%d/${filename}", PROGRAM_IMAGE_FILE_KEY_PREFIX, programId);
