@@ -97,8 +97,8 @@ public final class ApplicantProgramsController extends CiviFormController {
                         applicantStage.toCompletableFuture().join(),
                         applicationPrograms,
                         banner,
-                    requesterProfile.orElseThrow(
-                      () -> new MissingOptionalException(CiviFormProfile.class))))
+                        requesterProfile.orElseThrow(
+                            () -> new MissingOptionalException(CiviFormProfile.class))))
                     // If the user has been to the index page, any existing redirects should be
                     // cleared to avoid an experience where they're unexpectedly redirected after
                     // logging in.

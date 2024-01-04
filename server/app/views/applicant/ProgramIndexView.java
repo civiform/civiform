@@ -7,15 +7,12 @@ import static j2html.TagCreator.h2;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import annotations.BindingAnnotations;
-import static j2html.TagCreator.h3;
-import static j2html.TagCreator.ol;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import controllers.routes;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.H2Tag;
-import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -30,7 +27,6 @@ import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
-import views.components.Modal;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
@@ -43,23 +39,17 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final SettingsManifest settingsManifest;
   private final String authProviderName;
   private final ApplicantProgramDisplayPartial applicantProgramDisplayPartial;
-  private final ProgramCardViewRenderer programCardViewRenderer;
-  private final ZoneId zoneId;
 
   @Inject
   public ProgramIndexView(
       ApplicantLayout layout,
       ApplicantProgramDisplayPartial applicantProgramDisplayPartial,
       SettingsManifest settingsManifest,
-      @BindingAnnotations.ApplicantAuthProviderName String authProviderName,
-      ProgramCardViewRenderer programCardViewRenderer,
-      ZoneId zoneId) {
+      @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
     this.layout = checkNotNull(layout);
-      this.applicantProgramDisplayPartial = checkNotNull(applicantProgramDisplayPartial);
-      this.settingsManifest = checkNotNull(settingsManifest);
+    this.applicantProgramDisplayPartial = checkNotNull(applicantProgramDisplayPartial);
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.authProviderName = checkNotNull(authProviderName);
-    this.programCardViewRenderer = checkNotNull(programCardViewRenderer);
-    this.zoneId = checkNotNull(zoneId);
   }
 
   /**

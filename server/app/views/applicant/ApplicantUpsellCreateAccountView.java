@@ -152,7 +152,8 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                       relevantPrograms,
                       MessageKey.BUTTON_APPLY,
                       MessageKey.BUTTON_APPLY_SR,
-                      htmlBundle)));
+                      htmlBundle,
+                      profile)));
     }
 
     return layout.renderWithNav(request, personalInfo, messages, htmlBundle, applicantId);
