@@ -6,7 +6,8 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 
-import controllers.applicant.routes;
+import auth.CiviFormProfile;
+import controllers.applicant.ApplicantRoutes;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -30,17 +31,20 @@ import views.style.StyleUtils;
 public final class PreventDuplicateSubmissionView extends ApplicationBaseView {
 
   private final ApplicantLayout layout;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
-  PreventDuplicateSubmissionView(ApplicantLayout layout) {
+  PreventDuplicateSubmissionView(ApplicantLayout layout, ApplicantRoutes applicantRoutes) {
     this.layout = checkNotNull(layout);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   public Content render(
       Request request,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Messages messages,
-      long applicantId) {
+      long applicantId,
+      CiviFormProfile profile) {
 
     DivTag content =
         div()
@@ -59,14 +63,17 @@ public final class PreventDuplicateSubmissionView extends ApplicationBaseView {
                         redirectButton(
                                 "continue-editing-button",
                                 messages.at(MessageKey.BUTTON_CONTINUE_EDITING.getKeyName()),
-                                routes.ApplicantProgramReviewController.review(
-                                        applicantId, roApplicantProgramService.getProgramId())
+                                applicantRoutes
+                                    .review(
+                                        profile,
+                                        applicantId,
+                                        roApplicantProgramService.getProgramId())
                                     .url())
                             .withClasses(ButtonStyles.SOLID_BLUE),
                         redirectButton(
                                 "exit-application-button",
                                 messages.at(MessageKey.BUTTON_EXIT_APPLICATION.getKeyName()),
-                                routes.ApplicantProgramsController.index(applicantId).url())
+                                applicantRoutes.index(profile, applicantId).url())
                             .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)));
 
     String title = "No changes to save";

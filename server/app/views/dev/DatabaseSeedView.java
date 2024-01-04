@@ -1,6 +1,7 @@
 package views.dev;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableList;
 import controllers.dev.seeding.routes;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -39,11 +41,16 @@ public class DatabaseSeedView extends BaseHtmlView {
     this.objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
   }
 
-  public Content render(
+  /**
+   * Renders a page for a developer to view seeded data. This is only available in non-prod
+   * environments.
+   */
+  public Content seedDataView(
       Request request,
       ActiveAndDraftPrograms activeAndDraftPrograms,
-      ImmutableList<QuestionDefinition> questionDefinitions,
-      Optional<String> maybeFlash) {
+      ImmutableList<QuestionDefinition> questionDefinitions) {
+
+    String title = "Dev database seed data";
 
     ImmutableList<ProgramDefinition> draftPrograms = activeAndDraftPrograms.getDraftPrograms();
     ImmutableList<ProgramDefinition> activePrograms = activeAndDraftPrograms.getActivePrograms();
@@ -52,7 +59,35 @@ public class DatabaseSeedView extends BaseHtmlView {
     String prettyActivePrograms = getPrettyJson(activePrograms);
     String prettyQuestions = getPrettyJson(questionDefinitions);
 
+    ATag indexLinkTag =
+        a().withHref(routes.DevDatabaseSeedController.index().url())
+            .withId("index")
+            .with(submitButton("index", "Go to dev database seeder page"));
+
+    DivTag content =
+        div()
+            .with(h1(title))
+            .with(indexLinkTag)
+            .with(
+                div()
+                    .withClasses("grid", "grid-cols-2")
+                    .with(div().with(h2("Current Draft Programs:")).with(pre(prettyDraftPrograms)))
+                    .with(
+                        div().with(h2("Current Active Programs:")).with(pre(prettyActivePrograms)))
+                    .with(div().with(h2("Current Questions:")).with(pre(prettyQuestions))))
+            .withClasses("px-6", "py-6");
+
+    HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(content);
+    return layout.render(bundle);
+  }
+
+  public Content render(Request request, Optional<String> maybeFlash) {
+
     String title = "Dev database seeder";
+
+    ATag datalinkTag =
+        a().withHref(routes.DevDatabaseSeedController.data().url())
+            .with(submitButton("data", "Go to seed data page"));
 
     DivTag content =
         div()
@@ -89,15 +124,8 @@ public class DatabaseSeedView extends BaseHtmlView {
                             .with(makeCsrfTokenInputTag(request))
                             .with(submitButton("index", "Go to index page"))
                             .withMethod("get")
-                            .withAction(controllers.routes.HomeController.index().url())))
-            .with(
-                div()
-                    .withClasses("grid", "grid-cols-2")
-                    .with(div().with(h2("Current Draft Programs:")).with(pre(prettyDraftPrograms)))
-                    .with(
-                        div().with(h2("Current Active Programs:")).with(pre(prettyActivePrograms)))
-                    .with(div().with(h2("Current Questions:")).with(pre(prettyQuestions))))
-            .withClasses("px-6", "py-6");
+                            .withAction(controllers.routes.HomeController.index().url()))
+                    .with(datalinkTag));
 
     HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(content);
     return layout.render(bundle);

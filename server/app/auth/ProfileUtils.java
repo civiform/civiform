@@ -1,5 +1,6 @@
 package auth;
 
+import auth.controllers.MissingOptionalException;
 import com.google.common.base.Preconditions;
 import java.util.Locale;
 import java.util.Optional;
@@ -33,6 +34,17 @@ public class ProfileUtils {
   public Optional<CiviFormProfile> currentUserProfile(Http.RequestHeader request) {
     PlayWebContext webContext = new PlayWebContext(request);
     return currentUserProfile(webContext);
+  }
+
+  /**
+   * Fetch the current profile from the session cookie, which the ProfileManager will fetch from the
+   * request's cookies, using the injected session store to decrypt it.
+   *
+   * @throws MissingOptionalException if we can't find the profile from the request
+   */
+  public CiviFormProfile currentUserProfileOrThrow(Http.RequestHeader request) {
+    return currentUserProfile(request)
+        .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class));
   }
 
   /**

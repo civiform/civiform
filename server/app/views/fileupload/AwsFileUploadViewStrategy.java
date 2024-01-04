@@ -1,23 +1,20 @@
-package views;
+package views.fileupload;
 
 import static j2html.TagCreator.input;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
 import services.cloud.StorageUploadRequest;
 import services.cloud.aws.SignedS3UploadRequest;
 
 public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
-  protected ImmutableList<InputTag> fileUploadFields(
-      Optional<StorageUploadRequest> request,
-      String fileInputId,
-      ImmutableList<String> ariaDescribedByIds,
-      boolean hasErrors) {
+  public ImmutableList<InputTag> additionalFileUploadFormInputs(
+      Optional<StorageUploadRequest> request) {
     if (request.isEmpty()) {
       return ImmutableList.of();
     }
@@ -48,32 +45,13 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
               .withName("X-Amz-Security-Token")
               .withValue(signedRequest.securityToken()));
     }
-
-    // It's critical that the "file" field be the last input
-    // element for the form since S3 will ignore any fields
-    // after that. See #2653 /
-    // https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-HTTPPOSTForms.html
-    // for more context.
-    builder.add(
-        input()
-            .withId(fileInputId)
-            .condAttr(hasErrors, "aria-invalid", "true")
-            .condAttr(
-                !ariaDescribedByIds.isEmpty(),
-                "aria-describedby",
-                StringUtils.join(ariaDescribedByIds, " "))
-            .withType("file")
-            .withName("file")
-            .withClass("hidden")
-            .withAccept(MIME_TYPES_IMAGES_AND_PDF));
     return builder.build();
   }
 
   @Override
-  protected FormTag renderFileUploadFormElement(Params params, StorageUploadRequest request) {
+  public FormTag renderFileUploadFormElement(StorageUploadRequest request) {
     SignedS3UploadRequest signedRequest = castStorageRequest(request);
-    return super.renderFileUploadFormElement(params, request)
-        .withAction(signedRequest.actionLink());
+    return super.renderFileUploadFormElement(request).withAction(signedRequest.actionLink());
   }
 
   private SignedS3UploadRequest castStorageRequest(StorageUploadRequest request) {
@@ -87,5 +65,10 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
   @Override
   protected String getUploadFormClass() {
     return "aws-upload";
+  }
+
+  @Override
+  public ImmutableList<ScriptTag> extraScriptTags() {
+    return ImmutableList.of();
   }
 }

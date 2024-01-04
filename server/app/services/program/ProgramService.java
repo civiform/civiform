@@ -9,10 +9,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import controllers.BadRequestException;
 import forms.BlockForm;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +31,7 @@ import models.DisplayMode;
 import models.ProgramModel;
 import models.VersionModel;
 import modules.MainModule;
+import org.apache.commons.lang3.StringUtils;
 import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.AccountRepository;
@@ -69,6 +70,8 @@ public final class ProgramService {
   private static final String MISSING_ADMIN_NAME_MSG = "A program URL is required";
   private static final String INVALID_ADMIN_NAME_MSG =
       "A program URL may only contain lowercase letters, numbers, and dashes";
+  private static final String INVALID_PROGRAM_SLUG_MSG =
+      "A program URL must contain at least one letter";
   private static final String INVALID_PROGRAM_LINK_FORMAT_MSG =
       "A program link must begin with 'http://' or 'https://'";
   private static final String MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE =
@@ -220,27 +223,24 @@ public final class ProgramService {
   }
 
   private CompletionStage<ProgramDefinition> syncProgramAssociations(ProgramModel program) {
-    if (isActiveOrDraftProgram(program)) {
+    VersionModel activeVersion = versionRepository.getActiveVersion();
+    VersionModel maxVersionForProgram =
+        programRepository.getVersionsForProgram(program).stream()
+            .max(Comparator.comparingLong(p -> p.id))
+            .orElseThrow();
+    // If the max version is greater than the active version, it is a draft
+    if (maxVersionForProgram.id > activeVersion.id) {
+      // This method makes multiple calls to get questions for the active and
+      // draft versions, so we should only call it if we're syncing program
+      // associations for a draft program (which means we're in the admin flow).
       return syncProgramDefinitionQuestions(program.getProgramDefinition())
           .thenApply(ProgramDefinition::orderBlockDefinitions);
     }
 
-    // Any version that the program is in has all the questions the program has.
-    VersionModel version =
-        programRepository.getVersionsForProgram(program).stream().findAny().get();
     ProgramDefinition programDefinition =
-        syncProgramDefinitionQuestions(program.getProgramDefinition(), version);
+        syncProgramDefinitionQuestions(program.getProgramDefinition(), maxVersionForProgram);
 
     return CompletableFuture.completedStage(programDefinition.orderBlockDefinitions());
-  }
-
-  private boolean isActiveOrDraftProgram(ProgramModel program) {
-    return Streams.concat(
-            versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()).stream(),
-            versionRepository
-                .getProgramsForVersion(versionRepository.getDraftVersionOrCreate())
-                .stream())
-        .anyMatch(p -> p.id.equals(program.id));
   }
 
   /**
@@ -346,6 +346,8 @@ public final class ProgramService {
       errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
       errorsBuilder.add(CiviFormError.of(INVALID_ADMIN_NAME_MSG));
+    } else if (StringUtils.isNumeric(MainModule.SLUGIFIER.slugify(adminName))) {
+      errorsBuilder.add(CiviFormError.of(INVALID_PROGRAM_SLUG_MSG));
     } else if (hasProgramNameCollision(adminName)) {
       errorsBuilder.add(CiviFormError.of("A program URL of " + adminName + " already exists"));
     }
@@ -919,6 +921,20 @@ public final class ProgramService {
       newStrings = currentDescription.get().updateTranslation(locale, summaryImageDescription);
     }
     return Optional.of(newStrings);
+  }
+
+  /**
+   * Sets a key that can be used to fetch the summary image for the given program from cloud
+   * storage.
+   */
+  public ProgramDefinition setSummaryImageFileKey(long programId, String fileKey)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    programDefinition =
+        programDefinition.toBuilder().setSummaryImageFileKey(Optional.of(fileKey)).build();
+    return programRepository
+        .updateProgramSync(programDefinition.toProgram())
+        .getProgramDefinition();
   }
 
   /**
@@ -1635,8 +1651,9 @@ public final class ProgramService {
    */
   private CompletionStage<ProgramDefinition> syncProgramDefinitionQuestions(
       ProgramDefinition programDefinition) {
-    // Note: This method is also used for non question updates.  It'd likely be
-    // good to have a focused method for that.
+    // Note: This method is also used for non question updates.
+    // TODO(#6249) We should have a focused method for that because getReadOnlyQuestionService()
+    // makes multiple calls to get question data for the active and draft versions.
     return questionService
         .getReadOnlyQuestionService()
         .thenApplyAsync(

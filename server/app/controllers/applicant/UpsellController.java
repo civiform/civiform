@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import java.util.NoSuchElementException;
@@ -47,6 +48,7 @@ public final class UpsellController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final PdfExporterService pdfExporterService;
   private final SettingsManifest settingsManifest;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public UpsellController(
@@ -60,7 +62,8 @@ public final class UpsellController extends CiviFormController {
       MessagesApi messagesApi,
       PdfExporterService pdfExporterService,
       SettingsManifest settingsManifest,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      ApplicantRoutes applicantRoutes) {
     super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
@@ -71,6 +74,7 @@ public final class UpsellController extends CiviFormController {
     this.messagesApi = checkNotNull(messagesApi);
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   @Secure
@@ -148,15 +152,13 @@ public final class UpsellController extends CiviFormController {
                         applicantPersonalInfo.join(),
                         applicantId,
                         programId,
-                        profileUtils
-                            .currentUserProfile(request)
-                            .orElseThrow()
-                            .isTrustedIntermediary(),
+                        profile.orElseThrow(
+                            () -> new MissingOptionalException(CiviFormProfile.class)),
                         maybeEligiblePrograms.orElseGet(ImmutableList::of),
                         messagesApi.preferred(request),
-                        toastMessage));
+                        toastMessage,
+                        applicantRoutes));
               }
-
               return ok(
                   upsellView.render(
                       request,
@@ -168,9 +170,12 @@ public final class UpsellController extends CiviFormController {
                       roApplicantProgramService.join().getCustomConfirmationMessage(),
                       applicantPersonalInfo.join(),
                       applicantId,
+                      profile.orElseThrow(
+                          () -> new MissingOptionalException(CiviFormProfile.class)),
                       applicationId,
                       messagesApi.preferred(request),
-                      toastMessage));
+                      toastMessage,
+                      applicantRoutes));
             },
             httpContext.current())
         .exceptionally(

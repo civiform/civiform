@@ -506,6 +506,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("AWS_S3_FILE_LIMIT_MB");
   }
 
+  /** s3 bucket to store **publicly accessible** files in. */
+  public Optional<String> getAwsS3PublicBucketName() {
+    return getString("AWS_S3_PUBLIC_BUCKET_NAME");
+  }
+
+  /** The max size (in Mb) of **publicly accessible** files uploaded to s3. */
+  public Optional<String> getAwsS3PublicFileLimitMb() {
+    return getString("AWS_S3_PUBLIC_FILE_LIMIT_MB");
+  }
+
   /** The azure account name where the blob storage service exists. */
   public Optional<String> getAzureStorageAccountName() {
     return getString("AZURE_STORAGE_ACCOUNT_NAME");
@@ -883,6 +893,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getSuggestProgramsOnApplicationConfirmationPage(RequestHeader request) {
     return getBool("SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE", request);
+  }
+
+  /** Enables new URL schema that removes applicant ID from applicant actions. */
+  public boolean getNewApplicantUrlSchemaEnabled() {
+    return getBool("NEW_APPLICANT_URL_SCHEMA_ENABLED");
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -1463,6 +1478,19 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
+                              "AWS_S3_PUBLIC_BUCKET_NAME",
+                              "s3 bucket to store **publicly accessible** files in.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
+                              "AWS_S3_PUBLIC_FILE_LIMIT_MB",
+                              "The max size (in Mb) of **publicly accessible** files uploaded to"
+                                  + " s3.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
                               "AZURE_STORAGE_ACCOUNT_NAME",
                               "The azure account name where the blob storage service exists.",
                               /* isRequired= */ false,
@@ -1834,7 +1862,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " finishing an application.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE))),
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "NEW_APPLICANT_URL_SCHEMA_ENABLED",
+                      "Enables new URL schema that removes applicant ID from applicant actions.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.HIDDEN))),
           "Miscellaneous",
           SettingsSection.create(
               "Miscellaneous",

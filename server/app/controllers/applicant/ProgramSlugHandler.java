@@ -6,6 +6,7 @@ import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import auth.controllers.MissingOptionalException;
 import controllers.CiviFormController;
 import controllers.LanguageUtils;
 import java.util.Optional;
@@ -16,40 +17,40 @@ import models.ApplicantModel;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.VersionRepository;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.ApplicantService.ApplicationPrograms;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
 
-/**
- * Controller for handling methods for deep links. Applicants will be asked to sign-in before they
- * can access the page.
- */
-public final class DeepLinkController extends CiviFormController {
+/** Class for showing program view based on program slug. */
+public final class ProgramSlugHandler {
 
   private final HttpExecutionContext httpContext;
   private final ApplicantService applicantService;
+  private final ProfileUtils profileUtils;
   private final ProgramService programService;
   private final LanguageUtils languageUtils;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
-  public DeepLinkController(
+  public ProgramSlugHandler(
       HttpExecutionContext httpContext,
       ApplicantService applicantService,
       ProfileUtils profileUtils,
       ProgramService programService,
-      VersionRepository versionRepository,
-      LanguageUtils languageUtils) {
-    super(profileUtils, versionRepository);
+      LanguageUtils languageUtils,
+      ApplicantRoutes applicantRoutes) {
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
+    this.profileUtils = checkNotNull(profileUtils);
     this.programService = checkNotNull(programService);
     this.languageUtils = checkNotNull(languageUtils);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
-  public CompletionStage<Result> programBySlug(Http.Request request, String programSlug) {
+  public CompletionStage<Result> showProgram(
+      CiviFormController controller, Http.Request request, String programSlug) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     if (profile.isEmpty()) {
@@ -69,7 +70,8 @@ public final class DeepLinkController extends CiviFormController {
               // the information controller to ask for preferred language.
               if (!applicant.getApplicantData().hasPreferredLocale()) {
                 return CompletableFuture.completedFuture(
-                    redirect(
+                    controller
+                        .redirect(
                             controllers.applicant.routes.ApplicantInformationController
                                 .setLangFromBrowser(applicantId))
                         .withSession(
@@ -85,20 +87,33 @@ public final class DeepLinkController extends CiviFormController {
                         if (programForExistingApplication.isPresent()) {
                           long programId = programForExistingApplication.get().id();
                           return CompletableFuture.completedFuture(
-                              redirectToReviewPage(programId, applicantId, programSlug, request));
+                              redirectToReviewPage(
+                                  controller,
+                                  programId,
+                                  applicantId,
+                                  programSlug,
+                                  request,
+                                  profile.orElseThrow(
+                                      () -> new MissingOptionalException(CiviFormProfile.class))));
                         } else {
                           return programService
                               .getActiveProgramDefinitionAsync(programSlug)
                               .thenApply(
                                   activeProgramDefinition ->
                                       redirectToReviewPage(
+                                          controller,
                                           activeProgramDefinition.id(),
                                           applicantId,
                                           programSlug,
-                                          request))
+                                          request,
+                                          profile.orElseThrow(
+                                              () ->
+                                                  new MissingOptionalException(
+                                                      CiviFormProfile.class))))
                               .exceptionally(
                                   ex ->
-                                      notFound(ex.getMessage())
+                                      controller
+                                          .notFound(ex.getMessage())
                                           .removingFromSession(request, REDIRECT_TO_SESSION_KEY));
                         }
                       },
@@ -108,10 +123,14 @@ public final class DeepLinkController extends CiviFormController {
   }
 
   private Result redirectToReviewPage(
-      long programId, long applicantId, String programSlug, Http.Request request) {
-    return redirect(
-            controllers.applicant.routes.ApplicantProgramReviewController.review(
-                applicantId, programId))
+      CiviFormController controller,
+      long programId,
+      long applicantId,
+      String programSlug,
+      Http.Request request,
+      CiviFormProfile profile) {
+    return controller
+        .redirect(applicantRoutes.review(profile, applicantId, programId))
         .flashing("redirected-from-program-slug", programSlug)
         // If we had a redirectTo session key that redirected us here, remove it so that it doesn't
         // get used again.

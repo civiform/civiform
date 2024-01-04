@@ -7,6 +7,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.base.Strings;
 import com.typesafe.config.Config;
+import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -27,6 +28,7 @@ public class HomeController extends Controller {
   private final HttpExecutionContext httpExecutionContext;
   private final Optional<String> faviconURL;
   private final LanguageUtils languageUtils;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public HomeController(
@@ -34,12 +36,14 @@ public class HomeController extends Controller {
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
       HttpExecutionContext httpExecutionContext,
-      LanguageUtils languageUtils) {
+      LanguageUtils languageUtils,
+      ApplicantRoutes applicantRoutes) {
     checkNotNull(configuration);
     this.profileUtils = checkNotNull(profileUtils);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.languageUtils = checkNotNull(languageUtils);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
     this.faviconURL =
         Optional.ofNullable(Strings.emptyToNull(configuration.getString("favicon_url")));
   }
@@ -79,9 +83,7 @@ public class HomeController extends Controller {
                 // If the applicant has not yet set their preferred language, redirect to
                 // the information controller to ask for preferred language.
                 if (data.hasPreferredLocale()) {
-                  return redirect(
-                          controllers.applicant.routes.ApplicantProgramsController.index(
-                              applicant.id))
+                  return redirect(applicantRoutes.index(profile, applicant.id))
                       .withLang(data.preferredLocale(), messagesApi);
                 } else {
                   return redirect(

@@ -7,11 +7,15 @@ import static j2html.TagCreator.h2;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import annotations.BindingAnnotations;
+import static j2html.TagCreator.h3;
+import static j2html.TagCreator.ol;
+import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import controllers.routes;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.H2Tag;
+import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -26,6 +30,7 @@ import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
+import views.components.Modal;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
@@ -38,17 +43,23 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final SettingsManifest settingsManifest;
   private final String authProviderName;
   private final ApplicantProgramDisplayPartial applicantProgramDisplayPartial;
+  private final ProgramCardViewRenderer programCardViewRenderer;
+  private final ZoneId zoneId;
 
   @Inject
   public ProgramIndexView(
       ApplicantLayout layout,
       ApplicantProgramDisplayPartial applicantProgramDisplayPartial,
       SettingsManifest settingsManifest,
-      @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
+      @BindingAnnotations.ApplicantAuthProviderName String authProviderName,
+      ProgramCardViewRenderer programCardViewRenderer,
+      ZoneId zoneId) {
     this.layout = checkNotNull(layout);
-    this.settingsManifest = checkNotNull(settingsManifest);
-    this.applicantProgramDisplayPartial = checkNotNull(applicantProgramDisplayPartial);
+      this.applicantProgramDisplayPartial = checkNotNull(applicantProgramDisplayPartial);
+      this.settingsManifest = checkNotNull(settingsManifest);
     this.authProviderName = checkNotNull(authProviderName);
+    this.programCardViewRenderer = checkNotNull(programCardViewRenderer);
+    this.zoneId = checkNotNull(zoneId);
   }
 
   /**
@@ -67,7 +78,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       long applicantId,
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms applicationPrograms,
-      Optional<ToastMessage> bannerMessage) {
+      Optional<ToastMessage> bannerMessage,
+      CiviFormProfile profile) {
     HtmlBundle bundle = layout.getBundle(request);
     bundle.setTitle(messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()));
     bannerMessage.ifPresent(bundle::addToastMessages);
@@ -87,7 +99,8 @@ public final class ProgramIndexView extends BaseHtmlView {
             applicationPrograms,
             applicantId,
             messages.lang().toLocale(),
-            bundle));
+            bundle,
+            profile));
 
     return layout.renderWithNav(
         request, personalInfo, messages, bundle, /* includeAdminLogin= */ true, applicantId);
@@ -176,7 +189,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       ApplicantService.ApplicationPrograms relevantPrograms,
       long applicantId,
       Locale preferredLocale,
-      HtmlBundle bundle) {
+      HtmlBundle bundle,
+      CiviFormProfile profile) {
     DivTag content =
         div()
             .withId("main-content")
@@ -202,7 +216,8 @@ public final class ProgramIndexView extends BaseHtmlView {
               cardContainerStyles,
               applicantId,
               preferredLocale,
-              bundle),
+              bundle,
+              profile),
           div().withClass("mb-12"),
           programSectionTitle(
               messages.at(
@@ -227,7 +242,8 @@ public final class ProgramIndexView extends BaseHtmlView {
               relevantPrograms.inProgress(),
               MessageKey.BUTTON_CONTINUE,
               MessageKey.BUTTON_CONTINUE_SR,
-              bundle));
+              bundle,
+              profile));
     }
     if (!relevantPrograms.submitted().isEmpty()) {
       content.with(
@@ -242,7 +258,8 @@ public final class ProgramIndexView extends BaseHtmlView {
               relevantPrograms.submitted(),
               MessageKey.BUTTON_EDIT,
               MessageKey.BUTTON_EDIT_SR,
-              bundle));
+              bundle,
+              profile));
     }
     if (!relevantPrograms.unapplied().isEmpty()) {
       content.with(
@@ -257,7 +274,8 @@ public final class ProgramIndexView extends BaseHtmlView {
               relevantPrograms.unapplied(),
               MessageKey.BUTTON_APPLY,
               MessageKey.BUTTON_APPLY_SR,
-              bundle));
+              bundle,
+              profile));
     }
 
     return div().withClasses("flex", "flex-col", "place-items-center").with(content);
@@ -271,7 +289,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       String cardContainerStyles,
       long applicantId,
       Locale preferredLocale,
-      HtmlBundle bundle) {
+      HtmlBundle bundle,
+      CiviFormProfile profile) {
     Optional<LifecycleStage> commonIntakeFormApplicationStatus =
         relevantPrograms.commonIntakeForm().get().latestApplicationLifecycleStage();
     MessageKey buttonText = MessageKey.BUTTON_START_HERE;
@@ -305,6 +324,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 ImmutableList.of(relevantPrograms.commonIntakeForm().get()),
                 buttonText,
                 buttonScreenReaderText,
-                bundle));
+                bundle,
+                profile));
   }
 }

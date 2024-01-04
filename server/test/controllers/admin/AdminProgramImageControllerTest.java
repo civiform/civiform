@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.OK;
@@ -10,11 +11,13 @@ import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import junitparams.JUnitParamsRunner;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import play.mvc.Http;
 import play.mvc.Result;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
@@ -43,9 +46,9 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     Result result = controller.index(addCSRFToken(fakeRequest().method("GET")).build(), program.id);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Manage program image");
+    assertThat(contentAsString(result)).contains("Program image upload");
     assertThat(contentAsString(result)).contains("test name");
-    assertThat(contentAsString(result)).contains("Image description");
+    assertThat(contentAsString(result)).contains("Enter image description");
   }
 
   @Test
@@ -254,7 +257,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void updateDescription_nonEmpty_toastsSuccess() throws ProgramNotFoundException {
+  public void updateDescription_nonEmpty_toastsSuccess() {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
 
     Result result =
@@ -271,7 +274,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void updateDescription_empty_toastsSuccess() throws ProgramNotFoundException {
+  public void updateDescription_empty_toastsSuccess() {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("test name")
             .setLocalizedSummaryImageDescription(
@@ -289,5 +292,110 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     assertThat(result.flash().data()).containsOnlyKeys("success");
     assertThat(result.flash().data().get("success")).contains("removed");
+  }
+
+  @Test
+  public void updateFileKey_programNotDraft_throws() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+
+    Http.Request request =
+        addCSRFToken(
+                fakeRequest()
+                    .method("POST")
+                    .bodyForm(ImmutableMap.of("bucket", "fakeBucket", "key", "fakeFileKey")))
+            .build();
+
+    assertThatExceptionOfType(NotChangeableException.class)
+        .isThrownBy(() -> controller.updateFileKey(request, program.id));
+  }
+
+  @Test
+  public void updateFileKey_missingProgram_throws() {
+    Http.Request request =
+        addCSRFToken(
+                fakeRequest()
+                    .method("POST")
+                    .bodyForm(ImmutableMap.of("bucket", "fakeBucket", "key", "fakeFileKey")))
+            .build();
+
+    assertThatExceptionOfType(NotChangeableException.class)
+        .isThrownBy(() -> controller.updateFileKey(request, /* programId= */ Long.MAX_VALUE));
+  }
+
+  @Test
+  public void updateFileKey_noBucket_throwsException() {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    Http.Request request =
+        addCSRFToken(
+                fakeRequest(
+                    "POST", createUriWithQueryString(ImmutableMap.of("key", "fakeFileKey"))))
+            .build();
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> controller.updateFileKey(request, program.id))
+        .withMessageContaining("must contain bucket");
+  }
+
+  @Test
+  public void updateFileKey_noKey_throwsException() {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    Http.Request request =
+        addCSRFToken(
+                fakeRequest(
+                    "POST", createUriWithQueryString(ImmutableMap.of("bucket", "fakeBucket"))))
+            .build();
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> controller.updateFileKey(request, program.id))
+        .withMessageContaining("must contain file key");
+  }
+
+  @Test
+  public void updateFileKey_incorrectlyFormatted_throwsException() {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    Http.Request request =
+        addCSRFToken(
+                fakeRequest(
+                    "POST",
+                    createUriWithQueryString(
+                        ImmutableMap.of("bucket", "fakeBucket", "key", "applicant-10/myFile"))))
+            .build();
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> controller.updateFileKey(request, program.id))
+        .withMessageContaining("Key incorrectly formatted");
+  }
+
+  @Test
+  public void updateFileKey_hasBucketAndKey_toastsSuccess() throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    Result result =
+        controller.updateFileKey(
+            addCSRFToken(
+                    fakeRequest(
+                        "POST",
+                        createUriWithQueryString(
+                            ImmutableMap.of(
+                                "bucket",
+                                "fakeBucket",
+                                "key",
+                                "program-summary-image/program-1/myImage"))))
+                .build(),
+            program.id);
+
+    assertThat(result.flash().data()).containsOnlyKeys("success");
+    assertThat(result.flash().data().get("success")).contains("Image set");
+  }
+
+  private String createUriWithQueryString(ImmutableMap<String, String> query) {
+    String queryString =
+        query.entrySet().stream()
+            .map(entry -> String.format("%s=%s", entry.getKey(), entry.getValue()))
+            .collect(Collectors.joining("&"));
+    return "/?" + queryString;
   }
 }

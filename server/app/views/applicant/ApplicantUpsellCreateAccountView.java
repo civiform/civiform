@@ -10,8 +10,10 @@ import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.applicant.AuthenticateUpsellCreator.createNewAccountButton;
 
 import annotations.BindingAnnotations;
+import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.applicant.ApplicantRoutes;
 import controllers.applicant.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
@@ -63,9 +65,11 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
       LocalizedStrings customConfirmationMessage,
       ApplicantPersonalInfo personalInfo,
       Long applicantId,
+      CiviFormProfile profile,
       Long applicationId,
       Messages messages,
-      Optional<ToastMessage> bannerMessage) {
+      Optional<ToastMessage> bannerMessage,
+      ApplicantRoutes applicantRoutes) {
     boolean shouldUpsell = shouldUpsell(account);
     String redirectUrl = routes.UpsellController.download(applicationId, applicantId).url();
     Modal loginPromptModal =
@@ -99,7 +103,9 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                 createApplyToProgramsButton(
                     "another-program",
                     messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()),
-                    applicantId));
+                    applicantId,
+                    profile,
+                    applicantRoutes));
 
     String title = messages.at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName());
 

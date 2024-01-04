@@ -40,7 +40,7 @@ describe('Admin can manage program image', () => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
-      await adminProgramImage.expectProgramImagePage(programName)
+      await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectDescriptionIs('Fake image description')
       await validateToastMessage(
         page,
@@ -58,13 +58,13 @@ describe('Admin can manage program image', () => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
-      await adminProgramImage.expectProgramImagePage(programName)
+      await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectDescriptionIs('Fake image description')
 
       await adminProgramImage.setImageDescriptionAndSubmit(
         'New image description',
       )
-      await adminProgramImage.expectProgramImagePage(programName)
+      await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectDescriptionIs('New image description')
       await validateToastMessage(
         page,
@@ -79,11 +79,11 @@ describe('Admin can manage program image', () => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
-      await adminProgramImage.expectProgramImagePage(programName)
+      await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectDescriptionIs('Fake image description')
 
       await adminProgramImage.setImageDescriptionAndSubmit('')
-      await adminProgramImage.expectProgramImagePage(programName)
+      await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectDescriptionIs('')
       await validateToastMessage(
         page,
@@ -96,12 +96,12 @@ describe('Admin can manage program image', () => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
-      await adminProgramImage.expectProgramImagePage(programName)
+      await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectDescriptionIs('Fake image description')
 
       // WHEN a blank description is entered
       await adminProgramImage.setImageDescriptionAndSubmit('   ')
-      await adminProgramImage.expectProgramImagePage(programName)
+      await adminProgramImage.expectProgramImagePage()
 
       // We internally set it to completely empty
       await adminProgramImage.expectDescriptionIs('')
@@ -109,6 +109,60 @@ describe('Admin can manage program image', () => {
         page,
         adminProgramImage.descriptionClearedToastMessage(),
       )
+    })
+  })
+
+  // TODO(#5676): The program image files are stored in a new bucket in cloud storage,
+  // so our deploy scripts need to create that new bucket. Ignore this test until
+  // the deploy scripts are correctly updated (this test will fail otherwise).
+  xdescribe('image file upload', () => {
+    const programName = 'Test program'
+
+    beforeEach(async () => {
+      const {page, adminPrograms} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_card_images')
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.goToProgramImagePage(programName)
+    })
+
+    it('form is correctly formatted', async () => {
+      const {page} = ctx
+
+      const formInputs = await page
+        .locator('#image-file-upload-form')
+        .locator('input')
+        .all()
+      const lastFormInput = formInputs[formInputs.length - 1]
+
+      // AWS requires that the <input type="file"> element to be the last <input> in the <form>
+      expect(await lastFormInput.getAttribute('type')).toBe('file')
+    })
+
+    it('shows uploaded image before submitting', async () => {
+      const {page, adminProgramImage} = ctx
+
+      await adminProgramImage.setImageFile(
+        'src/assets/program-summary-image-wide.png',
+      )
+
+      await validateScreenshot(page, 'program-image-with-image-before-save')
+    })
+
+    it('adds new image', async () => {
+      const {page, adminProgramImage} = ctx
+
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+      )
+      await adminProgramImage.expectProgramImagePage()
+      await validateToastMessage(
+        page,
+        adminProgramImage.imageUpdatedToastMessage(),
+      )
+
+      await dismissToast(page)
+      await validateScreenshot(page, 'program-image-with-image')
     })
   })
 })

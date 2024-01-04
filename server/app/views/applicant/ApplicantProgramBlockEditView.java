@@ -8,7 +8,7 @@ import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMo
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.assistedinject.Assisted;
-import controllers.applicant.routes;
+import controllers.applicant.ApplicantRoutes;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -23,7 +23,6 @@ import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.question.types.QuestionDefinition;
 import views.ApplicationBaseView;
-import views.FileUploadViewStrategy;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
 import views.components.ToastMessage;
@@ -36,17 +35,20 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   private final String BLOCK_FORM_ID = "cf-block-form";
 
   private final ApplicantLayout layout;
-  private final FileUploadViewStrategy fileUploadStrategy;
+  private final ApplicantFileUploadRenderer applicantFileUploadRenderer;
   private final ApplicantQuestionRendererFactory applicantQuestionRendererFactory;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   ApplicantProgramBlockEditView(
       ApplicantLayout layout,
-      FileUploadViewStrategy fileUploadStrategy,
-      @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
+      ApplicantFileUploadRenderer applicantFileUploadRenderer,
+      @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
+      ApplicantRoutes applicantRoutes) {
     this.layout = checkNotNull(layout);
-    this.fileUploadStrategy = checkNotNull(fileUploadStrategy);
+    this.applicantFileUploadRenderer = checkNotNull(applicantFileUploadRenderer);
     this.applicantQuestionRendererFactory = checkNotNull(applicantQuestionRendererFactory);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   public Content render(Params params) {
@@ -120,7 +122,8 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
 
   private ContainerTag<?> renderBlockWithSubmitForm(Params params) {
     if (params.block().isFileUpload()) {
-      return fileUploadStrategy.renderFileUploadBlock(params, applicantQuestionRendererFactory);
+      return applicantFileUploadRenderer.renderFileUploadBlock(
+          params, applicantQuestionRendererFactory);
     }
 
     FormTag form = form();
@@ -142,8 +145,13 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     }
 
     String formAction =
-        routes.ApplicantProgramBlocksController.update(
-                params.applicantId(), params.programId(), params.block().getId(), params.inReview())
+        applicantRoutes
+            .updateBlock(
+                params.profile(),
+                params.applicantId(),
+                params.programId(),
+                params.block().getId(),
+                params.inReview())
             .url();
 
     AtomicInteger ordinalErrorCount = new AtomicInteger(0);

@@ -15,7 +15,13 @@ describe('user HTTP sessions', () => {
   //
   // This guards against changes that unexpectedly affect serialization.
   it('recognizes the profile from a frozen cookie', async () => {
-    // TODO(#6069): Get this to work as a prober test.
+    // Play encrypts cookies with the server secret:
+    // https://www.playframework.com/documentation/2.8.x/ApplicationSecret
+    //
+    // For this test to run as a prober, we would need to provision one frozen
+    // cookie value per environment and pass that in. That is more trouble than
+    // it is worth, since the hermetic test (which relies on using the default
+    // server secret) will detect any breaking changes to profile serialization.
     if (isHermeticTestEnvironment()) {
       const {hostname} = new URL(BASE_URL)
       const frozenCookie = {

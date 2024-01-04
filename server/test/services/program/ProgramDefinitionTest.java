@@ -1177,4 +1177,74 @@ public class ProgramDefinitionTest extends ResetPostgres {
     assertThat(def.localizedSummaryImageDescription().get().get(Locale.US))
         .isEqualTo("new image description");
   }
+
+  @Test
+  public void getSummaryImageFileKey_whenExists() {
+    ProgramDefinition def =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
+            .setStatusDefinitions(new StatusDefinitions())
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
+            .setSummaryImageFileKey(Optional.of("program-summary-image/program-123/fileKey.png"))
+            .build();
+
+    assertThat(def.summaryImageFileKey().isPresent()).isTrue();
+    assertThat(def.summaryImageFileKey().get())
+        .isEqualTo("program-summary-image/program-123/fileKey.png");
+  }
+
+  @Test
+  public void getSummaryImageFileKey_whenDoesntExist() {
+    ProgramDefinition def =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
+            .setStatusDefinitions(new StatusDefinitions())
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
+            .build();
+
+    assertThat(def.summaryImageFileKey().isPresent()).isFalse();
+  }
+
+  @Test
+  public void getSummaryImageFileKey_replacesExistingValue() {
+    ProgramDefinition def =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
+            .setStatusDefinitions(new StatusDefinitions())
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
+            .setSummaryImageFileKey(Optional.of("program-summary-image/program-123/fileKey.png"))
+            .build();
+
+    def =
+        def.toBuilder()
+            .setSummaryImageFileKey(Optional.of("program-summary-image/program-123/newFileKey.png"))
+            .build();
+
+    assertThat(def.summaryImageFileKey().get())
+        .isEqualTo("program-summary-image/program-123/newFileKey.png");
+  }
 }

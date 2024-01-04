@@ -20,6 +20,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
   public void getSignedUploadRequest_prodEnv_actionLinkIsProdAws() {
     AwsApplicantStorage awsApplicantStorage =
         new AwsApplicantStorage(
+            instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             instanceOf(Credentials.class),
             instanceOf(Config.class),
@@ -30,12 +31,14 @@ public class AwsApplicantStorageTest extends ResetPostgres {
         awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
     assertThat(uploadRequest.actionLink()).contains("amazonaws.com");
+    assertThat(uploadRequest.actionLink()).endsWith("/");
   }
 
   @Test
   public void getSignedUploadRequest_devEnv_actionLinkIsLocalStack() {
     AwsApplicantStorage awsApplicantStorage =
         new AwsApplicantStorage(
+            instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             instanceOf(Credentials.class),
             instanceOf(Config.class),
@@ -47,6 +50,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
 
     assertThat(uploadRequest.actionLink()).contains("localstack");
     assertThat(uploadRequest.actionLink()).doesNotContain("amazonaws.com");
+    assertThat(uploadRequest.actionLink()).endsWith("/");
   }
 
   @Test
@@ -55,6 +59,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
     Credentials credentials = instanceOf(Credentials.class);
     AwsApplicantStorage awsApplicantStorage =
         new AwsApplicantStorage(
+            instanceOf(AwsStorageUtils.class),
             region,
             credentials,
             instanceOf(Config.class),
@@ -67,6 +72,26 @@ public class AwsApplicantStorageTest extends ResetPostgres {
     assertThat(uploadRequest.accessKey()).isEqualTo(credentials.getCredentials().accessKeyId());
     assertThat(uploadRequest.secretKey()).isEqualTo(credentials.getCredentials().secretAccessKey());
     assertThat(uploadRequest.regionName()).isEqualTo(region.get().id());
+  }
+
+  @Test
+  public void getSignedUploadRequest_hasApplicantBucket() {
+    AwsApplicantStorage awsApplicantStorage = instanceOf(AwsApplicantStorage.class);
+
+    SignedS3UploadRequest uploadRequest =
+        awsApplicantStorage.getSignedUploadRequest("test/fake/fakeFile.png", "redirect");
+
+    assertThat(uploadRequest.bucket()).isEqualTo("civiform-local-s3");
+  }
+
+  @Test
+  public void getSignedUploadRequest_hasApplicantFileLimit() {
+    AwsApplicantStorage awsApplicantStorage = instanceOf(AwsApplicantStorage.class);
+
+    SignedS3UploadRequest uploadRequest =
+        awsApplicantStorage.getSignedUploadRequest("test/fake/fakeFile.png", "redirect");
+
+    assertThat(uploadRequest.fileLimitMb()).isEqualTo(100);
   }
 
   @Test
@@ -100,6 +125,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
     when(sessionCredentials.sessionToken()).thenReturn("testSessionToken");
     AwsApplicantStorage awsApplicantStorage =
         new AwsApplicantStorage(
+            instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             credentials,
             instanceOf(Config.class),
@@ -122,6 +148,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
 
     AwsApplicantStorage awsApplicantStorage =
         new AwsApplicantStorage(
+            instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             credentials,
             instanceOf(Config.class),

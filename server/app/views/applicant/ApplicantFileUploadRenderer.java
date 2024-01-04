@@ -1,28 +1,32 @@
-package views;
+package views.applicant;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
-import static j2html.TagCreator.footer;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import controllers.applicant.routes;
+import controllers.applicant.ApplicantRoutes;
 import j2html.TagCreator;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
-import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
+import javax.inject.Inject;
+import org.apache.commons.lang3.StringUtils;
 import play.mvc.Http.HttpVerbs;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
-import services.cloud.FileNameFormatter;
+import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.StorageUploadRequest;
+import views.ApplicationBaseView;
 import views.components.ButtonStyles;
+import views.fileupload.FileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.FileUploadQuestionRenderer;
@@ -30,13 +34,10 @@ import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
-/**
- * A strategy pattern that abstracts out the logic of file upload/download into the different cloud
- * providers.
- */
-public abstract class FileUploadViewStrategy extends ApplicationBaseView {
+/** A helper class for rendering the file upload question for applicants. */
+public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
 
-  protected static final String MIME_TYPES_IMAGES_AND_PDF = "image/*,.pdf";
+  private static final String MIME_TYPES_IMAGES_AND_PDF = "image/*,.pdf";
   private static final String BLOCK_FORM_ID = "cf-block-form";
   private static final String FILEUPLOAD_CONTINUE_FORM_ID = "cf-fileupload-continue-form";
   private static final String FILEUPLOAD_DELETE_FORM_ID = "cf-fileupload-delete-form";
@@ -44,6 +45,16 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
   private static final String FILEUPLOAD_DELETE_BUTTON_ID = "fileupload-delete-button";
   private static final String FILEUPLOAD_SKIP_BUTTON_ID = "fileupload-skip-button";
   private static final String FILEUPLOAD_CONTINUE_BUTTON_ID = "fileupload-continue-button";
+
+  private final FileUploadViewStrategy fileUploadViewStrategy;
+  private final ApplicantRoutes applicantRoutes;
+
+  @Inject
+  public ApplicantFileUploadRenderer(
+      FileUploadViewStrategy fileUploadViewStrategy, ApplicantRoutes applicantRoutes) {
+    this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
+  }
 
   /**
    * Method to generate the field tags for the file upload view form.
@@ -54,7 +65,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    * @param hasErrors whether this file upload input is displaying errors.
    * @return a container tag with the necessary fields
    */
-  public final DivTag signedFileUploadFields(
+  public DivTag signedFileUploadFields(
       ApplicantQuestionRendererParams params,
       FileUploadQuestion fileUploadQuestion,
       String fileInputId,
@@ -76,8 +87,8 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
                         "data-upload-text",
                         params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName())));
     result.with(
-        fileUploadFields(
-            params.signedFileUploadRequest(), fileInputId, ariaDescribedByIds, hasErrors));
+        fileUploadViewStrategy.additionalFileUploadFormInputs(params.signedFileUploadRequest()));
+    result.with(createFileInputFormElement(fileInputId, ariaDescribedByIds, hasErrors));
     result.with(
         div(fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()))
             .withId(fileInputId + "-required-error")
@@ -89,18 +100,6 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     return result;
   }
 
-  protected abstract ImmutableList<InputTag> fileUploadFields(
-      Optional<StorageUploadRequest> request,
-      String fileInputId,
-      ImmutableList<String> ariaDescribedByIds,
-      boolean hasErrors);
-
-  /**
-   * Returns strategy-specific class to add to the <form> element. It helps to distinguish
-   * client-side different strategies (AWS or Azure).
-   */
-  protected abstract String getUploadFormClass();
-
   /**
    * Method to render the UI for uploading a file.
    *
@@ -108,11 +107,13 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    * @param applicantQuestionRendererFactory a class for rendering applicant questions.
    * @return a container tag with the submit view
    */
-  public final DivTag renderFileUploadBlock(
+  public DivTag renderFileUploadBlock(
       Params params, ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
     String onSuccessRedirectUrl =
         params.baseUrl()
-            + routes.ApplicantProgramBlocksController.updateFile(
+            + applicantRoutes
+                .updateFile(
+                    params.profile(),
                     params.applicantId(),
                     params.programId(),
                     params.block().getId(),
@@ -120,7 +121,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
                 .url();
 
     String key =
-        FileNameFormatter.formatFileUploadQuestionFilename(
+        ApplicantFileNameFormatter.formatFileUploadQuestionFilename(
             params.applicantId(), params.programId(), params.block().getId());
     StorageUploadRequest signedRequest =
         params.applicantStorageClient().getSignedUploadRequest(key, onSuccessRedirectUrl);
@@ -132,7 +133,11 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
             .setErrorDisplayMode(params.errorDisplayMode())
             .build();
 
-    FormTag uploadForm = renderFileUploadFormElement(params, signedRequest);
+    FormTag uploadForm =
+        fileUploadViewStrategy
+            .renderFileUploadFormElement(signedRequest)
+            .withId(BLOCK_FORM_ID)
+            .with(requiredFieldsExplanationContent(params.messages()));
     Preconditions.checkState("form".equals(uploadForm.getTagName()), "must be of type form");
     uploadForm.with(
         each(
@@ -143,20 +148,31 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     DivTag skipForms = renderDeleteAndContinueFileUploadForms(params);
     DivTag buttons = renderFileUploadBottomNavButtons(params);
 
-    return div(uploadForm, skipForms, buttons).with(each(extraScriptTags(), tag -> footer(tag)));
+    return div(uploadForm, skipForms, buttons).with(fileUploadViewStrategy.footerTags());
   }
 
-  protected FormTag renderFileUploadFormElement(Params params, StorageUploadRequest request) {
-    return form()
-        .withId(BLOCK_FORM_ID)
-        .withEnctype("multipart/form-data")
-        .withMethod(HttpVerbs.POST)
-        .withClasses(getUploadFormClass())
-        .with(this.requiredFieldsExplanationContent(params.messages()));
-  }
-
-  protected ImmutableList<ScriptTag> extraScriptTags() {
-    return ImmutableList.of();
+  /**
+   * Creates the <input type="file"> element needed for the file upload <form>.
+   *
+   * <p>Note: This likely could be migrated to use the USWDS file input component instead -- see
+   * {@link FileUploadViewStrategy#createUswdsFileInputFormElement}.
+   *
+   * @param fileInputId an ID associated with the file <input> field. Can be used to associate
+   *     custom screen reader functionality with the file input.
+   */
+  private InputTag createFileInputFormElement(
+      String fileInputId, ImmutableList<String> ariaDescribedByIds, boolean hasErrors) {
+    return input()
+        .withId(fileInputId)
+        .condAttr(hasErrors, "aria-invalid", "true")
+        .condAttr(
+            !ariaDescribedByIds.isEmpty(),
+            "aria-describedby",
+            StringUtils.join(ariaDescribedByIds, " "))
+        .withType("file")
+        .withName("file")
+        .withClass("hidden")
+        .withAccept(MIME_TYPES_IMAGES_AND_PDF);
   }
 
   /**
@@ -164,7 +180,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    *
    * <p>If an uploaded file is present, render the button text as delete. Otherwise, skip.
    *
-   * <p>See {@link renderDeleteAndContinueFileUploadForms}.
+   * <p>See {@link #renderDeleteAndContinueFileUploadForms}.
    */
   private Optional<ButtonTag> maybeRenderSkipOrDeleteButton(Params params) {
     if (hasAtLeastOneRequiredQuestion(params)) {
@@ -189,7 +205,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
   /**
    * Renders a form submit button for continue form if an uploaded file is present.
    *
-   * <p>See {@link renderDeleteAndContinueFileUploadForms}.
+   * <p>See {@link #renderDeleteAndContinueFileUploadForms}.
    */
   private Optional<ButtonTag> maybeRenderContinueButton(Params params) {
     if (!hasUploadedFile(params)) {
@@ -216,8 +232,13 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    */
   private DivTag renderDeleteAndContinueFileUploadForms(Params params) {
     String formAction =
-        routes.ApplicantProgramBlocksController.update(
-                params.applicantId(), params.programId(), params.block().getId(), params.inReview())
+        applicantRoutes
+            .updateBlock(
+                params.profile(),
+                params.applicantId(),
+                params.programId(),
+                params.block().getId(),
+                params.inReview())
             .url();
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder()

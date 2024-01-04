@@ -83,6 +83,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setAcls(new ProgramAcls(tiOrgList))
             .setLocalizedSummaryImageDescription(
                 Optional.of(LocalizedStrings.of(Locale.US, "custom summary image description")))
+            .setSummaryImageFileKey(Optional.of("program-card-images/program-1/testFile.png"))
             .build();
     ProgramModel program = new ProgramModel(definition);
 
@@ -97,6 +98,8 @@ public class ProgramModelTest extends ResetPostgres {
         .isEqualTo(LocalizedStrings.of(Locale.US, "custom confirmation message"));
     assertThat(found.getProgramDefinition().localizedSummaryImageDescription().get())
         .isEqualTo(LocalizedStrings.of(Locale.US, "custom summary image description"));
+    assertThat(found.getProgramDefinition().summaryImageFileKey().get())
+        .isEqualTo("program-card-images/program-1/testFile.png");
     assertThat(found.getProgramDefinition().blockDefinitions().get(0).name())
         .isEqualTo("First Block");
     assertThat(found.getProgramDefinition().programType())

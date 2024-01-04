@@ -460,6 +460,39 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  @Parameters({"123", "235", "56789"})
+  public void validateProgramDataForCreate_requiresSlugBeingAlphanumerical_failsIfNoLetters(
+      String adminName) {
+    ImmutableSet<CiviFormError> result =
+        ps.validateProgramDataForCreate(
+            adminName,
+            "display name",
+            "display desc",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.copyOf(new ArrayList<>()));
+
+    assertThat(result)
+        .containsExactly(CiviFormError.of("A program URL must contain at least one letter"));
+  }
+
+  @Test
+  @Parameters({"a7859", "b8419", "c-302"})
+  public void validateProgramDataForCreate_requiresSlugBeingAlphanumerical_validIfOneLetter(
+      String adminName) {
+    ImmutableSet<CiviFormError> result =
+        ps.validateProgramDataForCreate(
+            adminName,
+            "display name",
+            "display desc",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.copyOf(new ArrayList<>()));
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
   public void validateProgramDataForCreate_requiresTIListInSelectTiMode() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
@@ -2799,5 +2832,27 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition result = ps.setSummaryImageDescription(program.id(), DEFAULT_LOCALE, "");
 
     assertThat(result.localizedSummaryImageDescription().isPresent()).isFalse();
+  }
+
+  @Test
+  public void setSummaryImageFileKey_missingProgram_throws() {
+    assertThatThrownBy(() -> ps.setSummaryImageFileKey(Long.MAX_VALUE, "fileKey"))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID:");
+  }
+
+  @Test
+  public void setSummaryImageFileKey_keySet() throws ProgramNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+
+    ProgramDefinition result1 = ps.setSummaryImageFileKey(program.id(), "fileKey1.png");
+
+    assertThat(result1.summaryImageFileKey().isPresent()).isTrue();
+    assertThat(result1.summaryImageFileKey().get()).isEqualTo("fileKey1.png");
+
+    ProgramDefinition result2 = ps.setSummaryImageFileKey(program.id(), "fileKey2.png");
+
+    assertThat(result2.summaryImageFileKey().isPresent()).isTrue();
+    assertThat(result2.summaryImageFileKey().get()).isEqualTo("fileKey2.png");
   }
 }
