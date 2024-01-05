@@ -140,15 +140,14 @@ public final class ProgramImageView extends BaseHtmlView {
     ImmutableList<BreadcrumbItem> breadcrumbItems =
         ImmutableList.of(
             BreadcrumbItem.create(
-                "Edit Programs",
+                "All Programs",
                 /* link= */ baseUrl + routes.AdminProgramController.index().url(),
                 /* icon= */ null),
             BreadcrumbItem.create(
                 program.localizedName().getDefault(),
                 /* link= */ baseUrl + routes.AdminProgramBlocksController.index(program.id()).url(),
                 /* icon= */ null),
-            // TODO(#5676): Use image icon once we have it.
-            BreadcrumbItem.create("Program image upload", /* link= */ null, Icons.FILEUPLOAD));
+            BreadcrumbItem.create("Image upload", /* link= */ null, Icons.IMAGE));
     return div()
         .withClasses("mt-4", "mx-10")
         .with(breadcrumbFactory.buildBreadcrumbTrail(breadcrumbItems));
