@@ -263,7 +263,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                           "flex", "flex-col", StyleUtils.responsiveMedium("flex-row"), "py-4");
 
               return Modal.builder()
-                  .setModalId(program.adminName() + "-publish-modal")
+                  .setModalId(buildPublishModalId(program.slug()))
                   .setLocation(Modal.Location.ADMIN_FACING)
                   .setContent(
                       publishSingleProgramForm
@@ -277,12 +277,15 @@ public final class ProgramIndexView extends BaseHtmlView {
                           + " and all of its draft questions?")
                   .setTriggerButtonContent(
                       makeSvgTextButton("Publish", Icons.PUBLISH)
-                          .withId(program.adminName() + "-publish-modal-button")
                           .withClasses(ButtonStyles.CLEAR_WITH_ICON))
                   .setWidth(Modal.Width.THIRD)
                   .build();
             })
         .collect(ImmutableList.toImmutableList());
+  }
+
+  private String buildPublishModalId(String programSlug) {
+    return "publish-modal-" + programSlug;
   }
 
   private int getCountMissingUniversalQuestions(
@@ -450,7 +453,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         publishSingleProgramModals.stream()
             .forEach(
                 (modal) -> {
-                  if (modal.modalId().equals(draftProgram.get().adminName() + "-publish-modal")) {
+                  if (modal.modalId().equals(buildPublishModalId(draftProgram.get().slug()))) {
                     draftRowActions.add(modal.getButton());
                   }
                 });
