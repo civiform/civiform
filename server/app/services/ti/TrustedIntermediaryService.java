@@ -226,8 +226,9 @@ public final class TrustedIntermediaryService {
     String firstName = form.get().getFirstName();
     String middleName = form.get().getMiddleName();
     String lastName = form.get().getLastName();
-    accountRepository.updateClientName(firstName, middleName, lastName, applicant);
-
+    if (isNameChanged(firstName, middleName, lastName, applicantData)) {
+      accountRepository.updateClientName(firstName, middleName, lastName, applicant);
+    }
     // DOB update
     String newDob = form.get().getDob();
     LocalDate newDobDate = LocalDate.parse(newDob, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -237,22 +238,29 @@ public final class TrustedIntermediaryService {
     // Phone number update
     Optional<String> currentPhone = applicantData.getPhoneNumber();
     String newPhoneNumber = form.get().getPhoneNumber();
-    if (!currentPhone.isPresent() || !currentPhone.get().equals(newPhoneNumber)) {
+    if (!currentPhone.orElse("").equals(newPhoneNumber)) {
       accountRepository.updateClientPhoneNumber(newPhoneNumber, applicant);
     }
     // tiNote update
     AccountModel currentAccount = applicant.getAccount();
     String newTiNote = form.get().getTiNote();
-    accountRepository.updateClientTiNote(newTiNote, currentAccount);
+    if (!newTiNote.equals(currentAccount.getTiNote())) {
+      accountRepository.updateClientTiNote(newTiNote, currentAccount);
+    }
 
     // email update
     String newEmail = form.get().getEmailAddress();
-    if (Strings.isNullOrEmpty(newEmail)
-        || (hasEmailChanged(newEmail, currentAccount)
-            && accountRepository.lookupAccountByEmail(newEmail).isEmpty())) {
-      accountRepository.updateClientEmail(newEmail, accountId);
+    if (!newEmail.equals(currentAccount.getEmailAddress())) {
+      accountRepository.updateClientEmail(newEmail, currentAccount);
     }
     return form;
+  }
+
+  private boolean isNameChanged(
+      String firstName, String middleName, String lastName, ApplicantData applicantData) {
+    return !firstName.equals(applicantData.getApplicantFirstName().orElse(""))
+        || !middleName.equals(applicantData.getApplicantMiddleName().orElse(""))
+        || !lastName.equals(applicantData.getApplicantLastName().orElse(""));
   }
 
   /**

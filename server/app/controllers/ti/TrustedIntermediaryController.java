@@ -121,7 +121,6 @@ public final class TrustedIntermediaryController {
     if (civiformProfile.isEmpty()) {
       return unauthorized();
     }
-
     Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
         accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
@@ -137,7 +136,7 @@ public final class TrustedIntermediaryController {
             request,
             messagesApi.preferred(request),
             accountId,
-            /* editClientInfoForm= */ Optional.empty()));
+            /* editTiClientInfoForm= */ Optional.empty()));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -190,14 +189,18 @@ public final class TrustedIntermediaryController {
     Form<EditTiClientInfoForm> form =
         formFactory.form(EditTiClientInfoForm.class).bindFromRequest(request);
     form = tiService.updateClientInfo(form, trustedIntermediaryGroup.get(), id);
-    Optional<String> applicantName =
-        civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName();
+
     if (form.hasErrors()) {
       return ok(
           editTiClientView.render(
               trustedIntermediaryGroup.get(),
               ApplicantPersonalInfo.ofLoggedInUser(
-                  Representation.builder().setName(applicantName).build()),
+                  Representation.builder()
+                      .setName(
+                          form.value().get().getFirstName()
+                              + " "
+                              + form.value().get().getLastName())
+                      .build()),
               request,
               messagesApi.preferred(request),
               id,
@@ -205,11 +208,14 @@ public final class TrustedIntermediaryController {
     }
     return redirect(
             routes.TrustedIntermediaryController.dashboard(
-                    /* nameQuery= */ Optional.empty(),
-                    /* dateQuery= */ Optional.empty(),
-                    /* page= */ Optional.empty())
-                .url())
-        .flashing("success", "Applicant " + applicantName.orElse("") + " information is updated");
+                /* nameQuery= */ Optional.empty(),
+                /* dateQuery= */ Optional.empty(),
+                /* page= */ Optional.of(1)))
+        .flashing(
+            "success",
+            String.format(
+                "Successfully added new client: %s %s",
+                form.value().get().getFirstName(), form.value().get().getLastName()));
   }
 
   private String getValidationErrors(List<ValidationError> errors) {

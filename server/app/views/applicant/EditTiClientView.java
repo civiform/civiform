@@ -15,7 +15,6 @@ import j2html.tags.specialized.FormTag;
 import java.util.Optional;
 import models.AccountModel;
 import models.TrustedIntermediaryGroupModel;
-import org.slf4j.LoggerFactory;
 import play.data.Form;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -30,7 +29,6 @@ import views.HtmlBundle;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
-import views.components.ToastMessage;
 
 /** Renders a page for a trusted intermediary to manage their clients. */
 public class EditTiClientView extends BaseHtmlView {
@@ -80,15 +78,6 @@ public class EditTiClientView extends BaseHtmlView {
                     editTiClientInfoForm,
                     messages))
             .addMainStyles("px-20", "max-w-screen-xl");
-
-    Http.Flash flash = request.flash();
-    if (flash.get("error").isPresent()) {
-      LoggerFactory.getLogger(EditTiClientView.class).info(request.flash().get("error").get());
-      bundle.addToastMessages(
-          ToastMessage.errorNonLocalized(flash.get("error").get()).setDuration(-1));
-    } else if (flash.get("success").isPresent()) {
-      bundle.addToastMessages(ToastMessage.success(flash.get("success").get()).setDuration(-1));
-    }
     return layout.renderWithNav(request, personalInfo, messages, bundle, accountId);
   }
 
