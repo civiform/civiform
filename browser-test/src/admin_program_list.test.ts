@@ -9,6 +9,42 @@ import {ProgramVisibility} from './support/admin_programs'
 
 describe('Program list page.', () => {
   const ctx = createTestContext()
+
+  it('view draft program', async () => {
+    const {page, adminPrograms} = ctx
+    await loginAsAdmin(page)
+
+    const programName = 'Test program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.gotoAdminProgramsPage()
+    await validateScreenshot(page, 'program-list-one-draft-program')
+  })
+
+  it('view active program', async () => {
+    const {page, adminPrograms} = ctx
+    await loginAsAdmin(page)
+
+    const programName = 'Test program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.publishAllDrafts()
+    await adminPrograms.gotoAdminProgramsPage()
+    await validateScreenshot(page, 'program-list-one-active-program')
+  })
+
+  it('view program with active and draft versions', async () => {
+    const {page, adminPrograms} = ctx
+    await loginAsAdmin(page)
+
+    const programName = 'Test program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.publishAllDrafts()
+    await adminPrograms.gotoAdminProgramsPage()
+
+    await adminPrograms.createNewVersion(programName)
+    await adminPrograms.gotoAdminProgramsPage()
+    await validateScreenshot(page, 'program-list-active-and-draft-versions')
+  })
+
   it('sorts by last updated, preferring draft over active', async () => {
     const {page, adminPrograms} = ctx
 
