@@ -46,6 +46,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   private final String baseUrl;
   private final JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory;
   private ImmutableList<Block> allBlockList;
+  private ImmutableList<Block> allHiddenBlockList;
   private ImmutableList<Block> currentBlockList;
 
   public ReadOnlyApplicantProgramServiceImpl(
@@ -138,6 +139,17 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return !predicate.isEmpty();
   }
 
+  public boolean isHiddenBlockEligible(String blockId) {
+    Block block = getHiddenBlock(blockId).get();
+    Optional<PredicateDefinition> predicate =
+      block.getEligibilityDefinition().map(EligibilityDefinition::predicate);
+    // No eligibility criteria means the block is eligible.
+    if (predicate.isEmpty()) {
+      return true;
+    }
+    return evaluatePredicate(block, predicate.get());
+  }
+
   @Override
   public boolean isBlockEligible(String blockId) {
     Block block = getBlock(blockId).get();
@@ -156,6 +168,14 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       allBlockList = getBlocks(this::showBlock);
     }
     return allBlockList;
+  }
+
+  @Override
+  public ImmutableList<Block> getAllHiddenBlocks() {
+    if (allHiddenBlockList == null) {
+      allHiddenBlockList = getHiddenBlocks(this::showBlock);
+    }
+    return allHiddenBlockList;
   }
 
   @Override
@@ -203,6 +223,12 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       }
     }
     return questionList.stream().distinct().collect(toImmutableList());
+  }
+
+  public Optional<Block> getHiddenBlock(String blockId) {
+    return getAllHiddenBlocks().stream()
+      .filter((block) -> block.getId().equals(blockId))
+      .findFirst();
   }
 
   @Override
@@ -262,6 +288,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> blocks = getAllActiveBlocks();
+    ImmutableList<Block> hiddenBlock = getAllHiddenBlocks();
     for (Block block : blocks) {
       ImmutableList<ApplicantQuestion> questions = block.getQuestions();
       for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
@@ -313,6 +340,57 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         builder.add(data);
       }
     }
+    for (Block block : hiddenBlock) {
+      ImmutableList<ApplicantQuestion> questions = block.getQuestions();
+      for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
+        ApplicantQuestion applicantQuestion = questions.get(questionIndex);
+        // Don't include static content in summary data.
+        if (applicantQuestion.getType().equals(QuestionType.STATIC)) {
+          continue;
+        }
+        boolean isAnswered = applicantQuestion.isAnswered();
+        boolean isEligible = isQuestionEligibleInHiddenBlock(block, applicantQuestion);
+        String questionText = applicantQuestion.getQuestionText();
+        String questionTextForScreenReader = applicantQuestion.getQuestionTextForScreenReader();
+        String answerText = "N/A";
+        Optional<Long> timestamp = applicantQuestion.getLastUpdatedTimeMetadata();
+        Optional<Long> updatedProgram = applicantQuestion.getUpdatedInProgramMetadata();
+        Optional<String> originalFileName = Optional.empty();
+        Optional<String> encodedFileKey = Optional.empty();
+        if (isAnswered && applicantQuestion.isFileUploadQuestion()) {
+          FileUploadQuestion fileUploadQuestion = applicantQuestion.createFileUploadQuestion();
+          originalFileName = fileUploadQuestion.getOriginalFileName();
+          encodedFileKey =
+            fileUploadQuestion
+              .getFileKeyValue()
+              .map((fileKey) -> URLEncoder.encode(fileKey, StandardCharsets.UTF_8));
+        }
+        boolean isPreviousResponse =
+          updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
+        AnswerData data =
+          AnswerData.builder()
+            .setProgramId(programDefinition.id())
+            .setBlockId(block.getId())
+            .setContextualizedPath(applicantQuestion.getContextualizedPath())
+            .setQuestionDefinition(applicantQuestion.getQuestionDefinition())
+            .setApplicantQuestion(applicantQuestion)
+            .setRepeatedEntity(block.getRepeatedEntity())
+            .setQuestionIndex(questionIndex)
+            .setQuestionText(questionText)
+            .setQuestionTextForScreenReader(questionTextForScreenReader)
+            .setIsAnswered(isAnswered)
+            .setIsEligible(isEligible)
+            .setEligibilityIsGating(programDefinition.eligibilityIsGating())
+            .setAnswerText(answerText)
+            .setEncodedFileKey(encodedFileKey)
+            .setOriginalFileName(originalFileName)
+            .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
+            .setIsPreviousResponse(isPreviousResponse)
+            .setScalarAnswersInDefaultLocale(getScalarAnswers(applicantQuestion))
+            .build();
+        builder.add(data);
+      }
+    }
     return builder.build();
   }
 
@@ -332,6 +410,21 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   /**
+   * Gets {@link Block}s for this program and applicant. If {@code onlyIncludeInProgressBlocks} is
+   * true, then only the current blocks will be included in the list. A block is "in progress" if it
+   * has yet to be filled out by the applicant, or if it was filled out in the context of this
+   * program.
+   */
+  private ImmutableList<Block> getHiddenBlocks(Predicate<Block> includeBlockIfTrue) {
+    String emptyBlockIdSuffix = "";
+    return getHiddenBlocks(
+      programDefinition.getNonRepeatedBlockDefinitions(),
+      emptyBlockIdSuffix,
+      Optional.empty(),
+      includeBlockIfTrue);
+  }
+
+  /**
    * True if the {@link ApplicantQuestion} is eligible in the given {@link Block}. If the block is
    * not eligible, check if the question is part of that eligibility condition.
    */
@@ -345,6 +438,75 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
             .contains(question.getQuestionDefinition().getId());
   }
 
+  private boolean isQuestionEligibleInHiddenBlock(Block block, ApplicantQuestion question) {
+    return isHiddenBlockEligible(block.getId())
+      || !block
+      .getEligibilityDefinition()
+      .get()
+      .predicate()
+      .getQuestions()
+      .contains(question.getQuestionDefinition().getId());
+  }
+
+
+
+  /*return a list of blocks hidden*/
+  private ImmutableList<Block> getHiddenBlocks(
+    ImmutableList<BlockDefinition> blockDefinitions,
+    String blockIdSuffix,
+    Optional<RepeatedEntity> maybeRepeatedEntity,
+    Predicate<Block> includeBlockIfTrue) {
+    ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
+    for (BlockDefinition blockDefinition : blockDefinitions) {
+      // Create and maybe include the block for this block definition.
+      Block block =
+        new Block(
+          blockDefinition.id() + blockIdSuffix,
+          blockDefinition,
+          applicantData,
+          maybeRepeatedEntity);
+
+      if (!includeBlockIfTrue.test(block)) {
+        blockListBuilder.add(block);
+      }
+
+      // For an enumeration block definition, build blocks for its repeated questions
+      if (blockDefinition.isEnumerator()) {
+        // Get all the repeated entities enumerated by this enumerator question.
+        EnumeratorQuestionDefinition enumeratorQuestionDefinition =
+          blockDefinition.getEnumerationQuestionDefinition();
+        ImmutableList<RepeatedEntity> repeatedEntities =
+          maybeRepeatedEntity
+            .map(
+              e ->
+                e.createNestedRepeatedEntities(
+                  enumeratorQuestionDefinition,
+                  block.getVisibilityPredicate(),
+                  applicantData))
+            .orElse(
+              RepeatedEntity.createRepeatedEntities(
+                enumeratorQuestionDefinition,
+                block.getVisibilityPredicate(),
+                applicantData));
+        // For each repeated entity, recursively build blocks for all the repeated blocks of this
+        // enumerator block.
+        ImmutableList<BlockDefinition> repeatedBlockDefinitions =
+          programDefinition.getBlockDefinitionsForEnumerator(blockDefinition.id());
+        for (int i = 0; i < repeatedEntities.size(); i++) {
+          String nextBlockIdSuffix = String.format("%s-%d", blockIdSuffix, i);
+          blockListBuilder.addAll(
+            getHiddenBlocks(
+              repeatedBlockDefinitions,
+              nextBlockIdSuffix,
+              Optional.of(repeatedEntities.get(i)),
+              includeBlockIfTrue));
+        }
+      }
+    }
+
+    return blockListBuilder.build();
+  }
+
   /**
    * Recursive helper method for {@link ReadOnlyApplicantProgramServiceImpl#getBlocks(Predicate)}.
    */
@@ -354,7 +516,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       Optional<RepeatedEntity> maybeRepeatedEntity,
       Predicate<Block> includeBlockIfTrue) {
     ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
-
     for (BlockDefinition blockDefinition : blockDefinitions) {
       // Create and maybe include the block for this block definition.
       Block block =
@@ -420,6 +581,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       // Default to show
       return true;
     }
+    //return true;
     return this.evaluateVisibility(block, block.getVisibilityPredicate().get());
   }
 

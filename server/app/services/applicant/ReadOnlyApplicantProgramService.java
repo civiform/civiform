@@ -36,6 +36,12 @@ public interface ReadOnlyApplicantProgramService {
   ImmutableList<Block> getAllActiveBlocks();
 
   /**
+   * Get the {@link Block}s for this program and applicant. This includes blocks that are hidden
+   * from the applicant (i.e.they have a show/hide predicate).
+   */
+  ImmutableList<Block> getAllHiddenBlocks();
+
+  /**
    * Get the {@link Block}s this applicant needs to fill out or has filled out for this program.
    *
    * <p>This list includes any block that is incomplete or has errors (which indicate the applicant
