@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.types.EmailQuestionDefinition;
 
 /**
@@ -41,13 +42,21 @@ public final class EmailQuestion extends Question {
     return getEmailValue().orElse("-");
   }
 
+  private boolean containsEmailTag() {
+    return applicantQuestion.getQuestionDefinition().containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_EMAIL);
+  }
+
   public Optional<String> getEmailValue() {
     if (emailValue != null) {
       return emailValue;
     }
 
-    emailValue = applicantQuestion.getApplicantData().readString(getEmailPath());
-
+    Optional<String> maybeEmail = applicantQuestion.getApplicantData().getApplicant().getEmailAddress();
+    if (containsEmailTag() && maybeEmail.isPresent()) {
+      emailValue = maybeEmail;
+    } else {
+      emailValue = applicantQuestion.getApplicantData().readString(getEmailPath());
+    }
     return emailValue;
   }
 

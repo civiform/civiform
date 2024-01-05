@@ -10,6 +10,7 @@ import java.util.Optional;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.types.PhoneQuestionDefinition;
 
 /**
@@ -82,11 +83,21 @@ public final class PhoneQuestion extends Question {
     return ImmutableSet.of();
   }
 
+  private boolean containsPhoneTag() {
+    return applicantQuestion.getQuestionDefinition().containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_PHONE);
+  }
+
   public Optional<String> getPhoneNumberValue() {
     if (phoneNumberValue != null) {
       return phoneNumberValue;
     }
-    phoneNumberValue = applicantQuestion.getApplicantData().readString(getPhoneNumberPath());
+
+    Optional<String> maybePhoneNumber = applicantQuestion.getApplicantData().getApplicant().getPhoneNumber();
+    if (containsPhoneTag() && maybePhoneNumber.isPresent()) {
+      phoneNumberValue = maybePhoneNumber;
+    } else {
+      phoneNumberValue = applicantQuestion.getApplicantData().readString(getPhoneNumberPath());
+    }
     return phoneNumberValue;
   }
 
@@ -95,7 +106,12 @@ public final class PhoneQuestion extends Question {
       return countryCodeValue;
     }
 
-    countryCodeValue = applicantQuestion.getApplicantData().readString(getCountryCodePath());
+    Optional<String> maybeCountryCode = applicantQuestion.getApplicantData().getApplicant().getCountryCode();
+    if (containsPhoneTag() && maybeCountryCode.isPresent()) {
+      countryCodeValue = maybeCountryCode;
+    } else {
+      countryCodeValue = applicantQuestion.getApplicantData().readString(getCountryCodePath());
+    }
 
     return countryCodeValue;
   }

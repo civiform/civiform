@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.types.NameQuestionDefinition;
 
 /**
@@ -57,12 +58,21 @@ public final class NameQuestion extends Question {
     return ImmutableSet.of();
   }
 
+  private boolean containsNameTag() {
+    return applicantQuestion.getQuestionDefinition().containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_NAME);
+  }
+
   public Optional<String> getFirstNameValue() {
     if (firstNameValue != null) {
       return firstNameValue;
     }
 
-    firstNameValue = applicantQuestion.getApplicantData().readString(getFirstNamePath());
+    Optional<String> maybeFirstName = applicantQuestion.getApplicantData().getApplicant().getFirstName();
+    if (containsNameTag() && maybeFirstName.isPresent()) {
+      firstNameValue = maybeFirstName;
+    } else {
+      firstNameValue = applicantQuestion.getApplicantData().readString(getFirstNamePath());
+    }
 
     return firstNameValue;
   }
@@ -72,7 +82,12 @@ public final class NameQuestion extends Question {
       return middleNameValue;
     }
 
-    middleNameValue = applicantQuestion.getApplicantData().readString(getMiddleNamePath());
+    Optional<String> maybeMiddleName = applicantQuestion.getApplicantData().getApplicant().getMiddleName();
+    if (containsNameTag() && maybeMiddleName.isPresent()) {
+      middleNameValue = maybeMiddleName;
+    } else {
+      middleNameValue = applicantQuestion.getApplicantData().readString(getMiddleNamePath());
+    }
 
     return middleNameValue;
   }
@@ -82,8 +97,12 @@ public final class NameQuestion extends Question {
       return lastNameValue;
     }
 
-    lastNameValue = applicantQuestion.getApplicantData().readString(getLastNamePath());
-
+    Optional<String> maybeLastName = applicantQuestion.getApplicantData().getApplicant().getLastName();
+    if (containsNameTag() && maybeLastName.isPresent()) {
+      lastNameValue = maybeLastName;
+    } else {
+      lastNameValue = applicantQuestion.getApplicantData().readString(getLastNamePath());
+    }
     return lastNameValue;
   }
 

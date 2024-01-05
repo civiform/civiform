@@ -312,6 +312,10 @@ public final class AccountRepository {
     applicant.setFirstName(form.getFirstName());
     applicant.setMiddleName(form.getMiddleName());
     applicant.setLastName(form.getLastName());
+    applicant.setDateOfBirth(form.getDob());
+    if (!Strings.isNullOrEmpty(form.getEmailAddress())) {
+      applicant.setEmailAddress(newAccount.getEmailAddress());
+    }
     applicant.save();
   }
 

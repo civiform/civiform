@@ -9,6 +9,7 @@ import java.util.Optional;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.types.DateQuestionDefinition;
 
 /**
@@ -52,12 +53,21 @@ public final class DateQuestion extends Question {
         .orElse("-");
   }
 
+  private boolean containsDobTag() {
+    return applicantQuestion.getQuestionDefinition().containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_DOB);
+  }
+
   public Optional<LocalDate> getDateValue() {
     if (dateValue != null) {
       return dateValue;
     }
 
-    dateValue = applicantQuestion.getApplicantData().readDate(getDatePath());
+    Optional<LocalDate> maybeDob = applicantQuestion.getApplicantData().getApplicant().getDateOfBirth();
+    if (containsDobTag() && maybeDob.isPresent()) {
+      dateValue = maybeDob;
+    } else {
+      dateValue = applicantQuestion.getApplicantData().readDate(getDatePath());
+    }
 
     return dateValue;
   }
