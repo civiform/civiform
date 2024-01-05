@@ -45,7 +45,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   private final ProgramDefinition programDefinition;
   private final String baseUrl;
   private final JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory;
-  private ImmutableList<Block> allBlockList;
+  private ImmutableList<Block> allActiveBlockList;
   private ImmutableList<Block> allHiddenBlockList;
   private ImmutableList<Block> currentBlockList;
 
@@ -164,10 +164,10 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public ImmutableList<Block> getAllActiveBlocks() {
-    if (allBlockList == null) {
-      allBlockList = getBlocks(this::showBlock);
+    if (allActiveBlockList == null) {
+      allActiveBlockList = getBlocks(this::showBlock);
     }
-    return allBlockList;
+    return allActiveBlockList;
   }
 
   @Override
@@ -448,8 +448,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       .contains(question.getQuestionDefinition().getId());
   }
 
-
-
   /*return a list of blocks hidden*/
   private ImmutableList<Block> getHiddenBlocks(
     ImmutableList<BlockDefinition> blockDefinitions,
@@ -516,6 +514,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       Optional<RepeatedEntity> maybeRepeatedEntity,
       Predicate<Block> includeBlockIfTrue) {
     ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
+
     for (BlockDefinition blockDefinition : blockDefinitions) {
       // Create and maybe include the block for this block definition.
       Block block =
@@ -581,7 +580,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       // Default to show
       return true;
     }
-    //return true;
     return this.evaluateVisibility(block, block.getVisibilityPredicate().get());
   }
 
