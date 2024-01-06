@@ -170,37 +170,6 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     assertThat(applicantModel.getApplicantData().getPhoneNumber().get()).isEqualTo("4259879090");
   }
 
-  private AccountModel setupForEditUpdateClient(String email) {
-    Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            Helpers.fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "first",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "last",
-                        "emailAddress",
-                        email,
-                        "dob",
-                        "2022-07-18")));
-
-    TrustedIntermediaryGroupModel trustedIntermediaryGroup =
-        repo.getTrustedIntermediaryGroup(
-                profileUtils.currentUserProfile(requestBuilder.build()).get())
-            .get();
-    Result result = tiController.addApplicant(trustedIntermediaryGroup.id, requestBuilder.build());
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    Optional<ApplicantModel> testApplicant =
-        repo.lookupApplicantByEmail(email).toCompletableFuture().join();
-    assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
-        .isEqualTo("2022-07-18");
-    AccountModel account = repo.lookupAccountByEmail(email).get();
-    return account;
-  }
-
   @Test
   public void testEditClientCall() {
     AccountModel account = setupForEditUpdateClient("test33@test.com");
@@ -262,5 +231,35 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
         repo.lookupApplicantByEmail("sample2@fake.com").toCompletableFuture().join();
     assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2022-07-18");
+  }
+  private AccountModel setupForEditUpdateClient(String email) {
+    Http.RequestBuilder requestBuilder =
+      addCSRFToken(
+        Helpers.fakeRequest()
+          .bodyForm(
+            ImmutableMap.of(
+              "firstName",
+              "first",
+              "middleName",
+              "middle",
+              "lastName",
+              "last",
+              "emailAddress",
+              email,
+              "dob",
+              "2022-07-18")));
+
+    TrustedIntermediaryGroupModel trustedIntermediaryGroup =
+      repo.getTrustedIntermediaryGroup(
+          profileUtils.currentUserProfile(requestBuilder.build()).get())
+        .get();
+    Result result = tiController.addApplicant(trustedIntermediaryGroup.id, requestBuilder.build());
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    Optional<ApplicantModel> testApplicant =
+      repo.lookupApplicantByEmail(email).toCompletableFuture().join();
+    assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
+      .isEqualTo("2022-07-18");
+    AccountModel account = repo.lookupAccountByEmail(email).get();
+    return account;
   }
 }

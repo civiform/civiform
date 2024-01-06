@@ -350,40 +350,6 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     assertThat(tiResult.getErrorMessage().get())
         .isEqualTo("Please enter date in MM/dd/yyyy format");
   }
-
-  private void setupTiClientAccountWithApplicant(
-      String firstName, String dob, String email, TrustedIntermediaryGroupModel tiGroup) {
-    AccountModel account = new AccountModel();
-    account.setEmailAddress(email);
-    account.setManagedByGroup(tiGroup);
-    account.save();
-    ApplicantModel applicant = new ApplicantModel();
-    applicant.setAccount(account);
-    ApplicantData applicantData = applicant.getApplicantData();
-    applicantData.setUserName(firstName, "", "Last");
-    applicantData.setDateOfBirth(dob);
-    applicant.save();
-  }
-
-  private AccountModel setupTiClientAccount(String email, TrustedIntermediaryGroupModel tiGroup) {
-    AccountModel account = new AccountModel();
-    account.setEmailAddress(email);
-    account.setManagedByGroup(tiGroup);
-    account.save();
-    return account;
-  }
-
-  private ApplicantModel setTiClientApplicant(AccountModel account, String firstName, String dob) {
-    ApplicantModel applicant = new ApplicantModel();
-    applicant.setAccount(account);
-    ApplicantData applicantData = applicant.getApplicantData();
-    applicantData.setUserName(firstName, "", "Last");
-    applicantData.setDateOfBirth(dob);
-    applicant.save();
-    account.save();
-    return applicant;
-  }
-
   @Test
   public void editTiClientInfo_AllPass_NameEmailUpdate() throws ApplicantNotFoundException {
     AccountModel account = setupTiClientAccount("emailOld", tiGroup);
@@ -626,5 +592,37 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     assertThatThrownBy(() -> service.updateClientInfo(form, tiGroup, 1L))
         .isInstanceOf(ApplicantNotFoundException.class)
         .hasMessage("Applicant not found for ID 1");
+  }
+  private void setupTiClientAccountWithApplicant(
+    String firstName, String dob, String email, TrustedIntermediaryGroupModel tiGroup) {
+    AccountModel account = new AccountModel();
+    account.setEmailAddress(email);
+    account.setManagedByGroup(tiGroup);
+    account.save();
+    ApplicantModel applicant = new ApplicantModel();
+    applicant.setAccount(account);
+    ApplicantData applicantData = applicant.getApplicantData();
+    applicantData.setUserName(firstName, "", "Last");
+    applicantData.setDateOfBirth(dob);
+    applicant.save();
+  }
+
+  private AccountModel setupTiClientAccount(String email, TrustedIntermediaryGroupModel tiGroup) {
+    AccountModel account = new AccountModel();
+    account.setEmailAddress(email);
+    account.setManagedByGroup(tiGroup);
+    account.save();
+    return account;
+  }
+
+  private ApplicantModel setTiClientApplicant(AccountModel account, String firstName, String dob) {
+    ApplicantModel applicant = new ApplicantModel();
+    applicant.setAccount(account);
+    ApplicantData applicantData = applicant.getApplicantData();
+    applicantData.setUserName(firstName, "", "Last");
+    applicantData.setDateOfBirth(dob);
+    applicant.save();
+    account.save();
+    return applicant;
   }
 }

@@ -194,7 +194,7 @@ public final class TrustedIntermediaryService {
    * @param form - this contains all the fields like dob, phoneNumber, emailAddress, name and
    *     tiNotes.
    * @return form - the form object is always returned. If the form contains error, the controller
-   *     will handle the flash messages. If the account is not found for the given AccountId, a
+   *     will handle the field messages. If the account is not found for the given AccountId, a
    *     runtime exception is raised.
    */
   public Form<EditTiClientInfoForm> updateClientInfo(
