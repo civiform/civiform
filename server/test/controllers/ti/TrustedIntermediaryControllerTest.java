@@ -69,7 +69,6 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail("sample3@fake.com").toCompletableFuture().join();
     AccountModel account = testApplicant.get().getAccount();
-    ;
     assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2022-07-18");
     Http.RequestBuilder requestBuilder2 =
