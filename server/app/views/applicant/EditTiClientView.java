@@ -34,24 +34,20 @@ import views.components.LinkElement;
 public class EditTiClientView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final DateConverter dateConverter;
-  public static final String OPTIONAL_INDICATOR = " (optional)";
   private final String baseUrl;
   private AccountRepository accountRepository;
-
-  // private final Messages enUsMessages;
 
   @Inject
   public EditTiClientView(
       ApplicantLayout layout,
       DateConverter dateConverter,
       Config configuration,
-      AccountRepository accountRepository) { // , @EnUsLang Messages enUsMessages) {
+      AccountRepository accountRepository) {
     this.layout = checkNotNull(layout);
     this.dateConverter = checkNotNull(dateConverter);
     this.accountRepository = checkNotNull(accountRepository);
     checkNotNull(configuration);
     this.baseUrl = configuration.getString("base_url");
-    // this.enUsMessages = checkNotNull(enUsMessages);
   }
 
   public Content render(

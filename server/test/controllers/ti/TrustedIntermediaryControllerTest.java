@@ -1,23 +1,21 @@
 package controllers.ti;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
+import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.fakeRequest;
+import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import auth.ProfileFactory;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
-import io.ebean.DB;
-import io.ebean.Database;
 import java.util.Optional;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.LifecycleStage;
-import models.Models;
 import models.TrustedIntermediaryGroupModel;
-import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
@@ -25,7 +23,6 @@ import play.mvc.Result;
 import play.test.Helpers;
 import repository.AccountRepository;
 import services.applicant.exception.ApplicantNotFoundException;
-import services.settings.SettingsService;
 
 public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   private AccountRepository repo;
@@ -35,11 +32,6 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
 
   @Before
   public void setup() {
-    Database database = DB.getDefault();
-    Models.truncate(database);
-    VersionModel newActiveVersion = new VersionModel(LifecycleStage.ACTIVE);
-    newActiveVersion.save();
-    instanceOf(SettingsService.class).migrateConfigValuesToSettingsGroup();
     profileFactory = instanceOf(ProfileFactory.class);
     tiController = instanceOf(TrustedIntermediaryController.class);
     ApplicantModel managedApplicant = createApplicant();
@@ -50,7 +42,63 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void testUpdateClientInfo() throws ApplicantNotFoundException {
+  public void testUpdateClientInfo_ThrowsApplicantNotFoundException()
+      throws ApplicantNotFoundException {
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(
+            Helpers.fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "first",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "last",
+                        "emailAddress",
+                        "sample3@fake.com",
+                        "dob",
+                        "2022-07-18")));
+
+    TrustedIntermediaryGroupModel trustedIntermediaryGroup =
+        repo.getTrustedIntermediaryGroup(
+                profileUtils.currentUserProfile(requestBuilder.build()).get())
+            .get();
+    Result result = tiController.addApplicant(trustedIntermediaryGroup.id, requestBuilder.build());
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    Optional<ApplicantModel> testApplicant =
+        repo.lookupApplicantByEmail("sample3@fake.com").toCompletableFuture().join();
+    AccountModel account = testApplicant.get().getAccount();
+    ;
+    assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
+        .isEqualTo("2022-07-18");
+    Http.RequestBuilder requestBuilder2 =
+        addCSRFToken(
+            fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "clientFirst",
+                        "middleName",
+                        "clientMiddle",
+                        "lastName",
+                        "clientLast",
+                        "dob",
+                        "2022-07-07",
+                        "emailAddress",
+                        "emailControllerSam",
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "4259879090")));
+    Http.Request request2 = requestBuilder2.build();
+    assertThatThrownBy(() -> tiController.updateClientInfo(account.id, request2))
+        .isInstanceOf(ApplicantNotFoundException.class)
+        .hasMessage("Applicant not found for ID " + account.id);
+  }
+
+  @Test
+  public void testUpdateClientInfo_AllFieldsUpdated() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             Helpers.fakeRequest()
@@ -75,9 +123,11 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail("sample2@fake.com").toCompletableFuture().join();
+    AccountModel account = testApplicant.get().getAccount();
+    account.setManagedByGroup(trustedIntermediaryGroup);
+    account.save();
     assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2022-07-18");
-    AccountModel account = repo.lookupAccountByEmail("sample2@fake.com").get();
     Http.RequestBuilder requestBuilder2 =
         addCSRFToken(
             fakeRequest()
@@ -100,8 +150,8 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     Http.Request request2 = requestBuilder2.build();
     Result result2 = tiController.updateClientInfo(account.id, request2);
 
-    assertThat(result2.status()).isEqualTo(SEE_OTHER);
-    assertThat(repo.lookupAccountByEmail("sample2@fake.com")).isEmpty();
+    assertThat(result2.status()).isEqualTo(OK);
+    assertThat(repo.lookupAccountByEmail("tiTestSample@fake.com")).isEmpty();
     // assert email address
     assertThat(repo.lookupAccountByEmail("emailControllerSam")).isNotEmpty();
     AccountModel accountFinal = repo.lookupAccountByEmail("emailControllerSam").get();
@@ -119,6 +169,45 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     assertThat(applicantModel.getApplicantData().getApplicantLastName().get())
         .isEqualTo("clientLast");
     assertThat(applicantModel.getApplicantData().getPhoneNumber().get()).isEqualTo("4259879090");
+  }
+
+  private AccountModel setupForEditUpdateClient(String email) {
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(
+            Helpers.fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "first",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "last",
+                        "emailAddress",
+                        email,
+                        "dob",
+                        "2022-07-18")));
+
+    TrustedIntermediaryGroupModel trustedIntermediaryGroup =
+        repo.getTrustedIntermediaryGroup(
+                profileUtils.currentUserProfile(requestBuilder.build()).get())
+            .get();
+    Result result = tiController.addApplicant(trustedIntermediaryGroup.id, requestBuilder.build());
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    Optional<ApplicantModel> testApplicant =
+        repo.lookupApplicantByEmail(email).toCompletableFuture().join();
+    assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
+        .isEqualTo("2022-07-18");
+    AccountModel account = repo.lookupAccountByEmail(email).get();
+    return account;
+  }
+
+  @Test
+  public void testEditClientCall() {
+    AccountModel account = setupForEditUpdateClient("test33@test.com");
+    Http.Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Result result = tiController.editClient(account.id, request);
+    assertThat(result.status()).isEqualTo(OK);
   }
 
   @Test

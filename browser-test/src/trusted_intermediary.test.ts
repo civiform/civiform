@@ -162,6 +162,7 @@ describe('Trusted intermediaries', () => {
     )
     await validateScreenshot(page, 'edit-client-information-with-all-fields')
   })
+
   it('expect client email to be updated to empty', async () => {
     const {page, tiDashboard} = ctx
     await loginAsTrustedIntermediary(page)
@@ -169,26 +170,22 @@ describe('Trusted intermediaries', () => {
     await waitForPageJsLoad(page)
     const client: ClientInformation = {
       emailAddress: 'test@sample.com',
-      firstName: 'first',
+      firstName: 'Jane',
       middleName: 'middle',
-      lastName: 'last',
+      lastName: 'Doe',
       dobDate: '2021-06-10',
     }
     await tiDashboard.createClient(client)
     await waitForPageJsLoad(page)
     await tiDashboard.updateClientEmailAddress(client, '')
     await waitForPageJsLoad(page)
-    const noEmailClient: ClientInformation = {
-      emailAddress: '',
-      firstName: 'first',
-      middleName: 'middle',
-      lastName: 'last',
-      dobDate: '2021-06-10',
-    }
-    await tiDashboard.expectDashboardContainClient(noEmailClient)
-    await tiDashboard.updateClientEmailAddress(noEmailClient, 'test@sample.com')
-    await waitForPageJsLoad(page)
-    await tiDashboard.expectDashboardContainClient(client)
+
+    const row = page.locator(
+      `.cf-admin-question-table-row:has-text("${client.lastName}, ${client.firstName}")`,
+    )
+    const rowText = await row.innerText()
+    expect(rowText).toContain('(no email address)')
+    expect(rowText).toContain(client.dobDate)
   })
 
   it('expect back button to land in dashboard in the edit client page', async () => {

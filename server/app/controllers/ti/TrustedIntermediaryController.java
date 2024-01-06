@@ -126,8 +126,7 @@ public final class TrustedIntermediaryController {
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
-    Optional<String> applicantName =
-        civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName();
+    String applicantName = accountRepository.lookupAccount(accountId).get().getApplicantName();
     return ok(
         editTiClientView.render(
             trustedIntermediaryGroup.get(),
@@ -189,7 +188,6 @@ public final class TrustedIntermediaryController {
     Form<EditTiClientInfoForm> form =
         formFactory.form(EditTiClientInfoForm.class).bindFromRequest(request);
     form = tiService.updateClientInfo(form, trustedIntermediaryGroup.get(), id);
-
     if (form.hasErrors()) {
       return ok(
           editTiClientView.render(
