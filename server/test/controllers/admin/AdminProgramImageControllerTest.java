@@ -370,6 +370,29 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void updateFileKey_hasBucketAndKey_keyUpdated() throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    controller.updateFileKey(
+        addCSRFToken(
+                fakeRequest(
+                    "POST",
+                    createUriWithQueryString(
+                        ImmutableMap.of(
+                            "bucket",
+                            "fakeBucket",
+                            "key",
+                            "program-summary-image/program-1/myImage"))))
+            .build(),
+        program.id);
+
+    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    assertThat(updatedProgram.summaryImageFileKey()).isNotEmpty();
+    assertThat(updatedProgram.summaryImageFileKey().get())
+        .isEqualTo("program-summary-image/program-1/myImage");
+  }
+
+  @Test
   public void updateFileKey_hasBucketAndKey_toastsSuccess() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
 
@@ -389,6 +412,106 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     assertThat(result.flash().data()).containsOnlyKeys("success");
     assertThat(result.flash().data().get("success")).contains("Image set");
+  }
+
+  @Test
+  public void deleteFileKey_programNotDraft_throws() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+
+    Http.Request request =
+        addCSRFToken(
+                fakeRequest()
+                    .method("POST")
+                    .bodyForm(ImmutableMap.of("bucket", "fakeBucket", "key", "fakeFileKey")))
+            .build();
+
+    assertThatExceptionOfType(NotChangeableException.class)
+        .isThrownBy(() -> controller.deleteFileKey(request, program.id));
+  }
+
+  @Test
+  public void deleteFileKey_missingProgram_throws() {
+    Http.Request request =
+        addCSRFToken(
+                fakeRequest()
+                    .method("POST")
+                    .bodyForm(ImmutableMap.of("bucket", "fakeBucket", "key", "fakeFileKey")))
+            .build();
+
+    assertThatExceptionOfType(NotChangeableException.class)
+        .isThrownBy(() -> controller.deleteFileKey(request, /* programId= */ Long.MAX_VALUE));
+  }
+
+  @Test
+  public void deleteFileKey_noFileKeyPresent_stillNoKey() throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    controller.deleteFileKey(addCSRFToken(fakeRequest()).build(), program.id);
+
+    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    assertThat(updatedProgram.summaryImageFileKey().isEmpty()).isTrue();
+  }
+
+  @Test
+  public void deleteFileKey_hadFileKey_keyRemoved() throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    // First, add a key
+    controller.updateFileKey(
+        addCSRFToken(
+                fakeRequest(
+                    "POST",
+                    createUriWithQueryString(
+                        ImmutableMap.of(
+                            "bucket",
+                            "fakeBucket",
+                            "key",
+                            "program-summary-image/program-1/myImage"))))
+            .build(),
+        program.id);
+
+    ProgramDefinition programWithKey = programService.getProgramDefinition(program.id);
+    assertThat(programWithKey.summaryImageFileKey()).isNotEmpty();
+    assertThat(programWithKey.summaryImageFileKey().get())
+        .isEqualTo("program-summary-image/program-1/myImage");
+
+    // WHEN the delete method is invoked
+    controller.deleteFileKey(addCSRFToken(fakeRequest()).build(), program.id);
+
+    // THEN the key is removed
+    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    assertThat(updatedProgram.summaryImageFileKey()).isEmpty();
+  }
+
+  @Test
+  public void deleteFileKey_toastsSuccess() throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    // First, add a key
+    controller.updateFileKey(
+        addCSRFToken(
+                fakeRequest(
+                    "POST",
+                    createUriWithQueryString(
+                        ImmutableMap.of(
+                            "bucket",
+                            "fakeBucket",
+                            "key",
+                            "program-summary-image/program-1/myImage"))))
+            .build(),
+        program.id);
+
+    ProgramDefinition programWithKey = programService.getProgramDefinition(program.id);
+    assertThat(programWithKey.summaryImageFileKey()).isNotEmpty();
+    assertThat(programWithKey.summaryImageFileKey().get())
+        .isEqualTo("program-summary-image/program-1/myImage");
+
+    // WHEN the delete method is invoked
+    Result result = controller.deleteFileKey(addCSRFToken(fakeRequest()).build(), program.id);
+
+    // THEN a toast is shown
+    assertThat(result.flash().data()).containsOnlyKeys("success");
+    assertThat(result.flash().data().get("success")).contains("Image removed");
   }
 
   private String createUriWithQueryString(ImmutableMap<String, String> query) {

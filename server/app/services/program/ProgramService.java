@@ -937,6 +937,16 @@ public final class ProgramService {
         .getProgramDefinition();
   }
 
+  public ProgramDefinition deleteSummaryImageFileKey(long programId)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    programDefinition =
+        programDefinition.toBuilder().setSummaryImageFileKey(Optional.empty()).build();
+    return programRepository
+        .updateProgramSync(programDefinition.toProgram())
+        .getProgramDefinition();
+  }
+
   /**
    * Adds an empty {@link BlockDefinition} to the end of a given program.
    *

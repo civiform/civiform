@@ -14,6 +14,7 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
 import forms.admin.ProgramImageDescriptionForm;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
@@ -38,12 +39,14 @@ import services.cloud.StorageUploadRequest;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
 import views.applicant.ProgramCardViewRenderer;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.Modal;
 import views.components.ToastMessage;
 import views.components.breadcrumb.BreadcrumbFactory;
 import views.components.breadcrumb.BreadcrumbItem;
@@ -56,6 +59,7 @@ public final class ProgramImageView extends BaseHtmlView {
   private static final String IMAGE_DESCRIPTION_FORM_ID = "image-description-form";
   private static final String IMAGE_FILE_UPLOAD_FORM_ID = "image-file-upload-form";
   private static final String PAGE_TITLE = "Image upload";
+  private static final String DELETE_IMAGE_BUTTON_TEXT = "Delete image";
 
   private final AdminLayout layout;
   private final BreadcrumbFactory breadcrumbFactory;
@@ -113,10 +117,13 @@ public final class ProgramImageView extends BaseHtmlView {
                 div()
                     .withClasses("w-3/5", "mt-4")
                     .with(createImageDescriptionForm(request, programDefinition)));
+
+    ButtonTag deleteImageButton = createDeleteImageButton();
+    Modal deleteImageModal = createDeleteImageModal(request, programDefinition, deleteImageButton);
     DivTag imageUploadAndCurrentCardContainer =
         div()
             .withClasses("grid", "grid-cols-2", "gap-2", "w-full")
-            .with(createImageUploadForm(programDefinition))
+            .with(createImageUploadForm(programDefinition, deleteImageModal.getButton()))
             .with(renderCurrentProgramCard(request, programDefinition));
     mainContent.with(titleAndImageDescriptionContainer, imageUploadAndCurrentCardContainer);
 
@@ -124,7 +131,8 @@ public final class ProgramImageView extends BaseHtmlView {
         layout
             .getBundle(request)
             .setTitle(PAGE_TITLE)
-            .addMainContent(div().with(breadcrumbs, mainContent));
+            .addMainContent(div().with(breadcrumbs, mainContent))
+            .addModals(deleteImageModal);
 
     // TODO(#5676): This toast code is re-implemented across multiple controllers. Can we write a
     // helper method for it?
@@ -184,7 +192,7 @@ public final class ProgramImageView extends BaseHtmlView {
                 .withClass(ButtonStyles.SOLID_BLUE));
   }
 
-  private DivTag createImageUploadForm(ProgramDefinition program) {
+  private DivTag createImageUploadForm(ProgramDefinition program, ButtonTag deleteImageButton) {
     StorageUploadRequest storageUploadRequest = createStorageUploadRequest(program);
     FormTag form =
         fileUploadViewStrategy
@@ -205,17 +213,18 @@ public final class ProgramImageView extends BaseHtmlView {
             // for more context.
             .with(fileInputElement);
 
-    // TODO(#5676): Replace with final UX once we have it.
-    return div()
-        .with(fullForm)
-        .with(
-            submitButton("Save image")
-                .withForm(IMAGE_FILE_UPLOAD_FORM_ID)
-                .withClasses(ButtonStyles.SOLID_BLUE, "mb-2"))
-        .with(fileUploadViewStrategy.footerTags());
+    DivTag imageUploadForm =
+        div()
+            .with(fullForm)
+            .with(
+                submitButton("Save image")
+                    .withForm(IMAGE_FILE_UPLOAD_FORM_ID)
+                    .withClasses(ButtonStyles.SOLID_BLUE, "mb-2"))
+            .with(fileUploadViewStrategy.footerTags());
+
+    return div().with(imageUploadForm).with(deleteImageButton);
 
     // TODO(#5676): Warn admins of recommended image size and dimensions.
-    // TODO(#5676): Allow admins to remove an already-uploaded file.
   }
 
   private StorageUploadRequest createStorageUploadRequest(ProgramDefinition program) {
@@ -266,5 +275,30 @@ public final class ProgramImageView extends BaseHtmlView {
     // to ApplicantProgramsController#showWithApplicantId, which only allows access to the published
     // versions of programs. When editing a program image, the program is in *draft* form and has a
     // different ID, so ApplicantProgramsController prevents access.
+  }
+
+  private ButtonTag createDeleteImageButton() {
+    return ViewUtils.makeSvgTextButton(DELETE_IMAGE_BUTTON_TEXT, Icons.DELETE)
+        .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "mt-8");
+  }
+
+  private Modal createDeleteImageModal(
+      Http.Request request, ProgramDefinition program, ButtonTag deleteImageButton) {
+    FormTag deleteBlockForm =
+        form(makeCsrfTokenInputTag(request))
+            .withMethod(Http.HttpVerbs.POST)
+            .withAction(routes.AdminProgramImageController.deleteFileKey(program.id()).url())
+            .with(p("Once you delete this image, you'll need to re-upload a new image."))
+            .with(
+                submitButton(DELETE_IMAGE_BUTTON_TEXT)
+                    .withClasses(ButtonStyles.SOLID_BLUE, "mt-8"));
+
+    return Modal.builder()
+        .setModalId(Modal.randomModalId())
+        .setLocation(Modal.Location.ADMIN_FACING)
+        .setContent(deleteBlockForm)
+        .setModalTitle("Delete this program image?")
+        .setTriggerButtonContent(deleteImageButton)
+        .build();
   }
 }
