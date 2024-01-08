@@ -1,5 +1,6 @@
 package controllers.ti;
 
+import static play.mvc.Results.badRequest;
 import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 import static play.mvc.Results.redirect;
@@ -189,7 +190,7 @@ public final class TrustedIntermediaryController {
         formFactory.form(EditTiClientInfoForm.class).bindFromRequest(request);
     form = tiService.updateClientInfo(form, trustedIntermediaryGroup.get(), id);
     if (form.hasErrors()) {
-      return ok(
+      return badRequest(
           editTiClientView.render(
               trustedIntermediaryGroup.get(),
               ApplicantPersonalInfo.ofLoggedInUser(
@@ -212,7 +213,7 @@ public final class TrustedIntermediaryController {
         .flashing(
             "success",
             String.format(
-                "Successfully added new client: %s %s",
+                "Successfully updated client: %s %s",
                 form.value().get().getFirstName(), form.value().get().getLastName()));
   }
 

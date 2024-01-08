@@ -104,6 +104,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
 
   @Test
   public void testEditClient_ReturnsNotFound() {
+    resetDatabase();
     AccountModel account = createApplicantWithMockedProfile().getAccount();
     account.setEmailAddress("test@ReturnsNotfound");
     account.save();
@@ -141,7 +142,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                         "lastName",
                         "last",
                         "emailAddress",
-                        "sample2@fake.com",
+                        "testUpdate@fake.com",
                         "dob",
                         "2022-07-18")));
 
@@ -150,9 +151,9 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                 profileUtils.currentUserProfile(requestBuilder.build()).get())
             .get();
     Result result = tiController.addApplicant(trustedIntermediaryGroup.id, requestBuilder.build());
-    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
     Optional<ApplicantModel> testApplicant =
-        repo.lookupApplicantByEmail("sample2@fake.com").toCompletableFuture().join();
+        repo.lookupApplicantByEmail("testUpdate@fake.com").toCompletableFuture().join();
     AccountModel account = testApplicant.get().getAccount();
     account.setManagedByGroup(trustedIntermediaryGroup);
     account.save();
@@ -181,7 +182,8 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     Result result2 = tiController.updateClientInfo(account.id, request2);
 
     assertThat(result2.status()).isEqualTo(SEE_OTHER);
-    assertThat(repo.lookupAccountByEmail("tiTestSample@fake.com")).isEmpty();
+
+    assertThat(repo.lookupAccountByEmail("testUpdate@fake.com")).isEmpty();
     // assert email address
     assertThat(repo.lookupAccountByEmail("emailControllerSam")).isNotEmpty();
     AccountModel accountFinal = repo.lookupAccountByEmail("emailControllerSam").get();
