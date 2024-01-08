@@ -72,7 +72,7 @@ else
   cd formatter
 
   # Prefix each file with ../ and remove newlines. The newlines prevent printf from
-  # prefixi each line itself which is why this sed command is needed.
+  # prefix each line itself which is why this sed command is needed.
   prettier_file_list="$(printf "%s" "${modified_ts_json_md}" | sed 's/^/ ..\//' | tr -d '\n')"
 
   # The subshell printf statement should not be surrounded by quotes, in this case
