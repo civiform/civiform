@@ -72,11 +72,11 @@ else
   cd formatter
 
   # Prefix each file with ../ and remove newlines. The newlines prevent printf from
-  # prefix each line itself which is why this sed command is needed.
+  # prefixing each line itself which is why this sed command is needed.
   prettier_file_list="$(printf "%s" "${modified_ts_json_md}" | sed 's/^/ ..\//' | tr -d '\n')"
 
   # The prettier_file_list array should not be surrounded by quotes, in this case
-  # we want work splitting to occur so prettier will operate in each file. If
+  # we want word splitting to occur so prettier will operate in each file. If
   # quoted it gets treated as a single path.
   npx prettier \
     --write \
