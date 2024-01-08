@@ -110,7 +110,7 @@ while [ "${1:-}" != "" ]; do
       echo "  --browser-tests       CiviForm Browser Test"
       echo "  --dev                 CiviForm Development"
       echo "  --formatter           CiviForm Formatter"
-      echo "  --localstack          Localstack"
+      echo "  --localstack          Localstack (AWS emulator)"
       echo "  --mock-web-services   CiviForm Mock Web Services"
       echo "  --oidc-provider       CiviForm OIDC Provider"
       echo ""
