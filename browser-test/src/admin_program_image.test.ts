@@ -115,7 +115,7 @@ describe('Admin can manage program image', () => {
   // TODO(#5676): The program image files are stored in a new bucket in cloud storage,
   // so our deploy scripts need to create that new bucket. Ignore this test until
   // the deploy scripts are correctly updated (this test will fail otherwise).
-  xdescribe('image file upload', () => {
+  describe('image file upload', () => {
     const programName = 'Test program'
 
     beforeEach(async () => {
