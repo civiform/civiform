@@ -418,8 +418,10 @@ public final class ProgramApplicationView extends BaseHtmlView {
       StatusDefinitions.Status status) {
     InputTag sendEmailInput =
         input().withType("checkbox").withName(SEND_EMAIL).withClasses(BaseStyles.CHECKBOX);
-    Optional<String> maybeApplicantEmail =
+    Optional<String> maybeAccountEmail =
         Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
+    Optional<String> maybeApplicantEmail = application.getApplicant().getEmailAddress();
+
     if (status.localizedEmailBodyText().isEmpty()) {
       return div()
           .with(
@@ -431,7 +433,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                           " will not receive an email because there is no email content set for"
                               + " this status. Connect with your CiviForm Admin to add an email to"
                               + " this status.")));
-    } else if (maybeApplicantEmail.isEmpty()) {
+    } else if (maybeAccountEmail.isEmpty() && maybeApplicantEmail.isEmpty()) {
       return div()
           .with(
               sendEmailInput.isHidden(),
@@ -441,6 +443,16 @@ public final class ProgramApplicationView extends BaseHtmlView {
                           " will not receive an email for this change since they have not provided"
                               + " an email address.")));
     }
+
+    String emailString = "";
+    if (maybeAccountEmail.isEmpty() && maybeApplicantEmail.isPresent()) {
+        emailString = maybeApplicantEmail.orElse("");
+    } else if (maybeApplicantEmail.isEmpty() || maybeAccountEmail.get().equals(maybeApplicantEmail.get())) {
+        emailString = maybeAccountEmail.orElse("");
+    } else {
+        emailString = maybeAccountEmail.get() + " and " + maybeApplicantEmail.get();
+    }
+
     return label()
         .with(
             // Check by default when visible.
@@ -448,7 +460,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             span("Notify "),
             span(applicantNameWithApplicationId).withClass("font-semibold"),
             span(" of this change at "),
-            span(maybeApplicantEmail.orElse("")).withClass("font-semibold"));
+            span(emailString).withClass("font-semibold"));
   }
 
   private SpanTag renderSubmitTime(ApplicationModel application) {
