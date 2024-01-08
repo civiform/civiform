@@ -418,28 +418,18 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   public void deleteFileKey_programNotDraft_throws() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
 
-    Http.Request request =
-        addCSRFToken(
-                fakeRequest()
-                    .method("POST")
-                    .bodyForm(ImmutableMap.of("bucket", "fakeBucket", "key", "fakeFileKey")))
-            .build();
-
     assertThatExceptionOfType(NotChangeableException.class)
-        .isThrownBy(() -> controller.deleteFileKey(request, program.id));
+        .isThrownBy(
+            () -> controller.deleteFileKey(addCSRFToken(fakeRequest()).build(), program.id));
   }
 
   @Test
   public void deleteFileKey_missingProgram_throws() {
-    Http.Request request =
-        addCSRFToken(
-                fakeRequest()
-                    .method("POST")
-                    .bodyForm(ImmutableMap.of("bucket", "fakeBucket", "key", "fakeFileKey")))
-            .build();
-
     assertThatExceptionOfType(NotChangeableException.class)
-        .isThrownBy(() -> controller.deleteFileKey(request, /* programId= */ Long.MAX_VALUE));
+        .isThrownBy(
+            () ->
+                controller.deleteFileKey(
+                    addCSRFToken(fakeRequest()).build(), /* programId= */ Long.MAX_VALUE));
   }
 
   @Test

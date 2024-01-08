@@ -26,10 +26,21 @@ export class AdminProgramImage {
     await waitForPageJsLoad(this.page)
   }
 
+  /**
+   * Clicks the "Delete image" button on the main program image edit page,
+   * which will bring up the confirmation modal.
+   * {@link confirmDeleteImageButton} will need to be used afterwards to
+   * actually delete the image.
+   */
   async clickDeleteImageButton() {
     await this.page.click('button:has-text("Delete image")')
   }
 
+  /**
+   * Clicks the "Delete image" button in the confirmation modal.
+   *
+   * {@link clickDeleteImageButton} should be called first.
+   */
   async confirmDeleteImageButton() {
     await this.page.click('button[type="submit"]:has-text("Delete image")')
   }

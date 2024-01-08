@@ -937,6 +937,10 @@ public final class ProgramService {
         .getProgramDefinition();
   }
 
+  /**
+   * Removes the key used to fetch the given program's summary image from cloud storage so that
+   * there is no longer an image shown for the given program.
+   */
   public ProgramDefinition deleteSummaryImageFileKey(long programId)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);

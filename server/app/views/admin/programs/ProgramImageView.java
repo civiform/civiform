@@ -118,8 +118,7 @@ public final class ProgramImageView extends BaseHtmlView {
                     .withClasses("w-3/5", "mt-4")
                     .with(createImageDescriptionForm(request, programDefinition)));
 
-    ButtonTag deleteImageButton = createDeleteImageButton();
-    Modal deleteImageModal = createDeleteImageModal(request, programDefinition, deleteImageButton);
+    Modal deleteImageModal = createDeleteImageModal(request, programDefinition);
     DivTag imageUploadAndCurrentCardContainer =
         div()
             .withClasses("grid", "grid-cols-2", "gap-2", "w-full")
@@ -277,13 +276,10 @@ public final class ProgramImageView extends BaseHtmlView {
     // different ID, so ApplicantProgramsController prevents access.
   }
 
-  private ButtonTag createDeleteImageButton() {
-    return ViewUtils.makeSvgTextButton(DELETE_IMAGE_BUTTON_TEXT, Icons.DELETE)
-        .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "mt-8");
-  }
-
-  private Modal createDeleteImageModal(
-      Http.Request request, ProgramDefinition program, ButtonTag deleteImageButton) {
+  private Modal createDeleteImageModal(Http.Request request, ProgramDefinition program) {
+    ButtonTag deleteImageButton =
+        ViewUtils.makeSvgTextButton(DELETE_IMAGE_BUTTON_TEXT, Icons.DELETE)
+            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "mt-8");
     FormTag deleteBlockForm =
         form(makeCsrfTokenInputTag(request))
             .withMethod(Http.HttpVerbs.POST)
