@@ -55,14 +55,15 @@ public final class PdfExporter {
    * inMemoryPDF object. The InMemoryPdf object is passed back to the AdminController Class to
    * generate the required PDF.
    */
-  public InMemoryPdf export(ApplicationModel application, boolean showEligibilityText)
+  public InMemoryPdf export(
+      ApplicationModel application, boolean showEligibilityText, boolean includeHiddenBlocks)
       throws DocumentException, IOException {
     ReadOnlyApplicantProgramService roApplicantService =
         applicantService
             .getReadOnlyApplicantProgramService(application)
             .toCompletableFuture()
             .join();
-    ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
+    ImmutableList<AnswerData> answers = roApplicantService.getSummaryData(includeHiddenBlocks);
 
     // We expect a name to be present at this point. However, if it's not, we use a placeholder
     // rather than throwing an error here.

@@ -270,7 +270,7 @@ public final class AdminApplicationController extends CiviFormController {
     }
     ApplicationModel application = applicationMaybe.get();
     PdfExporter.InMemoryPdf pdf =
-        pdfExporterService.generatePdf(application, /* showEligibilityText= */ true);
+        pdfExporterService.generatePdf(application, /* showEligibilityText= */ true, true);
     return ok(pdf.getByteArray())
         .as("application/pdf")
         .withHeader(
@@ -310,8 +310,12 @@ public final class AdminApplicationController extends CiviFormController {
             .getReadOnlyApplicantProgramService(application)
             .toCompletableFuture()
             .join();
-    ImmutableList<Block> blocks = roApplicantService.getAllActiveBlocks();
-    ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
+    ImmutableList.Builder<Block> builder = new ImmutableList.Builder<>();
+    ImmutableList<Block> activeBlocks = roApplicantService.getAllActiveBlocks();
+    ImmutableList<Block> hiddenBlocks = roApplicantService.getAllHiddenBlocks();
+    builder.addAll(activeBlocks).addAll(hiddenBlocks);
+    ImmutableList<Block> allBlocks = builder.build();
+    ImmutableList<AnswerData> answers = roApplicantService.getSummaryData(true);
     Optional<String> noteMaybe = programAdminApplicationService.getNote(application);
 
     return ok(
@@ -320,7 +324,7 @@ public final class AdminApplicationController extends CiviFormController {
             programName,
             application,
             applicantNameWithApplicationId,
-            blocks,
+            allBlocks,
             answers,
             program.statusDefinitions(),
             noteMaybe,

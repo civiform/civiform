@@ -18,10 +18,10 @@ public final class PdfExporterService {
   }
 
   public PdfExporter.InMemoryPdf generatePdf(
-      ApplicationModel application, boolean showEligibilityText) {
+      ApplicationModel application, boolean showEligibilityText, boolean includeHiddenBlocks) {
     PdfExporter.InMemoryPdf pdf;
     try {
-      pdf = pdfExporter.export(application, showEligibilityText);
+      pdf = pdfExporter.export(application, showEligibilityText, includeHiddenBlocks);
     } catch (DocumentException | IOException e) {
       throw new RuntimeException(e);
     }

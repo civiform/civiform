@@ -286,12 +286,17 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return programDefinition.getSupportedLocales().contains(applicantData.preferredLocale());
   }
 
+  /** default not including hidden blocks */
   @Override
   public ImmutableList<AnswerData> getSummaryData() {
+    return getSummaryData(false);
+  }
+
+  @Override
+  public ImmutableList<AnswerData> getSummaryData(boolean includeHiddenBlocks) {
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> blocks = getAllActiveBlocks();
-    ImmutableList<Block> hiddenBlock = getAllHiddenBlocks();
     for (Block block : blocks) {
       ImmutableList<ApplicantQuestion> questions = block.getQuestions();
       for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
@@ -343,55 +348,58 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         builder.add(data);
       }
     }
-    for (Block block : hiddenBlock) {
-      ImmutableList<ApplicantQuestion> questions = block.getQuestions();
-      for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
-        ApplicantQuestion applicantQuestion = questions.get(questionIndex);
-        // Don't include static content in summary data.
-        if (applicantQuestion.getType().equals(QuestionType.STATIC)) {
-          continue;
+    if (includeHiddenBlocks) {
+      ImmutableList<Block> hiddenBlock = getAllHiddenBlocks();
+      for (Block block : hiddenBlock) {
+        ImmutableList<ApplicantQuestion> questions = block.getQuestions();
+        for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
+          ApplicantQuestion applicantQuestion = questions.get(questionIndex);
+          // Don't include static content in summary data.
+          if (applicantQuestion.getType().equals(QuestionType.STATIC)) {
+            continue;
+          }
+          boolean isAnswered = applicantQuestion.isAnswered();
+          boolean isEligible = isQuestionEligibleInHiddenBlock(block, applicantQuestion);
+          String questionText = applicantQuestion.getQuestionText();
+          String questionTextForScreenReader = applicantQuestion.getQuestionTextForScreenReader();
+          String answerText = "N/A";
+          Optional<Long> timestamp = applicantQuestion.getLastUpdatedTimeMetadata();
+          Optional<Long> updatedProgram = applicantQuestion.getUpdatedInProgramMetadata();
+          Optional<String> originalFileName = Optional.empty();
+          Optional<String> encodedFileKey = Optional.empty();
+          if (isAnswered && applicantQuestion.isFileUploadQuestion()) {
+            FileUploadQuestion fileUploadQuestion = applicantQuestion.createFileUploadQuestion();
+            originalFileName = fileUploadQuestion.getOriginalFileName();
+            encodedFileKey =
+                fileUploadQuestion
+                    .getFileKeyValue()
+                    .map((fileKey) -> URLEncoder.encode(fileKey, StandardCharsets.UTF_8));
+          }
+          boolean isPreviousResponse =
+              updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
+          AnswerData data =
+              AnswerData.builder()
+                  .setProgramId(programDefinition.id())
+                  .setBlockId(block.getId())
+                  .setContextualizedPath(applicantQuestion.getContextualizedPath())
+                  .setQuestionDefinition(applicantQuestion.getQuestionDefinition())
+                  .setApplicantQuestion(applicantQuestion)
+                  .setRepeatedEntity(block.getRepeatedEntity())
+                  .setQuestionIndex(questionIndex)
+                  .setQuestionText(questionText)
+                  .setQuestionTextForScreenReader(questionTextForScreenReader)
+                  .setIsAnswered(isAnswered)
+                  .setIsEligible(isEligible)
+                  .setEligibilityIsGating(programDefinition.eligibilityIsGating())
+                  .setAnswerText(answerText)
+                  .setEncodedFileKey(encodedFileKey)
+                  .setOriginalFileName(originalFileName)
+                  .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
+                  .setIsPreviousResponse(isPreviousResponse)
+                  .setScalarAnswersInDefaultLocale(getScalarAnswers(applicantQuestion))
+                  .build();
+          builder.add(data);
         }
-        boolean isAnswered = applicantQuestion.isAnswered();
-        boolean isEligible = isQuestionEligibleInHiddenBlock(block, applicantQuestion);
-        String questionText = applicantQuestion.getQuestionText();
-        String questionTextForScreenReader = applicantQuestion.getQuestionTextForScreenReader();
-        String answerText = "N/A";
-        Optional<Long> timestamp = applicantQuestion.getLastUpdatedTimeMetadata();
-        Optional<Long> updatedProgram = applicantQuestion.getUpdatedInProgramMetadata();
-        Optional<String> originalFileName = Optional.empty();
-        Optional<String> encodedFileKey = Optional.empty();
-        if (isAnswered && applicantQuestion.isFileUploadQuestion()) {
-          FileUploadQuestion fileUploadQuestion = applicantQuestion.createFileUploadQuestion();
-          originalFileName = fileUploadQuestion.getOriginalFileName();
-          encodedFileKey =
-              fileUploadQuestion
-                  .getFileKeyValue()
-                  .map((fileKey) -> URLEncoder.encode(fileKey, StandardCharsets.UTF_8));
-        }
-        boolean isPreviousResponse =
-            updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
-        AnswerData data =
-            AnswerData.builder()
-                .setProgramId(programDefinition.id())
-                .setBlockId(block.getId())
-                .setContextualizedPath(applicantQuestion.getContextualizedPath())
-                .setQuestionDefinition(applicantQuestion.getQuestionDefinition())
-                .setApplicantQuestion(applicantQuestion)
-                .setRepeatedEntity(block.getRepeatedEntity())
-                .setQuestionIndex(questionIndex)
-                .setQuestionText(questionText)
-                .setQuestionTextForScreenReader(questionTextForScreenReader)
-                .setIsAnswered(isAnswered)
-                .setIsEligible(isEligible)
-                .setEligibilityIsGating(programDefinition.eligibilityIsGating())
-                .setAnswerText(answerText)
-                .setEncodedFileKey(encodedFileKey)
-                .setOriginalFileName(originalFileName)
-                .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
-                .setIsPreviousResponse(isPreviousResponse)
-                .setScalarAnswersInDefaultLocale(getScalarAnswers(applicantQuestion))
-                .build();
-        builder.add(data);
       }
     }
     return builder.build();
