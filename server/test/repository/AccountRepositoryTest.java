@@ -35,22 +35,10 @@ public class AccountRepositoryTest extends ResetPostgres {
   public static final String AUTHORITY_ID = "I'm an authority ID";
 
   private AccountRepository repo;
-  public ApplicantModel applicantUpdateTest;
-  public ApplicantData applicantDateUpdateTest;
-  public AccountModel accountUpdateTest;
 
   @Before
   public void setupApplicantRepository() {
     repo = instanceOf(AccountRepository.class);
-    accountUpdateTest = new AccountModel();
-    accountUpdateTest.setEmailAddress("test@test.com");
-    accountUpdateTest.save();
-    applicantUpdateTest = new ApplicantModel();
-    applicantUpdateTest.setAccount(accountUpdateTest);
-    applicantDateUpdateTest = applicantUpdateTest.getApplicantData();
-    applicantDateUpdateTest.setUserName("Jane", "", "Doe");
-    applicantDateUpdateTest.setDateOfBirth("2022-10-10");
-    applicantUpdateTest.save();
   }
 
   @Test
@@ -62,6 +50,7 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   @Test
   public void updateClientEmail_ThrowsEmailExistsException() {
+    setupAccountForUpdateTest();
     AccountModel account = new AccountModel();
     account.setEmailAddress("test1@test.com");
     account.save();
@@ -71,26 +60,35 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   @Test
   public void updateClientNameTest() {
+    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
     repo.updateClientName("John", "", "Dow", applicantUpdateTest);
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName()).isEqualTo("Dow");
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName()).isEqualTo("");
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName()).isEqualTo("John");
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName().get())
+        .isEqualTo("Dow");
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName()).isEmpty();
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
+        .isEqualTo("John");
   }
 
   @Test
   public void updateDobTest() {
+    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
     repo.updateClientDob("2023-12-12", applicantUpdateTest);
-    assertThat(applicantUpdateTest.getApplicantData().getDateOfBirth()).isEqualTo("2023-12-12");
+    assertThat(applicantUpdateTest.getApplicantData().getDateOfBirth().get())
+        .isEqualTo("2023-12-12");
   }
 
   @Test
   public void updatePhoneNumberTest() {
+    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
     repo.updateClientPhoneNumber("4259746144", applicantUpdateTest);
-    assertThat(applicantUpdateTest.getApplicantData().getPhoneNumber()).isEqualTo("4259746144");
+    assertThat(applicantUpdateTest.getApplicantData().getPhoneNumber().get())
+        .isEqualTo("4259746144");
   }
 
   @Test
   public void updateTiNoteTest() {
+
+    AccountModel accountUpdateTest = setupAccountForUpdateTest();
     repo.updateClientTiNote("this is notes", accountUpdateTest);
     assertThat(accountUpdateTest.getTiNote()).isEqualTo("this is notes");
   }
@@ -385,5 +383,21 @@ public class AccountRepositoryTest extends ResetPostgres {
         .putString(Path.create("$." + WellKnownPaths.APPLICANT_FIRST_NAME.toString()), name);
     applicant.save();
     return applicant;
+  }
+
+  private ApplicantModel setupApplicantForUpdateTest() {
+    ApplicantModel applicantUpdateTest = new ApplicantModel();
+    ApplicantData applicantDateUpdateTest = applicantUpdateTest.getApplicantData();
+    applicantDateUpdateTest.setUserName("Jane", "", "Doe");
+    applicantDateUpdateTest.setDateOfBirth("2022-10-10");
+    applicantUpdateTest.save();
+    return applicantUpdateTest;
+  }
+
+  private AccountModel setupAccountForUpdateTest() {
+    AccountModel accountUpdateTest = new AccountModel();
+    accountUpdateTest.setEmailAddress("test@test.com");
+    accountUpdateTest.save();
+    return accountUpdateTest;
   }
 }

@@ -476,7 +476,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
-  public void editTiClientInfo_PhoneNumberNotDigitsValidationFail()
+  public void editTiClientInfo_PhoneNumberNonDigitsValidationFail()
       throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
@@ -501,7 +501,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     Form<EditTiClientInfoForm> returnForm = service.updateClientInfo(form, tiGroup, testAccount.id);
     assertThat(returnForm.error("phoneNumber").get().message())
-        .isEqualTo("A phone number must contain 10 digits");
+        .isEqualTo("A phone number must contain only digits");
   }
 
   @Test

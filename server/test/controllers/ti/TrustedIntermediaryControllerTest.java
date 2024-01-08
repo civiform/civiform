@@ -3,6 +3,7 @@ package controllers.ti;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
+import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.fakeRequest;
@@ -102,6 +103,31 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void testEditClient_ReturnsNotFound() {
+    AccountModel account = createApplicantWithMockedProfile().getAccount();
+    account.setEmailAddress("test@ReturnsNotfound");
+    account.save();
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(
+            Helpers.fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "first",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "last",
+                        "emailAddress",
+                        "sample1@fake.com",
+                        "dob",
+                        "")));
+    Http.Request request = requestBuilder.build();
+    Result result = tiController.editClient(account.id, request);
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
   public void testUpdateClientInfo_AllFieldsUpdated() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
@@ -124,7 +150,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                 profileUtils.currentUserProfile(requestBuilder.build()).get())
             .get();
     Result result = tiController.addApplicant(trustedIntermediaryGroup.id, requestBuilder.build());
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(OK);
     Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail("sample2@fake.com").toCompletableFuture().join();
     AccountModel account = testApplicant.get().getAccount();
@@ -154,7 +180,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     Http.Request request2 = requestBuilder2.build();
     Result result2 = tiController.updateClientInfo(account.id, request2);
 
-    assertThat(result2.status()).isEqualTo(OK);
+    assertThat(result2.status()).isEqualTo(SEE_OTHER);
     assertThat(repo.lookupAccountByEmail("tiTestSample@fake.com")).isEmpty();
     // assert email address
     assertThat(repo.lookupAccountByEmail("emailControllerSam")).isNotEmpty();
