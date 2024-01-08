@@ -75,15 +75,15 @@ else
   # prefix each line itself which is why this sed command is needed.
   prettier_file_list="$(printf "%s" "${modified_ts_json_md}" | sed 's/^/ ..\//' | tr -d '\n')"
 
-  # The subshell printf statement should not be surrounded by quotes, in this case
+  # The prettier_file_list array should not be surrounded by quotes, in this case
   # we want work splitting to occur so prettier will operate in each file. If
-  # quotes it gets treated as a single path.
+  # quoted it gets treated as a single path.
   npx prettier \
     --write \
     --config ../.prettierrc.js \
     --ignore-path ../.prettierignore \
     --ignore-unknown \
-    -- $(printf "%s" "${prettier_file_list[@]}")
+    -- ${prettier_file_list[@]}
 
   cd ..
   echo 'Done formatting with prettier'
