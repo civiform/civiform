@@ -143,10 +143,11 @@ public final class TrustedIntermediaryService {
     if (Strings.isNullOrEmpty(phoneNumber)) {
       return form;
     }
+    //remove '(',')' and '-' from the phone number
+    phoneNumber = phoneNumber.replaceAll("[^0-9]", "");
     if (!phoneNumber.matches("[0-9]+")) {
       return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain only digits");
     }
-    phoneNumber = phoneNumber.replaceAll("[^0-9]", "");
     if (phoneNumber.length() != 10) {
       return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain only 10 digits");
     }

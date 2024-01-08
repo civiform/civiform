@@ -190,7 +190,7 @@ public final class TrustedIntermediaryController {
         formFactory.form(EditTiClientInfoForm.class).bindFromRequest(request);
     form = tiService.updateClientInfo(form, trustedIntermediaryGroup.get(), id);
     if (form.hasErrors()) {
-      return badRequest(
+      return ok(
           editTiClientView.render(
               trustedIntermediaryGroup.get(),
               ApplicantPersonalInfo.ofLoggedInUser(
