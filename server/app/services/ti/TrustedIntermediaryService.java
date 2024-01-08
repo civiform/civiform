@@ -143,12 +143,12 @@ public final class TrustedIntermediaryService {
     if (Strings.isNullOrEmpty(phoneNumber)) {
       return form;
     }
-    phoneNumber = phoneNumber.replaceAll("[^0-9]", "");
-    if (phoneNumber.length() != 10) {
-      return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain 10 digits");
-    }
     if (!phoneNumber.matches("[0-9]+")) {
       return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain only digits");
+    }
+    phoneNumber = phoneNumber.replaceAll("[^0-9]", "");
+    if (phoneNumber.length() != 10) {
+      return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain only 10 digits");
     }
     try {
       Phonenumber.PhoneNumber phonenumber = PHONE_NUMBER_UTIL.parse(phoneNumber, "US");

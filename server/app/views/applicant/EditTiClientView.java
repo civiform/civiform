@@ -30,7 +30,7 @@ import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 
-/**  Renders a page for a trusted intermediary to edit a client */
+/** Renders a page for a trusted intermediary to edit a client */
 public class EditTiClientView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final DateConverter dateConverter;

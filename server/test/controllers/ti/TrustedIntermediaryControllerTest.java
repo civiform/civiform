@@ -69,6 +69,11 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail("sample3@fake.com").toCompletableFuture().join();
     AccountModel account = testApplicant.get().getAccount();
+    TrustedIntermediaryGroupModel tiGroup2 =
+        repo.createNewTrustedIntermediaryGroup("testGroup", "Unit Testing Group");
+    account.setManagedByGroup(tiGroup2);
+    account.save();
+
     assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2022-07-18");
     Http.RequestBuilder requestBuilder2 =
@@ -232,33 +237,34 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2022-07-18");
   }
+
   private AccountModel setupForEditUpdateClient(String email) {
     Http.RequestBuilder requestBuilder =
-      addCSRFToken(
-        Helpers.fakeRequest()
-          .bodyForm(
-            ImmutableMap.of(
-              "firstName",
-              "first",
-              "middleName",
-              "middle",
-              "lastName",
-              "last",
-              "emailAddress",
-              email,
-              "dob",
-              "2022-07-18")));
+        addCSRFToken(
+            Helpers.fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "first",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "last",
+                        "emailAddress",
+                        email,
+                        "dob",
+                        "2022-07-18")));
 
     TrustedIntermediaryGroupModel trustedIntermediaryGroup =
-      repo.getTrustedIntermediaryGroup(
-          profileUtils.currentUserProfile(requestBuilder.build()).get())
-        .get();
+        repo.getTrustedIntermediaryGroup(
+                profileUtils.currentUserProfile(requestBuilder.build()).get())
+            .get();
     Result result = tiController.addApplicant(trustedIntermediaryGroup.id, requestBuilder.build());
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     Optional<ApplicantModel> testApplicant =
-      repo.lookupApplicantByEmail(email).toCompletableFuture().join();
+        repo.lookupApplicantByEmail(email).toCompletableFuture().join();
     assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
-      .isEqualTo("2022-07-18");
+        .isEqualTo("2022-07-18");
     AccountModel account = repo.lookupAccountByEmail(email).get();
     return account;
   }

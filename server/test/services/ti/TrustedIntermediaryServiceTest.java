@@ -350,6 +350,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     assertThat(tiResult.getErrorMessage().get())
         .isEqualTo("Please enter date in MM/dd/yyyy format");
   }
+
   @Test
   public void editTiClientInfo_AllPass_NameEmailUpdate() throws ApplicantNotFoundException {
     AccountModel account = setupTiClientAccount("emailOld", tiGroup);
@@ -415,7 +416,35 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
     Form<EditTiClientInfoForm> returnForm = service.updateClientInfo(form, tiGroup, testAccount.id);
     assertThat(returnForm.error("phoneNumber").get().message())
-        .isEqualTo("A phone number must contain 10 digits");
+        .isEqualTo("A phone number must contain only 10 digits");
+  }
+
+  @Test
+  public void editTiClientInfo_PhoneNonDigitValidationFail() throws ApplicantNotFoundException {
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(
+            fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "clientFirst",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "ClientLast",
+                        "dob",
+                        "2022-07-07",
+                        "emailAddress",
+                        "email2123",
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "42598790UI")));
+    Form<EditTiClientInfoForm> form =
+        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<EditTiClientInfoForm> returnForm = service.updateClientInfo(form, tiGroup, testAccount.id);
+    assertThat(returnForm.error("phoneNumber").get().message())
+        .isEqualTo("A phone number must contain only digits");
   }
 
   @Test
@@ -593,8 +622,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         .isInstanceOf(ApplicantNotFoundException.class)
         .hasMessage("Applicant not found for ID 1");
   }
+
   private void setupTiClientAccountWithApplicant(
-    String firstName, String dob, String email, TrustedIntermediaryGroupModel tiGroup) {
+      String firstName, String dob, String email, TrustedIntermediaryGroupModel tiGroup) {
     AccountModel account = new AccountModel();
     account.setEmailAddress(email);
     account.setManagedByGroup(tiGroup);
