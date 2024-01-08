@@ -43,7 +43,7 @@ function get_modified_ts_json_and_md_files() {
   (
     get_tracked_modified_files
     get_untracked_files
-  ) | grep -E ".+\.(ts|json|md)$"
+  ) | grep -E ".+\.(ts|json|md)$" || true
 }
 
 function get_modified_python_files() {
@@ -58,12 +58,6 @@ if [[ -z $(get_modified_java_files) ]]; then
 else
   echo 'Start format java'
   java -jar /fmt.jar --replace $(get_modified_java_files)
-
-  if [[ $? != 0 ]]; then
-    printf "Java formatter failed. Tried formatting these files: %s" "$(get_modified_java_files)"
-    exit 1
-  fi
-
   echo 'Done formatting java'
 fi
 
@@ -88,11 +82,6 @@ else
     --ignore-path ../.prettierignore \
     --ignore-unknown \
     -- $(printf "%s" "${prettier_file_list[@]}")
-
-  if [[ $? != 0 ]]; then
-    printf "Prettier failed. Tried formatting these files: %s" "${prettier_file_list[@]}"
-    exit 1
-  fi
 
   cd ..
   echo 'Done formatting with prettier'
