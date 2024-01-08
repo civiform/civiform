@@ -10,3 +10,7 @@ database:
 i18n:
   - changed-files:
       - any-glob-to-any-file: 'server/conf/i18n/*'
+
+ignore-for-release:
+  - changed-files:
+      - any-glob-to-any-file: '.github/**/*'
