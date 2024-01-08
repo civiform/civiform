@@ -139,10 +139,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return !predicate.isEmpty();
   }
 
+  @Override
   public boolean isHiddenBlockEligible(String blockId) {
     Block block = getHiddenBlock(blockId).get();
     Optional<PredicateDefinition> predicate =
-      block.getEligibilityDefinition().map(EligibilityDefinition::predicate);
+        block.getEligibilityDefinition().map(EligibilityDefinition::predicate);
     // No eligibility criteria means the block is eligible.
     if (predicate.isEmpty()) {
       return true;
@@ -225,10 +226,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return questionList.stream().distinct().collect(toImmutableList());
   }
 
+  @Override
   public Optional<Block> getHiddenBlock(String blockId) {
     return getAllHiddenBlocks().stream()
-      .filter((block) -> block.getId().equals(blockId))
-      .findFirst();
+        .filter((block) -> block.getId().equals(blockId))
+        .findFirst();
   }
 
   @Override
@@ -361,33 +363,33 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
           FileUploadQuestion fileUploadQuestion = applicantQuestion.createFileUploadQuestion();
           originalFileName = fileUploadQuestion.getOriginalFileName();
           encodedFileKey =
-            fileUploadQuestion
-              .getFileKeyValue()
-              .map((fileKey) -> URLEncoder.encode(fileKey, StandardCharsets.UTF_8));
+              fileUploadQuestion
+                  .getFileKeyValue()
+                  .map((fileKey) -> URLEncoder.encode(fileKey, StandardCharsets.UTF_8));
         }
         boolean isPreviousResponse =
-          updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
+            updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
         AnswerData data =
-          AnswerData.builder()
-            .setProgramId(programDefinition.id())
-            .setBlockId(block.getId())
-            .setContextualizedPath(applicantQuestion.getContextualizedPath())
-            .setQuestionDefinition(applicantQuestion.getQuestionDefinition())
-            .setApplicantQuestion(applicantQuestion)
-            .setRepeatedEntity(block.getRepeatedEntity())
-            .setQuestionIndex(questionIndex)
-            .setQuestionText(questionText)
-            .setQuestionTextForScreenReader(questionTextForScreenReader)
-            .setIsAnswered(isAnswered)
-            .setIsEligible(isEligible)
-            .setEligibilityIsGating(programDefinition.eligibilityIsGating())
-            .setAnswerText(answerText)
-            .setEncodedFileKey(encodedFileKey)
-            .setOriginalFileName(originalFileName)
-            .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
-            .setIsPreviousResponse(isPreviousResponse)
-            .setScalarAnswersInDefaultLocale(getScalarAnswers(applicantQuestion))
-            .build();
+            AnswerData.builder()
+                .setProgramId(programDefinition.id())
+                .setBlockId(block.getId())
+                .setContextualizedPath(applicantQuestion.getContextualizedPath())
+                .setQuestionDefinition(applicantQuestion.getQuestionDefinition())
+                .setApplicantQuestion(applicantQuestion)
+                .setRepeatedEntity(block.getRepeatedEntity())
+                .setQuestionIndex(questionIndex)
+                .setQuestionText(questionText)
+                .setQuestionTextForScreenReader(questionTextForScreenReader)
+                .setIsAnswered(isAnswered)
+                .setIsEligible(isEligible)
+                .setEligibilityIsGating(programDefinition.eligibilityIsGating())
+                .setAnswerText(answerText)
+                .setEncodedFileKey(encodedFileKey)
+                .setOriginalFileName(originalFileName)
+                .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
+                .setIsPreviousResponse(isPreviousResponse)
+                .setScalarAnswersInDefaultLocale(getScalarAnswers(applicantQuestion))
+                .build();
         builder.add(data);
       }
     }
@@ -406,22 +408,18 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         programDefinition.getNonRepeatedBlockDefinitions(),
         emptyBlockIdSuffix,
         Optional.empty(),
-        includeBlockIfTrue);
+        includeBlockIfTrue,
+        false);
   }
 
-  /**
-   * Gets {@link Block}s for this program and applicant. If {@code onlyIncludeInProgressBlocks} is
-   * true, then only the current blocks will be included in the list. A block is "in progress" if it
-   * has yet to be filled out by the applicant, or if it was filled out in the context of this
-   * program.
-   */
   private ImmutableList<Block> getHiddenBlocks(Predicate<Block> includeBlockIfTrue) {
     String emptyBlockIdSuffix = "";
-    return getHiddenBlocks(
-      programDefinition.getNonRepeatedBlockDefinitions(),
-      emptyBlockIdSuffix,
-      Optional.empty(),
-      includeBlockIfTrue);
+    return getBlocks(
+        programDefinition.getNonRepeatedBlockDefinitions(),
+        emptyBlockIdSuffix,
+        Optional.empty(),
+        includeBlockIfTrue,
+        true);
   }
 
   /**
@@ -440,69 +438,12 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   private boolean isQuestionEligibleInHiddenBlock(Block block, ApplicantQuestion question) {
     return isHiddenBlockEligible(block.getId())
-      || !block
-      .getEligibilityDefinition()
-      .get()
-      .predicate()
-      .getQuestions()
-      .contains(question.getQuestionDefinition().getId());
-  }
-
-  /*return a list of blocks hidden*/
-  private ImmutableList<Block> getHiddenBlocks(
-    ImmutableList<BlockDefinition> blockDefinitions,
-    String blockIdSuffix,
-    Optional<RepeatedEntity> maybeRepeatedEntity,
-    Predicate<Block> includeBlockIfTrue) {
-    ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
-    for (BlockDefinition blockDefinition : blockDefinitions) {
-      // Create and maybe include the block for this block definition.
-      Block block =
-        new Block(
-          blockDefinition.id() + blockIdSuffix,
-          blockDefinition,
-          applicantData,
-          maybeRepeatedEntity);
-
-      if (!includeBlockIfTrue.test(block)) {
-        blockListBuilder.add(block);
-      }
-
-      // For an enumeration block definition, build blocks for its repeated questions
-      if (blockDefinition.isEnumerator()) {
-        // Get all the repeated entities enumerated by this enumerator question.
-        EnumeratorQuestionDefinition enumeratorQuestionDefinition =
-          blockDefinition.getEnumerationQuestionDefinition();
-        ImmutableList<RepeatedEntity> repeatedEntities =
-          maybeRepeatedEntity
-            .map(
-              e ->
-                e.createNestedRepeatedEntities(
-                  enumeratorQuestionDefinition,
-                  block.getVisibilityPredicate(),
-                  applicantData))
-            .orElse(
-              RepeatedEntity.createRepeatedEntities(
-                enumeratorQuestionDefinition,
-                block.getVisibilityPredicate(),
-                applicantData));
-        // For each repeated entity, recursively build blocks for all the repeated blocks of this
-        // enumerator block.
-        ImmutableList<BlockDefinition> repeatedBlockDefinitions =
-          programDefinition.getBlockDefinitionsForEnumerator(blockDefinition.id());
-        for (int i = 0; i < repeatedEntities.size(); i++) {
-          String nextBlockIdSuffix = String.format("%s-%d", blockIdSuffix, i);
-          blockListBuilder.addAll(
-            getHiddenBlocks(
-              repeatedBlockDefinitions,
-              nextBlockIdSuffix,
-              Optional.of(repeatedEntities.get(i)),
-              includeBlockIfTrue));
-        }
-      }
-    }
-
-    return blockListBuilder.build();
+        || !block
+            .getEligibilityDefinition()
+            .get()
+            .predicate()
+            .getQuestions()
+            .contains(question.getQuestionDefinition().getId());
   }
 
   /**
@@ -512,7 +453,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       ImmutableList<BlockDefinition> blockDefinitions,
       String blockIdSuffix,
       Optional<RepeatedEntity> maybeRepeatedEntity,
-      Predicate<Block> includeBlockIfTrue) {
+      Predicate<Block> includeBlockIfTrue,
+      boolean includeHidden) {
     ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
 
     for (BlockDefinition blockDefinition : blockDefinitions) {
@@ -523,7 +465,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
               blockDefinition,
               applicantData,
               maybeRepeatedEntity);
-      if (includeBlockIfTrue.test(block)) {
+      if ((includeBlockIfTrue.test(block) && !includeHidden)
+          || (!includeBlockIfTrue.test(block) && includeHidden)) {
         blockListBuilder.add(block);
       }
 
@@ -556,7 +499,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                   repeatedBlockDefinitions,
                   nextBlockIdSuffix,
                   Optional.of(repeatedEntities.get(i)),
-                  includeBlockIfTrue));
+                  includeBlockIfTrue,
+                  includeHidden));
         }
       }
     }
