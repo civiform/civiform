@@ -166,7 +166,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public ImmutableList<Block> getAllActiveBlocks() {
     if (allActiveBlockList == null) {
-      allActiveBlockList = getBlocks(this::showBlock);
+      allActiveBlockList = getBlocks(this::showBlock, false);
     }
     return allActiveBlockList;
   }
@@ -174,7 +174,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public ImmutableList<Block> getAllHiddenBlocks() {
     if (allHiddenBlockList == null) {
-      allHiddenBlockList = getHiddenBlocks(this::showBlock);
+      allHiddenBlockList = getBlocks(this::showBlock, true);
     }
     return allHiddenBlockList;
   }
@@ -196,7 +196,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                   (!block.isAnsweredWithoutErrors()
                           || block.wasAnsweredInProgram(programDefinition.id())
                           || block.containsStatic())
-                      && showBlock(block));
+                      && showBlock(block),
+              false);
     }
     return currentBlockList;
   }
@@ -402,24 +403,15 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
    * has yet to be filled out by the applicant, or if it was filled out in the context of this
    * program.
    */
-  private ImmutableList<Block> getBlocks(Predicate<Block> includeBlockIfTrue) {
+  private ImmutableList<Block> getBlocks(
+      Predicate<Block> includeBlockIfTrue, boolean includeHidden) {
     String emptyBlockIdSuffix = "";
     return getBlocks(
         programDefinition.getNonRepeatedBlockDefinitions(),
         emptyBlockIdSuffix,
         Optional.empty(),
         includeBlockIfTrue,
-        false);
-  }
-
-  private ImmutableList<Block> getHiddenBlocks(Predicate<Block> includeBlockIfTrue) {
-    String emptyBlockIdSuffix = "";
-    return getBlocks(
-        programDefinition.getNonRepeatedBlockDefinitions(),
-        emptyBlockIdSuffix,
-        Optional.empty(),
-        includeBlockIfTrue,
-        true);
+        includeHidden);
   }
 
   /**

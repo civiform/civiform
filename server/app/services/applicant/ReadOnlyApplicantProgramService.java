@@ -74,6 +74,7 @@ public interface ReadOnlyApplicantProgramService {
   /** Get the block with the given block ID */
   Optional<Block> getBlock(String blockId);
 
+  /** Get the hidden block with the given block ID */
   Optional<Block> getHiddenBlock(String blockId);
 
   /**
@@ -117,6 +118,7 @@ public interface ReadOnlyApplicantProgramService {
   /** Returns if the block has an eligibility predicate. */
   boolean blockHasEligibilityPredicate(String blockId);
 
+  /** Returns if the hidden block eligibility criteria are met. */
   boolean isHiddenBlockEligible(String blockId);
 
   /** Returns if the block eligibility criteria are met. */
