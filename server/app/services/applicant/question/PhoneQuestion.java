@@ -6,9 +6,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
+
 import java.util.Optional;
 import services.MessageKey;
 import services.Path;
+import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.types.PhoneQuestionDefinition;
@@ -83,21 +85,18 @@ public final class PhoneQuestion extends Question {
     return ImmutableSet.of();
   }
 
-  private boolean containsPhoneTag() {
-    return applicantQuestion.getQuestionDefinition().containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_PHONE);
-  }
-
   public Optional<String> getPhoneNumberValue() {
     if (phoneNumberValue != null) {
       return phoneNumberValue;
     }
+    
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    Optional<String> phoneNumberValue = applicantData.readString(getPhoneNumberPath());
 
-    Optional<String> maybePhoneNumber = applicantQuestion.getApplicantData().getApplicant().getPhoneNumber();
-    if (containsPhoneTag() && maybePhoneNumber.isPresent()) {
-      phoneNumberValue = maybePhoneNumber;
-    } else {
-      phoneNumberValue = applicantQuestion.getApplicantData().readString(getPhoneNumberPath());
+    if (shouldReturnPrimaryApplicantInfoValue(phoneNumberValue.isEmpty(), applicantData, PrimaryApplicantInfoTag.APPLICANT_PHONE)) {
+      phoneNumberValue = applicantData.getApplicant().getPhoneNumber();
     }
+
     return phoneNumberValue;
   }
 
@@ -106,11 +105,11 @@ public final class PhoneQuestion extends Question {
       return countryCodeValue;
     }
 
-    Optional<String> maybeCountryCode = applicantQuestion.getApplicantData().getApplicant().getCountryCode();
-    if (containsPhoneTag() && maybeCountryCode.isPresent()) {
-      countryCodeValue = maybeCountryCode;
-    } else {
-      countryCodeValue = applicantQuestion.getApplicantData().readString(getCountryCodePath());
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    Optional<String> countryCodeValue = applicantData.readString(getCountryCodePath());
+
+    if (shouldReturnPrimaryApplicantInfoValue(countryCodeValue.isEmpty(), applicantData, PrimaryApplicantInfoTag.APPLICANT_PHONE)) {
+      phoneNumberValue = applicantData.getApplicant().getCountryCode();
     }
 
     return countryCodeValue;

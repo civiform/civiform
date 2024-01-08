@@ -3,11 +3,13 @@ package services.applicant.question;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import services.MessageKey;
 import services.Path;
+import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.types.DateQuestionDefinition;
@@ -53,20 +55,16 @@ public final class DateQuestion extends Question {
         .orElse("-");
   }
 
-  private boolean containsDobTag() {
-    return applicantQuestion.getQuestionDefinition().containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_DOB);
-  }
-
   public Optional<LocalDate> getDateValue() {
     if (dateValue != null) {
       return dateValue;
     }
 
-    Optional<LocalDate> maybeDob = applicantQuestion.getApplicantData().getApplicant().getDateOfBirth();
-    if (containsDobTag() && maybeDob.isPresent()) {
-      dateValue = maybeDob;
-    } else {
-      dateValue = applicantQuestion.getApplicantData().readDate(getDatePath());
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    dateValue = applicantData.readDate(getDatePath());
+
+    if (shouldReturnPrimaryApplicantInfoValue(dateValue.isEmpty(), applicantData, PrimaryApplicantInfoTag.APPLICANT_DOB)) {
+      dateValue = applicantData.getApplicant().getDateOfBirth();
     }
 
     return dateValue;

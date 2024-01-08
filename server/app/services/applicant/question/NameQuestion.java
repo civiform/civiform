@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import services.MessageKey;
 import services.Path;
+import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.types.NameQuestionDefinition;
@@ -58,20 +59,16 @@ public final class NameQuestion extends Question {
     return ImmutableSet.of();
   }
 
-  private boolean containsNameTag() {
-    return applicantQuestion.getQuestionDefinition().containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_NAME);
-  }
-
   public Optional<String> getFirstNameValue() {
     if (firstNameValue != null) {
       return firstNameValue;
     }
 
-    Optional<String> maybeFirstName = applicantQuestion.getApplicantData().getApplicant().getFirstName();
-    if (containsNameTag() && maybeFirstName.isPresent()) {
-      firstNameValue = maybeFirstName;
-    } else {
-      firstNameValue = applicantQuestion.getApplicantData().readString(getFirstNamePath());
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    Optional<String> firstNameValue = applicantData.readString(getFirstNamePath());
+
+    if (shouldReturnPrimaryApplicantInfoValue(firstNameValue.isEmpty(), applicantData, PrimaryApplicantInfoTag.APPLICANT_NAME)) {
+      firstNameValue = applicantData.getApplicant().getFirstName();
     }
 
     return firstNameValue;
@@ -82,11 +79,11 @@ public final class NameQuestion extends Question {
       return middleNameValue;
     }
 
-    Optional<String> maybeMiddleName = applicantQuestion.getApplicantData().getApplicant().getMiddleName();
-    if (containsNameTag() && maybeMiddleName.isPresent()) {
-      middleNameValue = maybeMiddleName;
-    } else {
-      middleNameValue = applicantQuestion.getApplicantData().readString(getMiddleNamePath());
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    middleNameValue = applicantData.readString(getMiddleNamePath());
+
+     if (shouldReturnPrimaryApplicantInfoValue(middleNameValue.isEmpty(), applicantData, PrimaryApplicantInfoTag.APPLICANT_NAME)) {
+      middleNameValue = applicantData.getApplicant().getMiddleName();
     }
 
     return middleNameValue;
@@ -97,12 +94,13 @@ public final class NameQuestion extends Question {
       return lastNameValue;
     }
 
-    Optional<String> maybeLastName = applicantQuestion.getApplicantData().getApplicant().getLastName();
-    if (containsNameTag() && maybeLastName.isPresent()) {
-      lastNameValue = maybeLastName;
-    } else {
-      lastNameValue = applicantQuestion.getApplicantData().readString(getLastNamePath());
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    lastNameValue = applicantData.readString(getLastNamePath());
+
+    if (shouldReturnPrimaryApplicantInfoValue(lastNameValue.isEmpty(), applicantData, PrimaryApplicantInfoTag.APPLICANT_NAME)) {
+      lastNameValue = applicantData.getApplicant().getLastName();
     }
+
     return lastNameValue;
   }
 

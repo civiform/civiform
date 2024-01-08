@@ -3,9 +3,11 @@ package services.applicant.question;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+
 import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
+import services.applicant.ApplicantData;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.types.EmailQuestionDefinition;
 
@@ -42,21 +44,18 @@ public final class EmailQuestion extends Question {
     return getEmailValue().orElse("-");
   }
 
-  private boolean containsEmailTag() {
-    return applicantQuestion.getQuestionDefinition().containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_EMAIL);
-  }
-
   public Optional<String> getEmailValue() {
     if (emailValue != null) {
       return emailValue;
     }
 
-    Optional<String> maybeEmail = applicantQuestion.getApplicantData().getApplicant().getEmailAddress();
-    if (containsEmailTag() && maybeEmail.isPresent()) {
-      emailValue = maybeEmail;
-    } else {
-      emailValue = applicantQuestion.getApplicantData().readString(getEmailPath());
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    Optional<String> emailValue = applicantData.readString(getEmailPath());
+
+    if (shouldReturnPrimaryApplicantInfoValue(emailValue.isEmpty(), applicantData, PrimaryApplicantInfoTag.APPLICANT_EMAIL)) {
+      emailValue = applicantData.getApplicant().getEmailAddress();
     }
+
     return emailValue;
   }
 
