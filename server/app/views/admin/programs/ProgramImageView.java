@@ -55,6 +55,7 @@ public final class ProgramImageView extends BaseHtmlView {
   private static final String MIME_TYPES_IMAGES = "image/*";
   private static final String IMAGE_DESCRIPTION_FORM_ID = "image-description-form";
   private static final String IMAGE_FILE_UPLOAD_FORM_ID = "image-file-upload-form";
+  private static final String PAGE_TITLE = "Image upload";
 
   private final AdminLayout layout;
   private final BreadcrumbFactory breadcrumbFactory;
@@ -98,7 +99,6 @@ public final class ProgramImageView extends BaseHtmlView {
   public Content render(Http.Request request, ProgramDefinition programDefinition) {
     DivTag breadcrumbs = createBreadcrumbs(programDefinition);
 
-    String title = "Program image upload";
     DivTag mainContent = div().withClass("mx-20");
 
     DivTag titleAndImageDescriptionContainer =
@@ -107,7 +107,7 @@ public final class ProgramImageView extends BaseHtmlView {
             .with(
                 div()
                     .withClass("w-2/5")
-                    .with(renderHeader(title))
+                    .with(renderHeader(PAGE_TITLE))
                     .with(span("Browse or drag and drop an image to upload")))
             .with(
                 div()
@@ -123,7 +123,7 @@ public final class ProgramImageView extends BaseHtmlView {
     HtmlBundle htmlBundle =
         layout
             .getBundle(request)
-            .setTitle(title)
+            .setTitle(PAGE_TITLE)
             .addMainContent(div().with(breadcrumbs, mainContent));
 
     // TODO(#5676): This toast code is re-implemented across multiple controllers. Can we write a
@@ -147,7 +147,7 @@ public final class ProgramImageView extends BaseHtmlView {
                 program.localizedName().getDefault(),
                 /* link= */ baseUrl + routes.AdminProgramBlocksController.index(program.id()).url(),
                 /* icon= */ null),
-            BreadcrumbItem.create("Image upload", /* link= */ null, Icons.IMAGE));
+            BreadcrumbItem.create(PAGE_TITLE, /* link= */ null, Icons.IMAGE));
     return div()
         .withClasses("mt-4", "mx-10")
         .with(breadcrumbFactory.buildBreadcrumbTrail(breadcrumbItems));
