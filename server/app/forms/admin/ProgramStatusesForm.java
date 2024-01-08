@@ -98,10 +98,6 @@ public final class ProgramStatusesForm implements Validatable<List<ValidationErr
     if (Strings.isNullOrEmpty(statusText)) {
       return ImmutableList.of(new ValidationError("statusText", "This field is required."));
     }
-    if (statusText.trim().length() > 35) {
-      return ImmutableList.of(
-          new ValidationError("statusText", "This field is limited to 35 characters."));
-    }
     return ImmutableList.of();
   }
 }

@@ -46,7 +46,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     Result result = controller.index(addCSRFToken(fakeRequest().method("GET")).build(), program.id);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Program image upload");
+    assertThat(contentAsString(result)).contains("Image upload");
     assertThat(contentAsString(result)).contains("test name");
     assertThat(contentAsString(result)).contains("Enter image description");
   }

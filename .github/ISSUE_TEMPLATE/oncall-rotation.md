@@ -1,7 +1,7 @@
 ---
 name: Oncall rotation
 about: Weekly oncall rotation checklist and log
-title: 'Oncall: 2023-XX-XX'
+title: 'Oncall: 2024-XX-XX'
 labels: 'oncall'
 assignees: ''
 ---
@@ -28,7 +28,7 @@ Resources:
   - File key naming changes
   - Changes to other stateful parts of the application (i.e. changes to the format of things stored in the database not necessarily requiring an evolution)
   - Config setting addition or removal
-- [ ] Create a Draft Release by 12 PT Wed
+- [ ] Create a Draft Release by 12 PT on Tuesday
 - [ ] Contact Matthew Sprenke for QA on Slack
 - [ ] If Matthew is unavailable have the general team attempt a best-effort QA.
 - [ ] After QA, publish the release
