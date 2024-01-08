@@ -68,12 +68,20 @@ else
   echo 'Start formatting with prettier'
   # prettier is installed as node module in `formatter` directory
   cd formatter
+
+  # Prefix each file with ../ and remove newlines. The newlines prevent printf from 
+  # prefixi each line itself which is why this sed command is needed.
+  prettier_file_list="$(printf "%s" "${modified_ts_json_md}" | sed 's/^/ ..\//' | tr -d '\n')"
+
+  # The subshell printf statement should not be surrounded by quotes, in this case
+  # we want work splitting to occur so prettier will operate in each file. If
+  # quotes it gets treated as a single path.
   npx prettier \
     --write \
     --config ../.prettierrc.js \
     --ignore-path ../.prettierignore \
     --ignore-unknown \
-    $(printf "../%s " ${modified_ts_json_md[@]})
+    -- $(printf "%s" "${prettier_file_list[@]}")
   cd ..
   echo 'Done formatting with prettier'
 
