@@ -40,6 +40,8 @@ function get_modified_java_files() {
 }
 
 function get_modified_ts_json_and_md_files() {
+  # Zero matches in grep returns a 1, but we want to treat as empty which is
+  # why the `|| true` is there
   (
     get_tracked_modified_files
     get_untracked_files
