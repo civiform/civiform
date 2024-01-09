@@ -52,6 +52,7 @@ import views.components.ToastMessage;
 import views.components.breadcrumb.BreadcrumbFactory;
 import views.components.breadcrumb.BreadcrumbItem;
 import views.fileupload.FileUploadViewStrategy;
+import views.style.StyleUtils;
 
 /** A view for admins to update the image associated with a particular program. */
 public final class ProgramImageView extends BaseHtmlView {
@@ -144,6 +145,8 @@ public final class ProgramImageView extends BaseHtmlView {
       htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()));
     } else if (flash.get("error").isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(flash.get("error").get()));
+    } else if (flash.get("warning").isPresent()) {
+      htmlBundle.addToastMessages(ToastMessage.warning(flash.get("warning").get()));
     }
 
     return layout.renderCentered(htmlBundle);
@@ -296,8 +299,6 @@ public final class ProgramImageView extends BaseHtmlView {
                 submitButton(DELETE_IMAGE_BUTTON_TEXT)
                     .withClasses(ButtonStyles.SOLID_BLUE, "mt-8"));
 
-
-
     return Modal.builder()
         .setModalId(Modal.randomModalId())
         .setLocation(Modal.Location.ADMIN_FACING)
@@ -306,38 +307,4 @@ public final class ProgramImageView extends BaseHtmlView {
         .setTriggerButtonContent(deleteImageButton)
         .build();
   }
-
-/*
-  private FormTag createDeleteFromCloudStorageForm(ProgramDefinition program) {
-    FormTag form = form()
-            .withEnctype("multipart/form-data")
-            .withMethod(Http.HttpVerbs.DELETE)
-            .withAction(publicStorageClient.getActionLink());
-
-
-
-    ImmutableList.Builder<InputTag> inputTagBuilder = ImmutableList.builder();
-  //  inputTagBuilder.add(input().withType("hidden").withName("x-amz-expected-bucket-owner").withValue(cred));
-  //  inputTagBuilder.add(input().withType("hidden").withName())
-
-    String key;
-    if (program.summaryImageFileKey().isPresent()) {
-      key = program.summaryImageFileKey().get();
-    } else {
-      key = "fakeKey";
-    }
-
-    inputTagBuilder.add(input().withType("hidden").withName("key").withValue(key));
-    inputTagBuilder.add(input()
-            .withType("hidden")
-            .withName("success_action_redirect")
-            .withValue(routes.AdminProgramImageController.deleteFileKey(program.id()).url()));
-    return form.with(inputTagBuilder.build())
-            .with(p("Once you delete this image, you'll need to re-upload a new image."))
-            .with(
-                    submitButton(DELETE_IMAGE_BUTTON_TEXT)
-                            .withClasses(ButtonStyles.SOLID_BLUE, "mt-8"));
-  }
-
- */
 }
