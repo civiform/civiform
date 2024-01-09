@@ -369,7 +369,8 @@ public final class ApplicantService {
             baseUrl,
             failedUpdates);
 
-    Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockBeforeUpdate.getId());
+    Optional<Block> blockMaybe =
+        roApplicantProgramService.getActiveBlock(blockBeforeUpdate.getId());
     if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
       return accountRepository
           .updateApplicant(applicant)
