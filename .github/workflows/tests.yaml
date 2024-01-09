@@ -102,19 +102,19 @@ jobs:
         # Use git diff to fail if we detect new images.
         run: git add browser-test/image_snapshots ; git diff --compact-summary --exit-code HEAD
       - name: Upload image diff outputs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: image diff output directory
           path: browser-test/diff_output
         if: failure()
       - name: Upload updated snapshots
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: updated snapshots output directory
           path: browser-test/updated_snapshots
         if: failure()
       - name: Upload test videos on failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tests videos
           path: browser-test/tmp
@@ -169,13 +169,13 @@ jobs:
           CI: true
         run: bin/run-browser-tests-azure
       - name: Upload image diff outputs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: image diff output directory
           path: browser-test/diff_output
         if: failure()
       - name: Upload test videos on failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tests videos
           path: browser-test/tmp

@@ -39,11 +39,39 @@ function get_modified_java_files() {
   ) | grep -E ".+\.java$"
 }
 
-function get_modified_ts_and_json_files() {
+function get_modified_json_files() {
+  # Zero matches in grep returns a 1, but we want to treat as empty which is
+  # why the `|| true` is there
   (
     get_tracked_modified_files
     get_untracked_files
-  ) | grep -E ".+\.(ts|json)$"
+  ) | grep -E ".+\.(json)$" || true
+}
+
+function get_modified_ts_files() {
+  # Zero matches in grep returns a 1, but we want to treat as empty which is
+  # why the `|| true` is there
+  (
+    get_tracked_modified_files
+    get_untracked_files
+  ) | grep -E ".+\.(ts)$" || true
+}
+
+function get_modified_md_files() {
+  # Zero matches in grep returns a 1, but we want to treat as empty which is
+  # why the `|| true` is there
+  (
+    get_tracked_modified_files
+    get_untracked_files
+  ) | grep -E ".+\.(md)$" || true
+}
+
+function get_modified_ts_json_and_md_files() {
+  (
+    get_modified_json_files
+    get_modified_ts_files
+    get_modified_md_files
+  )
 }
 
 function get_modified_python_files() {
@@ -61,28 +89,59 @@ else
   echo 'Done formatting java'
 fi
 
-if [[ -z $(get_modified_ts_and_json_files) ]]; then
-  echo 'No modified TypeScript or JSON files found'
+modified_ts_json_md="$(get_modified_ts_json_and_md_files)"
+if [[ -z "${modified_ts_json_md}" ]]; then
+  echo 'No modified TypeScript, JSON, or Markdown files for prettier found'
 else
   echo 'Start formatting with prettier'
   # prettier is installed as node module in `formatter` directory
   cd formatter
+
+  # Prefix each file with ../ and remove newlines. The newlines prevent printf from
+  # prefixing each line itself which is why this sed command is needed.
+  prettier_file_list="$(printf "%s" "${modified_ts_json_md}" | sed 's/^/ ..\//' | tr -d '\n')"
+
+  # The prettier_file_list array should not be surrounded by quotes, in this case
+  # we want word splitting to occur so prettier will operate in each file. If
+  # quoted it gets treated as a single path.
   npx prettier \
     --write \
     --config ../.prettierrc.js \
     --ignore-path ../.prettierignore \
     --ignore-unknown \
-    ../
+    -- ${prettier_file_list[@]}
+
   cd ..
   echo 'Done formatting with prettier'
+fi
 
+modified_ts="$(get_modified_ts_files)"
+if [[ -z "${modified_ts}" ]]; then
+  echo 'No modified TypeScript files for eslint found'
+else
   echo 'Start formatting with eslint'
+
+  # Prefix each file with ../ and remove newlines. The newlines prevent printf from
+  # prefixing each line itself which is why this sed command is needed.
+  eslint_app_file_list="$(printf "%s" "${modified_ts}" | (grep -E "^app" || true) | sed 's/^/ ..\//' | tr -d '\n')"
+  eslint_browsertest_file_list="$(printf "%s" "${modified_ts}" | (grep -E "^browser-test" || true) | sed 's/^/ ..\//' | tr -d '\n')"
+
   cd server
   npm install --silent
-  npx eslint --fix "app/assets/javascripts/**/*.ts"
+
+  # The eslint_app_file_list array should not be surrounded by quotes, in this case
+  # we want word splitting to occur so eslint will operate in each file. If
+  # quoted it gets treated as a single path.
+  npx eslint --fix ${eslint_app_file_list[@]}
+
   cd ../browser-test
   npm install --silent
-  npx eslint --fix "src/**/*.ts"
+
+  # The eslint_browsertest_file_list array should not be surrounded by quotes, in this case
+  # we want word splitting to occur so eslint will operate in each file. If
+  # quoted it gets treated as a single path.
+  npx eslint --fix ${eslint_browsertest_file_list[@]}
+
   cd ..
   echo 'Done formatting with eslint'
 fi
