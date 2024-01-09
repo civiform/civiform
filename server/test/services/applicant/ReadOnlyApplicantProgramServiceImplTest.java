@@ -861,30 +861,30 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getBlock_blockExists_returnsTheBlock() {
+  public void getActiveBlock_blockExists_returnsTheBlock() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
 
-    Optional<Block> maybeBlock = subject.getBlock("1");
+    Optional<Block> maybeBlock = subject.getActiveBlock("1");
 
     assertThat(maybeBlock).isPresent();
     assertThat(maybeBlock.get().getId()).isEqualTo("1");
   }
 
   @Test
-  public void getBlock_blockNotInList_returnsEmpty() {
+  public void getActiveBlock_blockNotInList_returnsEmpty() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
 
-    Optional<Block> maybeBlock = subject.getBlock("111");
+    Optional<Block> maybeBlock = subject.getActiveBlock("111");
 
     assertThat(maybeBlock).isEmpty();
   }
 
   @Test
-  public void getBlockAfter_thereExistsABlockAfter_returnsTheBlockAfterTheGivenBlock() {
+  public void getInProgressBlockAfter_thereExistsABlockAfter_returnsTheBlockAfterTheGivenBlock() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
@@ -896,7 +896,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getBlockAfter_argIsLastBlock_returnsEmpty() {
+  public void getInProgressBlockAfter_argIsLastBlock_returnsEmpty() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
@@ -907,7 +907,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getBlockAfter_emptyBlocks_returnsEmpty() {
+  public void getInProgressBlockAfter_emptyBlocks_returnsEmpty() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory,

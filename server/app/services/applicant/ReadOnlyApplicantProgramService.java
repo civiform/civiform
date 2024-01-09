@@ -71,7 +71,7 @@ public interface ReadOnlyApplicantProgramService {
    */
   ImmutableList<ApplicantQuestion> getIneligibleQuestions();
 
-  /** Get the block with the given block ID */
+  /** Get the active block with the given block ID */
   Optional<Block> getActiveBlock(String blockId);
 
   /** Get the hidden block with the given block ID */
@@ -124,7 +124,7 @@ public interface ReadOnlyApplicantProgramService {
   /** Returns if the hidden block eligibility criteria are met. */
   boolean isHiddenBlockEligible(String blockId);
 
-  /** Returns if the block eligibility criteria are met. */
+  /** Returns if the active block eligibility criteria are met. */
   boolean isActiveBlockEligible(String blockId);
 
   /**

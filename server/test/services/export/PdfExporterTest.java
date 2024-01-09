@@ -33,7 +33,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationOne.id);
     PdfExporter.InMemoryPdf result =
-        exporter.export(applicationOne, /* showEligibilityText= */ false);
+        exporter.export(applicationOne, /* showEligibilityText= */ false, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -82,7 +82,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationFive.id);
     PdfExporter.InMemoryPdf result =
-        exporter.export(applicationFive, /* showEligibilityText= */ false);
+        exporter.export(applicationFive, /* showEligibilityText= */ false, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -126,7 +126,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationSix.id);
     PdfExporter.InMemoryPdf result =
-        exporter.export(applicationSix, /* showEligibilityText= */ false);
+        exporter.export(applicationSix, /* showEligibilityText= */ false, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
     textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
@@ -160,7 +160,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationTwo.id);
     PdfExporter.InMemoryPdf result =
-        exporter.export(applicationTwo, /* showEligibilityText= */ false);
+        exporter.export(applicationTwo, /* showEligibilityText= */ false, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
     textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
@@ -172,7 +172,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
     assertThat(textFromPDF).doesNotContain("Meets eligibility");
     PdfExporter.InMemoryPdf resultWithEligibility =
-        exporter.export(applicationTwo, /* showEligibilityText= */ true);
+        exporter.export(applicationTwo, /* showEligibilityText= */ true, false);
     PdfReader pdfReaderTwo = new PdfReader(resultWithEligibility.getByteArray());
     StringBuilder textFromPDFTwo = new StringBuilder();
     textFromPDFTwo.append(PdfTextExtractor.getTextFromPage(pdfReaderTwo, 1));
