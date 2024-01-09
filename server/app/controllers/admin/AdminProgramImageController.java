@@ -15,14 +15,18 @@ import play.mvc.Result;
 import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.cloud.PublicFileNameFormatter;
+import services.cloud.PublicStorageClient;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.admin.programs.ProgramImageView;
+
+import java.util.Optional;
 
 /** Controller for displaying and modifying the image (and alt text) associated with a program. */
 public final class AdminProgramImageController extends CiviFormController {
   private final ProgramService programService;
   private final ProgramImageView programImageView;
+  private final PublicStorageClient publicStorageClient;
   private final RequestChecker requestChecker;
   private final FormFactory formFactory;
 
@@ -30,6 +34,7 @@ public final class AdminProgramImageController extends CiviFormController {
   public AdminProgramImageController(
       ProgramService programService,
       ProgramImageView programImageView,
+      PublicStorageClient publicStorageClient,
       RequestChecker requestChecker,
       FormFactory formFactory,
       ProfileUtils profileUtils,
@@ -37,6 +42,7 @@ public final class AdminProgramImageController extends CiviFormController {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.programImageView = checkNotNull(programImageView);
+    this.publicStorageClient = checkNotNull(publicStorageClient);
     this.requestChecker = checkNotNull(requestChecker);
     this.formFactory = checkNotNull(formFactory);
   }
@@ -109,8 +115,22 @@ public final class AdminProgramImageController extends CiviFormController {
   public Result deleteFileKey(Http.Request request, long programId)
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
-    programService.deleteSummaryImageFileKey(programId);
+
     final String indexUrl = routes.AdminProgramImageController.index(programId).url();
-    return redirect(indexUrl).flashing("success", "Image removed");
+
+
+    Optional<String> currentFileKey = programService.getProgramDefinition(programId).summaryImageFileKey();
+    if (currentFileKey.isEmpty()) {
+      // TODO: Protect against this in the UI
+      return redirect(indexUrl).flashing("error", "No image is set so no image was removed");
+    }
+
+    boolean deletedFromStorage = publicStorageClient.deletePublicFile(currentFileKey.get());
+    if (deletedFromStorage) {
+      programService.deleteSummaryImageFileKey(programId);
+      return redirect(indexUrl).flashing("success", "Image removed");
+    } else {
+      return redirect(indexUrl).flashing("error", "Error removing image. Please try again.");
+    }
   }
 }
