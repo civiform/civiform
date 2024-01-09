@@ -1,6 +1,6 @@
 {
   "type": "module",
   "dependencies": {
-    "oidc-provider": "8.4.3"
+    "oidc-provider": "8.4.4"
   }
 }
