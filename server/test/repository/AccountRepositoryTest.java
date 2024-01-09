@@ -59,14 +59,25 @@ public class AccountRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void updateClientNameTest() {
+  public void updateClientNameTest_AllNonEmpty() {
     ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
-    repo.updateClientName("John", "", "Dow", applicantUpdateTest);
+    repo.updateClientName("John", "James", "Dow", applicantUpdateTest);
     assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName().get())
         .isEqualTo("Dow");
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName()).isEmpty();
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName().get())
+        .isEqualTo("James");
     assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
         .isEqualTo("John");
+  }
+
+  @Test
+  public void updateClientNameTest_EmptyMiddleAndLastName() {
+    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
+    repo.updateClientName("John", "", "", applicantUpdateTest);
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
+        .isEqualTo("John");
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName()).isEmpty();
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName()).isEmpty();
   }
 
   @Test
@@ -87,7 +98,6 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   @Test
   public void updateTiNoteTest() {
-
     AccountModel accountUpdateTest = setupAccountForUpdateTest();
     repo.updateClientTiNote("this is notes", accountUpdateTest);
     assertThat(accountUpdateTest.getTiNote()).isEqualTo("this is notes");

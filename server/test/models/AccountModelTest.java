@@ -41,8 +41,6 @@ public class AccountModelTest extends ResetPostgres {
   @Test
   public void canAddTiNotes() {
     AccountModel account = new AccountModel();
-    String email = "fake email";
-    account.setEmailAddress(email);
     account.setTiNote("Ti notes test");
     account.save();
     assertThat(account.getTiNote()).isEqualTo("Ti notes test");
