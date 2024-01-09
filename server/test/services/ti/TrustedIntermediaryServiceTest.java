@@ -420,7 +420,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
-  public void editTiClientInfo_PhoneNonDigitValidationFail() throws ApplicantNotFoundException {
+  public void editTiClientInfo_PhoneNumberNonDigitValidationFail()
+      throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             fakeRequest()
@@ -473,35 +474,6 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     Form<EditTiClientInfoForm> returnForm = service.updateClientInfo(form, tiGroup, testAccount.id);
     assertThat(returnForm.error("phoneNumber").get().message())
         .isEqualTo("This phone number is not valid");
-  }
-
-  @Test
-  public void editTiClientInfo_PhoneNumberNonDigitsValidationFail()
-      throws ApplicantNotFoundException {
-    Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "clientFirst",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "ClientLast",
-                        "dob",
-                        "2022-07-07",
-                        "emailAddress",
-                        "email2123",
-                        "tiNote",
-                        "unitTest",
-                        "phoneNumber",
-                        "0000000er0")));
-    Form<EditTiClientInfoForm> form =
-        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
-    Form<EditTiClientInfoForm> returnForm = service.updateClientInfo(form, tiGroup, testAccount.id);
-    assertThat(returnForm.error("phoneNumber").get().message())
-        .isEqualTo("A phone number must contain only digits");
   }
 
   @Test

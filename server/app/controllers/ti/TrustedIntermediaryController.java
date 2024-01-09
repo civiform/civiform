@@ -1,6 +1,5 @@
 package controllers.ti;
 
-import static play.mvc.Results.badRequest;
 import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 import static play.mvc.Results.redirect;
