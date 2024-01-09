@@ -13,13 +13,17 @@ import play.Mode;
 import repository.ResetPostgres;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
+import support.cloud.FakeAwsS3Client;
 
 public class AwsPublicStorageTest extends ResetPostgres {
+
+  private final FakeAwsS3Client fakeAwsS3Client = new FakeAwsS3Client();
 
   @Test
   public void getSignedUploadRequest_prodEnv_actionLinkIsProdAws() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
+            fakeAwsS3Client,
             instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             instanceOf(Credentials.class),
@@ -37,6 +41,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
   public void getSignedUploadRequest_devEnv_actionLinkIsLocalStack() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
+            fakeAwsS3Client,
             instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             instanceOf(Credentials.class),
@@ -55,6 +60,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
   public void getSignedUploadRequest_testEnv_notLocalStackOrProdAws() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
+            fakeAwsS3Client,
             instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             instanceOf(Credentials.class),
@@ -74,6 +80,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
     Credentials credentials = instanceOf(Credentials.class);
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
+            fakeAwsS3Client,
             instanceOf(AwsStorageUtils.class),
             region,
             credentials,
@@ -139,6 +146,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
     when(sessionCredentials.sessionToken()).thenReturn("testSessionToken");
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
+            fakeAwsS3Client,
             instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             credentials,
@@ -161,6 +169,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
 
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
+            fakeAwsS3Client,
             instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
             credentials,
@@ -194,21 +203,107 @@ public class AwsPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void deletePublicFile_incorrectlyFormatted_throws() {
+  public void deletePublicFile_prodEnv_endpointIsProdAws() {
+    AwsPublicStorage awsPublicStorage =
+        new AwsPublicStorage(
+            fakeAwsS3Client,
+            instanceOf(AwsStorageUtils.class),
+            instanceOf(AwsRegion.class),
+            instanceOf(Credentials.class),
+            instanceOf(Config.class),
+            new Environment(new File("."), Environment.class.getClassLoader(), Mode.PROD));
+
+    awsPublicStorage.deletePublicFile("program-summary-image/program-10/myFile.jpeg");
+
+    assertThat(fakeAwsS3Client.getLastEndpointUsed().getHost()).contains("amazonaws");
+  }
+
+  @Test
+  public void deletePublicFile_devEnv_endpointIsLocalStack() {
+    AwsPublicStorage awsPublicStorage =
+        new AwsPublicStorage(
+            fakeAwsS3Client,
+            instanceOf(AwsStorageUtils.class),
+            instanceOf(AwsRegion.class),
+            instanceOf(Credentials.class),
+            instanceOf(Config.class),
+            new Environment(new File("."), Environment.class.getClassLoader(), Mode.DEV));
+
+    awsPublicStorage.deletePublicFile("program-summary-image/program-10/myFile.jpeg");
+
+    assertThat(fakeAwsS3Client.getLastEndpointUsed().getHost()).contains("localstack");
+  }
+
+  @Test
+  public void deletePublicFile_testEnv_endpointIsNotLocalStackOrProdAws() {
+    AwsPublicStorage awsPublicStorage =
+        new AwsPublicStorage(
+            fakeAwsS3Client,
+            instanceOf(AwsStorageUtils.class),
+            instanceOf(AwsRegion.class),
+            instanceOf(Credentials.class),
+            instanceOf(Config.class),
+            new Environment(new File("."), Environment.class.getClassLoader(), Mode.TEST));
+
+    awsPublicStorage.deletePublicFile("program-summary-image/program-10/myFile.jpeg");
+
+    assertThat(fakeAwsS3Client.getLastEndpointUsed().getHost()).doesNotContain("localstack");
+    assertThat(fakeAwsS3Client.getLastEndpointUsed().getHost()).doesNotContain("amazonaws");
+  }
+
+  @Test
+  public void deletePublicFile_keyIncorrectlyFormatted_throws() {
     AwsPublicStorage awsPublicStorage = instanceOf(AwsPublicStorage.class);
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> awsPublicStorage.deletePublicFile("fake-file-key"))
-            .withMessageContaining("key incorrectly formatted");
+        .isThrownBy(() -> awsPublicStorage.deletePublicFile("fake-file-key"))
+        .withMessageContaining("key incorrectly formatted");
   }
 
   @Test
-  public void deletePublicFile_correctlyFormatted_deletionSucceeds_returnsTrue() {
+  public void deletePublicFile_keyCorrectlyFormatted_deletionSucceeds_returnsTrue() {
+    AwsPublicStorage awsPublicStorage =
+        new AwsPublicStorage(
+            fakeAwsS3Client,
+            instanceOf(AwsStorageUtils.class),
+            instanceOf(AwsRegion.class),
+            instanceOf(Credentials.class),
+            instanceOf(Config.class),
+            instanceOf(Environment.class));
 
+    boolean deleted =
+        awsPublicStorage.deletePublicFile("program-summary-image/program-10/myFile.jpeg");
+    assertThat(deleted).isTrue();
   }
 
   @Test
-  public void deletePublicFile_correctlyFormatted_deletionFails_returnsFalse() {
+  public void deletePublicFile_keyCorrectlyFormatted_deletionProcessError_returnsFalse() {
+    AwsPublicStorage awsPublicStorage =
+        new AwsPublicStorage(
+            fakeAwsS3Client,
+            instanceOf(AwsStorageUtils.class),
+            instanceOf(AwsRegion.class),
+            instanceOf(Credentials.class),
+            instanceOf(Config.class),
+            instanceOf(Environment.class));
 
+    boolean deleted = awsPublicStorage.deletePublicFile(FakeAwsS3Client.PROCESS_ERROR_FILE_KEY);
+    assertThat(deleted).isFalse();
+  }
+
+  @Test
+  public void deletePublicFile_keyCorrectlyFormatted_responseParseError_returnsFalse() {
+    AwsPublicStorage awsPublicStorage =
+        new AwsPublicStorage(
+            fakeAwsS3Client,
+            instanceOf(AwsStorageUtils.class),
+            instanceOf(AwsRegion.class),
+            instanceOf(Credentials.class),
+            instanceOf(Config.class),
+            instanceOf(Environment.class));
+
+    boolean deleted =
+        awsPublicStorage.deletePublicFile(FakeAwsS3Client.RESPONSE_PARSE_ERROR_FILE_KEY);
+    assertThat(deleted).isFalse();
   }
 }

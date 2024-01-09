@@ -16,8 +16,8 @@ import services.LocalizedStrings;
 import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
-import support.FakePublicStorageClient;
 import support.ProgramBuilder;
+import support.cloud.FakePublicStorageClient;
 
 public class ProgramImageUtilsTest extends ResetPostgres {
   private final PublicStorageClient publicStorageClient = new FakePublicStorageClient();

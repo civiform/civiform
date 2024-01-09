@@ -40,16 +40,16 @@ public class AzurePublicStorageTest extends ResetPostgres {
   @Test
   public void deletePublicFile_incorrectlyFormatted_throws() {
     assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> azurePublicStorage.deletePublicFile("fake-file-key"))
-            .withMessageContaining("key incorrectly formatted");
+        .isThrownBy(() -> azurePublicStorage.deletePublicFile("fake-file-key"))
+        .withMessageContaining("key incorrectly formatted");
   }
 
   @Test
   public void deletePublicFile_correctlyFormatted_throwsUnsupported() {
     assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(
-                    () ->
-                            azurePublicStorage.deletePublicFile(
-                                    "program-summary-image/program-10/myFile.jpeg"));
+        .isThrownBy(
+            () ->
+                azurePublicStorage.deletePublicFile(
+                    "program-summary-image/program-10/myFile.jpeg"));
   }
 }

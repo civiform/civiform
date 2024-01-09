@@ -28,8 +28,8 @@ import services.TranslationNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import support.FakePublicStorageClient;
 import support.ProgramBuilder;
+import support.cloud.FakePublicStorageClient;
 import views.admin.programs.ProgramImageView;
 
 @RunWith(JUnitParamsRunner.class)
@@ -43,15 +43,15 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   @Before
   public void setup() {
     programService = instanceOf(ProgramService.class);
-    controller = new AdminProgramImageController(
+    controller =
+        new AdminProgramImageController(
             programService,
             instanceOf(ProgramImageView.class),
             fakePublicStorageClient,
             instanceOf(RequestChecker.class),
             instanceOf(FormFactory.class),
             instanceOf(ProfileUtils.class),
-            instanceOf(VersionRepository.class)
-    );
+            instanceOf(VersionRepository.class));
   }
 
   @Test
@@ -498,7 +498,6 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     assertThat(result.flash().data().get("warning")).contains("There was no image present");
   }
 
-
   @Test
   public void deleteFileKey_deleteFails_keyRemains() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
@@ -529,7 +528,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void deleteFileKey_hadFileKeyAndDeleteSucceeds_keyRemoved() throws ProgramNotFoundException {
+  public void deleteFileKey_hadFileKeyAndDeleteSucceeds_keyRemoved()
+      throws ProgramNotFoundException {
     fakePublicStorageClient.setShouldDeleteSuccessfully(true);
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
     setValidFileKeyOnProgram(program);
