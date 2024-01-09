@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.typesafe.config.Config;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
@@ -76,7 +75,7 @@ public final class AwsStorageUtils {
               .resolveEndpoint(
                   (builder) ->
                       builder
-                          .endpoint(localStackEndpoint(config))
+                          .endpoint(localStackEndpoint(config).toString())
                           .bucket(bucketName)
                           .region(region))
               .get()
@@ -91,14 +90,8 @@ public final class AwsStorageUtils {
   }
 
   /** Returns the endpoint to use to connect with LocalStack. */
-  public String localStackEndpoint(Config config) {
+  public URI localStackEndpoint(Config config) {
     String localEndpoint = checkNotNull(config).getString(AWS_LOCAL_ENDPOINT_CONF_PATH);
-    try {
-      URI localUri = new URI(localEndpoint);
-      return String.format("%s://s3.%s", localUri.getScheme(), localUri.getAuthority());
-    } catch (URISyntaxException e) {
-      logger.warn("Unable to create a Localstack endpoint URL. Returning empty string");
-      return "";
-    }
+    return URI.create(localEndpoint);
   }
 }
