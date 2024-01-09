@@ -16,8 +16,6 @@ public abstract class PublicStorageClient {
   public abstract StorageUploadRequest getSignedUploadRequest(
       String fileKey, String successRedirectActionLink);
 
-  public abstract String getActionLink(); // TODO
-
   /**
    * Returns a publicly accessible URL to the file with the given key.
    *
@@ -27,7 +25,7 @@ public abstract class PublicStorageClient {
    * @throws IllegalArgumentException if the file key doesn't represent a file that should be
    *     publicly accessible.
    */
-  public String getPublicDisplayUrl(String fileKey) {
+  public final String getPublicDisplayUrl(String fileKey) {
     if (!PublicFileNameFormatter.isFileKeyForPublicProgramImage(fileKey)) {
       throw new IllegalArgumentException("File key incorrectly formatted for public use");
     }
@@ -41,6 +39,25 @@ public abstract class PublicStorageClient {
    */
   protected abstract String getPublicDisplayUrlInternal(String fileKey);
 
-  /** TODO */
-  public abstract boolean deletePublicFile(String fileKey);
+  /**
+   * Removes the file specified by the given key from cloud storage.
+   *
+   * @return true if the file was successfully deleted and false otherwise.
+   *
+   * @throws IllegalArgumentException if the file key doesn't represent a file that's
+   *     publicly accessible. This is to protect against accidentally deleting an applicant file.
+   **/
+  public final boolean deletePublicFile(String fileKey) {
+    if (!PublicFileNameFormatter.isFileKeyForPublicProgramImage(fileKey)) {
+      throw new IllegalArgumentException("File key incorrectly formatted for public use, so cannot be deleted");
+    }
+    return deletePublicFileInternal(fileKey);
+  }
+
+  /**
+   * DO NOT CALL THIS METHOD - call {@link #deletePublicFile(String)} instead.
+   *
+   * <p>Purposefully not public so that all clients use {@link #deletePublicFile(String)}.
+   */
+  protected abstract boolean deletePublicFileInternal(String fileKey);
 }

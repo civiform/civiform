@@ -42,7 +42,6 @@ public final class AwsStorageUtils {
       String actionLink,
       String fileKey,
       String successRedirectActionLink) {
-    System.out.println("accesskey from credentials for upload=" + credentials.credentialsProvider().resolveCredentials().accessKeyId() + "  secret=" + credentials.credentialsProvider().resolveCredentials().secretAccessKey());
     AwsCredentials awsCredentials = credentials.getCredentials();
     SignedS3UploadRequest.Builder builder =
         SignedS3UploadRequest.builder()
@@ -61,6 +60,10 @@ public final class AwsStorageUtils {
       builder.setSecurityToken(sessionCredentials.sessionToken());
     }
     return builder.build();
+  }
+
+  public URI prodAwsEndpoint(Region region) {
+    return URI.create(String.format("https://s3.%s.amazonaws.com/", region.id()));
   }
 
   /** Returns the action link to use when uploading or downloading to a production AWS instance. */

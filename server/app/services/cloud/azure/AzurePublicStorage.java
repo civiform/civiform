@@ -11,19 +11,13 @@ public class AzurePublicStorage extends PublicStorageClient {
     throw new UnsupportedOperationException("not implemented");
   }
 
-  /** Returns a direct cloud storage URL to the file with the given key. */
   @Override
   protected String getPublicDisplayUrlInternal(String fileKey) {
     throw new UnsupportedOperationException("not implemented");
   }
 
   @Override
-  public boolean deletePublicFile(String fileKey) {
-    throw new UnsupportedOperationException("not implemented");
-  }
-
-  @Override
-  public String getActionLink() {
+  protected boolean deletePublicFileInternal(String fileKey) {
     throw new UnsupportedOperationException("not implemented");
   }
 }
