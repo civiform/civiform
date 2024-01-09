@@ -30,7 +30,6 @@ public final class AwsPublicStorage extends PublicStorageClient {
   private final String bucket;
   private final int fileLimitMb;
   private final Client client;
-  private final Config config;
 
   @Inject
   public AwsPublicStorage(
@@ -42,9 +41,8 @@ public final class AwsPublicStorage extends PublicStorageClient {
     this.awsStorageUtils = checkNotNull(awsStorageUtils);
     this.region = checkNotNull(region).get();
     this.credentials = checkNotNull(credentials);
-    this.bucket = checkNotNull(config).getString(AWS_PUBLIC_S3_BUCKET_CONF_PATH);
-    this.fileLimitMb = checkNotNull(config).getInt(AWS_PUBLIC_S3_FILE_LIMIT_CONF_PATH);
-    this.config = checkNotNull(config);
+    this.bucket = config.getString(AWS_PUBLIC_S3_BUCKET_CONF_PATH);
+    this.fileLimitMb = config.getInt(AWS_PUBLIC_S3_FILE_LIMIT_CONF_PATH);
     if (environment.isDev()) {
       client = new LocalStackClient(config, awsStorageUtils);
     } else if (environment.isProd()) {
@@ -81,8 +79,9 @@ public final class AwsPublicStorage extends PublicStorageClient {
               .credentialsProvider(credentials.credentialsProvider())
               .region(region)
               // Override the endpoint so that Localstack works correctly.
-              // See https://docs.localstack.cloud/user-guide/integrations/sdks/javascript/.
-              .endpointOverride(awsStorageUtils.localStackEndpoint(config))
+              // See https://docs.localstack.cloud/user-guide/integrations/sdks/java/#s3-service and
+              // https://github.com/localstack/localstack/issues/5209#issuecomment-1004395805.
+              .endpointOverride(client.endpoint())
               .build()) {
         s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(fileKey).build());
         return true;
@@ -99,15 +98,20 @@ public final class AwsPublicStorage extends PublicStorageClient {
   }
 
   /**
-   * Interface defining where storage requests should be sent: - Null (for testing) - LocalStack
-   * (for local development) - AWS (for deployments)
+   * Interface defining where storage requests should be sent:
+   *
+   * <ol>
+   *   <li>Null (for testing)
+   *   <li>LocalStack (for local development)
+   *   <li>AWS (for deployments)
+   * </ol>
    */
   interface Client {
     /**
      * Returns the endpoint that this client represents.
      *
-     * <p>This endpoint URI should *not* include any particular bucket, but should be to the client
-     * as a whole. For example, "http://s3.localhost.localstack.cloud:4566" not
+     * <p>This endpoint URI should *not* include any particular bucket, and insteal should just link
+     * to the client's base URL. For example, "http://s3.localhost.localstack.cloud:4566" not
      * "http://civiform-local-s3-public.s3.localhost.localstack.cloud:4566/".
      */
     URI endpoint();

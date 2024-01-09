@@ -62,6 +62,7 @@ public final class AwsStorageUtils {
     return builder.build();
   }
 
+  /** Returns the endpoint to a production AWS instance. */
   public URI prodAwsEndpoint(Region region) {
     return URI.create(String.format("https://s3.%s.amazonaws.com/", region.id()));
   }

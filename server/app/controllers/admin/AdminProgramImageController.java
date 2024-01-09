@@ -105,8 +105,8 @@ public final class AdminProgramImageController extends CiviFormController {
       throw new IllegalArgumentException("Key incorrectly formatted for public program image file");
     }
 
-    // TODO(#5676): If there's an existing file key, we should delete that file before saving the
-    // new key.
+    // TODO(#5676): If there's an existing program image, we should delete that image from cloud
+    //  storage before saving the new key.
     programService.setSummaryImageFileKey(programId, key);
     final String indexUrl = routes.AdminProgramImageController.index(programId).url();
     return redirect(indexUrl).flashing("success", "Image set");
@@ -116,21 +116,20 @@ public final class AdminProgramImageController extends CiviFormController {
   public Result deleteFileKey(Http.Request request, long programId)
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
-
     final String indexUrl = routes.AdminProgramImageController.index(programId).url();
     Optional<String> currentFileKey =
         programService.getProgramDefinition(programId).summaryImageFileKey();
 
     if (currentFileKey.isEmpty()) {
       // ProgramImageView should disable the delete action if there's no image in the first place,
-      // but handle it here
-      // just in case.
+      // but handle it here just in case.
       return redirect(indexUrl)
           .flashing("warning", "There was no image present, so nothing was deleted.");
     }
 
-    boolean deletedFromStorage = publicStorageClient.deletePublicFile(currentFileKey.get());
-    if (deletedFromStorage) {
+    boolean successfullyDeletedFromStorage =
+        publicStorageClient.deletePublicFile(currentFileKey.get());
+    if (successfullyDeletedFromStorage) {
       programService.deleteSummaryImageFileKey(programId);
       return redirect(indexUrl).flashing("success", "Image removed");
     } else {
