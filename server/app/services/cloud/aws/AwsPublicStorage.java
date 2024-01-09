@@ -13,7 +13,6 @@ import services.cloud.PublicStorageClient;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 
 /** An AWS Simple Storage Service (S3) implementation of public storage. */
@@ -24,7 +23,7 @@ public final class AwsPublicStorage extends PublicStorageClient {
 
   private static final Logger logger = LoggerFactory.getLogger(AwsPublicStorage.class);
 
-  private final AwsSdkClient awsSdkClient;
+  private final AwsSdkClientWrapper awsSdkClientWrapper;
   private final AwsStorageUtils awsStorageUtils;
   private final Region region;
   private final Credentials credentials;
@@ -34,13 +33,13 @@ public final class AwsPublicStorage extends PublicStorageClient {
 
   @Inject
   public AwsPublicStorage(
-      AwsSdkClient awsSdkClient,
+      AwsSdkClientWrapper awsSdkClientWrapper,
       AwsStorageUtils awsStorageUtils,
       AwsRegion region,
       Credentials credentials,
       Config config,
       Environment environment) {
-    this.awsSdkClient = checkNotNull(awsSdkClient);
+    this.awsSdkClientWrapper = checkNotNull(awsSdkClientWrapper);
     this.awsStorageUtils = checkNotNull(awsStorageUtils);
     this.region = checkNotNull(region).get();
     this.credentials = checkNotNull(credentials);
@@ -77,10 +76,10 @@ public final class AwsPublicStorage extends PublicStorageClient {
   @Override
   protected boolean deletePublicFileInternal(String fileKey) {
     try {
-      awsSdkClient.deleteObject(credentials, region, client.endpoint(),
-              bucket, fileKey, logger);
+      awsSdkClientWrapper.deleteObject(credentials, region, client.endpoint(),
+              DeleteObjectRequest.builder().bucket(bucket).key(fileKey).build());
       return true;
-    } catch (DeletionFailedException e) {
+    } catch (AwsServiceException | SdkClientException e) {
       logger.error(e.toString());
       return false;
     }
