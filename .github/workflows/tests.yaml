@@ -104,19 +104,19 @@ jobs:
       - name: Upload image diff outputs
         uses: actions/upload-artifact@v4
         with:
-          name: image diff output directory
+          name: image diff output directory - run-${{ github.run_attempt }}
           path: browser-test/diff_output
         if: failure()
       - name: Upload updated snapshots
         uses: actions/upload-artifact@v4
         with:
-          name: updated snapshots output directory
+          name: updated snapshots output directory - run-${{ github.run_attempt }}
           path: browser-test/updated_snapshots
         if: failure()
       - name: Upload test videos on failure
         uses: actions/upload-artifact@v4
         with:
-          name: tests videos
+          name: tests videos - run-${{ github.run_attempt }}
           path: browser-test/tmp
         if: failure()
       - name: Print logs on failure
@@ -171,13 +171,13 @@ jobs:
       - name: Upload image diff outputs
         uses: actions/upload-artifact@v4
         with:
-          name: image diff output directory
+          name: image diff output directory - run-${{ github.run_attempt }}
           path: browser-test/diff_output
         if: failure()
       - name: Upload test videos on failure
         uses: actions/upload-artifact@v4
         with:
-          name: tests videos
+          name: tests videos - run-${{ github.run_attempt }}
           path: browser-test/tmp
         if: failure()
       - name: Print logs on failure
