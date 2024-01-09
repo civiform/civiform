@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
@@ -141,6 +142,8 @@ public final class ProgramImageView extends BaseHtmlView {
     Http.Flash flash = request.flash();
     if (flash.get("success").isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()));
+    } else if (flash.get("error").isPresent()) {
+      htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(flash.get("error").get()));
     }
 
     return layout.renderCentered(htmlBundle);
@@ -283,6 +286,7 @@ public final class ProgramImageView extends BaseHtmlView {
             .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "mt-8")
             // Disable the delete button if there's no image in the first place.
             .withCondDisabled(program.summaryImageFileKey().isEmpty());
+
     FormTag deleteBlockForm =
         form(makeCsrfTokenInputTag(request))
             .withMethod(Http.HttpVerbs.POST)
@@ -292,6 +296,8 @@ public final class ProgramImageView extends BaseHtmlView {
                 submitButton(DELETE_IMAGE_BUTTON_TEXT)
                     .withClasses(ButtonStyles.SOLID_BLUE, "mt-8"));
 
+
+
     return Modal.builder()
         .setModalId(Modal.randomModalId())
         .setLocation(Modal.Location.ADMIN_FACING)
@@ -300,4 +306,38 @@ public final class ProgramImageView extends BaseHtmlView {
         .setTriggerButtonContent(deleteImageButton)
         .build();
   }
+
+/*
+  private FormTag createDeleteFromCloudStorageForm(ProgramDefinition program) {
+    FormTag form = form()
+            .withEnctype("multipart/form-data")
+            .withMethod(Http.HttpVerbs.DELETE)
+            .withAction(publicStorageClient.getActionLink());
+
+
+
+    ImmutableList.Builder<InputTag> inputTagBuilder = ImmutableList.builder();
+  //  inputTagBuilder.add(input().withType("hidden").withName("x-amz-expected-bucket-owner").withValue(cred));
+  //  inputTagBuilder.add(input().withType("hidden").withName())
+
+    String key;
+    if (program.summaryImageFileKey().isPresent()) {
+      key = program.summaryImageFileKey().get();
+    } else {
+      key = "fakeKey";
+    }
+
+    inputTagBuilder.add(input().withType("hidden").withName("key").withValue(key));
+    inputTagBuilder.add(input()
+            .withType("hidden")
+            .withName("success_action_redirect")
+            .withValue(routes.AdminProgramImageController.deleteFileKey(program.id()).url()));
+    return form.with(inputTagBuilder.build())
+            .with(p("Once you delete this image, you'll need to re-upload a new image."))
+            .with(
+                    submitButton(DELETE_IMAGE_BUTTON_TEXT)
+                            .withClasses(ButtonStyles.SOLID_BLUE, "mt-8"));
+  }
+
+ */
 }

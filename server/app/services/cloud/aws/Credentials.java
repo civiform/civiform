@@ -18,4 +18,8 @@ public final class Credentials {
   public AwsCredentials getCredentials() {
     return credentialsProvider.resolveCredentials();
   }
+
+  public DefaultCredentialsProvider credentialsProvider() {
+    return credentialsProvider;
+  }
 }

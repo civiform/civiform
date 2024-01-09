@@ -42,6 +42,7 @@ public final class AwsStorageUtils {
       String actionLink,
       String fileKey,
       String successRedirectActionLink) {
+    System.out.println("accesskey from credentials for upload=" + credentials.credentialsProvider().resolveCredentials().accessKeyId() + "  secret=" + credentials.credentialsProvider().resolveCredentials().secretAccessKey());
     AwsCredentials awsCredentials = credentials.getCredentials();
     SignedS3UploadRequest.Builder builder =
         SignedS3UploadRequest.builder()

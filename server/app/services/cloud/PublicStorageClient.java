@@ -16,6 +16,8 @@ public abstract class PublicStorageClient {
   public abstract StorageUploadRequest getSignedUploadRequest(
       String fileKey, String successRedirectActionLink);
 
+  public abstract String getActionLink(); // TODO
+
   /**
    * Returns a publicly accessible URL to the file with the given key.
    *
@@ -38,4 +40,7 @@ public abstract class PublicStorageClient {
    * <p>Purposefully not public so that all clients use {@link #getPublicDisplayUrl(String)}.
    */
   protected abstract String getPublicDisplayUrlInternal(String fileKey);
+
+  /** TODO */
+  public abstract boolean deletePublicFile(String fileKey);
 }
