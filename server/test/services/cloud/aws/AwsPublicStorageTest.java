@@ -192,4 +192,23 @@ public class AwsPublicStorageTest extends ResetPostgres {
     assertThat(publicDisplayUrl)
         .isEqualTo("fake-action-link/program-summary-image/program-10/myFile.jpeg");
   }
+
+  @Test
+  public void deletePublicFile_incorrectlyFormatted_throws() {
+    AwsPublicStorage awsPublicStorage = instanceOf(AwsPublicStorage.class);
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> awsPublicStorage.deletePublicFile("fake-file-key"))
+            .withMessageContaining("key incorrectly formatted");
+  }
+
+  @Test
+  public void deletePublicFile_correctlyFormatted_deletionSucceeds_returnsTrue() {
+
+  }
+
+  @Test
+  public void deletePublicFile_correctlyFormatted_deletionFails_returnsFalse() {
+
+  }
 }

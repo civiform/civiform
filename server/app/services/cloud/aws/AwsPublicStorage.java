@@ -24,6 +24,7 @@ public final class AwsPublicStorage extends PublicStorageClient {
 
   private static final Logger logger = LoggerFactory.getLogger(AwsPublicStorage.class);
 
+  private final AwsSdkClient awsSdkClient;
   private final AwsStorageUtils awsStorageUtils;
   private final Region region;
   private final Credentials credentials;
@@ -33,11 +34,13 @@ public final class AwsPublicStorage extends PublicStorageClient {
 
   @Inject
   public AwsPublicStorage(
+      AwsSdkClient awsSdkClient,
       AwsStorageUtils awsStorageUtils,
       AwsRegion region,
       Credentials credentials,
       Config config,
       Environment environment) {
+    this.awsSdkClient = checkNotNull(awsSdkClient);
     this.awsStorageUtils = checkNotNull(awsStorageUtils);
     this.region = checkNotNull(region).get();
     this.credentials = checkNotNull(credentials);
@@ -74,25 +77,11 @@ public final class AwsPublicStorage extends PublicStorageClient {
   @Override
   protected boolean deletePublicFileInternal(String fileKey) {
     try {
-      try (S3Client s3Client =
-          S3Client.builder()
-              .credentialsProvider(credentials.credentialsProvider())
-              .region(region)
-              // Override the endpoint so that Localstack works correctly.
-              // See https://docs.localstack.cloud/user-guide/integrations/sdks/java/#s3-service and
-              // https://github.com/localstack/localstack/issues/5209#issuecomment-1004395805.
-              .endpointOverride(client.endpoint())
-              .build()) {
-        s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(fileKey).build());
-        return true;
-      }
-    } catch (AwsServiceException | SdkClientException e) {
-      // AwsServiceException: The call was transmitted successfully, but AWS S3 couldn't process it
-      // for some reason.
-      // SdkClientException: AWS S3 couldn't be contacted for a response or the client couldn't
-      // parse the response from AWS S3.
-      // See https://docs.aws.amazon.com/AmazonS3/latest/userguide/delete-objects.html.
-      logger.error(String.format("Public file '%s' could not be deleted: %s", fileKey, e));
+      awsSdkClient.deleteObject(credentials, region, client.endpoint(),
+              bucket, fileKey, logger);
+      return true;
+    } catch (DeletionFailedException e) {
+      logger.error(e.toString());
       return false;
     }
   }
