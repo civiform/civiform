@@ -43,13 +43,13 @@ public abstract class PublicStorageClient {
    * Removes the file specified by the given key from cloud storage.
    *
    * @return true if the file was successfully deleted and false otherwise.
-   *
-   * @throws IllegalArgumentException if the file key doesn't represent a file that's
-   *     publicly accessible. This is to protect against accidentally deleting an applicant file.
-   **/
+   * @throws IllegalArgumentException if the file key doesn't represent a file that's publicly
+   *     accessible. This is to protect against accidentally deleting an applicant file.
+   */
   public final boolean deletePublicFile(String fileKey) {
     if (!PublicFileNameFormatter.isFileKeyForPublicProgramImage(fileKey)) {
-      throw new IllegalArgumentException("File key incorrectly formatted for public use, so cannot be deleted");
+      throw new IllegalArgumentException(
+          "File key incorrectly formatted for public use, so cannot be deleted");
     }
     return deletePublicFileInternal(fileKey);
   }
