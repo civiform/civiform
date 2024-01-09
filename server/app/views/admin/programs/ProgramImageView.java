@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
-import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
@@ -52,7 +51,6 @@ import views.components.ToastMessage;
 import views.components.breadcrumb.BreadcrumbFactory;
 import views.components.breadcrumb.BreadcrumbItem;
 import views.fileupload.FileUploadViewStrategy;
-import views.style.StyleUtils;
 
 /** A view for admins to update the image associated with a particular program. */
 public final class ProgramImageView extends BaseHtmlView {

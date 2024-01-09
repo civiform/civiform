@@ -6,6 +6,7 @@ import auth.Authorizers;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
 import forms.admin.ProgramImageDescriptionForm;
+import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -19,8 +20,6 @@ import services.cloud.PublicStorageClient;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.admin.programs.ProgramImageView;
-
-import java.util.Optional;
 
 /** Controller for displaying and modifying the image (and alt text) associated with a program. */
 public final class AdminProgramImageController extends CiviFormController {
@@ -106,7 +105,8 @@ public final class AdminProgramImageController extends CiviFormController {
       throw new IllegalArgumentException("Key incorrectly formatted for public program image file");
     }
 
-    // TODO(#5676): If there's an existing file key, we should delete that file before saving the new key.
+    // TODO(#5676): If there's an existing file key, we should delete that file before saving the
+    // new key.
     programService.setSummaryImageFileKey(programId, key);
     final String indexUrl = routes.AdminProgramImageController.index(programId).url();
     return redirect(indexUrl).flashing("success", "Image set");
@@ -118,12 +118,15 @@ public final class AdminProgramImageController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
 
     final String indexUrl = routes.AdminProgramImageController.index(programId).url();
-    Optional<String> currentFileKey = programService.getProgramDefinition(programId).summaryImageFileKey();
+    Optional<String> currentFileKey =
+        programService.getProgramDefinition(programId).summaryImageFileKey();
 
     if (currentFileKey.isEmpty()) {
-      // ProgramImageView should disable the delete action if there's no image in the first place, but handle it here
+      // ProgramImageView should disable the delete action if there's no image in the first place,
+      // but handle it here
       // just in case.
-      return redirect(indexUrl).flashing("warning", "There was no image present, so nothing was deleted.");
+      return redirect(indexUrl)
+          .flashing("warning", "There was no image present, so nothing was deleted.");
     }
 
     boolean deletedFromStorage = publicStorageClient.deletePublicFile(currentFileKey.get());
