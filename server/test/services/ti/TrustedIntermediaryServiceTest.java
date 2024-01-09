@@ -477,6 +477,87 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
+  public void editTiClientInfo_EmptyPhoneNumberDoesNotFail() throws ApplicantNotFoundException {
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(
+            fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "clientFirst",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "ClientLast",
+                        "dob",
+                        "2022-07-07",
+                        "emailAddress",
+                        "email2123",
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "")));
+    Form<EditTiClientInfoForm> form =
+        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<EditTiClientInfoForm> returnForm = service.updateClientInfo(form, tiGroup, testAccount.id);
+    assertThat(returnForm).isEqualTo(form);
+  }
+
+  @Test
+  public void editTiClientInfo_EmptyEmailDoesNotFail() throws ApplicantNotFoundException {
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(
+            fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "clientFirst",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "ClientLast",
+                        "dob",
+                        "2022-07-07",
+                        "emailAddress",
+                        "",
+                        "tiNote",
+                        "unitTest",
+                        "phoneNumber",
+                        "4259870989")));
+    Form<EditTiClientInfoForm> form =
+        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<EditTiClientInfoForm> returnForm = service.updateClientInfo(form, tiGroup, testAccount.id);
+    assertThat(returnForm).isEqualTo(form);
+  }
+
+  @Test
+  public void editTiClientInfo_EmptyTiNotesDoesNotFail() throws ApplicantNotFoundException {
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(
+            fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "clientFirst",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "ClientLast",
+                        "dob",
+                        "2022-07-07",
+                        "emailAddress",
+                        "checkEmail",
+                        "tiNote",
+                        "",
+                        "phoneNumber",
+                        "4259870989")));
+    Form<EditTiClientInfoForm> form =
+        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<EditTiClientInfoForm> returnForm = service.updateClientInfo(form, tiGroup, testAccount.id);
+    assertThat(returnForm).isEqualTo(form);
+  }
+
+  @Test
   public void editTiClientInfo_DOBValidationFail() throws ApplicantNotFoundException {
     AccountModel account = setupTiClientAccount("email1123", tiGroup);
     ApplicantModel applicant = setTiClientApplicant(account, "clientFirst", "2021-12-12");
