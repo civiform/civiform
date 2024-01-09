@@ -132,7 +132,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public boolean blockHasEligibilityPredicate(String blockId) {
-    Block block = getBlock(blockId).get();
+    Block block = getActiveBlock(blockId).get();
     Optional<PredicateDefinition> predicate =
         block.getEligibilityDefinition().map(EligibilityDefinition::predicate);
     return !predicate.isEmpty();
@@ -140,7 +140,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public boolean isBlockEligible(String blockId) {
-    Block block = getBlock(blockId).get();
+    Block block = getActiveBlock(blockId).get();
     Optional<PredicateDefinition> predicate =
         block.getEligibilityDefinition().map(EligibilityDefinition::predicate);
     // No eligibility criteria means the block is eligible.
@@ -206,7 +206,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-  public Optional<Block> getBlock(String blockId) {
+  public Optional<Block> getActiveBlock(String blockId) {
     return getAllActiveBlocks().stream()
         .filter((block) -> block.getId().equals(blockId))
         .findFirst();

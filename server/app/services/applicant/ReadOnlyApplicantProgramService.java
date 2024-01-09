@@ -65,8 +65,8 @@ public interface ReadOnlyApplicantProgramService {
    */
   ImmutableList<ApplicantQuestion> getIneligibleQuestions();
 
-  /** Get the block with the given block ID */
-  Optional<Block> getBlock(String blockId);
+  /** Get the active block with the given block ID */
+  Optional<Block> getActiveBlock(String blockId);
 
   /**
    * Get the next in-progress block that comes after the block with the given ID if there is one.

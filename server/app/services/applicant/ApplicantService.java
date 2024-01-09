@@ -300,7 +300,7 @@ public final class ApplicantService {
                       programDefinition,
                       baseUrl);
               Optional<Block> maybeBlockBeforeUpdate =
-                  readOnlyApplicantProgramServiceBeforeUpdate.getBlock(blockId);
+                  readOnlyApplicantProgramServiceBeforeUpdate.getActiveBlock(blockId);
               if (maybeBlockBeforeUpdate.isEmpty()) {
                 return CompletableFuture.failedFuture(
                     new ProgramBlockNotFoundException(programId, blockId));
@@ -369,7 +369,7 @@ public final class ApplicantService {
             baseUrl,
             failedUpdates);
 
-    Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockBeforeUpdate.getId());
+    Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockBeforeUpdate.getId());
     if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
       return accountRepository
           .updateApplicant(applicant)
@@ -1463,7 +1463,7 @@ public final class ApplicantService {
     return getReadOnlyApplicantProgramService(applicantId, programId)
         .thenComposeAsync(
             roApplicantProgramService -> {
-              Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
+              Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockId);
 
               if (blockMaybe.isEmpty()) {
                 return CompletableFuture.failedFuture(
@@ -1584,7 +1584,7 @@ public final class ApplicantService {
     return getReadOnlyApplicantProgramService(applicantId, programId)
         .thenComposeAsync(
             roApplicantProgramService -> {
-              Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
+              Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockId);
 
               if (blockMaybe.isEmpty()) {
                 return CompletableFuture.failedFuture(
