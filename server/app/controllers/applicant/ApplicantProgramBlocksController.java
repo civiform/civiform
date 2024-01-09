@@ -350,7 +350,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicantProgramServiceCompletableFuture.join();
               ImmutableList<Block> blocks = roApplicantProgramService.getAllActiveBlocks();
               String blockId = blocks.get(previousBlockIndex).getId();
-              Optional<Block> block = roApplicantProgramService.getBlock(blockId);
+              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
 
               if (block.isPresent()) {
                 ApplicantPersonalInfo personalInfo = applicantStage.toCompletableFuture().join();
@@ -431,7 +431,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             httpExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
-              Optional<Block> block = roApplicantProgramService.getBlock(blockId);
+              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
 
               if (block.isPresent()) {
                 ApplicantPersonalInfo personalInfo = applicantStage.toCompletableFuture().join();
@@ -495,7 +495,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             httpExecutionContext.current())
         .thenComposeAsync(
             (roApplicantProgramService) -> {
-              Optional<Block> block = roApplicantProgramService.getBlock(blockId);
+              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
 
               if (block.isEmpty() || !block.get().isFileUpload()) {
                 return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
@@ -679,7 +679,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ApplicantPersonalInfo personalInfo,
       boolean inReview,
       ReadOnlyApplicantProgramService roApplicantProgramService) {
-    Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getBlock(blockId);
+    Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getActiveBlock(blockId);
     if (thisBlockUpdatedMaybe.isEmpty()) {
       return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
     }
@@ -755,7 +755,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     Map<String, String> flashingMap = new HashMap<>();
     if (roApplicantProgramService.blockHasEligibilityPredicate(blockId)
-        && roApplicantProgramService.isBlockEligible(blockId)) {
+        && roApplicantProgramService.isActiveBlockEligible(blockId)) {
       flashingMap.put(
           "success-banner",
           messagesApi
@@ -871,7 +871,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ProgramDefinition programDefinition,
       String blockId) {
     if (programDefinition.eligibilityIsGating()) {
-      return !roApplicantProgramService.isBlockEligible(blockId);
+      return !roApplicantProgramService.isActiveBlockEligible(blockId);
     }
     return false;
   }

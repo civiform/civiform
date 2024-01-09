@@ -117,7 +117,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public boolean isApplicationEligible() {
-    return getAllActiveBlocks().stream().allMatch(block -> isBlockEligible(block.getId()));
+    return getAllActiveBlocks().stream().allMatch(block -> isBlockEligible(block));
   }
 
   @Override
@@ -133,7 +133,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public boolean blockHasEligibilityPredicate(String blockId) {
-    Block block = getBlock(blockId).get();
+    Block block = getActiveBlock(blockId).get();
     Optional<PredicateDefinition> predicate =
         block.getEligibilityDefinition().map(EligibilityDefinition::predicate);
     return !predicate.isEmpty();
@@ -142,18 +142,17 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public boolean isHiddenBlockEligible(String blockId) {
     Block block = getHiddenBlock(blockId).get();
-    Optional<PredicateDefinition> predicate =
-        block.getEligibilityDefinition().map(EligibilityDefinition::predicate);
-    // No eligibility criteria means the block is eligible.
-    if (predicate.isEmpty()) {
-      return true;
-    }
-    return evaluatePredicate(block, predicate.get());
+    return isBlockEligible(block);
   }
 
   @Override
-  public boolean isBlockEligible(String blockId) {
-    Block block = getBlock(blockId).get();
+  public boolean isActiveBlockEligible(String blockId) {
+    Block block = getActiveBlock(blockId).get();
+    return isBlockEligible(block);
+  }
+
+  /*helper function*/
+  private boolean isBlockEligible(Block block) {
     Optional<PredicateDefinition> predicate =
         block.getEligibilityDefinition().map(EligibilityDefinition::predicate);
     // No eligibility criteria means the block is eligible.
@@ -235,7 +234,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-  public Optional<Block> getBlock(String blockId) {
+  public Optional<Block> getActiveBlock(String blockId) {
     return getAllActiveBlocks().stream()
         .filter((block) -> block.getId().equals(blockId))
         .findFirst();
@@ -296,7 +295,20 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   public ImmutableList<AnswerData> getSummaryData(boolean includeHiddenBlocks) {
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
-    ImmutableList<Block> blocks = getAllActiveBlocks();
+    ImmutableList<Block> activeBlocks = getAllActiveBlocks();
+    addDataToBuilder(activeBlocks, builder, false);
+    if (includeHiddenBlocks) {
+      ImmutableList<Block> hiddenBlocks = getAllHiddenBlocks();
+      addDataToBuilder(hiddenBlocks, builder, true);
+    }
+    return builder.build();
+  }
+
+  /*helper function for getSummaryData*/
+  private void addDataToBuilder(
+      ImmutableList<Block> blocks,
+      ImmutableList.Builder<AnswerData> builder,
+      boolean hiddenBlocks) {
     for (Block block : blocks) {
       ImmutableList<ApplicantQuestion> questions = block.getQuestions();
       for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
@@ -310,6 +322,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         String questionText = applicantQuestion.getQuestionText();
         String questionTextForScreenReader = applicantQuestion.getQuestionTextForScreenReader();
         String answerText = applicantQuestion.getQuestion().getAnswerString();
+        if (hiddenBlocks) {
+          answerText = "N/A";
+        }
         Optional<Long> timestamp = applicantQuestion.getLastUpdatedTimeMetadata();
         Optional<Long> updatedProgram = applicantQuestion.getUpdatedInProgramMetadata();
         Optional<String> originalFileName = Optional.empty();
@@ -348,61 +363,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         builder.add(data);
       }
     }
-    if (includeHiddenBlocks) {
-      ImmutableList<Block> hiddenBlock = getAllHiddenBlocks();
-      for (Block block : hiddenBlock) {
-        ImmutableList<ApplicantQuestion> questions = block.getQuestions();
-        for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
-          ApplicantQuestion applicantQuestion = questions.get(questionIndex);
-          // Don't include static content in summary data.
-          if (applicantQuestion.getType().equals(QuestionType.STATIC)) {
-            continue;
-          }
-          boolean isAnswered = applicantQuestion.isAnswered();
-          boolean isEligible = isQuestionEligibleInHiddenBlock(block, applicantQuestion);
-          String questionText = applicantQuestion.getQuestionText();
-          String questionTextForScreenReader = applicantQuestion.getQuestionTextForScreenReader();
-          String answerText = "N/A";
-          Optional<Long> timestamp = applicantQuestion.getLastUpdatedTimeMetadata();
-          Optional<Long> updatedProgram = applicantQuestion.getUpdatedInProgramMetadata();
-          Optional<String> originalFileName = Optional.empty();
-          Optional<String> encodedFileKey = Optional.empty();
-          if (isAnswered && applicantQuestion.isFileUploadQuestion()) {
-            FileUploadQuestion fileUploadQuestion = applicantQuestion.createFileUploadQuestion();
-            originalFileName = fileUploadQuestion.getOriginalFileName();
-            encodedFileKey =
-                fileUploadQuestion
-                    .getFileKeyValue()
-                    .map((fileKey) -> URLEncoder.encode(fileKey, StandardCharsets.UTF_8));
-          }
-          boolean isPreviousResponse =
-              updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
-          AnswerData data =
-              AnswerData.builder()
-                  .setProgramId(programDefinition.id())
-                  .setBlockId(block.getId())
-                  .setContextualizedPath(applicantQuestion.getContextualizedPath())
-                  .setQuestionDefinition(applicantQuestion.getQuestionDefinition())
-                  .setApplicantQuestion(applicantQuestion)
-                  .setRepeatedEntity(block.getRepeatedEntity())
-                  .setQuestionIndex(questionIndex)
-                  .setQuestionText(questionText)
-                  .setQuestionTextForScreenReader(questionTextForScreenReader)
-                  .setIsAnswered(isAnswered)
-                  .setIsEligible(isEligible)
-                  .setEligibilityIsGating(programDefinition.eligibilityIsGating())
-                  .setAnswerText(answerText)
-                  .setEncodedFileKey(encodedFileKey)
-                  .setOriginalFileName(originalFileName)
-                  .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
-                  .setIsPreviousResponse(isPreviousResponse)
-                  .setScalarAnswersInDefaultLocale(getScalarAnswers(applicantQuestion))
-                  .build();
-          builder.add(data);
-        }
-      }
-    }
-    return builder.build();
   }
 
   /**
@@ -427,17 +387,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
    * not eligible, check if the question is part of that eligibility condition.
    */
   private boolean isQuestionEligibleInBlock(Block block, ApplicantQuestion question) {
-    return isBlockEligible(block.getId())
-        || !block
-            .getEligibilityDefinition()
-            .get()
-            .predicate()
-            .getQuestions()
-            .contains(question.getQuestionDefinition().getId());
-  }
-
-  private boolean isQuestionEligibleInHiddenBlock(Block block, ApplicantQuestion question) {
-    return isHiddenBlockEligible(block.getId())
+    return isBlockEligible(block)
         || !block
             .getEligibilityDefinition()
             .get()
