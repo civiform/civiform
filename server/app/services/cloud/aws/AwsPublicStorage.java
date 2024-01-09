@@ -82,12 +82,7 @@ public final class AwsPublicStorage extends PublicStorageClient {
           client.endpoint(),
           DeleteObjectRequest.builder().bucket(bucket).key(fileKey).build());
       return true;
-    } catch (AwsServiceException | SdkClientException e) {
-      // AwsServiceException: The call was transmitted successfully, but AWS S3 couldn't process it
-      // for some reason.
-      // SdkClientException: AWS S3 couldn't be contacted for a response or the client couldn't
-      // parse the response from AWS S3.
-      // See https://docs.aws.amazon.com/AmazonS3/latest/userguide/delete-objects.html.
+    } catch (FileDeletionFailureException e) {
       logger.error(e.toString());
       return false;
     }

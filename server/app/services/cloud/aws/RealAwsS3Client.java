@@ -2,6 +2,9 @@ package services.cloud.aws;
 
 import com.google.inject.Inject;
 import java.net.URI;
+
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -15,7 +18,7 @@ public class RealAwsS3Client implements AwsS3ClientWrapper {
 
   @Override
   public void deleteObject(
-      Credentials credentials, Region region, URI endpoint, DeleteObjectRequest request) {
+      Credentials credentials, Region region, URI endpoint, DeleteObjectRequest request) throws FileDeletionFailureException {
     if (request.key().isBlank()) {
       throw new IllegalArgumentException("The request must have a key.");
     }
@@ -31,7 +34,16 @@ public class RealAwsS3Client implements AwsS3ClientWrapper {
             // https://github.com/localstack/localstack/issues/5209#issuecomment-1004395805.
             .endpointOverride(endpoint)
             .build()) {
-      s3Client.deleteObject(request);
+      try {
+    s3Client.deleteObject(request);
+      } catch (AwsServiceException | SdkClientException e) {
+        // AwsServiceException: The call was transmitted successfully, but AWS S3 couldn't process it
+        // for some reason.
+        // SdkClientException: AWS S3 couldn't be contacted for a response or the client couldn't
+        // parse the response from AWS S3.
+        // See https://docs.aws.amazon.com/AmazonS3/latest/userguide/delete-objects.html.
+        throw new FileDeletionFailureException(e);
+      }
     }
   }
 }

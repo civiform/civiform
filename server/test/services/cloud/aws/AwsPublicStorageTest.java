@@ -277,7 +277,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void deletePublicFile_keyCorrectlyFormatted_deletionProcessError_returnsFalse() {
+  public void deletePublicFile_keyCorrectlyFormatted_deletionError_returnsFalse() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeAwsS3Client,
@@ -287,23 +287,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
             instanceOf(Config.class),
             instanceOf(Environment.class));
 
-    boolean deleted = awsPublicStorage.deletePublicFile(FakeAwsS3Client.PROCESS_ERROR_FILE_KEY);
-    assertThat(deleted).isFalse();
-  }
-
-  @Test
-  public void deletePublicFile_keyCorrectlyFormatted_responseParseError_returnsFalse() {
-    AwsPublicStorage awsPublicStorage =
-        new AwsPublicStorage(
-            fakeAwsS3Client,
-            instanceOf(AwsStorageUtils.class),
-            instanceOf(AwsRegion.class),
-            instanceOf(Credentials.class),
-            instanceOf(Config.class),
-            instanceOf(Environment.class));
-
-    boolean deleted =
-        awsPublicStorage.deletePublicFile(FakeAwsS3Client.RESPONSE_PARSE_ERROR_FILE_KEY);
+    boolean deleted = awsPublicStorage.deletePublicFile(FakeAwsS3Client.DELETION_ERROR_FILE_KEY);
     assertThat(deleted).isFalse();
   }
 }
