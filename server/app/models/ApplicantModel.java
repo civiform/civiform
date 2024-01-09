@@ -1,6 +1,7 @@
 package models;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
@@ -72,14 +73,27 @@ public class ApplicantModel extends BaseModel {
     if (this.applicantData == null && (object != null && !object.isEmpty())) {
       if (preferredLocale == null || preferredLocale.isEmpty()) {
         // Default to English until the applicant specifies their preferred language.
-        this.applicantData = new ApplicantData(object, this);
+        this.applicantData = new ApplicantData(object);
       } else {
         this.applicantData =
-            new ApplicantData(Optional.of(Locale.forLanguageTag(preferredLocale)), object, this);
+            new ApplicantData(Optional.of(Locale.forLanguageTag(preferredLocale)), object);
       }
     } else if (this.applicantData == null) {
-      this.applicantData = new ApplicantData(this);
+      this.applicantData = new ApplicantData();
     }
+    
+    // We want to calculate this every time in case setUserName has
+    // been called to modify the name and then the ApplicantData object
+    // is fetched.
+    Optional<String> firstName = getFirstName();
+    Optional<String> lastName = getLastName();
+    Optional<String> applicantName = firstName.isEmpty()
+      ? Optional.empty()
+      : lastName.isEmpty()
+        ? Optional.of(firstName.get())
+        : Optional.of(String.format("%s, %s", lastName.get(), firstName.get()));
+    applicantData.setApplicantName(applicantName);
+
     return applicantData;
   }
 
@@ -159,6 +173,38 @@ public class ApplicantModel extends BaseModel {
 
   public Optional<LocalDate> getDateOfBirth() {
     return Optional.ofNullable(dateOfBirth);
+  }
+
+  public ApplicantModel setUserName(String displayName) {
+    String firstName;
+    Optional<String> lastName = Optional.empty();
+    Optional<String> middleName = Optional.empty();
+    List<String> listSplit = Splitter.on(' ').splitToList(displayName);
+    switch (listSplit.size()) {
+      case 2:
+        firstName = listSplit.get(0);
+        lastName = Optional.of(listSplit.get(1));
+        break;
+      case 3:
+        firstName = listSplit.get(0);
+        middleName = Optional.of(listSplit.get(1));
+        lastName = Optional.of(listSplit.get(2));
+        break;
+      case 1:
+        // fallthrough
+      default:
+        // Too many names - put them all in first name.
+        firstName = displayName;
+    }
+    setUserName(firstName, middleName, lastName);
+    return this;
+  }
+
+  public void setUserName(
+      String firstName, Optional<String> middleName, Optional<String> lastName) {
+    setFirstName(firstName);
+    middleName.ifPresent(this::setMiddleName);
+    lastName.ifPresent(this::setLastName);
   }
 
   private String objectAsJsonString() {

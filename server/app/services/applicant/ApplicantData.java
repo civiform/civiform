@@ -2,11 +2,9 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.PathNotFoundException;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import models.ApplicantModel;
@@ -34,33 +32,27 @@ public class ApplicantData extends CfJsonDocumentContext {
   private static final String EMPTY_APPLICANT_DATA_JSON =
       String.format("{ \"%s\": {} }", APPLICANT);
   private Optional<Locale> preferredLocale;
-
   private Optional<ImmutableMap<Path, String>> failedUpdates;
-
-  private ApplicantModel applicant;
+  private Optional<String> applicantName;
 
   public ApplicantData() {
-    this(EMPTY_APPLICANT_DATA_JSON, null);
+    this(EMPTY_APPLICANT_DATA_JSON);
   }
 
-  public ApplicantData(ApplicantModel applicant) {
-    this(EMPTY_APPLICANT_DATA_JSON, applicant);
+  public ApplicantData(String jsonData) {
+    this(Optional.empty(), Optional.empty(), jsonData);
   }
 
-  public ApplicantData(String jsonData, ApplicantModel applicant) {
-    this(Optional.empty(), jsonData, applicant);
+  public ApplicantData(Optional<Locale> preferredLocale, String jsonData) {
+    this(preferredLocale, Optional.empty(), jsonData);
   }
 
   public ApplicantData(
-      Optional<Locale> preferredLocale, String jsonData, ApplicantModel applicant) {
+      Optional<Locale> preferredLocale, Optional<String> applicantName, String jsonData) {
     super(JsonPathProvider.getJsonPath().parse(checkNotNull(jsonData)));
     this.preferredLocale = preferredLocale;
+    this.applicantName = applicantName;
     this.failedUpdates = Optional.empty();
-    this.applicant = applicant;
-  }
-
-  public ApplicantModel getApplicant() {
-    return applicant;
   }
 
   /** Returns true if this applicant has set their preferred locale, and false otherwise. */
@@ -78,54 +70,20 @@ public class ApplicantData extends CfJsonDocumentContext {
     this.preferredLocale = Optional.of(locale);
   }
 
-  public Optional<String> getApplicantName() {
-    Optional<String> firstName = applicant.getFirstName();
-    Optional<String> lastName = applicant.getLastName();
-    if (firstName.isEmpty()) {
-      return Optional.empty();
-    }
-    return lastName.isEmpty()
-        ? Optional.of(firstName.get())
-        : Optional.of(String.format("%s, %s", lastName.get(), firstName.get()));
-  }
-
-  public void setUserName(String displayName) {
-    String firstName;
-    Optional<String> lastName = Optional.empty();
-    Optional<String> middleName = Optional.empty();
-    List<String> listSplit = Splitter.on(' ').splitToList(displayName);
-    switch (listSplit.size()) {
-      case 2:
-        firstName = listSplit.get(0);
-        lastName = Optional.of(listSplit.get(1));
-        break;
-      case 3:
-        firstName = listSplit.get(0);
-        middleName = Optional.of(listSplit.get(1));
-        lastName = Optional.of(listSplit.get(2));
-        break;
-      case 1:
-        // fallthrough
-      default:
-        // Too many names - put them all in first name.
-        firstName = displayName;
-    }
-    setUserName(firstName, middleName, lastName);
-  }
-
-  public void setUserName(
-      String firstName, Optional<String> middleName, Optional<String> lastName) {
-    applicant.setFirstName(firstName);
-    middleName.ifPresent(applicant::setMiddleName);
-    lastName.ifPresent(applicant::setLastName);
-  }
-
   @Override
   public String asJsonString() {
     if (!getFailedUpdates().isEmpty()) {
       throw new IllegalStateException("data cannot be serialized since there were failed updates");
     }
     return super.asJsonString();
+  }
+
+  public Optional<String> getApplicantName() {
+    return this.applicantName;
+  }
+
+  public void setApplicantName(Optional<String> applicantName) {
+    this.applicantName = applicantName;
   }
 
   /**
@@ -162,10 +120,10 @@ public class ApplicantData extends CfJsonDocumentContext {
   public boolean isDuplicateOf(ApplicantData other) {
     // Copy data and clear fields not required for comparison.
     ApplicantData thisApplicantData =
-        new ApplicantData(this.preferredLocale, this.asJsonString(), this.applicant);
+        new ApplicantData(this.preferredLocale, this.asJsonString());
     clearFieldsNotRequiredForComparison(thisApplicantData);
     ApplicantData otherApplicantData =
-        new ApplicantData(other.preferredLocale, other.asJsonString(), other.applicant);
+        new ApplicantData(other.preferredLocale, other.asJsonString());
     clearFieldsNotRequiredForComparison(otherApplicantData);
 
     return thisApplicantData.asJsonString().equals(otherApplicantData.asJsonString());
