@@ -49,7 +49,6 @@ public class CloudStorageModule extends AbstractModule {
         bind(ApplicantStorageClient.class).to(AwsApplicantStorage.class);
         bind(PublicStorageClient.class).to(AwsPublicStorage.class);
         bind(FileUploadViewStrategy.class).to(AwsFileUploadViewStrategy.class);
-        // bind(AwsSdkClient.class).to(AwsSdkClientImpl.class);
         bind(AwsS3ClientWrapper.class).to(RealAwsS3Client.class);
         break;
       case AZURE_BLOB:
