@@ -23,7 +23,7 @@ public final class AwsPublicStorage extends PublicStorageClient {
 
   private static final Logger logger = LoggerFactory.getLogger(AwsPublicStorage.class);
 
-  private final AwsSdkClientWrapper awsSdkClientWrapper;
+  private final AwsS3ClientWrapper awsS3ClientWrapper;
   private final AwsStorageUtils awsStorageUtils;
   private final Region region;
   private final Credentials credentials;
@@ -33,18 +33,18 @@ public final class AwsPublicStorage extends PublicStorageClient {
 
   @Inject
   public AwsPublicStorage(
-      AwsSdkClientWrapper awsSdkClientWrapper,
+      AwsS3ClientWrapper awsS3ClientWrapper,
       AwsStorageUtils awsStorageUtils,
       AwsRegion region,
       Credentials credentials,
       Config config,
       Environment environment) {
-    this.awsSdkClientWrapper = checkNotNull(awsSdkClientWrapper);
+    this.awsS3ClientWrapper = checkNotNull(awsS3ClientWrapper);
     this.awsStorageUtils = checkNotNull(awsStorageUtils);
     this.region = checkNotNull(region).get();
     this.credentials = checkNotNull(credentials);
-    this.bucket = config.getString(AWS_PUBLIC_S3_BUCKET_CONF_PATH);
-    this.fileLimitMb = config.getInt(AWS_PUBLIC_S3_FILE_LIMIT_CONF_PATH);
+    this.bucket = checkNotNull(config).getString(AWS_PUBLIC_S3_BUCKET_CONF_PATH);
+    this.fileLimitMb = checkNotNull(config).getInt(AWS_PUBLIC_S3_FILE_LIMIT_CONF_PATH);
     if (environment.isDev()) {
       client = new LocalStackClient(config, awsStorageUtils);
     } else if (environment.isProd()) {
@@ -76,10 +76,18 @@ public final class AwsPublicStorage extends PublicStorageClient {
   @Override
   protected boolean deletePublicFileInternal(String fileKey) {
     try {
-      awsSdkClientWrapper.deleteObject(credentials, region, client.endpoint(),
-              DeleteObjectRequest.builder().bucket(bucket).key(fileKey).build());
+      awsS3ClientWrapper.deleteObject(
+          credentials,
+          region,
+          client.endpoint(),
+          DeleteObjectRequest.builder().bucket(bucket).key(fileKey).build());
       return true;
     } catch (AwsServiceException | SdkClientException e) {
+      // AwsServiceException: The call was transmitted successfully, but AWS S3 couldn't process it
+      // for some reason.
+      // SdkClientException: AWS S3 couldn't be contacted for a response or the client couldn't
+      // parse the response from AWS S3.
+      // See https://docs.aws.amazon.com/AmazonS3/latest/userguide/delete-objects.html.
       logger.error(e.toString());
       return false;
     }
@@ -98,7 +106,7 @@ public final class AwsPublicStorage extends PublicStorageClient {
     /**
      * Returns the endpoint that this client represents.
      *
-     * <p>This endpoint URI should *not* include any particular bucket, and insteal should just link
+     * <p>This endpoint URI should *not* include any particular bucket, and instead should just link
      * to the client's base URL. For example, "http://s3.localhost.localstack.cloud:4566" not
      * "http://civiform-local-s3-public.s3.localhost.localstack.cloud:4566/".
      */
@@ -117,7 +125,7 @@ public final class AwsPublicStorage extends PublicStorageClient {
   static class NullClient implements Client {
     @Override
     public URI endpoint() {
-      return URI.create("fake-endpoint.com");
+      return URI.create("http://fake-endpoint.com");
     }
 
     @Override
