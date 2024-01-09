@@ -59,8 +59,7 @@ describe('create and edit predicates', () => {
       'hide me',
     )
     await adminPredicates.expectPredicateDisplayTextContains(
-      'Screen 2 is not hidden even if "hide-predicate-q" text is equal' +
-        ' to "hide me" since it is a pdf for admin view',
+      'Screen 2 is hidden if "hide-predicate-q" text is equal to "hide me"',
     )
     await validateScreenshot(page, 'hide-predicate')
 
@@ -93,7 +92,7 @@ describe('create and edit predicates', () => {
     await applicantQuestions.clickNext()
 
     // We should be on the review page
-    expect(await page.innerText('#application-summary')).toContain(
+    expect(await page.innerText('#application-summary')).not.toContain(
       'conditional question',
     )
     await applicantQuestions.submitFromReviewPage()
@@ -108,7 +107,7 @@ describe('create and edit predicates', () => {
       .applicationFrameLocator()
       .locator('#application-view')
       .innerText()
-    expect(applicationText).toContain('Screen 2')
+    expect(applicationText).not.toContain('Screen 2')
   })
 
   it('add a show predicate', async () => {

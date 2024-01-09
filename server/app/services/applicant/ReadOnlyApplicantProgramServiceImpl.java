@@ -285,14 +285,17 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return programDefinition.getSupportedLocales().contains(applicantData.preferredLocale());
   }
 
-  /** default not including hidden blocks */
   @Override
-  public ImmutableList<AnswerData> getSummaryData() {
+  public ImmutableList<AnswerData> getSummaryDataOnlyActive() {
     return getSummaryData(false);
   }
 
   @Override
-  public ImmutableList<AnswerData> getSummaryData(boolean includeHiddenBlocks) {
+  public ImmutableList<AnswerData> getSummaryDataAll() {
+    return getSummaryData(true);
+  }
+
+  private ImmutableList<AnswerData> getSummaryData(boolean includeHiddenBlocks) {
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> activeBlocks = getAllActiveBlocks();
@@ -304,7 +307,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return builder.build();
   }
 
-  /*helper function for getSummaryData*/
+  /*helper function for getSummaryData()*/
   private void addDataToBuilder(
       ImmutableList<Block> blocks,
       ImmutableList.Builder<AnswerData> builder,

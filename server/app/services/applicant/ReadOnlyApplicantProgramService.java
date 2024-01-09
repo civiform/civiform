@@ -97,11 +97,11 @@ public interface ReadOnlyApplicantProgramService {
    */
   Optional<Block> getFirstIncompleteBlockExcludingStatic();
 
-  /** Returns summary data for each question in this application. */
-  ImmutableList<AnswerData> getSummaryData();
+  /** Returns summary data for each non-hidden question in this application. */
+  ImmutableList<AnswerData> getSummaryDataOnlyActive();
 
   /** Returns summary data for each question in this application. */
-  ImmutableList<AnswerData> getSummaryData(boolean includeHiddenBlocks);
+  ImmutableList<AnswerData> getSummaryDataAll();
 
   /** Get the string identifiers for all stored files for this application. */
   ImmutableList<String> getStoredFileKeys();

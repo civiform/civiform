@@ -310,12 +310,8 @@ public final class AdminApplicationController extends CiviFormController {
             .getReadOnlyApplicantProgramService(application)
             .toCompletableFuture()
             .join();
-    ImmutableList.Builder<Block> builder = new ImmutableList.Builder<>();
-    ImmutableList<Block> activeBlocks = roApplicantService.getAllActiveBlocks();
-    ImmutableList<Block> hiddenBlocks = roApplicantService.getAllHiddenBlocks();
-    builder.addAll(activeBlocks).addAll(hiddenBlocks);
-    ImmutableList<Block> allBlocks = builder.build();
-    ImmutableList<AnswerData> answers = roApplicantService.getSummaryData(true);
+    ImmutableList<Block> blocks = roApplicantService.getAllActiveBlocks();
+    ImmutableList<AnswerData> answers = roApplicantService.getSummaryDataOnlyActive();
     Optional<String> noteMaybe = programAdminApplicationService.getNote(application);
 
     return ok(
@@ -324,7 +320,7 @@ public final class AdminApplicationController extends CiviFormController {
             programName,
             application,
             applicantNameWithApplicationId,
-            allBlocks,
+            blocks,
             answers,
             program.statusDefinitions(),
             noteMaybe,
