@@ -319,12 +319,14 @@ public final class ProgramRepository {
     if (filters.searchNameFragment().isPresent() && !filters.searchNameFragment().get().isBlank()) {
       String search = filters.searchNameFragment().get().trim();
 
-      if (search.matches("^\\d+$")) {
+      String maybeDigits = search.replaceAll("[()-.]", "");
+
+      if (maybeDigits.matches("^\\d+$")) {
         query =
             query
                 .or()
-                .eq("id", Integer.parseInt(search))
-                .raw("applicant.phoneNumber ILIKE ?", "%" + search + "%")
+                .eq("id", Long.parseLong(maybeDigits))
+                .raw("applicant.phoneNumber ILIKE ?", "%" + maybeDigits + "%")
                 .endOr();
       } else {
         String firstNamePath = "applicant.firstName";
