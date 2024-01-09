@@ -47,6 +47,7 @@ import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
 import repository.StoredFileRepository;
 import repository.TimeFilter;
+import repository.QuestionRepository;
 import repository.VersionRepository;
 import services.Address;
 import services.DeploymentType;
@@ -109,6 +110,7 @@ public final class ApplicantService {
   private final ServiceAreaUpdateResolver serviceAreaUpdateResolver;
   private final EsriClient esriClient;
   private final MessagesApi messagesApi;
+  private final QuestionRepository questionRepository;
 
   @Inject
   public ApplicantService(
@@ -126,7 +128,8 @@ public final class ApplicantService {
       DeploymentType deploymentType,
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      QuestionRepository questionRepository) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.accountRepository = checkNotNull(accountRepository);
@@ -149,6 +152,7 @@ public final class ApplicantService {
     this.stagingApplicantNotificationMailingList =
         checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
     this.esriClient = checkNotNull(esriClient);
+    this.questionRepository = checkNotNull(questionRepository);
   }
 
   /** Create a new {@link ApplicantModel}. */
@@ -446,12 +450,12 @@ public final class ApplicantService {
     ProgramModel applicationProgram = application.getProgram();
     ApplicantModel applicant = application.getApplicant();
     ApplicantData applicantData = application.getApplicantData();
-    return programService
-        .syncQuestionsToSingleProgramDefinition(applicationProgram.getProgramDefinition())
+    ImmutableList<Long> questionIds = applicationProgram.getProgramDefinition().getQuestionIdsInProgram();
+    return questionRepository
+        .lookupQuestionDefinitions(questionIds)
         .thenComposeAsync(
-            programDefinition -> {
-              programDefinition
-                  .getQuestionsWithPrimaryApplicantInfoTagsInProgram()
+            questionDefinitions -> {
+              questionDefinitions
                   .forEach(
                       question -> {
                         Path path = Path.create("applicant").join(question.getQuestionNameKey());
@@ -939,8 +943,7 @@ public final class ApplicantService {
                       .collect(Collectors.toList());
               programDefinitionsList.addAll(activeProgramDefinitions);
               return programService.syncQuestionsToProgramDefinitions(
-                  programDefinitionsList.stream().collect(ImmutableList.toImmutableList()),
-                  /* force= */ false);
+                  programDefinitionsList.stream().collect(ImmutableList.toImmutableList()));
             })
         .thenApplyAsync(
             allPrograms -> {

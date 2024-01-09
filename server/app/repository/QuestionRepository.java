@@ -70,6 +70,22 @@ public final class QuestionRepository {
         executionContext);
   }
 
+  public CompletionStage<ImmutableList<QuestionDefinition>> lookupQuestionDefinitions(ImmutableList<Long> ids) {
+    return supplyAsync(
+      () ->
+        database
+          .find(QuestionModel.class)
+          .setLabel("QuestionModel.findByIds")
+          .setProfileLocation(queryProfileLocationBuilder.create("lookupQuestions"))
+          .where()
+          .in("id", ids)
+          .findList()
+          .stream()
+          .map(QuestionModel::getQuestionDefinition)
+          .collect(ImmutableList.toImmutableList()),
+    executionContext);
+  }
+
   /**
    * Find and update the DRAFT of the question with this name, if one already exists. Create a new
    * DRAFT if there isn't one.
