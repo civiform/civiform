@@ -144,7 +144,7 @@ public final class TrustedIntermediaryService {
       return form;
     }
     // removes space, '(',')' and '-' from the phone number
-    phoneNumber = phoneNumber.replaceAll(" ","");
+    phoneNumber = phoneNumber.replaceAll(" ", "");
     phoneNumber = phoneNumber.replaceAll("[()-]", "");
     if (!phoneNumber.matches("[0-9]+")) {
       return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain only digits");

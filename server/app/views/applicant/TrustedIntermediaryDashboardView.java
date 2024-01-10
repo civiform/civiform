@@ -80,8 +80,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 hr().withClasses("mt-6"),
                 renderSubHeader("Clients").withClass("my-4"),
                 renderSearchForm(request, searchParameters),
-                renderTIApplicantsTable(
-                    managedAccounts, searchParameters, page, totalPageCount),
+                renderTIApplicantsTable(managedAccounts, searchParameters, page, totalPageCount),
                 hr().withClasses("mt-6"),
                 renderSubHeader("Organization members").withClass("my-4"),
                 renderTIMembersTable(tiGroup).withClass("pt-2"))
