@@ -2,7 +2,6 @@ package services.cloud.aws;
 
 import com.google.inject.Inject;
 import java.net.URI;
-
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.regions.Region;
@@ -18,26 +17,20 @@ public class RealAwsS3Client implements AwsS3ClientWrapper {
 
   @Override
   public void deleteObject(
-      Credentials credentials, Region region, URI endpoint, DeleteObjectRequest request) throws FileDeletionFailureException {
+      Credentials credentials, Region region, URI endpoint, DeleteObjectRequest request)
+      throws FileDeletionFailureException {
     if (request.key().isBlank()) {
       throw new IllegalArgumentException("The request must have a key.");
     }
     if (request.bucket().isBlank()) {
       throw new IllegalArgumentException("The request must have a bucket.");
     }
-    try (S3Client s3Client =
-        S3Client.builder()
-            .credentialsProvider(credentials.credentialsProvider())
-            .region(region)
-            // Override the endpoint so that Localstack works correctly.
-            // See https://docs.localstack.cloud/user-guide/integrations/sdks/java/#s3-service and
-            // https://github.com/localstack/localstack/issues/5209#issuecomment-1004395805.
-            .endpointOverride(endpoint)
-            .build()) {
+    try (S3Client s3Client = createS3Client(credentials, region, endpoint)) {
       try {
-    s3Client.deleteObject(request);
+        s3Client.deleteObject(request);
       } catch (AwsServiceException | SdkClientException e) {
-        // AwsServiceException: The call was transmitted successfully, but AWS S3 couldn't process it
+        // AwsServiceException: The call was transmitted successfully, but AWS S3 couldn't process
+        // it
         // for some reason.
         // SdkClientException: AWS S3 couldn't be contacted for a response or the client couldn't
         // parse the response from AWS S3.
@@ -45,5 +38,16 @@ public class RealAwsS3Client implements AwsS3ClientWrapper {
         throw new FileDeletionFailureException(e);
       }
     }
+  }
+
+  private S3Client createS3Client(Credentials credentials, Region region, URI endpoint) {
+    return S3Client.builder()
+        .credentialsProvider(credentials.credentialsProvider())
+        .region(region)
+        // Override the endpoint so that Localstack works correctly.
+        // See https://docs.localstack.cloud/user-guide/integrations/sdks/java/#s3-service and
+        // https://github.com/localstack/localstack/issues/5209#issuecomment-1004395805.
+        .endpointOverride(endpoint)
+        .build();
   }
 }

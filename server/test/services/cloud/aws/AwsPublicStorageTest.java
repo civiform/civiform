@@ -215,7 +215,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
 
     awsPublicStorage.deletePublicFile("program-summary-image/program-10/myFile.jpeg");
 
-    assertThat(fakeAwsS3Client.getLastEndpointUsed().getHost()).contains("amazonaws");
+    assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed().getHost()).contains("amazonaws");
   }
 
   @Test
@@ -231,7 +231,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
 
     awsPublicStorage.deletePublicFile("program-summary-image/program-10/myFile.jpeg");
 
-    assertThat(fakeAwsS3Client.getLastEndpointUsed().getHost()).contains("localstack");
+    assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed().getHost()).contains("localstack");
   }
 
   @Test
@@ -247,8 +247,8 @@ public class AwsPublicStorageTest extends ResetPostgres {
 
     awsPublicStorage.deletePublicFile("program-summary-image/program-10/myFile.jpeg");
 
-    assertThat(fakeAwsS3Client.getLastEndpointUsed().getHost()).doesNotContain("localstack");
-    assertThat(fakeAwsS3Client.getLastEndpointUsed().getHost()).doesNotContain("amazonaws");
+    assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed().getHost()).doesNotContain("localstack");
+    assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed().getHost()).doesNotContain("amazonaws");
   }
 
   @Test
@@ -273,6 +273,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
 
     boolean deleted =
         awsPublicStorage.deletePublicFile("program-summary-image/program-10/myFile.jpeg");
+
     assertThat(deleted).isTrue();
   }
 
@@ -288,6 +289,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
             instanceOf(Environment.class));
 
     boolean deleted = awsPublicStorage.deletePublicFile(FakeAwsS3Client.DELETION_ERROR_FILE_KEY);
+
     assertThat(deleted).isFalse();
   }
 }
