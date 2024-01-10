@@ -118,7 +118,7 @@ public final class CsvExporterService {
           programService.getSubmittedProgramApplications(programDefinition.id())) {
         applicantService
             .getReadOnlyApplicantProgramService(application, programDefinition)
-            .getSummaryData()
+            .getSummaryDataOnlyActive()
             .forEach(data -> answerMap.putIfAbsent(data.contextualizedPath(), data));
       }
     }
