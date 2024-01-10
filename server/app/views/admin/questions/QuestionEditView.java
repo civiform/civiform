@@ -465,9 +465,10 @@ public final class QuestionEditView extends BaseHtmlView {
             primaryApplicantInfoTag -> {
               Optional<QuestionDefinition> currentQuestionForTag =
                   questionService.getReadOnlyQuestionServiceSync().getUpToDateQuestions().stream()
-                      .filter(qd -> qd.getPrimaryApplicantInfoTags().contains(primaryApplicantInfoTag))
+                      .filter(
+                          qd -> qd.getPrimaryApplicantInfoTags().contains(primaryApplicantInfoTag))
                       .findFirst();
-                boolean differentQuestionHasTag =
+              boolean differentQuestionHasTag =
                   currentQuestionForTag
                       .map(question -> !question.getName().equals(questionForm.getQuestionName()))
                       .orElse(false);
@@ -477,17 +478,22 @@ public final class QuestionEditView extends BaseHtmlView {
                       .with(
                           p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
                               .with(
-                                  span(primaryApplicantInfoTag.name()),
+                                  span(primaryApplicantInfoTag.getDisplayName()),
                                   ViewUtils.makeToggleButton(
                                       /* fieldName= */ primaryApplicantInfoTag.getFieldName(),
-                                      /* enabled= */ questionForm.primaryApplicantInfoTags().contains(primaryApplicantInfoTag),
-                                      /* idPrefix= */ Optional.of(primaryApplicantInfoTag.getFieldName()),
-                                      /* text= */ Optional.of(primaryApplicantInfoTag.getDescription()),
+                                      /* enabled= */ questionForm
+                                          .primaryApplicantInfoTags()
+                                          .contains(primaryApplicantInfoTag),
+                                      /* idPrefix= */ Optional.of(
+                                          primaryApplicantInfoTag.getFieldName()),
+                                      /* text= */ Optional.of(
+                                          primaryApplicantInfoTag.getDescription()),
                                       /* hidden= */ !questionForm.isUniversal()
                                           || differentQuestionHasTag)));
               tagSubsection.with(
                   ViewUtils.makeAlertInfoSlim(
-                      "You cannot apply this property since the question is not a universal question.",
+                      "You cannot apply this property since the question is not a universal"
+                          + " question.",
                       /* hidden= */ questionForm.isUniversal(),
                       /* classes= */ "cf-primary-applicant-info-universal-alert"));
               tagSubsection.condWith(
