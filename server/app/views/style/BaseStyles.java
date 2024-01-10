@@ -57,6 +57,7 @@ public final class BaseStyles {
           BaseStyles.FORM_FIELD_BORDER_COLOR,
           "rounded-lg",
           "w-full",
+          "h-11.5",
           StyleUtils.focus(BORDER_SEATTLE_BLUE));
 
   /** For use on `input` elements that are not of type "checkbox" or "radio". */
