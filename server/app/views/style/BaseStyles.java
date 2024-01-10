@@ -99,8 +99,9 @@ public final class BaseStyles {
   public static final String SELECT = StyleUtils.joinStyles(BaseStyles.INPUT, "h-11.5");
 
   /** For use on a `select` element. */
-  public static final String SELECT_WITH_ERROR = StyleUtils.joinStyles(BaseStyles.INPUT_WITH_ERROR, "h-11.5");
-  
+  public static final String SELECT_WITH_ERROR =
+      StyleUtils.joinStyles(BaseStyles.INPUT_WITH_ERROR, "h-11.5");
+
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Modal style classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
