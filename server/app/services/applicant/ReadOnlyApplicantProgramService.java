@@ -71,11 +71,15 @@ public interface ReadOnlyApplicantProgramService {
    */
   ImmutableList<ApplicantQuestion> getIneligibleQuestions();
 
-  /** Get the active block with the given block ID */
-  Optional<Block> getActiveBlock(String blockId);
-
   /** Get the hidden block with the given block ID */
   Optional<Block> getHiddenBlock(String blockId);
+
+  /**
+   * Get the active block with the given block ID if there is one. It is empty if there isn't.
+   * Active block is the block an applicant must complete for this program. This will not include
+   * blocks that are hidden from the applicant.
+   */
+  Optional<Block> getActiveBlock(String blockId);
 
   /**
    * Get the next in-progress block that comes after the block with the given ID if there is one.
