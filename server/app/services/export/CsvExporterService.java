@@ -227,7 +227,7 @@ public final class CsvExporterService {
               .toCompletableFuture()
               .join();
       roApplicantService
-          .getSummaryData()
+          .getSummaryDataOnlyActive()
           .forEach(data -> answerMap.putIfAbsent(answerDataKey(data), data));
     }
 
