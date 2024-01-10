@@ -44,6 +44,8 @@ public final class TrustedIntermediaryService {
   public static final String FORM_FIELD_NAME_EMAIL_ADDRESS = "emailAddress";
   public static final String FORM_FIELD_NAME_DOB = "dob";
   public static final String FORM_FIELD_NAME_PHONE = "phoneNumber";
+  public static final String FORM_FIELD_NAME_MIDDLE_NAME = "middleName";
+  public static final String FORM_FIELD_NAME_TI_NOTES = "tiNote";
   private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
   @Inject

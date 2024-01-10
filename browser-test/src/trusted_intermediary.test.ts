@@ -215,6 +215,38 @@ describe('Trusted intermediaries', () => {
     await validateScreenshot(page, 'back-link-leads-to-ti-dashboard')
   })
 
+  it('expect cancel button should not update client information', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'tes@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-06-10',
+    }
+    await tiDashboard.createClient(client)
+    await waitForPageJsLoad(page)
+    await page
+      .getByRole('row')
+      .filter({hasText: client.emailAddress})
+      .getByText('Edit')
+      .click()
+    await waitForPageJsLoad(page)
+    await page.waitForSelector('h2:has-text("Edit Client")')
+    // update client dob
+    await page.fill('#edit-date-of-birth-input', '2022-10-13')
+
+    await page.click('text=Cancel')
+    await waitForPageJsLoad(page)
+    await page.waitForSelector('h2:has-text("Add Client")')
+    // dob should not be updated
+    await tiDashboard.expectDashboardContainClient(client)
+    await validateScreenshot(page, 'cancel-leads-to-dashboard')
+  })
+
   it('expect field errors', async () => {
     const {page, tiDashboard} = ctx
     await loginAsTrustedIntermediary(page)

@@ -101,91 +101,91 @@ public class EditTiClientView extends BaseHtmlView {
             .withMethod("POST")
             .withAction(routes.TrustedIntermediaryController.updateClientInfo(account.id).url());
     FieldWithLabel firstNameField =
-        FieldWithLabel.input()
-            .setId("edit-first-name-input")
-            .setFieldName("firstName")
-            .setLabelText("First Name")
-            .setRequired(true)
-            .setValue(applicantData.getApplicantFirstName());
-    if (form.isPresent()
-        && form.get().hasErrors()
-        && !form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_FIRST_NAME).isEmpty()) {
-      firstNameField.setFieldErrors(
-          messages, form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_FIRST_NAME));
-    }
+        setStateIfPresent(
+            FieldWithLabel.input()
+                .setId("edit-first-name-input")
+                .setFieldName("firstName")
+                .setLabelText("First Name")
+                .setRequired(true)
+                .setValue(applicantData.getApplicantFirstName()),
+            form,
+            TrustedIntermediaryService.FORM_FIELD_NAME_FIRST_NAME,
+            messages);
+
     FieldWithLabel middleNameField =
-        FieldWithLabel.input()
-            .setId("edit-middle-name-input")
-            .setFieldName("middleName")
-            .setLabelText("Middle Name")
-            .setValue(applicantData.getApplicantMiddleName());
+        setStateIfPresent(
+            FieldWithLabel.input()
+                .setId("edit-middle-name-input")
+                .setFieldName("middleName")
+                .setLabelText("Middle Name")
+                .setValue(applicantData.getApplicantMiddleName()),
+            form,
+            TrustedIntermediaryService.FORM_FIELD_NAME_MIDDLE_NAME,
+            messages);
     FieldWithLabel lastNameField =
-        FieldWithLabel.input()
-            .setId("edit-last-name-input")
-            .setFieldName("lastName")
-            .setLabelText("Last Name")
-            .setRequired(true)
-            .setValue(applicantData.getApplicantLastName());
-    if (form.isPresent()
-        && form.get().hasErrors()
-        && !form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_LAST_NAME).isEmpty()) {
-      lastNameField.setFieldErrors(
-          messages, form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_LAST_NAME));
-    }
+        setStateIfPresent(
+            FieldWithLabel.input()
+                .setId("edit-last-name-input")
+                .setFieldName("lastName")
+                .setLabelText("Last Name")
+                .setRequired(true)
+                .setValue(applicantData.getApplicantLastName()),
+            form,
+            TrustedIntermediaryService.FORM_FIELD_NAME_LAST_NAME,
+            messages);
     FieldWithLabel phoneNumberField =
-        FieldWithLabel.input()
-            .setId("edit-phone-number-input")
-            .setPlaceholderText("(xxx) xxx-xxxx")
-            .setFieldName("phoneNumber")
-            .setLabelText("Phone Number")
-            .setValue(applicantData.getPhoneNumber().orElse(""));
-    if (form.isPresent()
-        && form.get().hasErrors()
-        && !form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_PHONE).isEmpty()) {
-      phoneNumberField.setFieldErrors(
-          messages, form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_PHONE));
-    }
+        setStateIfPresent(
+            FieldWithLabel.input()
+                .setId("edit-phone-number-input")
+                .setPlaceholderText("(xxx) xxx-xxxx")
+                .setFieldName("phoneNumber")
+                .setLabelText("Phone Number")
+                .setValue(applicantData.getPhoneNumber().orElse("")),
+            form,
+            TrustedIntermediaryService.FORM_FIELD_NAME_PHONE,
+            messages);
+
     FieldWithLabel emailField =
-        FieldWithLabel.email()
-            .setId("edit-email-input")
-            .setFieldName("emailAddress")
-            .setLabelText("Email Address")
-            .setToolTipIcon(Icons.INFO)
-            .setToolTipText(
-                "Add an email address for your client to receive status updates about their"
-                    + " application automatically. Without an email, you or your community-based"
-                    + " organization will be responsible for communicating updates to your"
-                    + " client.")
-            .setValue(account.getEmailAddress());
-    if (form.isPresent()
-        && form.get().hasErrors()
-        && !form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_EMAIL_ADDRESS).isEmpty()) {
-      emailField.setFieldErrors(
-          messages, form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_EMAIL_ADDRESS));
-    }
+        setStateIfPresent(
+            FieldWithLabel.input()
+                .setId("edit-email-input")
+                .setFieldName("emailAddress")
+                .setLabelText("Email Address")
+                .setToolTipIcon(Icons.INFO)
+                .setToolTipText(
+                    "Add an email address for your client to receive status updates about their"
+                        + " application automatically. Without an email, you or your"
+                        + " community-based organization will be responsible for communicating"
+                        + " updates to your client.")
+                .setValue(account.getEmailAddress()),
+            form,
+            TrustedIntermediaryService.FORM_FIELD_NAME_EMAIL_ADDRESS,
+            messages);
     FieldWithLabel dateOfBirthField =
-        FieldWithLabel.date()
-            .setId("edit-date-of-birth-input")
-            .setFieldName("dob")
-            .setLabelText("Date Of Birth")
-            .setRequired(true)
-            .setValue(
-                applicantData
-                    .getDateOfBirth()
-                    .map(this.dateConverter::formatIso8601Date)
-                    .orElse(""));
-    if (form.isPresent()
-        && form.get().hasErrors()
-        && !form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_DOB).isEmpty()) {
-      dateOfBirthField.setFieldErrors(
-          messages, form.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_DOB));
-    }
+        setStateIfPresent(
+            FieldWithLabel.date()
+                .setId("edit-date-of-birth-input")
+                .setFieldName("dob")
+                .setLabelText("Date Of Birth")
+                .setRequired(true)
+                .setValue(
+                    applicantData
+                        .getDateOfBirth()
+                        .map(this.dateConverter::formatIso8601Date)
+                        .orElse("")),
+            form,
+            TrustedIntermediaryService.FORM_FIELD_NAME_DOB,
+            messages);
     FieldWithLabel tiNoteField =
-        FieldWithLabel.textArea()
-            .setId("edit-ti-note-input")
-            .setFieldName("tiNote")
-            .setLabelText("Notes")
-            .setValue(account.getTiNote());
+        setStateIfPresent(
+            FieldWithLabel.textArea()
+                .setId("edit-ti-note-input")
+                .setFieldName("tiNote")
+                .setLabelText("Notes")
+                .setValue(account.getTiNote()),
+            form,
+            TrustedIntermediaryService.FORM_FIELD_NAME_TI_NOTES,
+            messages);
     String cancelUrl =
         baseUrl
             + controllers.ti.routes.TrustedIntermediaryController.dashboard(
@@ -206,7 +206,48 @@ public class EditTiClientView extends BaseHtmlView {
                     tiNoteField.getTextareaTag(),
                     makeCsrfTokenInputTag(request),
                     submitButton("Save").withClasses("ml-2", "mb-6"),
-                    redirectButton("cancel-edit", "Cancel", cancelUrl))
+                    asRedirectElement(button("Cancel").withClasses("m-2"), cancelUrl))
                 .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6"));
+  }
+
+  private FieldWithLabel setStateIfPresent(
+      FieldWithLabel field,
+      Optional<Form<EditTiClientInfoForm>> maybeForm,
+      String key,
+      Messages messages) {
+    if (maybeForm.isEmpty()) {
+      return field;
+    }
+
+    EditTiClientInfoForm form = maybeForm.get().value().get();
+    switch (key) {
+      case TrustedIntermediaryService.FORM_FIELD_NAME_FIRST_NAME:
+        field.setValue(form.getFirstName());
+        break;
+      case TrustedIntermediaryService.FORM_FIELD_NAME_LAST_NAME:
+        field.setValue(form.getLastName());
+        break;
+      case TrustedIntermediaryService.FORM_FIELD_NAME_MIDDLE_NAME:
+        field.setValue(form.getMiddleName());
+        break;
+      case TrustedIntermediaryService.FORM_FIELD_NAME_DOB:
+        field.setValue(form.getDob());
+        break;
+      case TrustedIntermediaryService.FORM_FIELD_NAME_PHONE:
+        field.setValue(form.getPhoneNumber());
+        break;
+      case TrustedIntermediaryService.FORM_FIELD_NAME_EMAIL_ADDRESS:
+        field.setValue(form.getEmailAddress());
+        break;
+      case TrustedIntermediaryService.FORM_FIELD_NAME_TI_NOTES:
+        field.setValue(form.getTiNote());
+        break;
+    }
+
+    if (maybeForm.get().error(key).isPresent()) {
+      field.setFieldErrors(messages, maybeForm.get().errors(key));
+    }
+
+    return field;
   }
 }
