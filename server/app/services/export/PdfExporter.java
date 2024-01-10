@@ -55,14 +55,20 @@ public final class PdfExporter {
    * inMemoryPDF object. The InMemoryPdf object is passed back to the AdminController Class to
    * generate the required PDF.
    */
-  public InMemoryPdf export(ApplicationModel application, boolean showEligibilityText)
+  public InMemoryPdf export(
+      ApplicationModel application, boolean showEligibilityText, boolean includeHiddenBlocks)
       throws DocumentException, IOException {
     ReadOnlyApplicantProgramService roApplicantService =
         applicantService
             .getReadOnlyApplicantProgramService(application)
             .toCompletableFuture()
             .join();
-    ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
+
+    ImmutableList<AnswerData> answersOnlyActive = roApplicantService.getSummaryDataOnlyActive();
+    ImmutableList<AnswerData> answersOnlyHidden = ImmutableList.<AnswerData>of();
+    if (includeHiddenBlocks) {
+      answersOnlyHidden = roApplicantService.getSummaryDataOnlyHidden();
+    }
 
     // We expect a name to be present at this point. However, if it's not, we use a placeholder
     // rather than throwing an error here.
@@ -72,7 +78,8 @@ public final class PdfExporter {
     String filename = String.format("%s-%s.pdf", applicantNameWithApplicationId, nowProvider.get());
     byte[] bytes =
         buildPDF(
-            answers,
+            answersOnlyActive,
+            answersOnlyHidden,
             applicantNameWithApplicationId,
             application.getProgram().getProgramDefinition(),
             application.getLatestStatus(),
@@ -89,6 +96,7 @@ public final class PdfExporter {
 
   private byte[] buildPDF(
       ImmutableList<AnswerData> answers,
+      ImmutableList<AnswerData> answersOnlyHidden,
       String applicantNameWithApplicationId,
       ProgramDefinition programDefinition,
       Optional<String> statusValue,
@@ -182,6 +190,68 @@ public final class PdfExporter {
         document.add(time);
         if (!eligibility.isEmpty()) {
           document.add(eligibility);
+        }
+      }
+      if (answersOnlyHidden.size() > 0) {
+        document.add(Chunk.NEWLINE);
+        Paragraph hiddenText =
+            new Paragraph(
+                "The following questions were hidden from the applicant : ",
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+        document.add(hiddenText);
+        document.add(Chunk.NEWLINE);
+        for (AnswerData answerData : answersOnlyHidden) {
+          Paragraph question =
+              new Paragraph(
+                  answerData.questionDefinition().getName(),
+                  FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+          final Paragraph answer;
+          if (answerData.encodedFileKey().isPresent()) {
+            String encodedFileKey = answerData.encodedFileKey().get();
+            String fileLink =
+                controllers.routes.FileController.adminShow(programDefinition.id(), encodedFileKey)
+                    .url();
+            Anchor anchor = new Anchor(answerData.answerText());
+            anchor.setReference(baseUrl + fileLink);
+            answer = new Paragraph();
+            answer.add(anchor);
+          } else {
+            answer =
+                new Paragraph(
+                    answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11));
+          }
+          Paragraph eligibility = new Paragraph();
+          if (showEligibilityText && isEligibilityEnabledInProgram) {
+            try {
+              Optional<EligibilityDefinition> eligibilityDef =
+                  programDefinition
+                      .getBlockDefinition(answerData.blockId())
+                      .eligibilityDefinition();
+              if (eligibilityDef
+                  .map(
+                      definition ->
+                          definition
+                              .predicate()
+                              .getQuestions()
+                              .contains(answerData.questionDefinition().getId()))
+                  .orElse(false)) {
+
+                String eligibilityText =
+                    answerData.isEligible() ? "Meets eligibility" : "Doesn't meet eligibility";
+                eligibility =
+                    new Paragraph(eligibilityText, FontFactory.getFont(FontFactory.HELVETICA, 10));
+                eligibility.setAlignment(Paragraph.ALIGN_RIGHT);
+              }
+            } catch (ProgramBlockDefinitionNotFoundException e) {
+              throw new RuntimeException(e);
+            }
+          }
+
+          document.add(question);
+          document.add(answer);
+          if (!eligibility.isEmpty()) {
+            document.add(eligibility);
+          }
         }
       }
     } finally {
