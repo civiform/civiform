@@ -140,7 +140,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-<<<<<<< HEAD
   public boolean isHiddenBlockEligible(String blockId) {
     Block block = getHiddenBlock(blockId).get();
     return isBlockEligible(block);
@@ -154,10 +153,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   /*helper function*/
   private boolean isBlockEligible(Block block) {
-=======
-  public boolean isBlockEligible(String blockId) {
-    Block block = getActiveBlock(blockId).get();
->>>>>>> main
     Optional<PredicateDefinition> predicate =
         block.getEligibilityDefinition().map(EligibilityDefinition::predicate);
     // No eligibility criteria means the block is eligible.
@@ -232,7 +227,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-<<<<<<< HEAD
   public Optional<Block> getHiddenBlock(String blockId) {
     return getAllHiddenBlocks().stream()
         .filter((block) -> block.getId().equals(blockId))
@@ -240,8 +234,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-=======
->>>>>>> main
   public Optional<Block> getActiveBlock(String blockId) {
     return getAllActiveBlocks().stream()
         .filter((block) -> block.getId().equals(blockId))
@@ -295,23 +287,19 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public ImmutableList<AnswerData> getSummaryDataOnlyActive() {
-    return getSummaryData(false);
-  }
-
-  @Override
-  public ImmutableList<AnswerData> getSummaryDataAll() {
-    return getSummaryData(true);
-  }
-
-  private ImmutableList<AnswerData> getSummaryData(boolean includeHiddenBlocks) {
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> activeBlocks = getAllActiveBlocks();
     addDataToBuilder(activeBlocks, builder, false);
-    if (includeHiddenBlocks) {
-      ImmutableList<Block> hiddenBlocks = getAllHiddenBlocks();
-      addDataToBuilder(hiddenBlocks, builder, true);
-    }
+    return builder.build();
+  }
+
+  @Override
+  public ImmutableList<AnswerData> getSummaryDataOnlyHidden() {
+    // TODO: We need to be able to use this on the admin side with admin-specific l10n.
+    ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
+    ImmutableList<Block> hiddenBlocks = getAllHiddenBlocks();
+    addDataToBuilder(hiddenBlocks, builder, true);
     return builder.build();
   }
 

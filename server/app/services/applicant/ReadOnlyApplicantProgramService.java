@@ -105,7 +105,7 @@ public interface ReadOnlyApplicantProgramService {
   ImmutableList<AnswerData> getSummaryDataOnlyActive();
 
   /** Returns summary data for each question in this application. */
-  ImmutableList<AnswerData> getSummaryDataAll();
+  ImmutableList<AnswerData> getSummaryDataOnlyHidden();
 
   /** Get the string identifiers for all stored files for this application. */
   ImmutableList<String> getStoredFileKeys();
