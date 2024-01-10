@@ -287,7 +287,6 @@ public final class ProgramImageView extends BaseHtmlView {
             .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "mt-8")
             // Disable the delete button if there's no image in the first place.
             .withCondDisabled(program.summaryImageFileKey().isEmpty());
-
     FormTag deleteBlockForm =
         form(makeCsrfTokenInputTag(request))
             .withMethod(Http.HttpVerbs.POST)

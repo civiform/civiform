@@ -3,6 +3,7 @@ package support.cloud;
 import services.cloud.PublicStorageClient;
 import services.cloud.StorageUploadRequest;
 
+/** A fake implementation of {@link PublicStorageClient} to be used in tests. */
 public final class FakePublicStorageClient extends PublicStorageClient {
   private boolean shouldDeleteSuccessfully = true;
 

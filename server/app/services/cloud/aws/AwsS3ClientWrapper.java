@@ -16,5 +16,6 @@ public interface AwsS3ClientWrapper {
    * @throws FileDeletionFailureException if there was a problem deleting the file.
    */
   void deleteObject(
-      Credentials credentials, Region region, URI endpoint, DeleteObjectRequest request) throws FileDeletionFailureException;
+      Credentials credentials, Region region, URI endpoint, DeleteObjectRequest request)
+      throws FileDeletionFailureException;
 }

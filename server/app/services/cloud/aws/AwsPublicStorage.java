@@ -10,8 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Environment;
 import services.cloud.PublicStorageClient;
-import software.amazon.awssdk.awscore.exception.AwsServiceException;
-import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 
@@ -88,15 +86,7 @@ public final class AwsPublicStorage extends PublicStorageClient {
     }
   }
 
-  /**
-   * Interface defining where storage requests should be sent:
-   *
-   * <ol>
-   *   <li>Null (for testing)
-   *   <li>LocalStack (for local development)
-   *   <li>AWS (for deployments)
-   * </ol>
-   */
+  /** Interface defining where storage requests should be sent. */
   interface Client {
     /**
      * Returns the endpoint that this client represents.
@@ -108,7 +98,8 @@ public final class AwsPublicStorage extends PublicStorageClient {
     URI endpoint();
 
     /**
-     * Returns the action link that public files should be sent to. Must end in a `/`.
+     * Returns the action link that public files should be uploaded to or viewed from. Must end in a
+     * `/`.
      *
      * <p>The action link *should* contain the particular bucket that files will be sent to. For
      * example, "http://civiform-local-s3-public.s3.localhost.localstack.cloud:4566/" not
@@ -117,6 +108,7 @@ public final class AwsPublicStorage extends PublicStorageClient {
     String actionLink();
   }
 
+  /** A null client implementation used for tests. */
   static class NullClient implements Client {
     @Override
     public URI endpoint() {
@@ -129,6 +121,7 @@ public final class AwsPublicStorage extends PublicStorageClient {
     }
   }
 
+  /** A real AWS client implementation used for deployments. */
   class AwsClient implements Client {
     @Override
     public URI endpoint() {
@@ -141,6 +134,7 @@ public final class AwsPublicStorage extends PublicStorageClient {
     }
   }
 
+  /** A LocalStack client implementation used for local development. */
   class LocalStackClient implements Client {
     private final Config config;
     private final AwsStorageUtils awsStorageUtils;
