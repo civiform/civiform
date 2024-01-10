@@ -81,7 +81,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 renderSubHeader("Clients").withClass("my-4"),
                 renderSearchForm(request, searchParameters),
                 renderTIApplicantsTable(
-                    managedAccounts, searchParameters, page, totalPageCount), // ,request),
+                    managedAccounts, searchParameters, page, totalPageCount),
                 hr().withClasses("mt-6"),
                 renderSubHeader("Organization members").withClass("my-4"),
                 renderTIMembersTable(tiGroup).withClass("pt-2"))
@@ -136,7 +136,6 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       SearchParameters searchParameters,
       int page,
       int totalPageCount) {
-    //  Http.Request request) {
     DivTag main =
         div(table()
                 .withClasses("border", "border-gray-300", "shadow-md", "flex-auto")
@@ -243,7 +242,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderStatusCell(ti));
   }
 
-  private TrTag renderApplicantRow(AccountModel applicant) { // , Http.Request request) {
+  private TrTag renderApplicantRow(AccountModel applicant) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             "border-b",
@@ -253,10 +252,10 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderApplicantInfoCell(applicant))
         .with(renderActionsCell(applicant))
         .with(renderDateOfBirthCell(applicant))
-        .with(renderUpdateClientInfoCell(applicant.id)); // ,request));
+        .with(renderUpdateClientInfoCell(applicant.id));
   }
 
-  private TdTag renderUpdateClientInfoCell(Long accountId) { // ,Http.Request request) {
+  private TdTag renderUpdateClientInfoCell(Long accountId) {
     return td().with(
             new LinkElement()
                 .setId("edit-client")
