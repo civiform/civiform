@@ -165,7 +165,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public ImmutableList<Block> getAllActiveBlocks() {
     if (allActiveBlockList == null) {
-      allActiveBlockList = getBlocks(this::showBlock, false);
+      allActiveBlockList = getBlocks(this::showBlock, /* includeHidden= */ false);
     }
     return allActiveBlockList;
   }
@@ -173,7 +173,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public ImmutableList<Block> getAllHiddenBlocks() {
     if (allHiddenBlockList == null) {
-      allHiddenBlockList = getBlocks(this::showBlock, true);
+      allHiddenBlockList = getBlocks(this::showBlock, /* includeHidden= */ true);
     }
     return allHiddenBlockList;
   }
@@ -196,7 +196,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                           || block.wasAnsweredInProgram(programDefinition.id())
                           || block.containsStatic())
                       && showBlock(block),
-              false);
+              /* includeHidden= */ false);
     }
     return currentBlockList;
   }
@@ -290,7 +290,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> activeBlocks = getAllActiveBlocks();
-    addDataToBuilder(activeBlocks, builder, false);
+    addDataToBuilder(activeBlocks, builder, /* hiddenBlocks= */ false);
     return builder.build();
   }
 
@@ -299,7 +299,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> hiddenBlocks = getAllHiddenBlocks();
-    addDataToBuilder(hiddenBlocks, builder, true);
+    addDataToBuilder(hiddenBlocks, builder, /* hiddenBlocks= */ true);
     return builder.build();
   }
 

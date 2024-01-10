@@ -95,7 +95,7 @@ public final class PdfExporter {
   }
 
   private byte[] buildPDF(
-      ImmutableList<AnswerData> answers,
+      ImmutableList<AnswerData> answersOnlyActive,
       ImmutableList<AnswerData> answersOnlyHidden,
       String applicantNameWithApplicationId,
       ProgramDefinition programDefinition,
@@ -133,7 +133,7 @@ public final class PdfExporter {
       document.add(submitTimeInformation);
       document.add(Chunk.NEWLINE);
       boolean isEligibilityEnabledInProgram = programDefinition.hasEligibilityEnabled();
-      for (AnswerData answerData : answers) {
+      for (AnswerData answerData : answersOnlyActive) {
         Paragraph question =
             new Paragraph(
                 answerData.questionDefinition().getName(),
@@ -206,52 +206,11 @@ public final class PdfExporter {
                   answerData.questionDefinition().getName(),
                   FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
           final Paragraph answer;
-          if (answerData.encodedFileKey().isPresent()) {
-            String encodedFileKey = answerData.encodedFileKey().get();
-            String fileLink =
-                controllers.routes.FileController.adminShow(programDefinition.id(), encodedFileKey)
-                    .url();
-            Anchor anchor = new Anchor(answerData.answerText());
-            anchor.setReference(baseUrl + fileLink);
-            answer = new Paragraph();
-            answer.add(anchor);
-          } else {
-            answer =
-                new Paragraph(
-                    answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11));
-          }
-          Paragraph eligibility = new Paragraph();
-          if (showEligibilityText && isEligibilityEnabledInProgram) {
-            try {
-              Optional<EligibilityDefinition> eligibilityDef =
-                  programDefinition
-                      .getBlockDefinition(answerData.blockId())
-                      .eligibilityDefinition();
-              if (eligibilityDef
-                  .map(
-                      definition ->
-                          definition
-                              .predicate()
-                              .getQuestions()
-                              .contains(answerData.questionDefinition().getId()))
-                  .orElse(false)) {
-
-                String eligibilityText =
-                    answerData.isEligible() ? "Meets eligibility" : "Doesn't meet eligibility";
-                eligibility =
-                    new Paragraph(eligibilityText, FontFactory.getFont(FontFactory.HELVETICA, 10));
-                eligibility.setAlignment(Paragraph.ALIGN_RIGHT);
-              }
-            } catch (ProgramBlockDefinitionNotFoundException e) {
-              throw new RuntimeException(e);
-            }
-          }
-
+          answer =
+              new Paragraph(
+                  answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11));
           document.add(question);
           document.add(answer);
-          if (!eligibility.isEmpty()) {
-            document.add(eligibility);
-          }
         }
       }
     } finally {
