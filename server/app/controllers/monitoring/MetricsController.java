@@ -83,9 +83,7 @@ public final class MetricsController extends CiviFormController {
                   name = className;
                   location = className;
                 }
-                QUERY_METRIC_COUNT
-                    .labels(name, location, className)
-                    .inc((double) metric.count());
+                QUERY_METRIC_COUNT.labels(name, location, className).inc((double) metric.count());
                 QUERY_METRIC_MEAN_LATENCY
                     .labels(name, location, className)
                     .inc((double) metric.mean());
