@@ -884,7 +884,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getInProgressBlockAfter_thereExistsABlockAfter_returnsTheBlockAfterTheGivenBlock() {
+  public void getBlockAfter_thereExistsABlockAfter_returnsTheBlockAfterTheGivenBlock() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
@@ -896,7 +896,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getInProgressBlockAfter_argIsLastBlock_returnsEmpty() {
+  public void getBlockAfter_argIsLastBlock_returnsEmpty() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
@@ -907,7 +907,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getInProgressBlockAfter_emptyBlocks_returnsEmpty() {
+  public void getBlockAfter_emptyBlocks_returnsEmpty() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory,
