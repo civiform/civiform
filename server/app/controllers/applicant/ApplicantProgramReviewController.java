@@ -274,7 +274,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   private ApplicantProgramSummaryView.Params.Builder generateParamsBuilder(
       ReadOnlyApplicantProgramService roApplicantProgramService) {
-    ImmutableList<AnswerData> summaryData = roApplicantProgramService.getSummaryData();
+    ImmutableList<AnswerData> summaryData = roApplicantProgramService.getSummaryDataOnlyActive();
     int totalBlockCount = roApplicantProgramService.getAllActiveBlocks().size();
     int completedBlockCount = roApplicantProgramService.getActiveAndCompletedInProgramBlockCount();
     String programTitle = roApplicantProgramService.getProgramTitle();
