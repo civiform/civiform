@@ -101,11 +101,15 @@ public interface ReadOnlyApplicantProgramService {
    */
   Optional<Block> getFirstIncompleteBlockExcludingStatic();
 
-  /** Returns summary data for each non-hidden question in this application. */
-  ImmutableList<AnswerData> getSummaryDataOnlyActive();
-
   /** Returns summary data for each question in this application. */
   ImmutableList<AnswerData> getSummaryDataOnlyHidden();
+
+  /**
+   * Returns summary data for each question in the active blocks in this application. Active block
+   * is the block an applicant must complete for this program. This will not include blocks that are
+   * hidden from the applicant.
+   */
+  ImmutableList<AnswerData> getSummaryDataOnlyActive();
 
   /** Get the string identifiers for all stored files for this application. */
   ImmutableList<String> getStoredFileKeys();
