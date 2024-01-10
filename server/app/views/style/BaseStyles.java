@@ -57,7 +57,6 @@ public final class BaseStyles {
           BaseStyles.FORM_FIELD_BORDER_COLOR,
           "rounded-lg",
           "w-full",
-          "h-11.5",
           StyleUtils.focus(BORDER_SEATTLE_BLUE));
 
   /** For use on `input` elements that are not of type "checkbox" or "radio". */
@@ -96,6 +95,12 @@ public final class BaseStyles {
   /** For use on an `input` of type "radio". */
   public static final String RADIO = CHECKBOX;
 
+  /** For use on a `select` element. */
+  public static final String SELECT = StyleUtils.joinStyles(BaseStyles.INPUT, "h-11.5");
+
+  /** For use on a `select` element. */
+  public static final String SELECT_WITH_ERROR = StyleUtils.joinStyles(BaseStyles.INPUT_WITH_ERROR, "h-11.5");
+  
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Modal style classes
   /////////////////////////////////////////////////////////////////////////////////////////////////

@@ -143,7 +143,7 @@ public final class SelectWithLabel extends FieldWithLabel {
     } else {
       fieldTag.with(optionGroups.stream().map(this::renderOptionGroup));
     }
-
+    
     return applyAttrsAndGenLabel(fieldTag);
   }
 
