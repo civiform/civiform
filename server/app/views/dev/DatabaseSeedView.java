@@ -6,7 +6,9 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.pre;
+import static j2html.TagCreator.section;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +17,8 @@ import com.google.common.collect.ImmutableList;
 import controllers.dev.seeding.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.SectionTag;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.mvc.Http.Request;
@@ -83,52 +87,100 @@ public class DatabaseSeedView extends BaseHtmlView {
 
   public Content render(Request request, Optional<String> maybeFlash) {
 
-    String title = "Dev database seeder";
-
-    ATag datalinkTag =
-        a().withHref(routes.DevDatabaseSeedController.data().url())
-            .with(submitButton("data", "Go to seed data page"));
+    String title = "Dev Tools";
 
     DivTag content =
         div()
+            .withClasses("w-fit", "p-4")
             .with(div(maybeFlash.orElse("")))
-            .with(h1(title))
+            .with(h1(title).withClasses("text-3xl", "mb-1"))
             .with(
                 div()
-                    .with(
-                        form()
-                            .with(makeCsrfTokenInputTag(request))
-                            .with(submitButton("sample-programs", "Seed sample programs"))
-                            .withMethod("post")
-                            .withAction(routes.DevDatabaseSeedController.seedPrograms().url()))
-                    .with(
-                        form()
-                            .with(makeCsrfTokenInputTag(request))
-                            .with(submitButton("sample-questions", "Seed sample questions"))
-                            .withMethod("post")
-                            .withAction(routes.DevDatabaseSeedController.seedQuestions().url()))
-                    .with(
-                        form()
-                            .with(makeCsrfTokenInputTag(request))
-                            .with(submitButton("clear", "Clear entire database (irreversible!)"))
-                            .withMethod("post")
-                            .withAction(routes.DevDatabaseSeedController.clear().url()))
-                    .with(
-                        form()
-                            .with(makeCsrfTokenInputTag(request))
-                            .with(submitButton("clear", "Clear cache"))
-                            .withMethod("post")
-                            .withAction(routes.DevDatabaseSeedController.clearCache().url()))
-                    .with(
-                        form()
-                            .with(makeCsrfTokenInputTag(request))
-                            .with(submitButton("index", "Go to index page"))
-                            .withMethod("get")
-                            .withAction(controllers.routes.HomeController.index().url()))
-                    .with(datalinkTag));
+                    .withClasses("flex", "flex-col", "gap-4")
+                    .with(createSeedSection(request))
+                    .with(createCachingSection(request))
+                    .with(createHomeSection()));
 
     HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(content);
     return layout.render(bundle);
+  }
+
+  private SectionTag createSeedSection(Request request) {
+    return section()
+        .withClasses("flex", "flex-col", "gap-4", "border", "border-black", "p-4")
+        .with(h2("Seed").withClass("text-2xl"))
+        .with(p("Populate, view, or clear sample data"))
+        .with(
+            createForm(
+                request,
+                "sample-programs",
+                "Seed sample programs",
+                routes.DevDatabaseSeedController.seedPrograms().url()))
+        .with(
+            createForm(
+                request,
+                "sample-questions",
+                "Seed sample questions",
+                routes.DevDatabaseSeedController.seedQuestions().url()))
+        .with(
+            createForm(
+                request,
+                "clear",
+                "Clear entire database (irreversible!)",
+                routes.DevDatabaseSeedController.clear().url(),
+                true))
+        .with(createLink("View seed data", routes.DevDatabaseSeedController.data().url()));
+  }
+
+  private SectionTag createCachingSection(Request request) {
+    return section()
+        .with(h2("Caching").withClass("text-2xl"))
+        .with(p("Manage or clear cache"))
+        .withClasses("flex", "flex-col", "gap-4", "border", "border-black", "p-4")
+        .with(
+            createForm(
+                request,
+                "clear-cache",
+                "Clear cache",
+                routes.DevDatabaseSeedController.clearCache().url()));
+  }
+
+  private SectionTag createHomeSection() {
+    return section()
+        .withClasses("flex", "flex-col", "gap-4", "p-4")
+        .with(
+            createLink("\uD83C\uDFE0 Home page", controllers.routes.HomeController.index().url()));
+  }
+
+  private FormTag createForm(Request request, String buttonId, String buttonText, String url) {
+    return createForm(request, buttonId, buttonText, url, false);
+  }
+
+  private FormTag createForm(
+      Request request, String buttonId, String buttonText, String url, Boolean danger) {
+
+    return form()
+        .with(makeCsrfTokenInputTag(request))
+        .with(
+            submitButton(buttonId, buttonText)
+                .withClasses("w-full")
+                .withCondClass(danger, "bg-red-600 hover:bg-red-700"))
+        .withMethod("post")
+        .withAction(url);
+  }
+
+  private ATag createLink(String buttonText, String url) {
+    return a().withHref(url)
+        .withText(buttonText)
+        .withClasses(
+            "w-full",
+            "py-2",
+            "text-center",
+            "text-white",
+            "rounded",
+            "font-semibold",
+            "bg-blue-600",
+            "hover:bg-blue-700");
   }
 
   private <T> String getPrettyJson(ImmutableList<T> list) {

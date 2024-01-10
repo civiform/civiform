@@ -24,9 +24,9 @@ lazy val root = (project in file("."))
       javaWs,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.8.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.16.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.16.0",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.16.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.16.1",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.16.1",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.16.1",
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
@@ -36,8 +36,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20180219.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.21.41",
-      "software.amazon.awssdk" % "ses" % "2.21.41",
+      "software.amazon.awssdk" % "s3" % "2.22.11",
+      "software.amazon.awssdk" % "ses" % "2.22.12",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.11.1",
@@ -54,9 +54,9 @@ lazy val root = (project in file("."))
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
-      "org.assertj" % "assertj-core" % "3.24.2" % Test,
+      "org.assertj" % "assertj-core" % "3.25.1" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
-      "org.assertj" % "assertj-core" % "3.24.2" % Test,
+      "org.assertj" % "assertj-core" % "3.25.1" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "32.1.3-jre" % Test,
@@ -85,7 +85,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value" % "1.10.4",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.23.0",
+      "com.google.errorprone" % "error_prone_core" % "2.24.1",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.10.0",
@@ -222,9 +222,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.16.0",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.16.0",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.16.0"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.16.1",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.16.1",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.16.1"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.
