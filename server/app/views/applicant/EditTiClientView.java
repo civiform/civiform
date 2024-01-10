@@ -46,8 +46,7 @@ public class EditTiClientView extends BaseHtmlView {
     this.layout = checkNotNull(layout);
     this.dateConverter = checkNotNull(dateConverter);
     this.accountRepository = checkNotNull(accountRepository);
-    checkNotNull(configuration);
-    this.baseUrl = configuration.getString("base_url");
+    this.baseUrl = checkNotNull(configuration).getString("base_url");
   }
 
   public Content render(
@@ -61,7 +60,7 @@ public class EditTiClientView extends BaseHtmlView {
     HtmlBundle bundle =
         layout
             .getBundle(request)
-            .setTitle("CiviForm")
+            .setTitle("Edit Client Info")
             .addMainContent(
                 renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
                 hr(),
