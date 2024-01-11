@@ -422,42 +422,74 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
 
     controller.updateFileKey(
-        addCSRFToken(
-                fakeRequest(
-                    "POST",
-                    createUriWithQueryString(
-                        ImmutableMap.of(
-                            "bucket",
-                            "fakeBucket",
-                            "key",
-                            "program-summary-image/program-15/oldImage.png"))))
-            .build(),
-        program.id);
+            addCSRFToken(
+                    fakeRequest(
+                            "POST",
+                            createUriWithQueryString(
+                                    ImmutableMap.of(
+                                            "bucket",
+                                            "fakeBucket",
+                                            "key",
+                    "program-summary-image/program-15/oldImage.png")))).build(),
+            program.id);
 
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
     assertThat(updatedProgram.summaryImageFileKey()).isNotEmpty();
     assertThat(updatedProgram.summaryImageFileKey().get())
-        .isEqualTo("program-summary-image/program-15/oldImage.png");
+            .isEqualTo("program-summary-image/program-15/oldImage.png");
 
     // WHEN the key is updated
     controller.updateFileKey(
-        addCSRFToken(
-                fakeRequest(
-                    "POST",
-                    createUriWithQueryString(
-                        ImmutableMap.of(
-                            "bucket",
-                            "fakeBucket",
-                            "key",
-                            "program-summary-image/program-15/newImage.png"))))
-            .build(),
-        program.id);
+            addCSRFToken(
+                    fakeRequest(
+                            "POST",
+                            createUriWithQueryString(
+                                    ImmutableMap.of(
+                                            "bucket",
+                                            "fakeBucket",
+                                            "key",
+                                            "program-summary-image/program-15/newImage.png")))).build(),
+            program.id);
 
     // THEN the database reflects the changes
     updatedProgram = programService.getProgramDefinition(program.id);
     assertThat(updatedProgram.summaryImageFileKey()).isNotEmpty();
     assertThat(updatedProgram.summaryImageFileKey().get())
-        .isEqualTo("program-summary-image/program-15/newImage.png");
+            .isEqualTo("program-summary-image/program-15/newImage.png");
+  }
+
+  @Test
+  public void updateFileKey_hadPreviousFile_oldFileRemoved() throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    controller.updateFileKey(
+            addCSRFToken(
+                    fakeRequest(
+                            "POST",
+                            createUriWithQueryString(
+                                    ImmutableMap.of(
+                                            "bucket",
+                                            "fakeBucket",
+                                            "key",
+                                            "program-summary-image/program-15/image-1.png"))))
+                    .build(),
+            program.id);
+
+    controller.updateFileKey(
+            addCSRFToken(
+                    fakeRequest(
+                            "POST",
+                            createUriWithQueryString(
+                                    ImmutableMap.of(
+                                            "bucket",
+                                            "fakeBucket",
+                                            "key",
+                                            "program-summary-image/program-15/image-2.png"))))
+                    .build(),
+            program.id);
+
+    assertThat(fakePublicStorageClient.getLastDeletedFileKey())
+            .isEqualTo("program-summary-image/program-15/image-1.png");
   }
 
   @Test

@@ -105,8 +105,13 @@ public final class AdminProgramImageController extends CiviFormController {
       throw new IllegalArgumentException("Key incorrectly formatted for public program image file");
     }
 
-    // TODO(#5676): If there's an existing program image, we should delete that image from cloud
-    //  storage before saving the new key.
+    // Remove the old program image from cloud storage before saving the new one.
+    Optional<String> currentFileKey =
+        programService.getProgramDefinition(programId).summaryImageFileKey();
+    // Note that even if the deletion fails for some reason, we still want to save the new key
+    // to the database. The old images can be manually removed from the bucket later.
+    currentFileKey.ifPresent(publicStorageClient::deletePublicFile);
+
     programService.setSummaryImageFileKey(programId, key);
     final String indexUrl = routes.AdminProgramImageController.index(programId).url();
     return redirect(indexUrl).flashing("success", "Image set");
