@@ -163,6 +163,37 @@ public final class AccountRepository {
         executionContext);
   }
 
+  public void updateClientDob(String newDob, ApplicantModel applicant) {
+    applicant.getApplicantData().setDateOfBirth(newDob);
+    applicant.save();
+  }
+
+  public void updateClientName(
+      String firstName, String middleName, String lastName, ApplicantModel applicant) {
+    applicant.getApplicantData().updateUserName(firstName, middleName, lastName);
+    applicant.save();
+  }
+
+  public void updateClientPhoneNumber(String phoneNumber, ApplicantModel applicant) {
+    applicant.getApplicantData().setPhoneNumber(phoneNumber);
+    applicant.save();
+  }
+
+  public void updateClientTiNote(String tiNote, AccountModel account) {
+    account.setTiNote(tiNote);
+    account.save();
+  }
+
+  public void updateClientEmail(String email, AccountModel account) {
+    if (!Strings.isNullOrEmpty(email)) {
+      if (lookupAccountByEmail(email).isPresent()) {
+        throw new EmailAddressExistsException();
+      }
+    }
+    account.setEmailAddress(email);
+    account.save();
+  }
+
   public Optional<ApplicantModel> lookupApplicantSync(long id) {
     return database
         .find(ApplicantModel.class)

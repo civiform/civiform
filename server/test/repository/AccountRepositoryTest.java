@@ -1,6 +1,7 @@
 package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -23,7 +24,9 @@ import org.pac4j.oidc.profile.OidcProfile;
 import services.CiviFormError;
 import services.Path;
 import services.WellKnownPaths;
+import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
+import services.ti.EmailAddressExistsException;
 import support.ProgramBuilder;
 
 public class AccountRepositoryTest extends ResetPostgres {
@@ -43,6 +46,61 @@ public class AccountRepositoryTest extends ResetPostgres {
     Set<ApplicantModel> allApplicants = repo.listApplicants().toCompletableFuture().join();
 
     assertThat(allApplicants).isEmpty();
+  }
+
+  @Test
+  public void updateClientEmail_ThrowsEmailExistsException() {
+    setupAccountForUpdateTest();
+    AccountModel account = new AccountModel();
+    account.setEmailAddress("test1@test.com");
+    account.save();
+    assertThatThrownBy(() -> repo.updateClientEmail("test@test.com", account))
+        .isInstanceOf(EmailAddressExistsException.class);
+  }
+
+  @Test
+  public void updateClientNameTest_AllNonEmpty() {
+    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
+    repo.updateClientName("John", "James", "Dow", applicantUpdateTest);
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName().get())
+        .isEqualTo("Dow");
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName().get())
+        .isEqualTo("James");
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
+        .isEqualTo("John");
+  }
+
+  @Test
+  public void updateClientNameTest_EmptyMiddleAndLastName() {
+    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
+    repo.updateClientName("John", "", "", applicantUpdateTest);
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
+        .isEqualTo("John");
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName()).isEmpty();
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName()).isEmpty();
+  }
+
+  @Test
+  public void updateDobTest() {
+    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
+    repo.updateClientDob("2023-12-12", applicantUpdateTest);
+    assertThat(applicantUpdateTest.getApplicantData().getDateOfBirth().get())
+        .isEqualTo("2023-12-12");
+  }
+
+  @Test
+  public void updatePhoneNumberTest() {
+    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
+    repo.updateClientPhoneNumber("4259746144", applicantUpdateTest);
+    assertThat(applicantUpdateTest.getApplicantData().getPhoneNumber().get())
+        .isEqualTo("4259746144");
+  }
+
+  @Test
+  public void updateTiNoteTest() {
+    AccountModel accountUpdateTest = setupAccountForUpdateTest();
+    repo.updateClientTiNote("this is notes", accountUpdateTest);
+    assertThat(accountUpdateTest.getTiNote()).isEqualTo("this is notes");
   }
 
   @Test
@@ -335,5 +393,21 @@ public class AccountRepositoryTest extends ResetPostgres {
         .putString(Path.create("$." + WellKnownPaths.APPLICANT_FIRST_NAME.toString()), name);
     applicant.save();
     return applicant;
+  }
+
+  private ApplicantModel setupApplicantForUpdateTest() {
+    ApplicantModel applicantUpdateTest = new ApplicantModel();
+    ApplicantData applicantDateUpdateTest = applicantUpdateTest.getApplicantData();
+    applicantDateUpdateTest.setUserName("Jane", "", "Doe");
+    applicantDateUpdateTest.setDateOfBirth("2022-10-10");
+    applicantUpdateTest.save();
+    return applicantUpdateTest;
+  }
+
+  private AccountModel setupAccountForUpdateTest() {
+    AccountModel accountUpdateTest = new AccountModel();
+    accountUpdateTest.setEmailAddress("test@test.com");
+    accountUpdateTest.save();
+    return accountUpdateTest;
   }
 }
