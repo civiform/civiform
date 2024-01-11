@@ -7,6 +7,7 @@ import static j2html.TagCreator.span;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
@@ -85,7 +86,8 @@ public class FieldWithLabel {
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
   protected ImmutableList.Builder<String> styleClassesBuilder = ImmutableList.builder();
   private ImmutableList.Builder<String> ariaDescribedByBuilder = ImmutableList.builder();
-  private final ImmutableSet.Builder<String> attributesSetBuilder = ImmutableSet.builder();
+  private final ImmutableMap.Builder<String, Optional<String>> attributesMapBuilder =
+      ImmutableMap.builder();
 
   private static final String MAX_INPUT_TEXT_LENGTH = "10000";
 
@@ -213,7 +215,13 @@ public class FieldWithLabel {
 
   /** Sets a valueless attribute. */
   public FieldWithLabel setAttribute(String attribute) {
-    this.attributesSetBuilder.add(attribute);
+    this.attributesMapBuilder.put(attribute, Optional.empty());
+    return this;
+  }
+
+  /** Sets an attribute/value pairing. */
+  public FieldWithLabel setAttribute(String attribute, String value) {
+    this.attributesMapBuilder.put(attribute, Optional.of(value));
     return this;
   }
 
@@ -395,7 +403,7 @@ public class FieldWithLabel {
   private InputTag nonNumberGenTagApplyAttrs() {
     InputTag inputFieldTag = TagCreator.input();
     inputFieldTag.withType(getFieldType());
-    applyAttributesFromSet(inputFieldTag);
+    applyAttributesFromMap(inputFieldTag);
     if (!this.fieldType.equals("number")) {
       inputFieldTag.withValue(this.fieldValue);
     } else {
@@ -413,7 +421,7 @@ public class FieldWithLabel {
   private DivTag getNonNumberInputTag() {
     InputTag inputFieldTag = TagCreator.input();
     inputFieldTag.withType(getFieldType());
-    applyAttributesFromSet(inputFieldTag);
+    applyAttributesFromMap(inputFieldTag);
     if (!this.fieldType.equals("number")) {
       inputFieldTag.withValue(this.fieldValue);
     } else {
@@ -426,7 +434,7 @@ public class FieldWithLabel {
   public DivTag getTextareaTag() {
     if (isTagTypeTextarea()) {
       TextareaTag textareaFieldTag = TagCreator.textarea();
-      applyAttributesFromSet(textareaFieldTag);
+      applyAttributesFromMap(textareaFieldTag);
       textareaFieldTag.withText(this.fieldValue);
       if (this.rows.isPresent()) {
         textareaFieldTag.withRows(String.valueOf(this.rows.getAsLong()));
@@ -455,7 +463,7 @@ public class FieldWithLabel {
   public DivTag getNumberTag() {
     InputTag inputFieldTag = TagCreator.input();
     inputFieldTag.withType(getFieldType());
-    applyAttributesFromSet(inputFieldTag);
+    applyAttributesFromMap(inputFieldTag);
     if (this.fieldType.equals("number")) {
       numberTagApplyAttrs(inputFieldTag);
     } else {
@@ -472,8 +480,14 @@ public class FieldWithLabel {
     return getNonNumberInputTag();
   }
 
-  protected void applyAttributesFromSet(Tag fieldTag) {
-    this.attributesSetBuilder.build().forEach(attr -> fieldTag.attr(attr, null));
+  protected void applyAttributesFromMap(Tag fieldTag) {
+    ImmutableMap<String, Optional<String>> attributesMap = this.attributesMapBuilder.build();
+    attributesMap
+        .entrySet()
+        .forEach(
+            entry ->
+                fieldTag.attr(
+                    entry.getKey(), entry.getValue().isPresent() ? entry.getValue().get() : null));
   }
 
   private DivTag buildFieldErrorsTag(String id) {
