@@ -18,6 +18,7 @@ import j2html.tags.attributes.IName;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
+import j2html.tags.specialized.SelectTag;
 import j2html.tags.specialized.TextareaTag;
 import java.util.List;
 import java.util.Optional;
@@ -569,7 +570,7 @@ public class FieldWithLabel {
     // before the calls to this method, thus simplifying the code.
     fieldTag
         .withClasses(
-            hasFieldErrors ? BaseStyles.INPUT_WITH_ERROR : BaseStyles.INPUT,
+            getFieldClasses(fieldTag, hasFieldErrors),
             // TODO(#5623): Use unified styles for disabled inputs
             this.readOnly ? "text-gray-500" : "",
             this.readOnly ? "bg-gray-100" : "")
@@ -582,6 +583,15 @@ public class FieldWithLabel {
             !Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId)
         .condAttr(focusOnInput, Attr.AUTOFOCUS, "");
+  }
+
+  private String getFieldClasses(Tag fieldTag, boolean hasFieldErrors) {
+    boolean isSelectTag = fieldTag instanceof SelectTag;
+    if (isSelectTag) {
+      return hasFieldErrors ? BaseStyles.SELECT_WITH_ERROR : BaseStyles.SELECT;
+    } else {
+      return hasFieldErrors ? BaseStyles.INPUT_WITH_ERROR : BaseStyles.INPUT;
+    }
   }
 
   protected <T extends Tag<T> & IName<T> & IDisabled<T>>

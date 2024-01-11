@@ -95,6 +95,13 @@ public final class BaseStyles {
   /** For use on an `input` of type "radio". */
   public static final String RADIO = CHECKBOX;
 
+  /** For use on a `select` element. */
+  public static final String SELECT = StyleUtils.joinStyles(BaseStyles.INPUT, "h-11.5");
+
+  /** For use on a `select` element with an error, using INPUT_WITH_ERROR instead of INPUT. */
+  public static final String SELECT_WITH_ERROR =
+      StyleUtils.joinStyles(BaseStyles.INPUT_WITH_ERROR, "h-11.5");
+
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Modal style classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
