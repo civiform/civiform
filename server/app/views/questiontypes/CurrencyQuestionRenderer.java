@@ -35,6 +35,7 @@ public class CurrencyQuestionRenderer extends ApplicantSingleQuestionRenderer {
     FieldWithLabel currencyField =
         FieldWithLabel.currency()
             .setFieldName(currencyQuestion.getCurrencyPath().toString())
+            .setAttribute("inputmode", "decimal")
             .addReferenceClass(ReferenceClasses.CURRENCY_VALUE)
             .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader())
             .setAriaRequired(!isOptional)
