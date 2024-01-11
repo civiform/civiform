@@ -54,6 +54,7 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
                     messages,
                     validationErrors.getOrDefault(
                         phoneQuestion.getCountryCodePath(), ImmutableSet.of()))
+                .setAriaDescribedByIds(ariaDescribedByIds)
                 .addReferenceClass(ReferenceClasses.PHONE_COUNTRY_CODE)
                 .setId(ReferenceClasses.PHONE_COUNTRY_CODE);
 
