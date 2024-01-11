@@ -2,12 +2,15 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static support.CfTestHelpers.requestBuilderWithSettings;
 
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -15,6 +18,8 @@ import models.DisplayMode;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import play.data.FormFactory;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
@@ -22,7 +27,14 @@ import repository.ProgramRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
+import services.question.QuestionService;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
+import views.admin.programs.ProgramIndexView;
+import views.admin.programs.ProgramMetaDataEditView;
+import views.admin.programs.ProgramNewOneView;
+import views.admin.programs.ProgramSettingsEditView;
 import views.html.helper.CSRF;
 
 public class AdminProgramControllerTest extends ResetPostgres {
@@ -30,21 +42,36 @@ public class AdminProgramControllerTest extends ResetPostgres {
   private AdminProgramController controller;
   private ProgramRepository programRepository;
   private VersionRepository versionRepository;
+  private SettingsManifest mockSettingsManifest;
 
   @Before
-  public void setupController() {
-    controller = instanceOf(AdminProgramController.class);
-  }
-
-  @Before
-  public void setupProgramRepository() {
+  public void setup() {
     programRepository = instanceOf(ProgramRepository.class);
+    versionRepository = instanceOf(VersionRepository.class);
+    mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    when(mockSettingsManifest.getIntakeFormEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getProgramCardImages(any())).thenReturn(false);
+
+    controller =
+        new AdminProgramController(
+            instanceOf(ProgramService.class),
+            instanceOf(QuestionService.class),
+            instanceOf(ProgramIndexView.class),
+            instanceOf(ProgramNewOneView.class),
+            instanceOf(ProgramMetaDataEditView.class),
+            instanceOf(ProgramSettingsEditView.class),
+            versionRepository,
+            instanceOf(ProfileUtils.class),
+            instanceOf(FormFactory.class),
+            instanceOf(RequestChecker.class),
+            mockSettingsManifest);
   }
 
   @Before
-  public void setupVersionRepository() {
-    versionRepository = instanceOf(VersionRepository.class);
-  }
+  public void setupProgramRepository() {}
+
+  @Before
+  public void setupVersionRepository() {}
 
   @Test
   public void index_withNoPrograms() {
@@ -129,6 +156,42 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result redirectResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
     assertThat(contentAsString(redirectResult)).contains("External program name");
     assertThat(contentAsString(redirectResult)).contains("External program description");
+  }
+
+  @Test
+  public void create_programImagesEnabled_redirectsToProgramImage() {
+    when(mockSettingsManifest.getProgramCardImages(any())).thenReturn(true);
+
+    RequestBuilder requestBuilder =
+        addCSRFToken(
+            requestBuilderWithSettings()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "adminName",
+                        "internal-program-name",
+                        "adminDescription",
+                        "Internal program description",
+                        "localizedDisplayName",
+                        "External program name",
+                        "localizedDisplayDescription",
+                        "External program description",
+                        "externalLink",
+                        "https://external.program.link",
+                        "displayMode",
+                        DisplayMode.PUBLIC.getValue())));
+
+    Result result = controller.create(requestBuilder.build());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    long programId =
+        versionRepository
+            .getDraftVersionOrCreate()
+            .getPrograms()
+            .get(0)
+            .getProgramDefinition()
+            .id();
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramImageController.index(programId).url());
   }
 
   @Test

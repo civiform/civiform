@@ -13,6 +13,40 @@ import {Page} from 'playwright'
 describe('program creation', () => {
   const ctx = createTestContext()
 
+  beforeEach(async () => {
+    const {page} = ctx
+    await enableFeatureFlag(page, 'universal_questions')
+  })
+
+  it('create program page', async () => {
+    const {page, adminPrograms} = ctx
+    await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName, (submitNewProgram = false))
+    await validateScreenshot(page, 'program-creation-page')
+
+    // When the program submission goes through, verify we're redirected to the block edit page.
+    await adminPrograms.submitNewProgram()
+    await adminPrograms.expectProgramBlockEditPage(programName)
+  })
+
+  it('create program page with images flag on', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName, (submitNewProgram = false))
+    await validateScreenshot(page, 'program-creation-page-images-flag-on')
+
+    // When the program submission goes through with the program_card_images flag on,
+    // verify we're redirected to the program image upload page.
+    await adminPrograms.submitNewProgram()
+    await adminProgramImage.expectProgramImagePage()
+  })
+
   it('program details page screenshot', async () => {
     const {page, adminPrograms} = ctx
 

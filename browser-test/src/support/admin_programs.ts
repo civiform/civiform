@@ -98,8 +98,12 @@ export class AdminPrograms {
   }
 
   /**
-   * Creates program with given name. At the end of this method the current
-   * page is going to be block edit page.
+   * Creates program with given name.
+   *
+   * @param {boolean} submitNewProgram - If true, the new program will be submitted
+   * to the database and then the current page will be the block edit page. If
+   * false, the new program information will be filled in but *not* submitted to
+   * the database and the current page will still be the program creation page.
    */
   async addProgram(
     programName: string,
@@ -119,6 +123,7 @@ export class AdminPrograms {
       '\n' +
       '\n' +
       'This link should be autodetected: https://www.example.com\n',
+    submitNewProgram = true,
   ) {
     await this.gotoAdminProgramsPage()
     await this.page.click('#new-program-button')
@@ -146,10 +151,16 @@ export class AdminPrograms {
       await this.clickCommonIntakeFormToggle()
     }
 
+    if (submitNewProgram) {
+      await submitNewProgram()
+    }
+  }
+
+  async submitNewProgram() {
     await this.page.click('#program-update-button')
     await waitForPageJsLoad(this.page)
-    await this.expectProgramBlockEditPage(programName)
   }
+
   async editProgram(
     programName: string,
     visibility = ProgramVisibility.PUBLIC,

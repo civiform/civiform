@@ -150,7 +150,12 @@ public final class AdminProgramController extends CiviFormController {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       return ok(newOneView.render(request, programData, message));
     }
-    return redirect(routes.AdminProgramBlocksController.index(result.getResult().id()).url());
+    if (settingsManifest.getProgramCardImages(request)) {
+      // Once a program is created, we want to direct admins to immediately add a program image.
+      return redirect(routes.AdminProgramImageController.index(result.getResult().id()).url());
+    } else {
+      return redirect(routes.AdminProgramBlocksController.index(result.getResult().id()).url());
+    }
   }
 
   /** Returns an HTML page containing a form to edit a draft program. */

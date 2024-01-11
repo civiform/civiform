@@ -216,8 +216,15 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                   .addStyleClass("hidden")
                   .getCheckboxTag());
     }
+
+    String saveProgramDetailsText;
+    if (settingsManifest.getProgramCardImages(request)) {
+      saveProgramDetailsText = "Save and continue to next step";
+    } else {
+      saveProgramDetailsText = "Save";
+    }
     formTag.with(
-        submitButton("Save")
+        submitButton(saveProgramDetailsText)
             .withId("program-update-button")
             .withClasses(ButtonStyles.SOLID_BLUE, "mt-6"));
 
