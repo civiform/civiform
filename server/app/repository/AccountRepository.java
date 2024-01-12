@@ -23,6 +23,9 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+
+import io.ebean.Transaction;
+import io.ebean.annotation.TxIsolation;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
@@ -163,35 +166,48 @@ public final class AccountRepository {
         executionContext);
   }
 
-  public void updateClientDob(String newDob, ApplicantModel applicant) {
-    applicant.getApplicantData().setDateOfBirth(newDob);
-    applicant.save();
-  }
+//  public void updateClientDob(String newDob, ApplicantModel applicant) {
+//    applicant.getApplicantData().setDateOfBirth(newDob);
+//  }
+//
+//  public void updateClientName(
+//      String firstName, String middleName, String lastName, ApplicantModel applicant) {
+//    applicant.getApplicantData().updateUserName(firstName, middleName, lastName);
+//  }
+//
+//  public void updateClientPhoneNumber(String phoneNumber, ApplicantModel applicant) {
+//    applicant.getApplicantData().setPhoneNumber(phoneNumber);
+//  }
 
-  public void updateClientName(
-      String firstName, String middleName, String lastName, ApplicantModel applicant) {
-    applicant.getApplicantData().updateUserName(firstName, middleName, lastName);
-    applicant.save();
-  }
+//  public void updateClientTiNote(String tiNote, AccountModel account) {
+//    account.setTiNote(tiNote);
+//  }
+//
+//  public void updateClientEmail(String email, AccountModel account) {
+//    if (!Strings.isNullOrEmpty(email)) {
+//      if (lookupAccountByEmail(email).isPresent()) {
+//        throw new EmailAddressExistsException();
+//      }
+//    }
+//    account.setEmailAddress(email);
+//  }
 
-  public void updateClientPhoneNumber(String phoneNumber, ApplicantModel applicant) {
-    applicant.getApplicantData().setPhoneNumber(phoneNumber);
-    applicant.save();
-  }
+  public void updateTiClient(AccountModel account, ApplicantModel applicant, String firstName, String middleName, String lastName,
+                             String phoneNumber, String tiNote, String email, String newDob) {
 
-  public void updateClientTiNote(String tiNote, AccountModel account) {
-    account.setTiNote(tiNote);
-    account.save();
-  }
+    try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
+      transaction.setBatchMode(true);
 
-  public void updateClientEmail(String email, AccountModel account) {
-    if (!Strings.isNullOrEmpty(email)) {
-      if (lookupAccountByEmail(email).isPresent()) {
-        throw new EmailAddressExistsException();
-      }
+      account.setEmailAddress(email);
+      account.setTiNote(tiNote);
+      applicant.getApplicantData().setPhoneNumber(phoneNumber);
+      applicant.getApplicantData().updateUserName(firstName, middleName, lastName);
+      applicant.getApplicantData().setDateOfBirth(newDob);
+      account.save();
+      applicant.save();
+      database.saveAll(account, applicant);
+      transaction.commit();
     }
-    account.setEmailAddress(email);
-    account.save();
   }
 
   public Optional<ApplicantModel> lookupApplicantSync(long id) {

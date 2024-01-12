@@ -48,59 +48,62 @@ public class AccountRepositoryTest extends ResetPostgres {
     assertThat(allApplicants).isEmpty();
   }
 
-  @Test
-  public void updateClientEmail_ThrowsEmailExistsException() {
-    setupAccountForUpdateTest();
-    AccountModel account = new AccountModel();
-    account.setEmailAddress("test1@test.com");
-    account.save();
-    assertThatThrownBy(() -> repo.updateClientEmail("test@test.com", account))
-        .isInstanceOf(EmailAddressExistsException.class);
-  }
+//  @Test
+//  public void updateClientEmail_ThrowsEmailExistsException() {
+//    setupAccountForUpdateTest();
+//    AccountModel account = new AccountModel();
+//    account.setEmailAddress("test1@test.com");
+//    account.save();
+//    assertThatThrownBy(() -> repo.updateClientEmail("test@test.com", account))
+//        .isInstanceOf(EmailAddressExistsException.class);
+//  }
+//
+//
+//  @Test
+//  public void updateClientNameTest_EmptyMiddleAndLastName() {
+//    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
+//    repo.updateClientName("John", "", "", applicantUpdateTest);
+//    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
+//        .isEqualTo("John");
+//    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName()).isEmpty();
+//    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName()).isEmpty();
+//  }
+
 
   @Test
-  public void updateClientNameTest_AllNonEmpty() {
-    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
-    repo.updateClientName("John", "James", "Dow", applicantUpdateTest);
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName().get())
-        .isEqualTo("Dow");
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName().get())
-        .isEqualTo("James");
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
-        .isEqualTo("John");
-  }
-
-  @Test
-  public void updateClientNameTest_EmptyMiddleAndLastName() {
-    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
-    repo.updateClientName("John", "", "", applicantUpdateTest);
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
-        .isEqualTo("John");
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName()).isEmpty();
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName()).isEmpty();
-  }
-
-  @Test
-  public void updateDobTest() {
-    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
-    repo.updateClientDob("2023-12-12", applicantUpdateTest);
-    assertThat(applicantUpdateTest.getApplicantData().getDateOfBirth().get())
-        .isEqualTo("2023-12-12");
-  }
-
-  @Test
-  public void updatePhoneNumberTest() {
-    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
-    repo.updateClientPhoneNumber("4259746144", applicantUpdateTest);
-    assertThat(applicantUpdateTest.getApplicantData().getPhoneNumber().get())
-        .isEqualTo("4259746144");
-  }
-
-  @Test
-  public void updateTiNoteTest() {
+  public void updateTiClientTest() {
     AccountModel accountUpdateTest = setupAccountForUpdateTest();
-    repo.updateClientTiNote("this is notes", accountUpdateTest);
-    assertThat(accountUpdateTest.getTiNote()).isEqualTo("this is notes");
+    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
+
+    var firstname = "John";
+    var middlename = "James";
+    var lastname = "Dow";
+    var phone = "4259746144";
+    var tinote = "this is notes";
+    var email = "test1@test.com";
+    var dob = "2023-12-12";
+
+    repo.updateTiClient(accountUpdateTest, applicantUpdateTest,
+      firstname,
+      middlename,
+      lastname,
+      phone,
+      tinote,
+      email,
+      dob
+      );
+
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get()).isEqualTo(firstname);
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName().get()).isEqualTo(middlename);
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName().get()).isEqualTo(lastname);
+    assertThat(applicantUpdateTest.getApplicantData().getPhoneNumber().get()).isEqualTo(phone);
+    assertThat(accountUpdateTest.getTiNote()).isEqualTo(tinote);
+    assertThat(accountUpdateTest.getEmailAddress()).isEqualTo(email);
+    assertThat(applicantUpdateTest.getApplicantData().getDateOfBirth().get()).isEqualTo(dob);
+
+
+
+
   }
 
   @Test

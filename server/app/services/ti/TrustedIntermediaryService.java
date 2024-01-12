@@ -223,48 +223,62 @@ public final class TrustedIntermediaryService {
       return form;
     }
     ApplicantModel applicant = accountMaybe.get().newestApplicant().get();
-    ApplicantData applicantData = applicant.getApplicantData();
+//    ApplicantData applicantData = applicant.getApplicantData();
+
+//    // name update
+//    String firstName = form.get().getFirstName();
+//    String middleName = form.get().getMiddleName();
+//    String lastName = form.get().getLastName();
+//    if (isNameChanged(firstName, middleName, lastName, applicantData)) {
+//      accountRepository.updateClientName(firstName, middleName, lastName, applicant);
+//    }
+//    // DOB update
+//    String newDob = form.get().getDob();
+//    LocalDate newDobDate = LocalDate.parse(newDob, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+//    if (!applicantData.getDateOfBirth().get().equals(newDobDate)) {
+//      accountRepository.updateClientDob(newDob, applicant);
+//    }
+//    // Phone number update
+//    Optional<String> currentPhone = applicantData.getPhoneNumber();
+//    String newPhoneNumber = form.get().getPhoneNumber();
+//    if (!currentPhone.orElse("").equals(newPhoneNumber)) {
+//      accountRepository.updateClientPhoneNumber(newPhoneNumber, applicant);
+//    }
+//    // tiNote update
+//    AccountModel currentAccount = applicant.getAccount();
+//    String newTiNote = form.get().getTiNote();
+//    if (!newTiNote.equals(currentAccount.getTiNote())) {
+//      accountRepository.updateClientTiNote(newTiNote, currentAccount);
+//    }
+//
+//    // email update
+//    String newEmail = form.get().getEmailAddress();
+//    if (!newEmail.equals(currentAccount.getEmailAddress())) {
+//      accountRepository.updateClientEmail(newEmail, currentAccount);
+//    }
 
     // name update
     String firstName = form.get().getFirstName();
     String middleName = form.get().getMiddleName();
     String lastName = form.get().getLastName();
-    if (isNameChanged(firstName, middleName, lastName, applicantData)) {
-      accountRepository.updateClientName(firstName, middleName, lastName, applicant);
-    }
-    // DOB update
     String newDob = form.get().getDob();
-    LocalDate newDobDate = LocalDate.parse(newDob, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-    if (!applicantData.getDateOfBirth().get().equals(newDobDate)) {
-      accountRepository.updateClientDob(newDob, applicant);
-    }
-    // Phone number update
-    Optional<String> currentPhone = applicantData.getPhoneNumber();
     String newPhoneNumber = form.get().getPhoneNumber();
-    if (!currentPhone.orElse("").equals(newPhoneNumber)) {
-      accountRepository.updateClientPhoneNumber(newPhoneNumber, applicant);
-    }
-    // tiNote update
-    AccountModel currentAccount = applicant.getAccount();
     String newTiNote = form.get().getTiNote();
-    if (!newTiNote.equals(currentAccount.getTiNote())) {
-      accountRepository.updateClientTiNote(newTiNote, currentAccount);
-    }
-
-    // email update
     String newEmail = form.get().getEmailAddress();
-    if (!newEmail.equals(currentAccount.getEmailAddress())) {
-      accountRepository.updateClientEmail(newEmail, currentAccount);
-    }
+    AccountModel currentAccount = applicant.getAccount();
+
+    accountRepository.updateTiClient(currentAccount, applicant, firstName, middleName, lastName, newPhoneNumber,
+      newTiNote, newEmail, newDob);
+
     return form;
   }
 
-  private boolean isNameChanged(
-      String firstName, String middleName, String lastName, ApplicantData applicantData) {
-    return !firstName.equals(applicantData.getApplicantFirstName().orElse(""))
-        || !middleName.equals(applicantData.getApplicantMiddleName().orElse(""))
-        || !lastName.equals(applicantData.getApplicantLastName().orElse(""));
-  }
+//  private boolean isNameChanged(
+//      String firstName, String middleName, String lastName, ApplicantData applicantData) {
+//    return !firstName.equals(applicantData.getApplicantFirstName().orElse(""))
+//        || !middleName.equals(applicantData.getApplicantMiddleName().orElse(""))
+//        || !lastName.equals(applicantData.getApplicantLastName().orElse(""));
+//  }
 
   /**
    * Gets all the TrustedIntermediaryAccount managed by the given TI Group with/without filtering
