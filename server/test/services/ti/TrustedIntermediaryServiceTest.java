@@ -492,7 +492,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "dob",
                         "2022-07-07",
                         "emailAddress",
-                        "email2123",
+                        "",
                         "tiNote",
                         "unitTest",
                         "phoneNumber",
