@@ -101,9 +101,10 @@ export class AdminPrograms {
    * Creates program with given name.
    *
    * @param {boolean} submitNewProgram - If true, the new program will be submitted
-   * to the database and then the current page will be the block edit page. If
-   * false, the new program information will be filled in but *not* submitted to
-   * the database and the current page will still be the program creation page.
+   * to the database and then the admin will be redirected to the next page in the
+   * program creation flow. If false, the new program information will be filled in
+   * but *not* submitted to the database and the current page will still be the
+   * program creation page.
    */
   async addProgram(
     programName: string,

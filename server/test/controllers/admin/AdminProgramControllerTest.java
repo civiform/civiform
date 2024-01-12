@@ -67,12 +67,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
             mockSettingsManifest);
   }
 
-  @Before
-  public void setupProgramRepository() {}
-
-  @Before
-  public void setupVersionRepository() {}
-
   @Test
   public void index_withNoPrograms() {
     Result result = controller.index(requestBuilderWithSettings().build());
