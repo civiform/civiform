@@ -9,7 +9,6 @@ import com.google.i18n.phonenumbers.Phonenumber;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import forms.EditTiClientInfoForm;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.Optional;
@@ -21,7 +20,6 @@ import play.data.Form;
 import repository.AccountRepository;
 import repository.SearchParameters;
 import services.DateConverter;
-import services.applicant.ApplicantData;
 import services.applicant.exception.ApplicantNotFoundException;
 
 /**
@@ -223,47 +221,23 @@ public final class TrustedIntermediaryService {
       return form;
     }
     ApplicantModel applicant = accountMaybe.get().newestApplicant().get();
-    ApplicantData applicantData = applicant.getApplicantData();
-
-    // name update
-    String firstName = form.get().getFirstName();
-    String middleName = form.get().getMiddleName();
-    String lastName = form.get().getLastName();
-    if (isNameChanged(firstName, middleName, lastName, applicantData)) {
-      accountRepository.updateClientName(firstName, middleName, lastName, applicant);
-    }
-    // DOB update
-    String newDob = form.get().getDob();
-    LocalDate newDobDate = LocalDate.parse(newDob, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-    if (applicantData.getDateOfBirth().isEmpty() || !applicantData.getDateOfBirth().get().equals(newDobDate)) {
-      accountRepository.updateClientDob(newDob, applicant);
-    }
-    // Phone number update
-    Optional<String> currentPhone = applicantData.getPhoneNumber();
-    String newPhoneNumber = form.get().getPhoneNumber();
-    if (!currentPhone.orElse("").equals(newPhoneNumber)) {
-      accountRepository.updateClientPhoneNumber(newPhoneNumber, applicant);
-    }
-    // tiNote update
-    AccountModel currentAccount = applicant.getAccount();
-    String newTiNote = form.get().getTiNote();
-    if (!newTiNote.equals(currentAccount.getTiNote())) {
-      accountRepository.updateClientTiNote(newTiNote, currentAccount);
-    }
-
-    // email update
-    String newEmail = form.get().getEmailAddress();
-    if (!newEmail.equals(currentAccount.getEmailAddress())) {
-      accountRepository.updateClientEmail(newEmail, currentAccount);
-    }
+    EditTiClientInfoForm currentForm = form.get();
+    // after the validations are over, we can directly update the changes, as there are only two
+    // cases possible for an update
+    // case 1- new updates were added to the form and an update is necessary
+    // case 2- no new updates were added hence it will show the same value as the current applicant
+    // information
+    accountRepository.updateTiClient(
+        /* account= */ accountMaybe.get(),
+        /* applicant= */ applicant,
+        /* firstName= */ currentForm.getFirstName(),
+        /* middleName= */ currentForm.getMiddleName(),
+        /* lastName= */ currentForm.getLastName(),
+        /* phoneNumber= */ currentForm.getPhoneNumber(),
+        /* tiNote= */ currentForm.getTiNote(),
+        /* email= */ currentForm.getEmailAddress(),
+        /* newDob= */ currentForm.getDob());
     return form;
-  }
-
-  private boolean isNameChanged(
-      String firstName, String middleName, String lastName, ApplicantData applicantData) {
-    return !firstName.equals(applicantData.getApplicantFirstName().orElse(""))
-        || !middleName.equals(applicantData.getApplicantMiddleName().orElse(""))
-        || !lastName.equals(applicantData.getApplicantLastName().orElse(""));
   }
 
   /**

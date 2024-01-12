@@ -16,6 +16,8 @@ import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Query;
+import io.ebean.Transaction;
+import io.ebean.annotation.TxIsolation;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -163,35 +165,35 @@ public final class AccountRepository {
         executionContext);
   }
 
-  public void updateClientDob(String newDob, ApplicantModel applicant) {
-    applicant.getApplicantData().setDateOfBirth(newDob);
-    applicant.save();
-  }
+  public void updateTiClient(
+      AccountModel account,
+      ApplicantModel applicant,
+      String firstName,
+      String middleName,
+      String lastName,
+      String phoneNumber,
+      String tiNote,
+      String email,
+      String newDob) {
 
-  public void updateClientName(
-      String firstName, String middleName, String lastName, ApplicantModel applicant) {
-    applicant.getApplicantData().updateUserName(firstName, middleName, lastName);
-    applicant.save();
-  }
+    try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
+      transaction.setBatchMode(true);
 
-  public void updateClientPhoneNumber(String phoneNumber, ApplicantModel applicant) {
-    applicant.getApplicantData().setPhoneNumber(phoneNumber);
-    applicant.save();
-  }
-
-  public void updateClientTiNote(String tiNote, AccountModel account) {
-    account.setTiNote(tiNote);
-    account.save();
-  }
-
-  public void updateClientEmail(String email, AccountModel account) {
-    if (!Strings.isNullOrEmpty(email)) {
-      if (lookupAccountByEmail(email).isPresent()) {
-        throw new EmailAddressExistsException();
+      if (!Strings.isNullOrEmpty(email)) {
+        if (lookupAccountByEmail(email).isPresent()) {
+          throw new EmailAddressExistsException();
+        }
+        account.setEmailAddress(email);
       }
+      account.setTiNote(tiNote);
+      applicant.getApplicantData().setPhoneNumber(phoneNumber);
+      applicant.getApplicantData().updateUserName(firstName, middleName, lastName);
+      applicant.getApplicantData().setDateOfBirth(newDob);
+      account.save();
+      applicant.save();
+      database.saveAll(account, applicant);
+      transaction.commit();
     }
-    account.setEmailAddress(email);
-    account.save();
   }
 
   public Optional<ApplicantModel> lookupApplicantSync(long id) {

@@ -50,30 +50,45 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   @Test
   public void updateClientEmail_ThrowsEmailExistsException() {
+    ApplicantModel applicantModel = setupApplicantForUpdateTest();
     setupAccountForUpdateTest();
     AccountModel account = new AccountModel();
     account.setEmailAddress("test1@test.com");
     account.save();
-    assertThatThrownBy(() -> repo.updateClientEmail("test@test.com", account))
+    assertThatThrownBy(
+            () ->
+                repo.updateTiClient(
+                    account,
+                    applicantModel,
+                    "first",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "test@test.com",
+                    "2020-10-10"))
         .isInstanceOf(EmailAddressExistsException.class);
   }
 
   @Test
   public void updateClientNameTest_AllNonEmpty() {
     ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
-    repo.updateClientName("John", "James", "Dow", applicantUpdateTest);
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName().get())
+    AccountModel account = setupAccountForUpdateTest();
+    repo.updateTiClient(
+        account, applicantUpdateTest, "Dow", "James", "John", "", "", "", "2020-10-10");
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
         .isEqualTo("Dow");
     assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName().get())
         .isEqualTo("James");
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName().get())
         .isEqualTo("John");
   }
 
   @Test
   public void updateClientNameTest_EmptyMiddleAndLastName() {
     ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
-    repo.updateClientName("John", "", "", applicantUpdateTest);
+    AccountModel account = setupAccountForUpdateTest();
+    repo.updateTiClient(account, applicantUpdateTest, "John", "", "", "", "", "", "2020-10-10");
     assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
         .isEqualTo("John");
     assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName()).isEmpty();
@@ -83,7 +98,9 @@ public class AccountRepositoryTest extends ResetPostgres {
   @Test
   public void updateDobTest() {
     ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
-    repo.updateClientDob("2023-12-12", applicantUpdateTest);
+    AccountModel account = setupAccountForUpdateTest();
+    repo.updateTiClient(
+        account, applicantUpdateTest, "Dow", "James", "John", "", "", "", "2023-12-12");
     assertThat(applicantUpdateTest.getApplicantData().getDateOfBirth().get())
         .isEqualTo("2023-12-12");
   }
@@ -91,16 +108,28 @@ public class AccountRepositoryTest extends ResetPostgres {
   @Test
   public void updatePhoneNumberTest() {
     ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
-    repo.updateClientPhoneNumber("4259746144", applicantUpdateTest);
+    AccountModel account = setupAccountForUpdateTest();
+    repo.updateTiClient(
+        account, applicantUpdateTest, "Dow", "James", "John", "4259746144", "", "", "2023-12-12");
     assertThat(applicantUpdateTest.getApplicantData().getPhoneNumber().get())
         .isEqualTo("4259746144");
   }
 
   @Test
   public void updateTiNoteTest() {
-    AccountModel accountUpdateTest = setupAccountForUpdateTest();
-    repo.updateClientTiNote("this is notes", accountUpdateTest);
-    assertThat(accountUpdateTest.getTiNote()).isEqualTo("this is notes");
+    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
+    AccountModel account = setupAccountForUpdateTest();
+    repo.updateTiClient(
+        account,
+        applicantUpdateTest,
+        "Dow",
+        "James",
+        "John",
+        "",
+        "this is notes",
+        "",
+        "2023-12-12");
+    assertThat(account.getTiNote()).isEqualTo("this is notes");
   }
 
   @Test
