@@ -17,7 +17,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -46,7 +46,7 @@ public final class AdminQuestionController extends CiviFormController {
   private final QuestionsListView listView;
   private final QuestionEditView editView;
   private final FormFactory formFactory;
-  private final HttpExecutionContext classLoaderExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
 
   @Inject
   public AdminQuestionController(
@@ -56,7 +56,7 @@ public final class AdminQuestionController extends CiviFormController {
       QuestionsListView listView,
       QuestionEditView editView,
       FormFactory formFactory,
-      HttpExecutionContext classLoaderExecutionContext) {
+      ClassLoaderExecutionContext classLoaderExecutionContext) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);

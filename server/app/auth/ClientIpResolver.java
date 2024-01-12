@@ -87,7 +87,7 @@ public final class ClientIpResolver {
     // See
     // https://docs.aws.amazon.com/elasticloadbalancing/latest/application/x-forwarded-headers.html
 
-    Http.Headers headers = context.getNativeJavaRequest().getHeaders();
+    Http.Headers headers = context.getNativeJavaRequest().headers();
     if (!headers.contains(X_FORWARDED_FOR)) {
       throw new ConfigurationException(
           "CLIENT_IP_TYPE is FORWARDED but no value found for X-Forwarded-For header!");

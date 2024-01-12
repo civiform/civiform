@@ -36,7 +36,7 @@ public final class UnsupportedBrowserFilter extends EssentialFilter {
   }
 
   private static boolean isUnsupportedBrowser(Http.RequestHeader request) {
-    Optional<String> userAgent = request.getHeaders().get(Http.HeaderNames.USER_AGENT);
+    Optional<String> userAgent = request.header(Http.HeaderNames.USER_AGENT);
     // Disallow IE only. Everything else consider supported.
     return userAgent.map(ua -> IE_PATTERN.matcher(ua).find()).orElse(false);
   }
