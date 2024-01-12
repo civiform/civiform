@@ -122,7 +122,10 @@ public final class ProgramImageView extends BaseHtmlView {
     DivTag imageUploadAndCurrentCardContainer =
         div()
             .withClasses("grid", "grid-cols-2", "gap-2", "w-full")
-            .with(createImageUploadForm(programDefinition, deleteImageModal.getButton()))
+            .with(
+                div()
+                    .with(createImageUploadForm(programDefinition))
+                    .with(deleteImageModal.getButton()))
             .with(renderCurrentProgramCard(request, programDefinition));
     mainContent.with(titleAndImageDescriptionContainer, imageUploadAndCurrentCardContainer);
 
@@ -191,7 +194,7 @@ public final class ProgramImageView extends BaseHtmlView {
                 .withClass(ButtonStyles.SOLID_BLUE));
   }
 
-  private DivTag createImageUploadForm(ProgramDefinition program, ButtonTag deleteImageButton) {
+  private DivTag createImageUploadForm(ProgramDefinition program) {
     StorageUploadRequest storageUploadRequest = createStorageUploadRequest(program);
     FormTag form =
         fileUploadViewStrategy
@@ -212,16 +215,14 @@ public final class ProgramImageView extends BaseHtmlView {
             // for more context.
             .with(fileInputElement);
 
-    DivTag imageUploadForm =
-        div()
-            .with(fullForm)
-            .with(
-                submitButton("Save image")
-                    .withForm(IMAGE_FILE_UPLOAD_FORM_ID)
-                    .withClasses(ButtonStyles.SOLID_BLUE, "mb-2"))
-            .with(fileUploadViewStrategy.footerTags());
-
-    return div().with(imageUploadForm).with(deleteImageButton);
+    // TODO(#5676): Replace with final UX once we have it.
+    return div()
+        .with(fullForm)
+        .with(
+            submitButton("Save image")
+                .withForm(IMAGE_FILE_UPLOAD_FORM_ID)
+                .withClasses(ButtonStyles.SOLID_BLUE, "mb-2"))
+        .with(fileUploadViewStrategy.footerTags());
 
     // TODO(#5676): Warn admins of recommended image size and dimensions.
   }

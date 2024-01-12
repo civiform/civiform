@@ -404,6 +404,49 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void updateFileKey_setsNewKey_keyUpdated() throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    controller.updateFileKey(
+        addCSRFToken(
+                fakeRequest(
+                    "POST",
+                    createUriWithQueryString(
+                        ImmutableMap.of(
+                            "bucket",
+                            "fakeBucket",
+                            "key",
+                            "program-summary-image/program-15/oldImage.png"))))
+            .build(),
+        program.id);
+
+    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    assertThat(updatedProgram.summaryImageFileKey()).isNotEmpty();
+    assertThat(updatedProgram.summaryImageFileKey().get())
+        .isEqualTo("program-summary-image/program-15/oldImage.png");
+
+    // WHEN the key is updated
+    controller.updateFileKey(
+        addCSRFToken(
+                fakeRequest(
+                    "POST",
+                    createUriWithQueryString(
+                        ImmutableMap.of(
+                            "bucket",
+                            "fakeBucket",
+                            "key",
+                            "program-summary-image/program-15/newImage.png"))))
+            .build(),
+        program.id);
+
+    // THEN the database reflects the changes
+    updatedProgram = programService.getProgramDefinition(program.id);
+    assertThat(updatedProgram.summaryImageFileKey()).isNotEmpty();
+    assertThat(updatedProgram.summaryImageFileKey().get())
+        .isEqualTo("program-summary-image/program-15/newImage.png");
+  }
+
+  @Test
   public void deleteFileKey_programNotDraft_throws() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
 
