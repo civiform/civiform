@@ -89,9 +89,17 @@ public final class AwsStorageUtils {
     }
   }
 
-  /** Returns the endpoint to use to connect with LocalStack. */
+  /** Returns the endpoint to use to connect with LocalStack to manage file storage. */
   public URI localStackEndpoint(Config config) {
     String localEndpoint = checkNotNull(config).getString(AWS_LOCAL_ENDPOINT_CONF_PATH);
-    return URI.create(localEndpoint);
+    // LocalStack actions that deal with file storage (upload, download, deletion) need to have
+    // "s3." prepended to the URL for them to work correctly. However, we also use LocalStack
+    // for non-file actions like emailing applicants when they've submitted an application (see
+    // SimpleEmail). Those actions do *not* need the "s3." in the URL.
+    // So, AWS_LOCAL_ENDPOINT_CONF_PATH represents the main LocalStack URL without the "s3."
+    // and we manually add the "s3." here since it's only needed for file-related LocalStack
+    // actions.
+    URI mainUri = URI.create(localEndpoint);
+    return URI.create(String.format("%s://s3.%s", mainUri.getScheme(), mainUri.getAuthority()));
   }
 }
