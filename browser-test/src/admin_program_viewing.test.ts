@@ -45,7 +45,6 @@ describe('admin program view page', () => {
   it('view program with universal questions', async () => {
     const {page, adminPrograms, adminQuestions} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'universal_questions')
 
     const programName = 'Program with universal questions'
     await adminQuestions.addTextQuestion({
