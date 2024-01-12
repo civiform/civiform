@@ -451,7 +451,6 @@ describe('normal question lifecycle', () => {
     // Since the flag is not enabled, the modal should not appear and you should be redirected to the admin questions page
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
 
-    await enableFeatureFlag(page, 'universal_questions')
     await adminQuestions.gotoQuestionEditPage(questionName)
     await adminQuestions.clickUniversalToggle()
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
@@ -474,7 +473,6 @@ describe('normal question lifecycle', () => {
       'Remove from universal questions',
     )
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
-    await disableFeatureFlag(page, 'universal_questions')
   })
 
   it('redirects to draft question when trying to edit original question', async () => {

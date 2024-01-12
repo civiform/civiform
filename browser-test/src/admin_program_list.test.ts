@@ -105,7 +105,6 @@ describe('Program list page.', () => {
     const {page, adminPrograms, adminQuestions} = ctx
 
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'universal_questions')
 
     // Create a program and question that is not universal
     const programOne = 'program one'
@@ -196,7 +195,6 @@ describe('Program list page.', () => {
     const {page, adminPrograms, adminQuestions} = ctx
 
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'universal_questions')
 
     // Create a program and question that is not universal
     const programOne = 'program one'

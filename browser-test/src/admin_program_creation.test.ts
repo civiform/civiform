@@ -13,11 +13,6 @@ import {Page} from 'playwright'
 describe('program creation', () => {
   const ctx = createTestContext()
 
-  beforeEach(async () => {
-    const {page} = ctx
-    await enableFeatureFlag(page, 'universal_questions')
-  })
-
   it('program details page screenshot', async () => {
     const {page, adminPrograms} = ctx
 
