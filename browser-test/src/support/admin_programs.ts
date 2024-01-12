@@ -152,7 +152,7 @@ export class AdminPrograms {
     }
 
     if (submitNewProgram) {
-      await submitNewProgram()
+      await this.submitNewProgram()
     }
   }
 

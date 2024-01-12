@@ -24,7 +24,17 @@ describe('program creation', () => {
     await disableFeatureFlag(page, 'program_card_images')
 
     const programName = 'Apc program'
-    await adminPrograms.addProgram(programName, (submitNewProgram = false))
+    await adminPrograms.addProgram(
+      programName,
+      'description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      /* isCommonIntake= */ false,
+      'selectedTI',
+      'confirmationMessage',
+      /* submitNewProgram= */ false,
+    )
     await validateScreenshot(page, 'program-creation-page')
 
     // When the program submission goes through, verify we're redirected to the block edit page.
@@ -38,7 +48,17 @@ describe('program creation', () => {
     await enableFeatureFlag(page, 'program_card_images')
 
     const programName = 'Apc program'
-    await adminPrograms.addProgram(programName, (submitNewProgram = false))
+    await adminPrograms.addProgram(
+      programName,
+      'description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      /* isCommonIntake= */ false,
+      'selectedTI',
+      'confirmationMessage',
+      /* submitNewProgram= */ false,
+    )
     await validateScreenshot(page, 'program-creation-page-images-flag-on')
 
     // When the program submission goes through with the program_card_images flag on,
