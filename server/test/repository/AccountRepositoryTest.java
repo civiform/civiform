@@ -1,7 +1,6 @@
 package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -26,7 +25,6 @@ import services.Path;
 import services.WellKnownPaths;
 import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
-import services.ti.EmailAddressExistsException;
 import support.ProgramBuilder;
 
 public class AccountRepositoryTest extends ResetPostgres {
@@ -48,27 +46,26 @@ public class AccountRepositoryTest extends ResetPostgres {
     assertThat(allApplicants).isEmpty();
   }
 
-//  @Test
-//  public void updateClientEmail_ThrowsEmailExistsException() {
-//    setupAccountForUpdateTest();
-//    AccountModel account = new AccountModel();
-//    account.setEmailAddress("test1@test.com");
-//    account.save();
-//    assertThatThrownBy(() -> repo.updateClientEmail("test@test.com", account))
-//        .isInstanceOf(EmailAddressExistsException.class);
-//  }
-//
-//
-//  @Test
-//  public void updateClientNameTest_EmptyMiddleAndLastName() {
-//    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
-//    repo.updateClientName("John", "", "", applicantUpdateTest);
-//    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
-//        .isEqualTo("John");
-//    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName()).isEmpty();
-//    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName()).isEmpty();
-//  }
-
+  //  @Test
+  //  public void updateClientEmail_ThrowsEmailExistsException() {
+  //    setupAccountForUpdateTest();
+  //    AccountModel account = new AccountModel();
+  //    account.setEmailAddress("test1@test.com");
+  //    account.save();
+  //    assertThatThrownBy(() -> repo.updateClientEmail("test@test.com", account))
+  //        .isInstanceOf(EmailAddressExistsException.class);
+  //  }
+  //
+  //
+  //  @Test
+  //  public void updateClientNameTest_EmptyMiddleAndLastName() {
+  //    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
+  //    repo.updateClientName("John", "", "", applicantUpdateTest);
+  //    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
+  //        .isEqualTo("John");
+  //    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName()).isEmpty();
+  //    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName()).isEmpty();
+  //  }
 
   @Test
   public void updateTiClientTest() {
@@ -83,27 +80,27 @@ public class AccountRepositoryTest extends ResetPostgres {
     var email = "test1@test.com";
     var dob = "2023-12-12";
 
-    repo.updateTiClient(accountUpdateTest, applicantUpdateTest,
-      firstname,
-      middlename,
-      lastname,
-      phone,
-      tinote,
-      email,
-      dob
-      );
+    repo.updateTiClient(
+        accountUpdateTest,
+        applicantUpdateTest,
+        firstname,
+        middlename,
+        lastname,
+        phone,
+        tinote,
+        email,
+        dob);
 
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get()).isEqualTo(firstname);
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName().get()).isEqualTo(middlename);
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName().get()).isEqualTo(lastname);
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
+        .isEqualTo(firstname);
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName().get())
+        .isEqualTo(middlename);
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName().get())
+        .isEqualTo(lastname);
     assertThat(applicantUpdateTest.getApplicantData().getPhoneNumber().get()).isEqualTo(phone);
     assertThat(accountUpdateTest.getTiNote()).isEqualTo(tinote);
     assertThat(accountUpdateTest.getEmailAddress()).isEqualTo(email);
     assertThat(applicantUpdateTest.getApplicantData().getDateOfBirth().get()).isEqualTo(dob);
-
-
-
-
   }
 
   @Test
