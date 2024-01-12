@@ -19,7 +19,7 @@ import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Session;
 import play.mvc.Result;
@@ -36,7 +36,7 @@ import views.applicant.ApplicantLayout;
  */
 public final class ApplicantInformationController extends CiviFormController {
 
-  private final HttpExecutionContext classLoaderExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final MessagesApi messagesApi;
   private final AccountRepository repository;
   private final FormFactory formFactory;
@@ -45,7 +45,7 @@ public final class ApplicantInformationController extends CiviFormController {
 
   @Inject
   public ApplicantInformationController(
-      HttpExecutionContext classLoaderExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       MessagesApi messagesApi,
       AccountRepository repository,
       FormFactory formFactory,

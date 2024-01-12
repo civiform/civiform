@@ -12,7 +12,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
@@ -28,13 +28,13 @@ import services.geo.esri.EsriServiceAreaValidationOption;
 final class ServiceAreaUpdateResolver {
   private final EsriClient esriClient;
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
-  private final HttpExecutionContext classLoaderExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
 
   @Inject
   public ServiceAreaUpdateResolver(
       EsriClient esriClient,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
-      HttpExecutionContext classLoaderExecutionContext) {
+      ClassLoaderExecutionContext classLoaderExecutionContext) {
     this.esriClient = checkNotNull(esriClient);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);

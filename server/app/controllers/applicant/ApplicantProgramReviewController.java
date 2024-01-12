@@ -18,7 +18,7 @@ import models.ApplicationModel;
 import org.pac4j.play.java.Secure;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Call;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -53,7 +53,7 @@ import views.components.ToastMessage;
 public class ApplicantProgramReviewController extends CiviFormController {
 
   private final ApplicantService applicantService;
-  private final HttpExecutionContext classLoaderExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final MessagesApi messagesApi;
   private final ApplicantProgramSummaryView summaryView;
   private final IneligibleBlockView ineligibleBlockView;
@@ -65,7 +65,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   @Inject
   public ApplicantProgramReviewController(
       ApplicantService applicantService,
-      HttpExecutionContext classLoaderExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
       IneligibleBlockView ineligibleBlockView,

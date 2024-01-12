@@ -22,13 +22,17 @@ lazy val root = (project in file("."))
       guice,
       javaJdbc,
       javaWs,
+      // Collections
+      "com.google.guava" % "guava" % "32.1.2-jre",
+      "com.google.auto" % "auto-common" % "1.2.2",
+
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.9.0",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.17.0",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.17.0",
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.0",
       "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.17.0",
-      "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
+      "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
@@ -109,7 +113,7 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.4.8"
+      "ch.qos.logback" % "logback-classic" % "1.4.11"
     ),
     javacOptions ++= {
       val defaultCompilerOptions = Seq(
@@ -166,6 +170,9 @@ lazy val root = (project in file("."))
     Test / outputStrategy := Some(StdoutOutput),
     // Use test config for tests
     Test / javaOptions += "-Dconfig.file=conf/application.test.conf",
+    // Play 2.9 started using a dynamically assigned port number. Setting it in the
+    // application.test.conf file didn't have any effect so we set it here.
+    Test / javaOptions += "-Dtestserver.port=9000",
     // Uncomment the following line to disable JVM forking, which allows attaching a remote
     // debugger (https://stackoverflow.com/a/57396198). This isn't disabled unilaterally
     // since running in non-forked mode causes javaOptions to not be propagated, which

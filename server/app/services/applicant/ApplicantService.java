@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ApplicationEventRepository;
@@ -112,7 +112,7 @@ public final class ApplicantService {
   private final Clock clock;
   private final String baseUrl;
   private final boolean isStaging;
-  private final HttpExecutionContext classLoaderExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final String stagingProgramAdminNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
@@ -135,7 +135,7 @@ public final class ApplicantService {
       SimpleEmail amazonSESClient,
       Clock clock,
       Config configuration,
-      HttpExecutionContext classLoaderExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       DeploymentType deploymentType,
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
@@ -551,6 +551,7 @@ public final class ApplicantService {
                 application -> savePrimaryApplicantInfoAnswers(application),
                 classLoaderExecutionContext.current())
             .toCompletableFuture();
+
     return CompletableFuture.allOf(applicantLabelFuture, applicationFuture)
         .thenComposeAsync(
             (v) -> {

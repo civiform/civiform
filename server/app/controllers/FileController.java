@@ -15,7 +15,7 @@ import models.StoredFileModel;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
@@ -27,13 +27,13 @@ import services.cloud.ApplicantStorageClient;
 public class FileController extends CiviFormController {
   private static final Logger logger = LoggerFactory.getLogger(FileController.class);
 
-  private final HttpExecutionContext classLoaderExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final ApplicantStorageClient applicantStorageClient;
   private final StoredFileRepository storedFileRepository;
 
   @Inject
   public FileController(
-      HttpExecutionContext classLoaderExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       StoredFileRepository storedFileRepository,
       ApplicantStorageClient applicantStorageClient,
       ProfileUtils profileUtils,
