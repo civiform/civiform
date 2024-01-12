@@ -235,7 +235,7 @@ public final class TrustedIntermediaryService {
     // DOB update
     String newDob = form.get().getDob();
     LocalDate newDobDate = LocalDate.parse(newDob, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-    if (!applicantData.getDateOfBirth().get().equals(newDobDate)) {
+    if (applicantData.getDateOfBirth().isEmpty() || !applicantData.getDateOfBirth().get().equals(newDobDate)) {
       accountRepository.updateClientDob(newDob, applicant);
     }
     // Phone number update
