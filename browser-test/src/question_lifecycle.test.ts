@@ -6,8 +6,6 @@ import {
   seedQuestions,
   validateScreenshot,
   waitForPageJsLoad,
-  enableFeatureFlag,
-  disableFeatureFlag,
 } from './support'
 import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'

@@ -159,32 +159,20 @@ describe('Program list page.', () => {
 
     await loginAsAdmin(page)
 
-    const programOne = 'List test program one'
+    const programOne = 'list-test-program-one'
     await adminPrograms.addProgram(programOne)
     await adminPrograms.publishAllDrafts()
     await adminPrograms.createNewVersion(programOne)
     await adminPrograms.expectDraftProgram(programOne)
 
-    // Add listener to dismiss dialog after clicking 'Publish program'.
-    page.once('dialog', (dialog) => {
-      void dialog.dismiss()
-      expect(dialog.type()).toEqual('confirm')
-      expect(dialog.message()).toEqual(
-        'Are you sure you want to publish List test program one and all of its draft questions?',
-      )
-    })
+    await page.click(`#publish-modal-${programOne}-button`)
+    await page.click(`#publish-modal-${programOne} .cf-modal-close`)
 
-    await page.click('#publish-program-button')
-
-    // Draft not published because dialog was dismissed.
+    // Draft not published because modal was dismissed.
     await adminPrograms.expectDraftProgram(programOne)
 
-    // Add listener to confirm dialog after clicking 'Publish program'.
-    page.once('dialog', (dialog) => {
-      void dialog.accept()
-    })
-
-    await page.click('#publish-program-button')
+    await page.click(`#publish-modal-${programOne}-button`)
+    await page.click(`#publish-modal-${programOne} button[type="submit"]`)
 
     // Program was published.
     await adminPrograms.expectDoesNotHaveDraftProgram(programOne)

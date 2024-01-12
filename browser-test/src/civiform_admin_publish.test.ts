@@ -8,7 +8,6 @@ import {
   startSession,
   validateScreenshot,
   createTestContext,
-  enableFeatureFlag,
 } from './support'
 import {Page} from 'playwright'
 import {ProgramVisibility} from './support/admin_programs'
