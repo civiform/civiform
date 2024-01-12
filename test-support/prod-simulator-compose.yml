@@ -17,7 +17,8 @@ services:
     ports:
       - 8888:9000
     environment:
-      - SECRET_KEY=notarealsecret
+      # Randomly generated value to comply with Play's secret length
+      - SECRET_KEY=K5SgucxBYC3xJwNcGWZV1Y7uASmrc+SqftbcTROH0s8=
       - APPLICANT_OIDC_CLIENT_ID=client
       - APPLICANT_OIDC_CLIENT_SECRET=notarealsecret
       - APPLICANT_OIDC_DISCOVERY_URI=https://civiform-staging.us.auth0.com/.well-known/openid-configuration
