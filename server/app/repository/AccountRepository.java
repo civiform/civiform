@@ -178,9 +178,11 @@ public final class AccountRepository {
 
     try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
       transaction.setBatchMode(true);
-
-      if (!Strings.isNullOrEmpty(email)) {
-        if (lookupAccountByEmail(email).isPresent()) {
+      // new email should different from the current email
+      if (!email.equals(account.getEmailAddress())) {
+        // if the new email is not null or null, then it should not be attached to any other
+        // accounts
+        if (!Strings.isNullOrEmpty(email) && lookupAccountByEmail(email).isPresent()) {
           throw new EmailAddressExistsException();
         }
         account.setEmailAddress(email);
