@@ -115,7 +115,6 @@ function process_artifact_list_urls() {
     | .archive_download_url
   ) | join (" ")')"
 
-
   for ARTIFACT_DOWNLOAD_URL in ${ARTIFACT_DOWNLOAD_URL_ARRAY[@]}; do # We want to have work splitting here so don't put quotes
     echo "Downloading... ${ARTIFACT_DOWNLOAD_URL}"
 
@@ -154,7 +153,6 @@ function process_artifact_list_urls() {
   done
 }
 
-
 verify_dependencies
 
 # Set branch name to user provided value or default to the current active branch
@@ -175,7 +173,6 @@ ARTIFACT_LIST_URL="$(echo "${JOB_RUN_LIST_JSON}" | jq -r -c '
 )[0]')"
 
 process_artifact_list_urls "${ARTIFACT_LIST_URL}"
-
 
 # Rename updated files removing the playwright "-received" suffix
 find "${SNAPSHOT_FOLDER}" \
