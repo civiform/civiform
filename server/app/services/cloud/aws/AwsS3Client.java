@@ -11,9 +11,9 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 /**
  * A real implementation of {@link AwsS3ClientWrapper} that delegates to the real {@link S3Client}.
  */
-public class RealAwsS3Client implements AwsS3ClientWrapper {
+public class AwsS3Client implements AwsS3ClientWrapper {
   @Inject
-  public RealAwsS3Client() {}
+  public AwsS3Client() {}
 
   @Override
   public void deleteObject(
