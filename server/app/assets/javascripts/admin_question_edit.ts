@@ -3,7 +3,7 @@ import {ModalController} from './modal'
 
 class AdminQuestionEdit {
   constructor() {
-    // Check for the modal to confirm we are on the question edit page with the UNIVERSAL_QUESTIONS feature flag turned on
+    // Check for the modal to confirm we are on the question edit page
     const modal = document.getElementById('confirm-question-updates-modal')
     if (modal !== null) {
       this.addCustomModalClickHandler(modal)
