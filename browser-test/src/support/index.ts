@@ -526,6 +526,8 @@ export const validateScreenshot = async (
     return
   }
   const page = 'page' in element ? element.page() : element
+
+  await page.setViewportSize({width: 1280, height: 720});
   // Normalize all variable content so that the screenshot is stable.
   await normalizeElements(page)
   // Also process any sub frames.
