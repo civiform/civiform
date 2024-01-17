@@ -39,6 +39,14 @@ public class AccountModelTest extends ResetPostgres {
   }
 
   @Test
+  public void canAddTiNotes() {
+    AccountModel account = new AccountModel();
+    account.setTiNote("Ti notes test");
+    account.save();
+    assertThat(account.getTiNote()).isEqualTo("Ti notes test");
+  }
+
+  @Test
   public void addDuplicateProgram_doesNotAddToList() {
     AccountModel account = new AccountModel();
     String programName = "duplicate";
