@@ -115,7 +115,33 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void create_returnsNewProgramInList() {
+  public void create_showsNewProgramInList() {
+    RequestBuilder requestBuilder =
+        addCSRFToken(
+            requestBuilderWithSettings()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "adminName",
+                        "internal-program-name",
+                        "adminDescription",
+                        "Internal program description",
+                        "localizedDisplayName",
+                        "External program name",
+                        "localizedDisplayDescription",
+                        "External program description",
+                        "externalLink",
+                        "https://external.program.link",
+                        "displayMode",
+                        DisplayMode.PUBLIC.getValue())));
+
+    Result programDashboardResult =
+        controller.index(addCSRFToken(requestBuilderWithSettings()).build());
+    assertThat(contentAsString(programDashboardResult)).contains("External program name");
+    assertThat(contentAsString(programDashboardResult)).contains("External program description");
+  }
+
+  @Test
+  public void create_programImagesDisabled_redirectsToProgramEditBlocks() {
     RequestBuilder requestBuilder =
         addCSRFToken(
             requestBuilderWithSettings()
@@ -146,10 +172,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .id();
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(programId).url());
-
-    Result redirectResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
-    assertThat(contentAsString(redirectResult)).contains("External program name");
-    assertThat(contentAsString(redirectResult)).contains("External program description");
   }
 
   @Test

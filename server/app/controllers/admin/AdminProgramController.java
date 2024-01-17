@@ -150,11 +150,13 @@ public final class AdminProgramController extends CiviFormController {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       return ok(newOneView.render(request, programData, message));
     }
+
+    long programId = result.getResult().id();
     if (settingsManifest.getProgramCardImages(request)) {
       // Once a program is created, we want to direct admins to immediately add a program image.
-      return redirect(routes.AdminProgramImageController.index(result.getResult().id()).url());
+      return redirect(routes.AdminProgramImageController.index(programId).url());
     } else {
-      return redirect(routes.AdminProgramBlocksController.index(result.getResult().id()).url());
+      return redirect(routes.AdminProgramBlocksController.index(programId).url());
     }
   }
 

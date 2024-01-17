@@ -13,12 +13,7 @@ import {Page} from 'playwright'
 describe('program creation', () => {
   const ctx = createTestContext()
 
-  beforeEach(async () => {
-    const {page} = ctx
-    await enableFeatureFlag(page, 'universal_questions')
-  })
-
-  it('create program page', async () => {
+  it('create program page with images flag off', async () => {
     const {page, adminPrograms} = ctx
     await loginAsAdmin(page)
     await disableFeatureFlag(page, 'program_card_images')
@@ -37,7 +32,8 @@ describe('program creation', () => {
     )
     await validateScreenshot(page, 'program-creation-page')
 
-    // When the program submission goes through, verify we're redirected to the block edit page.
+    // When the program submission goes through with the program_card_images flag off,
+    // verify we're redirected to the block edit page.
     await adminPrograms.submitNewProgram()
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
