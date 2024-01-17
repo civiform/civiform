@@ -484,10 +484,7 @@ public class FieldWithLabel {
     ImmutableMap<String, Optional<String>> attributesMap = this.attributesMapBuilder.build();
     attributesMap
         .entrySet()
-        .forEach(
-            entry ->
-                fieldTag.attr(
-                    entry.getKey(), entry.getValue().orElse(null)));
+        .forEach(entry -> fieldTag.attr(entry.getKey(), entry.getValue().orElse(null)));
   }
 
   private DivTag buildFieldErrorsTag(String id) {
