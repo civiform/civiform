@@ -134,6 +134,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                         "displayMode",
                         DisplayMode.PUBLIC.getValue())));
 
+    controller.create(requestBuilder.build());
+
     Result programDashboardResult =
         controller.index(addCSRFToken(requestBuilderWithSettings()).build());
     assertThat(contentAsString(programDashboardResult)).contains("External program name");
