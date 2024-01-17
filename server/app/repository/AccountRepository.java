@@ -16,6 +16,8 @@ import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Query;
+import io.ebean.Transaction;
+import io.ebean.annotation.TxIsolation;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -161,6 +163,37 @@ public final class AccountRepository {
           return null;
         },
         executionContext);
+  }
+
+  public void updateTiClient(
+      AccountModel account,
+      ApplicantModel applicant,
+      String firstName,
+      String middleName,
+      String lastName,
+      String phoneNumber,
+      String tiNote,
+      String email,
+      String newDob) {
+
+    try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
+      transaction.setBatchMode(true);
+      // new email should different from the current email
+      if (!email.equals(account.getEmailAddress())) {
+        if (!Strings.isNullOrEmpty(email) && lookupAccountByEmail(email).isPresent()) {
+          throw new EmailAddressExistsException();
+        }
+        account.setEmailAddress(email);
+      }
+      account.setTiNote(tiNote);
+      applicant.getApplicantData().setPhoneNumber(phoneNumber);
+      applicant.getApplicantData().updateUserName(firstName, middleName, lastName);
+      applicant.getApplicantData().setDateOfBirth(newDob);
+      account.save();
+      applicant.save();
+      database.saveAll(account, applicant);
+      transaction.commit();
+    }
   }
 
   public Optional<ApplicantModel> lookupApplicantSync(long id) {
