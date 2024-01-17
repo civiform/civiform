@@ -104,4 +104,13 @@ public final class AdminProgramImageController extends CiviFormController {
     final String indexUrl = routes.AdminProgramImageController.index(programId).url();
     return redirect(indexUrl).flashing("success", "Image set");
   }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result deleteFileKey(Http.Request request, long programId)
+      throws ProgramNotFoundException {
+    requestChecker.throwIfProgramNotDraft(programId);
+    programService.deleteSummaryImageFileKey(programId);
+    final String indexUrl = routes.AdminProgramImageController.index(programId).url();
+    return redirect(indexUrl).flashing("success", "Image removed");
+  }
 }

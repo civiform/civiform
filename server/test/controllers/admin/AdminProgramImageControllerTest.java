@@ -29,6 +29,7 @@ import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
 public class AdminProgramImageControllerTest extends ResetPostgres {
+  private static final String VALID_FILE_KEY = "program-summary-image/program-1/myImage.png";
 
   private ProgramService programService;
   private AdminProgramImageController controller;
@@ -370,25 +371,129 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void updateFileKey_hasBucketAndKey_keyUpdated() throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    controller.updateFileKey(
+        addCSRFToken(
+                fakeRequest(
+                    "POST",
+                    createUriWithQueryString(
+                        ImmutableMap.of(
+                            "bucket",
+                            "fakeBucket",
+                            "key",
+                            "program-summary-image/program-15/myImage.png"))))
+            .build(),
+        program.id);
+
+    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    assertThat(updatedProgram.summaryImageFileKey()).isNotEmpty();
+    assertThat(updatedProgram.summaryImageFileKey().get())
+        .isEqualTo("program-summary-image/program-15/myImage.png");
+  }
+
+  @Test
   public void updateFileKey_hasBucketAndKey_toastsSuccess() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
 
-    Result result =
-        controller.updateFileKey(
-            addCSRFToken(
-                    fakeRequest(
-                        "POST",
-                        createUriWithQueryString(
-                            ImmutableMap.of(
-                                "bucket",
-                                "fakeBucket",
-                                "key",
-                                "program-summary-image/program-1/myImage"))))
-                .build(),
-            program.id);
+    Result result = setValidFileKeyOnProgram(program);
 
     assertThat(result.flash().data()).containsOnlyKeys("success");
     assertThat(result.flash().data().get("success")).contains("Image set");
+  }
+
+  @Test
+  public void updateFileKey_setsNewKey_keyUpdated() throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    controller.updateFileKey(
+        addCSRFToken(
+                fakeRequest(
+                    "POST",
+                    createUriWithQueryString(
+                        ImmutableMap.of(
+                            "bucket",
+                            "fakeBucket",
+                            "key",
+                            "program-summary-image/program-15/oldImage.png"))))
+            .build(),
+        program.id);
+
+    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    assertThat(updatedProgram.summaryImageFileKey()).isNotEmpty();
+    assertThat(updatedProgram.summaryImageFileKey().get())
+        .isEqualTo("program-summary-image/program-15/oldImage.png");
+
+    // WHEN the key is updated
+    controller.updateFileKey(
+        addCSRFToken(
+                fakeRequest(
+                    "POST",
+                    createUriWithQueryString(
+                        ImmutableMap.of(
+                            "bucket",
+                            "fakeBucket",
+                            "key",
+                            "program-summary-image/program-15/newImage.png"))))
+            .build(),
+        program.id);
+
+    // THEN the database reflects the changes
+    updatedProgram = programService.getProgramDefinition(program.id);
+    assertThat(updatedProgram.summaryImageFileKey()).isNotEmpty();
+    assertThat(updatedProgram.summaryImageFileKey().get())
+        .isEqualTo("program-summary-image/program-15/newImage.png");
+  }
+
+  @Test
+  public void deleteFileKey_programNotDraft_throws() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+
+    assertThatExceptionOfType(NotChangeableException.class)
+        .isThrownBy(
+            () -> controller.deleteFileKey(addCSRFToken(fakeRequest()).build(), program.id));
+  }
+
+  @Test
+  public void deleteFileKey_missingProgram_throws() {
+    assertThatExceptionOfType(NotChangeableException.class)
+        .isThrownBy(
+            () ->
+                controller.deleteFileKey(
+                    addCSRFToken(fakeRequest()).build(), /* programId= */ Long.MAX_VALUE));
+  }
+
+  @Test
+  public void deleteFileKey_noFileKeyPresent_stillNoKey() throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    controller.deleteFileKey(addCSRFToken(fakeRequest()).build(), program.id);
+
+    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    assertThat(updatedProgram.summaryImageFileKey().isEmpty()).isTrue();
+  }
+
+  @Test
+  public void deleteFileKey_hadFileKey_keyRemoved() throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+    setValidFileKeyOnProgram(program);
+
+    controller.deleteFileKey(addCSRFToken(fakeRequest()).build(), program.id);
+
+    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    assertThat(updatedProgram.summaryImageFileKey()).isEmpty();
+  }
+
+  @Test
+  public void deleteFileKey_toastsSuccess() throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+    setValidFileKeyOnProgram(program);
+
+    Result result = controller.deleteFileKey(addCSRFToken(fakeRequest()).build(), program.id);
+
+    assertThat(result.flash().data()).containsOnlyKeys("success");
+    assertThat(result.flash().data().get("success")).contains("Image removed");
   }
 
   private String createUriWithQueryString(ImmutableMap<String, String> query) {
@@ -397,5 +502,22 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             .map(entry -> String.format("%s=%s", entry.getKey(), entry.getValue()))
             .collect(Collectors.joining("&"));
     return "/?" + queryString;
+  }
+
+  private Result setValidFileKeyOnProgram(ProgramModel program) throws ProgramNotFoundException {
+    Result result =
+        controller.updateFileKey(
+            addCSRFToken(
+                    fakeRequest(
+                        "POST",
+                        createUriWithQueryString(
+                            ImmutableMap.of("bucket", "fakeBucket", "key", VALID_FILE_KEY))))
+                .build(),
+            program.id);
+
+    ProgramDefinition programWithKey = programService.getProgramDefinition(program.id);
+    assertThat(programWithKey.summaryImageFileKey()).isNotEmpty();
+    assertThat(programWithKey.summaryImageFileKey().get()).isEqualTo(VALID_FILE_KEY);
+    return result;
   }
 }

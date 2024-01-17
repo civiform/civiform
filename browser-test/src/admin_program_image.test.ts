@@ -152,6 +152,7 @@ describe('Admin can manage program image', () => {
     it('adds new image', async () => {
       const {page, adminProgramImage} = ctx
 
+      await adminProgramImage.expectNoImagePreview()
       await adminProgramImage.setImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
       )
@@ -163,6 +164,29 @@ describe('Admin can manage program image', () => {
 
       await dismissToast(page)
       await validateScreenshot(page, 'program-image-with-image')
+      await adminProgramImage.expectImagePreview()
+    })
+
+    it('deletes existing image', async () => {
+      const {page, adminProgramImage} = ctx
+
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+      )
+      await adminProgramImage.expectProgramImagePage()
+      await adminProgramImage.expectImagePreview()
+
+      await adminProgramImage.clickDeleteImageButton()
+      await validateScreenshot(page, 'delete-image-confirmation-modal')
+
+      await adminProgramImage.confirmDeleteImageButton()
+
+      await adminProgramImage.expectProgramImagePage()
+      await validateToastMessage(
+        page,
+        adminProgramImage.imageRemovedToastMessage(),
+      )
+      await adminProgramImage.expectNoImagePreview()
     })
   })
 })
