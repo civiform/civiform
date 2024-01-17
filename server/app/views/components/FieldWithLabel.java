@@ -487,7 +487,7 @@ public class FieldWithLabel {
         .forEach(
             entry ->
                 fieldTag.attr(
-                    entry.getKey(), entry.getValue().isPresent() ? entry.getValue().get() : null));
+                    entry.getKey(), entry.getValue().orElse(null)));
   }
 
   private DivTag buildFieldErrorsTag(String id) {
