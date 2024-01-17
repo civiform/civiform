@@ -196,8 +196,7 @@ public final class PdfExporter {
         document.add(Chunk.NEWLINE);
         Paragraph hiddenText =
             new Paragraph(
-                "The following questions were hidden from the applicant : ",
-                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+                "Hidden Questions : ", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
         document.add(hiddenText);
         document.add(Chunk.NEWLINE);
         for (AnswerData answerData : answersOnlyHidden) {

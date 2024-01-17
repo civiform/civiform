@@ -122,6 +122,7 @@ public class PdfExporterTest extends AbstractExporterTest {
   public void validatePDFExport_OptionalFileUploadWithoutFile()
       throws IOException, DocumentException {
     createFakeProgramWithOptionalQuestion();
+
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
     String applicantName = "name-unavailable";
@@ -151,6 +152,31 @@ public class PdfExporterTest extends AbstractExporterTest {
     for (int i = 3; i < linesFromPDF.size(); i++) {
       assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
     }
+  }
+
+  @Test
+  public void validatePDFExport_visibility() throws IOException, DocumentException {
+    createFakeProgramWithVisibilityPredicate();
+
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+
+    String applicantName = "name-unavailable";
+    String applicantNameWithApplicationId =
+        String.format("%s (%d)", applicantName, applicationSeven.id);
+    PdfExporter.InMemoryPdf result =
+        exporter.export(
+            applicationSeven, /* showEligibilityText= */ false, /* includeHiddenBlocks= */ true);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
+    String programName = applicationSeven.getProgram().getProgramDefinition().adminName();
+    textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
+    pdfReader.close();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+
+    assertThat(textFromPDF).isNotNull();
+    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
+    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
+    assertThat(textFromPDF).contains("Hidden Questions");
   }
 
   @Test
