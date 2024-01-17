@@ -294,6 +294,10 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicationSix.save();
   }
 
+  /**
+   * Creates a program that has an visibility predicate, one applicant, and one application. The
+   * applications have submission times one month apart starting on 2023-01-01.
+   */
   protected void createFakeProgramWithVisibilityPredicate() {
     QuestionModel nameQuestion = testQuestionBank.applicantName();
     QuestionModel colorQuestion = testQuestionBank.applicantFavoriteColor();

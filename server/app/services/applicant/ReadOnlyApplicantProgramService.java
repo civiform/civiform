@@ -71,7 +71,7 @@ public interface ReadOnlyApplicantProgramService {
    */
   ImmutableList<ApplicantQuestion> getIneligibleQuestions();
 
-  /** Get the hidden block with the given block ID */
+  /** Get the hidden block with the given block ID if there is one. It is emptry if there isn't. */
   Optional<Block> getHiddenBlock(String blockId);
 
   /**

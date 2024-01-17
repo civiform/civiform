@@ -151,7 +151,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return isBlockEligible(block);
   }
 
-  /*helper function*/
+  /** Helper functions returning if the block eligibility criteria are met. */
   private boolean isBlockEligible(Block block) {
     Optional<PredicateDefinition> predicate =
         block.getEligibilityDefinition().map(EligibilityDefinition::predicate);
