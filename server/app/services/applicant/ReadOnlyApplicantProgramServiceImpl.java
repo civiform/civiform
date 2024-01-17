@@ -303,7 +303,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return builder.build();
   }
 
-  /*helper function for getSummaryData()*/
+  /**
+   * Helper method for {@link ReadOnlyApplicantProgramServiceImpl#getSummaryDataOnlyActive()} and
+   * {@link ReadOnlyApplicantProgramServiceImpl#getSummaryDataOnlyHidden()}. Adds {@link AnswerData}
+   * data to {@link ImmutableList.Builder<AnswerData>}.
+   */
   private void addDataToBuilder(
       ImmutableList<Block> blocks,
       ImmutableList.Builder<AnswerData> builder,
