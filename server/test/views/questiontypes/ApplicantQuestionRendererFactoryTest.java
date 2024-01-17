@@ -89,6 +89,7 @@ public class ApplicantQuestionRendererFactoryTest {
       case CHECKBOX:
       case ENUMERATOR:
       case NAME:
+      case PHONE:
       case RADIO_BUTTON:
         assertThat(renderedContent).contains("fieldset");
         break;
@@ -100,7 +101,6 @@ public class ApplicantQuestionRendererFactoryTest {
       case ID:
       case NUMBER:
       case STATIC:
-      case PHONE:
       case TEXT:
         assertThat(renderedContent).doesNotContain("fieldset");
         break;
