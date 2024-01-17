@@ -1,5 +1,7 @@
 package services.cloud;
 
+import com.google.common.collect.ImmutableList;
+
 /**
  * Interface for working with cloud storage file backends for **publicly accessible** files.
  *
@@ -60,4 +62,7 @@ public abstract class PublicStorageClient {
    * <p>Purposefully not public so that all clients use {@link #deletePublicFile(String)}.
    */
   protected abstract boolean deletePublicFileInternal(String fileKey);
+
+  // TODO
+  public abstract ImmutableList<String> listPublicFiles();
 }

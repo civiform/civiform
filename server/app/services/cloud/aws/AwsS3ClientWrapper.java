@@ -1,8 +1,11 @@
 package services.cloud.aws;
 
 import java.net.URI;
+
+import com.google.common.collect.ImmutableList;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 
 /**
  * A wrapper around AWS's {@link software.amazon.awssdk.services.s3.S3Client} so that we can fake it
@@ -18,4 +21,8 @@ public interface AwsS3ClientWrapper {
   void deleteObject(
       Credentials credentials, Region region, URI endpoint, DeleteObjectRequest request)
       throws FileDeletionFailureException;
+
+  ImmutableList<String> listObjects(
+          Credentials credentials, Region region, URI endpoint, ListObjectsV2Request listObjectsV2Request
+  );
 }

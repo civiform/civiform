@@ -2,6 +2,7 @@ package services.cloud.aws;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import java.net.URI;
 import javax.inject.Inject;
@@ -12,6 +13,7 @@ import play.Environment;
 import services.cloud.PublicStorageClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 
 /** An AWS Simple Storage Service (S3) implementation of public storage. */
 @Singleton
@@ -84,6 +86,12 @@ public final class AwsPublicStorage extends PublicStorageClient {
       logger.error(e.toString());
       return false;
     }
+  }
+
+  @Override
+  public ImmutableList<String> listPublicFiles() {
+    return awsS3ClientWrapper.listObjects(credentials, region, client.endpoint(),
+            ListObjectsV2Request.builder().bucket(bucket).build());
   }
 
   /** Interface defining where storage requests should be sent. */
