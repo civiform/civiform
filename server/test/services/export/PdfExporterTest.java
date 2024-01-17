@@ -122,7 +122,6 @@ public class PdfExporterTest extends AbstractExporterTest {
   public void validatePDFExport_OptionalFileUploadWithoutFile()
       throws IOException, DocumentException {
     createFakeProgramWithOptionalQuestion();
-
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
     String applicantName = "name-unavailable";
@@ -159,7 +158,6 @@ public class PdfExporterTest extends AbstractExporterTest {
     createFakeProgramWithVisibilityPredicate();
 
     PdfExporter exporter = instanceOf(PdfExporter.class);
-
     String applicantName = "name-unavailable";
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationSeven.id);
