@@ -140,10 +140,10 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
     if (relevantPrograms.size() > 0) {
       htmlBundle.addMainContent(
           div()
-              .withClasses("p-4 sm:p-6 my-6 bg-blue-100")
+              .withClasses("p-4 sm:p-6 my-6 bg-slate-100")
               .with(
                   h2(messages.at(CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR.getKeyName()))
-                      .withClasses("mb-4 font-bold"),
+                      .withClasses("mb-4 font-bold text-center"),
                   programCardViewRenderer.programCardsSection(
                       request,
                       messages,
