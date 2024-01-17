@@ -228,7 +228,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                             "grow",
                             "shrink-0",
                             "place-content-center",
-                            "w-full",
+                            "max-w-full",
                             StyleUtils.responsiveMedium("grow-0", "shrink"))))
         .condWith(
             !onTiDashboardPage(request),
