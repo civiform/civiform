@@ -48,9 +48,8 @@ public final class ApplicantStyles {
           "grid",
           "grid-cols-1",
           "gap-4",
-          "justify-between",
+          //"justify-between",
           "items-start",
-          "place-items-center",
           StyleUtils.responsiveSmall("grid-cols-1"),
           StyleUtils.responsiveLarge("gap-8"));
   public static final String PROGRAM_CARD =

@@ -97,6 +97,8 @@ public final class ProgramCardViewRenderer {
       case FULL:
         return StyleUtils.joinStyles(
             ApplicantStyles.PROGRAM_CARDS_CONTAINER_BASE,
+            "place-items-center",
+            "justify-between",
             numPrograms >= 2 ? StyleUtils.responsiveMedium("grid-cols-2") : "",
             numPrograms >= 3 ? StyleUtils.responsiveLarge("grid-cols-3") : "",
             numPrograms >= 4 ? StyleUtils.responsiveXLarge("grid-cols-4") : "",
@@ -104,10 +106,10 @@ public final class ProgramCardViewRenderer {
       case MEDIUM:
         return StyleUtils.joinStyles(
             ApplicantStyles.PROGRAM_CARDS_CONTAINER_BASE,
-            numPrograms >= 2 ? StyleUtils.responsiveMedium("grid-cols-1") : "",
-            numPrograms >= 3 ? StyleUtils.responsiveLarge("grid-cols-2") : "",
-            numPrograms >= 4 ? StyleUtils.responsive2XLarge("grid-cols-3") : "",
-            numPrograms >= 5 ? StyleUtils.responsive3XLarge("grid-cols-4") : "");
+            numPrograms >= 2 ? StyleUtils.responsiveMedium("grid-cols-2") : "",
+            numPrograms >= 3 ? StyleUtils.responsiveLarge("grid-cols-3") : "",
+            numPrograms >= 4 ? StyleUtils.responsive2XLarge("grid-cols-4") : "",
+            numPrograms >= 5 ? StyleUtils.responsive3XLarge("grid-cols-5") : "");
       default:
         throw new RuntimeException("Unrecognized container width: " + containerWidth);
     }

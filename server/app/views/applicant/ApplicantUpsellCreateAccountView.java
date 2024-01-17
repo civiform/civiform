@@ -143,7 +143,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
               .withClasses("p-4 sm:p-6 my-6 bg-slate-100")
               .with(
                   h2(messages.at(CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR.getKeyName()))
-                      .withClasses("mb-4 font-bold text-center"),
+                      .withClasses("mb-4 font-bold"),
                   programCardViewRenderer.programCardsSection(
                       request,
                       messages,
