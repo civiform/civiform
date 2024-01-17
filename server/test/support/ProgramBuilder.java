@@ -227,6 +227,11 @@ public class ProgramBuilder {
     return this;
   }
 
+  public ProgramBuilder setSummaryImageFileKey(Optional<String> summaryImageFileKey) {
+    builder.setSummaryImageFileKey(summaryImageFileKey);
+    return this;
+  }
+
   public ProgramBuilder setLocalizedSummaryImageDescription(
       LocalizedStrings localizedSummaryImageDescription) {
     builder.setLocalizedSummaryImageDescription(Optional.of(localizedSummaryImageDescription));

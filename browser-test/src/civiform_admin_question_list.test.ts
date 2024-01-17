@@ -2,7 +2,6 @@ import {
   AdminPrograms,
   AdminQuestions,
   createTestContext,
-  enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
@@ -240,7 +239,6 @@ describe('Admin question list', () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'universal_questions')
 
     // Navigate to the new question page and ensure that the universal toggle is unset
     await adminQuestions.gotoAdminQuestionsPage()

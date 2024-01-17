@@ -9,6 +9,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.PTag;
 import java.time.Instant;
 import java.util.Comparator;
@@ -20,6 +21,7 @@ import play.mvc.Http.Request;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
+import views.ProgramImageUtils;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
 import views.style.ReferenceClasses;
@@ -29,11 +31,14 @@ import views.style.StyleUtils;
 public final class ProgramCardFactory {
 
   private final ViewUtils viewUtils;
+  private final ProgramImageUtils programImageUtils;
   private final SettingsManifest settingsManifest;
 
   @Inject
-  public ProgramCardFactory(ViewUtils viewUtils, SettingsManifest settingsManifest) {
+  public ProgramCardFactory(
+      ViewUtils viewUtils, ProgramImageUtils programImageUtils, SettingsManifest settingsManifest) {
     this.viewUtils = checkNotNull(viewUtils);
+    this.programImageUtils = checkNotNull(programImageUtils);
     this.settingsManifest = settingsManifest;
   }
 
@@ -66,7 +71,7 @@ public final class ProgramCardFactory {
             .withClass("flex")
             .with(
                 div()
-                    .withClasses("w-1/3", "py-7")
+                    .withClasses("w-1/4", "py-7")
                     .with(
                         p(programTitleText)
                             .withClasses(
@@ -152,6 +157,7 @@ public final class ProgramCardFactory {
             StyleUtils.hover("bg-gray-100"),
             StyleUtils.joinStyles(extraStyles))
         .with(
+            createImageIcon(program, request),
             badge,
             div()
                 .withClasses("ml-4", StyleUtils.responsiveXLarge("ml-10"))
@@ -200,6 +206,22 @@ public final class ProgramCardFactory {
       return cardData.draftProgram().get().program();
     }
     return cardData.activeProgram().get().program();
+  }
+
+  private DivTag createImageIcon(ProgramDefinition program, Http.Request request) {
+    if (!settingsManifest.getProgramCardImages(request)) {
+      // If the program card images feature isn't enabled, don't make any changes to the admin page.
+      return div();
+    }
+    Optional<ImgTag> image =
+        programImageUtils.createProgramImage(
+            request, program, Locale.getDefault(), /* isWithinProgramCard= */ false);
+    if (image.isPresent()) {
+      return div().withClasses("w-16", "h-9").with(image.get());
+    } else {
+      // Show a grayed-out placeholder image if there's no program image.
+      return div().with(Icons.svg(Icons.IMAGE).withClasses("w-16", "h-9", "text-gray-300"));
+    }
   }
 
   public static Comparator<ProgramCardData> programTypeThenLastModifiedThenNameComparator() {

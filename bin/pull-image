@@ -5,6 +5,7 @@
 # DOC: specify what to pull with a flag
 # DOC: e.g. "--formatter", "--localstack", or "--all" (the default).
 # DOC: If multiple flags are passed, all but the first will be ignored.
+# DOC: Use "--help" to display all pull image options
 
 source bin/lib.sh
 
@@ -95,6 +96,24 @@ while [ "${1:-}" != "" ]; do
       echo "Pull mock-web-services docker image"
       docker pull civiform/mock-web-services:latest
       docker tag civiform/mock-web-services:latest civiform-mock-web-services
+      ;;
+
+    "--help")
+      echo ""
+      echo "Update all images"
+      echo ""
+      echo "  --all                 All Images"
+      echo ""
+      echo "Update one or more specific images"
+      echo ""
+      echo "  --azurite             Microsoft Azurite"
+      echo "  --browser-tests       CiviForm Browser Test"
+      echo "  --dev                 CiviForm Development"
+      echo "  --formatter           CiviForm Formatter"
+      echo "  --localstack          Localstack (AWS emulator)"
+      echo "  --mock-web-services   CiviForm Mock Web Services"
+      echo "  --oidc-provider       CiviForm OIDC Provider"
+      echo ""
       ;;
 
     *)

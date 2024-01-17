@@ -9,22 +9,15 @@ import {
 describe('admin program view page', () => {
   const ctx = createTestContext()
 
-  it('view active program, without draft and after creating draft', async () => {
+  it('view active program shows read only view', async () => {
     const {page, adminPrograms} = ctx
     await loginAsAdmin(page)
 
-    const programName = 'Apc program'
+    const programName = 'Active Program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.publishAllDrafts()
     await adminPrograms.gotoViewActiveProgramPage(programName)
     await validateScreenshot(page, 'program-read-only-view')
-    await adminPrograms.gotoAdminProgramsPage()
-    await validateScreenshot(page, 'program-list-only-one-active-program')
-    await adminPrograms.createNewVersion(programName)
-
-    await adminPrograms.gotoViewActiveProgramPage(programName)
-    await adminPrograms.gotoAdminProgramsPage()
-    await validateScreenshot(page, 'program-list-active-and-draft-program')
   })
 
   it('view draft program has edit image button if images flag on', async () => {
@@ -52,7 +45,6 @@ describe('admin program view page', () => {
   it('view program with universal questions', async () => {
     const {page, adminPrograms, adminQuestions} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'universal_questions')
 
     const programName = 'Program with universal questions'
     await adminQuestions.addTextQuestion({

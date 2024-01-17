@@ -70,7 +70,7 @@ public final class CsvExporter implements AutoCloseable {
       Optional<Boolean> optionalEligibilityStatus)
       throws IOException {
     ImmutableMap.Builder<Path, String> answerMapBuilder = new ImmutableMap.Builder<>();
-    for (AnswerData answerData : roApplicantService.getSummaryData()) {
+    for (AnswerData answerData : roApplicantService.getSummaryDataOnlyActive()) {
       if (answerData.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX)) {
         String questionName = answerData.questionDefinition().getName();
         // If the question isn't present in the scalar map, it means, its demographic export and
