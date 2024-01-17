@@ -81,6 +81,18 @@ public class TextFormatterTest {
   }
 
   @Test
+  public void correctlyInsertsRequiredIndicatorBeforeList() {
+    ImmutableList<DomContent> content = TextFormatter.formatText("Here is some text.\n" + "* list item one\n" + "* list item two", /*preserveEmptyLines=*/ false, /*addRequiredIndicator=*/ true);
+    String htmlContent = content.get(0).render();
+
+    assertThat(htmlContent).contains("<p>Here is some text.<span class=\"text-red-600"
+                + " font-semibold\">\u00a0*</span></p>\n");
+    assertThat(htmlContent).contains("<li>list item one</li>");
+    assertThat(htmlContent).contains("<li>list item two</li>");
+    assertThat(htmlContent).contains("</ul>\n");
+}
+
+  @Test
   public void listRendersCorrectly() {
     String withList =
         "This is my list:\n" + "* cream cheese\n" + "* eggs\n" + "* sugar\n" + "* vanilla";
