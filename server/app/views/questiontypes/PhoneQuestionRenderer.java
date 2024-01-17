@@ -68,6 +68,7 @@ public class PhoneQuestionRenderer extends ApplicantCompositeQuestionRenderer {
         FieldWithLabel.input()
             .setPlaceholderText("(xxx) xxx-xxxx")
             .setFieldName(phoneQuestion.getPhoneNumberPath().toString())
+            .setAttribute("inputmode", "tel")
             .setValue(phoneQuestion.getPhoneNumberValue().orElse(""))
             .setLabelText(messages.at(MessageKey.PHONE_LABEL_PHONE_NUMBER.getKeyName()))
             .setAriaRequired(!isOptional)
