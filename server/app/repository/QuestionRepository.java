@@ -86,6 +86,30 @@ public final class QuestionRepository {
     executionContext);
   }
 
+  public CompletionStage<ImmutableList<QuestionDefinition>> lookupQuestionDefinitionsWithPrimaryApplicantInfoTags(ImmutableList<Long> ids) {
+    return supplyAsync(
+      () ->
+        database
+          .find(QuestionModel.class)
+          .setLabel("QuestionModel.findByIds")
+          .setProfileLocation(queryProfileLocationBuilder.create("lookupQuestions"))
+          .where()
+          .and()
+          .in("id", ids)
+          .or()
+          .arrayContains("question_tags", PrimaryApplicantInfoTag.APPLICANT_DOB.getQuestionTag().toString())
+          .arrayContains("question_tags", PrimaryApplicantInfoTag.APPLICANT_EMAIL.getQuestionTag().toString())
+          .arrayContains("question_tags", PrimaryApplicantInfoTag.APPLICANT_NAME.getQuestionTag().toString())
+          .arrayContains("question_tags", PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag().toString())
+          .endOr()
+          .endAnd()
+          .findList()
+          .stream()
+          .map(QuestionModel::getQuestionDefinition)
+          .collect(ImmutableList.toImmutableList()),
+    executionContext);
+  }
+
   /**
    * Find and update the DRAFT of the question with this name, if one already exists. Create a new
    * DRAFT if there isn't one.

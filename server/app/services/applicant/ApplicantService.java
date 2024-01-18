@@ -452,7 +452,7 @@ public final class ApplicantService {
     ApplicantData applicantData = application.getApplicantData();
     ImmutableList<Long> questionIds = applicationProgram.getProgramDefinition().getQuestionIdsInProgram();
     return questionRepository
-        .lookupQuestionDefinitions(questionIds)
+        .lookupQuestionDefinitionsWithPrimaryApplicantInfoTags(questionIds)
         .thenComposeAsync(
             questionDefinitions -> {
               questionDefinitions
