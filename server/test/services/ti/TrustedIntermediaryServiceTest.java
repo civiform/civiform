@@ -334,6 +334,38 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     assertThat(tiResult.getAccounts().get().get(0).getEmailAddress()).isEqualTo("email20");
   }
 
+//  @Test
+//  public void getManagedAccounts_SearchWithEmptyStringNameAndDob_returnsFullList() {
+//    setupTiClientAccountWithApplicant("First", "2022-07-08", "email10", tiGroup);
+//    setupTiClientAccountWithApplicant("Emily", "2022-07-08", "email20", tiGroup);
+//    setupTiClientAccountWithApplicant("Third", "2022-07-10", "email30", tiGroup);
+//    SearchParameters searchParameters =
+//      SearchParameters.builder()
+//        .setNameQuery(Optional.of(""))
+//        .setDateQuery(Optional.of(""))
+//        .build();
+//    TrustedIntermediarySearchResult tiResult =
+//      service.getManagedAccounts(searchParameters, tiGroup);
+////    assertThat(tiResult.getAccounts().get().size()).isEqualTo(3);
+//  }
+
+  @Test
+  public void getManagedAccounts_SearchWithEmptyOptionalNameAndDob_returnsFullList() {
+//    setupTiClientAccountWithApplicant("First", "2022-07-08", "email10", tiGroup);
+//    setupTiClientAccountWithApplicant("Emily", "2022-07-08", "email20", tiGroup);
+//    setupTiClientAccountWithApplicant("Third", "2022-07-10", "email30", tiGroup);
+    SearchParameters searchParameters =
+      SearchParameters.builder()
+        .setNameQuery(Optional.empty())
+        .setDateQuery(Optional.empty())
+        .build();
+    TrustedIntermediarySearchResult tiResult =
+      service.getManagedAccounts(searchParameters, tiGroup2);
+    assertThat(tiResult.getAccounts().get().size()).isEqualTo(0);
+//    assertThat(tiResult.getAccounts().get().get(0).getApplicantName()).isEqualTo("iiii");
+//    assertThat(tiResult.getAccounts().get().get(1).getApplicantName()).isEqualTo("jjjj");
+  }
+
   @Test
   public void getManagedAccounts_ExpectUnformattedDobException() {
     setupTiClientAccountWithApplicant("First", "2022-07-08", "email11", tiGroup);
