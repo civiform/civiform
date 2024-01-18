@@ -84,7 +84,6 @@ public class AwsPublicStorageTest extends ResetPostgres {
   @Test
   public void getSignedUploadRequest_hasCredentialsAndRegion() {
     AwsRegion region = instanceOf(AwsRegion.class);
-    Credentials credentials = credentials;
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeAwsS3Client,
