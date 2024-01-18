@@ -22,7 +22,7 @@ describe('Managing system-wide settings', () => {
     await validateScreenshot(
       page,
       'admin-settings-page-scrolled',
-      /* fullPage= */ false
+      /* fullPage= */ false,
     )
   })
 

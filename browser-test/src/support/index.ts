@@ -513,7 +513,7 @@ export const validateScreenshot = async (
   fullPage?: boolean,
 ) => {
   if (fullPage === undefined) {
-    fullPage = true;
+    fullPage = true
   }
 
   // Do not make image snapshots when running locally
@@ -540,7 +540,7 @@ export const validateScreenshot = async (
   expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
   expect(
     await element.screenshot({
-      fullPage
+      fullPage,
     }),
   ).toMatchImageSnapshot({
     allowSizeMismatch: true,
