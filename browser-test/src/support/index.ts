@@ -12,7 +12,6 @@ import {
   BrowserContextOptions,
 } from 'playwright'
 import * as path from 'path'
-import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 import {waitForPageJsLoad} from './wait'
 import {
   BASE_URL,
@@ -514,13 +513,7 @@ export const validateScreenshot = async (
   element: Page | Locator,
   screenshotFileName: string,
   screenshotOptions?: PageScreenshotOptions | LocatorScreenshotOptions,
-  matchImageSnapshotOptions?: MatchImageSnapshotOptions,
-  fullPage?: boolean,
 ) => {
-  if (fullPage == null) {
-    fullPage = true
-  }
-
   // Do not make image snapshots when running locally
   if (DISABLE_SCREENSHOTS) {
     return
@@ -533,18 +526,19 @@ export const validateScreenshot = async (
     await normalizeElements(frame)
   }
 
-  if (fullPage) {
-    // Some tests take screenshots while scroll position in the middle. That
-    // affects header which is position fixed and on final full-page screenshots
-    // overlaps part of the page.
-    await page.evaluate(() => {
-      window.scrollTo(0, 0)
-    })
-  }
+  // Some tests take screenshots while scroll position in the middle. That
+  // affects header which is position fixed and on final full-page screenshots
+  // overlaps part of the page.
+  await page.evaluate(() => {
+    window.scrollTo(0, 0)
+  })
+
   expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
   expect(
     await element.screenshot({
-      fullPage,
+      // By default, take a full page screenshot. If specified in screenshotOptions,
+      // that value will override the fullPage: true value.
+      fullPage: true,
       ...screenshotOptions,
     }),
   ).toMatchImageSnapshot({
@@ -559,7 +553,6 @@ export const validateScreenshot = async (
       const dir = path.basename(testPath).replace('.test.ts', '_test')
       return `${dir}/${screenshotFileName}`
     },
-    ...matchImageSnapshotOptions,
   })
 }
 
