@@ -184,7 +184,7 @@ describe('Applicant navigation flow', () => {
       )
       expect(cardText).not.toContain('External site')
       await validateAccessibility(page)
-      await validateScreenshot(page, 'program-list-page')
+      await validateScreenshot(page, 'program-list-page', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
     })
 
     it('verify program preview page', async () => {
@@ -194,7 +194,7 @@ describe('Applicant navigation flow', () => {
       // Verify we are on program preview page.
       await applicantQuestions.expectReviewPage()
       await validateAccessibility(page)
-      await validateScreenshot(page, 'program-preview')
+      await validateScreenshot(page, 'program-preview', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
     })
 
     it('can answer third question directly', async () => {
@@ -220,7 +220,7 @@ describe('Applicant navigation flow', () => {
       )
       await applicantQuestions.clickNext()
       await applicantQuestions.clickReview()
-      await validateScreenshot(page, 'third-question-answered')
+      await validateScreenshot(page, 'third-question-answered', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
 
       await page.click(
         '.cf-applicant-summary-row:has(div:has-text("address question text")) a:has-text("Edit")',
@@ -263,7 +263,7 @@ describe('Applicant navigation flow', () => {
       // Verify we are on program review page.
       await applicantQuestions.expectReviewPage()
       await validateAccessibility(page)
-      await validateScreenshot(page, 'program-review')
+      await validateScreenshot(page, 'program-review', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
     })
 
     it('verify program submission page for guest', async () => {
@@ -298,7 +298,7 @@ describe('Applicant navigation flow', () => {
         await page.locator('.cf-application-id + div').textContent(),
       ).toContain('This is the custom confirmation message with markdown')
       await validateAccessibility(page)
-      await validateScreenshot(page, 'program-submission-guest')
+      await validateScreenshot(page, 'program-submission-guest', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
 
       // Click the "Apply to another program" button while a guest, which triggers
       // a modal to prompt the guest to login or create an account. Note that
@@ -308,6 +308,7 @@ describe('Applicant navigation flow', () => {
       await validateScreenshot(
         page,
         'program-submission-guest-login-prompt-modal',
+        /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true
       )
     })
 
@@ -344,7 +345,7 @@ describe('Applicant navigation flow', () => {
         await page.locator('.cf-application-id + div').textContent(),
       ).toContain('This is the custom confirmation message with markdown')
       await validateAccessibility(page)
-      await validateScreenshot(page, 'program-submission-logged-in')
+      await validateScreenshot(page, 'program-submission-logged-in', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
     })
 
     it('shows error with incomplete submission', async () => {
@@ -369,7 +370,7 @@ describe('Applicant navigation flow', () => {
         page,
         "Error: There's been an update to the application",
       )
-      await validateScreenshot(page, 'program-out-of-date')
+      await validateScreenshot(page, 'program-out-of-date', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
     })
 
     it('shows "no changes" page when a duplicate application is submitted', async () => {
@@ -405,7 +406,7 @@ describe('Applicant navigation flow', () => {
 
       // See the duplicate submissions page
       await applicantQuestions.expectDuplicatesPage()
-      await validateScreenshot(page, 'duplicate-submission-page')
+      await validateScreenshot(page, 'duplicate-submission-page', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
       await validateAccessibility(page)
 
       // Click the "Continue editing" button to return to the review page
@@ -524,6 +525,7 @@ describe('Applicant navigation flow', () => {
       await validateScreenshot(
         page,
         'cif-ineligible-signed-in-confirmation-page',
+        /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true
       )
       await validateAccessibility(page)
     })
@@ -546,7 +548,7 @@ describe('Applicant navigation flow', () => {
         /* wantEligiblePrograms= */ [secondProgramName],
       )
 
-      await validateScreenshot(page, 'cif-eligible-signed-in-confirmation-page')
+      await validateScreenshot(page, 'cif-eligible-signed-in-confirmation-page', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
       await validateAccessibility(page)
     })
 
@@ -567,7 +569,7 @@ describe('Applicant navigation flow', () => {
         /* wantEligiblePrograms= */ [],
       )
 
-      await validateScreenshot(page, 'cif-ineligible-guest-confirmation-page')
+      await validateScreenshot(page, 'cif-ineligible-guest-confirmation-page', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
       await validateAccessibility(page)
     })
 
@@ -588,11 +590,11 @@ describe('Applicant navigation flow', () => {
         /* wantEligiblePrograms= */ [secondProgramName],
       )
 
-      await validateScreenshot(page, 'cif-eligible-guest-confirmation-page')
+      await validateScreenshot(page, 'cif-eligible-guest-confirmation-page', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
       await validateAccessibility(page)
 
       await page.click('button:has-text("Apply to programs")')
-      await validateScreenshot(page, 'cif-submission-guest-login-prompt-modal')
+      await validateScreenshot(page, 'cif-submission-guest-login-prompt-modal', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
     })
 
     it('shows intake form as submitted after completion', async () => {
@@ -614,7 +616,7 @@ describe('Applicant navigation flow', () => {
 
       await page.click('button:has-text("Apply to programs")')
       await page.click('button:has-text("Continue without an account")')
-      await validateScreenshot(page, 'cif-shows-submitted')
+      await validateScreenshot(page, 'cif-shows-submitted', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
     })
 
     it('does not show eligible programs and shows TI text on confirmation page when no programs are eligible and a TI', async () => {
@@ -649,7 +651,7 @@ describe('Applicant navigation flow', () => {
         /* wantEligiblePrograms= */ [],
       )
 
-      await validateScreenshot(page, 'cif-ineligible-ti-confirmation-page')
+      await validateScreenshot(page, 'cif-ineligible-ti-confirmation-page', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
     })
 
     it('shows eligible programs and TI text on confirmation page when programs are eligible and a TI', async () => {
@@ -683,7 +685,7 @@ describe('Applicant navigation flow', () => {
         /* wantTrustedIntermediary= */ true,
         /* wantEligiblePrograms= */ [secondProgramName],
       )
-      await validateScreenshot(page, 'cif-eligible-ti-confirmation-page')
+      await validateScreenshot(page, 'cif-eligible-ti-confirmation-page', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
     })
   })
 
@@ -762,7 +764,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
-      await validateScreenshot(page, 'application-ineligible-same-application')
+      await validateScreenshot(page, 'application-ineligible-same-application', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
       await validateAccessibility(page)
     })
 
@@ -774,7 +776,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.answerNumberQuestion('5')
       await applicantQuestions.clickNext()
       await validateToastMessage(page, 'may qualify')
-      await validateScreenshot(page, 'eligible-toast')
+      await validateScreenshot(page, 'eligible-toast', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
 
       // Verify the question is marked eligible
       await applicantQuestions.gotoApplicantHomePage()
@@ -782,7 +784,7 @@ describe('Applicant navigation flow', () => {
         fullProgramName,
         /* isEligible= */ true,
       )
-      await validateScreenshot(page, 'eligible-home-page-program-tag')
+      await validateScreenshot(page, 'eligible-home-page-program-tag', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
       await validateAccessibility(page)
 
       // Go back to in progress application and submit.
@@ -822,7 +824,7 @@ describe('Applicant navigation flow', () => {
 
       // Verify the question is marked ineligible.
       await applicantQuestions.gotoApplicantHomePage()
-      await validateScreenshot(page, 'ineligible-home-page-program-tag')
+      await validateScreenshot(page, 'ineligible-home-page-program-tag', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
       await applicantQuestions.seeEligibilityTag(
         fullProgramName,
         /* isEligible= */ false,
@@ -832,7 +834,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
-      await validateScreenshot(page, 'application-ineligible-preexisting-data')
+      await validateScreenshot(page, 'application-ineligible-preexisting-data', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
       await validateAccessibility(page)
     })
 
@@ -1141,7 +1143,7 @@ describe('Applicant navigation flow', () => {
         // Only doing accessibility and screenshot checks for address correction page
         // once since they are all the same
         await validateAccessibility(page)
-        await validateScreenshot(page, 'verify-address-page')
+        await validateScreenshot(page, 'verify-address-page', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
 
         await applicantQuestions.clickNext()
         await applicantQuestions.expectAddressHasBeenCorrected(
@@ -1169,7 +1171,7 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.expectVerifyAddressPage(false)
 
         await validateAccessibility(page)
-        await validateScreenshot(page, 'no-suggestions-returned')
+        await validateScreenshot(page, 'no-suggestions-returned', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
 
         // Can continue on anyway
         await applicantQuestions.clickNext()
@@ -1196,7 +1198,7 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.expectVerifyAddressPage(false)
 
         await validateAccessibility(page)
-        await validateScreenshot(page, 'esri-service-errored')
+        await validateScreenshot(page, 'esri-service-errored', /* screenshotOptions= */ undefined, /* matchImageSnapshotOptions= */ undefined, /* mobileScreenshot= */ true)
 
         // Can continue on anyway
         await applicantQuestions.clickNext()
