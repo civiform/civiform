@@ -11,7 +11,7 @@ import models.ProgramModel;
 import repository.VersionRepository;
 import services.cloud.PublicStorageClient;
 
-/** A job that removes old program images that are no longer used. */
+/** A job that removes unused program images from cloud storage. */
 public final class UnusedProgramImagesCleanupJob extends DurableJob {
   private final PublicStorageClient publicStorageClient;
   private final VersionRepository versionRepository;
@@ -21,7 +21,6 @@ public final class UnusedProgramImagesCleanupJob extends DurableJob {
       PublicStorageClient publicStorageClient,
       VersionRepository versionRepository,
       PersistedDurableJobModel persistedDurableJob) {
-    System.out.println("creating the unused program images job");
     this.publicStorageClient = checkNotNull(publicStorageClient);
     this.versionRepository = checkNotNull(versionRepository);
     this.persistedDurableJob = checkNotNull(persistedDurableJob);
@@ -34,17 +33,17 @@ public final class UnusedProgramImagesCleanupJob extends DurableJob {
 
   @Override
   public void run() {
-    // Find all the program images currently used in all active & draft programs -- these are the
+    // All program images currently used in all active & draft programs are the
     // files we should keep.
-    ImmutableSet.Builder<String> validProgramImageFileKeys = ImmutableSet.builder();
+    ImmutableSet.Builder<String> inUseProgramImageFileKeys = ImmutableSet.builder();
     addFileKeysToList(
-        validProgramImageFileKeys,
+        inUseProgramImageFileKeys,
         versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()));
     addFileKeysToList(
-        validProgramImageFileKeys,
+        inUseProgramImageFileKeys,
         versionRepository.getProgramsForVersion(versionRepository.getDraftVersion()));
 
-    publicStorageClient.prunePublicFileStorage(validProgramImageFileKeys.build());
+    publicStorageClient.prunePublicFileStorage(inUseProgramImageFileKeys.build());
   }
 
   private void addFileKeysToList(

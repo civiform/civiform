@@ -2,6 +2,8 @@ package support.cloud;
 
 import com.google.common.collect.ImmutableList;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import services.cloud.aws.AwsS3ClientWrapper;
 import services.cloud.aws.Credentials;
 import services.cloud.aws.FileDeletionFailureException;
@@ -17,7 +19,12 @@ public final class FakeAwsS3Client implements AwsS3ClientWrapper {
       "program-summary-image/program-8/deletion_error";
 
   private URI lastDeleteEndpointUsed;
+  private final List<String> objects = new ArrayList<>();
 
+  /**
+   * "Deletes" an object from the AWS bucket. Objects deleted from here will no longer be returned
+   * by {@link #listObjects}.
+   */
   @Override
   public void deleteObjects(
       Credentials credentials, Region region, URI endpoint, DeleteObjectsRequest request)
@@ -30,12 +37,21 @@ public final class FakeAwsS3Client implements AwsS3ClientWrapper {
         .contains(ObjectIdentifier.builder().key(DELETION_ERROR_FILE_KEY).build())) {
       throw new FileDeletionFailureException(AwsServiceException.builder().build());
     }
+    request.delete().objects().forEach(object -> objects.remove(object.key()));
   }
 
   @Override
   public ImmutableList<String> listObjects(
       Credentials credentials, Region region, URI endpoint, ListObjectsV2Request request) {
-    return ImmutableList.of();
+    return ImmutableList.copyOf(objects);
+  }
+
+  /**
+   * "Adds" an object to the AWS bucket. Objects added here will be returned by {@link
+   * #listObjects}.
+   */
+  public void addObject(String objectFileKey) {
+    objects.add(objectFileKey);
   }
 
   /** Returns the endpoint last used when calling {@link #deleteObjects}. */

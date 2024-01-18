@@ -5,14 +5,18 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import java.io.File;
+import java.net.URI;
 import org.junit.Test;
 import play.Environment;
 import play.Mode;
 import repository.ResetPostgres;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import support.cloud.FakeAwsS3Client;
 
 public class AwsPublicStorageTest extends ResetPostgres {
@@ -203,7 +207,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void deletePublicFile_prodEnv_endpointIsProdAws() {
+  public void prunePublicFileStorage_prodEnv_endpointIsProdAws() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeAwsS3Client,
@@ -213,13 +217,15 @@ public class AwsPublicStorageTest extends ResetPostgres {
             instanceOf(Config.class),
             new Environment(new File("."), Environment.class.getClassLoader(), Mode.PROD));
 
-    awsPublicStorage.deletePublicFile("program-summary-image/program-10/myFile.jpeg");
+    fakeAwsS3Client.addObject("program-summary-image/program-10/myFile10.jpeg");
+    awsPublicStorage.prunePublicFileStorage(
+        ImmutableSet.of("program-summary-image/program-10/myFile.jpeg"));
 
     assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed().getHost()).contains("amazonaws");
   }
 
   @Test
-  public void deletePublicFile_devEnv_endpointIsLocalStack() {
+  public void prunePublicFileStorage_devEnv_endpointIsLocalStack() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeAwsS3Client,
@@ -229,13 +235,15 @@ public class AwsPublicStorageTest extends ResetPostgres {
             instanceOf(Config.class),
             new Environment(new File("."), Environment.class.getClassLoader(), Mode.DEV));
 
-    awsPublicStorage.deletePublicFile("program-summary-image/program-10/myFile.jpeg");
+    fakeAwsS3Client.addObject("program-summary-image/program-10/myFile10.jpeg");
+    awsPublicStorage.prunePublicFileStorage(
+        ImmutableSet.of("program-summary-image/program-10/myFile.jpeg"));
 
     assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed().getHost()).contains("localstack");
   }
 
   @Test
-  public void deletePublicFile_testEnv_endpointIsNotLocalStackOrProdAws() {
+  public void prunePublicFileStorage_testEnv_endpointIsNotLocalStackOrProdAws() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeAwsS3Client,
@@ -245,23 +253,16 @@ public class AwsPublicStorageTest extends ResetPostgres {
             instanceOf(Config.class),
             new Environment(new File("."), Environment.class.getClassLoader(), Mode.TEST));
 
-    awsPublicStorage.deletePublicFile("program-summary-image/program-10/myFile.jpeg");
+    fakeAwsS3Client.addObject("program-summary-image/program-10/myFile10.jpeg");
+    awsPublicStorage.prunePublicFileStorage(
+        ImmutableSet.of("program-summary-image/program-10/myFile.jpeg"));
 
     assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed().getHost()).doesNotContain("localstack");
     assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed().getHost()).doesNotContain("amazonaws");
   }
 
   @Test
-  public void deletePublicFile_keyIncorrectlyFormatted_throws() {
-    AwsPublicStorage awsPublicStorage = instanceOf(AwsPublicStorage.class);
-
-    assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> awsPublicStorage.deletePublicFile("fake-file-key"))
-        .withMessageContaining("key incorrectly formatted");
-  }
-
-  @Test
-  public void deletePublicFile_keyCorrectlyFormatted_deletionSucceeds_returnsTrue() {
+  public void prunePublicFileStorage_currentFilesOnlyIncludeInUseFiles_noDeleteRequestIssued() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeAwsS3Client,
@@ -271,14 +272,33 @@ public class AwsPublicStorageTest extends ResetPostgres {
             instanceOf(Config.class),
             instanceOf(Environment.class));
 
-    boolean deleted =
-        awsPublicStorage.deletePublicFile("program-summary-image/program-10/myFile.jpeg");
+    fakeAwsS3Client.addObject("program-summary-image/program-10/myFile10.jpeg");
+    fakeAwsS3Client.addObject("program-summary-image/program-11/myFile11.jpeg");
+    fakeAwsS3Client.addObject("program-summary-image/program-12/myFile12.jpeg");
 
-    assertThat(deleted).isTrue();
+    awsPublicStorage.prunePublicFileStorage(
+        ImmutableSet.of(
+            "program-summary-image/program-10/myFile10.jpeg",
+            "program-summary-image/program-11/myFile11.jpeg",
+            "program-summary-image/program-12/myFile12.jpeg"));
+
+    // Verify there was no delete request issued
+    assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed()).isNull();
+    // Verify that the list of objects stored still includes all the in-use files
+    assertThat(
+            fakeAwsS3Client.listObjects(
+                instanceOf(Credentials.class),
+                Region.US_EAST_2,
+                URI.create("fakeEndpoint.com"),
+                ListObjectsV2Request.builder().build()))
+        .containsExactly(
+            "program-summary-image/program-10/myFile10.jpeg",
+            "program-summary-image/program-11/myFile11.jpeg",
+            "program-summary-image/program-12/myFile12.jpeg");
   }
 
   @Test
-  public void deletePublicFile_keyCorrectlyFormatted_deletionError_returnsFalse() {
+  public void prunePublicFileStorage_currentFilesHasUnused_onlyUnusedDeleted() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeAwsS3Client,
@@ -288,8 +308,51 @@ public class AwsPublicStorageTest extends ResetPostgres {
             instanceOf(Config.class),
             instanceOf(Environment.class));
 
-    boolean deleted = awsPublicStorage.deletePublicFile(FakeAwsS3Client.DELETION_ERROR_FILE_KEY);
+    fakeAwsS3Client.addObject("program-summary-image/program-10/myFile10.jpeg");
+    fakeAwsS3Client.addObject("program-summary-image/program-11/myFile11.jpeg");
+    fakeAwsS3Client.addObject("program-summary-image/program-12/myFile12.jpeg");
 
-    assertThat(deleted).isFalse();
+    // Only mark the image for program 10 as in-use.
+    awsPublicStorage.prunePublicFileStorage(
+        ImmutableSet.of("program-summary-image/program-10/myFile10.jpeg"));
+
+    // Verify there a delete request was issued
+    assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed()).isNotNull();
+    // Verify that the list of objects now only includes the program 10 file
+    assertThat(
+            fakeAwsS3Client.listObjects(
+                instanceOf(Credentials.class),
+                Region.US_EAST_2,
+                URI.create("fakeEndpoint.com"),
+                ListObjectsV2Request.builder().build()))
+        .containsExactly("program-summary-image/program-10/myFile10.jpeg");
+  }
+
+  @Test
+  public void prunePublicFileStorage_inUseFilesHasMissingKey_noError() {
+    AwsPublicStorage awsPublicStorage =
+        new AwsPublicStorage(
+            fakeAwsS3Client,
+            instanceOf(AwsStorageUtils.class),
+            instanceOf(AwsRegion.class),
+            instanceOf(Credentials.class),
+            instanceOf(Config.class),
+            instanceOf(Environment.class));
+
+    fakeAwsS3Client.addObject("program-summary-image/program-10/myFile10.jpeg");
+
+    // WHEN the in-use file set contains a key that doesn't exist in AWS
+    awsPublicStorage.prunePublicFileStorage(
+        ImmutableSet.of("program-summary-image/program-11/myFile11.jpeg"));
+
+    // THEN there's no problem and the obsolete program 10 file is deleted
+    assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed()).isNotNull();
+    assertThat(
+            fakeAwsS3Client.listObjects(
+                instanceOf(Credentials.class),
+                Region.US_EAST_2,
+                URI.create("fakeEndpoint.com"),
+                ListObjectsV2Request.builder().build()))
+        .isEmpty();
   }
 }

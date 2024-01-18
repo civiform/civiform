@@ -1,11 +1,13 @@
 package support.cloud;
 
+import com.google.common.collect.ImmutableSet;
 import services.cloud.PublicStorageClient;
 import services.cloud.StorageUploadRequest;
 
 /** A fake implementation of {@link PublicStorageClient} to be used in tests. */
 public final class FakePublicStorageClient extends PublicStorageClient {
-  private boolean shouldDeleteSuccessfully = true;
+
+  private ImmutableSet<String> lastInUseFileKeys;
 
   public FakePublicStorageClient() {}
 
@@ -21,12 +23,12 @@ public final class FakePublicStorageClient extends PublicStorageClient {
   }
 
   @Override
-  protected boolean deletePublicFileInternal(String fileKey) {
-    return shouldDeleteSuccessfully;
+  public void prunePublicFileStorage(ImmutableSet<String> inUseFileKeys) {
+    lastInUseFileKeys = inUseFileKeys;
   }
 
-  /** Sets whether this storage client should delete files successfully or fail to delete them. */
-  public void setShouldDeleteSuccessfully(boolean shouldDeleteSuccessfully) {
-    this.shouldDeleteSuccessfully = shouldDeleteSuccessfully;
+  /** Returns the last set of keys sent to {@link #prunePublicFileStorage}. */
+  public ImmutableSet<String> getLastInUseFileKeys() {
+    return lastInUseFileKeys;
   }
 }

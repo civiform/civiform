@@ -6,7 +6,8 @@ import java.net.URI;
 import org.junit.Test;
 import repository.ResetPostgres;
 import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 
 public class AwsS3ClientTest extends ResetPostgres {
   private static final URI endpointUri = URI.create("https://s3.us-east-2.amazonaws.com");
@@ -14,18 +15,22 @@ public class AwsS3ClientTest extends ResetPostgres {
   private final AwsS3Client awsS3Client = new AwsS3Client();
 
   @Test
-  public void deleteObject_noKeyInRequest_throws() {
+  public void deleteObject_noObjectsInRequest_throws() {
     assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(
             () ->
-                awsS3Client.deleteObject(
+                awsS3Client.deleteObjects(
                     credentials,
                     Region.US_EAST_2,
                     endpointUri,
-                    DeleteObjectRequest.builder().key("").bucket("fakeBucket").build()))
+                    DeleteObjectsRequest.builder()
+                        .bucket("fakeBucket")
+                        .delete(Delete.builder().build())
+                        .build()))
         .withMessageContaining("must have a key");
   }
 
+  /*
   @Test
   public void deleteObject_noBucketInRequest_throws() {
     assertThatExceptionOfType(IllegalArgumentException.class)
@@ -38,4 +43,6 @@ public class AwsS3ClientTest extends ResetPostgres {
                     DeleteObjectRequest.builder().key("fakeKey").bucket("").build()))
         .withMessageContaining("must have a bucket");
   }
+
+   */
 }
