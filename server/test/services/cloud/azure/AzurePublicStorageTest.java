@@ -41,9 +41,6 @@ public class AzurePublicStorageTest extends ResetPostgres {
   @Test
   public void prunePublicFileStorage_throwsUnsupported() {
     assertThatExceptionOfType(UnsupportedOperationException.class)
-        .isThrownBy(
-            () ->
-                azurePublicStorage.prunePublicFileStorage(
-                    ImmutableSet.of("program-summary-image/program-10/myFile.jpeg")));
+        .isThrownBy(() -> azurePublicStorage.prunePublicFileStorage(ImmutableSet.of()));
   }
 }

@@ -80,8 +80,7 @@ public final class AwsPublicStorage extends PublicStorageClient {
 
   @Override
   public void prunePublicFileStorage(ImmutableSet<String> inUseFileKeys) {
-    // To prune public file storage, we should delete all the files that are in storage but not in
-    // use.
+    // We should delete all the files that are in storage but not in the in-use set.
     List<String> unusedPublicFileKeys = new ArrayList<>(getCurrentFileKeys());
     unusedPublicFileKeys.removeAll(inUseFileKeys);
 

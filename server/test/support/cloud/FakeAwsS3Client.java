@@ -15,6 +15,10 @@ import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 
 /** A fake implementation of {@link AwsS3ClientWrapper} to be used in tests. */
 public final class FakeAwsS3Client implements AwsS3ClientWrapper {
+  /**
+   * A file key that, if used, will cause {@link #deleteObjects} to throw a {@link
+   * FileDeletionFailureException}.
+   */
   public static final String DELETION_ERROR_FILE_KEY =
       "program-summary-image/program-8/deletion_error";
 
@@ -22,7 +26,15 @@ public final class FakeAwsS3Client implements AwsS3ClientWrapper {
   private final List<String> objects = new ArrayList<>();
 
   /**
-   * "Deletes" an object from the AWS bucket. Objects deleted from here will no longer be returned
+   * "Adds" an object to this fake bucket. Objects added here will be returned by {@link
+   * #listObjects}.
+   */
+  public void addObject(String objectFileKey) {
+    objects.add(objectFileKey);
+  }
+
+  /**
+   * "Deletes" an object from this fake bucket. Objects deleted from here will no longer be returned
    * by {@link #listObjects}.
    */
   @Override
@@ -31,10 +43,11 @@ public final class FakeAwsS3Client implements AwsS3ClientWrapper {
       throws FileDeletionFailureException {
     this.lastDeleteEndpointUsed = endpoint;
     // This mimics what the real S3Client might do when certain errors occur.
-    if (request
-        .delete()
-        .objects()
-        .contains(ObjectIdentifier.builder().key(DELETION_ERROR_FILE_KEY).build())) {
+    ImmutableList<String> keys =
+        request.delete().objects().stream()
+            .map(ObjectIdentifier::key)
+            .collect(ImmutableList.toImmutableList());
+    if (keys.contains(DELETION_ERROR_FILE_KEY)) {
       throw new FileDeletionFailureException(AwsServiceException.builder().build());
     }
     request.delete().objects().forEach(object -> objects.remove(object.key()));
@@ -44,14 +57,6 @@ public final class FakeAwsS3Client implements AwsS3ClientWrapper {
   public ImmutableList<String> listObjects(
       Credentials credentials, Region region, URI endpoint, ListObjectsV2Request request) {
     return ImmutableList.copyOf(objects);
-  }
-
-  /**
-   * "Adds" an object to the AWS bucket. Objects added here will be returned by {@link
-   * #listObjects}.
-   */
-  public void addObject(String objectFileKey) {
-    objects.add(objectFileKey);
   }
 
   /** Returns the endpoint last used when calling {@link #deleteObjects}. */

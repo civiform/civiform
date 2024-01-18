@@ -25,10 +25,17 @@ public class UnusedProgramImagesCleanupJobTest extends ResetPostgres {
           DurableJobName.UNUSED_PROGRAM_IMAGES_CLEANUP.toString(), Instant.ofEpochMilli(1000));
 
   @Test
+  public void getPersistedDurableJob_isJobModel() {
+    UnusedProgramImagesCleanupJob job =
+        new UnusedProgramImagesCleanupJob(fakePublicStorageClient, versionRepository, jobModel);
+
+    assertThat(job.getPersistedDurableJob()).isEqualTo(jobModel);
+  }
+
+  @Test
   public void run_inUseKeysIncludeActiveProgramImages() throws ProgramNotFoundException {
     ProgramModel program1 = ProgramBuilder.newDraftProgram("Program #1").build();
     ProgramModel program2 = ProgramBuilder.newDraftProgram("Program #2").build();
-
     programService.setSummaryImageFileKey(program1.id, "program-summary-image/program-1/test.jpg");
     programService.setSummaryImageFileKey(program2.id, "program-summary-image/program-2/test.jpg");
     versionRepository.publishNewSynchronizedVersion();
@@ -46,7 +53,6 @@ public class UnusedProgramImagesCleanupJobTest extends ResetPostgres {
   public void run_inUseKeysIncludeDraftProgramImages() throws ProgramNotFoundException {
     ProgramModel program1 = ProgramBuilder.newDraftProgram("Program #1").build();
     ProgramModel program2 = ProgramBuilder.newDraftProgram("Program #2").build();
-
     programService.setSummaryImageFileKey(program1.id, "program-summary-image/program-1/test.jpg");
     programService.setSummaryImageFileKey(program2.id, "program-summary-image/program-2/test.jpg");
     // Don't publish the version so that the programs remain as drafts
@@ -69,9 +75,9 @@ public class UnusedProgramImagesCleanupJobTest extends ResetPostgres {
         program.id, "program-summary-image/program-1/active-image.jpg");
     versionRepository.publishNewSynchronizedVersion();
 
-    ProgramModel draftProgram = programRepository.createOrUpdateDraft(program);
-    // Edit that program to have a new program image but don't publish it yet, so that a single
+    // Edit that program to have a new program image but don't publish it, so that a single
     // program has different images in its Draft and Active versions.
+    ProgramModel draftProgram = programRepository.createOrUpdateDraft(program);
     programService.setSummaryImageFileKey(
         draftProgram.id, "program-summary-image/program-1/draft-image.jpg");
 

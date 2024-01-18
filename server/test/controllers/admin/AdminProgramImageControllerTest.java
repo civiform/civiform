@@ -9,7 +9,6 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
-import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -18,18 +17,15 @@ import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ResetPostgres;
-import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import support.ProgramBuilder;
-import views.admin.programs.ProgramImageView;
 
 @RunWith(JUnitParamsRunner.class)
 public class AdminProgramImageControllerTest extends ResetPostgres {
@@ -41,14 +37,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   @Before
   public void setup() {
     programService = instanceOf(ProgramService.class);
-    controller =
-        new AdminProgramImageController(
-            programService,
-            instanceOf(ProgramImageView.class),
-            instanceOf(RequestChecker.class),
-            instanceOf(FormFactory.class),
-            instanceOf(ProfileUtils.class),
-            instanceOf(VersionRepository.class));
+    controller = instanceOf(AdminProgramImageController.class);
   }
 
   @Test

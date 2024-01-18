@@ -106,7 +106,7 @@ public final class DurableJobModule extends AbstractModule {
         persistedDurableJob ->
             new UnusedProgramImagesCleanupJob(
                 publicStorageClient, versionRepository, persistedDurableJob),
-        new RecurringJobExecutionTimeResolvers.AfterFiveMinutes());
+        new RecurringJobExecutionTimeResolvers.ThirdOfMonth2Am());
 
     return durableJobRegistry;
   }

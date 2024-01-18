@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static support.cloud.FakeAwsS3Client.DELETION_ERROR_FILE_KEY;
 
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
@@ -20,8 +21,10 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import support.cloud.FakeAwsS3Client;
 
 public class AwsPublicStorageTest extends ResetPostgres {
+  private static final URI FAKE_URI = URI.create("fakeEndpoint.com");
 
   private final FakeAwsS3Client fakeAwsS3Client = new FakeAwsS3Client();
+  private final Credentials credentials = instanceOf(Credentials.class);
 
   @Test
   public void getSignedUploadRequest_prodEnv_actionLinkIsProdAws() {
@@ -30,7 +33,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
             fakeAwsS3Client,
             instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
-            instanceOf(Credentials.class),
+            credentials,
             instanceOf(Config.class),
             new Environment(new File("."), Environment.class.getClassLoader(), Mode.PROD));
 
@@ -48,7 +51,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
             fakeAwsS3Client,
             instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
-            instanceOf(Credentials.class),
+            credentials,
             instanceOf(Config.class),
             new Environment(new File("."), Environment.class.getClassLoader(), Mode.DEV));
 
@@ -67,7 +70,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
             fakeAwsS3Client,
             instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
-            instanceOf(Credentials.class),
+            credentials,
             instanceOf(Config.class),
             new Environment(new File("."), Environment.class.getClassLoader(), Mode.TEST));
 
@@ -81,7 +84,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
   @Test
   public void getSignedUploadRequest_hasCredentialsAndRegion() {
     AwsRegion region = instanceOf(AwsRegion.class);
-    Credentials credentials = instanceOf(Credentials.class);
+    Credentials credentials = credentials;
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeAwsS3Client,
@@ -213,13 +216,13 @@ public class AwsPublicStorageTest extends ResetPostgres {
             fakeAwsS3Client,
             instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
-            instanceOf(Credentials.class),
+            credentials,
             instanceOf(Config.class),
             new Environment(new File("."), Environment.class.getClassLoader(), Mode.PROD));
 
+    // Add an object so that pruning actually needs to delete something.
     fakeAwsS3Client.addObject("program-summary-image/program-10/myFile10.jpeg");
-    awsPublicStorage.prunePublicFileStorage(
-        ImmutableSet.of("program-summary-image/program-10/myFile.jpeg"));
+    awsPublicStorage.prunePublicFileStorage(ImmutableSet.of());
 
     assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed().getHost()).contains("amazonaws");
   }
@@ -231,13 +234,13 @@ public class AwsPublicStorageTest extends ResetPostgres {
             fakeAwsS3Client,
             instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
-            instanceOf(Credentials.class),
+            credentials,
             instanceOf(Config.class),
             new Environment(new File("."), Environment.class.getClassLoader(), Mode.DEV));
 
+    // Add an object so that pruning actually needs to delete something.
     fakeAwsS3Client.addObject("program-summary-image/program-10/myFile10.jpeg");
-    awsPublicStorage.prunePublicFileStorage(
-        ImmutableSet.of("program-summary-image/program-10/myFile.jpeg"));
+    awsPublicStorage.prunePublicFileStorage(ImmutableSet.of());
 
     assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed().getHost()).contains("localstack");
   }
@@ -249,13 +252,13 @@ public class AwsPublicStorageTest extends ResetPostgres {
             fakeAwsS3Client,
             instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
-            instanceOf(Credentials.class),
+            credentials,
             instanceOf(Config.class),
             new Environment(new File("."), Environment.class.getClassLoader(), Mode.TEST));
 
+    // Add an object so that pruning actually needs to delete something.
     fakeAwsS3Client.addObject("program-summary-image/program-10/myFile10.jpeg");
-    awsPublicStorage.prunePublicFileStorage(
-        ImmutableSet.of("program-summary-image/program-10/myFile.jpeg"));
+    awsPublicStorage.prunePublicFileStorage(ImmutableSet.of());
 
     assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed().getHost()).doesNotContain("localstack");
     assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed().getHost()).doesNotContain("amazonaws");
@@ -268,7 +271,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
             fakeAwsS3Client,
             instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
-            instanceOf(Credentials.class),
+            credentials,
             instanceOf(Config.class),
             instanceOf(Environment.class));
 
@@ -287,10 +290,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
     // Verify that the list of objects stored still includes all the in-use files
     assertThat(
             fakeAwsS3Client.listObjects(
-                instanceOf(Credentials.class),
-                Region.US_EAST_2,
-                URI.create("fakeEndpoint.com"),
-                ListObjectsV2Request.builder().build()))
+                credentials, Region.US_EAST_2, FAKE_URI, ListObjectsV2Request.builder().build()))
         .containsExactly(
             "program-summary-image/program-10/myFile10.jpeg",
             "program-summary-image/program-11/myFile11.jpeg",
@@ -298,13 +298,13 @@ public class AwsPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void prunePublicFileStorage_currentFilesHasUnused_onlyUnusedDeleted() {
+  public void prunePublicFileStorage_someUnusedFiles_onlyUnusedDeleted() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeAwsS3Client,
             instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
-            instanceOf(Credentials.class),
+            credentials,
             instanceOf(Config.class),
             instanceOf(Environment.class));
 
@@ -316,15 +316,12 @@ public class AwsPublicStorageTest extends ResetPostgres {
     awsPublicStorage.prunePublicFileStorage(
         ImmutableSet.of("program-summary-image/program-10/myFile10.jpeg"));
 
-    // Verify there a delete request was issued
+    // Verify a delete request was issued
     assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed()).isNotNull();
     // Verify that the list of objects now only includes the program 10 file
     assertThat(
             fakeAwsS3Client.listObjects(
-                instanceOf(Credentials.class),
-                Region.US_EAST_2,
-                URI.create("fakeEndpoint.com"),
-                ListObjectsV2Request.builder().build()))
+                credentials, Region.US_EAST_2, FAKE_URI, ListObjectsV2Request.builder().build()))
         .containsExactly("program-summary-image/program-10/myFile10.jpeg");
   }
 
@@ -335,7 +332,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
             fakeAwsS3Client,
             instanceOf(AwsStorageUtils.class),
             instanceOf(AwsRegion.class),
-            instanceOf(Credentials.class),
+            credentials,
             instanceOf(Config.class),
             instanceOf(Environment.class));
 
@@ -345,14 +342,30 @@ public class AwsPublicStorageTest extends ResetPostgres {
     awsPublicStorage.prunePublicFileStorage(
         ImmutableSet.of("program-summary-image/program-11/myFile11.jpeg"));
 
-    // THEN there's no problem and the obsolete program 10 file is deleted
+    // THEN there's no problem and the unused program 10 file is still deleted
     assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed()).isNotNull();
     assertThat(
             fakeAwsS3Client.listObjects(
-                instanceOf(Credentials.class),
-                Region.US_EAST_2,
-                URI.create("fakeEndpoint.com"),
-                ListObjectsV2Request.builder().build()))
+                credentials, Region.US_EAST_2, FAKE_URI, ListObjectsV2Request.builder().build()))
         .isEmpty();
+  }
+
+  @Test
+  public void prunePublicFileStorage_fileDeletionFailure_notThrown() {
+    AwsPublicStorage awsPublicStorage =
+        new AwsPublicStorage(
+            fakeAwsS3Client,
+            instanceOf(AwsStorageUtils.class),
+            instanceOf(AwsRegion.class),
+            credentials,
+            instanceOf(Config.class),
+            instanceOf(Environment.class));
+
+    // WHEN the in-use file set contains a key that's hard-coded to throw the
+    // FileDeletionFailureException
+    awsPublicStorage.prunePublicFileStorage(ImmutableSet.of(DELETION_ERROR_FILE_KEY));
+
+    // THEN we want that exception is handled internally in AwsPublicStorage and not re-thrown. This
+    // test doesn't need an assert, it just verifies there was no exception.
   }
 }
