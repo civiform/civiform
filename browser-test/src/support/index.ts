@@ -5,8 +5,6 @@ import {
   chromium,
   Frame,
   Page,
-  PageScreenshotOptions,
-  LocatorScreenshotOptions,
   Locator,
   devices,
   BrowserContextOptions,
