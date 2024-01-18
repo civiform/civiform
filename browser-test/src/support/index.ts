@@ -512,8 +512,12 @@ export const validateAccessibility = async (page: Page) => {
 export const validateScreenshot = async (
   element: Page | Locator,
   screenshotFileName: string,
-  screenshotOptions?: PageScreenshotOptions | LocatorScreenshotOptions,
+  fullPage?: boolean,
 ) => {
+  if (fullPage === undefined) {
+    fullPage = true;
+  }
+
   // Do not make image snapshots when running locally
   if (DISABLE_SCREENSHOTS) {
     return
@@ -526,20 +530,19 @@ export const validateScreenshot = async (
     await normalizeElements(frame)
   }
 
-  // Some tests take screenshots while scroll position in the middle. That
-  // affects header which is position fixed and on final full-page screenshots
-  // overlaps part of the page.
-  await page.evaluate(() => {
-    window.scrollTo(0, 0)
-  })
+  if (fullPage) {
+    // Some tests take screenshots while scroll position in the middle. That
+    // affects header which is position fixed and on final full-page screenshots
+    // overlaps part of the page.
+    await page.evaluate(() => {
+      window.scrollTo(0, 0)
+    })
+  }
 
   expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
   expect(
     await element.screenshot({
-      // By default, take a full page screenshot. If specified in screenshotOptions,
-      // that value will override the fullPage: true value.
-      fullPage: true,
-      ...screenshotOptions,
+      fullPage
     }),
   ).toMatchImageSnapshot({
     allowSizeMismatch: true,

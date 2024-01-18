@@ -22,9 +22,7 @@ describe('Managing system-wide settings', () => {
     await validateScreenshot(
       page,
       'admin-settings-page-scrolled',
-      /* screenshotOptions=  */ undefined,
-      /* matchImageSnapshotOptions */ undefined,
-      /* fullPage= */ false,
+      /* fullPage= */ false
     )
   })
 

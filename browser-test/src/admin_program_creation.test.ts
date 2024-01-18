@@ -83,7 +83,7 @@ describe('program creation', () => {
       'universal note',
     )
 
-    await validateScreenshot(page, 'open-question-search', {fullPage: false})
+    await validateScreenshot(page, 'open-question-search', /* fullPage= */ false)
   })
 
   it('create program with enumerator and repeated questions', async () => {
@@ -357,7 +357,7 @@ describe('program creation', () => {
     const programName = 'Apc program 3'
     await adminPrograms.addProgram(programName)
     await adminPrograms.openQuestionBank()
-    await validateScreenshot(page, 'question-bank-empty', {fullPage: false})
+    await validateScreenshot(page, 'question-bank-empty', /* fullPage= */ false)
     await page.click('#create-question-button')
     await page.click('#create-text-question')
     await waitForPageJsLoad(page)
@@ -392,9 +392,7 @@ describe('program creation', () => {
       `question ${universalQuestionName} created`,
     )
     await adminPrograms.expectProgramBlockEditPage(programName)
-    await validateScreenshot(page, 'question-bank-with-created-question', {
-      fullPage: false,
-    })
+    await validateScreenshot(page, 'question-bank-with-created-question', /* fullPage= */ false)
 
     await adminQuestions.expectDraftQuestionExist(questionName, questionText)
     await adminQuestions.expectDraftQuestionExist(
@@ -602,9 +600,7 @@ describe('program creation', () => {
     await loginAsAdmin(page)
 
     await adminPrograms.launchDeleteScreenModal()
-    await validateScreenshot(page, 'delete-screen-confirmation-modal', {
-      fullPage: false,
-    })
+    await validateScreenshot(page, 'delete-screen-confirmation-modal', /* fullPage= */ false)
   })
 
   async function expectQuestionsOrderWithinBlock(
@@ -681,9 +677,7 @@ describe('program creation', () => {
 
     let modal = await waitForAnyModal(page)
     expect(await modal.innerText()).toContain(`Confirm pre-screener change?`)
-    await validateScreenshot(page, 'confirm-common-intake-change-modal', {
-      fullPage: false,
-    })
+    await validateScreenshot(page, 'confirm-common-intake-change-modal', /* fullPage= */ false)
 
     // Modal gets re-rendered if needed.
     await dismissModal(page)

@@ -78,9 +78,7 @@ describe('applicant program index page', () => {
     expect(await page.textContent('html')).toContain(
       'Create an account or sign in',
     )
-    await validateScreenshot(page, 'apply-program-login-prompt', {
-      fullPage: false,
-    })
+    await validateScreenshot(page, 'apply-program-login-prompt', /* fullPage= */ false)
 
     // Close the modal and click Apply again. This time, we should not see the login prompt modal.
     await page.click(`.cf-modal .cf-modal-close`)
