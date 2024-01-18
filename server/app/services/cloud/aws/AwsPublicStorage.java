@@ -3,8 +3,11 @@ package services.cloud.aws;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -12,8 +15,10 @@ import org.slf4j.LoggerFactory;
 import play.Environment;
 import services.cloud.PublicStorageClient;
 import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 
 /** An AWS Simple Storage Service (S3) implementation of public storage. */
 @Singleton
@@ -74,24 +79,40 @@ public final class AwsPublicStorage extends PublicStorageClient {
   }
 
   @Override
-  protected boolean deletePublicFileInternal(String fileKey) {
-    try {
-      awsS3ClientWrapper.deleteObject(
-          credentials,
-          region,
-          client.endpoint(),
-          DeleteObjectRequest.builder().bucket(bucket).key(fileKey).build());
-      return true;
-    } catch (FileDeletionFailureException e) {
-      logger.error(e.toString());
-      return false;
+  public void prunePublicFileStorage(ImmutableSet<String> inUseFileKeys) {
+    // To prune public file storage, we should delete all the files that are in storage but not in
+    // use.
+    List<String> unusedPublicFileKeys = new ArrayList<>(getCurrentFileKeys());
+    unusedPublicFileKeys.removeAll(inUseFileKeys);
+
+    if (!unusedPublicFileKeys.isEmpty()) {
+      deletePublicFiles(ImmutableList.copyOf(unusedPublicFileKeys));
     }
   }
 
-  @Override
-  public ImmutableList<String> listPublicFiles() {
-    return awsS3ClientWrapper.listObjects(credentials, region, client.endpoint(),
-            ListObjectsV2Request.builder().bucket(bucket).build());
+  private ImmutableList<String> getCurrentFileKeys() {
+    return awsS3ClientWrapper.listObjects(
+        credentials,
+        region,
+        client.endpoint(),
+        ListObjectsV2Request.builder().bucket(bucket).build());
+  }
+
+  private void deletePublicFiles(ImmutableList<String> fileKeys) {
+    ImmutableList<ObjectIdentifier> fileKeyObjects =
+        fileKeys.stream()
+            .map(key -> ObjectIdentifier.builder().key(key).build())
+            .collect(ImmutableList.toImmutableList());
+    DeleteObjectsRequest request =
+        DeleteObjectsRequest.builder()
+            .bucket(bucket)
+            .delete(Delete.builder().objects(fileKeyObjects).build())
+            .build();
+    try {
+      awsS3ClientWrapper.deleteObjects(credentials, region, client.endpoint(), request);
+    } catch (FileDeletionFailureException e) {
+      logger.error(e.toString());
+    }
   }
 
   /** Interface defining where storage requests should be sent. */

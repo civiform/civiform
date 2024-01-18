@@ -29,14 +29,12 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import support.ProgramBuilder;
-import support.cloud.FakePublicStorageClient;
 import views.admin.programs.ProgramImageView;
 
 @RunWith(JUnitParamsRunner.class)
 public class AdminProgramImageControllerTest extends ResetPostgres {
   private static final String VALID_FILE_KEY = "program-summary-image/program-1/myImage.png";
 
-  private final FakePublicStorageClient fakePublicStorageClient = new FakePublicStorageClient();
   private ProgramService programService;
   private AdminProgramImageController controller;
 
@@ -47,7 +45,6 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         new AdminProgramImageController(
             programService,
             instanceOf(ProgramImageView.class),
-            fakePublicStorageClient,
             instanceOf(RequestChecker.class),
             instanceOf(FormFactory.class),
             instanceOf(ProfileUtils.class),
@@ -489,48 +486,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void deleteFileKey_noFileKeyPresent_toastsWarning() throws ProgramNotFoundException {
-    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
-
-    Result result = controller.deleteFileKey(addCSRFToken(fakeRequest()).build(), program.id);
-
-    assertThat(result.flash().data()).containsOnlyKeys("warning");
-    assertThat(result.flash().data().get("warning")).contains("There was no image present");
-  }
-
-  @Test
-  public void deleteFileKey_deleteFails_keyRemains() throws ProgramNotFoundException {
-    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
-    setValidFileKeyOnProgram(program);
-
-    // Set deletes to fail
-    fakePublicStorageClient.setShouldDeleteSuccessfully(false);
-
-    controller.deleteFileKey(addCSRFToken(fakeRequest()).build(), program.id);
-
-    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
-    assertThat(updatedProgram.summaryImageFileKey()).isNotEmpty();
-    assertThat(updatedProgram.summaryImageFileKey().get()).isEqualTo(VALID_FILE_KEY);
-  }
-
-  @Test
-  public void deleteFileKey_deleteFails_toastsError() throws ProgramNotFoundException {
-    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
-    setValidFileKeyOnProgram(program);
-
-    // Set deletes to fail
-    fakePublicStorageClient.setShouldDeleteSuccessfully(false);
-
-    Result result = controller.deleteFileKey(addCSRFToken(fakeRequest()).build(), program.id);
-
-    assertThat(result.flash().data()).containsOnlyKeys("error");
-    assertThat(result.flash().data().get("error")).contains("Error removing image");
-  }
-
-  @Test
-  public void deleteFileKey_hadFileKeyAndDeleteSucceeds_keyRemoved()
-      throws ProgramNotFoundException {
-    fakePublicStorageClient.setShouldDeleteSuccessfully(true);
+  public void deleteFileKey_hadFileKey_keyRemoved() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
     setValidFileKeyOnProgram(program);
 
@@ -541,8 +497,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void deleteFileKey_deleteSucceeds_toastsSuccess() throws ProgramNotFoundException {
-    fakePublicStorageClient.setShouldDeleteSuccessfully(true);
+  public void deleteFileKey_toastsSuccess() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
     setValidFileKeyOnProgram(program);
 

@@ -1,10 +1,9 @@
 package services.cloud.aws;
 
-import java.net.URI;
-
 import com.google.common.collect.ImmutableList;
+import java.net.URI;
 import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 
 /**
@@ -13,16 +12,24 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
  */
 public interface AwsS3ClientWrapper {
   /**
-   * Deletes an object from AWS S3 cloud storage. The object to delete is specified in the {@code
-   * request} and must include both the bucket and the key.
+   * Deletes objects from AWS S3 cloud storage. The objects to delete are specified in the {@code
+   * request}.
    *
+   * @throws IllegalArgumentException if the {@code request} doesn't specify a bucket.
+   * @throws IllegalArgumentException if the {@code request.delete()} doesn't contain any objects to
+   *     delete.
    * @throws FileDeletionFailureException if there was a problem deleting the file.
    */
-  void deleteObject(
-      Credentials credentials, Region region, URI endpoint, DeleteObjectRequest request)
+  void deleteObjects(
+      Credentials credentials, Region region, URI endpoint, DeleteObjectsRequest request)
       throws FileDeletionFailureException;
 
+  /**
+   * Returns a list of keys for all files stored in the bucket specified by {@code request}.
+   *
+   * @return the list of file keys, or an empty list if there was an error fetching the keys for any
+   *     reason.
+   */
   ImmutableList<String> listObjects(
-          Credentials credentials, Region region, URI endpoint, ListObjectsV2Request listObjectsV2Request
-  );
+      Credentials credentials, Region region, URI endpoint, ListObjectsV2Request request);
 }

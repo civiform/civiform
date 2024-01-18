@@ -16,11 +16,10 @@ import durablejobs.jobs.FixApplicantDobDataPathJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
+import durablejobs.jobs.UnusedProgramImagesCleanupJob;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;
-
-import durablejobs.jobs.UnusedProgramImagesCleanupJob;
 import repository.AccountRepository;
 import repository.PersistedDurableJobRepository;
 import repository.ReportingRepository;
@@ -103,9 +102,11 @@ public final class DurableJobModule extends AbstractModule {
         new RecurringJobExecutionTimeResolvers.Nightly2Am());
 
     durableJobRegistry.register(
-            DurableJobName.UNUSED_PROGRAM_IMAGES_CLEANUP,
-            persistedDurableJob -> new UnusedProgramImagesCleanupJob(publicStorageClient, versionRepository, persistedDurableJob),
-            new RecurringJobExecutionTimeResolvers.ThirdOfMonth2Am());
+        DurableJobName.UNUSED_PROGRAM_IMAGES_CLEANUP,
+        persistedDurableJob ->
+            new UnusedProgramImagesCleanupJob(
+                publicStorageClient, versionRepository, persistedDurableJob),
+        new RecurringJobExecutionTimeResolvers.AfterFiveMinutes());
 
     return durableJobRegistry;
   }

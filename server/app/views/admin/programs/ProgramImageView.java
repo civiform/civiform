@@ -141,10 +141,6 @@ public final class ProgramImageView extends BaseHtmlView {
     Http.Flash flash = request.flash();
     if (flash.get("success").isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()));
-    } else if (flash.get("error").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(flash.get("error").get()));
-    } else if (flash.get("warning").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.warning(flash.get("warning").get()));
     }
 
     return layout.renderCentered(htmlBundle);

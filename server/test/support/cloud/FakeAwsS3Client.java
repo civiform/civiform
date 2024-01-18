@@ -1,12 +1,15 @@
 package support.cloud;
 
+import com.google.common.collect.ImmutableList;
 import java.net.URI;
 import services.cloud.aws.AwsS3ClientWrapper;
 import services.cloud.aws.Credentials;
 import services.cloud.aws.FileDeletionFailureException;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 
 /** A fake implementation of {@link AwsS3ClientWrapper} to be used in tests. */
 public final class FakeAwsS3Client implements AwsS3ClientWrapper {
@@ -16,17 +19,26 @@ public final class FakeAwsS3Client implements AwsS3ClientWrapper {
   private URI lastDeleteEndpointUsed;
 
   @Override
-  public void deleteObject(
-      Credentials credentials, Region region, URI endpoint, DeleteObjectRequest request)
+  public void deleteObjects(
+      Credentials credentials, Region region, URI endpoint, DeleteObjectsRequest request)
       throws FileDeletionFailureException {
     this.lastDeleteEndpointUsed = endpoint;
     // This mimics what the real S3Client might do when certain errors occur.
-    if (request.key().equals(DELETION_ERROR_FILE_KEY)) {
+    if (request
+        .delete()
+        .objects()
+        .contains(ObjectIdentifier.builder().key(DELETION_ERROR_FILE_KEY).build())) {
       throw new FileDeletionFailureException(AwsServiceException.builder().build());
     }
   }
 
-  /** Returns the endpoint last used when calling {@link #deleteObject}. */
+  @Override
+  public ImmutableList<String> listObjects(
+      Credentials credentials, Region region, URI endpoint, ListObjectsV2Request request) {
+    return ImmutableList.of();
+  }
+
+  /** Returns the endpoint last used when calling {@link #deleteObjects}. */
   public URI getLastDeleteEndpointUsed() {
     return lastDeleteEndpointUsed;
   }

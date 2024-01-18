@@ -6,7 +6,6 @@ import auth.Authorizers;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
 import forms.admin.ProgramImageDescriptionForm;
-import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -16,7 +15,6 @@ import play.mvc.Result;
 import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.cloud.PublicFileNameFormatter;
-import services.cloud.PublicStorageClient;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.admin.programs.ProgramImageView;
@@ -25,7 +23,6 @@ import views.admin.programs.ProgramImageView;
 public final class AdminProgramImageController extends CiviFormController {
   private final ProgramService programService;
   private final ProgramImageView programImageView;
-  private final PublicStorageClient publicStorageClient;
   private final RequestChecker requestChecker;
   private final FormFactory formFactory;
 
@@ -33,7 +30,6 @@ public final class AdminProgramImageController extends CiviFormController {
   public AdminProgramImageController(
       ProgramService programService,
       ProgramImageView programImageView,
-      PublicStorageClient publicStorageClient,
       RequestChecker requestChecker,
       FormFactory formFactory,
       ProfileUtils profileUtils,
@@ -41,7 +37,6 @@ public final class AdminProgramImageController extends CiviFormController {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.programImageView = checkNotNull(programImageView);
-    this.publicStorageClient = checkNotNull(publicStorageClient);
     this.requestChecker = checkNotNull(requestChecker);
     this.formFactory = checkNotNull(formFactory);
   }
@@ -105,8 +100,6 @@ public final class AdminProgramImageController extends CiviFormController {
       throw new IllegalArgumentException("Key incorrectly formatted for public program image file");
     }
 
-    // TODO(#5676): If there's an existing program image, we should delete that image from cloud
-    //  storage before saving the new key.
     programService.setSummaryImageFileKey(programId, key);
     final String indexUrl = routes.AdminProgramImageController.index(programId).url();
     return redirect(indexUrl).flashing("success", "Image set");
@@ -116,24 +109,8 @@ public final class AdminProgramImageController extends CiviFormController {
   public Result deleteFileKey(Http.Request request, long programId)
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
+    programService.deleteSummaryImageFileKey(programId);
     final String indexUrl = routes.AdminProgramImageController.index(programId).url();
-    Optional<String> currentFileKey =
-        programService.getProgramDefinition(programId).summaryImageFileKey();
-
-    if (currentFileKey.isEmpty()) {
-      // ProgramImageView should disable the delete action if there's no image in the first place,
-      // but handle it here just in case.
-      return redirect(indexUrl)
-          .flashing("warning", "There was no image present, so nothing was deleted.");
-    }
-
-    boolean successfullyDeletedFromStorage =
-        publicStorageClient.deletePublicFile(currentFileKey.get());
-    if (successfullyDeletedFromStorage) {
-      programService.deleteSummaryImageFileKey(programId);
-      return redirect(indexUrl).flashing("success", "Image removed");
-    } else {
-      return redirect(indexUrl).flashing("error", "Error removing image. Please try again.");
-    }
+    return redirect(indexUrl).flashing("success", "Image removed");
   }
 }

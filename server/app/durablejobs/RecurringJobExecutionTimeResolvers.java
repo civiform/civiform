@@ -4,6 +4,8 @@ import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 
@@ -62,11 +64,11 @@ public final class RecurringJobExecutionTimeResolvers {
     @Override
     public Instant resolveExecutionTime(Clock clock) {
       return LocalDate.now(clock)
-              .with(TemporalAdjusters.firstDayOfNextMonth())
-              .plusDays(2L)
-              .atStartOfDay(clock.getZone())
-              .plus(2, ChronoUnit.HOURS)
-              .toInstant();
+          .with(TemporalAdjusters.firstDayOfNextMonth())
+          .plusDays(2L)
+          .atStartOfDay(clock.getZone())
+          .plus(2, ChronoUnit.HOURS)
+          .toInstant();
     }
   }
 
@@ -80,6 +82,15 @@ public final class RecurringJobExecutionTimeResolvers {
           .atStartOfDay(clock.getZone())
           .plus(2, ChronoUnit.HOURS)
           .toInstant();
+    }
+  }
+
+  public static final class AfterFiveMinutes implements RecurringJobExecutionTimeResolver {
+    @Override
+    public Instant resolveExecutionTime(Clock clock) {
+      return LocalDateTime.now(clock)
+          .toInstant(ZoneId.systemDefault().getRules().getOffset(Instant.now()))
+          .plusSeconds(3 * 60);
     }
   }
 }

@@ -1,6 +1,6 @@
 package services.cloud.azure;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import services.cloud.PublicStorageClient;
 import services.cloud.StorageUploadRequest;
 
@@ -18,12 +18,7 @@ public class AzurePublicStorage extends PublicStorageClient {
   }
 
   @Override
-  protected boolean deletePublicFileInternal(String fileKey) {
-    throw new UnsupportedOperationException("not implemented");
-  }
-
-  @Override
-  public ImmutableList<String> listPublicFiles() {
+  public void prunePublicFileStorage(ImmutableSet<String> inUseFileKeys) {
     throw new UnsupportedOperationException("not implemented");
   }
 }
