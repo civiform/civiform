@@ -8,6 +8,7 @@ import repository.ResetPostgres;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 
 public class AwsS3ClientTest extends ResetPostgres {
   private static final URI endpointUri = URI.create("https://s3.us-east-2.amazonaws.com");
@@ -15,7 +16,7 @@ public class AwsS3ClientTest extends ResetPostgres {
   private final AwsS3Client awsS3Client = new AwsS3Client();
 
   @Test
-  public void deleteObject_noObjectsInRequest_throws() {
+  public void deleteObjects_noObjectsInRequest_throws() {
     assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(
             () ->
@@ -27,22 +28,25 @@ public class AwsS3ClientTest extends ResetPostgres {
                         .bucket("fakeBucket")
                         .delete(Delete.builder().build())
                         .build()))
-        .withMessageContaining("must have a key");
+        .withMessageContaining("must have at least one object");
   }
 
-  /*
   @Test
-  public void deleteObject_noBucketInRequest_throws() {
+  public void deleteObjects_noBucketInRequest_throws() {
     assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(
             () ->
-                awsS3Client.deleteObject(
+                awsS3Client.deleteObjects(
                     credentials,
                     Region.US_EAST_2,
                     endpointUri,
-                    DeleteObjectRequest.builder().key("fakeKey").bucket("").build()))
+                    DeleteObjectsRequest.builder()
+                        .bucket("")
+                        .delete(
+                            Delete.builder()
+                                .objects(ObjectIdentifier.builder().key("key").build())
+                                .build())
+                        .build()))
         .withMessageContaining("must have a bucket");
   }
-
-   */
 }

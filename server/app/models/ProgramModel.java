@@ -3,7 +3,6 @@ package models;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProgramAcls;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -318,8 +317,7 @@ public class ProgramModel extends BaseModel {
     }
   }
 
-  @VisibleForTesting
-  public void setSummaryImageFileKey(ProgramDefinition.Builder builder) {
+  private void setSummaryImageFileKey(ProgramDefinition.Builder builder) {
     if (summaryImageFileKey != null) {
       builder.setSummaryImageFileKey(Optional.of(summaryImageFileKey));
     } else {
