@@ -219,7 +219,11 @@ public final class HtmlBundle {
         .with(title(pageTitle))
         // The "orElse" value is never used, but it must be included because the
         // "withHref" evaluates even if the "condWith" is false.
-        .condWith(faviconURL.isPresent(), link().withRel("icon").withHref(faviconURL.orElse("")))
+        .condWith(
+            faviconURL.isPresent(),
+            link().withRel("icon").withHref(faviconURL.orElse("")),
+            link().withRel("apple-touch-icon").withHref("apple-touch-icon.png"),
+            link().withRel("apple-touch-icon-precomposed.png").withHref("apple-touch-icon.png"))
         .with(metadata)
         .with(stylesheets)
         .with(headScripts);
