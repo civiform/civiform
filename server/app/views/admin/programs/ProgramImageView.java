@@ -54,8 +54,9 @@ import views.fileupload.FileUploadViewStrategy;
 
 /** A view for admins to update the image associated with a particular program. */
 public final class ProgramImageView extends BaseHtmlView {
-  // TODO(#5676): Should we prohibit gifs?
-  private static final String MIME_TYPES_IMAGES = "image/*";
+  // Only allow JPEG and PNG images. We want to specifically prohibit SVGs (which don't render well
+  // in the <img> element) and GIFs (which would be too distracting on the homepage).
+  private static final String MIME_TYPES_IMAGES = "image/jpeg,image/png";
   private static final String IMAGE_DESCRIPTION_FORM_ID = "image-description-form";
   private static final String IMAGE_FILE_UPLOAD_FORM_ID = "image-file-upload-form";
   private static final String PAGE_TITLE = "Image upload";
