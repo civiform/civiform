@@ -399,6 +399,35 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.expectDashboardNotContainClient(client2)
   })
 
+  it('empty search parameters returns all clients', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client1: ClientInformation = {
+      emailAddress: 'fake@sample.com',
+      firstName: 'first1',
+      middleName: 'middle',
+      lastName: 'last1',
+      dobDate: '2021-07-10',
+    }
+    await tiDashboard.createClient(client1)
+    const client2: ClientInformation = {
+      emailAddress: 'fake2@sample.com',
+      firstName: 'first2',
+      middleName: 'middle',
+      lastName: 'last2',
+      dobDate: '2021-11-10',
+    }
+    await tiDashboard.createClient(client2)
+
+    await tiDashboard.searchByNameAndDateOfBirth('', '')
+    await waitForPageJsLoad(page)
+    await tiDashboard.expectDashboardContainClient(client1)
+    await tiDashboard.expectDashboardContainClient(client2)
+  })
+
   it('managing trusted intermediary ', async () => {
     const {page, adminTiGroups} = ctx
     await loginAsAdmin(page)
