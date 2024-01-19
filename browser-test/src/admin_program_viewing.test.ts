@@ -27,6 +27,7 @@ describe('admin program view page', () => {
 
     const programName = 'Draft Program'
     await adminPrograms.addProgram(programName)
+    await adminPrograms.gotoEditDraftProgramPage(programName)
 
     await validateScreenshot(page, 'program-draft-view-images-flag-on')
   })
@@ -38,6 +39,7 @@ describe('admin program view page', () => {
 
     const programName = 'Draft Program'
     await adminPrograms.addProgram(programName)
+    await adminPrograms.gotoEditDraftProgramPage(programName)
 
     await validateScreenshot(page, 'program-draft-view-images-flag-off')
   })
