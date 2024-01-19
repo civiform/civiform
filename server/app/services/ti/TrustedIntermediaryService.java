@@ -256,7 +256,13 @@ public final class TrustedIntermediaryService {
   public TrustedIntermediarySearchResult getManagedAccounts(
       SearchParameters searchParameters, TrustedIntermediaryGroupModel tiGroup) {
     ImmutableList<AccountModel> allAccounts = tiGroup.getManagedAccounts();
-    if (searchParameters.nameQuery().isEmpty() && searchParameters.dateQuery().isEmpty()) {
+    /* Filtering to transform empty strings into empty optionals.
+    Empty parameters should return all accounts. */
+    Optional<String> filteredNameQuery =
+        searchParameters.nameQuery().filter(s -> !s.isEmpty() && !s.isBlank());
+    Optional<String> filteredDateQuery =
+        searchParameters.dateQuery().filter(s -> !s.isEmpty() && !s.isBlank());
+    if (filteredNameQuery.isEmpty() && filteredDateQuery.isEmpty()) {
       return TrustedIntermediarySearchResult.success(allAccounts);
     }
     final ImmutableList<AccountModel> searchedResult;
