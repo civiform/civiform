@@ -81,7 +81,7 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
 
     assertThat(
             cleanHtml.matches(
-                ".*input type=\"text\" currency value=\"\""
+                ".*input type=\"text\" currency inputmode=\"decimal\" value=\"\""
                     + " aria-describedby=\"[A-Za-z]{8}-description\".*"))
         .isTrue();
   }

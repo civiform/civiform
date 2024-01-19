@@ -109,6 +109,170 @@ describe('Trusted intermediaries', () => {
     await validateScreenshot(page, 'dashboard-add-clients-no-email')
   })
 
+  it('expect client email address to be updated', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'test@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-06-10',
+    }
+    await tiDashboard.createClient(client)
+    await waitForPageJsLoad(page)
+    await tiDashboard.updateClientEmailAddress(client, 'new@email.com')
+
+    const updatedClient: ClientInformation = {
+      emailAddress: 'new@email.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-06-10',
+    }
+    await tiDashboard.expectDashboardContainClient(updatedClient)
+  })
+
+  it('expect client ti notes and phone to be updated', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'test@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-06-10',
+    }
+    await tiDashboard.createClient(client)
+    await waitForPageJsLoad(page)
+    await tiDashboard.updateClientTiNoteAndPhone(
+      client,
+      'Housing Assistance',
+      '4256007121',
+    )
+    await waitForPageJsLoad(page)
+    await tiDashboard.expectClientContainsTiNoteAndPhone(
+      client,
+      'Housing Assistance',
+      '4256007121',
+    )
+    await validateScreenshot(page, 'edit-client-information-with-all-fields')
+  })
+
+  it('expect client email to be updated to empty', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'test@sample.com',
+      firstName: 'Jane',
+      middleName: 'middle',
+      lastName: 'Doe',
+      dobDate: '2021-06-10',
+    }
+    await tiDashboard.createClient(client)
+    await waitForPageJsLoad(page)
+    await tiDashboard.updateClientEmailAddress(client, '')
+    await waitForPageJsLoad(page)
+
+    const row = page.locator(
+      `.cf-admin-question-table-row:has-text("${client.lastName}, ${client.firstName}")`,
+    )
+    const rowText = await row.innerText()
+    expect(rowText).toContain('(no email address)')
+    expect(rowText).toContain(client.dobDate)
+  })
+
+  it('expect back button to land in dashboard in the edit client page', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'tes@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-06-10',
+    }
+    await tiDashboard.createClient(client)
+    await waitForPageJsLoad(page)
+    await page
+      .getByRole('row')
+      .filter({hasText: client.emailAddress})
+      .getByText('Edit')
+      .click()
+    await waitForPageJsLoad(page)
+    await page.waitForSelector('h2:has-text("Edit Client")')
+    await page.click('text=Back to client list')
+    await waitForPageJsLoad(page)
+    await page.waitForSelector('h2:has-text("Add Client")')
+    await validateScreenshot(page, 'back-link-leads-to-ti-dashboard')
+  })
+
+  it('expect cancel button should not update client information', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'tes@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-06-10',
+    }
+    await tiDashboard.createClient(client)
+    await waitForPageJsLoad(page)
+    await page
+      .getByRole('row')
+      .filter({hasText: client.emailAddress})
+      .getByText('Edit')
+      .click()
+    await waitForPageJsLoad(page)
+    await page.waitForSelector('h2:has-text("Edit Client")')
+    // update client dob
+    await page.fill('#edit-date-of-birth-input', '2022-10-13')
+
+    await page.click('text=Cancel')
+    await waitForPageJsLoad(page)
+    await page.waitForSelector('h2:has-text("Add Client")')
+    // dob should not be updated
+    await tiDashboard.expectDashboardContainClient(client)
+    await validateScreenshot(page, 'cancel-leads-to-dashboard')
+  })
+
+  it('expect field errors', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'test@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-06-10',
+    }
+    await tiDashboard.createClient(client)
+    await waitForPageJsLoad(page)
+    await page
+      .getByRole('row')
+      .filter({hasText: client.emailAddress})
+      .getByText('Edit')
+      .click()
+    await waitForPageJsLoad(page)
+    await page.waitForSelector('h2:has-text("Edit Client")')
+    await page.fill('#edit-date-of-birth-input', '2027-12-20')
+    await page.click('text="Save"')
+    await validateScreenshot(page, 'edit-client-information-with-field-errors')
+  })
+
   it('expect client cannot be added with invalid email address', async () => {
     const {page, tiDashboard} = ctx
     await loginAsTrustedIntermediary(page)
@@ -233,6 +397,35 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.expectDashboardContainClient(client3)
     await tiDashboard.expectDashboardNotContainClient(client1)
     await tiDashboard.expectDashboardNotContainClient(client2)
+  })
+
+  it('empty search parameters returns all clients', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client1: ClientInformation = {
+      emailAddress: 'fake@sample.com',
+      firstName: 'first1',
+      middleName: 'middle',
+      lastName: 'last1',
+      dobDate: '2021-07-10',
+    }
+    await tiDashboard.createClient(client1)
+    const client2: ClientInformation = {
+      emailAddress: 'fake2@sample.com',
+      firstName: 'first2',
+      middleName: 'middle',
+      lastName: 'last2',
+      dobDate: '2021-11-10',
+    }
+    await tiDashboard.createClient(client2)
+
+    await tiDashboard.searchByNameAndDateOfBirth('', '')
+    await waitForPageJsLoad(page)
+    await tiDashboard.expectDashboardContainClient(client1)
+    await tiDashboard.expectDashboardContainClient(client2)
   })
 
   it('managing trusted intermediary ', async () => {

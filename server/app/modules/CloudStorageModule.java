@@ -12,6 +12,8 @@ import services.cloud.PublicStorageClient;
 import services.cloud.StorageServiceName;
 import services.cloud.aws.AwsApplicantStorage;
 import services.cloud.aws.AwsPublicStorage;
+import services.cloud.aws.AwsS3Client;
+import services.cloud.aws.AwsS3ClientWrapper;
 import services.cloud.azure.AzureApplicantStorage;
 import services.cloud.azure.AzurePublicStorage;
 import views.BaseHtmlView;
@@ -47,6 +49,7 @@ public class CloudStorageModule extends AbstractModule {
         bind(ApplicantStorageClient.class).to(AwsApplicantStorage.class);
         bind(PublicStorageClient.class).to(AwsPublicStorage.class);
         bind(FileUploadViewStrategy.class).to(AwsFileUploadViewStrategy.class);
+        bind(AwsS3ClientWrapper.class).to(AwsS3Client.class);
         break;
       case AZURE_BLOB:
         bind(ApplicantStorageClient.class).to(AzureApplicantStorage.class);

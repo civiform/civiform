@@ -5,14 +5,11 @@ import {
   chromium,
   Frame,
   Page,
-  PageScreenshotOptions,
-  LocatorScreenshotOptions,
   Locator,
   devices,
   BrowserContextOptions,
 } from 'playwright'
 import * as path from 'path'
-import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 import {waitForPageJsLoad} from './wait'
 import {
   BASE_URL,
@@ -513,11 +510,9 @@ export const validateAccessibility = async (page: Page) => {
 export const validateScreenshot = async (
   element: Page | Locator,
   screenshotFileName: string,
-  screenshotOptions?: PageScreenshotOptions | LocatorScreenshotOptions,
-  matchImageSnapshotOptions?: MatchImageSnapshotOptions,
   fullPage?: boolean,
 ) => {
-  if (fullPage == null) {
+  if (fullPage === undefined) {
     fullPage = true
   }
 
@@ -541,11 +536,11 @@ export const validateScreenshot = async (
       window.scrollTo(0, 0)
     })
   }
+
   expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
   expect(
     await element.screenshot({
       fullPage,
-      ...screenshotOptions,
     }),
   ).toMatchImageSnapshot({
     allowSizeMismatch: true,
@@ -559,7 +554,6 @@ export const validateScreenshot = async (
       const dir = path.basename(testPath).replace('.test.ts', '_test')
       return `${dir}/${screenshotFileName}`
     },
-    ...matchImageSnapshotOptions,
   })
 }
 

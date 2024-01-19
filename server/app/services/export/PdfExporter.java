@@ -62,7 +62,7 @@ public final class PdfExporter {
             .getReadOnlyApplicantProgramService(application)
             .toCompletableFuture()
             .join();
-    ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
+    ImmutableList<AnswerData> answers = roApplicantService.getSummaryDataOnlyActive();
 
     // We expect a name to be present at this point. However, if it's not, we use a placeholder
     // rather than throwing an error here.

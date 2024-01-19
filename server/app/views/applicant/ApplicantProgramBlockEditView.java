@@ -55,7 +55,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     DivTag blockDiv =
         div()
             .with(div(renderBlockWithSubmitForm(params)).withClasses("my-8"))
-            .withClasses("my-8", "m-auto");
+            .withClasses("my-8", "m-auto", "break-words");
 
     String errorMessage = "";
     if (params.block().hasErrors()

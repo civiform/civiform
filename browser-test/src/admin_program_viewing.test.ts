@@ -27,6 +27,7 @@ describe('admin program view page', () => {
 
     const programName = 'Draft Program'
     await adminPrograms.addProgram(programName)
+    await adminPrograms.gotoEditDraftProgramPage(programName)
 
     await validateScreenshot(page, 'program-draft-view-images-flag-on')
   })
@@ -38,6 +39,7 @@ describe('admin program view page', () => {
 
     const programName = 'Draft Program'
     await adminPrograms.addProgram(programName)
+    await adminPrograms.gotoEditDraftProgramPage(programName)
 
     await validateScreenshot(page, 'program-draft-view-images-flag-off')
   })
@@ -45,7 +47,6 @@ describe('admin program view page', () => {
   it('view program with universal questions', async () => {
     const {page, adminPrograms, adminQuestions} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'universal_questions')
 
     const programName = 'Program with universal questions'
     await adminQuestions.addTextQuestion({

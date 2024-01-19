@@ -6,8 +6,10 @@
 GET /*path/ controllers.UntrailingController.untrail(path: String)
 
 # Redirect automatic requests from the browser to the specified favicon.
-GET     /favicon.ico    controllers.HomeController.favicon()
-GET     /favicon.png    controllers.HomeController.favicon()
+GET     /favicon.ico                         controllers.HomeController.favicon()
+GET     /favicon.png                         controllers.HomeController.favicon()
+GET     /apple-touch-icon.png                controllers.HomeController.favicon()
+GET     /apple-touch-icon-precomposed.png    controllers.HomeController.favicon()
 
 # The landing page
 GET     /                           controllers.HomeController.index(request: Request)
@@ -94,6 +96,8 @@ POST    /admin/questions/:questionName/translations/:locale       controllers.ad
 GET     /admin/programs/:programId/image             controllers.admin.AdminProgramImageController.index(request: Request, programId: Long)
 POST    /admin/programs/:programId/image/description controllers.admin.AdminProgramImageController.updateDescription(request: Request, programId: Long)
 GET /admin/programs/:programId/image/file            controllers.admin.AdminProgramImageController.updateFileKey(request: Request, programId: Long)
+POST    /admin/programs/:programId/image/file/delete controllers.admin.AdminProgramImageController.deleteFileKey(request: Request, programId: Long)
+
 # Trusted Intermediary routes
 GET     /admin/tiGroups                    controllers.admin.TrustedIntermediaryManagementController.index(request: Request)
 POST    /admin/tiGroups/new                controllers.admin.TrustedIntermediaryManagementController.create(request: Request)
@@ -104,7 +108,8 @@ POST    /admin/tiGroups/:id/removeTi       controllers.admin.TrustedIntermediary
 
 GET     /admin/tiDash                                         controllers.ti.TrustedIntermediaryController.dashboard(request: Request, nameQuery: java.util.Optional[String], dateQuery: java.util.Optional[String], page: java.util.Optional[Integer])
 POST    /admin/tiGroups/:id/addApplicant                      controllers.ti.TrustedIntermediaryController.addApplicant(id: Long, request: Request)
-POST    /admin/tiGroups/updateDateOfBirth/:accountId          controllers.ti.TrustedIntermediaryController.updateDateOfBirth(accountId: Long, request: Request)
+GET     /admin/tiGroups/editClient/:accountId                 controllers.ti.TrustedIntermediaryController.editClient(accountId: Long, request: Request)
+POST    /admin/tiGroups/updateClientInfo/:id                  controllers.ti.TrustedIntermediaryController.updateClientInfo(id: Long, request: Request)
 
 # Controller for admins only, related to applications
 GET     /admin/programs/:programId/applications                             controllers.admin.AdminApplicationController.index(request: Request, programId: Long, search: java.util.Optional[String], page: java.util.Optional[Integer], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], applicationStatus: java.util.Optional[String], selectedApplicationUri: java.util.Optional[String])

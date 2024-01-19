@@ -63,7 +63,7 @@ describe('views render well on mobile', () => {
       `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
     )
 
-    await validateScreenshot(page, 'mobile-modal', {fullPage: false})
+    await validateScreenshot(page, 'mobile-modal', /* fullPage= */ false)
   })
 
   it('apply page', async () => {

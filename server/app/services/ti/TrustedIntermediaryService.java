@@ -3,8 +3,11 @@ package services.ti;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
-import forms.UpdateApplicantDobForm;
+import forms.EditTiClientInfoForm;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
@@ -38,6 +41,10 @@ public final class TrustedIntermediaryService {
   public static final String FORM_FIELD_NAME_LAST_NAME = "lastName";
   public static final String FORM_FIELD_NAME_EMAIL_ADDRESS = "emailAddress";
   public static final String FORM_FIELD_NAME_DOB = "dob";
+  public static final String FORM_FIELD_NAME_PHONE = "phoneNumber";
+  public static final String FORM_FIELD_NAME_MIDDLE_NAME = "middleName";
+  public static final String FORM_FIELD_NAME_TI_NOTES = "tiNote";
+  private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
   @Inject
   public TrustedIntermediaryService(
@@ -111,6 +118,128 @@ public final class TrustedIntermediaryService {
     return Optional.empty();
   }
 
+  private Form<EditTiClientInfoForm> validateFirstNameForEditClient(
+      Form<EditTiClientInfoForm> form) {
+    if (Strings.isNullOrEmpty(form.value().get().getFirstName())) {
+      return form.withError(FORM_FIELD_NAME_FIRST_NAME, "First name required");
+    }
+    return form;
+  }
+
+  private Form<EditTiClientInfoForm> validateLastNameForEditClient(
+      Form<EditTiClientInfoForm> form) {
+    if (Strings.isNullOrEmpty(form.value().get().getLastName())) {
+      return form.withError(FORM_FIELD_NAME_LAST_NAME, "Last name required");
+    }
+    return form;
+  }
+
+  private Boolean hasEmailChanged(String newEmail, AccountModel account) {
+    return !newEmail.equals(account.getEmailAddress());
+  }
+
+  private Form<EditTiClientInfoForm> validatePhoneNumber(Form<EditTiClientInfoForm> form) {
+    String phoneNumber = form.value().get().getPhoneNumber();
+    if (Strings.isNullOrEmpty(phoneNumber)) {
+      return form;
+    }
+    // removes space, '(',')' and '-' from the phone number
+    phoneNumber = phoneNumber.replaceAll("[()-[\\s]]", "");
+    if (!phoneNumber.matches("[0-9]+")) {
+      return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain only digits");
+    }
+    if (phoneNumber.length() != 10) {
+      return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain only 10 digits");
+    }
+    try {
+      Phonenumber.PhoneNumber phonenumber = PHONE_NUMBER_UTIL.parse(phoneNumber, "US");
+      if (!PHONE_NUMBER_UTIL.isValidNumber(phonenumber)) {
+        return form.withError(FORM_FIELD_NAME_PHONE, "This phone number is not valid");
+      }
+    } catch (NumberParseException e) {
+      throw new RuntimeException(e);
+    }
+    return form;
+  }
+
+  private Form<EditTiClientInfoForm> validateDateOfBirth(Form<EditTiClientInfoForm> form) {
+    Optional<String> errorMessage = validateDateOfBirth(form.value().get().getDob());
+    if (errorMessage.isPresent()) {
+      return form.withError(FORM_FIELD_NAME_DOB, errorMessage.get());
+    }
+    return form;
+  }
+
+  private Form<EditTiClientInfoForm> validateEmailAddress(
+      Form<EditTiClientInfoForm> form, AccountModel currentAccount) {
+    String newEmail = form.get().getEmailAddress();
+    // email addresses not a requirement for TI Client
+    if (Strings.isNullOrEmpty(newEmail)) {
+      return form;
+    }
+    if (hasEmailChanged(newEmail, currentAccount)
+        && accountRepository.lookupAccountByEmail(newEmail).isPresent()) {
+      return form.withError(
+          FORM_FIELD_NAME_EMAIL_ADDRESS,
+          "Email address already in use. Cannot update applicant if an account already"
+              + " exists.");
+    }
+    return form;
+  }
+
+  /**
+   * This function updates the client Information after validating the form fields
+   *
+   * @param tiGroup - the TIGroup who manages the account whose info needs to be updated.
+   * @param accountId - the account Id of the applicant whose info should be updated
+   * @param form - this contains all the fields like dob, phoneNumber, emailAddress, name and
+   *     tiNotes.
+   * @return form - the form object is always returned. If the form contains error, the controller
+   *     will handle the field messages. If the account is not found for the given AccountId, a
+   *     runtime exception is raised.
+   */
+  public Form<EditTiClientInfoForm> updateClientInfo(
+      Form<EditTiClientInfoForm> form, TrustedIntermediaryGroupModel tiGroup, Long accountId)
+      throws ApplicantNotFoundException {
+    // validate functions return the form w/ validation errors if applicable
+    form = validateFirstNameForEditClient(form);
+    form = validateLastNameForEditClient(form);
+    form = validatePhoneNumber(form);
+    form = validateDateOfBirth(form);
+    if (form.hasErrors()) {
+      return form;
+    }
+    Optional<AccountModel> accountMaybe =
+        tiGroup.getManagedAccounts().stream()
+            .filter(account -> account.id.equals(accountId))
+            .findAny();
+    if (accountMaybe.isEmpty() || accountMaybe.get().newestApplicant().isEmpty()) {
+      throw new ApplicantNotFoundException(accountId);
+    }
+    form = validateEmailAddress(form, accountMaybe.get());
+    if (form.hasErrors()) {
+      return form;
+    }
+    ApplicantModel applicant = accountMaybe.get().newestApplicant().get();
+    EditTiClientInfoForm currentForm = form.get();
+    // after the validations are over, we can directly update the changes, as there are only two
+    // cases possible for an update
+    // case 1- new updates were added to the form and an update is necessary
+    // case 2- no new updates were added hence it will show the same value as the current applicant
+    // information
+    accountRepository.updateTiClient(
+        /* account= */ accountMaybe.get(),
+        /* applicant= */ applicant,
+        /* firstName= */ currentForm.getFirstName(),
+        /* middleName= */ currentForm.getMiddleName(),
+        /* lastName= */ currentForm.getLastName(),
+        /* phoneNumber= */ currentForm.getPhoneNumber(),
+        /* tiNote= */ currentForm.getTiNote(),
+        /* email= */ currentForm.getEmailAddress(),
+        /* newDob= */ currentForm.getDob());
+    return form;
+  }
+
   /**
    * Gets all the TrustedIntermediaryAccount managed by the given TI Group with/without filtering
    *
@@ -127,7 +256,13 @@ public final class TrustedIntermediaryService {
   public TrustedIntermediarySearchResult getManagedAccounts(
       SearchParameters searchParameters, TrustedIntermediaryGroupModel tiGroup) {
     ImmutableList<AccountModel> allAccounts = tiGroup.getManagedAccounts();
-    if (searchParameters.nameQuery().isEmpty() && searchParameters.dateQuery().isEmpty()) {
+    /* Filtering to transform empty strings into empty optionals.
+    Empty parameters should return all accounts. */
+    Optional<String> filteredNameQuery =
+        searchParameters.nameQuery().filter(s -> !s.isEmpty() && !s.isBlank());
+    Optional<String> filteredDateQuery =
+        searchParameters.dateQuery().filter(s -> !s.isEmpty() && !s.isBlank());
+    if (filteredNameQuery.isEmpty() && filteredDateQuery.isEmpty()) {
       return TrustedIntermediarySearchResult.success(allAccounts);
     }
     final ImmutableList<AccountModel> searchedResult;
@@ -165,52 +300,5 @@ public final class TrustedIntermediaryService {
                             .contains(
                                 searchParameters.nameQuery().get().toLowerCase(Locale.ROOT)))))
         .collect(ImmutableList.toImmutableList());
-  }
-
-  /**
-   * This function updates the Applicant's date of birth by calling the UpdateApplicant() on the
-   * User Repository.
-   *
-   * @param trustedIntermediaryGroup - the TIGroup who manages the account whose Dob needs to be
-   *     updated.
-   * @param accountId - the account Id of the applicant whose Dob should be updated
-   * @param form - this contains the dob field which would be parsed into local date and updated for
-   *     the applicant
-   * @return form - the form object is always returned. If the form contains error, the controller
-   *     will handle the flash messages If the account is not found for the given AccountId, a
-   *     runtime exception is raised.
-   */
-  public Form<UpdateApplicantDobForm> updateApplicantDateOfBirth(
-      TrustedIntermediaryGroupModel trustedIntermediaryGroup,
-      Long accountId,
-      Form<UpdateApplicantDobForm> form)
-      throws ApplicantNotFoundException {
-
-    form = validateDateOfBirthForUpdateDob(form);
-
-    if (form.hasErrors()) {
-      return form;
-    }
-    Optional<AccountModel> optionalAccount =
-        trustedIntermediaryGroup.getManagedAccounts().stream()
-            .filter(account -> account.id.equals(accountId))
-            .findAny();
-
-    if (optionalAccount.isEmpty() || optionalAccount.get().newestApplicant().isEmpty()) {
-      throw new ApplicantNotFoundException(accountId);
-    }
-    ApplicantModel applicant = optionalAccount.get().newestApplicant().get();
-    applicant.getApplicantData().setDateOfBirth(form.get().getDob());
-    accountRepository.updateApplicant(applicant).toCompletableFuture().join();
-    return form;
-  }
-
-  private Form<UpdateApplicantDobForm> validateDateOfBirthForUpdateDob(
-      Form<UpdateApplicantDobForm> form) {
-    Optional<String> errorMessage = validateDateOfBirth(form.value().get().getDob());
-    if (errorMessage.isPresent()) {
-      return form.withError(FORM_FIELD_NAME_DOB, errorMessage.get());
-    }
-    return form;
   }
 }

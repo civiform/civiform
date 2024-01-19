@@ -33,11 +33,11 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.6.0",
       "org.commonmark" % "commonmark" % "0.21.0",
       "org.commonmark" % "commonmark-ext-autolink" % "0.21.0",
-      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20220608.1",
+      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20180219.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.22.11",
-      "software.amazon.awssdk" % "ses" % "2.22.12",
+      "software.amazon.awssdk" % "s3" % "2.23.6",
+      "software.amazon.awssdk" % "ses" % "2.23.6",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.11.1",
@@ -224,7 +224,7 @@ resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.16.1",
   "com.fasterxml.jackson.core" % "jackson-core" % "2.16.1",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.16.0"
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.16.1"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.

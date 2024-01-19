@@ -16,7 +16,7 @@ import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.style.ReferenceClasses;
 
-public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
+public class PhoneQuestionRenderer extends ApplicantCompositeQuestionRenderer {
   PhoneQuestionRenderer(ApplicantQuestion question) {
     super(question);
   }
@@ -27,10 +27,9 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
   }
 
   @Override
-  protected DivTag renderInputTag(
+  protected DivTag renderInputTags(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
     PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
 
@@ -69,6 +68,7 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
         FieldWithLabel.input()
             .setPlaceholderText("(xxx) xxx-xxxx")
             .setFieldName(phoneQuestion.getPhoneNumberPath().toString())
+            .setAttribute("inputmode", "tel")
             .setValue(phoneQuestion.getPhoneNumberValue().orElse(""))
             .setLabelText(messages.at(MessageKey.PHONE_LABEL_PHONE_NUMBER.getKeyName()))
             .setAriaRequired(!isOptional)
@@ -76,7 +76,6 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
                 messages,
                 validationErrors.getOrDefault(
                     phoneQuestion.getPhoneNumberPath(), ImmutableSet.of()))
-            .setAriaDescribedByIds(ariaDescribedByIds)
             .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader())
             .addReferenceClass(ReferenceClasses.PHONE_NUMBER)
             .setId(ReferenceClasses.PHONE_NUMBER);
