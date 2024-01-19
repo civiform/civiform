@@ -297,10 +297,7 @@ public final class AdminProgramController extends CiviFormController {
     return redirect(controllers.admin.routes.AdminProgramController.editProgramSettings(programId));
   }
 
-  /**
-   * Returns where admins should be taken to after saving program detail edits (name, description,
-   * etc.).
-   */
+  /** Returns where admins should be taken to after saving program detail edits. */
   private Result getSaveProgramDetailsRedirect(Request request, long programId) {
     if (settingsManifest.getProgramCardImages(request)) {
       // After adding/editing program details, we want to direct admins to also add a program image.

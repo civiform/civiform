@@ -575,18 +575,77 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "true",
                     "tiGroups[]",
                     "1"));
+    controller.update(addCSRFToken(requestBuilder).build(), program.id);
+
+    Result indexResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
+    assertThat(contentAsString(indexResult))
+        .contains(
+            "Create new program", "New external program name", "New external program description");
+    assertThat(contentAsString(indexResult)).doesNotContain("Existing one", "old description");
+  }
+
+  @Test
+  public void update_programImagesDisabled_redirectsToProgramEditBlocks()
+      throws ProgramNotFoundException {
+    when(mockSettingsManifest.getProgramCardImages(any())).thenReturn(false);
+
+    ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
+    RequestBuilder requestBuilder =
+        requestBuilderWithSettings()
+            .bodyForm(
+                ImmutableMap.of(
+                    "adminDescription",
+                    "adminDescription",
+                    "localizedDisplayName",
+                    "Program",
+                    "localizedDisplayDescription",
+                    "description",
+                    "externalLink",
+                    "https://external.program.link",
+                    "displayMode",
+                    DisplayMode.PUBLIC.getValue(),
+                    "isCommonIntakeForm",
+                    "false",
+                    "tiGroups[]",
+                    "1"));
 
     Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(program.id).url());
+  }
 
-    Result redirectResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
-    assertThat(contentAsString(redirectResult))
-        .contains(
-            "Create new program", "New external program name", "New external program description");
-    assertThat(contentAsString(redirectResult)).doesNotContain("Existing one", "old description");
+  @Test
+  public void update_programImagesEnabled_redirectsToProgramImage()
+      throws ProgramNotFoundException {
+    when(mockSettingsManifest.getProgramCardImages(any())).thenReturn(true);
+
+    ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
+    RequestBuilder requestBuilder =
+        requestBuilderWithSettings()
+            .bodyForm(
+                ImmutableMap.of(
+                    "adminDescription",
+                    "adminDescription",
+                    "localizedDisplayName",
+                    "Program",
+                    "localizedDisplayDescription",
+                    "description",
+                    "externalLink",
+                    "https://external.program.link",
+                    "displayMode",
+                    DisplayMode.PUBLIC.getValue(),
+                    "isCommonIntakeForm",
+                    "false",
+                    "tiGroups[]",
+                    "1"));
+
+    Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramImageController.index(program.id).url());
   }
 
   @Test
