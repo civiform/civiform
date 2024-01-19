@@ -101,6 +101,7 @@ public final class ProgramImageView extends BaseHtmlView {
    * image (and its alt text).
    */
   public Content render(Http.Request request, ProgramDefinition programDefinition) {
+    // TODO(#5676): Replace breadcrumbs with a back button.
     DivTag breadcrumbs = createBreadcrumbs(programDefinition);
 
     DivTag mainContent = div().withClass("mx-20");

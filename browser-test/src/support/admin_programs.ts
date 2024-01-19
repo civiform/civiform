@@ -153,11 +153,11 @@ export class AdminPrograms {
     }
 
     if (submitNewProgram) {
-      await this.submitNewProgram()
+      await this.submitProgramDetailsEdits()
     }
   }
 
-  async submitNewProgram() {
+  async submitProgramDetailsEdits() {
     await this.page.click('#program-update-button')
     await waitForPageJsLoad(this.page)
   }
@@ -178,8 +178,7 @@ export class AdminPrograms {
       await this.page.check(`label:has-text("${selectedTI}")`)
     }
 
-    await this.page.click('#program-update-button')
-    await waitForPageJsLoad(this.page)
+    await this.submitProgramDetailsEdits()
   }
 
   async programNames() {
@@ -783,8 +782,7 @@ export class AdminPrograms {
     await this.page.click('button:has-text("Edit program details")')
     await waitForPageJsLoad(this.page)
 
-    await this.page.click('#program-update-button')
-    await waitForPageJsLoad(this.page)
+    await this.submitProgramDetailsEdits()
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
   }

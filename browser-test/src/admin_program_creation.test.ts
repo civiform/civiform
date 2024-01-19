@@ -34,7 +34,7 @@ describe('program creation', () => {
 
     // When the program submission goes through with the program_card_images flag off,
     // verify we're redirected to the block edit page.
-    await adminPrograms.submitNewProgram()
+    await adminPrograms.submitProgramDetailsEdits()
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
@@ -59,7 +59,7 @@ describe('program creation', () => {
 
     // When the program submission goes through with the program_card_images flag on,
     // verify we're redirected to the program image upload page.
-    await adminPrograms.submitNewProgram()
+    await adminPrograms.submitProgramDetailsEdits()
     await adminProgramImage.expectProgramImagePage()
   })
 
@@ -71,6 +71,50 @@ describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramDescriptionPage(programName)
     await validateScreenshot(page, 'program-description-page')
+  })
+
+  it('program details page screenshot with images flag on', async () => {
+    const {page, adminPrograms} = ctx
+    await enableFeatureFlag(page, 'program_card_images')
+
+    await loginAsAdmin(page)
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramDescriptionPage(programName)
+    await validateScreenshot(
+      page,
+      'program-description-page-with-images-flag-on',
+    )
+  })
+
+  it('program details page redirects to block page if images flag off', async () => {
+    const {page, adminPrograms} = ctx
+    await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Program Name'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramDescriptionPage(programName)
+    await adminPrograms.submitProgramDetailsEdits()
+
+    // When the images flag is off, saving program edits should redirect back to
+    // the program block edit page.
+    await adminPrograms.expectProgramBlockEditPage()
+  })
+
+  it('program details page redirects to image page if images flag on', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Program Name'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramDescriptionPage(programName)
+    await adminPrograms.submitProgramDetailsEdits()
+
+    // When the images flag is on, saving program edits should redirect to
+    // the program image upload page.
+    await adminProgramImage.expectProgramImagePage()
   })
 
   it('shows correct formatting during question creation', async () => {
