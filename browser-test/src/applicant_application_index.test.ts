@@ -253,8 +253,7 @@ describe('applicant program index page', () => {
   })
 })
 
-// TODO(#5676): Re-enable once the deployment scripts are correctly updated.
-xdescribe('applicant program index page with images', () => {
+describe('applicant program index page with images', () => {
   const ctx = createTestContext()
 
   it('shows program with wide image', async () => {
