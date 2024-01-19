@@ -80,16 +80,29 @@ public final class AwsPublicStorage extends PublicStorageClient {
 
   @Override
   public void prunePublicFileStorage(ImmutableSet<String> inUseFileKeys) {
-    // We should delete all the files that are in storage but not in the in-use set.
-    List<String> unusedPublicFileKeys = new ArrayList<>(getCurrentFileKeys());
-    unusedPublicFileKeys.removeAll(inUseFileKeys);
-
-    if (!unusedPublicFileKeys.isEmpty()) {
-      deletePublicFiles(ImmutableList.copyOf(unusedPublicFileKeys));
+    List<String> unusedPublicFileKeys;
+    try {
+      // We should delete all the files that are in storage but not in the in-use set.
+      unusedPublicFileKeys = new ArrayList<>(getCurrentFileKeys());
+      unusedPublicFileKeys.removeAll(inUseFileKeys);
+    } catch (FileListFailureException e) {
+      // See UnusedProgramImagesCleanupJob for the deletion cadence.
+      logger.error(
+          "Failed to fetch the current list of public files, so aborting unused file deletion."
+              + " Deletion will be re-tried again in a month. Error: {}",
+          e.toString());
+      return;
     }
+
+    if (unusedPublicFileKeys.isEmpty()) {
+      logger.info("No unused public files found. No files will be deleted.");
+      return;
+    }
+
+    deletePublicFiles(ImmutableList.copyOf(unusedPublicFileKeys));
   }
 
-  private ImmutableList<String> getCurrentFileKeys() {
+  private ImmutableList<String> getCurrentFileKeys() throws FileListFailureException {
     return awsS3ClientWrapper.listObjects(
         credentials,
         region,
@@ -110,7 +123,11 @@ public final class AwsPublicStorage extends PublicStorageClient {
     try {
       awsS3ClientWrapper.deleteObjects(credentials, region, client.endpoint(), request);
     } catch (FileDeletionFailureException e) {
-      logger.error(e.toString());
+      // See UnusedProgramImagesCleanupJob for the deletion cadence.
+      logger.error(
+          "Some public files failed to be deleted. Deletion will be re-tried again in a month."
+              + " Error: {}",
+          e.toString());
     }
   }
 

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static support.cloud.FakeAwsS3Client.DELETION_ERROR_FILE_KEY;
+import static support.cloud.FakeAwsS3Client.LIST_ERROR_FILE_KEY;
 
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
@@ -264,7 +265,8 @@ public class AwsPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void prunePublicFileStorage_currentFilesOnlyIncludeInUseFiles_noDeleteRequestIssued() {
+  public void prunePublicFileStorage_currentFilesOnlyIncludeInUseFiles_noDeleteRequestIssued()
+      throws FileListFailureException {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeAwsS3Client,
@@ -297,7 +299,8 @@ public class AwsPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void prunePublicFileStorage_someUnusedFiles_onlyUnusedDeleted() {
+  public void prunePublicFileStorage_someUnusedFiles_onlyUnusedDeleted()
+      throws FileListFailureException {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeAwsS3Client,
@@ -325,7 +328,8 @@ public class AwsPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void prunePublicFileStorage_inUseFilesHasMissingKey_noError() {
+  public void prunePublicFileStorage_inUseFilesHasMissingKey_noError()
+      throws FileListFailureException {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeAwsS3Client,
@@ -347,6 +351,28 @@ public class AwsPublicStorageTest extends ResetPostgres {
             fakeAwsS3Client.listObjects(
                 credentials, Region.US_EAST_2, FAKE_URI, ListObjectsV2Request.builder().build()))
         .isEmpty();
+  }
+
+  @Test
+  public void prunePublicFileStorage_fileListFailure_nothingDeleted() {
+    AwsPublicStorage awsPublicStorage =
+        new AwsPublicStorage(
+            fakeAwsS3Client,
+            instanceOf(AwsStorageUtils.class),
+            instanceOf(AwsRegion.class),
+            credentials,
+            instanceOf(Config.class),
+            instanceOf(Environment.class));
+
+    fakeAwsS3Client.addObject("program-summary-image/program-11/myFile11.jpeg");
+    // WHEN AWS has a key that's hard-coded to throw the FileListFailureException when listing
+    // objects
+    fakeAwsS3Client.addObject(LIST_ERROR_FILE_KEY);
+
+    awsPublicStorage.prunePublicFileStorage(ImmutableSet.of());
+
+    // THEN no deletion was attempted
+    assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed()).isNull();
   }
 
   @Test

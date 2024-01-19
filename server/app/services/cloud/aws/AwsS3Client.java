@@ -46,7 +46,8 @@ public class AwsS3Client implements AwsS3ClientWrapper {
 
   @Override
   public ImmutableList<String> listObjects(
-      Credentials credentials, Region region, URI endpoint, ListObjectsV2Request request) {
+      Credentials credentials, Region region, URI endpoint, ListObjectsV2Request request)
+      throws FileListFailureException {
     try (S3Client s3Client = createS3Client(credentials, region, endpoint)) {
       try {
         ListObjectsV2Response response = s3Client.listObjectsV2(request);
@@ -54,7 +55,7 @@ public class AwsS3Client implements AwsS3ClientWrapper {
             .map(S3Object::key)
             .collect(ImmutableList.toImmutableList());
       } catch (AwsServiceException | SdkClientException e) {
-        return ImmutableList.of();
+        throw new FileListFailureException(e);
       }
     }
   }

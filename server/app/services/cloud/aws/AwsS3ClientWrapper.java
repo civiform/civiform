@@ -27,9 +27,9 @@ public interface AwsS3ClientWrapper {
   /**
    * Returns a list of keys for all files stored in the bucket specified by {@code request}.
    *
-   * @return the list of file keys, or an empty list if there was an error fetching the keys for any
-   *     reason.
+   * @throws FileListFailureException if there was an error fetching the keys for any reason.
    */
   ImmutableList<String> listObjects(
-      Credentials credentials, Region region, URI endpoint, ListObjectsV2Request request);
+      Credentials credentials, Region region, URI endpoint, ListObjectsV2Request request)
+      throws FileListFailureException;
 }

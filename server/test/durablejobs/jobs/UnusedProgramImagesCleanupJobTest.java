@@ -33,7 +33,7 @@ public class UnusedProgramImagesCleanupJobTest extends ResetPostgres {
   }
 
   @Test
-  public void run_inUseKeysIncludeActiveProgramImages() throws ProgramNotFoundException {
+  public void run_doesNotDeleteActiveProgramImages() throws ProgramNotFoundException {
     ProgramModel program1 = ProgramBuilder.newDraftProgram("Program #1").build();
     ProgramModel program2 = ProgramBuilder.newDraftProgram("Program #2").build();
     programService.setSummaryImageFileKey(program1.id, "program-summary-image/program-1/test.jpg");
@@ -50,7 +50,7 @@ public class UnusedProgramImagesCleanupJobTest extends ResetPostgres {
   }
 
   @Test
-  public void run_inUseKeysIncludeDraftProgramImages() throws ProgramNotFoundException {
+  public void run_doesNotDeleteDraftProgramImages() throws ProgramNotFoundException {
     ProgramModel program1 = ProgramBuilder.newDraftProgram("Program #1").build();
     ProgramModel program2 = ProgramBuilder.newDraftProgram("Program #2").build();
     programService.setSummaryImageFileKey(program1.id, "program-summary-image/program-1/test.jpg");
@@ -67,8 +67,7 @@ public class UnusedProgramImagesCleanupJobTest extends ResetPostgres {
   }
 
   @Test
-  public void run_inUseKeysIncludeDraftAndActiveImageOfSameProgram()
-      throws ProgramNotFoundException {
+  public void run_doesNotDeleteDraftAndActiveImageOfSameProgram() throws ProgramNotFoundException {
     // Create a program in the Active state with a program image
     ProgramModel program = ProgramBuilder.newDraftProgram("Program").build();
     programService.setSummaryImageFileKey(
@@ -94,7 +93,7 @@ public class UnusedProgramImagesCleanupJobTest extends ResetPostgres {
   }
 
   @Test
-  public void run_inUseKeysExcludeDeletedImage_onlyAfterPublish() throws ProgramNotFoundException {
+  public void run_deletesDeletedImage_onlyAfterPublish() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("Program").build();
     programService.setSummaryImageFileKey(
         program.id, "program-summary-image/program-1/active-image.jpg");
@@ -119,12 +118,12 @@ public class UnusedProgramImagesCleanupJobTest extends ResetPostgres {
         new UnusedProgramImagesCleanupJob(fakePublicStorageClient, versionRepository, jobModel);
     jobAfterPublish.run();
 
-    // ...verify that the old image is no longer listed as in-use.
+    // ...verify that the old image is no longer listed as in-use (so should be deleted).
     assertThat(fakePublicStorageClient.getLastInUseFileKeys()).isEmpty();
   }
 
   @Test
-  public void run_inUseKeysExcludeReplacedImage_onlyAfterPublish() throws ProgramNotFoundException {
+  public void run_deletesReplacedImage_onlyAfterPublish() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("Program").build();
     programService.setSummaryImageFileKey(
         program.id, "program-summary-image/program-1/active-image.jpg");
@@ -152,7 +151,7 @@ public class UnusedProgramImagesCleanupJobTest extends ResetPostgres {
         new UnusedProgramImagesCleanupJob(fakePublicStorageClient, versionRepository, jobModel);
     jobAfterPublish.run();
 
-    // ...verify that the old image is no longer listed as in-use.
+    // ...verify that the old image is no longer listed as in-use (so should be deleted).
     assertThat(fakePublicStorageClient.getLastInUseFileKeys())
         .containsExactly("program-summary-image/program-1/new-image.jpg");
   }

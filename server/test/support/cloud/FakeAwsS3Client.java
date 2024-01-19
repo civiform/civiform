@@ -7,6 +7,7 @@ import java.util.List;
 import services.cloud.aws.AwsS3ClientWrapper;
 import services.cloud.aws.Credentials;
 import services.cloud.aws.FileDeletionFailureException;
+import services.cloud.aws.FileListFailureException;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
@@ -15,6 +16,12 @@ import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 
 /** A fake implementation of {@link AwsS3ClientWrapper} to be used in tests. */
 public final class FakeAwsS3Client implements AwsS3ClientWrapper {
+  /**
+   * A file key that, if used, will cause {@link #listObjects} to throw a {@link
+   * services.cloud.aws.FileListFailureException}.
+   */
+  public static final String LIST_ERROR_FILE_KEY = "program-summary-image/program-8/list_error";
+
   /**
    * A file key that, if used, will cause {@link #deleteObjects} to throw a {@link
    * FileDeletionFailureException}.
@@ -55,7 +62,11 @@ public final class FakeAwsS3Client implements AwsS3ClientWrapper {
 
   @Override
   public ImmutableList<String> listObjects(
-      Credentials credentials, Region region, URI endpoint, ListObjectsV2Request request) {
+      Credentials credentials, Region region, URI endpoint, ListObjectsV2Request request)
+      throws FileListFailureException {
+    if (objects.contains(LIST_ERROR_FILE_KEY)) {
+      throw new FileListFailureException(AwsServiceException.builder().build());
+    }
     return ImmutableList.copyOf(objects);
   }
 
