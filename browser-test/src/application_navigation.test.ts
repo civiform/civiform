@@ -15,7 +15,7 @@ import {
   waitForPageJsLoad,
   isLocalDevEnvironment,
 } from './support'
-import {AdminPrograms, ProgramVisibility} from './support/admin_programs'
+import {ProgramVisibility} from './support/admin_programs'
 
 describe('Applicant navigation flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
@@ -362,7 +362,7 @@ describe('Applicant navigation flow', () => {
         const formEl = document.querySelector('.cf-debounced-form')!
         formEl.appendChild(buttonEl)
       })
-      const submitButton = page.locator('#test-form-submit')!
+      const submitButton = page.locator('#test-form-submit')
       await submitButton.click()
 
       await validateToastMessage(
@@ -897,22 +897,27 @@ describe('Applicant navigation flow', () => {
     })
 
     it('ineligible page renders markdown', async () => {
-      const {page, adminQuestions, applicantQuestions, adminPredicates, adminPrograms} = ctx
-      const questionName = "question-with-markdown"
-      const programName = "Program with markdown question"
+      const {
+        page,
+        adminQuestions,
+        applicantQuestions,
+        adminPredicates,
+        adminPrograms,
+      } = ctx
+      const questionName = 'question-with-markdown'
+      const programName = 'Program with markdown question'
 
       // Add a question with markdown in the question text
       await loginAsAdmin(page)
       await adminQuestions.addTextQuestion({
         questionName: questionName,
-        questionText: "This is a _question_ with some [markdown](https://www.example.com)"
+        questionText:
+          'This is a _question_ with some [markdown](https://www.example.com)',
       })
       await adminPrograms.addProgram(programName)
-      await adminPrograms.editProgramBlock(
-        programName,
-        'first description',
-        [questionName],
-      )
+      await adminPrograms.editProgramBlock(programName, 'first description', [
+        questionName,
+      ])
       // Add an eligiblity condition on the markdown question
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,

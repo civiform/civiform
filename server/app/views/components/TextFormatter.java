@@ -117,7 +117,7 @@ public final class TextFormatter {
             .toFactory();
 
     PolicyFactory policy = customPolicy.and(Sanitizers.LINKS);
-    return policy.sanitize(markdownText, buildHtmlChangeListener(), /*context=*/ null);
+    return policy.sanitize(markdownText, buildHtmlChangeListener(), /* context= */ null);
   }
 
   private static HtmlChangeListener<Object> buildHtmlChangeListener() {
