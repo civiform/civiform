@@ -59,7 +59,7 @@ services:
 
   pgadmin:
     profiles: ['pgadmin']
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:8.2
     restart: always
     depends_on:
       - db
