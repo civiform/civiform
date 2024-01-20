@@ -24,7 +24,7 @@ describe('user HTTP sessions', () => {
     // server secret) will detect any breaking changes to profile serialization.
     //
     // If this test fails after an upgrade to the Play Framework the value 
-    // in FROZEN_PLAY_SESSION_COOKIE_VALUE may need to be regenerated
+    // in FROZEN_PLAY_SESSION_COOKIE_VALUE may need to be regenerated.
     if (isHermeticTestEnvironment()) {
       const {hostname} = new URL(BASE_URL)
       const frozenCookie = {
