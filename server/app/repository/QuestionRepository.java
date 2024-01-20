@@ -21,9 +21,12 @@ import javax.inject.Provider;
 import models.QuestionModel;
 import models.QuestionTag;
 import models.VersionModel;
+import play.cache.NamedCache;
+import play.cache.SyncCacheApi;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.settings.SettingsManifest;
 
 /**
  * QuestionRepository performs complicated operations on {@link QuestionModel} that often involve
@@ -36,14 +39,23 @@ public final class QuestionRepository {
   private final Database database;
   private final DatabaseExecutionContext executionContext;
   private final Provider<VersionRepository> versionRepositoryProvider;
+  private final SettingsManifest settingsManifest;
+  private final SyncCacheApi versionsByQuestionCache;
+  private final SyncCacheApi questionDefCache;
 
   @Inject
   public QuestionRepository(
       DatabaseExecutionContext executionContext,
-      Provider<VersionRepository> versionRepositoryProvider) {
+      Provider<VersionRepository> versionRepositoryProvider,
+      SettingsManifest settingsManifest,
+      @NamedCache("question-versions") SyncCacheApi versionsByQuestionCache,
+      @NamedCache("question-definition") SyncCacheApi questionDefCache) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
     this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.versionsByQuestionCache = checkNotNull(versionsByQuestionCache);
+    this.questionDefCache = checkNotNull(questionDefCache);
   }
 
   public CompletionStage<Set<QuestionModel>> listQuestions() {
@@ -58,6 +70,11 @@ public final class QuestionRepository {
   }
 
   public QuestionDefinition getQuestionDefinition(QuestionModel question) {
+    if (settingsManifest.getQuestionCacheEnabled()
+        && !versionRepositoryProvider.get().isDraft(question)) {
+      return questionDefCache.getOrElseUpdate(
+          String.valueOf(question.id), () -> question.getQuestionDefinition());
+    }
     return question.getQuestionDefinition();
   }
 
@@ -71,6 +88,14 @@ public final class QuestionRepository {
                 .setId(id)
                 .findOneOrEmpty(),
         executionContext);
+  }
+
+  public ImmutableList<VersionModel> getVersionsForQuestion(QuestionModel question) {
+    if (settingsManifest.getQuestionCacheEnabled()) {
+      return versionsByQuestionCache.getOrElseUpdate(
+          String.valueOf(question.id), () -> question.getVersions());
+    }
+    return question.getVersions();
   }
 
   /**
