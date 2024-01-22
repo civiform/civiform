@@ -394,7 +394,7 @@ describe('Applicant navigation flow', () => {
         const formEl = document.querySelector('.cf-debounced-form')!
         formEl.appendChild(buttonEl)
       })
-      const submitButton = page.locator('#test-form-submit')!
+      const submitButton = page.locator('#test-form-submit')
       await submitButton.click()
 
       await validateToastMessage(
@@ -998,6 +998,57 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.clickSubmit()
       await applicantQuestions.expectIneligiblePage()
+    })
+
+    it('ineligible page renders markdown', async () => {
+      const {
+        page,
+        adminQuestions,
+        applicantQuestions,
+        adminPredicates,
+        adminPrograms,
+      } = ctx
+      const questionName = 'question-with-markdown'
+      const programName = 'Program with markdown question'
+
+      // Add a question with markdown in the question text
+      await loginAsAdmin(page)
+      await adminQuestions.addTextQuestion({
+        questionName: questionName,
+        questionText:
+          'This is a _question_ with some [markdown](https://www.example.com)',
+      })
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlock(programName, 'first description', [
+        questionName,
+      ])
+      // Add an eligiblity condition on the markdown question
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+      )
+      await adminPredicates.addPredicate(
+        questionName,
+        /* action= */ null,
+        'text',
+        'is equal to',
+        'foo',
+      )
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(programName)
+      await logout(page)
+
+      // Apply to the program and answer the eligibility question with an ineligible answer
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerTextQuestion('bar')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+      await validateScreenshot(
+        page,
+        'ineligible-page-with-markdown',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
     })
 
     it('shows may be eligible with nongating eligibility', async () => {
