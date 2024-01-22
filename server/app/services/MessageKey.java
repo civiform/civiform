@@ -64,6 +64,7 @@ public enum MessageKey {
   CURRENCY_VALIDATION_MISFORMATTED("validation.currencyMisformatted"),
   CONTENT_ADMIN_LOGIN_PROMPT("content.adminLoginPrompt"),
   CONTENT_ADMIN_FOOTER_PROMPT("content.adminFooterPrompt"),
+  CONTENT_BLOCK_PROGRESS("content.blockProgress"),
   CONTENT_SAVE_TIME("content.saveTime"),
   CONTENT_CHANGE_ELIGIBILITY_ANSWERS("content.changeAnswersForEligibility"),
   CONTENT_CIVIFORM_DESCRIPTION("content.description"),
