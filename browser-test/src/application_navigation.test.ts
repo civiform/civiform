@@ -1043,7 +1043,12 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.answerTextQuestion('bar')
       await applicantQuestions.clickNext()
       await applicantQuestions.expectIneligiblePage()
-      await validateScreenshot(page, 'ineligible-page-with-markdown')
+      await validateScreenshot(
+        page,
+        'ineligible-page-with-markdown',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
     })
 
     it('shows may be eligible with nongating eligibility', async () => {
