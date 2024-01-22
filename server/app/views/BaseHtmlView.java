@@ -94,7 +94,7 @@ public abstract class BaseHtmlView {
    *
    * @return The element itself.
    */
-  protected static <T extends Tag> T asRedirectElement(T element, String redirectUrl) {
+  public static <T extends Tag> T asRedirectElement(T element, String redirectUrl) {
     // Attribute `data-redirect-to` is handled in JS by main.ts file.
     element.attr("data-redirect-to", redirectUrl);
     return element;

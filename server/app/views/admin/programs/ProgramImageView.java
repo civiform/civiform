@@ -51,6 +51,7 @@ import views.components.ToastMessage;
 import views.components.breadcrumb.BreadcrumbFactory;
 import views.components.breadcrumb.BreadcrumbItem;
 import views.fileupload.FileUploadViewStrategy;
+import views.style.StyleUtils;
 
 /** A view for admins to update the image associated with a particular program. */
 public final class ProgramImageView extends BaseHtmlView {
@@ -165,7 +166,7 @@ public final class ProgramImageView extends BaseHtmlView {
         .with(breadcrumbFactory.buildBreadcrumbTrail(breadcrumbItems));
   }
 
-  private FormTag createImageDescriptionForm(
+  private DivTag createImageDescriptionForm(
       Http.Request request, ProgramDefinition programDefinition) {
     String existingDescription =
         programDefinition
@@ -177,7 +178,18 @@ public final class ProgramImageView extends BaseHtmlView {
     Form<ProgramImageDescriptionForm> form =
         formFactory.form(ProgramImageDescriptionForm.class).fill(existingDescriptionForm);
 
-    return form()
+    DivTag buttonsDiv =
+        div()
+            .withClass("flex")
+            .with(
+                submitButton("Save image description")
+                    .withForm(IMAGE_DESCRIPTION_FORM_ID)
+                    .withClasses(ButtonStyles.SOLID_BLUE, "flex"));
+    Optional<ButtonTag> manageTranslationsButton = createManageTranslationsButton(programDefinition, existingDescription);
+    manageTranslationsButton.ifPresent(buttonsDiv::with);
+
+    return div()
+            .with(form()
         .withId(IMAGE_DESCRIPTION_FORM_ID)
         .withMethod("POST")
         .withAction(
@@ -189,11 +201,16 @@ public final class ProgramImageView extends BaseHtmlView {
                 .setLabelText("Enter image description (Alt Text)")
                 .setPlaceholderText("Colorful fruits and vegetables in bins")
                 .setValue(form.value().get().getSummaryImageDescription())
-                .getInputTag())
-        .with(
-            submitButton("Save image description")
-                .withForm(IMAGE_DESCRIPTION_FORM_ID)
-                .withClass(ButtonStyles.SOLID_BLUE));
+                .getInputTag()))
+        .with(buttonsDiv);
+  }
+
+  private Optional<ButtonTag> createManageTranslationsButton(ProgramDefinition programDefinition, String existingDescription) {
+    Optional<ButtonTag> button = layout.createManageTranslationsButton(
+                    programDefinition.adminName(),
+                    /* buttonId= */ Optional.empty(),
+            StyleUtils.joinStyles(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "flex", "ml-2"));
+    return button.map(buttonTag -> buttonTag.withCondDisabled(existingDescription.isBlank()));
   }
 
   private DivTag createImageUploadForm(ProgramDefinition program) {
