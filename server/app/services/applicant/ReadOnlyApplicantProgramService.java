@@ -36,8 +36,8 @@ public interface ReadOnlyApplicantProgramService {
   ImmutableList<Block> getAllActiveBlocks();
 
   /**
-   * Get the {@link Block}s for this program and applicant. This includes blocks that are hidden
-   * from the applicant (i.e.they have a show/hide predicate).
+   * Get the {@link Block}s for this program and applicant. This only includes blocks that are
+   * hidden from the applicant (i.e.they have a show/hide predicate).
    */
   ImmutableList<Block> getAllHiddenBlocks();
 
@@ -71,7 +71,7 @@ public interface ReadOnlyApplicantProgramService {
    */
   ImmutableList<ApplicantQuestion> getIneligibleQuestions();
 
-  /** Get the hidden block with the given block ID if there is one. It is emptry if there isn't. */
+  /** Get the hidden block with the given block ID if there is one. It is empty if there isn't. */
   Optional<Block> getHiddenBlock(String blockId);
 
   /**
@@ -101,7 +101,11 @@ public interface ReadOnlyApplicantProgramService {
    */
   Optional<Block> getFirstIncompleteBlockExcludingStatic();
 
-  /** Returns summary data for each question in this application. */
+  /**
+   * Returns summary data for each question in the hidden blocks in this application. Hidden block
+   * is the block not visible to the applicant based on the visibility setting by the admin. This
+   * will not include blocks that are active.
+   */
   ImmutableList<AnswerData> getSummaryDataOnlyHidden();
 
   /**
@@ -128,9 +132,6 @@ public interface ReadOnlyApplicantProgramService {
 
   /** Returns if the block has an eligibility predicate. */
   boolean blockHasEligibilityPredicate(String blockId);
-
-  /** Returns if the hidden block eligibility criteria are met. */
-  boolean isHiddenBlockEligible(String blockId);
 
   /** Returns if the active block eligibility criteria are met. */
   boolean isActiveBlockEligible(String blockId);

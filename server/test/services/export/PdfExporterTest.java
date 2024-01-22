@@ -154,7 +154,7 @@ public class PdfExporterTest extends AbstractExporterTest {
   }
 
   @Test
-  public void validatePDFExport_visibility() throws IOException, DocumentException {
+  public void validatePDFExport_hiddenQuestionIncluded() throws IOException, DocumentException {
     createFakeProgramWithVisibilityPredicate();
 
     PdfExporter exporter = instanceOf(PdfExporter.class);

@@ -140,12 +140,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-  public boolean isHiddenBlockEligible(String blockId) {
-    Block block = getHiddenBlock(blockId).get();
-    return isBlockEligible(block);
-  }
-
-  @Override
   public boolean isActiveBlockEligible(String blockId) {
     Block block = getActiveBlock(blockId).get();
     return isBlockEligible(block);
@@ -165,7 +159,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public ImmutableList<Block> getAllActiveBlocks() {
     if (allActiveBlockList == null) {
-      allActiveBlockList = getBlocks(this::showBlock, /* includeHidden= */ false);
+      allActiveBlockList = getBlocks((block) -> showBlock(block));
     }
     return allActiveBlockList;
   }
@@ -173,7 +167,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public ImmutableList<Block> getAllHiddenBlocks() {
     if (allHiddenBlockList == null) {
-      allHiddenBlockList = getBlocks(this::showBlock, /* includeHidden= */ true);
+      //
+      allHiddenBlockList = getBlocks((block) -> !showBlock(block));
     }
     return allHiddenBlockList;
   }
@@ -195,8 +190,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                   (!block.isAnsweredWithoutErrors()
                           || block.wasAnsweredInProgram(programDefinition.id())
                           || block.containsStatic())
-                      && showBlock(block),
-              /* includeHidden= */ false);
+                      && showBlock(block));
     }
     return currentBlockList;
   }
@@ -374,15 +368,13 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
    * has yet to be filled out by the applicant, or if it was filled out in the context of this
    * program.
    */
-  private ImmutableList<Block> getBlocks(
-      Predicate<Block> includeBlockIfTrue, boolean includeHidden) {
+  private ImmutableList<Block> getBlocks(Predicate<Block> includeBlockIfTrue) {
     String emptyBlockIdSuffix = "";
     return getBlocks(
         programDefinition.getNonRepeatedBlockDefinitions(),
         emptyBlockIdSuffix,
         Optional.empty(),
-        includeBlockIfTrue,
-        includeHidden);
+        includeBlockIfTrue);
   }
 
   /**
@@ -406,8 +398,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       ImmutableList<BlockDefinition> blockDefinitions,
       String blockIdSuffix,
       Optional<RepeatedEntity> maybeRepeatedEntity,
-      Predicate<Block> includeBlockIfTrue,
-      boolean includeHidden) {
+      Predicate<Block> includeBlockIfTrue) {
     ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
 
     for (BlockDefinition blockDefinition : blockDefinitions) {
@@ -418,8 +409,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
               blockDefinition,
               applicantData,
               maybeRepeatedEntity);
-      if ((includeBlockIfTrue.test(block) && !includeHidden)
-          || (!includeBlockIfTrue.test(block) && includeHidden)) {
+      if (includeBlockIfTrue.test(block)) {
         blockListBuilder.add(block);
       }
 
@@ -452,8 +442,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                   repeatedBlockDefinitions,
                   nextBlockIdSuffix,
                   Optional.of(repeatedEntities.get(i)),
-                  includeBlockIfTrue,
-                  includeHidden));
+                  includeBlockIfTrue));
         }
       }
     }
