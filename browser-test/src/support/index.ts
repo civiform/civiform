@@ -511,6 +511,7 @@ export const validateScreenshot = async (
   element: Page | Locator,
   screenshotFileName: string,
   fullPage?: boolean,
+  mobileScreenshot?: boolean,
 ) => {
   if (fullPage === undefined) {
     fullPage = true
@@ -555,6 +556,32 @@ export const validateScreenshot = async (
       return `${dir}/${screenshotFileName}`
     },
   })
+
+  if (mobileScreenshot) {
+    const height = page.viewportSize()?.height || 720
+    // Update the viewport size to be a very narrow screen, and rerun the browser
+    // tests so we have mobile and desktop views.
+    await page.setViewportSize({width: 320, height})
+
+    expect(
+      await element.screenshot({
+        fullPage,
+      }),
+    ).toMatchImageSnapshot({
+      allowSizeMismatch: true,
+      failureThreshold: 0,
+      failureThresholdType: 'percent',
+      customSnapshotsDir: 'image_snapshots',
+      customDiffDir: 'diff_output',
+      storeReceivedOnFailure: true,
+      customReceivedDir: 'updated_snapshots',
+      customSnapshotIdentifier: ({testPath}) => {
+        const dir = path.basename(testPath).replace('.test.ts', '_test')
+        return `${dir}/${screenshotFileName}-mobile`
+      },
+    })
+    await page.setViewportSize({width: 1280, height})
+  }
 }
 
 /*
