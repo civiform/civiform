@@ -34,6 +34,8 @@ import services.question.types.QuestionType;
 /** Implementation class for ReadOnlyApplicantProgramService interface. */
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
 
+  private static final String NOT_APPLICABLE = "N/A";
+
   /**
    * Note that even though {@link ApplicantData} is mutable, we can consider it immutable at this
    * point since there is no shared state between requests. In fact, we call {@link
@@ -318,10 +320,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         boolean isEligible = isQuestionEligibleInBlock(block, applicantQuestion);
         String questionText = applicantQuestion.getQuestionText();
         String questionTextForScreenReader = applicantQuestion.getQuestionTextForScreenReader();
-        String answerText = applicantQuestion.getQuestion().getAnswerString();
-        if (hiddenBlocks) {
-          answerText = "N/A";
-        }
+        String answerText =
+            hiddenBlocks ? NOT_APPLICABLE : applicantQuestion.getQuestion().getAnswerString();
         Optional<Long> timestamp = applicantQuestion.getLastUpdatedTimeMetadata();
         Optional<Long> updatedProgram = applicantQuestion.getUpdatedInProgramMetadata();
         Optional<String> originalFileName = Optional.empty();
