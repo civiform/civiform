@@ -110,7 +110,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     String h1Text, infoDivText, widthClass;
 
     if (personalInfo.getType() == GUEST) {
-      // "Save time when applying for benefits"
+      // "Save time finding and applying for programs and services."
       h1Text = messages.at(MessageKey.CONTENT_SAVE_TIME.getKeyName());
       infoDivText =
           messages.at(MessageKey.CONTENT_GUEST_DESCRIPTION.getKeyName(), authProviderName);
