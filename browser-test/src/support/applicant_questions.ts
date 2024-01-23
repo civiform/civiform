@@ -278,7 +278,7 @@ export class ApplicantQuestions {
 
   async expectCommonIntakeForm(commonIntakeFormName: string) {
     const commonIntakeFormSectionNames =
-      await this.programNamesForSection('Find services')
+      await this.programNamesForSection('Get Started')
     expect(commonIntakeFormSectionNames).toEqual([commonIntakeFormName])
   }
 
