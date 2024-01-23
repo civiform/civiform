@@ -62,6 +62,7 @@ button.nextScreen=Guardar y continuar
 button.previousScreen=Anterior
 button.review=Revisar
 button.skipFileUpload=Omitir
+content.blockProgress={0} of {1}
 toast.localeNotSupported=Lo sentimos, este programa no está traducido por completo a tu idioma preferido.
 link.allDone=Listo
 link.applyToAnotherProgram=Solicitar otro programa
