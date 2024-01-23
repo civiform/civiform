@@ -92,7 +92,7 @@ public class PhoneQuestionTest {
   }
 
   @Test
-  @Parameters({"5552123333", "123asc1234567"})
+  @Parameters({"5552123333", "1231234567"})
   public void withInvalidApplicantData_invalidPhoneNumber(String number) {
     Path phonePath =
         ApplicantData.APPLICANT_PATH
@@ -117,7 +117,7 @@ public class PhoneQuestionTest {
   }
 
   @Test
-  @Parameters({"123123456a3", "123td25342"})
+  @Parameters({"12312345a3", "123td25342"})
   public void withInvalidApplicantData_invalidPhoneNumberLength(String number) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(phoneQuestionDefinition, applicantData, Optional.empty());
