@@ -62,6 +62,7 @@ button.nextScreen=ບັນທຶກ ແລະ ສືບຕໍ່
 button.previousScreen=ກ່ອນໜ້າ
 button.review=ກວດສອບ
 button.skipFileUpload=ຂ້າມ
+content.blockProgress={0} of {1}
 toast.localeNotSupported=ພວກເຮົາຂໍອະໄພ, ໂຄງການນີ້ບໍ່ໄດ້ແປເປັນພາສາທີ່ທ່ານຕ້ອງການຢ່າງສົມບູນຄົບຖ້ວນ.
 link.allDone=ຂ້ອຍແລ້ວໆ
 link.applyToAnotherProgram=ສະໝັກໂຄງການອື່ນ
