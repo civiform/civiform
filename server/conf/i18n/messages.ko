@@ -62,6 +62,7 @@ button.nextScreen=저장 후 다음으로 이동
 button.previousScreen=이전
 button.review=검토
 button.skipFileUpload=건너뛰기
+content.blockProgress={0} of {1}
 toast.localeNotSupported=죄송합니다. 이 프로그램은 사용자의 선호 언어로 번역되지 않습니다.
 link.allDone=모두 완료했습니다
 link.applyToAnotherProgram=다른 프로그램 신청
