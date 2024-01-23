@@ -58,6 +58,10 @@
     margin-left: 0;
   }
 
+  .usa-file-input__target {
+    @apply w-full h-56;
+  }
+
   /**
    * For explanation of why we need two different hidden classes see
    * initToggleQuestionBankButtons() in questionBank.ts
