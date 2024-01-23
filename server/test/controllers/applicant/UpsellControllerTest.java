@@ -114,7 +114,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Benefits");
+    assertThat(contentAsString(result)).contains("Programs");
     assertThat(contentAsString(result)).contains("could not find");
     assertThat(contentAsString(result))
         .doesNotContain(programDefinition.localizedName().getDefault());
@@ -172,7 +172,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Benefits");
+    assertThat(contentAsString(result)).contains("Programs");
     assertThat(contentAsString(result)).contains(programDefinition.localizedName().getDefault());
     assertThat(contentAsString(result)).contains("Create account");
   }

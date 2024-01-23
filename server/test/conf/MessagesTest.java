@@ -133,31 +133,7 @@ public class MessagesTest {
     ImmutableList<String> messageKeys =
         Arrays.stream(MessageKey.values()).map(MessageKey::getKeyName).collect(toImmutableList());
 
-    ImmutableList<String> untranslatedKeys =
-        ImmutableList.of(
-            "content.adminFooterPromptNew",
-            "content.commonIntakeConfirmationNew",
-            "content.commonIntakeConfirmationTiNew",
-            "content.commonIntakeNoMatchingProgramsNew",
-            "content.commonIntakeNoMatchingProgramsTiNew",
-            "content.findPrograms",
-            "content.findProgramsDescription",
-            "content.generalLoginModalPromptNew",
-            "content.guestDescriptionNew",
-            "content.initialLoginModalPromptNew",
-            "content.saveTimeServices",
-            "title.commonIntakeConfirmationNew",
-            "title.commonIntakeConfirmationTiNew",
-            "title.getStartedSection");
-
-    // TODO(#5893) remove when translations are completed.
-    ImmutableList<String> messageKeysAndUntranslatedKeys =
-        Stream.of(messageKeys, untranslatedKeys)
-            .flatMap(ImmutableList::stream)
-            .collect(toImmutableList());
-
-    assertThat(keysInPrimaryFile)
-        .containsExactlyInAnyOrderElementsOf(messageKeysAndUntranslatedKeys);
+    assertThat(keysInPrimaryFile).containsExactlyInAnyOrderElementsOf(messageKeys);
   }
 
   private static Set<String> keysInFile(String filePath) throws Exception {

@@ -46,9 +46,7 @@ button.createAccount=መለያ ፍጠር
 button.guestLogin=እንደ እንግዳ ቀጥል
 content.loginDisabledPrompt=በመለያ መግባት በአሁኑ ጊዜ ተሰናክሏል
 content.adminLoginPrompt=ሌላ ነገር እየፈለጉ ነው?
-content.adminFooterPrompt=እርስዎ የጥቅማጥቅሞች አስተዳዳሪ ነዎት?
-# Text at the bottom of the home page to prompt administrators to go to the administrator login page
-content.adminFooterPromptNew=አስተዳዳሪ ነዎት?
+content.adminFooterPrompt=አስተዳዳሪ ነዎት?
 link.adminLogin=የአስተዳዳሪ መግቢያ
 
 #--------------------------------------------------------------------------#
@@ -82,23 +80,14 @@ button.startHereCommonIntakeSr={0}ን በመሙላት እዚህ ይጀምሩ
 button.editCommonIntakeSr=ለ{0} የገባ መረጃን ያርትዑ
 button.continueCommonIntakeSr={0}ን መሙላት ይቀጥሉ
 content.submittedDate={0} ገብቷል
-content.benefits=ጥቅማጥቅሞችን ያግኙ
 # Title of the page where applicants can go to find programs
 content.findPrograms=ፕሮግራሞችን ያግኙ
-content.description=CiviForm በ{0} ውስጥ ብቁ ሊሆኑ የሚችሉባቸውን ጥቅማጥቅሞች እንዲያገኙ ያግዝዎታል። ከታች አንድ ማመልከቻ በመምረጥ ይጀምሩ።
-# Content that explains the benefit of using CiviForm. We'll fill in the name of the city or state.
 content.findProgramsDescription=CiviForm በ{0} ውስጥ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች እንዲያገኙ ያግዝዎታል። ከታች አንድ ማመልከቻ በመምረጥ ይጀምሩ።
-content.saveTime=ለጥቅማጥቅሞች ሲያመለክቱ ጊዜ ይቆጥቡ
-# Content on the home page to describe the benefit of CiviForm
 content.saveTimeServices=ለፕሮግራሞች እና ለአገልግሎቶች ማመልከቻ ማስገባት ላይ ጊዜ ይቆጥቡ
-content.guestDescription=ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ እና ተመሳሳዩን መረጃ እንደገና ሳያስገቡ ለብዙ ጥቅማጥቅሞች ያመልክቱ። እንዲሁም ማመልከቻዎችን በማንኛውም ጊዜ ማርትዕ እና የመተግበሪያዎን ሁኔታዎች ማረጋገጥ ይችላሉ።
-# Content explaining the benefits of creating an account, with the authentication provider filled in.
-content.guestDescriptionNew=ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ እና ተመሳሳይ መረጃ እንደገና ሳያስገቡ ለፕሮግራሞች ማመልከቻ ያስገቡ። እንዲሁም ማመልከቻዎችን በማንኛውም ጊዜ ማርትዕ እና የመተግበሪያዎን ሁኔታዎች መፈተሽ ይችላሉ።
+content.guestDescription=ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ እና ተመሳሳይ መረጃ እንደገና ሳያስገቡ ለፕሮግራሞች ማመልከቻ ያስገቡ። እንዲሁም ማመልከቻዎችን በማንኛውም ጊዜ ማርትዕ እና የመተግበሪያዎን ሁኔታዎች መፈተሽ ይችላሉ።
 link.programDetails=የፕሮግራም ዝርዝሮች
 link.programDetailsSr=ለ{0} የፕሮግራም ዝርዝሮች፣ በአዲስ ትር ውስጥ ይከፍታል
 title.programs=ፕሮግራሞች እና አገልግሎቶች
-title.findServicesSection=የሚያግዙዎትን አገልግሎቶች ያግኙ
-# A section of the site that the users should start with
 title.getStartedSection=ይጀምሩ
 title.allProgramsSection=ሁሉም ፕሮግራሞች ({0})
 title.status=ሁኔታ
@@ -155,31 +144,15 @@ title.applicationConfirmation=የማመልከቻ ማረጋገጫ
 content.confirmed=ለ{0} በማመልከትዎ እናመሰግናለን። ማመልከቻዎ ደርሷል፣ እና የማመልከቻ መታወቂያዎ {1} ነው።
 title.createAnAccount=መለያ ይፍጠሩ ወይም ይግቡ
 content.pleaseCreateAccount=አሁን ወደ የከተማ መለያ ውስጥ ከገቡ መረጃዎ ይቀመጥ እና በማንኛውም ጊዜ በመመለስ የወደፊት ማመልከቻዎችን ማጠናቀቅ ይችላሉ። አስቀድመው መለያ ከሌለዎት የመግቢያ ገጹ እንዲመዘገቡ ያስችልዎታል። አስቀድመው ያስገቡትን ማንኛውም ውሂብ አያጡም።
-content.generalLoginModalPrompt=ወደ መለያ አልገቡም። ያለ መለያ ማመልከቻን ማርትዕ፣ የማመልከቻዎን ሁኔታ መፈተሽ ወይም ለሌላ ጥቅማጥቅሞች በፍጥነት ማመልከት አይችሉም።
-# Content explaining the benefits of being logged into your account.
-content.generalLoginModalPromptNew=ወደ መለያ አልገቡም። ያለ መለያ ማመልከቻን ማርትዕ፣ የማመልከቻዎን ሁኔታ መፈተሽ ወይም ለሌላ ፕሮግራሞች በፍጥነት ማመልከት አይችሉም።
-content.initialLoginModalPrompt=ከመቀጠልዎ በፊት ወደ የእርስዎ {0} መለያ ይግቡ ወይም መለያ ይፍጠሩ። ተመሳሳይ መረጃ እንደገና ማስገባት ሳይኖርብዎ ለብዙ ጥቅማጥቅሞች ማመልከት ይችላሉ። እንዲሁም ማመልከቻዎችን ማርትዕ እና የማመልከቻ ሁኔታዎችዎን መፈተሽ ይችላሉ።
-# Content explaining the benefits of being logged into your account, with {0} as the authentication provider.
-content.initialLoginModalPromptNew=ከመቀጠልዎ በፊት ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ። ተመሳሳዩን መረጃ እንደገና ሳያስገቡ ለብዙ ፕሮግራሞች ማመልከት ይችላሉ። እንዲሁም ማመልከቻዎችን ማርትዕ እና የማመልከቻ ሁኔታዎችዎን መፈተሽ ይችላሉ።
+content.generalLoginModalPrompt=ወደ መለያ አልገቡም። ያለ መለያ ማመልከቻን ማርትዕ፣ የማመልከቻዎን ሁኔታ መፈተሽ ወይም ለሌላ ፕሮግራሞች በፍጥነት ማመልከት አይችሉም።
+content.initialLoginModalPrompt=ከመቀጠልዎ በፊት ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ። ተመሳሳዩን መረጃ እንደገና ሳያስገቡ ለብዙ ፕሮግራሞች ማመልከት ይችላሉ። እንዲሁም ማመልከቻዎችን ማርትዕ እና የማመልከቻ ሁኔታዎችዎን መፈተሽ ይችላሉ።
 button.continueWithoutAnAccount=ያለ መለያ ቀጥል
-title.commonIntakeConfirmation=እርስዎ ብቁ ሊሆኑ የሚችሉባቸው ጥቅማጥቅሞች
-# Title of the section containing programs the applicant may qualify for.
-title.commonIntakeConfirmationNew=እርስዎ ብቁ ሊሆኑ የሚችሉባቸው ፕሮግራሞች
-title.commonIntakeConfirmationTi=ደንበኛዎ ብቁ ሊሆኑ የሚችሉባቸው ጥቅማጥቅሞች
-# Title of the section containing programs the applicant may qualify for, when someone is filling out the application on behalf of their client.
-title.commonIntakeConfirmationTiNew=ደንበኛዎ ብቁ ሊሆኑ የሚችሉባቸው ፕሮግራሞች
-content.commonIntakeConfirmation=«ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ እርስዎ እነዚህን ጥቅማጥቅሞች ሊያገኙ ይችላሉ።
-# Text explaining next steps in order to enroll in programs
-content.commonIntakeConfirmationNew=እርስዎ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ በእነዚህ ፕሮግራሞች ውስጥ መመዝገብ ይችሉ ይሆናል።
-content.commonIntakeConfirmationTi=«ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ ደንበኛዎ እነዚህን ጥቅማጥቅሞች ሊያገኙ ይችላሉ።
-# Text explaining next steps in order to enroll in programs, when filling out the application on behalf of a client
-content.commonIntakeConfirmationTiNew=እርስዎ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ ደንበኛዎ በእነዚህ ፕሮግራሞች ውስጥ መመዝገብ ይችሉ ይሆናል።
-content.commonIntakeNoMatchingPrograms=ቅድመ-ማጣሪያው እርስዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለጥቅማጥቅሞች ማመልከት ይችላሉ። ወይም ተጨማሪ የጥቅማጥቅም ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
-# Content explaining that the screener application couldn't find eligible programs, but allows users to find other programs through another website (substituted for {0})
-content.commonIntakeNoMatchingProgramsNew=ቅድመ-ማጣሪያው እርስዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለፕሮግራሞች ማመልከት ይችላሉ። ወይም ተጨማሪ ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
-content.commonIntakeNoMatchingProgramsTi=ቅድመ-ማጣሪያው ደንበኛዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለጥቅማጥቅሞች ማመልከት ይችላሉ። ወይም ተጨማሪ የጥቅማጥቅም ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
-# Content explaining that the screener application couldn't find eligible programs, but allows users to find other programs on behalf of their client through another website (substituted for {0})
-content.commonIntakeNoMatchingProgramsTiNew=ቅድመ-ማጣሪያው ደንበኛዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለፕሮግራሞች ማመልከት ይችላሉ። ወይም ተጨማሪ ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
+title.commonIntakeConfirmation=እርስዎ ብቁ ሊሆኑ የሚችሉባቸው ፕሮግራሞች
+title.commonIntakeConfirmationTi=ደንበኛዎ ብቁ ሊሆኑ የሚችሉባቸው ፕሮግራሞች
+content.commonIntakeConfirmation=እርስዎ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ በእነዚህ ፕሮግራሞች ውስጥ መመዝገብ ይችሉ ይሆናል።
+content.commonIntakeConfirmationTi=እርስዎ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ ደንበኛዎ በእነዚህ ፕሮግራሞች ውስጥ መመዝገብ ይችሉ ይሆናል።
+content.commonIntakeNoMatchingPrograms=ቅድመ-ማጣሪያው እርስዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለፕሮግራሞች ማመልከት ይችላሉ። ወይም ተጨማሪ ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
+content.commonIntakeNoMatchingProgramsTi=ቅድመ-ማጣሪያው ደንበኛዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለፕሮግራሞች ማመልከት ይችላሉ። ወይም ተጨማሪ ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
 content.commonIntakeNoMatchingProgramsNextStep=እንዲሁም የእርስዎን ምላሾች ለማርትዕ ወደ ቀዳሚው ገጽ መመለስ ይችላሉ።
 button.downloadPdf=PDF አውርድ
 button.applyToPrograms=ለፕሮግራሞች ያመልክቱ
