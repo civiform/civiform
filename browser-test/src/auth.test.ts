@@ -77,7 +77,7 @@ describe('applicant auth', () => {
 
     await logout(page)
 
-    expect(await ctx.page.textContent('html')).toContain('Get benefits')
+    expect(await ctx.page.textContent('html')).toContain('Find programs')
 
     // Try login again, ensuring that full login process is followed. If login
     // page doesn't ask for username/password - the method will fail.
@@ -97,7 +97,7 @@ describe('applicant auth', () => {
 
     await logout(page)
 
-    expect(await ctx.page.textContent('html')).toContain('Get benefits')
+    expect(await ctx.page.textContent('html')).toContain('Find programs')
 
     // Try login again, ensuring that full login process is followed. If login
     // page doesn't ask for username/password - the method will fail.
@@ -112,7 +112,7 @@ describe('applicant auth', () => {
     expect(await ctx.page.textContent('html')).toContain("You're a guest user.")
 
     await page.click('text=End session')
-    expect(await ctx.page.textContent('html')).toContain('Get benefits')
+    expect(await ctx.page.textContent('html')).toContain('Find programs')
   })
 
   it('toast is shown when either guest or logged-in user end their session', async () => {

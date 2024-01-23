@@ -46,9 +46,7 @@ button.createAccount=Akoon samayso
 button.guestLogin=Ku sii wad marti ahaan
 content.loginDisabledPrompt=Gelitaanka koontada hadda waa la xidhay
 content.adminLoginPrompt=Wax kale miyaad raadinaysay?
-content.adminFooterPrompt=Ma waxaad tahay maamulaha dheefaha?
-# Text at the bottom of the home page to prompt administrators to go to the administrator login page
-content.adminFooterPromptNew=Miyaad tahay maamule?
+content.adminFooterPrompt=Miyaad tahay maamule?
 link.adminLogin=Admin login
 
 #--------------------------------------------------------------------------#
@@ -82,23 +80,15 @@ button.startHereCommonIntakeSr=Ka bilow halkan addoo buuxinaya {0}
 button.editCommonIntakeSr=Wax ka beddel macluumaadka la gudbiyay {0}
 button.continueCommonIntakeSr=Sii wad buuxinta {0}
 content.submittedDate=La gudbiyay {0}
-content.benefits=Hel faa''iidooyin
 # Title of the page where applicants can go to find programs
 content.findPrograms=Hel barnaamijyo
-content.description=CiviForm waxay kaa caawisaa helida faa'iidooyinka aad u qalmi karto {0}. Ku bilow adigoo markaa ka dooranaya codsiga hoos.
 # Content that explains the benefit of using CiviForm. We'll fill in the name of the city or state.
 content.findProgramsDescription=CiviForm waxay kaa caawisaa helida barnaamijyada laga yaabo inaad ugu qalmi karayso{0}. Ku bilow adigoo codsi ka dooranaya hoos.
-content.saveTime=Wakhti kaydi marka aad codsanayso dheefaha
-# Content on the home page to describe the benefit of CiviForm
 content.saveTimeServices=Si aad u ilaaliso wakhtiga markaad codsanayso barnaamijyada iyo adeegyada
-content.guestDescription=Soo gal {0} koontadaada ama samayso koonto oo codso dheefo badan addoon soo gelin macluumaad isku mid ah mar labbaad. Waxba kama beddeli karti codsiyada wakhti kasta oo hubi heerarkaaga codsigu marayo.
-# Content explaining the benefits of creating an account, with the authentication provider filled in.
-content.guestDescriptionNew=Gal akoonkaaga {0} ama samee akoon oo codso barnaamijyada adigoon galineyn macluumaad isku mid ah markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyada wakhti kasta oo hubin kartaa heerarka codsigaagu marayo.
+content.guestDescription=Gal akoonkaaga {0} ama samee akoon oo codso barnaamijyada adigoon galineyn macluumaad isku mid ah markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyada wakhti kasta oo hubin kartaa heerarka codsigaagu marayo.
 link.programDetails=Faahfaahinta barnaamijka
 link.programDetailsSr=Faahfaahinta barnaamijka ee{0}, waxay ku furmaysaa bog cusub
 title.programs=Barnaamijyada iyo adeegyada
-title.findServicesSection=Hel adeegyada ku caawin kara adiga
-# A section of the site that the users should start with
 title.getStartedSection=Ku Billow
 title.allProgramsSection=Dhammaan barnaamijyada ({0})
 title.status=Heerka
@@ -155,31 +145,15 @@ title.applicationConfirmation=AXaqiijinta codsiga
 content.confirmed=Waad ku mahadsan tahay inaad soo gudbisay codsiga {0}. Codsigaagii waa la helay, ID gaaga waa {1}.
 title.createAnAccount=Akoon samee ama gal oo sign in garee
 content.pleaseCreateAccount=Haddii aad hadda gasho city akoonka, macluumaadkaaga waa la kaydin doonaa oo waxaad awoodi doontaa inaad soo noqoto wakhti kasta si aad u buuxiso codsiyada mustaqbalka. Haddii aanad hore u lahayn akoon, bogga galitaanka internetka ayaa kuu ogolaanaya inaad isdiiwaangeliso. Ma lumin doontid wax xog ah oo aad hore u gelisay.
-content.generalLoginModalPrompt=Maad soo gelin koonto. Markaadan koonto qabin awood uma yeelan doontid inaad wax ka beddesho codsiga, hubiso heerka codsigaaga ama codsato dheefaha kale si degdeg ah.
-# Content explaining the benefits of being logged into your account.
-content.generalLoginModalPromptNew=Adigu akoonti kuma aanad soo galin. Akoon la'aantiis awood uma yeelan doontid inaad wax ka badasho codsiga, hubiso heerka codsigaagu marayo, ama aad si deg-dega u codsato barnaamijyo kale
-content.initialLoginModalPrompt=Ka hor inta aanad sii wadin, soo gal{0} koontadaada ama samayso koonto. Waxaad awood u yeelan doontaa inaad codsato dheefo badan addoona gelineynin isla macluumaadka mar kale. Waxaad sidoo kale wax ka beddeli kartaa codsiyadaada oo hubin kartaa heerarka codsigaagu marayo.
-# Content explaining the benefits of being logged into your account, with {0} as the authentication provider.
-content.initialLoginModalPromptNew=Ka hor inta aanad sii wadin, soo gal {0} akoonkaaga ama samayso akoon. Waxaad awoodi doontaa inaad codsatid dhowr barnaamij adigoon galineyn macluumaad isku mid ah markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyadaada oo hubin kartaa heerarka codsigaagu marayo.
+content.generalLoginModalPrompt=Adigu akoonti kuma aanad soo galin. Akoon la'aantiis awood uma yeelan doontid inaad wax ka badasho codsiga, hubiso heerka codsigaagu marayo, ama aad si deg-dega u codsato barnaamijyo kale
+content.initialLoginModalPrompt=Ka hor inta aanad sii wadin, soo gal {0} akoonkaaga ama samayso akoon. Waxaad awoodi doontaa inaad codsatid dhowr barnaamij adigoon galineyn macluumaad isku mid ah markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyadaada oo hubin kartaa heerarka codsigaagu marayo.
 button.continueWithoutAnAccount=Sii soco koonto la'aan
-title.commonIntakeConfirmation=Faa'iidooyinka aad u qalmi karto
-# Title of the section containing programs the applicant may qualify for.
-title.commonIntakeConfirmationNew=Barnaamijyada aad u qalmi karaysid
-title.commonIntakeConfirmationTi=Faa'iidooyinka macmiilkaagu u qalmi karo
-# Title of the section containing programs the applicant may qualify for, when someone is filling out the application on behalf of their client.
-title.commonIntakeConfirmationTiNew=Barnaamijyada macmiilkaagu u qalmi karayo
-content.commonIntakeConfirmation=Waxaad awoodi doontaa inaad hesho faa'iidooyinkan haddii aad ku codsato codsiga onlaynka ah addoo riixaya "Codso barnaamijyada".
-# Text explaining next steps in order to enroll in programs
-content.commonIntakeConfirmationNew=Waxaad awoodi kartaa inaad iska-diwaan galisid barnaamijyadan hadii aad ku codsatid qaabka codsiga onlaynka ah adigoo gujinaya '' Codso barnaamijyada''.
-content.commonIntakeConfirmationTi=Macmiilkaagu waxa uu awoodi karaa inuu helo faa'iidooyinkan haddii aad ku codsato codsiga onlaynka ah addoo riixaya "Codso barnaamijyada".
-# Text explaining next steps in order to enroll in programs, when filling out the application on behalf of a client
-content.commonIntakeConfirmationTiNew=Macmiilkaagu wuxuu awoodi karaa inuu iska diwaangaliyo barnaamijyadan hadii aad codsiga ugu dalabtid/buuxisid qaabka codsiga onlaynka ah adigoo gujinaya ''Codso barnaamijyada''
-content.commonIntakeNoMatchingPrograms=Qiimeeyaha hore waa uu heli kari waayey barnaamijyada aad u qalmi karto wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa faa'iidooyinka wakhti kasta, addoo riixaya "Codso barnaamiyada". Ama arag faa'iidooyinka dheeraadka ah ee barnaamijyada aad booqan karto {0}
-# Content explaining that the screener application couldn't find eligible programs, but allows users to find other programs through another website (substituted for {0})
-content.commonIntakeNoMatchingProgramsNew=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada aad u qalmi karto wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
-content.commonIntakeNoMatchingProgramsTi=Qiimeeyaha hore waa uu heli kari waayey barnaamijyada uu macmiilkaagu u qalmi karo wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa faa'iidooyinka wakhti kasta, addoo riixaya "Codso barnaamiyada". Ama arag faa'iidooyinka dheeraadka ah ee barnaamijyada aad booqan karto {0}
-# Content explaining that the screener application couldn't find eligible programs, but allows users to find other programs on behalf of their client through another website (substituted for {0})
-content.commonIntakeNoMatchingProgramsTiNew=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada uu macmiilkaagu u qalmi karo wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
+title.commonIntakeConfirmation=Barnaamijyada aad u qalmi karaysid
+title.commonIntakeConfirmationTi=Barnaamijyada macmiilkaagu u qalmi karayo
+content.commonIntakeConfirmation=Waxaad awoodi kartaa inaad iska-diwaan galisid barnaamijyadan hadii aad ku codsatid qaabka codsiga onlaynka ah adigoo gujinaya '' Codso barnaamijyada''.
+content.commonIntakeConfirmationTi=Macmiilkaagu wuxuu awoodi karaa inuu iska diwaangaliyo barnaamijyadan hadii aad codsiga ugu dalabtid/buuxisid qaabka codsiga onlaynka ah adigoo gujinaya ''Codso barnaamijyada''
+content.commonIntakeNoMatchingPrograms=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada aad u qalmi karto wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
+content.commonIntakeNoMatchingProgramsTi=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada uu macmiilkaagu u qalmi karo wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
 content.commonIntakeNoMatchingProgramsNextStep=Sidoo kale waxaad ku noqon kartaa bogga hore si aad wax uga beddesho jawaabahaaga.
 button.downloadPdf=Soo.deji.PDF
 button.applyToPrograms=Codso barnaamijyada

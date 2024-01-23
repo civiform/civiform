@@ -46,9 +46,7 @@ button.createAccount=Gumawa ng account
 button.guestLogin=Magpatuloy bilang panauhin
 content.loginDisabledPrompt=Kasalukuyang naka-disable ang pag-log in sa account
 content.adminLoginPrompt=Naghahanap ng iba?
-content.adminFooterPrompt=Isa ka bang administrator ng mga benepisyo?
-# Text at the bottom of the home page to prompt administrators to go to the administrator login page
-content.adminFooterPromptNew=Isa ka bang administrator?
+content.adminFooterPrompt=Isa ka bang administrator?
 link.adminLogin=Admin login
 
 #--------------------------------------------------------------------------#
@@ -82,23 +80,13 @@ button.startHereCommonIntakeSr=Magsimula rito sa pamamagitan ng pagsasagot sa {0
 button.editCommonIntakeSr=I-edit ang isinumiteng impormasyon para sa {0}
 button.continueCommonIntakeSr=Ipagpatuloy ang pagsasagot ng {0}
 content.submittedDate=Isinumite noong {0}
-content.benefits=Kumuha ng mga benepisyo
-# Title of the page where applicants can go to find programs
 content.findPrograms=Maghanap ng mga program
-content.description=Matutulungan ka ng CiviForm na humanap ng mga benepisyo kung saan posibleng kwalipikado ka sa {0}. Magsimula sa pamamagitan ng pagpili ng aplikasyon sa ibaba.
-# Content that explains the benefit of using CiviForm. We'll fill in the name of the city or state.
 content.findProgramsDescription=Matutulungan ka ng CiviForm na humanap ng mga programa kung saan posibleng kwalipikado ka sa {0}. Magsimula sa pamamagitan ng pagpili ng aplikasyon sa ibaba.
-content.saveTime=Makatipid sa oras kapag nag-a-apply para sa mga benepisyo
-# Content on the home page to describe the benefit of CiviForm
 content.saveTimeServices=Makatipid ng oras sa pag-apply sa mga programa at serbisyo
-content.guestDescription=Mag-log in sa iyong {0} account o gumawa ng account at mag-apply para sa maraming benepisyo nang hindi kailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon anumang oras at tumingin sa mga status ng iyong aplikasyon.
-# Content explaining the benefits of creating an account, with the authentication provider filled in.
-content.guestDescriptionNew=Mag-log in sa iyong {0} account o gumawa ng account at mag-apply sa mga programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon anumang oras at tumingin sa mga status ng iyong aplikasyon.
+content.guestDescription=Mag-log in sa iyong {0} account o gumawa ng account at mag-apply sa mga programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon anumang oras at tumingin sa mga status ng iyong aplikasyon.
 link.programDetails=Mga detalya ng programa
 link.programDetailsSr=Mga detalye ng programa para sa {0}, bubukas sa bagong tab
 title.programs=Mga programa at mga serbisyo
-title.findServicesSection=Humanap ng mga serbisyong makakatulong sa iyo
-# A section of the site that the users should start with
 title.getStartedSection=Magsimula
 title.allProgramsSection=Lahat ng programa ({0})
 title.status=Status
@@ -155,31 +143,15 @@ title.applicationConfirmation=Pagkumpirma ng aplikasyon
 content.confirmed=Salamat sa pag-aplay sa {0}.  Ang inyong aplikasyon ay natanggap na, at ang ID ng application ninyo ay {1}.
 title.createAnAccount=Gumawa ng account o magsign-in
 content.pleaseCreateAccount=Kung kayo ay magsign-in ngayon sa isang account ng lungsod, ang inyong impormasyon ay maitatabi at maaring balikan anumang oras upang makumpleto ang mga aplikasyon sa hinaharap. Kung kayo ay wala pang account, pahihintulutan kayo ng pahina ng log-in upang makapagrehistro. Hindi kayo mawawalan ng anumang data na inyo nang nailagay.
-content.generalLoginModalPrompt=Hindi ka naka-log in sa isang account. Hindi mo magagawang mabilis na mag-edit ng aplikasyon, tingnan ang status ng iyong aplikasyon, o mag-apply para sa iba pang benepisyo nang walang account.
-# Content explaining the benefits of being logged into your account.
-content.generalLoginModalPromptNew=Hindi ka naka-log in sa isang account. Hindi mo magagawang mabilis na mag-edit ng aplikasyon, tingnan ang status ng iyong aplikasyon, o mag-apply para sa iba pang programa nang walang account.
-content.initialLoginModalPrompt=Bago ka magpatuloy, mag-log in sa iyong {0} account o gumawa ng account. Magagawa mong mag-apply para sa maraming benepisyo nang hindi kailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon at tumingin ng mga status ng iyong aplikasyon.
-# Content explaining the benefits of being logged into your account, with {0} as the authentication provider.
-content.initialLoginModalPromptNew=Bago ka magpatuloy, mag-log in sa iyong {0} account o gumawa ng account. Makakapag-apply ka para sa maraming programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon at tumingin ng mga status ng iyong aplikasyon.
+content.generalLoginModalPrompt=Hindi ka naka-log in sa isang account. Hindi mo magagawang mabilis na mag-edit ng aplikasyon, tingnan ang status ng iyong aplikasyon, o mag-apply para sa iba pang programa nang walang account.
+content.initialLoginModalPrompt=Bago ka magpatuloy, mag-log in sa iyong {0} account o gumawa ng account. Makakapag-apply ka para sa maraming programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon at tumingin ng mga status ng iyong aplikasyon.
 button.continueWithoutAnAccount=Magpatuloy nang walang account
-title.commonIntakeConfirmation=Mga benepisyo kung saan puwede kang maging kwalipikado
-# Title of the section containing programs the applicant may qualify for.
-title.commonIntakeConfirmationNew=Mga programa kung saan puwede kang maging kwalipikado
-title.commonIntakeConfirmationTi=Mga benepisyo kung saan puwedeng maging kwalipikado ang iyong client
-# Title of the section containing programs the applicant may qualify for, when someone is filling out the application on behalf of their client.
-title.commonIntakeConfirmationTiNew=Mga programa kung saan puwedeng maging kwalipikado ang kliyente mo
-content.commonIntakeConfirmation=Puwede mong makuha ang mga benepisyong ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
-# Text explaining next steps in order to enroll in programs
-content.commonIntakeConfirmationNew=Posibleng makapag-enroll ka sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
-content.commonIntakeConfirmationTi=Puwedeng makuha ng iyong client ang mga benepisyong ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
-# Text explaining next steps in order to enroll in programs, when filling out the application on behalf of a client
-content.commonIntakeConfirmationTiNew=Posibleng makapag-enroll ang kliyente mo sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
-content.commonIntakeNoMatchingPrograms=Hindi makahanap ang pre-screener ng mga programa kung saan puwede kang maging kwalipikado sa panahong ito. Pero puwede kang mag-apply sa mga benepisyo anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tingnan ang mga karagdagang programa para sa benepisyo, puwede kang pumunta sa {0}
-# Content explaining that the screener application couldn't find eligible programs, but allows users to find other programs through another website (substituted for {0})
-content.commonIntakeNoMatchingProgramsNew=Hindi makahanap ang pre-screener ng mga programa kung saan puwede kang maging kwalipikado sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
-content.commonIntakeNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga programa kung saan puwedeng maging kwalipikado ang iyong client sa panahong ito. Pero puwede kang mag-apply sa mga benepisyo anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tingnan ang mga karagdagang programa para sa benepisyo, puwede kang pumunta sa {0}
-# Content explaining that the screener application couldn't find eligible programs, but allows users to find other programs on behalf of their client through another website (substituted for {0})
-content.commonIntakeNoMatchingProgramsTiNew=Hindi makahanap ang pre-screener ng mga programa kung saan puwedeng maging kwalipikado ang kliyente mo sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
+title.commonIntakeConfirmation=Mga programa kung saan puwede kang maging kwalipikado
+title.commonIntakeConfirmationTi=Mga programa kung saan puwedeng maging kwalipikado ang kliyente mo
+content.commonIntakeConfirmation=Posibleng makapag-enroll ka sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
+content.commonIntakeConfirmationTi=Posibleng makapag-enroll ang kliyente mo sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
+content.commonIntakeNoMatchingPrograms=Hindi makahanap ang pre-screener ng mga programa kung saan puwede kang maging kwalipikado sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
+content.commonIntakeNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga programa kung saan puwedeng maging kwalipikado ang kliyente mo sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
 content.commonIntakeNoMatchingProgramsNextStep=Puwede ka ring bumalik sa nakaraang page para i-edit ang iyong mga sagot.
 button.downloadPdf=I-download ang PDF
 button.applyToPrograms=Mag-apply sa mga programa

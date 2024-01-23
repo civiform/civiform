@@ -146,7 +146,7 @@ describe('navigating to a deep link', () => {
     // to the program index page.
     await logout(page)
     expect(await page.innerText('h1')).toContain(
-      'Save time finding and applying for programs and services',
+      'Save time applying for programs and services',
     )
   })
 })

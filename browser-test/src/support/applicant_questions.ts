@@ -419,11 +419,11 @@ export class ApplicantQuestions {
   ) {
     if (wantTrustedIntermediary) {
       expect(await this.page.innerText('h1')).toContain(
-        'Benefits your client may qualify for',
+        'Programs your client may qualify for',
       )
     } else {
       expect(await this.page.innerText('h1')).toContain(
-        'Benefits you may qualify for',
+        'Programs you may qualify for',
       )
     }
 
