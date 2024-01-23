@@ -62,6 +62,7 @@ button.nextScreen=儲存並繼續
 button.previousScreen=上一個畫面
 button.review=檢查
 button.skipFileUpload=略過
+content.blockProgress={0} of {1}
 toast.localeNotSupported=很抱歉，這項計畫尚未完整翻譯成您偏好的語言。
 link.allDone=我完成了
 link.applyToAnotherProgram=申請其他計畫
