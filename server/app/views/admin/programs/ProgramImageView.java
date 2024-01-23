@@ -108,29 +108,21 @@ public final class ProgramImageView extends BaseHtmlView {
 
     DivTag mainContent = div().withClass("mx-20");
 
-    DivTag titleAndImageDescriptionContainer =
+    DivTag titleContainer =
         div()
-            .withClasses("flex", "mt-2", "mb-10")
-            .with(
-                div()
-                    .withClass("w-2/5")
-                    .with(renderHeader(PAGE_TITLE))
-                    .with(span("Browse or drag and drop an image to upload")))
-            .with(
-                div()
-                    .withClasses("w-3/5", "mt-4")
-                    .with(createImageDescriptionForm(request, programDefinition)));
+            .with(renderHeader(PAGE_TITLE))
+            .with(span("Browse or drag and drop an image to upload"));
 
+    DivTag formsContainer = div();
     Modal deleteImageModal = createDeleteImageModal(request, programDefinition);
-    DivTag imageUploadAndCurrentCardContainer =
-        div()
-            .withClasses("grid", "grid-cols-2", "gap-2", "w-full")
-            .with(
-                div()
-                    .with(createImageUploadForm(programDefinition))
-                    .with(deleteImageModal.getButton()))
-            .with(renderCurrentProgramCard(request, programDefinition));
-    mainContent.with(titleAndImageDescriptionContainer, imageUploadAndCurrentCardContainer);
+    formsContainer.with(createImageUploadForm(programDefinition, deleteImageModal.getButton()));
+    formsContainer.with(createImageDescriptionForm(request, programDefinition));
+
+    DivTag formsAndPreviewContainer = div().withClasses("grid", "grid-cols-2", "gap-10", "w-full");
+    formsAndPreviewContainer.with(formsContainer);
+    formsAndPreviewContainer.with(renderCurrentProgramCard(request, programDefinition));
+
+    mainContent.with(titleContainer, formsAndPreviewContainer);
 
     HtmlBundle htmlBundle =
         layout
@@ -168,11 +160,7 @@ public final class ProgramImageView extends BaseHtmlView {
 
   private DivTag createImageDescriptionForm(
       Http.Request request, ProgramDefinition programDefinition) {
-    String existingDescription =
-        programDefinition
-            .localizedSummaryImageDescription()
-            .map(LocalizedStrings::getDefault)
-            .orElse("");
+    String existingDescription = getExistingDescription(programDefinition);
     ProgramImageDescriptionForm existingDescriptionForm =
         new ProgramImageDescriptionForm(existingDescription);
     Form<ProgramImageDescriptionForm> form =
@@ -188,6 +176,7 @@ public final class ProgramImageView extends BaseHtmlView {
     manageTranslationsButton.ifPresent(buttonsDiv::with);
 
     return div()
+        .withClass("mt-10")
         .with(
             form()
                 .withId(IMAGE_DESCRIPTION_FORM_ID)
@@ -199,7 +188,7 @@ public final class ProgramImageView extends BaseHtmlView {
                     makeCsrfTokenInputTag(request),
                     FieldWithLabel.input()
                         .setFieldName(ProgramImageDescriptionForm.SUMMARY_IMAGE_DESCRIPTION)
-                        .setLabelText("Enter image description (Alt Text)")
+                        .setLabelText("Enter image description (Alt Text) (Required) *")
                         .setPlaceholderText("Colorful fruits and vegetables in bins")
                         .setValue(form.value().get().getSummaryImageDescription())
                         .getInputTag()))
@@ -217,7 +206,7 @@ public final class ProgramImageView extends BaseHtmlView {
     return button.map(buttonTag -> buttonTag.withCondDisabled(existingDescription.isBlank()));
   }
 
-  private DivTag createImageUploadForm(ProgramDefinition program) {
+  private DivTag createImageUploadForm(ProgramDefinition program, ButtonTag deleteButton) {
     StorageUploadRequest storageUploadRequest = createStorageUploadRequest(program);
     FormTag form =
         fileUploadViewStrategy
@@ -228,8 +217,11 @@ public final class ProgramImageView extends BaseHtmlView {
     DivTag fileInputElement =
         fileUploadViewStrategy.createUswdsFileInputFormElement(
             /* acceptedMimeTypes= */ MIME_TYPES_IMAGES,
-            // TODO(#5676): Get final copy for the size warning message.
-            /* hintText= */ "File size must be at most 1 MB.");
+            /* hintTexts= */ ImmutableList.of(
+                "The maximum size for image upload is 1MB.",
+                "The image will be automatically cropped to 16x9. The program card preview on the"
+                    + " right will show the cropping once the image is saved."),
+            /* disabled= */ getExistingDescription(program).isBlank());
     FormTag fullForm =
         form.with(additionalFileUploadFormInputs)
             // It's critical that the "file" field be the last input element for the form since S3
@@ -238,13 +230,19 @@ public final class ProgramImageView extends BaseHtmlView {
             // for more context.
             .with(fileInputElement);
 
+    DivTag buttonsDiv = div().withClass("flex");
+    buttonsDiv.with(
+        submitButton("Save image")
+            .withForm(IMAGE_FILE_UPLOAD_FORM_ID)
+            .withClasses(ButtonStyles.SOLID_BLUE, "flex")
+            .withCondDisabled(getExistingDescription(program).isBlank()));
+    buttonsDiv.with(deleteButton);
+
     // TODO(#5676): Replace with final UX once we have it.
     return div()
         .with(fullForm)
-        .with(
-            submitButton("Save image")
-                .withForm(IMAGE_FILE_UPLOAD_FORM_ID)
-                .withClasses(ButtonStyles.SOLID_BLUE, "mb-2"))
+        .with(buttonsDiv)
+        .with(p("Note: Image description is required before uploading an image.").withClass("mt-1"))
         .with(fileUploadViewStrategy.footerTags());
 
     // TODO(#5676): Warn admins of recommended image size and dimensions.
@@ -257,9 +255,16 @@ public final class ProgramImageView extends BaseHtmlView {
     return publicStorageClient.getSignedUploadRequest(key, onSuccessRedirectUrl);
   }
 
+  private String getExistingDescription(ProgramDefinition programDefinition) {
+    return programDefinition
+        .localizedSummaryImageDescription()
+        .map(LocalizedStrings::getDefault)
+        .orElse("");
+  }
+
   private DivTag renderCurrentProgramCard(Http.Request request, ProgramDefinition program) {
     DivTag currentProgramCardSection =
-        div().with(h2("What the applicant will see").withClasses("mb-4"));
+        div().withClass("mx-auto").with(h2("What the applicant will see").withClasses("mb-4"));
 
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
     Long applicantId;
@@ -303,7 +308,7 @@ public final class ProgramImageView extends BaseHtmlView {
   private Modal createDeleteImageModal(Http.Request request, ProgramDefinition program) {
     ButtonTag deleteImageButton =
         ViewUtils.makeSvgTextButton(DELETE_IMAGE_BUTTON_TEXT, Icons.DELETE)
-            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "mt-8")
+            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "flex", "ml-2")
             // Disable the delete button if there's no image in the first place.
             .withCondDisabled(program.summaryImageFileKey().isEmpty());
     FormTag deleteBlockForm =
