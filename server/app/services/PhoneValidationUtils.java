@@ -5,6 +5,7 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import java.util.Optional;
 
+/** Utility Class for all phone validations. */
 public final class PhoneValidationUtils {
 
   private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
@@ -14,6 +15,7 @@ public final class PhoneValidationUtils {
     if (phoneNumber.isEmpty()) {
       return Optional.of(MessageKey.PHONE_VALIDATION_NUMBER_REQUIRED);
     }
+
     if (countryCode.isEmpty()) {
       return Optional.of(MessageKey.PHONE_VALIDATION_COUNTRY_CODE_REQUIRED);
     }
