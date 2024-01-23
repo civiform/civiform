@@ -118,11 +118,12 @@ public final class ProgramImageView extends BaseHtmlView {
     formsContainer.with(createImageUploadForm(programDefinition, deleteImageModal.getButton()));
     formsContainer.with(createImageDescriptionForm(request, programDefinition));
 
-    DivTag formsAndPreviewContainer = div().withClasses("grid", "grid-cols-2", "gap-10", "w-full");
-    formsAndPreviewContainer.with(formsContainer);
-    formsAndPreviewContainer.with(renderCurrentProgramCard(request, programDefinition));
+    DivTag formsAndCurrentCardContainer =
+        div().withClasses("grid", "grid-cols-2", "gap-10", "w-full");
+    formsAndCurrentCardContainer.with(formsContainer);
+    formsAndCurrentCardContainer.with(renderCurrentProgramCard(request, programDefinition));
 
-    mainContent.with(titleContainer, formsAndPreviewContainer);
+    mainContent.with(titleContainer, formsAndCurrentCardContainer);
 
     HtmlBundle htmlBundle =
         layout
@@ -207,6 +208,7 @@ public final class ProgramImageView extends BaseHtmlView {
   }
 
   private DivTag createImageUploadForm(ProgramDefinition program, ButtonTag deleteButton) {
+    boolean hasNoDescription = getExistingDescription(program).isBlank();
     StorageUploadRequest storageUploadRequest = createStorageUploadRequest(program);
     FormTag form =
         fileUploadViewStrategy
@@ -217,11 +219,11 @@ public final class ProgramImageView extends BaseHtmlView {
     DivTag fileInputElement =
         fileUploadViewStrategy.createUswdsFileInputFormElement(
             /* acceptedMimeTypes= */ MIME_TYPES_IMAGES,
-            /* hintTexts= */ ImmutableList.of(
+            /* hints= */ ImmutableList.of(
                 "The maximum size for image upload is 1MB.",
                 "The image will be automatically cropped to 16x9. The program card preview on the"
                     + " right will show the cropping once the image is saved."),
-            /* disabled= */ getExistingDescription(program).isBlank());
+            /* disabled= */ hasNoDescription);
     FormTag fullForm =
         form.with(additionalFileUploadFormInputs)
             // It's critical that the "file" field be the last input element for the form since S3
@@ -235,7 +237,7 @@ public final class ProgramImageView extends BaseHtmlView {
         submitButton("Save image")
             .withForm(IMAGE_FILE_UPLOAD_FORM_ID)
             .withClasses(ButtonStyles.SOLID_BLUE, "flex")
-            .withCondDisabled(getExistingDescription(program).isBlank()));
+            .withCondDisabled(hasNoDescription));
     buttonsDiv.with(deleteButton);
 
     // TODO(#5676): Replace with final UX once we have it.

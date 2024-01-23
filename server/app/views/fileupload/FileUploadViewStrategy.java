@@ -5,8 +5,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
-import static j2html.TagCreator.li;
-import static j2html.TagCreator.ul;
+import static j2html.TagCreator.p;
 
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
@@ -50,22 +49,22 @@ public abstract class FileUploadViewStrategy {
     return extraScriptTags().stream().map(TagCreator::footer).collect(toImmutableList());
   }
 
-  /** Creates a <input type="file"> element that uses the USWDS file input UI component. */
+  /**
+   * Creates a <input type="file"> element that uses the USWDS file input UI component.
+   *
+   * @param hints a list of hints that should be displayed above the file input UI.
+   * @param disabled true if the file input should be shown as disabled.
+   */
   public DivTag createUswdsFileInputFormElement(
-      String acceptedMimeTypes, ImmutableList<String> hintTexts, boolean disabled) {
+      String acceptedMimeTypes, ImmutableList<String> hints, boolean disabled) {
     return div()
         .withClasses("usa-form-group", "mb-2")
-        .with(
-            ul().withClasses("list-disc", "list-inside")
-                .with(
-                    each(
-                        hintTexts,
-                        hintText -> li(hintText).withId("file-input-hint").withClass("usa-hint"))))
+        .with(each(hints, hint -> p(hint).withClasses("usa-hint", "mb-2")))
         .with(
             input()
                 .withType("file")
                 .withName("file")
-                .withClasses("usa-file-input", "w-full", "h-56")
+                .withClasses("usa-file-input")
                 .attr("aria-describedby", "file-input-hint")
                 .withAccept(acceptedMimeTypes)
                 .withCondDisabled(disabled));
