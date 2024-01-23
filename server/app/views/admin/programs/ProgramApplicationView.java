@@ -117,26 +117,24 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .with(
                 h2("Program: " + programName).withClasses("my-4"),
                 div()
-                    .withClasses("flex", "flex-wrap", "items-center", "my-4", "gap-2", "justify-between")
+                    .withClasses(
+                        "flex", "flex-wrap", "items-center", "my-4", "gap-2", "justify-between")
                     .with(
                         p(applicantNameWithApplicationId)
                             .withClasses(
-                                "text-black",
-                                "text-2xl",
-                                ReferenceClasses.BT_APPLICATION_ID))
+                                "text-black", "text-2xl", ReferenceClasses.BT_APPLICATION_ID))
                     .with(
-                        div().withClasses("flex", "flex-wrap", "gap-2")
-                    // Status options if configured on the program.
-                    .condWith(
-                        !statusDefinitions.getStatuses().isEmpty(),
                         div()
-                            .withClasses("flex", "mr-4", "gap-2")
-                            .with(
-                                renderStatusOptionsSelector(application, statusDefinitions),
-                                updateNoteModal.getButton()))
-                    .with(renderDownloadButton(programId, application.id))
-                    )
-)
+                            .withClasses("flex", "flex-wrap", "gap-2")
+                            // Status options if configured on the program.
+                            .condWith(
+                                !statusDefinitions.getStatuses().isEmpty(),
+                                div()
+                                    .withClasses("flex", "mr-4", "gap-2")
+                                    .with(
+                                        renderStatusOptionsSelector(application, statusDefinitions),
+                                        updateNoteModal.getButton()))
+                            .with(renderDownloadButton(programId, application.id))))
             .with(
                 p(renderSubmitTime(application))
                     .withClasses("text-xs", "text-gray-700", "mb-2", ReferenceClasses.BT_DATE))
