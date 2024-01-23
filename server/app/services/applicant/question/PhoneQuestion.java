@@ -45,7 +45,7 @@ public final class PhoneQuestion extends Question {
     Optional<MessageKey> validationErrors =
         PhoneValidationUtils.validatePhoneNumber(getPhoneNumberValue(), getCountryCodeValue());
     if (validationErrors.isPresent()) {
-      ValidationErrorMessage.create(validationErrors.get());
+      return ImmutableSet.of(ValidationErrorMessage.create(validationErrors.get()));
     }
     return ImmutableSet.of();
   }
