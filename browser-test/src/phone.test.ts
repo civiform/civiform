@@ -137,12 +137,26 @@ describe('phone question for applicant flow', () => {
         'This phone number is invalid',
       )
     })
-    it('invalid characters in phone numbers', async () => {
+    it('invalid length of phone numbers', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion(
         'United States',
         '123###1212',
+      )
+
+      await applicantQuestions.clickNext()
+      const countryCodeId = '.cf-phone-number'
+      expect(await page.innerText(countryCodeId)).toContain(
+        'The phone number must contain only ten digits',
+      )
+    })
+    it('invalid characters in phone numbers', async () => {
+      const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '123###1212121',
       )
 
       await applicantQuestions.clickNext()
