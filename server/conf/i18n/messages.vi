@@ -62,6 +62,7 @@ button.nextScreen=Lưu và tiếp tục
 button.previousScreen=Trước
 button.review=Xem lại
 button.skipFileUpload=Bỏ qua
+content.blockProgress={0} of {1}
 toast.localeNotSupported=Rất tiếc, chương trình này chưa được dịch hoàn toàn sang ngôn ngữ bạn ưa dùng.
 link.allDone=Tôi đã hoàn thành
 link.applyToAnotherProgram=Đăng ký một chương trình khác
