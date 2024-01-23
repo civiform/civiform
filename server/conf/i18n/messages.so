@@ -62,6 +62,7 @@ button.nextScreen=Tan Xiga
 button.previousScreen=Hore
 button.review=Dib u eeg
 button.skipFileUpload=Ka bood
+content.blockProgress={0} of {1}
 toast.localeNotSupported=Waanu ka xunahay, barnaamijkan si buuxda looguma turjumin luqaddaada aad doorbidayso.
 link.allDone=Waan dhameeyay
 link.applyToAnotherProgram=Codso barnaamij kale
