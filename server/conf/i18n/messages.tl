@@ -62,6 +62,7 @@ button.nextScreen=Susunod
 button.previousScreen=Nakaraang
 button.review=Pagsusuri
 button.skipFileUpload=Laktawan
+content.blockProgress={0} of {1}
 toast.localeNotSupported=Pasensya na, hindi ganap na nakasalin ang program na ito sa iyong mas gustong wika.
 link.allDone=Ako ay tapos na
 link.applyToAnotherProgram=Mag-aplay sa ibang programa
