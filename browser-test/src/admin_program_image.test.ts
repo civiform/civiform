@@ -113,6 +113,10 @@ describe('Admin can manage program image', () => {
 
     it('disables translation button when no description', async () => {
       const {adminProgramImage} = ctx
+
+      await adminProgramImage.setImageDescriptionAndSubmit('')
+      await adminProgramImage.expectProgramImagePage()
+
       await adminProgramImage.expectDisabledTranslationButton()
     })
 

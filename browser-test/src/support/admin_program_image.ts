@@ -3,6 +3,7 @@ import {waitForPageJsLoad} from './wait'
 
 export class AdminProgramImage {
   private imageDescriptionLocator = 'input[name="summaryImageDescription"]'
+  private translationsButtonLocator = 'button:has-text("Manage translations")'
 
   private page!: Page
 
@@ -70,24 +71,18 @@ export class AdminProgramImage {
 
   async expectDisabledTranslationButton() {
     expect(
-      await this.page.getAttribute(
-        'button:has-text("Manage translations")',
-        'disabled',
-      ),
+      await this.page.getAttribute(translationsButtonLocator, 'disabled'),
     ).not.toBeNull()
   }
 
   async expectEnabledTranslationButton() {
     expect(
-      await this.page.getAttribute(
-        'button:has-text("Manage translations")',
-        'disabled',
-      ),
+      await this.page.getAttribute(translationsButtonLocator, 'disabled'),
     ).toBeNull()
   }
 
   async clickTranslationButton() {
-    await this.page.click('button:has-text("Manage translations")')
+    await this.page.click(translationsButtonLocator)
   }
 
   descriptionUpdatedToastMessage(description: string) {
