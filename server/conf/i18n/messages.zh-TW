@@ -247,6 +247,7 @@ validation.phoneMustBeLocalToCountry=您提供的電話號碼不屬於您選取�
 #----------------------------------------------------------------------------------------------------------#
 
 validation.dateMisformatted=日期格式必須為 YYYY/MM/DD。
+validation.invalidDateFormat=Please enter a date in the correct format
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
