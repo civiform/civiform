@@ -247,6 +247,7 @@ validation.phoneMustBeLocalToCountry=ເບີໂທລະສັບທີ່ທ�
 #----------------------------------------------------------------------------------------------------------#
 
 validation.dateMisformatted=ກະລຸນາໃສ່ວັນທີໃນຮູບແບບ ປປປປ/ດດ/ວວ.
+validation.invalidDateFormat=Please enter a date in the correct format
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #

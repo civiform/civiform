@@ -56,6 +56,20 @@ public final class RecurringJobExecutionTimeResolvers {
     }
   }
 
+  /** Third day of the month at 2am local time. */
+  public static final class ThirdOfMonth2Am implements RecurringJobExecutionTimeResolver {
+
+    @Override
+    public Instant resolveExecutionTime(Clock clock) {
+      return LocalDate.now(clock)
+          .with(TemporalAdjusters.firstDayOfNextMonth())
+          .plusDays(2L)
+          .atStartOfDay(clock.getZone())
+          .plus(2, ChronoUnit.HOURS)
+          .toInstant();
+    }
+  }
+
   /** Nightly at 2am local time */
   public static final class Nightly2Am implements RecurringJobExecutionTimeResolver {
 

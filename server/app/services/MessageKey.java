@@ -93,6 +93,7 @@ public enum MessageKey {
   ERROR_NOT_FOUND_TITLE("error.notFoundTitle"),
   ERROR_NOT_FOUND_DESCRIPTION("error.notFoundDescription"),
   ERROR_NOT_FOUND_DESCRIPTION_LINK("error.notFoundDescriptionLink"),
+  DATE_VALIDATION_INVALID_DATE_FORMAT("validation.invalidDateFormat"),
   DATE_VALIDATION_MISFORMATTED("validation.dateMisformatted"),
   DROPDOWN_PLACEHOLDER("placeholder.noDropdownSelection"),
   END_SESSION("header.endSession"),

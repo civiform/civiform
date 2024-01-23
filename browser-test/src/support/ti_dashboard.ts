@@ -114,6 +114,12 @@ export class TIDashboard {
     await this.page.click('button:text("Search")')
   }
 
+  async searchByNameAndDateOfBirth(name: string, dobDate: string) {
+    await this.page.fill('label:has-text("Search by Name")', name)
+    await this.page.fill('label:has-text("Search Date Of Birth")', dobDate)
+    await this.page.click('button:text("Search")')
+  }
+
   async clickOnApplicantDashboard() {
     await this.page
       .locator('.cf-admin-question-table-row a:text("Applicant Dashboard")')

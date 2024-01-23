@@ -44,6 +44,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     formFactory = instanceOf(FormFactory.class);
     profileFactory = instanceOf(ProfileFactory.class);
     ApplicantModel managedApplicant = createApplicant();
+    // Note that this results in a blank managed account being added to tiGroup and tiGroup2
     createTIWithMockedProfile(managedApplicant);
     ApplicantModel managedApplicant2 = createApplicant();
     createTIWithMockedProfile(managedApplicant2);
@@ -332,6 +333,33 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         service.getManagedAccounts(searchParameters, tiGroup);
     assertThat(tiResult.getAccounts().get().size()).isEqualTo(1);
     assertThat(tiResult.getAccounts().get().get(0).getEmailAddress()).isEqualTo("email20");
+  }
+
+  @Test
+  public void getManagedAccounts_SearchWithEmptyStringNameAndDob_returnsFullList() {
+    setupTiClientAccountWithApplicant("Bobo", "2022-07-08", "bobo@clown.test", tiGroup);
+    SearchParameters searchParameters =
+        SearchParameters.builder()
+            .setNameQuery(Optional.of(""))
+            .setDateQuery(Optional.of(""))
+            .build();
+    TrustedIntermediarySearchResult tiResult =
+        service.getManagedAccounts(searchParameters, tiGroup);
+    // The size is 3 because two other accounts are added to the tiGroup in setup()
+    assertThat(tiResult.getAccounts().get().size()).isEqualTo(3);
+  }
+
+  @Test
+  public void getManagedAccounts_SearchWithEmptyOptionalNameAndDob_returnsFullList() {
+    setupTiClientAccountWithApplicant("Bobo", "2022-07-08", "bobo@clown.test", tiGroup);
+    SearchParameters searchParameters =
+        SearchParameters.builder()
+            .setNameQuery(Optional.empty())
+            .setDateQuery(Optional.empty())
+            .build();
+    TrustedIntermediarySearchResult tiResult =
+        service.getManagedAccounts(searchParameters, tiGroup);
+    assertThat(tiResult.getAccounts().get().size()).isEqualTo(3);
   }
 
   @Test

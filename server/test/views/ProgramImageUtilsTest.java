@@ -14,10 +14,10 @@ import org.mockito.Mockito;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.cloud.PublicStorageClient;
-import services.cloud.StorageUploadRequest;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
+import support.cloud.FakePublicStorageClient;
 
 public class ProgramImageUtilsTest extends ResetPostgres {
   private final PublicStorageClient publicStorageClient = new FakePublicStorageClient();
@@ -146,20 +146,5 @@ public class ProgramImageUtilsTest extends ResetPostgres {
     assertThat(result).isNotEmpty();
     String renderedImage = result.get().render();
     assertThat(renderedImage).contains("alt=\"Chinese description\"");
-  }
-
-  private static final class FakePublicStorageClient extends PublicStorageClient {
-    public FakePublicStorageClient() {}
-
-    @Override
-    public StorageUploadRequest getSignedUploadRequest(
-        String fileKey, String successRedirectActionLink) {
-      return () -> "fakeServiceName";
-    }
-
-    @Override
-    protected String getPublicDisplayUrlInternal(String fileKey) {
-      return "fakeUrl.com/" + fileKey;
-    }
   }
 }

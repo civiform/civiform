@@ -13,6 +13,56 @@ import {Page} from 'playwright'
 describe('program creation', () => {
   const ctx = createTestContext()
 
+  it('create program page with images flag off', async () => {
+    const {page, adminPrograms} = ctx
+    await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(
+      programName,
+      'description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      /* isCommonIntake= */ false,
+      'selectedTI',
+      'confirmationMessage',
+      /* submitNewProgram= */ false,
+    )
+    await validateScreenshot(page, 'program-creation-page')
+
+    // When the program submission goes through with the program_card_images flag off,
+    // verify we're redirected to the block edit page.
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminPrograms.expectProgramBlockEditPage(programName)
+  })
+
+  it('create program page with images flag on', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(
+      programName,
+      'description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      /* isCommonIntake= */ false,
+      'selectedTI',
+      'confirmationMessage',
+      /* submitNewProgram= */ false,
+    )
+    await validateScreenshot(page, 'program-creation-page-images-flag-on')
+
+    // When the program submission goes through with the program_card_images flag on,
+    // verify we're redirected to the program image upload page.
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminProgramImage.expectProgramImagePage()
+  })
+
   it('program details page screenshot', async () => {
     const {page, adminPrograms} = ctx
 
@@ -21,6 +71,50 @@ describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramDescriptionPage(programName)
     await validateScreenshot(page, 'program-description-page')
+  })
+
+  it('program details page screenshot with images flag on', async () => {
+    const {page, adminPrograms} = ctx
+    await enableFeatureFlag(page, 'program_card_images')
+
+    await loginAsAdmin(page)
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramDescriptionPage(programName)
+    await validateScreenshot(
+      page,
+      'program-description-page-with-images-flag-on',
+    )
+  })
+
+  it('program details page redirects to block page if images flag off', async () => {
+    const {page, adminPrograms} = ctx
+    await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Program Name'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramDescriptionPage(programName)
+    await adminPrograms.submitProgramDetailsEdits()
+
+    // When the images flag is off, saving program edits should redirect back to
+    // the program block edit page.
+    await adminPrograms.expectProgramBlockEditPage()
+  })
+
+  it('program details page redirects to image page if images flag on', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Program Name'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramDescriptionPage(programName)
+    await adminPrograms.submitProgramDetailsEdits()
+
+    // When the images flag is on, saving program edits should redirect to
+    // the program image upload page.
+    await adminProgramImage.expectProgramImagePage()
   })
 
   it('shows correct formatting during question creation', async () => {
@@ -83,7 +177,11 @@ describe('program creation', () => {
       'universal note',
     )
 
-    await validateScreenshot(page, 'open-question-search', {fullPage: false})
+    await validateScreenshot(
+      page,
+      'open-question-search',
+      /* fullPage= */ false,
+    )
   })
 
   it('create program with enumerator and repeated questions', async () => {
@@ -357,7 +455,7 @@ describe('program creation', () => {
     const programName = 'Apc program 3'
     await adminPrograms.addProgram(programName)
     await adminPrograms.openQuestionBank()
-    await validateScreenshot(page, 'question-bank-empty', {fullPage: false})
+    await validateScreenshot(page, 'question-bank-empty', /* fullPage= */ false)
     await page.click('#create-question-button')
     await page.click('#create-text-question')
     await waitForPageJsLoad(page)
@@ -392,9 +490,11 @@ describe('program creation', () => {
       `question ${universalQuestionName} created`,
     )
     await adminPrograms.expectProgramBlockEditPage(programName)
-    await validateScreenshot(page, 'question-bank-with-created-question', {
-      fullPage: false,
-    })
+    await validateScreenshot(
+      page,
+      'question-bank-with-created-question',
+      /* fullPage= */ false,
+    )
 
     await adminQuestions.expectDraftQuestionExist(questionName, questionText)
     await adminQuestions.expectDraftQuestionExist(
@@ -602,9 +702,11 @@ describe('program creation', () => {
     await loginAsAdmin(page)
 
     await adminPrograms.launchDeleteScreenModal()
-    await validateScreenshot(page, 'delete-screen-confirmation-modal', {
-      fullPage: false,
-    })
+    await validateScreenshot(
+      page,
+      'delete-screen-confirmation-modal',
+      /* fullPage= */ false,
+    )
   })
 
   async function expectQuestionsOrderWithinBlock(
@@ -681,9 +783,11 @@ describe('program creation', () => {
 
     let modal = await waitForAnyModal(page)
     expect(await modal.innerText()).toContain(`Confirm pre-screener change?`)
-    await validateScreenshot(page, 'confirm-common-intake-change-modal', {
-      fullPage: false,
-    })
+    await validateScreenshot(
+      page,
+      'confirm-common-intake-change-modal',
+      /* fullPage= */ false,
+    )
 
     // Modal gets re-rendered if needed.
     await dismissModal(page)

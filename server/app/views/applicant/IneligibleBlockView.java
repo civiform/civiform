@@ -29,6 +29,7 @@ import views.HtmlBundle;
 import views.components.ButtonStyles;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.components.TextFormatter;
 import views.style.ApplicantStyles;
 import views.style.StyleUtils;
 
@@ -73,7 +74,14 @@ public final class IneligibleBlockView extends ApplicationBaseView {
     UlTag listTag = ul().withClasses("list-disc", "mx-8");
     roApplicantProgramService
         .getIneligibleQuestions()
-        .forEach(question -> listTag.with(li().withText(question.getQuestionText())));
+        .forEach(
+            question ->
+                listTag.with(
+                    li().with(
+                            div()
+                                .with(
+                                    TextFormatter.formatText(
+                                        question.getQuestionText(), false, false)))));
 
     DivTag content =
         div()
