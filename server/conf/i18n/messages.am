@@ -62,6 +62,7 @@ button.nextScreen=አስቀምጥ እና ቀጣይ
 button.previousScreen=ቀዳሚ
 button.review=ገምግም
 button.skipFileUpload=ዝለል
+content.blockProgress={0} of {1}
 toast.localeNotSupported=ይቅርታ እንጠይቃለን፣ ይህ ፕሮግራም ሙሉ በሙሉ እርስዎ ወደሚፈልጉት ቋንቋ አልተተረጎመም።
 link.allDone=ሁሉንም ጨርሼያለሁ
 link.applyToAnotherProgram=ወደ ሌላ ፕሮግራም ያመልክቱ
