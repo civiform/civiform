@@ -247,6 +247,7 @@ validation.phoneMustBeLocalToCountry=El teléfono que proporcionaste no es de es
 #----------------------------------------------------------------------------------------------------------#
 
 validation.dateMisformatted=Ingresa una fecha en el formato AAAA/MM/DD.
+validation.invalidDateFormat=Please enter a date in the correct format
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #

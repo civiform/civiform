@@ -247,6 +247,7 @@ validation.phoneMustBeLocalToCountry=ያቀረቡት ስልክ የአገሩ አ�
 #----------------------------------------------------------------------------------------------------------#
 
 validation.dateMisformatted=እባክዎ በዓዓዓዓ/ወወ/ቀቀ ቅርጸት ቀን ያስገቡ።
+validation.invalidDateFormat=Please enter a date in the correct format
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
