@@ -105,7 +105,10 @@ public final class AdminLayout extends BaseHtmlLayout {
         .setJsBundle(JsBundle.ADMIN);
   }
 
-  /** Creates a button that will redirect to the translations management page. */
+  /**
+   * Creates a button that will redirect to the translations management page. Returns an empty
+   * optional if there are no locales to translate to.
+   */
   public Optional<ButtonTag> createManageTranslationsButton(
       String programAdminName, Optional<String> buttonId, String buttonStyles) {
     if (translationLocales.translatableLocales().isEmpty()) {

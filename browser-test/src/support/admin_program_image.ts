@@ -68,6 +68,28 @@ export class AdminProgramImage {
     ).toEqual(1)
   }
 
+  async expectDisabledTranslationButton() {
+    expect(
+      await this.page.getAttribute(
+        'button:has-text("Manage translations")',
+        'disabled',
+      ),
+    ).not.toBeNull()
+  }
+
+  async expectEnabledTranslationButton() {
+    expect(
+      await this.page.getAttribute(
+        'button:has-text("Manage translations")',
+        'disabled',
+      ),
+    ).toBeNull()
+  }
+
+  async clickTranslationButton() {
+    await this.page.click('button:has-text("Manage translations")')
+  }
+
   descriptionUpdatedToastMessage(description: string) {
     return `Image description set to ${description}`
   }

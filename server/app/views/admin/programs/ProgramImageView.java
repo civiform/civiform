@@ -178,38 +178,42 @@ public final class ProgramImageView extends BaseHtmlView {
     Form<ProgramImageDescriptionForm> form =
         formFactory.form(ProgramImageDescriptionForm.class).fill(existingDescriptionForm);
 
-    DivTag buttonsDiv =
-        div()
-            .withClass("flex")
-            .with(
-                submitButton("Save image description")
-                    .withForm(IMAGE_DESCRIPTION_FORM_ID)
-                    .withClasses(ButtonStyles.SOLID_BLUE, "flex"));
-    Optional<ButtonTag> manageTranslationsButton = createManageTranslationsButton(programDefinition, existingDescription);
+    DivTag buttonsDiv = div().withClass("flex");
+    buttonsDiv.with(
+        submitButton("Save image description")
+            .withForm(IMAGE_DESCRIPTION_FORM_ID)
+            .withClasses(ButtonStyles.SOLID_BLUE, "flex"));
+    Optional<ButtonTag> manageTranslationsButton =
+        createManageTranslationsButton(programDefinition, existingDescription);
     manageTranslationsButton.ifPresent(buttonsDiv::with);
 
     return div()
-            .with(form()
-        .withId(IMAGE_DESCRIPTION_FORM_ID)
-        .withMethod("POST")
-        .withAction(
-            routes.AdminProgramImageController.updateDescription(programDefinition.id()).url())
         .with(
-            makeCsrfTokenInputTag(request),
-            FieldWithLabel.input()
-                .setFieldName(ProgramImageDescriptionForm.SUMMARY_IMAGE_DESCRIPTION)
-                .setLabelText("Enter image description (Alt Text)")
-                .setPlaceholderText("Colorful fruits and vegetables in bins")
-                .setValue(form.value().get().getSummaryImageDescription())
-                .getInputTag()))
+            form()
+                .withId(IMAGE_DESCRIPTION_FORM_ID)
+                .withMethod("POST")
+                .withAction(
+                    routes.AdminProgramImageController.updateDescription(programDefinition.id())
+                        .url())
+                .with(
+                    makeCsrfTokenInputTag(request),
+                    FieldWithLabel.input()
+                        .setFieldName(ProgramImageDescriptionForm.SUMMARY_IMAGE_DESCRIPTION)
+                        .setLabelText("Enter image description (Alt Text)")
+                        .setPlaceholderText("Colorful fruits and vegetables in bins")
+                        .setValue(form.value().get().getSummaryImageDescription())
+                        .getInputTag()))
         .with(buttonsDiv);
   }
 
-  private Optional<ButtonTag> createManageTranslationsButton(ProgramDefinition programDefinition, String existingDescription) {
-    Optional<ButtonTag> button = layout.createManageTranslationsButton(
-                    programDefinition.adminName(),
-                    /* buttonId= */ Optional.empty(),
+  private Optional<ButtonTag> createManageTranslationsButton(
+      ProgramDefinition programDefinition, String existingDescription) {
+    Optional<ButtonTag> button =
+        layout.createManageTranslationsButton(
+            programDefinition.adminName(),
+            /* buttonId= */ Optional.empty(),
             StyleUtils.joinStyles(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "flex", "ml-2"));
+    // Disable the translations button if there's no description in the first place.
     return button.map(buttonTag -> buttonTag.withCondDisabled(existingDescription.isBlank()));
   }
 
