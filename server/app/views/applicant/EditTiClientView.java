@@ -137,6 +137,7 @@ public class EditTiClientView extends BaseHtmlView {
             FieldWithLabel.input()
                 .setId("edit-phone-number-input")
                 .setPlaceholderText("(xxx) xxx-xxxx")
+                .setAttribute("inputmode", "tel")
                 .setFieldName("phoneNumber")
                 .setLabelText("Phone Number")
                 .setValue(applicantData.getPhoneNumber().orElse("")),

@@ -3,9 +3,6 @@ package services.ti;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.i18n.phonenumbers.NumberParseException;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
-import com.google.i18n.phonenumbers.Phonenumber;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import forms.EditTiClientInfoForm;
 import java.time.LocalDate;
@@ -20,6 +17,8 @@ import play.data.Form;
 import repository.AccountRepository;
 import repository.SearchParameters;
 import services.DateConverter;
+import services.MessageKey;
+import services.PhoneValidationUtils;
 import services.applicant.exception.ApplicantNotFoundException;
 
 /**
@@ -44,7 +43,7 @@ public final class TrustedIntermediaryService {
   public static final String FORM_FIELD_NAME_PHONE = "phoneNumber";
   public static final String FORM_FIELD_NAME_MIDDLE_NAME = "middleName";
   public static final String FORM_FIELD_NAME_TI_NOTES = "tiNote";
-  private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
+  private static final String COUNTRY_CODE_FOR_US_REGION = "US";
 
   @Inject
   public TrustedIntermediaryService(
@@ -143,21 +142,25 @@ public final class TrustedIntermediaryService {
     if (Strings.isNullOrEmpty(phoneNumber)) {
       return form;
     }
-    // removes space, '(',')' and '-' from the phone number
-    phoneNumber = phoneNumber.replaceAll("[()-[\\s]]", "");
-    if (!phoneNumber.matches("[0-9]+")) {
-      return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain only digits");
-    }
-    if (phoneNumber.length() != 10) {
-      return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain only 10 digits");
-    }
-    try {
-      Phonenumber.PhoneNumber phonenumber = PHONE_NUMBER_UTIL.parse(phoneNumber, "US");
-      if (!PHONE_NUMBER_UTIL.isValidNumber(phonenumber)) {
-        return form.withError(FORM_FIELD_NAME_PHONE, "This phone number is not valid");
+    Optional<MessageKey> error =
+        PhoneValidationUtils.validatePhoneNumber(
+            Optional.of(phoneNumber), Optional.of(COUNTRY_CODE_FOR_US_REGION));
+    if (error.isPresent()) {
+      switch (error.get()) {
+        case PHONE_VALIDATION_NUMBER_REQUIRED:
+          return form.withError(FORM_FIELD_NAME_PHONE, "Phone number required");
+        case PHONE_VALIDATION_NON_NUMBER_VALUE:
+          return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain only digits");
+        case PHONE_VALIDATION_INVALID_LENGTH:
+          return form.withError(
+              FORM_FIELD_NAME_PHONE, "A phone number must contain only 10 digits");
+        case PHONE_VALIDATION_INVALID_PHONE_NUMBER:
+          return form.withError(FORM_FIELD_NAME_PHONE, "This phone number is not valid");
+        case PHONE_VALIDATION_NUMBER_NOT_IN_COUNTRY:
+          return form.withError(FORM_FIELD_NAME_PHONE, "This phone number is not valid for US");
+        default:
+          return form.withError(FORM_FIELD_NAME_PHONE, "An unknown error occurred " + error.get());
       }
-    } catch (NumberParseException e) {
-      throw new RuntimeException(e);
     }
     return form;
   }
