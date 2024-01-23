@@ -4,6 +4,7 @@
 # DOC: Builds for "linux/amd64" unless PLATFORM is set
 # DOC: Optional environment variables:
 # DOC:   PUSH_IMAGE - Push the newly built image to Docker Hub if set to any value. Default: no value
+# DOC:   REGISTRY   - Overrides the default registry of docker.io to push elsewhere
 # DOC:   NAMESPACE  - Overrides the default docker namespace of civiform: Default: civiform
 # DOC:   PLATFORM   - Platform architechture to build (e.g. linux/amd64, arm64v8). Default: linux/amd64
 # DOC: Does not support pushing to alternate registries
@@ -11,6 +12,7 @@
 source bin/lib.sh
 
 export DOCKER_BUILDKIT=1
+readonly REGISTRY="${REGISTRY:=docker.io}"
 readonly NAMESPACE="${NAMESPACE:=civiform}"
 readonly SHORT_SHA="$(git rev-parse --short HEAD)"
 readonly GIT_SHA="$(git rev-parse HEAD)"
@@ -19,15 +21,16 @@ readonly SNAPSHOT_TAG="SNAPSHOT-${SHORT_SHA}-${DATE_IN_UNIX_SECONDS}"
 readonly IMAGE="civiform"
 readonly LOCATION="."
 readonly DOCKERFILE="prod.Dockerfile"
+readonly FULL_IMAGE_NAME="${REGISTRY}/${NAMESPACE}/${IMAGE}"
 readonly HOST_CPU_ARCH="$(docker info --format='{{.Architecture}}')"
 
 echo "Building ${SNAPSHOT_TAG}..."
 
 BUILD_ARGS=(--file "${DOCKERFILE}"
-  --tag "${NAMESPACE}/${IMAGE}"
-  --tag "${NAMESPACE}/${IMAGE}:latest"
-  --tag "${NAMESPACE}/${IMAGE}:${SNAPSHOT_TAG}"
-  --cache-from "${NAMESPACE}/${IMAGE}"
+  --tag "${FULL_IMAGE_NAME}"
+  --tag "${FULL_IMAGE_NAME}:latest"
+  --tag "${FULL_IMAGE_NAME}:${SNAPSHOT_TAG}"
+  --cache-from "${FULL_IMAGE_NAME}"
   --build-arg BUILDKIT_INLINE_CACHE=1
   --build-arg git_commit_sha="${GIT_SHA}"
   --build-arg image_tag="${SNAPSHOT_TAG}"
@@ -51,4 +54,4 @@ if [[ "${PUSH_IMAGE}" ]]; then
   docker buildx build --push "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
 fi
 
-docker tag "${NAMESPACE}/${IMAGE}:latest" "${IMAGE}:latest"
+docker tag "${FULL_IMAGE_NAME}:latest" "${IMAGE}:latest"

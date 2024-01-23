@@ -3,20 +3,23 @@
 # DOC: Build a new fake oidc docker image
 # DOC: Optional environment variables:
 # DOC:   PUSH_IMAGE - Push the newly built image to Docker Hub if set to any value
+# DOC:   REGISTRY   - Overrides the default registry of docker.io to push elsewhere
 # DOC:   NAMESPACE  - Overrides the default docker namespace of civiform
 # DOC:   PLATFORM   - Platform architechture to build (e.g. linux/amd64, arm64v8)
 # DOC: Does not support pushing to alternate registries
 
 source bin/lib.sh
 
+readonly REGISTRY="${REGISTRY:=docker.io}"
 readonly NAMESPACE="${NAMESPACE:=civiform}"
 readonly IMAGE="oidc-provider"
 readonly LOCATION="test-support/"
 readonly DOCKERFILE="test-support/oidc.Dockerfile"
+readonly FULL_IMAGE_NAME="${REGISTRY}/${NAMESPACE}/${IMAGE}"
 
 BUILD_ARGS=(--file "${DOCKERFILE}"
-  --tag "${NAMESPACE}/${IMAGE}:latest"
-  --cache-from "${NAMESPACE}/${IMAGE}"
+  --tag "${FULL_IMAGE_NAME}:latest"
+  --cache-from "${FULL_IMAGE_NAME}"
   --build-arg BUILDKIT_INLINE_CACHE=1
   "${LOCATION}")
 
@@ -40,4 +43,4 @@ if [[ "${PUSH_IMAGE}" ]]; then
   docker buildx build --push "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
 fi
 
-docker tag "${NAMESPACE}/${IMAGE}:latest" "civiform-${IMAGE}:latest"
+docker tag "${FULL_IMAGE_NAME}:latest" "civiform-${IMAGE}:latest"
