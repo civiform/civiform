@@ -71,18 +71,18 @@ export class AdminProgramImage {
 
   async expectDisabledTranslationButton() {
     expect(
-      await this.page.getAttribute(translationsButtonLocator, 'disabled'),
+      await this.page.getAttribute(this.translationsButtonLocator, 'disabled'),
     ).not.toBeNull()
   }
 
   async expectEnabledTranslationButton() {
     expect(
-      await this.page.getAttribute(translationsButtonLocator, 'disabled'),
+      await this.page.getAttribute(this.translationsButtonLocator, 'disabled'),
     ).toBeNull()
   }
 
   async clickTranslationButton() {
-    await this.page.click(translationsButtonLocator)
+    await this.page.click(this.translationsButtonLocator)
   }
 
   descriptionUpdatedToastMessage(description: string) {
