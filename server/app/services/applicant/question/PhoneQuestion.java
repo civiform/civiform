@@ -109,7 +109,7 @@ public final class PhoneQuestion extends Question {
     Optional<String> countryCodeValue = applicantData.readString(getCountryCodePath());
 
     if (shouldReturnPrimaryApplicantInfoValue(countryCodeValue.isEmpty(), applicantData, PrimaryApplicantInfoTag.APPLICANT_PHONE)) {
-      phoneNumberValue = applicantData.getApplicant().getCountryCode();
+      countryCodeValue = applicantData.getApplicant().getCountryCode();
     }
 
     return countryCodeValue;
