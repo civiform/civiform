@@ -5,7 +5,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
-import static j2html.TagCreator.span;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -239,8 +238,8 @@ public final class ProgramImageView extends BaseHtmlView {
 
     // TODO(#5676): Replace with final UX once we have it.
     return div()
-            .withClass("mt-10")
-            .with(fullForm)
+        .withClass("mt-10")
+        .with(fullForm)
         .with(buttonsDiv)
         .with(p("Note: Image description is required before uploading an image.").withClass("mt-1"))
         .with(fileUploadViewStrategy.footerTags());

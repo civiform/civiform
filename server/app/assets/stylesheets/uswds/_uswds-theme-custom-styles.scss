@@ -24,3 +24,8 @@ See the radio-option below as an example.
 .cf-radio-option:focus-within {
   @include u-border('blue-40v');
 }
+
+/* Make the file input element for program image upload fill the area it's given. */
+.usa-file-input {
+  max-width: none;
+}
