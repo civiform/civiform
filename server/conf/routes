@@ -93,10 +93,10 @@ GET     /admin/questions/:questionName/translations/:locale/edit  controllers.ad
 POST    /admin/questions/:questionName/translations/:locale       controllers.admin.AdminQuestionTranslationsController.update(request: Request, questionName: String, locale: String)
 
 # Routes for a CiviForm admin to manage program image
-GET     /admin/programs/:programId/image             controllers.admin.AdminProgramImageController.index(request: Request, programId: Long)
-POST    /admin/programs/:programId/image/description controllers.admin.AdminProgramImageController.updateDescription(request: Request, programId: Long)
-GET /admin/programs/:programId/image/file            controllers.admin.AdminProgramImageController.updateFileKey(request: Request, programId: Long)
-POST    /admin/programs/:programId/image/file/delete controllers.admin.AdminProgramImageController.deleteFileKey(request: Request, programId: Long)
+GET     /admin/programs/:programId/image/:referer             controllers.admin.AdminProgramImageController.index(request: Request, programId: Long, referer: String)
+POST    /admin/programs/:programId/image/description/:referer  controllers.admin.AdminProgramImageController.updateDescription(request: Request, programId: Long, referer: String)
+GET /admin/programs/:programId/image/file/:referer                     controllers.admin.AdminProgramImageController.updateFileKey(request: Request, programId: Long, referer: String)
+POST    /admin/programs/:programId/image/file/delete/:referer  controllers.admin.AdminProgramImageController.deleteFileKey(request: Request, programId: Long, referer: String)
 
 # Trusted Intermediary routes
 GET     /admin/tiGroups                    controllers.admin.TrustedIntermediaryManagementController.index(request: Request)
