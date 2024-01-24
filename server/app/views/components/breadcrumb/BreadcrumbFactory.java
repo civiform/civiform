@@ -19,6 +19,9 @@ import views.components.Icons;
  * Factory class for creating the breadcrumb UI component. See <a
  * href="https://designsystem.digital.gov/components/breadcrumb/">USWDS Breadcrumb
  * Documentation</a>.
+ *
+ * <p>Note: Breadcrumbs aren't currently used because we want all admin pages to have consistent
+ * navigation, so we should move all admin pages to breadcrumbs at once. See #6275.
  */
 public final class BreadcrumbFactory {
 

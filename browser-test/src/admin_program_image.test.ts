@@ -23,6 +23,57 @@ describe('Admin can manage program image', () => {
     await validateScreenshot(page, 'program-image-none')
   })
 
+  it('back button redirects to block page if came from block page', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'program name'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramImagePage(programName)
+
+    await adminProgramImage.clickBackButton()
+
+    await adminPrograms.expectProgramBlockEditPage()
+  })
+
+  it('back button redirects to details page if came from details page', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'program name'
+    await adminPrograms.addProgram(programName)
+
+    // Navigate from edit program blocks page > edit program details page > edit program image page
+    await adminPrograms.gotoEditDraftProgramPage(programName)
+    await adminPrograms.goToProgramDescriptionPage(programName)
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminProgramImage.expectProgramImagePage()
+
+    // WHEN back is clicked
+    await adminProgramImage.clickBackButton()
+
+    // THEN the admin goes back to the program details page
+    await adminPrograms.expectProgramEditPage()
+  })
+
+  it('back button redirects to details page if came from create program page', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    // After creating a program, admin should be redirected to the program images page
+    await adminPrograms.addProgram('program name')
+    await adminProgramImage.expectProgramImagePage()
+
+    // WHEN back is clicked
+    await adminProgramImage.clickBackButton()
+
+    // THEN the admin goes back to the program details page
+    await adminPrograms.expectProgramEditPage()
+  })
+
   describe('description', () => {
     const programName = 'Test program'
 

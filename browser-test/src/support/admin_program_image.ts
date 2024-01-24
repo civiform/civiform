@@ -13,6 +13,10 @@ export class AdminProgramImage {
     this.page = page
   }
 
+  async clickBackButton() {
+    await this.page.click('a:has-text("Back")')
+  }
+
   async setImageDescriptionAndSubmit(description: string) {
     await this.page.fill(this.imageDescriptionLocator, description)
     await this.page.click('button[form=image-description-form]')

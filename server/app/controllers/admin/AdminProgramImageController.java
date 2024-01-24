@@ -115,4 +115,15 @@ public final class AdminProgramImageController extends CiviFormController {
     final String indexUrl = routes.AdminProgramImageController.index(programId, referer).url();
     return redirect(indexUrl).flashing("success", "Image removed");
   }
+
+  /**
+   * Enum specifying how an admin got to the program image page. This is used to ensure the "Back"
+   * button goes to the right place.
+   */
+  public enum Referer {
+    /** The admin came from the edit program details page. */
+    DETAILS,
+    /** The admin came from the edit program blocks page. */
+    BLOCKS
+  }
 }

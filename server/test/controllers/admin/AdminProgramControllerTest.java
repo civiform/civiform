@@ -209,7 +209,10 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .getProgramDefinition()
             .id();
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramImageController.index(programId).url());
+        .hasValue(
+            routes.AdminProgramImageController.index(
+                    programId, AdminProgramImageController.Referer.DETAILS.name())
+                .url());
   }
 
   @Test
@@ -645,7 +648,10 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramImageController.index(program.id).url());
+        .hasValue(
+            routes.AdminProgramImageController.index(
+                    program.id, AdminProgramImageController.Referer.DETAILS.name())
+                .url());
   }
 
   @Test
