@@ -1,10 +1,12 @@
 package services.question.types;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
+import services.question.PrimaryApplicantInfoTag;
 
 @AutoValue
 public abstract class QuestionDefinitionConfig {
@@ -38,13 +40,17 @@ public abstract class QuestionDefinitionConfig {
 
   abstract boolean universal();
 
+  abstract ImmutableSet<PrimaryApplicantInfoTag> primaryApplicantInfoTags();
+
   /**
-   * Used to create a new {@link QuestionDefinitionConfig}. We default the universal field to false
-   * here to avoid having to explicitly set it to false everywhere that is using a builder and not
-   * trying to create a universal question.
+   * Used to create a new {@link QuestionDefinitionConfig}. We default some fields here to avoid
+   * having to explicitly set default values everywhere that is using a builder and not trying to
+   * use these fields.
    */
   public static RequiredName builder() {
-    return new AutoValue_QuestionDefinitionConfig.Builder().setUniversal(false);
+    return new AutoValue_QuestionDefinitionConfig.Builder()
+        .setUniversal(false)
+        .setPrimaryApplicantInfoTags(ImmutableSet.of());
   }
 
   /** Used to create a new {@link QuestionDefinitionConfig.Builder} based on an existing one. */
@@ -87,6 +93,9 @@ public abstract class QuestionDefinitionConfig {
     abstract Builder setQuestionHelpTextInternal(LocalizedStrings questionHelpText);
 
     public abstract Builder setUniversal(boolean universal);
+
+    public abstract Builder setPrimaryApplicantInfoTags(
+        ImmutableSet<PrimaryApplicantInfoTag> primaryApplicantInfoTags);
 
     public abstract QuestionDefinitionConfig build();
   }

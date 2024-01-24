@@ -21,6 +21,7 @@ import javax.inject.Provider;
 import models.QuestionModel;
 import models.QuestionTag;
 import models.VersionModel;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -113,6 +114,16 @@ public final class QuestionRepository {
         if (!definition.isUniversal()) {
           newDraftQuestion.removeTag(QuestionTag.UNIVERSAL);
         }
+
+        // Same deal here.  We have to remove any QuestionTags for PrimaryApplicantInfoTags that are
+        // not present.
+        PrimaryApplicantInfoTag.getAllTagsForQuestionType(definition.getQuestionType())
+            .forEach(
+                primaryApplicantInfoTag -> {
+                  if (!definition.containsPrimaryApplicantInfoTag(primaryApplicantInfoTag)) {
+                    newDraftQuestion.removeTag(primaryApplicantInfoTag.getQuestionTag());
+                  }
+                });
 
         newDraftQuestion.addVersion(draftVersion).save();
         draftVersion.refresh();
