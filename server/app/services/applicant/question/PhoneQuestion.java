@@ -21,8 +21,10 @@ import services.question.types.PhoneQuestionDefinition;
 public final class PhoneQuestion extends Question {
 
   private Optional<String> phoneNumberValue;
-  private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
   private Optional<String> countryCodeValue;
+  
+  private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
+
 
   PhoneQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
