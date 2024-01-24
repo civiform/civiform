@@ -154,7 +154,7 @@ public final class AdminProgramController extends CiviFormController {
     long programId = result.getResult().id();
     if (settingsManifest.getProgramCardImages(request)) {
       // After creating a new program, we want to direct admins to also add a program image.
-      return redirect(routes.AdminProgramImageController.index(programId).url());
+      return redirect(routes.AdminProgramImageController.index(programId, AdminProgramImageController.RefererLocation.PROGRAM_DETAILS_EDIT.name()).url());
     } else {
       return redirect(routes.AdminProgramBlocksController.index(programId).url());
     }

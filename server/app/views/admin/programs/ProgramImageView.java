@@ -11,8 +11,10 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import controllers.admin.AdminProgramImageController;
 import controllers.admin.routes;
 import forms.admin.ProgramImageDescriptionForm;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -46,10 +48,9 @@ import views.applicant.ProgramCardViewRenderer;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ToastMessage;
-import views.components.breadcrumb.BreadcrumbFactory;
-import views.components.breadcrumb.BreadcrumbItem;
 import views.fileupload.FileUploadViewStrategy;
 import views.style.StyleUtils;
 
@@ -64,7 +65,6 @@ public final class ProgramImageView extends BaseHtmlView {
   private static final String DELETE_IMAGE_BUTTON_TEXT = "Delete image";
 
   private final AdminLayout layout;
-  private final BreadcrumbFactory breadcrumbFactory;
   private final String baseUrl;
   private final FormFactory formFactory;
   private final FileUploadViewStrategy fileUploadViewStrategy;
@@ -77,7 +77,6 @@ public final class ProgramImageView extends BaseHtmlView {
   @Inject
   public ProgramImageView(
       AdminLayoutFactory layoutFactory,
-      BreadcrumbFactory breadcrumbFactory,
       Config config,
       FormFactory formFactory,
       FileUploadViewStrategy fileUploadViewStrategy,
@@ -87,7 +86,6 @@ public final class ProgramImageView extends BaseHtmlView {
       PublicStorageClient publicStorageClient,
       ZoneId zoneId) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
-    this.breadcrumbFactory = checkNotNull(breadcrumbFactory);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.formFactory = checkNotNull(formFactory);
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
@@ -102,18 +100,33 @@ public final class ProgramImageView extends BaseHtmlView {
    * Renders the image currently associated with the program and a form to add / edit / delete the
    * image (and its alt text).
    */
-  public Content render(Http.Request request, ProgramDefinition programDefinition) {
-    // TODO(#5676): Replace breadcrumbs with a back button.
-    DivTag breadcrumbs = createBreadcrumbs(programDefinition);
+  public Content render(Http.Request request, ProgramDefinition programDefinition, AdminProgramImageController.RefererLocation referer) {
+    String backTarget;
+    switch (referer) {
+      case PROGRAM_BLOCKS_EDIT:
+        backTarget = routes.AdminProgramBlocksController.index(programDefinition.id()).url();
+        break;
+      case PROGRAM_DETAILS_EDIT:
+        backTarget = routes.AdminProgramController.edit(programDefinition.id()).url();
+        break;
+      default:
+        throw new IllegalStateException("All referer cases should be handled above");
+    }
+    ATag backButton = new LinkElement()
+            .setHref(backTarget)
+            .setIcon(Icons.ARROW_LEFT, LinkElement.IconPosition.START)
+            .setText("Back")
+            .setStyles("my-6", "ml-10")
+            .asAnchorText();
 
     DivTag mainContent = div().withClass("mx-20");
 
     H1Tag titleContainer = renderHeader(PAGE_TITLE);
 
     DivTag formsContainer = div();
-    Modal deleteImageModal = createDeleteImageModal(request, programDefinition);
-    formsContainer.with(createImageDescriptionForm(request, programDefinition));
-    formsContainer.with(createImageUploadForm(programDefinition, deleteImageModal.getButton()));
+    Modal deleteImageModal = createDeleteImageModal(request, programDefinition, referer.name());
+    formsContainer.with(createImageDescriptionForm(request, programDefinition, referer));
+    formsContainer.with(createImageUploadForm(programDefinition, deleteImageModal.getButton(), referer.name()));
 
     DivTag formsAndCurrentCardContainer =
         div().withClasses("grid", "grid-cols-2", "gap-10", "w-full");
@@ -126,7 +139,7 @@ public final class ProgramImageView extends BaseHtmlView {
         layout
             .getBundle(request)
             .setTitle(PAGE_TITLE)
-            .addMainContent(div().with(breadcrumbs, mainContent))
+            .addMainContent(div().with(backButton, mainContent))
             .addModals(deleteImageModal);
 
     // TODO(#5676): This toast code is re-implemented across multiple controllers. Can we write a
@@ -139,25 +152,8 @@ public final class ProgramImageView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private DivTag createBreadcrumbs(ProgramDefinition program) {
-    ImmutableList<BreadcrumbItem> breadcrumbItems =
-        ImmutableList.of(
-            BreadcrumbItem.create(
-                "All Programs",
-                /* link= */ baseUrl + routes.AdminProgramController.index().url(),
-                /* icon= */ null),
-            BreadcrumbItem.create(
-                program.localizedName().getDefault(),
-                /* link= */ baseUrl + routes.AdminProgramBlocksController.index(program.id()).url(),
-                /* icon= */ null),
-            BreadcrumbItem.create(PAGE_TITLE, /* link= */ null, Icons.IMAGE));
-    return div()
-        .withClasses("mt-4", "mx-10")
-        .with(breadcrumbFactory.buildBreadcrumbTrail(breadcrumbItems));
-  }
-
   private DivTag createImageDescriptionForm(
-      Http.Request request, ProgramDefinition programDefinition) {
+          Http.Request request, ProgramDefinition programDefinition, AdminProgramImageController.RefererLocation refererLocation) {
     String existingDescription = getExistingDescription(programDefinition);
     ProgramImageDescriptionForm existingDescriptionForm =
         new ProgramImageDescriptionForm(existingDescription);
@@ -179,7 +175,7 @@ public final class ProgramImageView extends BaseHtmlView {
                 .withId(IMAGE_DESCRIPTION_FORM_ID)
                 .withMethod("POST")
                 .withAction(
-                    routes.AdminProgramImageController.updateDescription(programDefinition.id())
+                    routes.AdminProgramImageController.updateDescription(programDefinition.id(), refererLocation.name())
                         .url())
                 .with(
                     makeCsrfTokenInputTag(request),
@@ -203,9 +199,9 @@ public final class ProgramImageView extends BaseHtmlView {
     return button.map(buttonTag -> buttonTag.withCondDisabled(existingDescription.isBlank()));
   }
 
-  private DivTag createImageUploadForm(ProgramDefinition program, ButtonTag deleteButton) {
+  private DivTag createImageUploadForm(ProgramDefinition program, ButtonTag deleteButton, String referer) {
     boolean hasNoDescription = getExistingDescription(program).isBlank();
-    StorageUploadRequest storageUploadRequest = createStorageUploadRequest(program);
+    StorageUploadRequest storageUploadRequest = createStorageUploadRequest(program, referer);
     FormTag form =
         fileUploadViewStrategy
             .renderFileUploadFormElement(storageUploadRequest)
@@ -247,10 +243,10 @@ public final class ProgramImageView extends BaseHtmlView {
     // TODO(#5676): Warn admins of recommended image size and dimensions.
   }
 
-  private StorageUploadRequest createStorageUploadRequest(ProgramDefinition program) {
+  private StorageUploadRequest createStorageUploadRequest(ProgramDefinition program, String referer) {
     String key = PublicFileNameFormatter.formatPublicProgramImageFileKey(program.id());
     String onSuccessRedirectUrl =
-        baseUrl + routes.AdminProgramImageController.updateFileKey(program.id()).url();
+        baseUrl + routes.AdminProgramImageController.updateFileKey(program.id(), referer).url();
     return publicStorageClient.getSignedUploadRequest(key, onSuccessRedirectUrl);
   }
 
@@ -304,7 +300,7 @@ public final class ProgramImageView extends BaseHtmlView {
     // different ID, so ApplicantProgramsController prevents access.
   }
 
-  private Modal createDeleteImageModal(Http.Request request, ProgramDefinition program) {
+  private Modal createDeleteImageModal(Http.Request request, ProgramDefinition program, String referer) {
     ButtonTag deleteImageButton =
         ViewUtils.makeSvgTextButton(DELETE_IMAGE_BUTTON_TEXT, Icons.DELETE)
             .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "flex", "ml-2")
@@ -313,7 +309,7 @@ public final class ProgramImageView extends BaseHtmlView {
     FormTag deleteBlockForm =
         form(makeCsrfTokenInputTag(request))
             .withMethod(Http.HttpVerbs.POST)
-            .withAction(routes.AdminProgramImageController.deleteFileKey(program.id()).url())
+            .withAction(routes.AdminProgramImageController.deleteFileKey(program.id(), referer).url())
             .with(p("Once you delete this image, you'll need to re-upload a new image."))
             .with(
                 submitButton(DELETE_IMAGE_BUTTON_TEXT)
