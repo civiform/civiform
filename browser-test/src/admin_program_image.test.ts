@@ -167,7 +167,7 @@ describe('Admin can manage program image', () => {
       // AWS requires that the <input type="file"> element to be the last <input> in the <form>
       expect(await lastFormInput.getAttribute('type')).toBe('file')
     })
-z
+
     it('shows uploaded image before submitting', async () => {
       const {page, adminProgramImage} = ctx
 
