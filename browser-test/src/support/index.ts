@@ -546,7 +546,7 @@ export const validateScreenshot = async (
 
   if (mobileScreenshot) {
     const height = page.viewportSize()?.height || 720
-    // Update the viewport size to different screen widths so we 
+    // Update the viewport size to different screen widths so we
     await page.setViewportSize({width: 320, height})
 
     await takeScreenshot(element, `${screenshotFileName}-mobile`, fullPage)
@@ -564,25 +564,26 @@ export const validateScreenshot = async (
 const takeScreenshot = async (
   element: Page | Locator,
   fullScreenshotFileName: string,
-  fullPage?: boolean) => {
-    expect(
-      await element.screenshot({
-        fullPage,
-      }),
-    ).toMatchImageSnapshot({
-      allowSizeMismatch: true,
-      failureThreshold: 0,
-      failureThresholdType: 'percent',
-      customSnapshotsDir: 'image_snapshots',
-      customDiffDir: 'diff_output',
-      storeReceivedOnFailure: true,
-      customReceivedDir: 'updated_snapshots',
-      customSnapshotIdentifier: ({testPath}) => {
-        const dir = path.basename(testPath).replace('.test.ts', '_test')
-        return `${dir}/${fullScreenshotFileName}`
-      },
-    })
-  }
+  fullPage?: boolean,
+) => {
+  expect(
+    await element.screenshot({
+      fullPage,
+    }),
+  ).toMatchImageSnapshot({
+    allowSizeMismatch: true,
+    failureThreshold: 0,
+    failureThresholdType: 'percent',
+    customSnapshotsDir: 'image_snapshots',
+    customDiffDir: 'diff_output',
+    storeReceivedOnFailure: true,
+    customReceivedDir: 'updated_snapshots',
+    customSnapshotIdentifier: ({testPath}) => {
+      const dir = path.basename(testPath).replace('.test.ts', '_test')
+      return `${dir}/${fullScreenshotFileName}`
+    },
+  })
+}
 
 /*
  * Replaces any variable content with static values. This is particularly useful
