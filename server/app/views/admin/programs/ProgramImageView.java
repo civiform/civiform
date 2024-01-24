@@ -11,6 +11,7 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import controllers.admin.AdminProgramImageController;
 import controllers.admin.routes;
 import forms.admin.ProgramImageDescriptionForm;
 import j2html.tags.specialized.ATag;
@@ -99,11 +100,12 @@ public final class ProgramImageView extends BaseHtmlView {
    * Renders the image currently associated with the program and a form to add / edit / delete the
    * image (and its alt text).
    *
-   * @param referer specifies how an admin got to the program image page. This should match a name
-   *     in the {@link Referer} enum.
+   * @param referer specifies how an admin got to the program image page so that the "Back" button
+   *     can direct the admin appropriately. This should match a name in the {@link
+   *     AdminProgramImageController.Referer} enum.
    */
   public Content render(Http.Request request, ProgramDefinition programDefinition, String referer) {
-    ATag backButton = getBackButton(programDefinition, referer);
+    ATag backButton = createBackButton(programDefinition, referer);
 
     DivTag mainContent = div().withClass("mx-20");
 
@@ -112,7 +114,8 @@ public final class ProgramImageView extends BaseHtmlView {
     DivTag formsContainer = div();
     Modal deleteImageModal = createDeleteImageModal(request, programDefinition, referer);
     formsContainer.with(createImageDescriptionForm(request, programDefinition, referer));
-    formsContainer.with(createImageUploadForm(programDefinition, deleteImageModal.getButton(), referer));
+    formsContainer.with(
+        createImageUploadForm(programDefinition, deleteImageModal.getButton(), referer));
 
     DivTag formsAndCurrentCardContainer =
         div().withClasses("grid", "grid-cols-2", "gap-10", "w-full");
@@ -315,9 +318,17 @@ public final class ProgramImageView extends BaseHtmlView {
         .build();
   }
 
-  private ATag getBackButton(ProgramDefinition programDefinition, String referer) {
+  private ATag createBackButton(ProgramDefinition programDefinition, String referer) {
+
+    AdminProgramImageController.Referer refererEnum;
+    try {
+      refererEnum = AdminProgramImageController.Referer.valueOf(referer);
+    } catch (IllegalArgumentException e) {
+      refererEnum = AdminProgramImageController.Referer.BLOCKS;
+    }
+
     String backTarget;
-    switch (getRefererEnum(referer)) {
+    switch (refererEnum) {
       case BLOCKS:
         backTarget = routes.AdminProgramBlocksController.index(programDefinition.id()).url();
         break;
@@ -327,30 +338,12 @@ public final class ProgramImageView extends BaseHtmlView {
       default:
         throw new IllegalStateException("All referer cases should be handled above");
     }
+
     return new LinkElement()
         .setHref(backTarget)
         .setIcon(Icons.ARROW_LEFT, LinkElement.IconPosition.START)
         .setText("Back")
         .setStyles("my-6", "ml-10")
         .asAnchorText();
-  }
-
-  private ProgramImageView.Referer getRefererEnum(String refererName) {
-    try {
-      return ProgramImageView.Referer.valueOf(refererName);
-    } catch (IllegalArgumentException e) {
-      return ProgramImageView.Referer.BLOCKS;
-    }
-  }
-
-  /**
-   * Enum specifying how an admin got to the program image page. This is used to ensure the "Back"
-   * button goes to the right place.
-   */
-  public enum Referer {
-    /** The admin came from the edit program details page. */
-    DETAILS,
-    /** The admin came from the edit program blocks page. */
-    BLOCKS
   }
 }
