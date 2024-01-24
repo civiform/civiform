@@ -15,6 +15,7 @@ import models.QuestionTag;
 import org.junit.Before;
 import org.junit.Test;
 import services.LocalizedStrings;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -298,5 +299,202 @@ public class QuestionRepositoryTest extends ResetPostgres {
         new QuestionDefinitionBuilder(question.getQuestionDefinition()).setUniversal(false).build();
     question = repo.createOrUpdateDraft(nextQuestionDefinition);
     assertThat(question.getQuestionTags().contains(QuestionTag.UNIVERSAL)).isFalse();
+  }
+
+  @Test
+  public void createOrUpdateDraft_managesPrimaryApplicantInfoTagsCorrectl()
+      throws UnsupportedQuestionTypeException {
+    QuestionModel nameQuestion = testQuestionBank.applicantName();
+    QuestionModel dateQuestion = testQuestionBank.applicantDate();
+    QuestionModel emailQuestion = testQuestionBank.applicantEmail();
+    QuestionModel phoneQuestion = testQuestionBank.applicantPhone();
+    ImmutableSet<PrimaryApplicantInfoTag> nameTag =
+        ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_NAME);
+    ImmutableSet<PrimaryApplicantInfoTag> dateTag =
+        ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_DOB);
+    ImmutableSet<PrimaryApplicantInfoTag> emailTag =
+        ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_EMAIL);
+    ImmutableSet<PrimaryApplicantInfoTag> phoneTag =
+        ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_PHONE);
+    QuestionDefinition nameQuestionDefinition;
+    QuestionDefinition dateQuestionDefinition;
+    QuestionDefinition emailQuestionDefinition;
+    QuestionDefinition phoneQuestionDefinition;
+
+    // Create new draft, ensure tags are correct
+    nameQuestionDefinition =
+        new QuestionDefinitionBuilder(nameQuestion.getQuestionDefinition())
+            .setPrimaryApplicantInfoTags(nameTag)
+            .build();
+    dateQuestionDefinition =
+        new QuestionDefinitionBuilder(dateQuestion.getQuestionDefinition())
+            .setPrimaryApplicantInfoTags(dateTag)
+            .build();
+    emailQuestionDefinition =
+        new QuestionDefinitionBuilder(emailQuestion.getQuestionDefinition())
+            .setPrimaryApplicantInfoTags(emailTag)
+            .build();
+    phoneQuestionDefinition =
+        new QuestionDefinitionBuilder(phoneQuestion.getQuestionDefinition())
+            .setPrimaryApplicantInfoTags(phoneTag)
+            .build();
+
+    nameQuestion = repo.createOrUpdateDraft(nameQuestionDefinition);
+    dateQuestion = repo.createOrUpdateDraft(dateQuestionDefinition);
+    emailQuestion = repo.createOrUpdateDraft(emailQuestionDefinition);
+    phoneQuestion = repo.createOrUpdateDraft(phoneQuestionDefinition);
+
+    assertThat(
+            nameQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_NAME.getQuestionTag()))
+        .isTrue();
+    assertThat(
+            dateQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_DOB.getQuestionTag()))
+        .isTrue();
+    assertThat(
+            emailQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_EMAIL.getQuestionTag()))
+        .isTrue();
+    assertThat(
+            phoneQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag()))
+        .isTrue();
+
+    versionRepo.publishNewSynchronizedVersion();
+
+    nameQuestionDefinition =
+        new QuestionDefinitionBuilder(nameQuestion.getQuestionDefinition())
+            .setPrimaryApplicantInfoTags(ImmutableSet.of())
+            .build();
+    dateQuestionDefinition =
+        new QuestionDefinitionBuilder(dateQuestion.getQuestionDefinition())
+            .setPrimaryApplicantInfoTags(ImmutableSet.of())
+            .build();
+    emailQuestionDefinition =
+        new QuestionDefinitionBuilder(emailQuestion.getQuestionDefinition())
+            .setPrimaryApplicantInfoTags(ImmutableSet.of())
+            .build();
+    phoneQuestionDefinition =
+        new QuestionDefinitionBuilder(phoneQuestion.getQuestionDefinition())
+            .setPrimaryApplicantInfoTags(ImmutableSet.of())
+            .build();
+
+    nameQuestion = repo.createOrUpdateDraft(nameQuestionDefinition);
+    dateQuestion = repo.createOrUpdateDraft(dateQuestionDefinition);
+    emailQuestion = repo.createOrUpdateDraft(emailQuestionDefinition);
+    phoneQuestion = repo.createOrUpdateDraft(phoneQuestionDefinition);
+
+    assertThat(
+            nameQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_NAME.getQuestionTag()))
+        .isFalse();
+    assertThat(
+            dateQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_DOB.getQuestionTag()))
+        .isFalse();
+    assertThat(
+            emailQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_EMAIL.getQuestionTag()))
+        .isFalse();
+    assertThat(
+            phoneQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag()))
+        .isFalse();
+
+    // Update existing draft, ensure tags are correct
+    nameQuestionDefinition =
+        new QuestionDefinitionBuilder(nameQuestion.getQuestionDefinition())
+            .setPrimaryApplicantInfoTags(nameTag)
+            .build();
+    dateQuestionDefinition =
+        new QuestionDefinitionBuilder(dateQuestion.getQuestionDefinition())
+            .setPrimaryApplicantInfoTags(dateTag)
+            .build();
+    emailQuestionDefinition =
+        new QuestionDefinitionBuilder(emailQuestion.getQuestionDefinition())
+            .setPrimaryApplicantInfoTags(emailTag)
+            .build();
+    phoneQuestionDefinition =
+        new QuestionDefinitionBuilder(phoneQuestion.getQuestionDefinition())
+            .setPrimaryApplicantInfoTags(phoneTag)
+            .build();
+
+    nameQuestion = repo.createOrUpdateDraft(nameQuestionDefinition);
+    dateQuestion = repo.createOrUpdateDraft(dateQuestionDefinition);
+    emailQuestion = repo.createOrUpdateDraft(emailQuestionDefinition);
+    phoneQuestion = repo.createOrUpdateDraft(phoneQuestionDefinition);
+
+    assertThat(
+            nameQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_NAME.getQuestionTag()))
+        .isTrue();
+    assertThat(
+            dateQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_DOB.getQuestionTag()))
+        .isTrue();
+    assertThat(
+            emailQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_EMAIL.getQuestionTag()))
+        .isTrue();
+    assertThat(
+            phoneQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag()))
+        .isTrue();
+
+    nameQuestionDefinition =
+        new QuestionDefinitionBuilder(nameQuestion.getQuestionDefinition())
+            .setPrimaryApplicantInfoTags(ImmutableSet.of())
+            .build();
+    dateQuestionDefinition =
+        new QuestionDefinitionBuilder(dateQuestion.getQuestionDefinition())
+            .setPrimaryApplicantInfoTags(ImmutableSet.of())
+            .build();
+    emailQuestionDefinition =
+        new QuestionDefinitionBuilder(emailQuestion.getQuestionDefinition())
+            .setPrimaryApplicantInfoTags(ImmutableSet.of())
+            .build();
+    phoneQuestionDefinition =
+        new QuestionDefinitionBuilder(phoneQuestion.getQuestionDefinition())
+            .setPrimaryApplicantInfoTags(ImmutableSet.of())
+            .build();
+
+    nameQuestion = repo.createOrUpdateDraft(nameQuestionDefinition);
+    dateQuestion = repo.createOrUpdateDraft(dateQuestionDefinition);
+    emailQuestion = repo.createOrUpdateDraft(emailQuestionDefinition);
+    phoneQuestion = repo.createOrUpdateDraft(phoneQuestionDefinition);
+
+    assertThat(
+            nameQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_NAME.getQuestionTag()))
+        .isFalse();
+    assertThat(
+            dateQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_DOB.getQuestionTag()))
+        .isFalse();
+    assertThat(
+            emailQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_EMAIL.getQuestionTag()))
+        .isFalse();
+    assertThat(
+            phoneQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag()))
+        .isFalse();
   }
 }

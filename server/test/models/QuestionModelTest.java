@@ -3,6 +3,7 @@ package models;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -11,11 +12,16 @@ import org.junit.Test;
 import repository.QuestionRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
+import services.question.types.DateQuestionDefinition;
+import services.question.types.EmailQuestionDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.NameQuestionDefinition;
+import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
@@ -281,5 +287,77 @@ public class QuestionModelTest extends ResetPostgres {
         repo.lookupQuestion(nonUniversalQuestion.id).toCompletableFuture().join().get();
     assertThat(nonUniversalFound.getQuestionDefinition().isUniversal()).isFalse();
     assertThat(nonUniversalFound.containsTag(QuestionTag.UNIVERSAL)).isFalse();
+  }
+
+  @Test
+  public void savesPrimaryApplicantInfoTagsCorrectly() {
+    ImmutableSet<PrimaryApplicantInfoTag> nameTag =
+        ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_NAME);
+    ImmutableSet<PrimaryApplicantInfoTag> dateTag =
+        ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_DOB);
+    ImmutableSet<PrimaryApplicantInfoTag> emailTag =
+        ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_EMAIL);
+    ImmutableSet<PrimaryApplicantInfoTag> phoneTag =
+        ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_PHONE);
+
+    QuestionDefinitionConfig.Builder builder =
+        QuestionDefinitionConfig.builder()
+            .setName("test")
+            .setDescription("")
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty());
+    QuestionDefinition nameQuestionDefinition =
+        new NameQuestionDefinition(builder.setPrimaryApplicantInfoTags(nameTag).build());
+    QuestionDefinition dateQuestionDefinition =
+        new DateQuestionDefinition(builder.setPrimaryApplicantInfoTags(dateTag).build());
+    QuestionDefinition emailQuestionDefinition =
+        new EmailQuestionDefinition(builder.setPrimaryApplicantInfoTags(emailTag).build());
+    QuestionDefinition phoneQuestionDefinition =
+        new PhoneQuestionDefinition(builder.setPrimaryApplicantInfoTags(phoneTag).build());
+
+    QuestionModel nameQuestion = new QuestionModel(nameQuestionDefinition);
+    nameQuestion.save();
+    QuestionModel dateQuestion = new QuestionModel(dateQuestionDefinition);
+    dateQuestion.save();
+    QuestionModel emailQuestion = new QuestionModel(emailQuestionDefinition);
+    emailQuestion.save();
+    QuestionModel phoneQuestion = new QuestionModel(phoneQuestionDefinition);
+    phoneQuestion.save();
+
+    QuestionModel nameFound =
+        repo.lookupQuestion(nameQuestion.id).toCompletableFuture().join().get();
+    assertThat(
+            nameFound
+                .getQuestionDefinition()
+                .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_NAME))
+        .isTrue();
+    assertThat(nameFound.containsTag(QuestionTag.PRIMARY_APPLICANT_NAME)).isTrue();
+
+    QuestionModel dateFound =
+        repo.lookupQuestion(dateQuestion.id).toCompletableFuture().join().get();
+    assertThat(
+            dateFound
+                .getQuestionDefinition()
+                .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_DOB))
+        .isTrue();
+    assertThat(dateFound.containsTag(QuestionTag.PRIMARY_APPLICANT_DOB)).isTrue();
+
+    QuestionModel emailFound =
+        repo.lookupQuestion(emailQuestion.id).toCompletableFuture().join().get();
+    assertThat(
+            emailFound
+                .getQuestionDefinition()
+                .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_EMAIL))
+        .isTrue();
+    assertThat(emailFound.containsTag(QuestionTag.PRIMARY_APPLICANT_EMAIL)).isTrue();
+
+    QuestionModel phoneFound =
+        repo.lookupQuestion(phoneQuestion.id).toCompletableFuture().join().get();
+    assertThat(
+            phoneFound
+                .getQuestionDefinition()
+                .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_PHONE))
+        .isTrue();
+    assertThat(phoneFound.containsTag(QuestionTag.PRIMARY_APPLICANT_PHONE)).isTrue();
   }
 }

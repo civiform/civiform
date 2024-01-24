@@ -20,10 +20,10 @@ public enum QuestionTag {
   UNIVERSAL,
   // These are question tags that are associated with PrimaryApplicantInfoTags.
   // When adding a new one, ensure you update getPrimaryApplicantInfoTags as well.
+  PRIMARY_APPLICANT_DOB,
   PRIMARY_APPLICANT_EMAIL,
   PRIMARY_APPLICANT_NAME,
-  PRIMARY_APPLICANT_PHONE,
-  PRIMARY_APPLICANT_DOB;
+  PRIMARY_APPLICANT_PHONE;
 
   @DbEnumValue(storage = DbEnumType.VARCHAR)
   public String getValue() {
