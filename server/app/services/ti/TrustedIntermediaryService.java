@@ -3,9 +3,6 @@ package services.ti;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.i18n.phonenumbers.NumberParseException;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
-import com.google.i18n.phonenumbers.Phonenumber;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import forms.EditTiClientInfoForm;
 import java.time.LocalDate;
@@ -17,9 +14,12 @@ import models.AccountModel;
 import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
 import play.data.Form;
+import play.i18n.Messages;
 import repository.AccountRepository;
 import repository.SearchParameters;
 import services.DateConverter;
+import services.MessageKey;
+import services.PhoneValidationUtils;
 import services.applicant.exception.ApplicantNotFoundException;
 
 /**
@@ -44,7 +44,7 @@ public final class TrustedIntermediaryService {
   public static final String FORM_FIELD_NAME_PHONE = "phoneNumber";
   public static final String FORM_FIELD_NAME_MIDDLE_NAME = "middleName";
   public static final String FORM_FIELD_NAME_TI_NOTES = "tiNote";
-  private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
+  private static final String COUNTRY_CODE_FOR_US_REGION = "US";
 
   @Inject
   public TrustedIntermediaryService(
@@ -138,26 +138,17 @@ public final class TrustedIntermediaryService {
     return !newEmail.equals(account.getEmailAddress());
   }
 
-  private Form<EditTiClientInfoForm> validatePhoneNumber(Form<EditTiClientInfoForm> form) {
+  private Form<EditTiClientInfoForm> validatePhoneNumber(
+      Form<EditTiClientInfoForm> form, Messages preferredLanguage) {
     String phoneNumber = form.value().get().getPhoneNumber();
     if (Strings.isNullOrEmpty(phoneNumber)) {
       return form;
     }
-    // removes space, '(',')' and '-' from the phone number
-    phoneNumber = phoneNumber.replaceAll("[()-[\\s]]", "");
-    if (!phoneNumber.matches("[0-9]+")) {
-      return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain only digits");
-    }
-    if (phoneNumber.length() != 10) {
-      return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain only 10 digits");
-    }
-    try {
-      Phonenumber.PhoneNumber phonenumber = PHONE_NUMBER_UTIL.parse(phoneNumber, "US");
-      if (!PHONE_NUMBER_UTIL.isValidNumber(phonenumber)) {
-        return form.withError(FORM_FIELD_NAME_PHONE, "This phone number is not valid");
-      }
-    } catch (NumberParseException e) {
-      throw new RuntimeException(e);
+    Optional<MessageKey> error =
+        PhoneValidationUtils.validatePhoneNumber(
+            Optional.of(phoneNumber), Optional.of(COUNTRY_CODE_FOR_US_REGION));
+    if (error.isPresent()) {
+      return form.withError(FORM_FIELD_NAME_PHONE, preferredLanguage.at(error.get().getKeyName()));
     }
     return form;
   }
@@ -190,21 +181,25 @@ public final class TrustedIntermediaryService {
   /**
    * This function updates the client Information after validating the form fields
    *
-   * @param tiGroup - the TIGroup who manages the account whose info needs to be updated.
-   * @param accountId - the account Id of the applicant whose info should be updated
    * @param form - this contains all the fields like dob, phoneNumber, emailAddress, name and
    *     tiNotes.
+   * @param tiGroup - the TIGroup who manages the account whose info needs to be updated.
+   * @param accountId - the account Id of the applicant whose info should be updated
+   * @param preferredLanguage - the preferred Language of the TI Client (by default it is US-En)
    * @return form - the form object is always returned. If the form contains error, the controller
    *     will handle the field messages. If the account is not found for the given AccountId, a
    *     runtime exception is raised.
    */
   public Form<EditTiClientInfoForm> updateClientInfo(
-      Form<EditTiClientInfoForm> form, TrustedIntermediaryGroupModel tiGroup, Long accountId)
+      Form<EditTiClientInfoForm> form,
+      TrustedIntermediaryGroupModel tiGroup,
+      Long accountId,
+      Messages preferredLanguage)
       throws ApplicantNotFoundException {
     // validate functions return the form w/ validation errors if applicable
     form = validateFirstNameForEditClient(form);
     form = validateLastNameForEditClient(form);
-    form = validatePhoneNumber(form);
+    form = validatePhoneNumber(form, preferredLanguage);
     form = validateDateOfBirth(form);
     if (form.hasErrors()) {
       return form;
