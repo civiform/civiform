@@ -74,6 +74,31 @@ describe('Admin can manage program image', () => {
     await adminPrograms.expectProgramEditPage()
   })
 
+  it('back button preserves location after interaction', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'program name'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.gotoEditDraftProgramPage(programName)
+    await adminPrograms.goToProgramDescriptionPage(programName)
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminProgramImage.expectProgramImagePage()
+
+    // When an admin submits an image or description on the page, the page reloads.
+    // This test verifies that the redirect URL for the back button is preserved
+    // even after those submission and page reloads.
+    await adminProgramImage.setImageDescriptionAndSubmit('description')
+    await adminProgramImage.setImageFileAndSubmit(
+      'src/assets/program-summary-image-wide.png',
+    )
+
+    await adminProgramImage.clickBackButton()
+
+    await adminPrograms.expectProgramEditPage()
+  })
+
   describe('description', () => {
     const programName = 'Test program'
 
