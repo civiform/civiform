@@ -546,7 +546,8 @@ export const validateScreenshot = async (
 
   if (mobileScreenshot) {
     const height = page.viewportSize()?.height || 720
-    // Update the viewport size to different screen widths so we
+    // Update the viewport size to different screen widths so we can test on a
+    // variety of sizes
     await page.setViewportSize({width: 320, height})
 
     await takeScreenshot(element, `${screenshotFileName}-mobile`, fullPage)
