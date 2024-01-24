@@ -11,7 +11,6 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import controllers.admin.AdminProgramImageController;
 import controllers.admin.routes;
 import forms.admin.ProgramImageDescriptionForm;
 import j2html.tags.specialized.ATag;
@@ -99,34 +98,21 @@ public final class ProgramImageView extends BaseHtmlView {
   /**
    * Renders the image currently associated with the program and a form to add / edit / delete the
    * image (and its alt text).
+   *
+   * @param referer specifies how an admin got to the program image page. This should match a name
+   *     in the {@link Referer} enum.
    */
-  public Content render(Http.Request request, ProgramDefinition programDefinition, AdminProgramImageController.RefererLocation referer) {
-    String backTarget;
-    switch (referer) {
-      case PROGRAM_BLOCKS_EDIT:
-        backTarget = routes.AdminProgramBlocksController.index(programDefinition.id()).url();
-        break;
-      case PROGRAM_DETAILS_EDIT:
-        backTarget = routes.AdminProgramController.edit(programDefinition.id()).url();
-        break;
-      default:
-        throw new IllegalStateException("All referer cases should be handled above");
-    }
-    ATag backButton = new LinkElement()
-            .setHref(backTarget)
-            .setIcon(Icons.ARROW_LEFT, LinkElement.IconPosition.START)
-            .setText("Back")
-            .setStyles("my-6", "ml-10")
-            .asAnchorText();
+  public Content render(Http.Request request, ProgramDefinition programDefinition, String referer) {
+    ATag backButton = getBackButton(programDefinition, referer);
 
     DivTag mainContent = div().withClass("mx-20");
 
     H1Tag titleContainer = renderHeader(PAGE_TITLE);
 
     DivTag formsContainer = div();
-    Modal deleteImageModal = createDeleteImageModal(request, programDefinition, referer.name());
+    Modal deleteImageModal = createDeleteImageModal(request, programDefinition, referer);
     formsContainer.with(createImageDescriptionForm(request, programDefinition, referer));
-    formsContainer.with(createImageUploadForm(programDefinition, deleteImageModal.getButton(), referer.name()));
+    formsContainer.with(createImageUploadForm(programDefinition, deleteImageModal.getButton(), referer));
 
     DivTag formsAndCurrentCardContainer =
         div().withClasses("grid", "grid-cols-2", "gap-10", "w-full");
@@ -153,7 +139,7 @@ public final class ProgramImageView extends BaseHtmlView {
   }
 
   private DivTag createImageDescriptionForm(
-          Http.Request request, ProgramDefinition programDefinition, AdminProgramImageController.RefererLocation refererLocation) {
+      Http.Request request, ProgramDefinition programDefinition, String referer) {
     String existingDescription = getExistingDescription(programDefinition);
     ProgramImageDescriptionForm existingDescriptionForm =
         new ProgramImageDescriptionForm(existingDescription);
@@ -175,7 +161,8 @@ public final class ProgramImageView extends BaseHtmlView {
                 .withId(IMAGE_DESCRIPTION_FORM_ID)
                 .withMethod("POST")
                 .withAction(
-                    routes.AdminProgramImageController.updateDescription(programDefinition.id(), refererLocation.name())
+                    routes.AdminProgramImageController.updateDescription(
+                            programDefinition.id(), referer)
                         .url())
                 .with(
                     makeCsrfTokenInputTag(request),
@@ -200,7 +187,8 @@ public final class ProgramImageView extends BaseHtmlView {
     return button.map(buttonTag -> buttonTag.withCondDisabled(existingDescription.isBlank()));
   }
 
-  private DivTag createImageUploadForm(ProgramDefinition program, ButtonTag deleteButton, String referer) {
+  private DivTag createImageUploadForm(
+      ProgramDefinition program, ButtonTag deleteButton, String referer) {
     boolean hasNoDescription = getExistingDescription(program).isBlank();
     StorageUploadRequest storageUploadRequest = createStorageUploadRequest(program, referer);
     FormTag form =
@@ -245,7 +233,8 @@ public final class ProgramImageView extends BaseHtmlView {
     // TODO(#5676): Warn admins of recommended image size and dimensions.
   }
 
-  private StorageUploadRequest createStorageUploadRequest(ProgramDefinition program, String referer) {
+  private StorageUploadRequest createStorageUploadRequest(
+      ProgramDefinition program, String referer) {
     String key = PublicFileNameFormatter.formatPublicProgramImageFileKey(program.id());
     String onSuccessRedirectUrl =
         baseUrl + routes.AdminProgramImageController.updateFileKey(program.id(), referer).url();
@@ -302,7 +291,8 @@ public final class ProgramImageView extends BaseHtmlView {
     // different ID, so ApplicantProgramsController prevents access.
   }
 
-  private Modal createDeleteImageModal(Http.Request request, ProgramDefinition program, String referer) {
+  private Modal createDeleteImageModal(
+      Http.Request request, ProgramDefinition program, String referer) {
     ButtonTag deleteImageButton =
         ViewUtils.makeSvgTextButton(DELETE_IMAGE_BUTTON_TEXT, Icons.DELETE)
             .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "flex", "ml-2")
@@ -311,7 +301,8 @@ public final class ProgramImageView extends BaseHtmlView {
     FormTag deleteBlockForm =
         form(makeCsrfTokenInputTag(request))
             .withMethod(Http.HttpVerbs.POST)
-            .withAction(routes.AdminProgramImageController.deleteFileKey(program.id(), referer).url())
+            .withAction(
+                routes.AdminProgramImageController.deleteFileKey(program.id(), referer).url())
             .with(p("Once you delete this image, you'll need to re-upload a new image."))
             .with(
                 submitButton(DELETE_IMAGE_BUTTON_TEXT)
@@ -324,5 +315,44 @@ public final class ProgramImageView extends BaseHtmlView {
         .setModalTitle("Delete this program image?")
         .setTriggerButtonContent(deleteImageButton)
         .build();
+  }
+
+  private ATag getBackButton(ProgramDefinition programDefinition, String referer) {
+    String backTarget;
+    switch (getRefererEnum(referer)) {
+      case BLOCKS:
+        backTarget = routes.AdminProgramBlocksController.index(programDefinition.id()).url();
+        break;
+      case DETAILS:
+        backTarget = routes.AdminProgramController.edit(programDefinition.id()).url();
+        break;
+      default:
+        throw new IllegalStateException("All referer cases should be handled above");
+    }
+    return new LinkElement()
+        .setHref(backTarget)
+        .setIcon(Icons.ARROW_LEFT, LinkElement.IconPosition.START)
+        .setText("Back")
+        .setStyles("my-6", "ml-10")
+        .asAnchorText();
+  }
+
+  private ProgramImageView.Referer getRefererEnum(String refererName) {
+    try {
+      return ProgramImageView.Referer.valueOf(refererName);
+    } catch (IllegalArgumentException e) {
+      return ProgramImageView.Referer.BLOCKS;
+    }
+  }
+
+  /**
+   * Enum specifying how an admin got to the program image page. This is used to ensure the "Back"
+   * button goes to the right place.
+   */
+  public enum Referer {
+    /** The admin came from the edit program details page. */
+    DETAILS,
+    /** The admin came from the edit program blocks page. */
+    BLOCKS
   }
 }

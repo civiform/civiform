@@ -8,7 +8,6 @@ import static j2html.TagCreator.ul;
 import static views.style.AdminStyles.HEADER_BUTTON_STYLES;
 
 import com.google.common.collect.ImmutableList;
-import controllers.admin.AdminProgramImageController;
 import controllers.admin.routes;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -186,7 +185,9 @@ abstract class ProgramBaseView extends BaseHtmlView {
             ViewUtils.makeSvgTextButton("Edit program image", Icons.IMAGE)
                 .withClasses(HEADER_BUTTON_STYLES)
                 .withId("header_edit_program_image_button"),
-            routes.AdminProgramImageController.index(programDefinition.id(), AdminProgramImageController.RefererLocation.PROGRAM_BLOCKS_EDIT.name()).url());
+            routes.AdminProgramImageController.index(
+                    programDefinition.id(), ProgramImageView.Referer.BLOCKS.name())
+                .url());
       case PREVIEW_AS_APPLICANT:
         return asRedirectElement(
             ViewUtils.makeSvgTextButton("Preview as applicant", Icons.VIEW)

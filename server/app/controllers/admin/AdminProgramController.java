@@ -29,6 +29,7 @@ import services.program.ProgramService;
 import services.program.ProgramType;
 import services.question.QuestionService;
 import services.settings.SettingsManifest;
+import views.admin.programs.ProgramImageView;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
 import views.admin.programs.ProgramNewOneView;
