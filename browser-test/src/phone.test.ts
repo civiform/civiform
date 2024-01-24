@@ -55,6 +55,7 @@ describe('phone question for applicant flow', () => {
 
       await applicantQuestions.submitFromReviewPage()
     })
+
     it('with canada phone submits successfully', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
@@ -78,6 +79,7 @@ describe('phone question for applicant flow', () => {
         'This question is required.',
       )
     })
+
     it('with empty country code does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
@@ -137,7 +139,8 @@ describe('phone question for applicant flow', () => {
         'This phone number is invalid',
       )
     })
-    it('invalid length of phone numbers', async () => {
+
+    it('invalid length of phone number when only valid characters are included', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion(
@@ -151,6 +154,7 @@ describe('phone question for applicant flow', () => {
         'The phone number must contain only ten digits',
       )
     })
+
     it('invalid characters in phone numbers', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
@@ -165,6 +169,7 @@ describe('phone question for applicant flow', () => {
         'This phone number is invalid',
       )
     })
+
     it('incorrect length of phone number', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
@@ -176,6 +181,7 @@ describe('phone question for applicant flow', () => {
         'Phone number is required',
       )
     })
+
     it('hitting enter on phone does not trigger submission', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
@@ -199,6 +205,7 @@ describe('phone question for applicant flow', () => {
       await page.keyboard.press('Enter')
       await applicantQuestions.expectReviewPage()
     })
+
     it('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)

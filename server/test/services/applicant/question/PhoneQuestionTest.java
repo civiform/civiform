@@ -117,7 +117,7 @@ public class PhoneQuestionTest {
   }
 
   @Test
-  @Parameters({"12312345a03", "123td25342"})
+  @Parameters({"123123459a03", "123td25342"})
   public void withInvalidApplicantData_invalidPhoneNumberLength(String number) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(phoneQuestionDefinition, applicantData, Optional.empty());

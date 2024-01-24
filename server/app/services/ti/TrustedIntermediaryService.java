@@ -14,6 +14,7 @@ import models.AccountModel;
 import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
 import play.data.Form;
+import play.i18n.Messages;
 import repository.AccountRepository;
 import repository.SearchParameters;
 import services.DateConverter;
@@ -137,7 +138,8 @@ public final class TrustedIntermediaryService {
     return !newEmail.equals(account.getEmailAddress());
   }
 
-  private Form<EditTiClientInfoForm> validatePhoneNumber(Form<EditTiClientInfoForm> form) {
+  private Form<EditTiClientInfoForm> validatePhoneNumber(
+      Form<EditTiClientInfoForm> form, Messages preferredLanguage) {
     String phoneNumber = form.value().get().getPhoneNumber();
     if (Strings.isNullOrEmpty(phoneNumber)) {
       return form;
@@ -146,21 +148,7 @@ public final class TrustedIntermediaryService {
         PhoneValidationUtils.validatePhoneNumber(
             Optional.of(phoneNumber), Optional.of(COUNTRY_CODE_FOR_US_REGION));
     if (error.isPresent()) {
-      switch (error.get()) {
-        case PHONE_VALIDATION_NUMBER_REQUIRED:
-          return form.withError(FORM_FIELD_NAME_PHONE, "Phone number required");
-        case PHONE_VALIDATION_NON_NUMBER_VALUE:
-          return form.withError(FORM_FIELD_NAME_PHONE, "A phone number must contain only digits");
-        case PHONE_VALIDATION_INVALID_LENGTH:
-          return form.withError(
-              FORM_FIELD_NAME_PHONE, "A phone number must contain only 10 digits");
-        case PHONE_VALIDATION_INVALID_PHONE_NUMBER:
-          return form.withError(FORM_FIELD_NAME_PHONE, "This phone number is not valid");
-        case PHONE_VALIDATION_NUMBER_NOT_IN_COUNTRY:
-          return form.withError(FORM_FIELD_NAME_PHONE, "This phone number is not valid for US");
-        default:
-          return form.withError(FORM_FIELD_NAME_PHONE, "An unknown error occurred " + error.get());
-      }
+      return form.withError(FORM_FIELD_NAME_PHONE, preferredLanguage.at(error.get().getKeyName()));
     }
     return form;
   }
@@ -193,21 +181,25 @@ public final class TrustedIntermediaryService {
   /**
    * This function updates the client Information after validating the form fields
    *
-   * @param tiGroup - the TIGroup who manages the account whose info needs to be updated.
-   * @param accountId - the account Id of the applicant whose info should be updated
    * @param form - this contains all the fields like dob, phoneNumber, emailAddress, name and
    *     tiNotes.
+   * @param tiGroup - the TIGroup who manages the account whose info needs to be updated.
+   * @param accountId - the account Id of the applicant whose info should be updated
+   * @param preferredLanguage - the preferred Language of the TI Client (by default it is US-En)
    * @return form - the form object is always returned. If the form contains error, the controller
    *     will handle the field messages. If the account is not found for the given AccountId, a
    *     runtime exception is raised.
    */
   public Form<EditTiClientInfoForm> updateClientInfo(
-      Form<EditTiClientInfoForm> form, TrustedIntermediaryGroupModel tiGroup, Long accountId)
+      Form<EditTiClientInfoForm> form,
+      TrustedIntermediaryGroupModel tiGroup,
+      Long accountId,
+      Messages preferredLanguage)
       throws ApplicantNotFoundException {
     // validate functions return the form w/ validation errors if applicable
     form = validateFirstNameForEditClient(form);
     form = validateLastNameForEditClient(form);
-    form = validatePhoneNumber(form);
+    form = validatePhoneNumber(form, preferredLanguage);
     form = validateDateOfBirth(form);
     if (form.hasErrors()) {
       return form;

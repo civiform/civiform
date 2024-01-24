@@ -10,6 +10,12 @@ public final class PhoneValidationUtils {
 
   private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
+  /**
+   * Gets an Optional string of Phone number and CountryCode values and runs validations on them.
+   *
+   * @return an Optional {@link MessageKey} representing the validation error that occurred if the
+   *     phone number is invalid, or an Optional.empty() if the phone number is valid
+   */
   public static Optional<MessageKey> validatePhoneNumber(
       Optional<String> phoneNumber, Optional<String> countryCode) {
     if (phoneNumber.isEmpty()) {
