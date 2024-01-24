@@ -17,6 +17,7 @@ import forms.admin.ProgramImageDescriptionForm;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LiTag;
 import java.time.ZoneId;
@@ -108,15 +109,12 @@ public final class ProgramImageView extends BaseHtmlView {
 
     DivTag mainContent = div().withClass("mx-20");
 
-    DivTag titleContainer =
-        div()
-            .with(renderHeader(PAGE_TITLE))
-            .with(span("Browse or drag and drop an image to upload"));
+    H1Tag titleContainer = renderHeader(PAGE_TITLE);
 
     DivTag formsContainer = div();
     Modal deleteImageModal = createDeleteImageModal(request, programDefinition);
-    formsContainer.with(createImageUploadForm(programDefinition, deleteImageModal.getButton()));
     formsContainer.with(createImageDescriptionForm(request, programDefinition));
+    formsContainer.with(createImageUploadForm(programDefinition, deleteImageModal.getButton()));
 
     DivTag formsAndCurrentCardContainer =
         div().withClasses("grid", "grid-cols-2", "gap-10", "w-full");
@@ -177,7 +175,6 @@ public final class ProgramImageView extends BaseHtmlView {
     manageTranslationsButton.ifPresent(buttonsDiv::with);
 
     return div()
-        .withClass("mt-10")
         .with(
             form()
                 .withId(IMAGE_DESCRIPTION_FORM_ID)
@@ -242,7 +239,8 @@ public final class ProgramImageView extends BaseHtmlView {
 
     // TODO(#5676): Replace with final UX once we have it.
     return div()
-        .with(fullForm)
+            .withClass("mt-10")
+            .with(fullForm)
         .with(buttonsDiv)
         .with(p("Note: Image description is required before uploading an image.").withClass("mt-1"))
         .with(fileUploadViewStrategy.footerTags());
