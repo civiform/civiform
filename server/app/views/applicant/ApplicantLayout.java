@@ -444,7 +444,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
    * <p>For the summary view, there is no "current" block, and full progress can be shown.
    */
   protected DivTag renderProgramApplicationTitleAndProgressIndicator(
-      String programTitle, int blockIndex, int totalBlockCount, boolean forSummary, Messages messages) {
+      String programTitle,
+      int blockIndex,
+      int totalBlockCount,
+      boolean forSummary,
+      Messages messages) {
     int percentComplete = getPercentComplete(blockIndex, totalBlockCount, forSummary);
 
     DivTag progressInner =
@@ -497,9 +501,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
   /**
    * Returns whole number out of 100 representing the completion percent of this program.
    *
-   * <p>See {@link #renderProgramApplicationTitleAndProgressIndicator(String, int, int, boolean, Messages)}
-   * about why there's a difference between the percent complete for summary views, and for
-   * non-summary views.
+   * <p>See {@link #renderProgramApplicationTitleAndProgressIndicator(String, int, int, boolean,
+   * Messages)} about why there's a difference between the percent complete for summary views, and
+   * for non-summary views.
    */
   private int getPercentComplete(int blockIndex, int totalBlockCount, boolean forSummary) {
     if (totalBlockCount == 0) {

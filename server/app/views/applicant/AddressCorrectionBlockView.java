@@ -77,7 +77,11 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
             .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION)
             .addMainContent(
                 layout.renderProgramApplicationTitleAndProgressIndicator(
-                    params.programTitle(), params.blockIndex(), params.totalBlockCount(), false, messages),
+                    params.programTitle(),
+                    params.blockIndex(),
+                    params.totalBlockCount(),
+                    false,
+                    messages),
                 content);
 
     return layout.renderWithNav(
