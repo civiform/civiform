@@ -110,6 +110,38 @@ describe('Admin can manage program image', () => {
         adminProgramImage.descriptionClearedToastMessage(),
       )
     })
+
+    it('disables translation button when no description', async () => {
+      const {adminProgramImage} = ctx
+
+      await adminProgramImage.setImageDescriptionAndSubmit('')
+      await adminProgramImage.expectProgramImagePage()
+
+      await adminProgramImage.expectDisabledTranslationButton()
+    })
+
+    it('enables translation button when description exists', async () => {
+      const {adminProgramImage} = ctx
+
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+      await adminProgramImage.expectProgramImagePage()
+
+      await adminProgramImage.expectEnabledTranslationButton()
+    })
+
+    it('translation button redirects to translations page', async () => {
+      const {adminPrograms, adminProgramImage} = ctx
+
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+      await adminProgramImage.expectProgramImagePage()
+
+      await adminProgramImage.clickTranslationButton()
+      await adminPrograms.expectProgramManageTranslationsPage(programName)
+    })
   })
 
   describe('image file upload', () => {

@@ -17,7 +17,7 @@ describe('applicant security', () => {
     const {page} = ctx
     await page.goto(BASE_URL)
     expect(await page.innerHTML('body')).toMatch(
-      /Save time when applying for benefits/,
+      /Save time applying for programs and services/,
     )
   })
 

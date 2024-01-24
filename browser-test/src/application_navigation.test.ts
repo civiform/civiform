@@ -158,7 +158,7 @@ describe('Applicant navigation flow', () => {
       await logout(page)
       // Verify we are on program list page.
       expect(await page.innerText('h1')).toContain(
-        'Save time when applying for benefits',
+        'Save time applying for programs and services',
       )
 
       const cardHtml = await page.innerHTML(
