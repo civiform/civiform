@@ -1,5 +1,6 @@
 import {Page} from 'playwright'
 import {waitForPageJsLoad} from './wait'
+import {dismissToast} from '.'
 
 export class AdminProgramImage {
   private imageUploadLocator = 'input[type=file]'
@@ -19,6 +20,15 @@ export class AdminProgramImage {
   }
 
   async setImageFile(imageFileName: string) {
+    const currentDescription = await this.page
+      .locator(this.imageDescriptionLocator)
+      .inputValue()
+    if (currentDescription == '') {
+      // A description has to be set before an image can be uploaded
+      await this.setImageDescriptionAndSubmit('desc')
+      await dismissToast(this.page)
+    }
+
     await this.page
       .locator(this.imageUploadLocator)
       .setInputFiles(imageFileName)

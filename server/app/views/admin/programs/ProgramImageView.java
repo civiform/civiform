@@ -217,7 +217,7 @@ public final class ProgramImageView extends BaseHtmlView {
     ImmutableList<InputTag> additionalFileUploadFormInputs =
         fileUploadViewStrategy.additionalFileUploadFormInputs(Optional.of(storageUploadRequest));
     DivTag fileInputElement =
-        fileUploadViewStrategy.createUswdsFileInputFormElement(
+        FileUploadViewStrategy.createUswdsFileInputFormElement(
             /* acceptedMimeTypes= */ MIME_TYPES_IMAGES,
             /* hints= */ ImmutableList.of(
                 "The maximum size for image upload is 1MB.",
