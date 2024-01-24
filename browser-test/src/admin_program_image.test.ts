@@ -171,10 +171,6 @@ describe('Admin can manage program image', () => {
     it('shows uploaded image before submitting', async () => {
       const {page, adminProgramImage} = ctx
 
-      // A description has to be set before an image can be uploaded
-      await adminProgramImage.setImageDescriptionAndSubmit('desc')
-      await dismissToast(page)
-
       await adminProgramImage.setImageFile(
         'src/assets/program-summary-image-wide.png',
       )
@@ -196,10 +192,6 @@ describe('Admin can manage program image', () => {
 
       await adminProgramImage.expectNoImagePreview()
 
-      // A description has to be set before an image can be uploaded
-      await adminProgramImage.setImageDescriptionAndSubmit('desc')
-      await dismissToast(page)
-
       await adminProgramImage.setImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
       )
@@ -216,10 +208,6 @@ describe('Admin can manage program image', () => {
 
     it('deletes existing image', async () => {
       const {page, adminProgramImage} = ctx
-
-      // A description has to be set before an image can be uploaded
-      await adminProgramImage.setImageDescriptionAndSubmit('desc')
-      await dismissToast(page)
 
       await adminProgramImage.setImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',

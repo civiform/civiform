@@ -7,6 +7,7 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
 import j2html.tags.specialized.DivTag;
@@ -27,6 +28,8 @@ import views.applicant.ApplicantFileUploadRenderer;
  * ApplicantFileUploadRenderer} for additional rendering for *applicant* file upload.
  */
 public abstract class FileUploadViewStrategy {
+  @VisibleForTesting static final String FILE_INPUT_HINT_ID_PREFIX = "file-input-hint-";
+
   /** Returns a top-level <form> element to use for file upload. */
   public FormTag renderFileUploadFormElement(StorageUploadRequest request) {
     return form()
@@ -55,17 +58,29 @@ public abstract class FileUploadViewStrategy {
    * @param hints a list of hints that should be displayed above the file input UI.
    * @param disabled true if the file input should be shown as disabled.
    */
-  public DivTag createUswdsFileInputFormElement(
+  public static DivTag createUswdsFileInputFormElement(
       String acceptedMimeTypes, ImmutableList<String> hints, boolean disabled) {
+    StringBuilder ariaDescribedByIds = new StringBuilder();
+    for (int i = 0; i < hints.size(); i++) {
+      ariaDescribedByIds.append(FILE_INPUT_HINT_ID_PREFIX);
+      ariaDescribedByIds.append(i);
+      ariaDescribedByIds.append(" ");
+    }
     return div()
         .withClasses("usa-form-group", "mb-2")
-        .with(each(hints, hint -> p(hint).withClasses("usa-hint", "mb-2")))
+        .with(
+            each(
+                hints,
+                (index, hint) ->
+                    p(hint)
+                        .withId(FILE_INPUT_HINT_ID_PREFIX + index)
+                        .withClasses("usa-hint", "mb-2")))
         .with(
             input()
                 .withType("file")
                 .withName("file")
                 .withClasses("usa-file-input")
-                .attr("aria-describedby", "file-input-hint")
+                .attr("aria-describedby", ariaDescribedByIds.toString())
                 .withAccept(acceptedMimeTypes)
                 .withCondDisabled(disabled));
   }
