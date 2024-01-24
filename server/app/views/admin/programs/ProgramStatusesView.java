@@ -29,7 +29,6 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions;
 import views.BaseHtmlView;
@@ -52,18 +51,13 @@ public final class ProgramStatusesView extends BaseHtmlView {
   private final AdminLayout layout;
   private final FormFactory formFactory;
   private final MessagesApi messagesApi;
-  private final TranslationLocales translationLocales;
 
   @Inject
   public ProgramStatusesView(
-      AdminLayoutFactory layoutFactory,
-      FormFactory formFactory,
-      MessagesApi messagesApi,
-      TranslationLocales translationLocales) {
+      AdminLayoutFactory layoutFactory, FormFactory formFactory, MessagesApi messagesApi) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.formFactory = formFactory;
     this.messagesApi = checkNotNull(messagesApi);
-    this.translationLocales = checkNotNull(translationLocales);
   }
 
   /**
@@ -142,15 +136,10 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   private Optional<ButtonTag> renderManageTranslationsLink(ProgramDefinition program) {
-    if (translationLocales.translatableLocales().isEmpty()) {
-      return Optional.empty();
-    }
-    String linkDestination =
-        routes.AdminProgramTranslationsController.redirectToFirstLocale(program.adminName()).url();
-    ButtonTag button =
-        makeSvgTextButton("Manage translations", Icons.LANGUAGE)
-            .withClass(ButtonStyles.OUTLINED_WHITE_WITH_ICON);
-    return Optional.of(asRedirectElement(button, linkDestination));
+    return layout.createManageTranslationsButton(
+        program.adminName(),
+        /* buttonId= */ Optional.empty(),
+        ButtonStyles.OUTLINED_WHITE_WITH_ICON);
   }
 
   /**
