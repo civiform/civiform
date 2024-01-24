@@ -14,7 +14,7 @@ public class FileUploadViewStrategyTest {
     DivTag uswdsForm =
         FileUploadViewStrategy.createUswdsFileInputFormElement(
             /* acceptedMimeTypes= */ "image/*",
-            /* hints= */ ImmutableList.of("hint1", "hint2", "hint3"),
+            /* hints= */ ImmutableList.of("hint0", "hint1", "hint2"),
             /* disabled= */ false);
 
     String expectedAriaDescribedBy =
