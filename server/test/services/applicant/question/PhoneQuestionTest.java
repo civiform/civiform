@@ -92,7 +92,7 @@ public class PhoneQuestionTest {
   }
 
   @Test
-  @Parameters({"5552123333", "1231234567"})
+  @Parameters({"5552123333", "1231234567", "123123459a03", "123td25342"})
   public void withInvalidApplicantData_invalidPhoneNumber(String number) {
     Path phonePath =
         ApplicantData.APPLICANT_PATH
@@ -114,24 +114,6 @@ public class PhoneQuestionTest {
                     ValidationErrorMessage.create(
                         MessageKey.PHONE_VALIDATION_INVALID_PHONE_NUMBER))));
     assertThat(phoneQuestion.getValidationErrors().isEmpty()).isFalse();
-  }
-
-  @Test
-  @Parameters({"123123459a03", "123td25342"})
-  public void withInvalidApplicantData_invalidPhoneNumberLength(String number) {
-    ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(phoneQuestionDefinition, applicantData, Optional.empty());
-    QuestionAnswerer.answerPhoneQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), "US", number);
-
-    PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
-
-    assertThat(phoneQuestion.getValidationErrors())
-        .isEqualTo(
-            ImmutableMap.of(
-                phoneQuestion.getPhoneNumberPath(),
-                ImmutableSet.of(
-                    ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_INVALID_LENGTH))));
   }
 
   @Test

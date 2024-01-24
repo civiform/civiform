@@ -151,7 +151,7 @@ describe('phone question for applicant flow', () => {
       await applicantQuestions.clickNext()
       const countryCodeId = '.cf-phone-number'
       expect(await page.innerText(countryCodeId)).toContain(
-        'The phone number must contain only ten digits',
+        'This phone number is invalid',
       )
     })
 

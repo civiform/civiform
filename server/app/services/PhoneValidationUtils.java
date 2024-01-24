@@ -32,7 +32,7 @@ public final class PhoneValidationUtils {
       return Optional.of(MessageKey.PHONE_VALIDATION_NON_NUMBER_VALUE);
     }
     if (phoneNumber.get().length() != 10) {
-      return Optional.of(MessageKey.PHONE_VALIDATION_INVALID_LENGTH);
+      return Optional.of(MessageKey.PHONE_VALIDATION_INVALID_PHONE_NUMBER);
     }
     try {
       Phonenumber.PhoneNumber phonenumber =

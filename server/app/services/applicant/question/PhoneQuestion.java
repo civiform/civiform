@@ -22,9 +22,8 @@ public final class PhoneQuestion extends Question {
 
   private Optional<String> phoneNumberValue;
   private Optional<String> countryCodeValue;
-  
-  private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
+  private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
   PhoneQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);

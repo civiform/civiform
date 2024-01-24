@@ -451,7 +451,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         service.updateClientInfo(
             form, tiGroup, testAccount.id, messagesApi.preferred(requestBuilder.build()));
     assertThat(returnForm.error("phoneNumber").get().message())
-        .isEqualTo("The phone number must contain only ten digits");
+        .isEqualTo("This phone number is invalid");
   }
 
   @Test

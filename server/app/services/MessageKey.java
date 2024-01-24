@@ -149,7 +149,6 @@ public enum MessageKey {
   PHONE_VALIDATION_NUMBER_REQUIRED("validation.phoneNumberRequired"),
   PHONE_VALIDATION_COUNTRY_CODE_REQUIRED("validation.phoneCountryCodeRequired"),
   PHONE_VALIDATION_NON_NUMBER_VALUE("validation.phoneNumberMustContainNumbersOnly"),
-  PHONE_VALIDATION_INVALID_LENGTH("validation.phoneNumberMustContainOnlyTenDigits"),
   PHONE_VALIDATION_INVALID_PHONE_NUMBER("validation.invalidPhoneNumberProvided"),
   PHONE_VALIDATION_NUMBER_NOT_IN_COUNTRY("validation.phoneMustBeLocalToCountry"),
   PHONE_LABEL_COUNTRY_CODE("label.countryCode"),
