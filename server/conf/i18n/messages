@@ -241,6 +241,7 @@ validation.phoneCountryCodeRequired=Country must be selected
 validation.phoneNumberMustContainNumbersOnly=Phone number cannot contain non-number characters
 validation.invalidPhoneNumberProvided=This phone number is invalid
 validation.phoneMustBeLocalToCountry=The phone you have provided does not belong to the country
+#validation for phone number length
 validation.phoneNumberMustContainOnlyTenDigits=The phone number must contain only ten digits
 
 #----------------------------------------------------------------------------------------------------------#
