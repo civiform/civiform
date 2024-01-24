@@ -70,7 +70,10 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
             .getBundle(params.request())
             .setTitle(
                 layout.renderPageTitleWithBlockProgress(
-                        params.programTitle(), params.blockIndex(), params.totalBlockCount())
+                        params.programTitle(),
+                        params.blockIndex(),
+                        params.totalBlockCount(),
+                        params.messages())
                     + errorMessage);
 
     Optional<DivTag> maybeBackToAdminViewButton =
@@ -81,7 +84,11 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     bundle
         .addMainContent(
             layout.renderProgramApplicationTitleAndProgressIndicator(
-                params.programTitle(), params.blockIndex(), params.totalBlockCount(), false),
+                params.programTitle(),
+                params.blockIndex(),
+                params.totalBlockCount(),
+                false,
+                params.messages()),
             blockDiv)
         .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
