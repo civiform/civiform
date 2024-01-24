@@ -31,7 +31,7 @@ public final class DateQuestion extends Question {
     if (applicantQuestion.getApplicantData().updateDidFailAt(getDatePath())) {
       return ImmutableMap.of(
           getDatePath(),
-          ImmutableSet.of(ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_MISFORMATTED)));
+          ImmutableSet.of(ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT)));
     }
     return ImmutableMap.of();
   }

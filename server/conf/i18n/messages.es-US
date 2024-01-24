@@ -218,7 +218,6 @@ validation.phoneMustBeLocalToCountry=El teléfono que proporcionaste no es de es
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
 
-validation.dateMisformatted=Ingresa una fecha en el formato AAAA/MM/DD.
 validation.invalidDateFormat=Please enter a date in the correct format
 
 #--------------------------------------------------------------------------------------------------------#
