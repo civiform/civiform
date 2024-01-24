@@ -451,7 +451,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         service.updateClientInfo(
             form, tiGroup, testAccount.id, messagesApi.preferred(requestBuilder.build()));
     assertThat(returnForm.error("phoneNumber").get().message())
-        .isEqualTo("A phone number must contain only 10 digits");
+        .isEqualTo("The phone number must contain only ten digits");
   }
 
   @Test
@@ -482,7 +482,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         service.updateClientInfo(
             form, tiGroup, testAccount.id, messagesApi.preferred(requestBuilder.build()));
     assertThat(returnForm.error("phoneNumber").get().message())
-        .isEqualTo("A phone number must contain only digits");
+        .isEqualTo("Phone number cannot contain non-number characters");
   }
 
   @Test
@@ -512,7 +512,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         service.updateClientInfo(
             form, tiGroup, testAccount.id, messagesApi.preferred(requestBuilder.build()));
     assertThat(returnForm.error("phoneNumber").get().message())
-        .isEqualTo("This phone number is not valid");
+        .isEqualTo("This phone number is invalid");
   }
 
   @Test
