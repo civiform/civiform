@@ -369,8 +369,12 @@ validation.phoneMustBeLocalToCountry=Hindi nabibilang sa bansa ang ibinigay mong
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
 
+<<<<<<< HEAD
 validation.dateMisformatted=Please enter a date in the format YYYY/MM/DD.
 validation.invalidDateFormat=Maglagay ng petsa sa tamang format
+=======
+validation.invalidDateFormat=Please enter a date in the correct format
+>>>>>>> e2288c9d3 (Update the validation string for date questions)
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #

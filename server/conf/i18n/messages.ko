@@ -369,8 +369,12 @@ validation.phoneMustBeLocalToCountry=제공하신 전화번호가 거주 국가�
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
 
+<<<<<<< HEAD
 validation.dateMisformatted=YYYY/MM/DD 형식으로 날짜를 입력하세요.
 validation.invalidDateFormat=올바른 형식의 날짜를 입력하세요.
+=======
+validation.invalidDateFormat=Please enter a date in the correct format
+>>>>>>> e2288c9d3 (Update the validation string for date questions)
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
