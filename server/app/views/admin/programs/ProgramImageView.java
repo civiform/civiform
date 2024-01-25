@@ -141,6 +141,34 @@ public final class ProgramImageView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
+  private ATag createBackButton(ProgramDefinition programDefinition, String referer) {
+    AdminProgramImageController.Referer refererEnum;
+    try {
+      refererEnum = AdminProgramImageController.Referer.valueOf(referer);
+    } catch (IllegalArgumentException e) {
+      refererEnum = AdminProgramImageController.Referer.BLOCKS;
+    }
+
+    String backTarget;
+    switch (refererEnum) {
+      case BLOCKS:
+        backTarget = routes.AdminProgramBlocksController.index(programDefinition.id()).url();
+        break;
+      case DETAILS:
+        backTarget = routes.AdminProgramController.edit(programDefinition.id()).url();
+        break;
+      default:
+        throw new IllegalStateException("All referer cases should be handled above");
+    }
+
+    return new LinkElement()
+            .setHref(backTarget)
+            .setIcon(Icons.ARROW_LEFT, LinkElement.IconPosition.START)
+            .setText("Back")
+            .setStyles("my-6", "ml-10")
+            .asAnchorText();
+  }
+
   private DivTag createImageDescriptionForm(
       Http.Request request, ProgramDefinition programDefinition, String referer) {
     String existingDescription = getExistingDescription(programDefinition);
@@ -318,34 +346,5 @@ public final class ProgramImageView extends BaseHtmlView {
         .setModalTitle("Delete this program image?")
         .setTriggerButtonContent(deleteImageButton)
         .build();
-  }
-
-  private ATag createBackButton(ProgramDefinition programDefinition, String referer) {
-
-    AdminProgramImageController.Referer refererEnum;
-    try {
-      refererEnum = AdminProgramImageController.Referer.valueOf(referer);
-    } catch (IllegalArgumentException e) {
-      refererEnum = AdminProgramImageController.Referer.BLOCKS;
-    }
-
-    String backTarget;
-    switch (refererEnum) {
-      case BLOCKS:
-        backTarget = routes.AdminProgramBlocksController.index(programDefinition.id()).url();
-        break;
-      case DETAILS:
-        backTarget = routes.AdminProgramController.edit(programDefinition.id()).url();
-        break;
-      default:
-        throw new IllegalStateException("All referer cases should be handled above");
-    }
-
-    return new LinkElement()
-        .setHref(backTarget)
-        .setIcon(Icons.ARROW_LEFT, LinkElement.IconPosition.START)
-        .setText("Back")
-        .setStyles("my-6", "ml-10")
-        .asAnchorText();
   }
 }
