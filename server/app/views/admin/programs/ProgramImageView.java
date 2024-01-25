@@ -162,11 +162,11 @@ public final class ProgramImageView extends BaseHtmlView {
     }
 
     return new LinkElement()
-            .setHref(backTarget)
-            .setIcon(Icons.ARROW_LEFT, LinkElement.IconPosition.START)
-            .setText("Back")
-            .setStyles("my-6", "ml-10")
-            .asAnchorText();
+        .setHref(backTarget)
+        .setIcon(Icons.ARROW_LEFT, LinkElement.IconPosition.START)
+        .setText("Back")
+        .setStyles("my-6", "ml-10")
+        .asAnchorText();
   }
 
   private DivTag createImageDescriptionForm(
