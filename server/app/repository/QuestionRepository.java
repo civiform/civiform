@@ -115,8 +115,8 @@ public final class QuestionRepository {
           newDraftQuestion.removeTag(QuestionTag.UNIVERSAL);
         }
 
-        // Same deal here.  We have to remove any QuestionTags for PrimaryApplicantInfoTags that are
-        // not present.
+        // Similar to the UNIVERSAL question tag above, we have to remove any QuestionTags for
+        // PrimaryApplicantInfoTags that are not present.
         PrimaryApplicantInfoTag.getAllTagsForQuestionType(definition.getQuestionType())
             .forEach(
                 primaryApplicantInfoTag -> {

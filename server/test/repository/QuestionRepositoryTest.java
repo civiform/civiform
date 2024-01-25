@@ -316,25 +316,21 @@ public class QuestionRepositoryTest extends ResetPostgres {
         ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_EMAIL);
     ImmutableSet<PrimaryApplicantInfoTag> phoneTag =
         ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_PHONE);
-    QuestionDefinition nameQuestionDefinition;
-    QuestionDefinition dateQuestionDefinition;
-    QuestionDefinition emailQuestionDefinition;
-    QuestionDefinition phoneQuestionDefinition;
 
     // Create new draft, ensure tags are correct
-    nameQuestionDefinition =
+    QuestionDefinition nameQuestionDefinition =
         new QuestionDefinitionBuilder(nameQuestion.getQuestionDefinition())
             .setPrimaryApplicantInfoTags(nameTag)
             .build();
-    dateQuestionDefinition =
+    QuestionDefinition dateQuestionDefinition =
         new QuestionDefinitionBuilder(dateQuestion.getQuestionDefinition())
             .setPrimaryApplicantInfoTags(dateTag)
             .build();
-    emailQuestionDefinition =
+    QuestionDefinition emailQuestionDefinition =
         new QuestionDefinitionBuilder(emailQuestion.getQuestionDefinition())
             .setPrimaryApplicantInfoTags(emailTag)
             .build();
-    phoneQuestionDefinition =
+    QuestionDefinition phoneQuestionDefinition =
         new QuestionDefinitionBuilder(phoneQuestion.getQuestionDefinition())
             .setPrimaryApplicantInfoTags(phoneTag)
             .build();
@@ -367,6 +363,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
     versionRepo.publishNewSynchronizedVersion();
 
+    // Remove tags on a new draft and ensure they are removed
     nameQuestionDefinition =
         new QuestionDefinitionBuilder(nameQuestion.getQuestionDefinition())
             .setPrimaryApplicantInfoTags(ImmutableSet.of())
@@ -454,6 +451,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
                 .contains(PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag()))
         .isTrue();
 
+    // Ensure we can remove tags on an existing draft question
     nameQuestionDefinition =
         new QuestionDefinitionBuilder(nameQuestion.getQuestionDefinition())
             .setPrimaryApplicantInfoTags(ImmutableSet.of())

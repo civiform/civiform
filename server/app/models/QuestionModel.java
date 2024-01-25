@@ -169,7 +169,7 @@ public class QuestionModel extends BaseModel {
   }
 
   /**
-   * Given a list of {@link QuestionTag}s, fetch the {@link PrimaryApplicantInfoTag}s that
+   * Given a list of {@link QuestionTag}s, fetches the set of {@link PrimaryApplicantInfoTag}s that
    * correspond to those QuestionTags. Any {@link QuestionTag} that doesn't have a corresponding
    * {@link PrimaryApplicantInfoTag} is ignored.
    *
@@ -299,8 +299,7 @@ public class QuestionModel extends BaseModel {
     }
 
     // Add QuestionTags for PrimaryApplicantInfoTags in the list. Note that this must come after
-    // we've
-    // done initTags above, either in this function or in addTag previously.
+    // we have done initTags above, either in this function or in addTag previously.
     questionDefinition
         .getPrimaryApplicantInfoTags()
         .forEach(primaryApplicantInfoTag -> addTag(primaryApplicantInfoTag.getQuestionTag()));

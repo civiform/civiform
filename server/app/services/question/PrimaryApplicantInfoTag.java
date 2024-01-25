@@ -6,20 +6,22 @@ import services.question.types.QuestionType;
 
 /**
  * Defines tags that can be applied to a question to denote the answer is a primary piece of
- * information about the applicant. These are 1:1 with particular QuestionTags.
+ * information about the applicant. These are 1:1 with {@link QuestionTag}s that start with
+ * `PRIMARY_APPLICANT`. See the javadoc for the constructor for details about the fields in the
+ * enum.
  */
 public enum PrimaryApplicantInfoTag {
   APPLICANT_DOB(
       QuestionTag.PRIMARY_APPLICANT_DOB,
       QuestionType.DATE,
-      "primaryApplicantInfoDob",
+      "primaryApplicantDob",
       "Applicant Date Of Birth",
       "Setting this property will allow the answer to be pre-populated with the"
           + " applicant's date of birth if a TI created this applicant."),
   APPLICANT_EMAIL(
       QuestionTag.PRIMARY_APPLICANT_EMAIL,
       QuestionType.EMAIL,
-      "primaryApplicantInfoEmail",
+      "primaryApplicantEmail",
       "Applicant Email Address",
       "Setting this property will allow the email address collected from this"
           + " question to be used to email status updates to guest applicants, as well as make the"
@@ -27,7 +29,7 @@ public enum PrimaryApplicantInfoTag {
   APPLICANT_NAME(
       QuestionTag.PRIMARY_APPLICANT_NAME,
       QuestionType.NAME,
-      "primaryApplicantInfoName",
+      "primaryApplicantName",
       "Applicant Name",
       "Setting this property will allow CiviForm to use the name to identify the"
           + " user and their application in the UI, as well as make the application searchable by"
@@ -35,9 +37,9 @@ public enum PrimaryApplicantInfoTag {
   APPLICANT_PHONE(
       QuestionTag.PRIMARY_APPLICANT_PHONE,
       QuestionType.PHONE,
-      "primaryApplicantInfoPhone",
+      "primaryApplicantPhone",
       "Applicant Phone Number",
-      "Setting this property will make the application searchable by phone" + " number.");
+      "Setting this property will make the application searchable by phone number.");
 
   private final QuestionTag tag;
   private final QuestionType type;
@@ -88,12 +90,6 @@ public enum PrimaryApplicantInfoTag {
 
   public String getDescription() {
     return this.description;
-  }
-
-  public static ImmutableList<QuestionType> getAllQuestionTypes() {
-    return ImmutableList.copyOf(PrimaryApplicantInfoTag.values()).stream()
-        .map(t -> t.getQuestionType())
-        .collect(ImmutableList.toImmutableList());
   }
 
   public static ImmutableList<PrimaryApplicantInfoTag> getAllTagsForQuestionType(
