@@ -101,7 +101,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
                 params.applicantId(),
                 params.programId(),
                 params.block().getId(),
-                params.inReview())
+                params.nextAction())
             .url();
 
     FormTag form =

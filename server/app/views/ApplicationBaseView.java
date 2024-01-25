@@ -7,6 +7,7 @@ import static j2html.TagCreator.span;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
+import controllers.applicant.ApplicantProgramBlocksController;
 import controllers.applicant.ApplicantRoutes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.PTag;
@@ -49,7 +50,7 @@ public class ApplicationBaseView extends BaseHtmlView {
                   params.applicantId(),
                   params.programId(),
                   previousBlockIndex,
-                  params.inReview())
+                  params.nextAction())
               .url();
     } else {
       ApplicantRoutes applicantRoutes = params.applicantRoutes();
@@ -70,7 +71,7 @@ public class ApplicationBaseView extends BaseHtmlView {
 
     public abstract Builder toBuilder();
 
-    public abstract boolean inReview();
+    public abstract ApplicantProgramBlocksController.NextAction nextAction();
 
     public abstract Http.Request request();
 
@@ -110,7 +111,7 @@ public class ApplicationBaseView extends BaseHtmlView {
     public abstract static class Builder {
       public abstract Builder setRequest(Http.Request request);
 
-      public abstract Builder setInReview(boolean inReview);
+      public abstract Builder setNextAction(ApplicantProgramBlocksController.NextAction nextAction);
 
       public abstract Builder setMessages(Messages messages);
 

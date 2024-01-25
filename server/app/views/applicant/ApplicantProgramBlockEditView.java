@@ -8,6 +8,7 @@ import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMo
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.assistedinject.Assisted;
+import controllers.applicant.ApplicantProgramBlocksController;
 import controllers.applicant.ApplicantRoutes;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
@@ -158,7 +159,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
                 params.applicantId(),
                 params.programId(),
                 params.block().getId(),
-                params.inReview())
+                params.nextAction())
             .url();
 
     AtomicInteger ordinalErrorCount = new AtomicInteger(0);
@@ -227,9 +228,26 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   private DivTag renderBottomNavButtons(Params params) {
     return div()
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-        .with(renderReviewButton(params))
+        .with(renderSaveAndReviewButton(params))
+       //     .with(renderReviewButton(params))
         .with(renderPreviousButton(params))
         .with(renderNextButton(params));
+  }
+
+
+  private ButtonTag renderSaveAndReviewButton(Params params) {
+    String formAction =
+            applicantRoutes
+                    .updateBlock(
+                            params.profile(),
+                            params.applicantId(),
+                            params.programId(),
+                            params.block().getId(),
+                            ApplicantProgramBlocksController.NextAction.REVIEW_PAGE)
+                    .url();
+    return submitButton(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
+            .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
+            .withFormaction(formAction);
   }
 
   private ButtonTag renderNextButton(Params params) {

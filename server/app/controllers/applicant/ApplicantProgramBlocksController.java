@@ -142,7 +142,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long programId,
       String blockId,
       Optional<String> questionName) {
-    return editOrReview(request, applicantId, programId, blockId, false, questionName);
+    return editOrReview(request, applicantId, programId, blockId, NextAction.NEXT_VISIBLE, questionName);
   }
 
   /**
@@ -193,7 +193,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long programId,
       String blockId,
       Optional<String> questionName) {
-    return editOrReview(request, applicantId, programId, blockId, true, questionName);
+    return editOrReview(request, applicantId, programId, blockId, NextAction.NEXT_INCOMPLETE, questionName);
   }
 
   /**
@@ -228,7 +228,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   /** Handles the applicant's selection from the address correction options. */
   @Secure
   public CompletionStage<Result> confirmAddressWithApplicantId(
-      Request request, long applicantId, long programId, String blockId, boolean inReview) {
+      Request request, long applicantId, long programId, String blockId, String nextAction) {
+    System.out.println("#confirmAddress. nextAction=" + nextAction);
 
     DynamicForm form = formFactory.form().bindFromRequest(request);
     String selectedAddress = form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME);
@@ -238,13 +239,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         addressSuggestionJsonSerializer.deserialize(
             maybeAddressJson.orElseThrow(() -> new RuntimeException("Address JSON missing")));
     return confirmAddressWithSuggestions(
-        request, applicantId, programId, blockId, inReview, selectedAddress, suggestions);
+        request, applicantId, programId, blockId, nextAction, selectedAddress, suggestions);
   }
 
   /** Handles the applicant's selection from the address correction options. */
   @Secure
   public CompletionStage<Result> confirmAddress(
-      Request request, long programId, String blockId, boolean inReview) {
+      Request request, long programId, String blockId, String nextAction) {
     if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
       // This route is only operative for the new URL schema, so send the user home.
       return CompletableFuture.completedFuture(redirectToHome());
@@ -257,7 +258,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
     return confirmAddressWithApplicantId(
-        request, applicantId.orElseThrow(), programId, blockId, inReview);
+        request, applicantId.orElseThrow(), programId, blockId, nextAction);
   }
 
   /** Saves the selected corrected address to the db and redirects the user to the next screen */
@@ -266,7 +267,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       long programId,
       String blockId,
-      boolean inReview,
+      String nextAction,
       String selectedAddress,
       ImmutableList<AddressSuggestion> suggestions) {
     CompletableFuture<ApplicantPersonalInfo> applicantStage =
@@ -299,7 +300,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   programId,
                   blockId,
                   applicantStage.join(),
-                  inReview,
+                      nextAction,
                   roApplicantProgramService);
             },
             httpExecutionContext.current())
@@ -321,7 +322,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   /** Navigates to the previous page of the application. */
   @Secure
   public CompletionStage<Result> previousWithApplicantId(
-      Request request, long applicantId, long programId, int previousBlockIndex, boolean inReview) {
+      Request request, long applicantId, long programId, int previousBlockIndex, String nextAction) {
+    System.out.println("#previous. nextAction=" + nextAction);
+
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
 
@@ -361,7 +364,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             applicantId,
                             programId,
                             blockId,
-                            inReview,
+                                nextAction,
                             roApplicantProgramService,
                             block.get(),
                             personalInfo,
@@ -392,7 +395,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   /** Navigates to the previous page of the application. */
   @Secure
   public CompletionStage<Result> previous(
-      Request request, long programId, int previousBlockIndex, boolean inReview) {
+      Request request, long programId, int previousBlockIndex, String nextAction) {
     if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
       // This route is only operative for the new URL schema, so send the user home.
       return CompletableFuture.completedFuture(redirectToHome());
@@ -405,7 +408,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
     return previousWithApplicantId(
-        request, applicantId.orElseThrow(), programId, previousBlockIndex, inReview);
+        request, applicantId.orElseThrow(), programId, previousBlockIndex, nextAction);
   }
 
   @Secure
@@ -414,8 +417,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       long programId,
       String blockId,
-      boolean inReview,
+      NextAction nextAction,
       Optional<String> questionName) {
+    System.out.println("#editOrReview. nextAction=" + nextAction);
+
+
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
 
@@ -443,7 +449,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                 applicantId,
                                 programId,
                                 blockId,
-                                inReview,
+                                nextAction,
                                 roApplicantProgramService,
                                 block.get(),
                                 personalInfo,
@@ -482,7 +488,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    */
   @Secure
   public CompletionStage<Result> updateFileWithApplicantId(
-      Request request, long applicantId, long programId, String blockId, boolean inReview) {
+      Request request, long applicantId, long programId, String blockId, String nextAction) {
+    System.out.println("#updateFile. nextAction=" + nextAction);
+
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
 
@@ -555,7 +563,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   programId,
                   blockId,
                   applicantStage.toCompletableFuture().join(),
-                  inReview,
+                      nextAction,
                   roApplicantProgramService);
             },
             httpExecutionContext.current())
@@ -570,7 +578,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    */
   @Secure
   public CompletionStage<Result> updateFile(
-      Request request, long programId, String blockId, boolean inReview) {
+      Request request, long programId, String blockId, String nextAction) {
     if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
       // This route is only operative for the new URL schema, so send the user home.
       return CompletableFuture.completedFuture(redirectToHome());
@@ -583,24 +591,22 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
     return updateFileWithApplicantId(
-        request, applicantId.orElseThrow(), programId, blockId, inReview);
+        request, applicantId.orElseThrow(), programId, blockId, nextAction);
   }
 
   /**
    * Accepts, validates and saves submission of applicant data for {@code blockId}.
    *
-   * <p>Returns the applicable next step in the flow:
+   * If there are errors, renders the edit page for the same block with the errors. Otherwise, returns the applicable
+   * next step in the flow based on {@code nextAction}.
    *
-   * <ul>
-   *   <li>If there are errors renders the edit page for the same block with the errors.
-   *   <li>If {@code inReview} then the next incomplete block is shown.
-   *   <li>If not {@code inReview} the next visible block is shown.
-   *   <li>If there is no next block the program review page is shown.
-   * </ul>
+   * @param nextAction specifies what type of page the user should be taken to next if the applicant data for the block is valid. Should be a name of one of the enums specified by {@link NextAction}.
    */
   @Secure
   public CompletionStage<Result> updateWithApplicantId(
-      Request request, long applicantId, long programId, String blockId, boolean inReview) {
+      Request request, long applicantId, long programId, String blockId, String nextAction) {
+    System.out.println("#update. nextAction=" + nextAction);
+
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
 
@@ -634,7 +640,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   programId,
                   blockId,
                   applicantStage.toCompletableFuture().join(),
-                  inReview,
+                      nextAction,
                   roApplicantProgramService);
             },
             httpExecutionContext.current())
@@ -642,20 +648,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * Accepts, validates and saves submission of applicant data for {@code blockId}.
-   *
-   * <p>Returns the applicable next step in the flow:
-   *
-   * <ul>
-   *   <li>If there are errors renders the edit page for the same block with the errors.
-   *   <li>If {@code inReview} then the next incomplete block is shown.
-   *   <li>If not {@code inReview} the next visible block is shown.
-   *   <li>If there is no next block the program review page is shown.
-   * </ul>
+   * See {@link #updateWithApplicantId}.
    */
   @Secure
   public CompletionStage<Result> update(
-      Request request, long programId, String blockId, boolean inReview) {
+      Request request, long programId, String blockId, String nextAction) {
     if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
       // This route is only operative for the new URL schema, so send the user home.
       return CompletableFuture.completedFuture(redirectToHome());
@@ -667,9 +664,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       // gotten the URL from another source.
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return updateWithApplicantId(request, applicantId.orElseThrow(), programId, blockId, inReview);
+    return updateWithApplicantId(request, applicantId.orElseThrow(), programId, blockId, nextAction);
   }
 
+  // TODO: I think this is the only method that actually needs the next action?
   private CompletionStage<Result> renderErrorOrRedirectToNextBlock(
       Request request,
       CiviFormProfile profile,
@@ -677,7 +675,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long programId,
       String blockId,
       ApplicantPersonalInfo personalInfo,
-      boolean inReview,
+      String nextAction,
       ReadOnlyApplicantProgramService roApplicantProgramService) {
     Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getActiveBlock(blockId);
     if (thisBlockUpdatedMaybe.isEmpty()) {
@@ -698,7 +696,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           applicantId,
                           programId,
                           blockId,
-                          inReview,
+                              nextAction,
                           roApplicantProgramService,
                           thisBlockUpdated,
                           personalInfo,
@@ -728,7 +726,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         applicantId,
                         programId,
                         blockId,
-                        inReview,
+                            nextAction,
                         roApplicantProgramService,
                         thisBlockUpdated,
                         personalInfo));
@@ -767,16 +765,29 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   roApplicantProgramService.getProgramTitle()));
     }
 
-    Optional<String> nextBlockIdMaybe =
-        inReview
-            ? roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().map(Block::getId)
-            : roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
+    Optional<String> nextBlockIdMaybe;
+    NextAction nextActionEnum = NextAction.valueOf(nextAction); // TODO
+    switch (nextActionEnum) {
+      case NEXT_INCOMPLETE:
+        nextBlockIdMaybe = roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().map(Block::getId);
+        break;
+      case NEXT_VISIBLE:
+        nextBlockIdMaybe = roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
+        break;
+      case REVIEW_PAGE:
+        nextBlockIdMaybe = Optional.empty();
+        break;
+      default:
+        throw new IllegalStateException("All cases handled above");
+    }
+
     // No next block so go to the program review page.
     if (nextBlockIdMaybe.isEmpty()) {
       return supplyAsync(() -> redirect(applicantRoutes.review(profile, applicantId, programId)));
     }
 
-    if (inReview) {
+    // Hmmmmm
+    if (nextActionEnum == NextAction.NEXT_INCOMPLETE) {
       return supplyAsync(
           () ->
               redirect(
@@ -816,7 +827,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       long programId,
       String blockId,
-      boolean inReview,
+      String nextAction,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Block thisBlockUpdated,
       ApplicantPersonalInfo personalInfo) {
@@ -833,7 +844,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           applicantId,
           programId,
           blockId,
-          inReview,
+              nextAction,
           suggestionMatch[0].getSingleLineAddress(),
           suggestions);
     } else {
@@ -851,7 +862,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       applicantId,
                       programId,
                       blockId,
-                      inReview,
+                          nextAction,
                       roApplicantProgramService,
                       thisBlockUpdated,
                       personalInfo,
@@ -887,7 +898,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       long programId,
       String blockId,
-      boolean inReview,
+      NextAction nextAction,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Block block,
       ApplicantPersonalInfo personalInfo,
@@ -902,7 +913,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setProgramTitle(roApplicantProgramService.getProgramTitle())
         .setProgramId(programId)
         .setBlock(block)
-        .setInReview(inReview)
+        .setNextAction(nextAction)
         .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
         .setTotalBlockCount(roApplicantProgramService.getAllActiveBlocks().size())
         .setApplicantPersonalInfo(personalInfo)
@@ -920,7 +931,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       long programId,
       String blockId,
-      boolean inReview,
+      String nextAction,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Block block,
       ApplicantPersonalInfo personalInfo,
@@ -932,7 +943,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             applicantId,
             programId,
             blockId,
-            inReview,
+            NextAction.valueOf(nextAction), // TODO
             roApplicantProgramService,
             block,
             personalInfo,
@@ -982,5 +993,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       throw new RuntimeException(cause);
     }
     throw new RuntimeException(throwable);
+  }
+
+  public enum NextAction {
+    /** Show the user the next incomplete block. This should be used if the user is reviewing their application and just needs to fill in the last missing answers. */
+    NEXT_INCOMPLETE,
+    /** Show the user the next visible block. This should be used if the user is starting/continuing an application. */
+    NEXT_VISIBLE,
+    /** Show the user the review page with all questions listed. */
+    REVIEW_PAGE,
   }
 }

@@ -118,7 +118,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                     params.applicantId(),
                     params.programId(),
                     params.block().getId(),
-                    params.inReview())
+                    params.nextAction())
                 .url();
 
     String key =
@@ -239,7 +239,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                 params.applicantId(),
                 params.programId(),
                 params.block().getId(),
-                params.inReview())
+                params.nextAction())
             .url();
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder()
