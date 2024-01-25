@@ -1,5 +1,6 @@
 import {assertNotNull} from './util'
 
+/** Scripts for controlling the admin program image upload page. */
 class AdminProgramImage {
   private static IMAGE_DESCRIPTION_FORM_ID = 'image-description-form'
   private static IMAGE_FILE_UPLOAD_FORM_ID = 'image-file-upload-form'

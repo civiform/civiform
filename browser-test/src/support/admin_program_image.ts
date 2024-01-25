@@ -4,11 +4,11 @@ import {dismissToast, expectDisabled, expectEnabled} from '.'
 
 export class AdminProgramImage {
   private imageUploadLocator = 'input[type=file]'
+  private imageDescriptionLocator = 'input[name="summaryImageDescription"]'
   private imageUploadSubmitButtonLocator =
     'button[form=image-file-upload-form][type="submit"]'
   private imageDescriptionSubmitButtonLocator =
     'button[form=image-description-form][type="submit"]'
-  private imageDescriptionLocator = 'input[name="summaryImageDescription"]'
   private translationsButtonLocator = 'button:has-text("Manage translations")'
   private continueButtonLocator = '#continue-button'
 
@@ -52,6 +52,13 @@ export class AdminProgramImage {
     await this.submitImageDescription()
   }
 
+  /*
+   * Sets the given image file on the file <input> element.
+   *
+   * @param {string} imageFileName specifies a path to the image file.
+   *   If this string is empty, the file currently set on the element
+   *   will be removed.
+   */
   async setImageFile(imageFileName: string) {
     const currentDescription = await this.page
       .locator(this.imageDescriptionLocator)

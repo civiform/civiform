@@ -223,8 +223,8 @@ describe('Admin can manage program image', () => {
         'Fake image description',
       )
 
-      // After submitting a description, verify that when the page reloads the submit
-      // button is disabled (because no changes have been made to the description)
+      // On page reload the submit button should be disabled because no changes
+      // have been made to the description since submission.
       await adminProgramImage.expectDisabledImageDescriptionSubmit()
     })
 
@@ -262,8 +262,8 @@ describe('Admin can manage program image', () => {
         'Fake image description',
       )
 
-      // Ensure that if the admin updates the description to be empty,
-      // we enable the submit button.
+      // Verify that we enable the submit button if the admin
+      // updates the description to be empty.
       await adminProgramImage.setImageDescription('')
 
       await adminProgramImage.expectEnabledImageDescriptionSubmit()
@@ -348,8 +348,9 @@ describe('Admin can manage program image', () => {
 
     it('disables submit button when no image', async () => {
       const {adminProgramImage} = ctx
-
-      // Set the description so that the disabled submit button isn't because there's no description.
+      // The submit button will also be disabled if there's no description,
+      // which we don't want to test here. So, set a description to rule
+      // that out.
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
@@ -359,10 +360,10 @@ describe('Admin can manage program image', () => {
 
     it('enables submit button when image', async () => {
       const {adminProgramImage} = ctx
-
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
+
       await adminProgramImage.setImageFile(
         'src/assets/program-summary-image-wide.png',
       )
@@ -372,17 +373,16 @@ describe('Admin can manage program image', () => {
 
     it('disables submit button when image removed', async () => {
       const {adminProgramImage} = ctx
-
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
       await adminProgramImage.setImageFile(
         'src/assets/program-summary-image-wide.png',
       )
-
       await adminProgramImage.expectEnabledImageFileUploadSubmit()
 
       await adminProgramImage.setImageFile('')
+
       await adminProgramImage.expectDisabledImageFileUploadSubmit()
     })
 
