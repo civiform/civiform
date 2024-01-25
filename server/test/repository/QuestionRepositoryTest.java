@@ -301,6 +301,22 @@ public class QuestionRepositoryTest extends ResetPostgres {
     assertThat(question.getQuestionTags().contains(QuestionTag.UNIVERSAL)).isFalse();
   }
 
+  private QuestionDefinition addTagToDefinition(QuestionModel question)
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinition definition = question.getQuestionDefinition();
+    return new QuestionDefinitionBuilder(definition)
+        .setPrimaryApplicantInfoTags(
+            PrimaryApplicantInfoTag.getAllTagsForQuestionType(definition.getQuestionType()))
+        .build();
+  }
+
+  private QuestionDefinition removeTagsFromDefinition(QuestionModel question)
+      throws UnsupportedQuestionTypeException {
+    return new QuestionDefinitionBuilder(question.getQuestionDefinition())
+        .setPrimaryApplicantInfoTags(ImmutableSet.of())
+        .build();
+  }
+
   @Test
   public void createOrUpdateDraft_managesPrimaryApplicantInfoTagsCorrectl()
       throws UnsupportedQuestionTypeException {
@@ -308,32 +324,12 @@ public class QuestionRepositoryTest extends ResetPostgres {
     QuestionModel dateQuestion = testQuestionBank.applicantDate();
     QuestionModel emailQuestion = testQuestionBank.applicantEmail();
     QuestionModel phoneQuestion = testQuestionBank.applicantPhone();
-    ImmutableSet<PrimaryApplicantInfoTag> nameTag =
-        ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_NAME);
-    ImmutableSet<PrimaryApplicantInfoTag> dateTag =
-        ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_DOB);
-    ImmutableSet<PrimaryApplicantInfoTag> emailTag =
-        ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_EMAIL);
-    ImmutableSet<PrimaryApplicantInfoTag> phoneTag =
-        ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_PHONE);
 
     // Create new draft, ensure tags are correct
-    QuestionDefinition nameQuestionDefinition =
-        new QuestionDefinitionBuilder(nameQuestion.getQuestionDefinition())
-            .setPrimaryApplicantInfoTags(nameTag)
-            .build();
-    QuestionDefinition dateQuestionDefinition =
-        new QuestionDefinitionBuilder(dateQuestion.getQuestionDefinition())
-            .setPrimaryApplicantInfoTags(dateTag)
-            .build();
-    QuestionDefinition emailQuestionDefinition =
-        new QuestionDefinitionBuilder(emailQuestion.getQuestionDefinition())
-            .setPrimaryApplicantInfoTags(emailTag)
-            .build();
-    QuestionDefinition phoneQuestionDefinition =
-        new QuestionDefinitionBuilder(phoneQuestion.getQuestionDefinition())
-            .setPrimaryApplicantInfoTags(phoneTag)
-            .build();
+    QuestionDefinition nameQuestionDefinition = addTagToDefinition(nameQuestion);
+    QuestionDefinition dateQuestionDefinition = addTagToDefinition(dateQuestion);
+    QuestionDefinition emailQuestionDefinition = addTagToDefinition(emailQuestion);
+    QuestionDefinition phoneQuestionDefinition = addTagToDefinition(phoneQuestion);
 
     nameQuestion = repo.createOrUpdateDraft(nameQuestionDefinition);
     dateQuestion = repo.createOrUpdateDraft(dateQuestionDefinition);
@@ -364,22 +360,10 @@ public class QuestionRepositoryTest extends ResetPostgres {
     versionRepo.publishNewSynchronizedVersion();
 
     // Remove tags on a new draft and ensure they are removed
-    nameQuestionDefinition =
-        new QuestionDefinitionBuilder(nameQuestion.getQuestionDefinition())
-            .setPrimaryApplicantInfoTags(ImmutableSet.of())
-            .build();
-    dateQuestionDefinition =
-        new QuestionDefinitionBuilder(dateQuestion.getQuestionDefinition())
-            .setPrimaryApplicantInfoTags(ImmutableSet.of())
-            .build();
-    emailQuestionDefinition =
-        new QuestionDefinitionBuilder(emailQuestion.getQuestionDefinition())
-            .setPrimaryApplicantInfoTags(ImmutableSet.of())
-            .build();
-    phoneQuestionDefinition =
-        new QuestionDefinitionBuilder(phoneQuestion.getQuestionDefinition())
-            .setPrimaryApplicantInfoTags(ImmutableSet.of())
-            .build();
+    nameQuestionDefinition = removeTagsFromDefinition(nameQuestion);
+    dateQuestionDefinition = removeTagsFromDefinition(dateQuestion);
+    emailQuestionDefinition = removeTagsFromDefinition(emailQuestion);
+    phoneQuestionDefinition = removeTagsFromDefinition(phoneQuestion);
 
     nameQuestion = repo.createOrUpdateDraft(nameQuestionDefinition);
     dateQuestion = repo.createOrUpdateDraft(dateQuestionDefinition);
@@ -408,22 +392,10 @@ public class QuestionRepositoryTest extends ResetPostgres {
         .isFalse();
 
     // Update existing draft, ensure tags are correct
-    nameQuestionDefinition =
-        new QuestionDefinitionBuilder(nameQuestion.getQuestionDefinition())
-            .setPrimaryApplicantInfoTags(nameTag)
-            .build();
-    dateQuestionDefinition =
-        new QuestionDefinitionBuilder(dateQuestion.getQuestionDefinition())
-            .setPrimaryApplicantInfoTags(dateTag)
-            .build();
-    emailQuestionDefinition =
-        new QuestionDefinitionBuilder(emailQuestion.getQuestionDefinition())
-            .setPrimaryApplicantInfoTags(emailTag)
-            .build();
-    phoneQuestionDefinition =
-        new QuestionDefinitionBuilder(phoneQuestion.getQuestionDefinition())
-            .setPrimaryApplicantInfoTags(phoneTag)
-            .build();
+    nameQuestionDefinition = addTagToDefinition(nameQuestion);
+    dateQuestionDefinition = addTagToDefinition(dateQuestion);
+    emailQuestionDefinition = addTagToDefinition(emailQuestion);
+    phoneQuestionDefinition = addTagToDefinition(phoneQuestion);
 
     nameQuestion = repo.createOrUpdateDraft(nameQuestionDefinition);
     dateQuestion = repo.createOrUpdateDraft(dateQuestionDefinition);
@@ -452,22 +424,10 @@ public class QuestionRepositoryTest extends ResetPostgres {
         .isTrue();
 
     // Ensure we can remove tags on an existing draft question
-    nameQuestionDefinition =
-        new QuestionDefinitionBuilder(nameQuestion.getQuestionDefinition())
-            .setPrimaryApplicantInfoTags(ImmutableSet.of())
-            .build();
-    dateQuestionDefinition =
-        new QuestionDefinitionBuilder(dateQuestion.getQuestionDefinition())
-            .setPrimaryApplicantInfoTags(ImmutableSet.of())
-            .build();
-    emailQuestionDefinition =
-        new QuestionDefinitionBuilder(emailQuestion.getQuestionDefinition())
-            .setPrimaryApplicantInfoTags(ImmutableSet.of())
-            .build();
-    phoneQuestionDefinition =
-        new QuestionDefinitionBuilder(phoneQuestion.getQuestionDefinition())
-            .setPrimaryApplicantInfoTags(ImmutableSet.of())
-            .build();
+    nameQuestionDefinition = removeTagsFromDefinition(nameQuestion);
+    dateQuestionDefinition = removeTagsFromDefinition(dateQuestion);
+    emailQuestionDefinition = removeTagsFromDefinition(emailQuestion);
+    phoneQuestionDefinition = removeTagsFromDefinition(phoneQuestion);
 
     nameQuestion = repo.createOrUpdateDraft(nameQuestionDefinition);
     dateQuestion = repo.createOrUpdateDraft(dateQuestionDefinition);

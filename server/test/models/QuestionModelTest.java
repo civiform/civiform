@@ -291,15 +291,6 @@ public class QuestionModelTest extends ResetPostgres {
 
   @Test
   public void savesPrimaryApplicantInfoTagsCorrectly() {
-    ImmutableSet<PrimaryApplicantInfoTag> nameTag =
-        ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_NAME);
-    ImmutableSet<PrimaryApplicantInfoTag> dateTag =
-        ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_DOB);
-    ImmutableSet<PrimaryApplicantInfoTag> emailTag =
-        ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_EMAIL);
-    ImmutableSet<PrimaryApplicantInfoTag> phoneTag =
-        ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_PHONE);
-
     QuestionDefinitionConfig.Builder builder =
         QuestionDefinitionConfig.builder()
             .setName("test")
@@ -307,13 +298,28 @@ public class QuestionModelTest extends ResetPostgres {
             .setQuestionText(LocalizedStrings.of())
             .setQuestionHelpText(LocalizedStrings.empty());
     QuestionDefinition nameQuestionDefinition =
-        new NameQuestionDefinition(builder.setPrimaryApplicantInfoTags(nameTag).build());
+        new NameQuestionDefinition(
+            builder
+                .setPrimaryApplicantInfoTags(
+                    ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_NAME))
+                .build());
     QuestionDefinition dateQuestionDefinition =
-        new DateQuestionDefinition(builder.setPrimaryApplicantInfoTags(dateTag).build());
+        new DateQuestionDefinition(
+            builder
+                .setPrimaryApplicantInfoTags(ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_DOB))
+                .build());
     QuestionDefinition emailQuestionDefinition =
-        new EmailQuestionDefinition(builder.setPrimaryApplicantInfoTags(emailTag).build());
+        new EmailQuestionDefinition(
+            builder
+                .setPrimaryApplicantInfoTags(
+                    ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_EMAIL))
+                .build());
     QuestionDefinition phoneQuestionDefinition =
-        new PhoneQuestionDefinition(builder.setPrimaryApplicantInfoTags(phoneTag).build());
+        new PhoneQuestionDefinition(
+            builder
+                .setPrimaryApplicantInfoTags(
+                    ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_PHONE))
+                .build());
 
     QuestionModel nameQuestion = new QuestionModel(nameQuestionDefinition);
     nameQuestion.save();
@@ -331,7 +337,8 @@ public class QuestionModelTest extends ResetPostgres {
                 .getQuestionDefinition()
                 .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_NAME))
         .isTrue();
-    assertThat(nameFound.containsTag(QuestionTag.PRIMARY_APPLICANT_NAME)).isTrue();
+    assertThat(nameFound.containsTag(PrimaryApplicantInfoTag.APPLICANT_NAME.getQuestionTag()))
+        .isTrue();
 
     QuestionModel dateFound =
         repo.lookupQuestion(dateQuestion.id).toCompletableFuture().join().get();
@@ -340,7 +347,8 @@ public class QuestionModelTest extends ResetPostgres {
                 .getQuestionDefinition()
                 .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_DOB))
         .isTrue();
-    assertThat(dateFound.containsTag(QuestionTag.PRIMARY_APPLICANT_DOB)).isTrue();
+    assertThat(dateFound.containsTag(PrimaryApplicantInfoTag.APPLICANT_DOB.getQuestionTag()))
+        .isTrue();
 
     QuestionModel emailFound =
         repo.lookupQuestion(emailQuestion.id).toCompletableFuture().join().get();
@@ -349,7 +357,8 @@ public class QuestionModelTest extends ResetPostgres {
                 .getQuestionDefinition()
                 .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_EMAIL))
         .isTrue();
-    assertThat(emailFound.containsTag(QuestionTag.PRIMARY_APPLICANT_EMAIL)).isTrue();
+    assertThat(emailFound.containsTag(PrimaryApplicantInfoTag.APPLICANT_EMAIL.getQuestionTag()))
+        .isTrue();
 
     QuestionModel phoneFound =
         repo.lookupQuestion(phoneQuestion.id).toCompletableFuture().join().get();
@@ -358,6 +367,7 @@ public class QuestionModelTest extends ResetPostgres {
                 .getQuestionDefinition()
                 .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_PHONE))
         .isTrue();
-    assertThat(phoneFound.containsTag(QuestionTag.PRIMARY_APPLICANT_PHONE)).isTrue();
+    assertThat(phoneFound.containsTag(PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag()))
+        .isTrue();
   }
 }

@@ -1,6 +1,7 @@
 package services.question;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import models.QuestionTag;
 import services.question.types.QuestionType;
 
@@ -92,10 +93,10 @@ public enum PrimaryApplicantInfoTag {
     return this.description;
   }
 
-  public static ImmutableList<PrimaryApplicantInfoTag> getAllTagsForQuestionType(
+  public static ImmutableSet<PrimaryApplicantInfoTag> getAllTagsForQuestionType(
       QuestionType questionType) {
     return ImmutableList.copyOf(PrimaryApplicantInfoTag.values()).stream()
         .filter(t -> t.getQuestionType().equals(questionType))
-        .collect(ImmutableList.toImmutableList());
+        .collect(ImmutableSet.toImmutableSet());
   }
 }
