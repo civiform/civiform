@@ -1,53 +1,81 @@
-import {addEventListenerToElements, assertNotNull} from './util'
+import {assertNotNull} from './util'
+
+class AdminProgramImage {
+  private static IMAGE_DESCRIPTION_FORM_ID = 'image-description-form'
+  private static IMAGE_FILE_UPLOAD_FORM_ID = 'image-file-upload-form'
+
+  static attachEventListenersToDescriptionForm() {
+    const descriptionForm = document.getElementById(
+      AdminProgramImage.IMAGE_DESCRIPTION_FORM_ID,
+    )
+    if (descriptionForm) {
+      descriptionForm.addEventListener(
+        'input',
+        AdminProgramImage.changeSubmitDescriptionState,
+      )
+    }
+  }
+
+  static changeSubmitDescriptionState() {
+    const descriptionForm = assertNotNull(
+      document.getElementById(AdminProgramImage.IMAGE_DESCRIPTION_FORM_ID),
+    )
+    const descriptionInput = assertNotNull(
+      descriptionForm.querySelector<HTMLInputElement>(
+        'input[name="summaryImageDescription"]',
+      ),
+    )
+    const submitButton = assertNotNull(
+      document.querySelector(
+        'button[form=' +
+          AdminProgramImage.IMAGE_DESCRIPTION_FORM_ID +
+          '][type="submit"]',
+      ),
+    )
+
+    if (descriptionInput.value !== descriptionInput.defaultValue) {
+      submitButton.removeAttribute('disabled')
+    } else {
+      submitButton.setAttribute('disabled', '')
+    }
+  }
+
+  static attachEventListenersToImageForm() {
+    const imageForm = document.getElementById(
+      AdminProgramImage.IMAGE_FILE_UPLOAD_FORM_ID,
+    )
+    if (imageForm) {
+      imageForm.addEventListener(
+        'input',
+        AdminProgramImage.changeSubmitImageState,
+      )
+    }
+  }
+
+  static changeSubmitImageState() {
+    const imageForm = assertNotNull(
+      document.getElementById(AdminProgramImage.IMAGE_FILE_UPLOAD_FORM_ID),
+    )
+    const imageInput = assertNotNull(
+      imageForm.querySelector<HTMLInputElement>('input[type=file]'),
+    )
+    const submitButton = assertNotNull(
+      document.querySelector(
+        'button[form=' +
+          AdminProgramImage.IMAGE_FILE_UPLOAD_FORM_ID +
+          '][type="submit"]',
+      ),
+    )
+
+    if (imageInput.value !== '') {
+      submitButton.removeAttribute('disabled')
+    } else {
+      submitButton.setAttribute('disabled', '')
+    }
+  }
+}
 
 export function init() {
-  console.log('initting program image js')
-  const descriptionForm = document.getElementById('image-description-form')
-  if (descriptionForm) {
-    console.log('doing description form')
-    descriptionForm.addEventListener('input', changeSubmitDescriptionState)
-  }
-
-  const imageForm = document.getElementById('image-file-upload-form')
-  if (imageForm) {
-    imageForm.addEventListener('input', changeSubmitImageState)
-  }
-}
-
-function changeSubmitDescriptionState() {
-  const descriptionForm = assertNotNull(
-    document.getElementById('image-description-form'),
-  )
-  const descriptionInput = assertNotNull(
-    descriptionForm.querySelector<HTMLInputElement>('#image-description-input'),
-  )
-
-  const submitButton = assertNotNull(
-    document.getElementById('image-description-submit-button'),
-  )
-
-  if (descriptionInput.value !== descriptionInput.defaultValue) {
-    submitButton.removeAttribute('disabled')
-  } else {
-    submitButton.setAttribute('disabled', '')
-  }
-}
-
-function changeSubmitImageState() {
-  const imageForm = assertNotNull(
-    document.getElementById('image-file-upload-form'),
-  )
-  const imageInput = assertNotNull(
-    imageForm.querySelector<HTMLInputElement>('#image-file-upload-input'),
-  )
-
-  const submitButton = assertNotNull(
-    document.getElementById('image-file-upload-submit-button'),
-  )
-
-  if (imageInput.value !== '') {
-    submitButton.removeAttribute('disabled')
-  } else {
-    submitButton.setAttribute('disabled', '')
-  }
+  AdminProgramImage.attachEventListenersToDescriptionForm()
+  AdminProgramImage.attachEventListenersToImageForm()
 }

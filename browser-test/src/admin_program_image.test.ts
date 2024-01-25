@@ -138,9 +138,13 @@ describe('Admin can manage program image', () => {
     it('sets new description', async () => {
       const {page, adminProgramImage} = ctx
 
-      await adminProgramImage.setImageDescriptionAndSubmit(
-        'Fake image description',
+      await adminProgramImage.setImageDescription('Fake image description')
+      await validateScreenshot(
+        page,
+        'program-image-with-description-before-save',
       )
+
+      await adminProgramImage.submitImageDescription()
       await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectDescriptionIs('Fake image description')
       await validateToastMessage(
@@ -212,11 +216,64 @@ describe('Admin can manage program image', () => {
       )
     })
 
+    it('disables submit button after save', async () => {
+      const {adminProgramImage} = ctx
+
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+
+      // After submitting a description, verify that when the page reloads the submit
+      // button is disabled (because no changes have been made to the description)
+      await adminProgramImage.expectDisabledImageDescriptionSubmit()
+    })
+
+    it('disables submit button when no text change', async () => {
+      const {adminProgramImage} = ctx
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+
+      // Set an identical description and verify submit is still disabled.
+      await adminProgramImage.setImageDescription('Fake image description')
+      await adminProgramImage.expectDisabledImageDescriptionSubmit()
+
+      // Set a new description then go back to the original description
+      // and verify submit is still disabled.
+      await adminProgramImage.setImageDescription('Something different')
+      await adminProgramImage.setImageDescription('Fake image description')
+      await adminProgramImage.expectDisabledImageDescriptionSubmit()
+    })
+
+    it('enables submit button when change', async () => {
+      const {adminProgramImage} = ctx
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+
+      await adminProgramImage.setImageDescription('Something different')
+
+      await adminProgramImage.expectEnabledImageDescriptionSubmit()
+    })
+
+    it('enables submit button when text removed', async () => {
+      const {adminProgramImage} = ctx
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+
+      // Ensure that if the admin updates the description to be empty,
+      // we enable the submit button.
+      await adminProgramImage.setImageDescription('')
+
+      await adminProgramImage.expectEnabledImageDescriptionSubmit()
+    })
+
     it('disables translation button when no description', async () => {
       const {adminProgramImage} = ctx
 
-      await adminProgramImage.setImageDescriptionAndSubmit('')
       await adminProgramImage.expectProgramImagePage()
+      await adminProgramImage.expectDescriptionIs('')
 
       await adminProgramImage.expectDisabledTranslationButton()
     })
@@ -282,10 +339,51 @@ describe('Admin can manage program image', () => {
     it('prevents image upload when no description', async () => {
       const {adminProgramImage} = ctx
 
-      await adminProgramImage.setImageDescriptionAndSubmit('')
       await adminProgramImage.expectProgramImagePage()
+      await adminProgramImage.expectDescriptionIs('')
 
       await adminProgramImage.expectDisabledImageFileUpload()
+      await adminProgramImage.expectDisabledImageFileUploadSubmit()
+    })
+
+    it('disables submit button when no image', async () => {
+      const {adminProgramImage} = ctx
+
+      // Set the description so that the disabled submit button isn't because there's no description.
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+
+      await adminProgramImage.expectDisabledImageFileUploadSubmit()
+    })
+
+    it('enables submit button when image', async () => {
+      const {adminProgramImage} = ctx
+
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+      await adminProgramImage.setImageFile(
+        'src/assets/program-summary-image-wide.png',
+      )
+
+      await adminProgramImage.expectEnabledImageFileUploadSubmit()
+    })
+
+    it('disables submit button when image removed', async () => {
+      const {adminProgramImage} = ctx
+
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+      await adminProgramImage.setImageFile(
+        'src/assets/program-summary-image-wide.png',
+      )
+
+      await adminProgramImage.expectEnabledImageFileUploadSubmit()
+
+      await adminProgramImage.setImageFile('')
+      await adminProgramImage.expectDisabledImageFileUploadSubmit()
     })
 
     it('adds new image', async () => {

@@ -1,9 +1,13 @@
 import {Page} from 'playwright'
 import {waitForPageJsLoad} from './wait'
-import {dismissToast} from '.'
+import {dismissToast, expectDisabled, expectEnabled} from '.'
 
 export class AdminProgramImage {
   private imageUploadLocator = 'input[type=file]'
+  private imageUploadSubmitButtonLocator =
+    'button[form=image-file-upload-form][type="submit"]'
+  private imageDescriptionSubmitButtonLocator =
+    'button[form=image-description-form][type="submit"]'
   private imageDescriptionLocator = 'input[name="summaryImageDescription"]'
   private translationsButtonLocator = 'button:has-text("Manage translations")'
   private continueButtonLocator = '#continue-button'
@@ -34,10 +38,18 @@ export class AdminProgramImage {
     )
   }
 
-  async setImageDescriptionAndSubmit(description: string) {
+  async setImageDescription(description: string) {
     await this.page.fill(this.imageDescriptionLocator, description)
-    await this.page.click('button[form=image-description-form]')
+  }
+
+  async submitImageDescription() {
+    await this.page.click(this.imageDescriptionSubmitButtonLocator)
     await waitForPageJsLoad(this.page)
+  }
+
+  async setImageDescriptionAndSubmit(description: string) {
+    await this.setImageDescription(description)
+    await this.submitImageDescription()
   }
 
   async setImageFile(imageFileName: string) {
@@ -50,14 +62,18 @@ export class AdminProgramImage {
       await dismissToast(this.page)
     }
 
-    await this.page
-      .locator(this.imageUploadLocator)
-      .setInputFiles(imageFileName)
+    if (imageFileName !== '') {
+      await this.page
+        .locator(this.imageUploadLocator)
+        .setInputFiles(imageFileName)
+    } else {
+      await this.page.locator(this.imageUploadLocator).setInputFiles([])
+    }
   }
 
   async setImageFileAndSubmit(imageFileName: string) {
     await this.setImageFile(imageFileName)
-    await this.page.click('button[form=image-file-upload-form]')
+    await this.page.click(this.imageUploadSubmitButtonLocator)
     await waitForPageJsLoad(this.page)
   }
 
@@ -89,10 +105,28 @@ export class AdminProgramImage {
     expect(await descriptionElement.inputValue()).toBe(description)
   }
 
+  async expectDisabledImageDescriptionSubmit() {
+    await expectDisabled(this.page, this.imageDescriptionSubmitButtonLocator)
+  }
+
+  async expectEnabledImageDescriptionSubmit() {
+    await expectEnabled(this.page, this.imageDescriptionSubmitButtonLocator)
+  }
+
+  async expectDisabledImageFileUploadSubmit() {
+    await expectDisabled(this.page, this.imageUploadSubmitButtonLocator)
+  }
+
+  async expectEnabledImageFileUploadSubmit() {
+    await expectEnabled(this.page, this.imageUploadSubmitButtonLocator)
+  }
+
   async expectDisabledImageFileUpload() {
-    expect(
-      await this.page.getAttribute(this.imageUploadLocator, 'disabled'),
-    ).not.toBeNull()
+    await expectDisabled(this.page, this.imageUploadLocator)
+  }
+
+  async expectEnabledImageFileUpload() {
+    await expectEnabled(this.page, this.imageUploadLocator)
   }
 
   /** Expects that the program card preview does not contain an image. */
@@ -110,15 +144,11 @@ export class AdminProgramImage {
   }
 
   async expectDisabledTranslationButton() {
-    expect(
-      await this.page.getAttribute(this.translationsButtonLocator, 'disabled'),
-    ).not.toBeNull()
+    await expectDisabled(this.page, this.translationsButtonLocator)
   }
 
   async expectEnabledTranslationButton() {
-    expect(
-      await this.page.getAttribute(this.translationsButtonLocator, 'disabled'),
-    ).toBeNull()
+    await expectEnabled(this.page, this.translationsButtonLocator)
   }
 
   async clickTranslationButton() {
