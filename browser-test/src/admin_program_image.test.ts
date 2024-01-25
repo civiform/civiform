@@ -30,6 +30,8 @@ describe('Admin can manage program image', () => {
 
     const programName = 'program name'
     await adminPrograms.addProgram(programName)
+    // Navigate from edit program blocks page -> edit program image page
+    await adminPrograms.gotoEditDraftProgramPage(programName)
     await adminPrograms.goToProgramImagePage(programName)
 
     await adminProgramImage.clickBackButton()
@@ -42,10 +44,11 @@ describe('Admin can manage program image', () => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_card_images')
 
-    const programName = 'program name'
+    const programName = 'Back Test Program'
     await adminPrograms.addProgram(programName)
 
-    // Navigate from edit program blocks page > edit program details page > edit program image page
+    // Navigate from edit program blocks page -> edit program details page ->
+    // edit program image page
     await adminPrograms.gotoEditDraftProgramPage(programName)
     await adminPrograms.goToProgramDescriptionPage(programName)
     await adminPrograms.submitProgramDetailsEdits()
@@ -54,8 +57,8 @@ describe('Admin can manage program image', () => {
     // WHEN back is clicked
     await adminProgramImage.clickBackButton()
 
-    // THEN the admin goes back to the program details page
-    await adminPrograms.expectProgramEditPage()
+    // THEN the admin goes back to the edit program details page
+    await adminPrograms.expectProgramEditPage(programName)
   })
 
   it('back button redirects to details page if came from create program page', async () => {
@@ -64,14 +67,15 @@ describe('Admin can manage program image', () => {
     await enableFeatureFlag(page, 'program_card_images')
 
     // After creating a program, admin should be redirected to the program images page
-    await adminPrograms.addProgram('program name')
+    const programName = 'Back Test Program'
+    await adminPrograms.addProgram(programName)
     await adminProgramImage.expectProgramImagePage()
 
     // WHEN back is clicked
     await adminProgramImage.clickBackButton()
 
-    // THEN the admin goes back to the program details page
-    await adminPrograms.expectProgramEditPage()
+    // THEN the admin goes back to the edit program details page for this new program
+    await adminPrograms.expectProgramEditPage(programName)
   })
 
   it('back button preserves location after interaction', async () => {
@@ -79,7 +83,7 @@ describe('Admin can manage program image', () => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_card_images')
 
-    const programName = 'program name'
+    const programName = 'Back Test Program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.gotoEditDraftProgramPage(programName)
     await adminPrograms.goToProgramDescriptionPage(programName)
@@ -96,7 +100,7 @@ describe('Admin can manage program image', () => {
 
     await adminProgramImage.clickBackButton()
 
-    await adminPrograms.expectProgramEditPage()
+    await adminPrograms.expectProgramEditPage(programName)
   })
 
   describe('description', () => {
