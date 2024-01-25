@@ -10,6 +10,7 @@ import * as toggle from './toggle'
 import * as adminApplicationView from './admin_application_view'
 import * as adminApplications from './admin_applications'
 import * as adminPredicates from './admin_predicate_configuration'
+import * as adminProgramImage from './admin_program_image'
 import * as adminPrograms from './admin_programs'
 import * as adminProgramStatusesView from './admin_program_statuses_view'
 import * as adminSettingsView from './admin_settings_view'
@@ -41,6 +42,7 @@ window.addEventListener('load', () => {
   adminApplicationView.init()
   adminApplications.init()
   adminPredicates.init()
+  adminProgramImage.init()
   adminPrograms.init()
   adminProgramStatusesView.init()
   adminSettingsView.init()

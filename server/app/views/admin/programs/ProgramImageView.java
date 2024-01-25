@@ -196,7 +196,10 @@ public final class ProgramImageView extends BaseHtmlView {
     buttonsDiv.with(
         submitButton("Save image description")
             .withForm(IMAGE_DESCRIPTION_FORM_ID)
-            .withClasses(ButtonStyles.SOLID_BLUE, "flex"));
+            .withId("image-description-submit-button")
+            .withClasses(ButtonStyles.SOLID_BLUE, "flex")
+            // admin_program_image.ts will enable the submit button when the description changes.
+            .isDisabled());
     Optional<ButtonTag> manageTranslationsButton =
         createManageTranslationsButton(programDefinition, existingDescription);
     manageTranslationsButton.ifPresent(buttonsDiv::with);
@@ -213,6 +216,7 @@ public final class ProgramImageView extends BaseHtmlView {
                 .with(
                     makeCsrfTokenInputTag(request),
                     FieldWithLabel.input()
+                        .setId("image-description-input")
                         .setFieldName(ProgramImageDescriptionForm.SUMMARY_IMAGE_DESCRIPTION)
                         .setLabelText("Enter image description (Alt Text)")
                         .setRequired(true)
@@ -264,8 +268,10 @@ public final class ProgramImageView extends BaseHtmlView {
     buttonsDiv.with(
         submitButton("Save image")
             .withForm(IMAGE_FILE_UPLOAD_FORM_ID)
+            .withId("image-file-upload-submit-button")
             .withClasses(ButtonStyles.SOLID_BLUE, "flex")
-            .withCondDisabled(hasNoDescription));
+            // admin_program_image.ts will enable the submit button once an image has been uploaded.
+            .isDisabled());
     buttonsDiv.with(deleteButton);
 
     // TODO(#5676): Replace with final UX once we have it.
