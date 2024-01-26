@@ -617,22 +617,32 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             v -> {
               DynamicForm form = formFactory.form().bindFromRequest(request);
               ImmutableMap<String, String> formData = cleanForm(form.rawData());
+              System.out.println("formData=" + formData);
               return applicantService.resetAddressCorrectionWhenAddressChanged(
                   applicantId, programId, blockId, formData);
             },
             httpExecutionContext.current())
         .thenComposeAsync(
-            formData ->
-                applicantService.stageAndUpdateIfValid(
+            formData -> {
+                    if (NextAction.valueOf(nextAction) == NextAction.REVIEW_PAGE && dataIsEmpty(formData)) {
+                      System.out.println("form data is empty -> returning null");
+                      return CompletableFuture.completedFuture(null);
+                    }
+                return applicantService.stageAndUpdateIfValid(
                     applicantId,
                     programId,
                     blockId,
                     formData,
-                    settingsManifest.getEsriAddressServiceAreaValidationEnabled(request)),
+                    settingsManifest.getEsriAddressServiceAreaValidationEnabled(request));
+                    },
             httpExecutionContext.current())
         .thenComposeAsync(
-            roApplicantProgramService -> {
+            roApplicantProgramServiceMaybe -> {
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+              if (roApplicantProgramServiceMaybe == null) {
+                System.out.println("redirecting to review b/c empty");
+                return supplyAsync(() -> redirect(applicantRoutes.review(profile, applicantId, programId).url()));
+              }
               return renderErrorOrRedirectToNextBlock(
                   request,
                   profile,
@@ -641,7 +651,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   blockId,
                   applicantStage.toCompletableFuture().join(),
                       nextAction,
-                  roApplicantProgramService);
+                      roApplicantProgramServiceMaybe);
             },
             httpExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
@@ -891,6 +901,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     return formData.entrySet().stream()
         .filter(entry -> !STRIPPED_FORM_FIELDS.contains(entry.getKey()))
         .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+  }
+
+  // TODO: This doesn't actually work because what if they previously had data then deleted it?
+  // We'd mark the form as empty and then return them to the review stage but not save their deletion
+  private boolean dataIsEmpty(ImmutableMap<String, String> formData) {
+    return formData.values().stream().allMatch(String::isEmpty);
   }
 
   private ApplicationBaseView.Params.Builder applicationBaseViewParamsBuilder(

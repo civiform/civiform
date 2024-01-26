@@ -253,6 +253,7 @@ public final class ApplicantService {
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
             .collect(ImmutableSet.toImmutableSet());
+    System.out.println("updates=" + updates);
 
     // Ensures updates do not collide with metadata scalars. "keyName[]" collides with "keyName".
     boolean updatePathsContainReservedKeys =
