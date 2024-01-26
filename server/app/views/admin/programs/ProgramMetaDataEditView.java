@@ -38,11 +38,11 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
 
   /** Renders the edit form. Fields are pre-populated based on the content of existingProgram. */
   public Content render(
-      Request request, ProgramDefinition existingProgram, boolean inCreationFlow) {
+      Request request, ProgramDefinition existingProgram, boolean isInCreationFlow) {
     return render(
         request,
         existingProgram,
-        inCreationFlow,
+        isInCreationFlow,
         Optional.empty(),
         Optional.empty(),
         Optional.empty());
@@ -55,13 +55,13 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
   public Content render(
       Request request,
       ProgramDefinition existingProgram,
-      boolean inCreationFlow,
+      boolean isInCreationFlow,
       ProgramForm programForm,
       ToastMessage message) {
     return render(
         request,
         existingProgram,
-        inCreationFlow,
+        isInCreationFlow,
         Optional.of(programForm),
         Optional.of(message),
         Optional.empty());
@@ -75,13 +75,13 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
   public Content renderChangeCommonIntakeConfirmation(
       Request request,
       ProgramDefinition existingProgram,
-      boolean inCreationFlow,
+      boolean isInCreationFlow,
       ProgramForm programForm,
       String existingCommonIntakeFormDisplayName) {
     return render(
         request,
         existingProgram,
-        inCreationFlow,
+        isInCreationFlow,
         Optional.of(programForm),
         Optional.empty(),
         Optional.of(buildConfirmCommonIntakeChangeModal(existingCommonIntakeFormDisplayName)));
@@ -90,7 +90,7 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
   private Content render(
       Request request,
       ProgramDefinition existingProgram,
-      boolean inCreationFlow,
+      boolean isInCreationFlow,
       Optional<ProgramForm> programForm,
       Optional<ToastMessage> toastMessage,
       Optional<Modal> modal) {
@@ -99,9 +99,9 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
     FormTag formTag =
         programForm.isPresent()
             ? buildProgramForm(
-                request, programForm.get(), /* editExistingProgram= */ !inCreationFlow)
+                request, programForm.get(), /* editExistingProgram= */ !isInCreationFlow)
             : buildProgramForm(
-                request, existingProgram, /* editExistingProgram= */ !inCreationFlow);
+                request, existingProgram, /* editExistingProgram= */ !isInCreationFlow);
 
     HtmlBundle htmlBundle =
         layout
@@ -115,7 +115,7 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
                             .with(buildManageQuestionLink(existingProgram.id()))
                             .withAction(
                                 controllers.admin.routes.AdminProgramController.update(
-                                        existingProgram.id(), inCreationFlow)
+                                        existingProgram.id(), isInCreationFlow)
                                     .url()))
                     .withClasses("mx-4", "my-12", "flex", "flex-col"));
     toastMessage.ifPresent(htmlBundle::addToastMessages);

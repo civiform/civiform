@@ -152,7 +152,7 @@ public final class AdminProgramController extends CiviFormController {
     }
 
     return getSaveProgramDetailsRedirect(
-        request, result.getResult().id(), /* inCreationFlow= */ true);
+        request, result.getResult().id(), /* isInCreationFlow= */ true);
   }
 
   /** Returns an HTML page containing a form to edit a draft program. */
@@ -160,7 +160,7 @@ public final class AdminProgramController extends CiviFormController {
   public Result edit(Request request, long id) throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(id);
     requestChecker.throwIfProgramNotDraft(id);
-    return ok(editView.render(request, program, /* inCreationFlow= */ false));
+    return ok(editView.render(request, program, /* isInCreationFlow= */ false));
   }
 
   /**
@@ -171,7 +171,7 @@ public final class AdminProgramController extends CiviFormController {
   public Result editInCreationFlow(Request request, long id) throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(id);
     requestChecker.throwIfProgramNotDraft(id);
-    return ok(editView.render(request, program, /* inCreationFlow= */ true));
+    return ok(editView.render(request, program, /* isInCreationFlow= */ true));
   }
 
   /** POST endpoint for publishing all programs in the draft version. */
@@ -227,7 +227,7 @@ public final class AdminProgramController extends CiviFormController {
 
   /** POST endpoint for updating the program in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result update(Request request, long programId, boolean inCreationFlow)
+  public Result update(Request request, long programId, boolean isInCreationFlow)
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
     ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
@@ -248,7 +248,7 @@ public final class AdminProgramController extends CiviFormController {
             ImmutableList.copyOf(programData.getTiGroups()));
     if (!validationErrors.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(validationErrors));
-      return ok(editView.render(request, programDefinition, inCreationFlow, programData, message));
+      return ok(editView.render(request, programDefinition, isInCreationFlow, programData, message));
     }
 
     // If the user needs to confirm that they want to change the common intake form from a different
@@ -263,7 +263,7 @@ public final class AdminProgramController extends CiviFormController {
             editView.renderChangeCommonIntakeConfirmation(
                 request,
                 programDefinition,
-                inCreationFlow,
+                isInCreationFlow,
                 programData,
                 maybeCommonIntakeForm.get().localizedName().getDefault()));
       }
@@ -281,7 +281,7 @@ public final class AdminProgramController extends CiviFormController {
         programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
         settingsManifest.getIntakeFormEnabled(request),
         ImmutableList.copyOf(programData.getTiGroups()));
-    return getSaveProgramDetailsRedirect(request, programId, inCreationFlow);
+    return getSaveProgramDetailsRedirect(request, programId, isInCreationFlow);
   }
 
   /** Returns an HTML page containing a form to edit program-level settings. */
@@ -312,8 +312,8 @@ public final class AdminProgramController extends CiviFormController {
   }
 
   private Result getSaveProgramDetailsRedirect(
-      Request request, long programId, boolean inCreationFlow) {
-    if (settingsManifest.getProgramCardImages(request) && inCreationFlow) {
+      Request request, long programId, boolean isInCreationFlow) {
+    if (settingsManifest.getProgramCardImages(request) && isInCreationFlow) {
       // After creating a new program, we want to direct admins to also add a program image.
       return redirect(
           routes.AdminProgramImageController.index(
