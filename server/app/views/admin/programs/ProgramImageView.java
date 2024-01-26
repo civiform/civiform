@@ -105,7 +105,8 @@ public final class ProgramImageView extends BaseHtmlView {
    *     AdminProgramImageController.Referer} enum.
    */
   public Content render(Http.Request request, ProgramDefinition programDefinition, String referer) {
-    ATag backButton = createBackButton(programDefinition, referer);
+    AdminProgramImageController.Referer refererEnum = getRefererEnum(referer);
+    ATag backButton = createBackButton(programDefinition, refererEnum);
 
     DivTag mainContent = div().withClass("mx-20");
 
@@ -116,6 +117,11 @@ public final class ProgramImageView extends BaseHtmlView {
     formsContainer.with(createImageDescriptionForm(request, programDefinition, referer));
     formsContainer.with(
         createImageUploadForm(programDefinition, deleteImageModal.getButton(), referer));
+    if (refererEnum == AdminProgramImageController.Referer.CREATION) {
+      // When an admin is going through the creation flow, we want to make sure they have a
+      // "Continue" button showing them how to finish program creation.
+      formsContainer.with(createContinueButton(programDefinition));
+    }
 
     DivTag formsAndCurrentCardContainer =
         div().withClasses("grid", "grid-cols-2", "gap-10", "w-full");
@@ -141,21 +147,23 @@ public final class ProgramImageView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private ATag createBackButton(ProgramDefinition programDefinition, String referer) {
-    AdminProgramImageController.Referer refererEnum;
+  private AdminProgramImageController.Referer getRefererEnum(String referer) {
     try {
-      refererEnum = AdminProgramImageController.Referer.valueOf(referer);
+      return AdminProgramImageController.Referer.valueOf(referer);
     } catch (IllegalArgumentException e) {
-      refererEnum = AdminProgramImageController.Referer.BLOCKS;
+      return AdminProgramImageController.Referer.BLOCKS;
     }
+  }
 
+  private ATag createBackButton(
+      ProgramDefinition programDefinition, AdminProgramImageController.Referer refererEnum) {
     String backTarget;
     switch (refererEnum) {
       case BLOCKS:
         backTarget = routes.AdminProgramBlocksController.index(programDefinition.id()).url();
         break;
-      case DETAILS:
-        backTarget = routes.AdminProgramController.edit(programDefinition.id()).url();
+      case CREATION:
+        backTarget = routes.AdminProgramController.editInCreationFlow(programDefinition.id()).url();
         break;
       default:
         throw new IllegalStateException("All referer cases should be handled above");
@@ -167,6 +175,14 @@ public final class ProgramImageView extends BaseHtmlView {
         .setText("Back")
         .setStyles("my-6", "ml-10")
         .asAnchorText();
+  }
+
+  private ButtonTag createContinueButton(ProgramDefinition programDefinition) {
+    return redirectButton(
+            "continue-button",
+            "Continue",
+            routes.AdminProgramBlocksController.index(programDefinition.id()).url())
+        .withClasses(ButtonStyles.SOLID_BLUE, "mt-20");
   }
 
   private DivTag createImageDescriptionForm(

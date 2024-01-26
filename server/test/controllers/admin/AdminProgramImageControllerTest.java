@@ -48,7 +48,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         controller.index(
             addCSRFToken(fakeRequest().method("GET")).build(),
             program.id,
-            AdminProgramImageController.Referer.DETAILS.name());
+            AdminProgramImageController.Referer.CREATION.name());
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Image upload");
@@ -63,7 +63,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                 controller.index(
                     addCSRFToken(fakeRequest().method("GET")).build(),
                     program.id,
-                    AdminProgramImageController.Referer.DETAILS.name()))
+                    AdminProgramImageController.Referer.CREATION.name()))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -74,7 +74,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                 controller.index(
                     addCSRFToken(fakeRequest().method("GET")).build(),
                     Long.MAX_VALUE,
-                    AdminProgramImageController.Referer.DETAILS.name()))
+                    AdminProgramImageController.Referer.CREATION.name()))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -90,7 +90,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         controller.index(
             addCSRFToken(fakeRequest().method("GET")).build(),
             program.id,
-            AdminProgramImageController.Referer.DETAILS.name());
+            AdminProgramImageController.Referer.CREATION.name());
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("fake summary description");
@@ -105,7 +105,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                 controller.updateDescription(
                     addCSRFToken(fakeRequest().method("POST")).build(),
                     program.id,
-                    AdminProgramImageController.Referer.DETAILS.name()))
+                    AdminProgramImageController.Referer.CREATION.name()))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -116,7 +116,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                 controller.updateDescription(
                     addCSRFToken(fakeRequest().method("POST")).build(),
                     Long.MAX_VALUE,
-                    AdminProgramImageController.Referer.DETAILS.name()))
+                    AdminProgramImageController.Referer.CREATION.name()))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -133,7 +133,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "fake description")))
                 .build(),
             program.id,
-            AdminProgramImageController.Referer.DETAILS.name());
+            AdminProgramImageController.Referer.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
@@ -159,7 +159,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "second description")))
                 .build(),
             program.id,
-            AdminProgramImageController.Referer.DETAILS.name());
+            AdminProgramImageController.Referer.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
@@ -191,7 +191,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "new US description")))
                 .build(),
             program.id,
-            AdminProgramImageController.Referer.DETAILS.name());
+            AdminProgramImageController.Referer.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
@@ -220,7 +220,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "")))
                 .build(),
             program.id,
-            AdminProgramImageController.Referer.DETAILS.name());
+            AdminProgramImageController.Referer.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
@@ -243,7 +243,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "    ")))
                 .build(),
             program.id,
-            AdminProgramImageController.Referer.DETAILS.name());
+            AdminProgramImageController.Referer.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
@@ -273,7 +273,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "")))
                 .build(),
             program.id,
-            AdminProgramImageController.Referer.DETAILS.name());
+            AdminProgramImageController.Referer.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
@@ -292,7 +292,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "fake description")))
                 .build(),
             program.id,
-            AdminProgramImageController.Referer.DETAILS.name());
+            AdminProgramImageController.Referer.CREATION.name());
 
     assertThat(result.flash().data()).containsOnlyKeys("success");
     assertThat(result.flash().data().get("success")).contains("set to fake description");
@@ -314,7 +314,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "")))
                 .build(),
             program.id,
-            AdminProgramImageController.Referer.DETAILS.name());
+            AdminProgramImageController.Referer.CREATION.name());
 
     assertThat(result.flash().data()).containsOnlyKeys("success");
     assertThat(result.flash().data().get("success")).contains("removed");
@@ -357,7 +357,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         .isThrownBy(
             () ->
                 controller.updateFileKey(
-                    request, program.id, AdminProgramImageController.Referer.DETAILS.name()));
+                    request, program.id, AdminProgramImageController.Referer.CREATION.name()));
   }
 
   @Test
@@ -375,7 +375,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                 controller.updateFileKey(
                     request,
                     /* programId= */ Long.MAX_VALUE,
-                    AdminProgramImageController.Referer.DETAILS.name()));
+                    AdminProgramImageController.Referer.CREATION.name()));
   }
 
   @Test
@@ -392,7 +392,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         .isThrownBy(
             () ->
                 controller.updateFileKey(
-                    request, program.id, AdminProgramImageController.Referer.DETAILS.name()))
+                    request, program.id, AdminProgramImageController.Referer.CREATION.name()))
         .withMessageContaining("must contain bucket");
   }
 
@@ -410,7 +410,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         .isThrownBy(
             () ->
                 controller.updateFileKey(
-                    request, program.id, AdminProgramImageController.Referer.DETAILS.name()))
+                    request, program.id, AdminProgramImageController.Referer.CREATION.name()))
         .withMessageContaining("must contain file key");
   }
 
@@ -430,7 +430,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         .isThrownBy(
             () ->
                 controller.updateFileKey(
-                    request, program.id, AdminProgramImageController.Referer.DETAILS.name()))
+                    request, program.id, AdminProgramImageController.Referer.CREATION.name()))
         .withMessageContaining("Key incorrectly formatted");
   }
 
@@ -450,7 +450,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                             "program-summary-image/program-15/myImage.png"))))
             .build(),
         program.id,
-        AdminProgramImageController.Referer.DETAILS.name());
+        AdminProgramImageController.Referer.CREATION.name());
 
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
     assertThat(updatedProgram.summaryImageFileKey()).isNotEmpty();
@@ -484,7 +484,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                             "program-summary-image/program-15/oldImage.png"))))
             .build(),
         program.id,
-        AdminProgramImageController.Referer.DETAILS.name());
+        AdminProgramImageController.Referer.CREATION.name());
 
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
     assertThat(updatedProgram.summaryImageFileKey()).isNotEmpty();
@@ -504,7 +504,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                             "program-summary-image/program-15/newImage.png"))))
             .build(),
         program.id,
-        AdminProgramImageController.Referer.DETAILS.name());
+        AdminProgramImageController.Referer.CREATION.name());
 
     // THEN the database reflects the changes
     updatedProgram = programService.getProgramDefinition(program.id);
@@ -530,13 +530,13 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                                 "program-summary-image/program-15/newImage.png"))))
                 .build(),
             program.id,
-            AdminProgramImageController.Referer.DETAILS.name());
+            AdminProgramImageController.Referer.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .hasValue(
             routes.AdminProgramImageController.index(
-                    program.id, AdminProgramImageController.Referer.DETAILS.name())
+                    program.id, AdminProgramImageController.Referer.CREATION.name())
                 .url());
   }
 
@@ -550,7 +550,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                 controller.deleteFileKey(
                     addCSRFToken(fakeRequest()).build(),
                     program.id,
-                    AdminProgramImageController.Referer.DETAILS.name()));
+                    AdminProgramImageController.Referer.CREATION.name()));
   }
 
   @Test
@@ -561,7 +561,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                 controller.deleteFileKey(
                     addCSRFToken(fakeRequest()).build(),
                     /* programId= */ Long.MAX_VALUE,
-                    AdminProgramImageController.Referer.DETAILS.name()));
+                    AdminProgramImageController.Referer.CREATION.name()));
   }
 
   @Test
@@ -571,7 +571,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     controller.deleteFileKey(
         addCSRFToken(fakeRequest()).build(),
         program.id,
-        AdminProgramImageController.Referer.DETAILS.name());
+        AdminProgramImageController.Referer.CREATION.name());
 
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
     assertThat(updatedProgram.summaryImageFileKey().isEmpty()).isTrue();
@@ -585,7 +585,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     controller.deleteFileKey(
         addCSRFToken(fakeRequest()).build(),
         program.id,
-        AdminProgramImageController.Referer.DETAILS.name());
+        AdminProgramImageController.Referer.CREATION.name());
 
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
     assertThat(updatedProgram.summaryImageFileKey()).isEmpty();
@@ -600,7 +600,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         controller.deleteFileKey(
             addCSRFToken(fakeRequest()).build(),
             program.id,
-            AdminProgramImageController.Referer.DETAILS.name());
+            AdminProgramImageController.Referer.CREATION.name());
 
     assertThat(result.flash().data()).containsOnlyKeys("success");
     assertThat(result.flash().data().get("success")).contains("Image removed");
@@ -614,13 +614,13 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         controller.deleteFileKey(
             addCSRFToken(fakeRequest()).build(),
             program.id,
-            AdminProgramImageController.Referer.DETAILS.name());
+            AdminProgramImageController.Referer.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .hasValue(
             routes.AdminProgramImageController.index(
-                    program.id, AdminProgramImageController.Referer.DETAILS.name())
+                    program.id, AdminProgramImageController.Referer.CREATION.name())
                 .url());
   }
 
@@ -642,7 +642,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                             ImmutableMap.of("bucket", "fakeBucket", "key", VALID_FILE_KEY))))
                 .build(),
             program.id,
-            AdminProgramImageController.Referer.DETAILS.name());
+            AdminProgramImageController.Referer.CREATION.name());
 
     ProgramDefinition programWithKey = programService.getProgramDefinition(program.id);
     assertThat(programWithKey.summaryImageFileKey()).isNotEmpty();

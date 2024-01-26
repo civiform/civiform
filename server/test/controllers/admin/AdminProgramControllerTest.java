@@ -211,7 +211,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .hasValue(
             routes.AdminProgramImageController.index(
-                    programId, AdminProgramImageController.Referer.DETAILS.name())
+                    programId, AdminProgramImageController.Referer.CREATION.name())
                 .url());
   }
 
@@ -650,7 +650,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .hasValue(
             routes.AdminProgramImageController.index(
-                    program.id, AdminProgramImageController.Referer.DETAILS.name())
+                    program.id, AdminProgramImageController.Referer.CREATION.name())
                 .url());
   }
 
