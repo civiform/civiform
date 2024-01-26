@@ -17,9 +17,15 @@ readonly DOCKERFILE="formatter/formatter.Dockerfile"
 
 BUILD_ARGS=(--file "${DOCKERFILE}"
   --tag "${NAMESPACE}/${IMAGE}:latest"
-  --cache-from "${NAMESPACE}/${IMAGE}"
-  --build-arg BUILDKIT_INLINE_CACHE=1
+  --cache-from "type=gha"
+  --cache-to "type=gha,mode=max"
   "${LOCATION}")
+
+#BUILD_ARGS=(--file "${DOCKERFILE}"
+#  --tag "${NAMESPACE}/${IMAGE}:latest"
+#  --cache-from "${NAMESPACE}/${IMAGE}"
+#  --build-arg BUILDKIT_INLINE_CACHE=1
+#  "${LOCATION}")
 
 PLATFORM_ARG=()
 if [[ "${PLATFORM}" ]]; then
