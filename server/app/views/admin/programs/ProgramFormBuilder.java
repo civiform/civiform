@@ -218,7 +218,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                   .getCheckboxTag());
     }
 
-    formTag.with(createSubmitButton(request));
+    formTag.with(createSubmitButton(request, editExistingProgram));
     return formTag;
   }
 
@@ -323,11 +323,15 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         .build();
   }
 
-  private ButtonTag createSubmitButton(Request request) {
+  private ButtonTag createSubmitButton(Request request, boolean editExistingProgram) {
     String saveProgramDetailsText;
-    if (settingsManifest.getProgramCardImages(request)) {
+    if (settingsManifest.getProgramCardImages(request) && !editExistingProgram) {
+      // If the admin is creating a new program, they'll be redirected to the next step of adding a
+      // program image.
       saveProgramDetailsText = "Save and continue to next step";
     } else {
+      // If the admin is editing an existing program, they'll be redirected back to the program
+      // blocks page.
       saveProgramDetailsText = "Save";
     }
 

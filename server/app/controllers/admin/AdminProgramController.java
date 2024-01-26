@@ -151,7 +151,13 @@ public final class AdminProgramController extends CiviFormController {
       return ok(newOneView.render(request, programData, message));
     }
 
-    return getSaveProgramDetailsRedirect(request, result.getResult().id());
+    long programId = result.getResult().id();
+    if (settingsManifest.getProgramCardImages(request)) {
+      // After creating a new program, we want to direct admins to also add a program image.
+      return redirect(routes.AdminProgramImageController.index(programId).url());
+    } else {
+      return redirect(routes.AdminProgramBlocksController.index(programId).url());
+    }
   }
 
   /** Returns an HTML page containing a form to edit a draft program. */
@@ -267,7 +273,7 @@ public final class AdminProgramController extends CiviFormController {
         programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
         settingsManifest.getIntakeFormEnabled(request),
         ImmutableList.copyOf(programData.getTiGroups()));
-    return getSaveProgramDetailsRedirect(request, programId);
+    return redirect(routes.AdminProgramBlocksController.index(programId).url());
   }
 
   /** Returns an HTML page containing a form to edit program-level settings. */
@@ -295,15 +301,5 @@ public final class AdminProgramController extends CiviFormController {
     }
 
     return redirect(controllers.admin.routes.AdminProgramController.editProgramSettings(programId));
-  }
-
-  /** Returns where admins should be taken to after saving program detail edits. */
-  private Result getSaveProgramDetailsRedirect(Request request, long programId) {
-    if (settingsManifest.getProgramCardImages(request)) {
-      // After adding/editing program details, we want to direct admins to also add a program image.
-      return redirect(routes.AdminProgramImageController.index(programId).url());
-    } else {
-      return redirect(routes.AdminProgramBlocksController.index(programId).url());
-    }
   }
 }
