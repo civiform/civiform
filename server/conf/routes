@@ -20,6 +20,7 @@ GET     /securePlayIndex            controllers.HomeController.securePlayIndex()
 GET     /admin/programs                                         controllers.admin.AdminProgramController.index(request: Request)
 GET     /admin/programs/new                                     controllers.admin.AdminProgramController.newOne(request: Request)
 GET     /admin/programs/:programId/edit                         controllers.admin.AdminProgramController.edit(request: Request, programId: Long)
+GET     /admin/programs/:programId/editInCreationFlow                         controllers.admin.AdminProgramController.editInCreationFlow(request: Request, programId: Long)
 GET     /admin/programs/:programId/preview                      controllers.admin.AdminProgramPreviewController.preview(request: Request, programId: Long)
 GET     /admin/programs/:programId/back                         controllers.admin.AdminProgramPreviewController.back(request: Request, programId: Long)
 GET     /admin/programs/:programId/settings/edit                controllers.admin.AdminProgramController.editProgramSettings(request: Request, programId: Long)
@@ -27,7 +28,7 @@ POST    /admin/programs/:programId/newVersion                   controllers.admi
 POST    /admin/programs                                         controllers.admin.AdminProgramController.create(request: Request)
 POST    /admin/programs/publish                                 controllers.admin.AdminProgramController.publish()
 POST    /admin/programs/:programId/publish                      controllers.admin.AdminProgramController.publishProgram(request: Request, programId: Long)
-POST    /admin/programs/:programId                              controllers.admin.AdminProgramController.update(request: Request, programId: Long)
+POST    /admin/programs/:programId/:inCreationFlow                              controllers.admin.AdminProgramController.update(request: Request, programId: Long, inCreationFlow: Boolean)
 POST    /admin/programs/:programId/setEligibilityIsGating       controllers.admin.AdminProgramController.setEligibilityIsGating(request: Request, programId: Long)
 
 # Routes for a CiviForm admin to manage program admins for a given program.

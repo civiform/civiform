@@ -121,8 +121,8 @@ public final class AdminProgramImageController extends CiviFormController {
    * button goes to the right place.
    */
   public enum Referer {
-    /** The admin came from the edit program details page. */
-    DETAILS,
+    /** The admin came from the program creation page. */
+    CREATION,
     /** The admin came from the edit program blocks page. */
     BLOCKS
   }
