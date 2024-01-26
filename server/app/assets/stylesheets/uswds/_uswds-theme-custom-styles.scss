@@ -25,7 +25,10 @@ See the radio-option below as an example.
   @include u-border('blue-40v');
 }
 
-/* Make the file input element for program image upload fill the area it's given. */
-.usa-file-input {
+/*
+ * Make the file input element for program image upload fill the area it's given.
+ * (This overrides the default USWDS style of a max-width of 30rem.)
+ */
+#program-image-upload-file-input .usa-file-input {
   max-width: none;
 }

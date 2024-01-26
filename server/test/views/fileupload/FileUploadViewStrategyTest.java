@@ -13,6 +13,7 @@ public class FileUploadViewStrategyTest {
   public void createUswdsFileInputFormElement_hasAriaDescribedByLabels() {
     DivTag uswdsForm =
         FileUploadViewStrategy.createUswdsFileInputFormElement(
+            /* id= */ "fakeId",
             /* acceptedMimeTypes= */ "image/*",
             /* hints= */ ImmutableList.of("hint0", "hint1", "hint2"),
             /* disabled= */ false);

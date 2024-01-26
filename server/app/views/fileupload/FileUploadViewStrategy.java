@@ -55,11 +55,12 @@ public abstract class FileUploadViewStrategy {
   /**
    * Creates a <input type="file"> element that uses the USWDS file input UI component.
    *
+   * @param id the ID to apply to the outermost div.
    * @param hints a list of hints that should be displayed above the file input UI.
    * @param disabled true if the file input should be shown as disabled.
    */
   public static DivTag createUswdsFileInputFormElement(
-      String acceptedMimeTypes, ImmutableList<String> hints, boolean disabled) {
+      String id, String acceptedMimeTypes, ImmutableList<String> hints, boolean disabled) {
     StringBuilder ariaDescribedByIds = new StringBuilder();
     for (int i = 0; i < hints.size(); i++) {
       ariaDescribedByIds.append(FILE_INPUT_HINT_ID_PREFIX);
@@ -67,6 +68,7 @@ public abstract class FileUploadViewStrategy {
       ariaDescribedByIds.append(" ");
     }
     return div()
+        .withId(id)
         .withClasses("usa-form-group", "mb-2")
         .with(
             each(

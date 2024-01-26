@@ -185,7 +185,8 @@ public final class ProgramImageView extends BaseHtmlView {
                     makeCsrfTokenInputTag(request),
                     FieldWithLabel.input()
                         .setFieldName(ProgramImageDescriptionForm.SUMMARY_IMAGE_DESCRIPTION)
-                        .setLabelText("Enter image description (Alt Text) (Required) *")
+                        .setLabelText("Enter image description (Alt Text)")
+                        .setRequired(true)
                         .setPlaceholderText("Colorful fruits and vegetables in bins")
                         .setValue(form.value().get().getSummaryImageDescription())
                         .getInputTag()))
@@ -214,6 +215,7 @@ public final class ProgramImageView extends BaseHtmlView {
         fileUploadViewStrategy.additionalFileUploadFormInputs(Optional.of(storageUploadRequest));
     DivTag fileInputElement =
         FileUploadViewStrategy.createUswdsFileInputFormElement(
+            /* id= */ "program-image-upload-file-input",
             /* acceptedMimeTypes= */ MIME_TYPES_IMAGES,
             /* hints= */ ImmutableList.of(
                 "The maximum size for image upload is 1MB.",
