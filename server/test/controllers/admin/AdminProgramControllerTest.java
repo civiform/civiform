@@ -473,11 +473,42 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void edit_withNoneDraftProgram_throwsNotChangeableException() throws Exception {
+  public void edit_withNonDraftProgram_throwsNotChangeableException() {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     ProgramModel program = ProgramBuilder.newActiveProgram("test program").build();
 
     assertThatThrownBy(() -> controller.edit(request, program.id))
+        .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
+  public void editInCreationFlow_withInvalidProgram_throwsProgramNotFoundException() {
+    Request request = requestBuilderWithSettings().build();
+
+    assertThatThrownBy(() -> controller.editInCreationFlow(request, 1L))
+        .isInstanceOf(ProgramNotFoundException.class);
+  }
+
+  @Test
+  public void editInCreationFlow_returnsExpectedForm() throws Exception {
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test program").build();
+
+    Result result = controller.editInCreationFlow(request, program.id);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("test program");
+
+    assertThat(contentAsString(result)).contains("Edit program");
+    assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
+  }
+
+  @Test
+  public void editInCreationFlow_withNonDraftProgram_throwsNotChangeableException() {
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program").build();
+
+    assertThatThrownBy(() -> controller.editInCreationFlow(request, program.id))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -537,7 +568,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .bodyForm(ImmutableMap.of("name", "name", "description", "description"))
             .build();
 
-    assertThatThrownBy(() -> controller.update(request, /* programId= */ 1L))
+    assertThatThrownBy(
+            () -> controller.update(request, /* programId= */ 1L, /* isInCreationFlow= */ false))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -549,7 +581,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .bodyForm(ImmutableMap.of("name", "", "description", ""))
             .build();
 
-    Result result = controller.update(request, program.id);
+    Result result = controller.update(request, program.id, /* isInCreationFlow= */ false);
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit program");
@@ -578,7 +610,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "true",
                     "tiGroups[]",
                     "1"));
-    controller.update(addCSRFToken(requestBuilder).build(), program.id);
+    controller.update(
+        addCSRFToken(requestBuilder).build(), program.id, /* isInCreationFlow= */ false);
 
     Result indexResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
     assertThat(contentAsString(indexResult))
@@ -588,39 +621,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_programImagesDisabled_redirectsToProgramEditBlocks()
-      throws ProgramNotFoundException {
-    when(mockSettingsManifest.getProgramCardImages(any())).thenReturn(false);
-
-    ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
-    RequestBuilder requestBuilder =
-        requestBuilderWithSettings()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminDescription",
-                    "adminDescription",
-                    "localizedDisplayName",
-                    "Program",
-                    "localizedDisplayDescription",
-                    "description",
-                    "externalLink",
-                    "https://external.program.link",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "false",
-                    "tiGroups[]",
-                    "1"));
-
-    Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id);
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.index(program.id).url());
-  }
-
-  @Test
-  public void update_programImagesEnabled_redirectsToProgramImage()
+  public void update_isInCreationFlowFalse_redirectsToProgramEditBlocks()
       throws ProgramNotFoundException {
     when(mockSettingsManifest.getProgramCardImages(any())).thenReturn(true);
 
@@ -644,7 +645,77 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "tiGroups[]",
                     "1"));
 
-    Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id);
+    Result result =
+        controller.update(
+            addCSRFToken(requestBuilder).build(), program.id, /* isInCreationFlow= */ false);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramBlocksController.index(program.id).url());
+  }
+
+  @Test
+  public void update_isInCreationFlowTrue_programImagesDisabled_redirectsToProgramEditBlocks()
+      throws ProgramNotFoundException {
+    when(mockSettingsManifest.getProgramCardImages(any())).thenReturn(false);
+
+    ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
+    RequestBuilder requestBuilder =
+        requestBuilderWithSettings()
+            .bodyForm(
+                ImmutableMap.of(
+                    "adminDescription",
+                    "adminDescription",
+                    "localizedDisplayName",
+                    "Program",
+                    "localizedDisplayDescription",
+                    "description",
+                    "externalLink",
+                    "https://external.program.link",
+                    "displayMode",
+                    DisplayMode.PUBLIC.getValue(),
+                    "isCommonIntakeForm",
+                    "false",
+                    "tiGroups[]",
+                    "1"));
+
+    Result result =
+        controller.update(
+            addCSRFToken(requestBuilder).build(), program.id, /* isInCreationFlow= */ true);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramBlocksController.index(program.id).url());
+  }
+
+  @Test
+  public void update_isInCreationFlowTrue_programImagesEnabled_redirectsToProgramImage()
+      throws ProgramNotFoundException {
+    when(mockSettingsManifest.getProgramCardImages(any())).thenReturn(true);
+
+    ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
+    RequestBuilder requestBuilder =
+        requestBuilderWithSettings()
+            .bodyForm(
+                ImmutableMap.of(
+                    "adminDescription",
+                    "adminDescription",
+                    "localizedDisplayName",
+                    "Program",
+                    "localizedDisplayDescription",
+                    "description",
+                    "externalLink",
+                    "https://external.program.link",
+                    "displayMode",
+                    DisplayMode.PUBLIC.getValue(),
+                    "isCommonIntakeForm",
+                    "false",
+                    "tiGroups[]",
+                    "1"));
+
+    Result result =
+        controller.update(
+            addCSRFToken(requestBuilder).build(), program.id, /* isInCreationFlow= */ true);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
@@ -680,7 +751,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
                         "confirmedChangeCommonIntakeForm",
                         "false")));
 
-    Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id);
+    Result result =
+        controller.update(
+            addCSRFToken(requestBuilder).build(), program.id, /* isInCreationFlow= */ false);
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -713,7 +786,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
                         "confirmedChangeCommonIntakeForm",
                         "false")));
 
-    Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id);
+    Result result =
+        controller.update(
+            addCSRFToken(requestBuilder).build(), program.id, /* isInCreationFlow= */ false);
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("confirm-common-intake-change");
@@ -744,7 +819,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
                         "confirmedChangeCommonIntakeForm",
                         "false")));
 
-    Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id);
+    Result result =
+        controller.update(
+            addCSRFToken(requestBuilder).build(), program.id, /* isInCreationFlow= */ false);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     long programId =
@@ -789,7 +866,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
                         "confirmedChangeCommonIntakeForm",
                         "true")));
 
-    Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id);
+    Result result =
+        controller.update(
+            addCSRFToken(requestBuilder).build(), program.id, /* isInCreationFlow= */ false);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     Optional<ProgramModel> newProgram =

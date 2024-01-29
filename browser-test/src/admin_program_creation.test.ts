@@ -13,7 +13,7 @@ import {Page} from 'playwright'
 describe('program creation', () => {
   const ctx = createTestContext()
 
-  it('create program page with images flag off', async () => {
+  fit('create program page with images flag off', async () => {
     const {page, adminPrograms} = ctx
     await loginAsAdmin(page)
     await disableFeatureFlag(page, 'program_card_images')
@@ -30,6 +30,7 @@ describe('program creation', () => {
       'confirmationMessage',
       /* submitNewProgram= */ false,
     )
+    await adminPrograms.expectProgramDetailsSaveButton(programName)
     await validateScreenshot(page, 'program-creation-page')
 
     // When the program submission goes through with the program_card_images flag off,
@@ -38,7 +39,7 @@ describe('program creation', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  it('create program page with images flag on', async () => {
+  fit('create program page with images flag on', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_card_images')
@@ -55,6 +56,7 @@ describe('program creation', () => {
       'confirmationMessage',
       /* submitNewProgram= */ false,
     )
+    await adminPrograms.expectProgramDetailsSaveAndContinueButton(programName)
     await validateScreenshot(page, 'program-creation-page-images-flag-on')
 
     // When the program submission goes through with the program_card_images flag on,
@@ -90,7 +92,27 @@ describe('program creation', () => {
     // program name (used for the URL).
     await adminProgramImage.clickBackButton()
 
+    await adminPrograms.expectProgramEditPage(programName)
     expect(await page.locator('#program-name-input').count()).toEqual(0)
+  })
+
+  fit('create program then go back can still go forward', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+    await adminProgramImage.expectProgramImagePage()
+
+    // When the admin goes back to the program details page, they should be
+    // able to still go forward to the program images page again.
+    await adminProgramImage.clickBackButton()
+
+    await adminPrograms.expectProgramDetailsSaveAndContinueButton(programName)
+
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminProgramImage.expectProgramImagePage()
   })
 
   it('program details page screenshot', async () => {

@@ -45,7 +45,7 @@ import views.style.StyleUtils;
  * Builds a program form for rendering. If the program was previously created, the {@code adminName}
  * field is disabled, since it cannot be edited once set.
  */
-public abstract class ProgramFormBuilder extends BaseHtmlView {
+abstract class ProgramFormBuilder extends BaseHtmlView {
 
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
@@ -329,8 +329,9 @@ public abstract class ProgramFormBuilder extends BaseHtmlView {
     if (settingsManifest.getProgramCardImages(request)
         && (programEditStatus == ProgramEditStatus.CREATION
             || programEditStatus == ProgramEditStatus.CREATION_EDIT)) {
-      // If the admin is creating a new program, they'll be redirected to the next step of adding a
-      // program image.
+      // If the admin is in the middle of creating a new program, they'll be redirected to the next
+      // step of adding a
+      // program image, so we want the save button text to reflect that.
       saveProgramDetailsText = "Save and continue to next step";
     } else {
       // If the admin is editing an existing program, they'll be redirected back to the program
@@ -341,17 +342,5 @@ public abstract class ProgramFormBuilder extends BaseHtmlView {
     return submitButton(saveProgramDetailsText)
         .withId("program-update-button")
         .withClasses(ButtonStyles.SOLID_BLUE, "mt-6");
-  }
-
-  public enum ProgramEditStatus {
-    /** The program is being created for the very first time. */
-    CREATION,
-    /**
-     * The program was just created, and the admin is now editing some details while still in the
-     * creation flow.
-     */
-    CREATION_EDIT,
-    /** The program is being edited after the admin has fully finished the creation flow. */
-    EDIT,
   }
 }

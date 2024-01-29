@@ -29,7 +29,7 @@ import services.program.ProgramService;
 import services.program.ProgramType;
 import services.question.QuestionService;
 import services.settings.SettingsManifest;
-import views.admin.programs.ProgramFormBuilder;
+import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
 import views.admin.programs.ProgramNewOneView;
@@ -161,19 +161,18 @@ public final class AdminProgramController extends CiviFormController {
   public Result edit(Request request, long id) throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(id);
     requestChecker.throwIfProgramNotDraft(id);
-    return ok(editView.render(request, program, ProgramFormBuilder.ProgramEditStatus.EDIT));
+    return ok(editView.render(request, program, ProgramEditStatus.EDIT));
   }
 
   /**
    * Similar to {@link #edit}, but these edits are being performed while an admin is still in the
-   * initial creation flow.
+   * initial program creation flow.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result editInCreationFlow(Request request, long id) throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(id);
     requestChecker.throwIfProgramNotDraft(id);
-    return ok(
-        editView.render(request, program, ProgramFormBuilder.ProgramEditStatus.CREATION_EDIT));
+    return ok(editView.render(request, program, ProgramEditStatus.CREATION_EDIT));
   }
 
   /** POST endpoint for publishing all programs in the draft version. */
@@ -227,7 +226,12 @@ public final class AdminProgramController extends CiviFormController {
     }
   }
 
-  /** POST endpoint for updating the program in the draft version. */
+  /**
+   * POST endpoint for updating the program in the draft version.
+   *
+   * @param isInCreationFlow true if the admin is making these updates while in the flow of creating
+   *     a new program and false otherwise.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, long programId, boolean isInCreationFlow)
       throws ProgramNotFoundException {
@@ -240,11 +244,11 @@ public final class AdminProgramController extends CiviFormController {
     // option as part of the checkbox display
     while (programData.getTiGroups().remove(null)) {}
 
-    ProgramFormBuilder.ProgramEditStatus programEditStatus;
+    ProgramEditStatus programEditStatus;
     if (isInCreationFlow) {
-      programEditStatus = ProgramFormBuilder.ProgramEditStatus.CREATION_EDIT;
+      programEditStatus = ProgramEditStatus.CREATION_EDIT;
     } else {
-      programEditStatus = ProgramFormBuilder.ProgramEditStatus.EDIT;
+      programEditStatus = ProgramEditStatus.EDIT;
     }
 
     // Display any errors with the form input to the user.
