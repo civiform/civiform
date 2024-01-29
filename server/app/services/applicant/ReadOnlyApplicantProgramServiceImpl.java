@@ -169,7 +169,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public ImmutableList<Block> getAllHiddenBlocks() {
     if (allHiddenBlockList == null) {
-      //
       allHiddenBlockList = getBlocks((block) -> !showBlock(block));
     }
     return allHiddenBlockList;
