@@ -36,17 +36,13 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
-  /**
-   * Renders the edit form. Fields are pre-populated based on the content of existingProgram.
-   *
-   * @param isInCreationFlow true if the admin is in the flow of creating a new program and false if the admin is making edits to an existing program.
-   */
+  /** Renders the edit form. Fields are pre-populated based on the content of existingProgram. */
   public Content render(
-      Request request, ProgramDefinition existingProgram, boolean isInCreationFlow) {
+      Request request, ProgramDefinition existingProgram, ProgramEditStatus programEditStatus) {
     return render(
         request,
         existingProgram,
-        isInCreationFlow,
+        programEditStatus,
         Optional.empty(),
         Optional.empty(),
         Optional.empty());
@@ -59,13 +55,13 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
   public Content render(
       Request request,
       ProgramDefinition existingProgram,
-      boolean isInCreationFlow,
+      ProgramEditStatus programEditStatus,
       ProgramForm programForm,
       ToastMessage message) {
     return render(
         request,
         existingProgram,
-        isInCreationFlow,
+        programEditStatus,
         Optional.of(programForm),
         Optional.of(message),
         Optional.empty());
@@ -79,13 +75,13 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
   public Content renderChangeCommonIntakeConfirmation(
       Request request,
       ProgramDefinition existingProgram,
-      boolean isInCreationFlow,
+      ProgramEditStatus programEditStatus,
       ProgramForm programForm,
       String existingCommonIntakeFormDisplayName) {
     return render(
         request,
         existingProgram,
-        isInCreationFlow,
+        programEditStatus,
         Optional.of(programForm),
         Optional.empty(),
         Optional.of(buildConfirmCommonIntakeChangeModal(existingCommonIntakeFormDisplayName)));
@@ -94,7 +90,7 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
   private Content render(
       Request request,
       ProgramDefinition existingProgram,
-      boolean isInCreationFlow,
+      ProgramEditStatus programEditStatus,
       Optional<ProgramForm> programForm,
       Optional<ToastMessage> toastMessage,
       Optional<Modal> modal) {
@@ -102,10 +98,10 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
 
     FormTag formTag =
         programForm.isPresent()
-            ? buildProgramForm(
-                request, programForm.get(), /* editExistingProgram= */ !isInCreationFlow)
-            : buildProgramForm(
-                request, existingProgram, /* editExistingProgram= */ !isInCreationFlow);
+            ? buildProgramForm(request, programForm.get(), programEditStatus)
+            : buildProgramForm(request, existingProgram, programEditStatus);
+
+    boolean isInCreationFlow = programEditStatus == ProgramEditStatus.CREATION_EDIT;
 
     HtmlBundle htmlBundle =
         layout

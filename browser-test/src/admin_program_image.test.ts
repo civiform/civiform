@@ -56,7 +56,7 @@ describe('Admin can manage program image', () => {
     await adminPrograms.expectProgramEditPage(programName)
   })
 
-// TODO: This will fail now
+  // TODO: This will fail now
   it('back button preserves location after interaction', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     await loginAsAdmin(page)

@@ -45,7 +45,7 @@ import views.style.StyleUtils;
  * Builds a program form for rendering. If the program was previously created, the {@code adminName}
  * field is disabled, since it cannot be edited once set.
  */
-abstract class ProgramFormBuilder extends BaseHtmlView {
+public abstract class ProgramFormBuilder extends BaseHtmlView {
 
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
@@ -62,7 +62,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
 
   /** Builds the form using program form data. */
   protected final FormTag buildProgramForm(
-      Request request, ProgramForm program, boolean editExistingProgram) {
+      Request request, ProgramForm program, ProgramEditStatus programEditStatus) {
     return buildProgramForm(
         request,
         program.getAdminName(),
@@ -73,13 +73,13 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getLocalizedConfirmationMessage(),
         program.getDisplayMode(),
         program.getIsCommonIntakeForm(),
-        editExistingProgram,
+        programEditStatus,
         program.getTiGroups());
   }
 
   /** Builds the form using program definition data. */
   protected final FormTag buildProgramForm(
-      Request request, ProgramDefinition program, boolean editExistingProgram) {
+      Request request, ProgramDefinition program, ProgramEditStatus programEditStatus) {
     return buildProgramForm(
         request,
         program.adminName(),
@@ -90,7 +90,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.localizedConfirmationMessage().getDefault(),
         program.displayMode().getValue(),
         program.programType().equals(ProgramType.COMMON_INTAKE_FORM),
-        editExistingProgram,
+        programEditStatus,
         new ArrayList<>(program.acls().getTiProgramViewAcls()));
   }
 
@@ -104,7 +104,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       String confirmationSceen,
       String displayMode,
       Boolean isCommonIntakeForm,
-      boolean editExistingProgram,
+      ProgramEditStatus programEditStatus,
       List<Long> selectedTi) {
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
     formTag.with(
@@ -124,7 +124,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setRequired(true)
             .setValue(displayDescription)
             .getTextareaTag(),
-        programUrlField(adminName, editExistingProgram),
+        programUrlField(adminName, programEditStatus),
         FieldWithLabel.input()
             .setId("program-external-link-input")
             .setFieldName("externalLink")
@@ -218,7 +218,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                   .getCheckboxTag());
     }
 
-    formTag.with(createSubmitButton(request, editExistingProgram));
+    formTag.with(createSubmitButton(request, programEditStatus));
     return formTag;
   }
 
@@ -270,8 +270,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         .with(labelTag);
   }
 
-  private DomContent programUrlField(String adminName, boolean editExistingProgram) {
-    if (editExistingProgram) {
+  private DomContent programUrlField(String adminName, ProgramEditStatus programEditStatus) {
+    if (programEditStatus == ProgramEditStatus.CREATION_EDIT
+        || programEditStatus == ProgramEditStatus.EDIT) {
       String programUrl =
           baseUrl
               + routes.ApplicantProgramsController.show(MainModule.SLUGIFIER.slugify(adminName))
@@ -323,9 +324,11 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         .build();
   }
 
-  private ButtonTag createSubmitButton(Request request, boolean editExistingProgram) {
+  private ButtonTag createSubmitButton(Request request, ProgramEditStatus programEditStatus) {
     String saveProgramDetailsText;
-    if (settingsManifest.getProgramCardImages(request) && !editExistingProgram) {
+    if (settingsManifest.getProgramCardImages(request)
+        && (programEditStatus == ProgramEditStatus.CREATION
+            || programEditStatus == ProgramEditStatus.CREATION_EDIT)) {
       // If the admin is creating a new program, they'll be redirected to the next step of adding a
       // program image.
       saveProgramDetailsText = "Save and continue to next step";
@@ -338,5 +341,17 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     return submitButton(saveProgramDetailsText)
         .withId("program-update-button")
         .withClasses(ButtonStyles.SOLID_BLUE, "mt-6");
+  }
+
+  public enum ProgramEditStatus {
+    /** The program is being created for the very first time. */
+    CREATION,
+    /**
+     * The program was just created, and the admin is now editing some details while still in the
+     * creation flow.
+     */
+    CREATION_EDIT,
+    /** The program is being edited after the admin has fully finished the creation flow. */
+    EDIT,
   }
 }

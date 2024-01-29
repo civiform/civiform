@@ -124,6 +124,6 @@ public final class AdminProgramImageController extends CiviFormController {
     /** The admin came from the program creation page. */
     CREATION,
     /** The admin came from the edit program blocks page. */
-    BLOCKS
+    BLOCKS,
   }
 }

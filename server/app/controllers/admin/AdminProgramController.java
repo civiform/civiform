@@ -29,6 +29,7 @@ import services.program.ProgramService;
 import services.program.ProgramType;
 import services.question.QuestionService;
 import services.settings.SettingsManifest;
+import views.admin.programs.ProgramFormBuilder;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
 import views.admin.programs.ProgramNewOneView;
@@ -160,17 +161,19 @@ public final class AdminProgramController extends CiviFormController {
   public Result edit(Request request, long id) throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(id);
     requestChecker.throwIfProgramNotDraft(id);
-    return ok(editView.render(request, program, /* isInCreationFlow= */ false));
+    return ok(editView.render(request, program, ProgramFormBuilder.ProgramEditStatus.EDIT));
   }
 
   /**
-   * Similar to {@link #edit}, but these edits are being performed while an admin is still in the initial creation flow.
+   * Similar to {@link #edit}, but these edits are being performed while an admin is still in the
+   * initial creation flow.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result editInCreationFlow(Request request, long id) throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(id);
     requestChecker.throwIfProgramNotDraft(id);
-    return ok(editView.render(request, program, /* isInCreationFlow= */ true));
+    return ok(
+        editView.render(request, program, ProgramFormBuilder.ProgramEditStatus.CREATION_EDIT));
   }
 
   /** POST endpoint for publishing all programs in the draft version. */
@@ -237,6 +240,13 @@ public final class AdminProgramController extends CiviFormController {
     // option as part of the checkbox display
     while (programData.getTiGroups().remove(null)) {}
 
+    ProgramFormBuilder.ProgramEditStatus programEditStatus;
+    if (isInCreationFlow) {
+      programEditStatus = ProgramFormBuilder.ProgramEditStatus.CREATION_EDIT;
+    } else {
+      programEditStatus = ProgramFormBuilder.ProgramEditStatus.EDIT;
+    }
+
     // Display any errors with the form input to the user.
     ImmutableSet<CiviFormError> validationErrors =
         programService.validateProgramDataForUpdate(
@@ -247,7 +257,8 @@ public final class AdminProgramController extends CiviFormController {
             ImmutableList.copyOf(programData.getTiGroups()));
     if (!validationErrors.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(validationErrors));
-      return ok(editView.render(request, programDefinition, isInCreationFlow, programData, message));
+      return ok(
+          editView.render(request, programDefinition, programEditStatus, programData, message));
     }
 
     // If the user needs to confirm that they want to change the common intake form from a different
@@ -262,7 +273,7 @@ public final class AdminProgramController extends CiviFormController {
             editView.renderChangeCommonIntakeConfirmation(
                 request,
                 programDefinition,
-                isInCreationFlow,
+                programEditStatus,
                 programData,
                 maybeCommonIntakeForm.get().localizedName().getDefault()));
       }
