@@ -392,7 +392,7 @@ describe('Trusted intermediaries', () => {
     }
     await tiDashboard.createClient(client3)
 
-    await tiDashboard.searchByDateOfBirth(client3.dobDate)
+    await tiDashboard.searchByDateOfBirth('10', '12', '2021')
     await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardContainClient(client3)
     await tiDashboard.expectDashboardNotContainClient(client1)
@@ -422,7 +422,7 @@ describe('Trusted intermediaries', () => {
     }
     await tiDashboard.createClient(client2)
 
-    await tiDashboard.searchByNameAndDateOfBirth('', '')
+    await tiDashboard.searchByNameAndDateOfBirth('', '', '', '')
     await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardContainClient(client1)
     await tiDashboard.expectDashboardContainClient(client2)

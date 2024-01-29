@@ -251,13 +251,8 @@ public final class TrustedIntermediaryService {
   public TrustedIntermediarySearchResult getManagedAccounts(
       SearchParameters searchParameters, TrustedIntermediaryGroupModel tiGroup) {
     ImmutableList<AccountModel> allAccounts = tiGroup.getManagedAccounts();
-    /* Filtering to transform empty strings into empty optionals.
-    Empty parameters should return all accounts. */
-    Optional<String> filteredNameQuery =
-        searchParameters.nameQuery().filter(s -> !s.isEmpty() && !s.isBlank());
-    Optional<String> filteredDateQuery =
-        searchParameters.dateQuery().filter(s -> !s.isEmpty() && !s.isBlank());
-    if (filteredNameQuery.isEmpty() && filteredDateQuery.isEmpty()) {
+
+    if (checkIfEmptySearchParams(searchParameters)) {
       return TrustedIntermediarySearchResult.success(allAccounts);
     }
     final ImmutableList<AccountModel> searchedResult;
@@ -276,8 +271,12 @@ public final class TrustedIntermediaryService {
         .filter(
             account ->
                 ((account.newestApplicant().get().getApplicantData().getDateOfBirth().isPresent()
-                        && searchParameters.dateQuery().isPresent()
-                        && !searchParameters.dateQuery().get().isEmpty()
+                        && searchParameters.dayQuery().isPresent()
+                        && !searchParameters.dayQuery().get().isEmpty()
+                        && searchParameters.monthQuery().isPresent()
+                        && !searchParameters.monthQuery().get().isEmpty()
+                        && searchParameters.yearQuery().isPresent()
+                        && !searchParameters.yearQuery().get().isEmpty()
                         && account
                             .newestApplicant()
                             .get()
@@ -286,7 +285,11 @@ public final class TrustedIntermediaryService {
                             .get()
                             .equals(
                                 dateConverter.parseIso8601DateToLocalDate(
-                                    searchParameters.dateQuery().get())))
+                                    searchParameters.yearQuery().get()
+                                        + "-"
+                                        + searchParameters.monthQuery().get()
+                                        + "-"
+                                        + searchParameters.dayQuery().get())))
                     || (searchParameters.nameQuery().isPresent()
                         && !searchParameters.nameQuery().get().isEmpty()
                         && account
@@ -295,5 +298,28 @@ public final class TrustedIntermediaryService {
                             .contains(
                                 searchParameters.nameQuery().get().toLowerCase(Locale.ROOT)))))
         .collect(ImmutableList.toImmutableList());
+  }
+
+  private boolean checkIfEmptySearchParams(SearchParameters searchParameters) {
+    boolean areSearchParamsEmptyOrIncomplete = false;
+
+    /* Filtering to transform empty strings into empty optionals.
+    Empty parameters should return all accounts. */
+    Optional<String> filteredNameQuery =
+        searchParameters.nameQuery().filter(s -> !s.isEmpty() && !s.isBlank());
+    Optional<String> filteredDayQuery =
+        searchParameters.dayQuery().filter(s -> !s.isEmpty() && !s.isBlank());
+    Optional<String> filteredMonthQuery =
+        searchParameters.monthQuery().filter(s -> !s.isEmpty() && !s.isBlank());
+    Optional<String> filteredYearQuery =
+        searchParameters.yearQuery().filter(s -> !s.isEmpty() && !s.isBlank());
+
+    if (filteredNameQuery.isEmpty()
+        && (filteredDayQuery.isEmpty()
+            || filteredMonthQuery.isEmpty()
+            || filteredYearQuery.isEmpty())) {
+      areSearchParamsEmptyOrIncomplete = true;
+    }
+    return areSearchParamsEmptyOrIncomplete;
   }
 }

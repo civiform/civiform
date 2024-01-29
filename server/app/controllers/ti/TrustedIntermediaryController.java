@@ -72,11 +72,14 @@ public final class TrustedIntermediaryController {
   public Result dashboard(
       Http.Request request,
       Optional<String> nameQuery,
-      Optional<String> dateQuery,
+      Optional<String> dayQuery,
+      Optional<String> monthQuery,
+      Optional<String> yearQuery,
       Optional<Integer> page) {
     if (page.isEmpty()) {
       return redirect(
-          routes.TrustedIntermediaryController.dashboard(nameQuery, dateQuery, Optional.of(1)));
+          routes.TrustedIntermediaryController.dashboard(
+              nameQuery, dayQuery, monthQuery, yearQuery, Optional.of(1)));
     }
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
     if (civiformProfile.isEmpty()) {
@@ -88,7 +91,12 @@ public final class TrustedIntermediaryController {
       return notFound();
     }
     SearchParameters searchParameters =
-        SearchParameters.builder().setNameQuery(nameQuery).setDateQuery(dateQuery).build();
+        SearchParameters.builder()
+            .setNameQuery(nameQuery)
+            .setDayQuery(dayQuery)
+            .setMonthQuery(monthQuery)
+            .setYearQuery(yearQuery)
+            .build();
     TrustedIntermediarySearchResult trustedIntermediarySearchResult =
         tiService.getManagedAccounts(searchParameters, trustedIntermediaryGroup.get());
     if (!trustedIntermediarySearchResult.isSuccessful()) {
@@ -162,7 +170,9 @@ public final class TrustedIntermediaryController {
       return redirect(
               routes.TrustedIntermediaryController.dashboard(
                   /* nameQuery= */ Optional.empty(),
-                  /* dateQuery= */ Optional.empty(),
+                  /* dayQuery= */ Optional.empty(),
+                  /* monthQuery= */ Optional.empty(),
+                  /* yearQuery= */ Optional.empty(),
                   /* page= */ Optional.of(1)))
           .flashing(
               "success",
@@ -209,7 +219,9 @@ public final class TrustedIntermediaryController {
     return redirect(
             routes.TrustedIntermediaryController.dashboard(
                 /* nameQuery= */ Optional.empty(),
-                /* dateQuery= */ Optional.empty(),
+                /* dayQuery= */ Optional.empty(),
+                /* monthQuery= */ Optional.empty(),
+                /* yearQuery= */ Optional.empty(),
                 /* page= */ Optional.of(1)))
         .flashing(
             "success",
@@ -230,7 +242,9 @@ public final class TrustedIntermediaryController {
     return redirect(
             routes.TrustedIntermediaryController.dashboard(
                     /* nameQuery= */ Optional.empty(),
-                    /* dateQuery= */ Optional.empty(),
+                    /* dayQuery= */ Optional.empty(),
+                    /* monthQuery= */ Optional.empty(),
+                    /* yearQuery= */ Optional.empty(),
                     /* page= */ Optional.of(1))
                 .url())
         .flashing("error", errorMessage)

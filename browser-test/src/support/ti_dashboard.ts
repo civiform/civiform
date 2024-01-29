@@ -109,14 +109,23 @@ export class TIDashboard {
     expect(tableInnerText).not.toContain(client.lastName)
   }
 
-  async searchByDateOfBirth(dobDate: string) {
-    await this.page.fill('label:has-text("Search Date Of Birth")', dobDate)
+  async searchByDateOfBirth(dobDay: string, dobMonth: string, dobYear: string) {
+    await this.page.fill('label:has-text("Day")', dobDay)
+    await this.page.selectOption('#date_of_birth_month', dobMonth)
+    await this.page.fill('label:has-text("Year")', dobYear)
     await this.page.click('button:text("Search")')
   }
 
-  async searchByNameAndDateOfBirth(name: string, dobDate: string) {
-    await this.page.fill('label:has-text("Search by Name")', name)
-    await this.page.fill('label:has-text("Search Date Of Birth")', dobDate)
+  async searchByNameAndDateOfBirth(
+    name: string,
+    dobDay: string,
+    dobMonth: string,
+    dobYear: string,
+  ) {
+    await this.page.fill('label:has-text("Name(s)")', name)
+    await this.page.fill('label:has-text("Day")', dobDay)
+    await this.page.selectOption('#date_of_birth_month', dobMonth)
+    await this.page.fill('label:has-text("Year")', dobYear)
     await this.page.click('button:text("Search")')
   }
 

@@ -8,7 +8,11 @@ public abstract class SearchParameters {
 
   public abstract Optional<String> nameQuery();
 
-  public abstract Optional<String> dateQuery();
+  public abstract Optional<String> dayQuery();
+
+  public abstract Optional<String> monthQuery();
+
+  public abstract Optional<String> yearQuery();
 
   public static SearchParameters.Builder builder() {
     return new AutoValue_SearchParameters.Builder();
@@ -18,7 +22,11 @@ public abstract class SearchParameters {
   public abstract static class Builder {
     public abstract SearchParameters.Builder setNameQuery(Optional<String> v);
 
-    public abstract SearchParameters.Builder setDateQuery(Optional<String> v);
+    public abstract SearchParameters.Builder setDayQuery(Optional<String> v);
+
+    public abstract SearchParameters.Builder setMonthQuery(Optional<String> v);
+
+    public abstract SearchParameters.Builder setYearQuery(Optional<String> v);
 
     public abstract SearchParameters build();
   }
