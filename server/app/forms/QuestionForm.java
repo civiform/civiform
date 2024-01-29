@@ -2,6 +2,7 @@ package forms;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -11,6 +12,7 @@ import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.UrlUtils;
 import services.export.CsvExporterService;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
@@ -28,6 +30,7 @@ public abstract class QuestionForm {
   private QuestionDefinition qd;
   private String redirectUrl;
   private boolean isUniversal;
+  private ImmutableSet<PrimaryApplicantInfoTag> primaryApplicantInfoTags;
 
   protected QuestionForm() {
     questionName = "";
@@ -38,6 +41,7 @@ public abstract class QuestionForm {
     questionExportState = Optional.of("");
     redirectUrl = "";
     isUniversal = false;
+    primaryApplicantInfoTags = ImmutableSet.of();
   }
 
   protected QuestionForm(QuestionDefinition qd) {
@@ -61,6 +65,7 @@ public abstract class QuestionForm {
     }
 
     isUniversal = qd.isUniversal();
+    primaryApplicantInfoTags = qd.getPrimaryApplicantInfoTags();
   }
 
   public final String getQuestionName() {
@@ -139,7 +144,8 @@ public abstract class QuestionForm {
             .setEnumeratorId(enumeratorId)
             .setQuestionText(questionTextMap)
             .setQuestionHelpText(questionHelpTextMap)
-            .setUniversal(isUniversal);
+            .setUniversal(isUniversal)
+            .setPrimaryApplicantInfoTags(primaryApplicantInfoTags);
     return builder;
   }
 
@@ -191,5 +197,47 @@ public abstract class QuestionForm {
   // Awkwardly named, but must match the field name
   public final void setIsUniversal(boolean universal) {
     this.isUniversal = universal;
+  }
+
+  public final ImmutableSet<PrimaryApplicantInfoTag> primaryApplicantInfoTags() {
+    return this.primaryApplicantInfoTags;
+  }
+
+  // The names of these functions must match up to the fieldName value in the
+  // PrimaryApplicantInfoTag
+  public final void setPrimaryApplicantDob(boolean val) {
+    setTagState(PrimaryApplicantInfoTag.APPLICANT_DOB, val);
+  }
+
+  public final void setPrimaryApplicantEmail(boolean val) {
+    setTagState(PrimaryApplicantInfoTag.APPLICANT_EMAIL, val);
+  }
+
+  public final void setPrimaryApplicantName(boolean val) {
+    setTagState(PrimaryApplicantInfoTag.APPLICANT_NAME, val);
+  }
+
+  public final void setPrimaryApplicantPhone(boolean val) {
+    setTagState(PrimaryApplicantInfoTag.APPLICANT_PHONE, val);
+  }
+
+  private void setTagState(PrimaryApplicantInfoTag primaryApplicantInfoTag, boolean isSet) {
+    boolean present = this.primaryApplicantInfoTags.contains(primaryApplicantInfoTag);
+    if (isSet) {
+      this.primaryApplicantInfoTags =
+          present
+              ? this.primaryApplicantInfoTags
+              : new ImmutableSet.Builder<PrimaryApplicantInfoTag>()
+                  .addAll(this.primaryApplicantInfoTags)
+                  .add(primaryApplicantInfoTag)
+                  .build();
+    } else {
+      this.primaryApplicantInfoTags =
+          present
+              ? this.primaryApplicantInfoTags().stream()
+                  .filter(t -> t != primaryApplicantInfoTag)
+                  .collect(ImmutableSet.toImmutableSet())
+              : this.primaryApplicantInfoTags;
+    }
   }
 }
