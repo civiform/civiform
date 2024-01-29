@@ -301,22 +301,6 @@ public class QuestionRepositoryTest extends ResetPostgres {
     assertThat(question.getQuestionTags().contains(QuestionTag.UNIVERSAL)).isFalse();
   }
 
-  private QuestionDefinition addTagToDefinition(QuestionModel question)
-      throws UnsupportedQuestionTypeException {
-    QuestionDefinition definition = question.getQuestionDefinition();
-    return new QuestionDefinitionBuilder(definition)
-        .setPrimaryApplicantInfoTags(
-            PrimaryApplicantInfoTag.getAllTagsForQuestionType(definition.getQuestionType()))
-        .build();
-  }
-
-  private QuestionDefinition removeTagsFromDefinition(QuestionModel question)
-      throws UnsupportedQuestionTypeException {
-    return new QuestionDefinitionBuilder(question.getQuestionDefinition())
-        .setPrimaryApplicantInfoTags(ImmutableSet.of())
-        .build();
-  }
-
   @Test
   public void createOrUpdateDraft_managesPrimaryApplicantInfoTagsCorrectl()
       throws UnsupportedQuestionTypeException {
@@ -454,5 +438,21 @@ public class QuestionRepositoryTest extends ResetPostgres {
                 .getQuestionTags()
                 .contains(PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag()))
         .isFalse();
+  }
+
+  private QuestionDefinition addTagToDefinition(QuestionModel question)
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinition definition = question.getQuestionDefinition();
+    return new QuestionDefinitionBuilder(definition)
+        .setPrimaryApplicantInfoTags(
+            PrimaryApplicantInfoTag.getAllTagsForQuestionType(definition.getQuestionType()))
+        .build();
+  }
+
+  private QuestionDefinition removeTagsFromDefinition(QuestionModel question)
+      throws UnsupportedQuestionTypeException {
+    return new QuestionDefinitionBuilder(question.getQuestionDefinition())
+        .setPrimaryApplicantInfoTags(ImmutableSet.of())
+        .build();
   }
 }
