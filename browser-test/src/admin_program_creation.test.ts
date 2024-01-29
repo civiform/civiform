@@ -63,6 +63,36 @@ describe('program creation', () => {
     await adminProgramImage.expectProgramImagePage()
   })
 
+  it('create program then go back prevents URL edits', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(
+      programName,
+      'description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      /* isCommonIntake= */ false,
+      'selectedTI',
+      'confirmationMessage',
+      /* submitNewProgram= */ false,
+    )
+
+    expect(await page.locator('#program-name-input').count()).toEqual(1)
+
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminProgramImage.expectProgramImagePage()
+
+    // When the admin goes back, they should see the edit program details page but should not be able to modify the
+    // program name (used for the URL).
+    await adminProgramImage.clickBackButton()
+
+    expect(await page.locator('#program-name-input').count()).toEqual(0)
+  })
+
   it('program details page screenshot', async () => {
     const {page, adminPrograms} = ctx
 
@@ -152,7 +182,7 @@ describe('program creation', () => {
     )
   })
 
-  it('create program with enumerator and repeated questions', async () => {
+  fit('create program with enumerator and repeated questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)

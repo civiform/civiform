@@ -6,6 +6,7 @@ export class AdminProgramImage {
   private imageUploadLocator = 'input[type=file]'
   private imageDescriptionLocator = 'input[name="summaryImageDescription"]'
   private translationsButtonLocator = 'button:has-text("Manage translations")'
+  private continueButtonLocator = '#continue-button'
 
   private page!: Page
 
@@ -15,6 +16,22 @@ export class AdminProgramImage {
 
   async clickBackButton() {
     await this.page.click('a:has-text("Back")')
+  }
+
+  async clickContinueButton() {
+    await this.page.click(this.continueButtonLocator)
+  }
+
+  async expectHasContinueButton() {
+    expect(await this.page.locator(this.continueButtonLocator).count()).toEqual(
+      1,
+    )
+  }
+
+  async expectNoContinueButton() {
+    expect(await this.page.locator(this.continueButtonLocator).count()).toEqual(
+      0,
+    )
   }
 
   async setImageDescriptionAndSubmit(description: string) {
