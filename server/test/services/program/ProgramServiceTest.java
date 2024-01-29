@@ -2855,4 +2855,32 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result2.summaryImageFileKey().isPresent()).isTrue();
     assertThat(result2.summaryImageFileKey().get()).isEqualTo("fileKey2.png");
   }
+
+  @Test
+  public void deleteSummaryImageFileKey_missingProgram_throws() {
+    assertThatThrownBy(() -> ps.deleteSummaryImageFileKey(Long.MAX_VALUE))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID:");
+  }
+
+  @Test
+  public void deleteSummaryImageFileKey_noFileKeyPresent_stillNoKey()
+      throws ProgramNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+
+    ProgramDefinition result = ps.deleteSummaryImageFileKey(program.id());
+
+    assertThat(result.summaryImageFileKey()).isEmpty();
+  }
+
+  @Test
+  public void deleteSummaryImageFileKey_hadFileKey_keyRemoved() throws ProgramNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+    ProgramDefinition setResult = ps.setSummaryImageFileKey(program.id(), "fileKey1.png");
+    assertThat(setResult.summaryImageFileKey()).isPresent();
+
+    ProgramDefinition deleteResult = ps.deleteSummaryImageFileKey(program.id());
+
+    assertThat(deleteResult.summaryImageFileKey()).isEmpty();
+  }
 }

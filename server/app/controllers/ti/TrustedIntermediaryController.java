@@ -11,7 +11,7 @@ import auth.ProfileUtils;
 import com.google.common.base.Preconditions;
 import controllers.BadRequestException;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
-import forms.UpdateApplicantDobForm;
+import forms.EditTiClientInfoForm;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -32,6 +32,7 @@ import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.ti.TrustedIntermediarySearchResult;
 import services.ti.TrustedIntermediaryService;
+import views.applicant.EditTiClientView;
 import views.applicant.TrustedIntermediaryDashboardView;
 
 /**
@@ -47,6 +48,7 @@ public final class TrustedIntermediaryController {
   private final MessagesApi messagesApi;
   private final FormFactory formFactory;
   private final TrustedIntermediaryService tiService;
+  private final EditTiClientView editTiClientView;
 
   @Inject
   public TrustedIntermediaryController(
@@ -55,13 +57,15 @@ public final class TrustedIntermediaryController {
       FormFactory formFactory,
       MessagesApi messagesApi,
       TrustedIntermediaryDashboardView trustedIntermediaryDashboardView,
-      TrustedIntermediaryService tiService) {
+      TrustedIntermediaryService tiService,
+      EditTiClientView editTiClientView) {
     this.profileUtils = Preconditions.checkNotNull(profileUtils);
     this.tiDashboardView = Preconditions.checkNotNull(trustedIntermediaryDashboardView);
     this.accountRepository = Preconditions.checkNotNull(accountRepository);
     this.formFactory = Preconditions.checkNotNull(formFactory);
     this.messagesApi = Preconditions.checkNotNull(messagesApi);
     this.tiService = Preconditions.checkNotNull(tiService);
+    this.editTiClientView = Preconditions.checkNotNull(editTiClientView);
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -112,36 +116,26 @@ public final class TrustedIntermediaryController {
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
-  public Result updateDateOfBirth(Long accountId, Http.Request request)
-      throws ApplicantNotFoundException {
+  public Result editClient(Long accountId, Http.Request request) {
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
     if (civiformProfile.isEmpty()) {
       return unauthorized();
     }
-
     Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
         accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
-    final Form<UpdateApplicantDobForm> form;
-    form =
-        tiService.updateApplicantDateOfBirth(
+    String applicantName = accountRepository.lookupAccount(accountId).get().getApplicantName();
+    return ok(
+        editTiClientView.render(
             trustedIntermediaryGroup.get(),
+            ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder().setName(applicantName).build()),
+            request,
+            messagesApi.preferred(request),
             accountId,
-            formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(request));
-
-    if (!form.hasErrors()) {
-      return redirect(
-              routes.TrustedIntermediaryController.dashboard(
-                      /* nameQuery= */ Optional.empty(),
-                      /* dateQuery= */ Optional.empty(),
-                      /* page= */ Optional.empty())
-                  .url())
-          .flashing("success", "Date of Birth is updated");
-    }
-
-    return redirectToDashboardWithUpdateDateOfBirthError(getValidationErros(form.errors()));
+            /* editTiClientInfoForm= */ Optional.empty()));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -176,10 +170,55 @@ public final class TrustedIntermediaryController {
                   "Successfully added new client: %s %s",
                   form.value().get().getFirstName(), form.value().get().getLastName()));
     }
-    return redirectToDashboardWithError(getValidationErros(form.errors()), form);
+    return redirectToDashboardWithError(getValidationErrors(form.errors()), form);
   }
 
-  private String getValidationErros(List<ValidationError> errors) {
+  @Secure(authorizers = Authorizers.Labels.TI)
+  public Result updateClientInfo(Long id, Http.Request request) throws ApplicantNotFoundException {
+    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
+    if (civiformProfile.isEmpty()) {
+      return unauthorized();
+    }
+
+    Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
+        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+    if (trustedIntermediaryGroup.isEmpty()) {
+      return unauthorized();
+    }
+    Form<EditTiClientInfoForm> form =
+        formFactory.form(EditTiClientInfoForm.class).bindFromRequest(request);
+    form =
+        tiService.updateClientInfo(
+            form, trustedIntermediaryGroup.get(), id, messagesApi.preferred(request));
+    if (form.hasErrors()) {
+      return ok(
+          editTiClientView.render(
+              trustedIntermediaryGroup.get(),
+              ApplicantPersonalInfo.ofLoggedInUser(
+                  Representation.builder()
+                      .setName(
+                          form.value().get().getFirstName()
+                              + " "
+                              + form.value().get().getLastName())
+                      .build()),
+              request,
+              messagesApi.preferred(request),
+              id,
+              Optional.of(form)));
+    }
+    return redirect(
+            routes.TrustedIntermediaryController.dashboard(
+                /* nameQuery= */ Optional.empty(),
+                /* dateQuery= */ Optional.empty(),
+                /* page= */ Optional.of(1)))
+        .flashing(
+            "success",
+            String.format(
+                "Successfully updated client: %s %s",
+                form.value().get().getFirstName(), form.value().get().getLastName()));
+  }
+
+  private String getValidationErrors(List<ValidationError> errors) {
     StringBuilder errorMessage = new StringBuilder();
     errors.stream()
         .forEach(validationError -> errorMessage.append(validationError.message() + "\n"));
@@ -200,18 +239,5 @@ public final class TrustedIntermediaryController {
         .flashing("providedLastName", form.value().get().getLastName())
         .flashing("providedEmail", form.value().get().getEmailAddress())
         .flashing("providedDateOfBirth", form.value().get().getDob());
-  }
-
-  private Result redirectToDashboardWithUpdateDateOfBirthError(String errorMessage) {
-    return redirect(
-            routes.TrustedIntermediaryController.dashboard(
-                    /* paramName=  nameQuery */
-                    Optional.empty(),
-                    /* paramName=  searchDate */
-                    Optional.empty(),
-                    /* paramName=  page */
-                    Optional.of(1))
-                .url())
-        .flashing("error", errorMessage);
   }
 }

@@ -5,14 +5,11 @@ import {
   chromium,
   Frame,
   Page,
-  PageScreenshotOptions,
-  LocatorScreenshotOptions,
   Locator,
   devices,
   BrowserContextOptions,
 } from 'playwright'
 import * as path from 'path'
-import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 import {waitForPageJsLoad} from './wait'
 import {
   BASE_URL,
@@ -513,11 +510,10 @@ export const validateAccessibility = async (page: Page) => {
 export const validateScreenshot = async (
   element: Page | Locator,
   screenshotFileName: string,
-  screenshotOptions?: PageScreenshotOptions | LocatorScreenshotOptions,
-  matchImageSnapshotOptions?: MatchImageSnapshotOptions,
   fullPage?: boolean,
+  mobileScreenshot?: boolean,
 ) => {
-  if (fullPage == null) {
+  if (fullPage === undefined) {
     fullPage = true
   }
 
@@ -541,11 +537,39 @@ export const validateScreenshot = async (
       window.scrollTo(0, 0)
     })
   }
+
   expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
+
+  await takeScreenshot(element, `${screenshotFileName}`, fullPage)
+
+  const existingWidth = page.viewportSize()?.width || 1280
+
+  if (mobileScreenshot) {
+    const height = page.viewportSize()?.height || 720
+    // Update the viewport size to different screen widths so we can test on a
+    // variety of sizes
+    await page.setViewportSize({width: 320, height})
+
+    await takeScreenshot(element, `${screenshotFileName}-mobile`, fullPage)
+
+    // Medium width
+    await page.setViewportSize({width: 800, height})
+
+    await takeScreenshot(element, `${screenshotFileName}-medium`, fullPage)
+
+    // Reset back to original width
+    await page.setViewportSize({width: existingWidth, height})
+  }
+}
+
+const takeScreenshot = async (
+  element: Page | Locator,
+  fullScreenshotFileName: string,
+  fullPage?: boolean,
+) => {
   expect(
     await element.screenshot({
       fullPage,
-      ...screenshotOptions,
     }),
   ).toMatchImageSnapshot({
     allowSizeMismatch: true,
@@ -557,9 +581,8 @@ export const validateScreenshot = async (
     customReceivedDir: 'updated_snapshots',
     customSnapshotIdentifier: ({testPath}) => {
       const dir = path.basename(testPath).replace('.test.ts', '_test')
-      return `${dir}/${screenshotFileName}`
+      return `${dir}/${fullScreenshotFileName}`
     },
-    ...matchImageSnapshotOptions,
   })
 }
 

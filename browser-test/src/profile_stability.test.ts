@@ -22,6 +22,9 @@ describe('user HTTP sessions', () => {
     // cookie value per environment and pass that in. That is more trouble than
     // it is worth, since the hermetic test (which relies on using the default
     // server secret) will detect any breaking changes to profile serialization.
+    //
+    // If this test fails after an upgrade to the Play Framework the value
+    // in FROZEN_PLAY_SESSION_COOKIE_VALUE may need to be regenerated.
     if (isHermeticTestEnvironment()) {
       const {hostname} = new URL(BASE_URL)
       const frozenCookie = {

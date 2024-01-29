@@ -15,6 +15,7 @@ import com.typesafe.config.Config;
 import controllers.applicant.routes;
 import forms.ProgramForm;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
@@ -216,11 +217,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                   .addStyleClass("hidden")
                   .getCheckboxTag());
     }
-    formTag.with(
-        submitButton("Save")
-            .withId("program-update-button")
-            .withClasses(ButtonStyles.SOLID_BLUE, "mt-6"));
 
+    formTag.with(createSubmitButton(request));
     return formTag;
   }
 
@@ -323,5 +321,18 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         .setDisplayOnLoad(true)
         .setWidth(Width.THIRD)
         .build();
+  }
+
+  private ButtonTag createSubmitButton(Request request) {
+    String saveProgramDetailsText;
+    if (settingsManifest.getProgramCardImages(request)) {
+      saveProgramDetailsText = "Save and continue to next step";
+    } else {
+      saveProgramDetailsText = "Save";
+    }
+
+    return submitButton(saveProgramDetailsText)
+        .withId("program-update-button")
+        .withClasses(ButtonStyles.SOLID_BLUE, "mt-6");
   }
 }

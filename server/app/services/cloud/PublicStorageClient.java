@@ -1,5 +1,7 @@
 package services.cloud;
 
+import com.google.common.collect.ImmutableSet;
+
 /**
  * Interface for working with cloud storage file backends for **publicly accessible** files.
  *
@@ -25,7 +27,7 @@ public abstract class PublicStorageClient {
    * @throws IllegalArgumentException if the file key doesn't represent a file that should be
    *     publicly accessible.
    */
-  public String getPublicDisplayUrl(String fileKey) {
+  public final String getPublicDisplayUrl(String fileKey) {
     if (!PublicFileNameFormatter.isFileKeyForPublicProgramImage(fileKey)) {
       throw new IllegalArgumentException("File key incorrectly formatted for public use");
     }
@@ -38,4 +40,13 @@ public abstract class PublicStorageClient {
    * <p>Purposefully not public so that all clients use {@link #getPublicDisplayUrl(String)}.
    */
   protected abstract String getPublicDisplayUrlInternal(String fileKey);
+
+  /**
+   * Prunes the public file storage to only contain the files specified by {@code inUseFileKeys} and
+   * nothing else. All other files in public storage will be removed.
+   *
+   * @param inUseFileKeys the set of file keys that are still being used and should *not* be deleted
+   *     from storage.
+   */
+  public abstract void prunePublicFileStorage(ImmutableSet<String> inUseFileKeys);
 }

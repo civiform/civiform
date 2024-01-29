@@ -1,21 +1,26 @@
 package views.admin;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
+import static views.BaseHtmlView.asRedirectElement;
+import static views.ViewUtils.makeSvgTextButton;
 
 import auth.CiviFormProfile;
 import controllers.AssetsFinder;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.NavTag;
 import java.util.Optional;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeploymentType;
+import services.TranslationLocales;
 import services.settings.SettingsManifest;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
@@ -45,6 +50,7 @@ public final class AdminLayout extends BaseHtmlLayout {
   }
 
   private final NavPage activeNavPage;
+  private final TranslationLocales translationLocales;
 
   private AdminType primaryAdminType = AdminType.CIVI_FORM_ADMIN;
 
@@ -52,10 +58,12 @@ public final class AdminLayout extends BaseHtmlLayout {
       ViewUtils viewUtils,
       NavPage activeNavPage,
       SettingsManifest settingsManifest,
+      TranslationLocales translationLocales,
       DeploymentType deploymentType,
       AssetsFinder assetsFinder) {
     super(viewUtils, settingsManifest, deploymentType, assetsFinder);
     this.activeNavPage = activeNavPage;
+    this.translationLocales = checkNotNull(translationLocales);
   }
 
   /**
@@ -95,6 +103,23 @@ public final class AdminLayout extends BaseHtmlLayout {
     return super.getBundle(bundle)
         .addHeaderContent(renderNavBar(bundle.getRequest()))
         .setJsBundle(JsBundle.ADMIN);
+  }
+
+  /**
+   * Creates a button that will redirect to the translations management page. Returns an empty
+   * optional if there are no locales to translate to.
+   */
+  public Optional<ButtonTag> createManageTranslationsButton(
+      String programAdminName, Optional<String> buttonId, String buttonStyles) {
+    if (translationLocales.translatableLocales().isEmpty()) {
+      return Optional.empty();
+    }
+    String linkDestination =
+        routes.AdminProgramTranslationsController.redirectToFirstLocale(programAdminName).url();
+    ButtonTag button =
+        makeSvgTextButton("Manage translations", Icons.LANGUAGE).withClass(buttonStyles);
+    buttonId.ifPresent(button::withId);
+    return Optional.of(asRedirectElement(button, linkDestination));
   }
 
   private NavTag renderNavBar(Http.RequestHeader request) {

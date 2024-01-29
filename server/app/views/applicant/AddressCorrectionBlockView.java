@@ -73,11 +73,15 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
             .getBundle(params.request())
             .setTitle(
                 layout.renderPageTitleWithBlockProgress(
-                    params.programTitle(), params.blockIndex(), params.totalBlockCount()))
+                    params.programTitle(), params.blockIndex(), params.totalBlockCount(), messages))
             .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION)
             .addMainContent(
                 layout.renderProgramApplicationTitleAndProgressIndicator(
-                    params.programTitle(), params.blockIndex(), params.totalBlockCount(), false),
+                    params.programTitle(),
+                    params.blockIndex(),
+                    params.totalBlockCount(),
+                    false,
+                    messages),
                 content);
 
     return layout.renderWithNav(
@@ -245,8 +249,6 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   private DivTag renderBottomNavButtons(Params params) {
     return div()
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-        // An empty div to take up the space to the left of the buttons.
-        .with(div().withClasses("flex-grow"))
         .with(renderReviewButton(params))
         .with(renderPreviousButton(params))
         .with(renderNextButton(params));

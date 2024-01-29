@@ -938,6 +938,20 @@ public final class ProgramService {
   }
 
   /**
+   * Removes the key used to fetch the given program's summary image from cloud storage so that
+   * there is no longer an image shown for the given program.
+   */
+  public ProgramDefinition deleteSummaryImageFileKey(long programId)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    programDefinition =
+        programDefinition.toBuilder().setSummaryImageFileKey(Optional.empty()).build();
+    return programRepository
+        .updateProgramSync(programDefinition.toProgram())
+        .getProgramDefinition();
+  }
+
+  /**
    * Adds an empty {@link BlockDefinition} to the end of a given program.
    *
    * @param programId the ID of the program to update

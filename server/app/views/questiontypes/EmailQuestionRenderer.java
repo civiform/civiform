@@ -37,6 +37,7 @@ public class EmailQuestionRenderer extends ApplicantSingleQuestionRenderer {
             .setFieldName(emailQuestion.getEmailPath().toString())
             .setAutocomplete(Optional.of("email"))
             .setValue(emailQuestion.getEmailValue().orElse(""))
+            .setAttribute("inputmode", "email")
             .setAriaRequired(!isOptional)
             .setFieldErrors(
                 params.messages(),

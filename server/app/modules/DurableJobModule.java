@@ -16,13 +16,16 @@ import durablejobs.jobs.FixApplicantDobDataPathJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
+import durablejobs.jobs.UnusedProgramImagesCleanupJob;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;
 import repository.AccountRepository;
 import repository.PersistedDurableJobRepository;
 import repository.ReportingRepository;
+import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
+import services.cloud.PublicStorageClient;
 
 /**
  * Configures {@link durablejobs.DurableJob}s with their {@link DurableJobName} and, if they are
@@ -69,7 +72,9 @@ public final class DurableJobModule extends AbstractModule {
       AccountRepository accountRepository,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
       PersistedDurableJobRepository persistedDurableJobRepository,
-      ReportingRepository reportingRepository) {
+      PublicStorageClient publicStorageClient,
+      ReportingRepository reportingRepository,
+      VersionRepository versionRepository) {
     var durableJobRegistry = new DurableJobRegistry();
 
     durableJobRegistry.register(
@@ -95,6 +100,13 @@ public final class DurableJobModule extends AbstractModule {
         persistedDurableJob ->
             new FixApplicantDobDataPathJob(accountRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.Nightly2Am());
+
+    durableJobRegistry.register(
+        DurableJobName.UNUSED_PROGRAM_IMAGES_CLEANUP,
+        persistedDurableJob ->
+            new UnusedProgramImagesCleanupJob(
+                publicStorageClient, versionRepository, persistedDurableJob),
+        new RecurringJobExecutionTimeResolvers.ThirdOfMonth2Am());
 
     return durableJobRegistry;
   }

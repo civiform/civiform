@@ -98,8 +98,13 @@ export class AdminPrograms {
   }
 
   /**
-   * Creates program with given name. At the end of this method the current
-   * page is going to be block edit page.
+   * Creates program with given name.
+   *
+   * @param {boolean} submitNewProgram - If true, the new program will be submitted
+   * to the database and then the admin will be redirected to the next page in the
+   * program creation flow. If false, the new program information will be filled in
+   * but *not* submitted to the database and the current page will still be the
+   * program creation page.
    */
   async addProgram(
     programName: string,
@@ -119,6 +124,7 @@ export class AdminPrograms {
       '\n' +
       '\n' +
       'This link should be autodetected: https://www.example.com\n',
+    submitNewProgram = true,
   ) {
     await this.gotoAdminProgramsPage()
     await this.page.click('#new-program-button')
@@ -146,10 +152,16 @@ export class AdminPrograms {
       await this.clickCommonIntakeFormToggle()
     }
 
+    if (submitNewProgram) {
+      await this.submitProgramDetailsEdits()
+    }
+  }
+
+  async submitProgramDetailsEdits() {
     await this.page.click('#program-update-button')
     await waitForPageJsLoad(this.page)
-    await this.expectProgramBlockEditPage(programName)
   }
+
   async editProgram(
     programName: string,
     visibility = ProgramVisibility.PUBLIC,
@@ -166,8 +178,7 @@ export class AdminPrograms {
       await this.page.check(`label:has-text("${selectedTI}")`)
     }
 
-    await this.page.click('#program-update-button')
-    await waitForPageJsLoad(this.page)
+    await this.submitProgramDetailsEdits()
   }
 
   async programNames() {
@@ -771,8 +782,7 @@ export class AdminPrograms {
     await this.page.click('button:has-text("Edit program details")')
     await waitForPageJsLoad(this.page)
 
-    await this.page.click('#program-update-button')
-    await waitForPageJsLoad(this.page)
+    await this.submitProgramDetailsEdits()
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
   }

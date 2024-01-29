@@ -14,6 +14,7 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
 import forms.admin.ProgramImageDescriptionForm;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
@@ -38,24 +39,29 @@ import services.cloud.StorageUploadRequest;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
 import views.applicant.ProgramCardViewRenderer;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.Modal;
 import views.components.ToastMessage;
 import views.components.breadcrumb.BreadcrumbFactory;
 import views.components.breadcrumb.BreadcrumbItem;
 import views.fileupload.FileUploadViewStrategy;
+import views.style.StyleUtils;
 
 /** A view for admins to update the image associated with a particular program. */
 public final class ProgramImageView extends BaseHtmlView {
-  // TODO(#5676): Should we prohibit gifs?
-  private static final String MIME_TYPES_IMAGES = "image/*";
+  // Only allow JPEG and PNG images. We want to specifically prohibit SVGs (which don't render well
+  // in the <img> element) and GIFs (which would be too distracting on the homepage).
+  private static final String MIME_TYPES_IMAGES = "image/jpeg,image/png";
   private static final String IMAGE_DESCRIPTION_FORM_ID = "image-description-form";
   private static final String IMAGE_FILE_UPLOAD_FORM_ID = "image-file-upload-form";
   private static final String PAGE_TITLE = "Image upload";
+  private static final String DELETE_IMAGE_BUTTON_TEXT = "Delete image";
 
   private final AdminLayout layout;
   private final BreadcrumbFactory breadcrumbFactory;
@@ -97,6 +103,7 @@ public final class ProgramImageView extends BaseHtmlView {
    * image (and its alt text).
    */
   public Content render(Http.Request request, ProgramDefinition programDefinition) {
+    // TODO(#5676): Replace breadcrumbs with a back button.
     DivTag breadcrumbs = createBreadcrumbs(programDefinition);
 
     DivTag mainContent = div().withClass("mx-20");
@@ -113,10 +120,15 @@ public final class ProgramImageView extends BaseHtmlView {
                 div()
                     .withClasses("w-3/5", "mt-4")
                     .with(createImageDescriptionForm(request, programDefinition)));
+
+    Modal deleteImageModal = createDeleteImageModal(request, programDefinition);
     DivTag imageUploadAndCurrentCardContainer =
         div()
             .withClasses("grid", "grid-cols-2", "gap-2", "w-full")
-            .with(createImageUploadForm(programDefinition))
+            .with(
+                div()
+                    .with(createImageUploadForm(programDefinition))
+                    .with(deleteImageModal.getButton()))
             .with(renderCurrentProgramCard(request, programDefinition));
     mainContent.with(titleAndImageDescriptionContainer, imageUploadAndCurrentCardContainer);
 
@@ -124,7 +136,8 @@ public final class ProgramImageView extends BaseHtmlView {
         layout
             .getBundle(request)
             .setTitle(PAGE_TITLE)
-            .addMainContent(div().with(breadcrumbs, mainContent));
+            .addMainContent(div().with(breadcrumbs, mainContent))
+            .addModals(deleteImageModal);
 
     // TODO(#5676): This toast code is re-implemented across multiple controllers. Can we write a
     // helper method for it?
@@ -153,7 +166,7 @@ public final class ProgramImageView extends BaseHtmlView {
         .with(breadcrumbFactory.buildBreadcrumbTrail(breadcrumbItems));
   }
 
-  private FormTag createImageDescriptionForm(
+  private DivTag createImageDescriptionForm(
       Http.Request request, ProgramDefinition programDefinition) {
     String existingDescription =
         programDefinition
@@ -165,23 +178,43 @@ public final class ProgramImageView extends BaseHtmlView {
     Form<ProgramImageDescriptionForm> form =
         formFactory.form(ProgramImageDescriptionForm.class).fill(existingDescriptionForm);
 
-    return form()
-        .withId(IMAGE_DESCRIPTION_FORM_ID)
-        .withMethod("POST")
-        .withAction(
-            routes.AdminProgramImageController.updateDescription(programDefinition.id()).url())
+    DivTag buttonsDiv = div().withClass("flex");
+    buttonsDiv.with(
+        submitButton("Save image description")
+            .withForm(IMAGE_DESCRIPTION_FORM_ID)
+            .withClasses(ButtonStyles.SOLID_BLUE, "flex"));
+    Optional<ButtonTag> manageTranslationsButton =
+        createManageTranslationsButton(programDefinition, existingDescription);
+    manageTranslationsButton.ifPresent(buttonsDiv::with);
+
+    return div()
         .with(
-            makeCsrfTokenInputTag(request),
-            FieldWithLabel.input()
-                .setFieldName(ProgramImageDescriptionForm.SUMMARY_IMAGE_DESCRIPTION)
-                .setLabelText("Enter image description (Alt Text)")
-                .setPlaceholderText("Colorful fruits and vegetables in bins")
-                .setValue(form.value().get().getSummaryImageDescription())
-                .getInputTag())
-        .with(
-            submitButton("Save image description")
-                .withForm(IMAGE_DESCRIPTION_FORM_ID)
-                .withClass(ButtonStyles.SOLID_BLUE));
+            form()
+                .withId(IMAGE_DESCRIPTION_FORM_ID)
+                .withMethod("POST")
+                .withAction(
+                    routes.AdminProgramImageController.updateDescription(programDefinition.id())
+                        .url())
+                .with(
+                    makeCsrfTokenInputTag(request),
+                    FieldWithLabel.input()
+                        .setFieldName(ProgramImageDescriptionForm.SUMMARY_IMAGE_DESCRIPTION)
+                        .setLabelText("Enter image description (Alt Text)")
+                        .setPlaceholderText("Colorful fruits and vegetables in bins")
+                        .setValue(form.value().get().getSummaryImageDescription())
+                        .getInputTag()))
+        .with(buttonsDiv);
+  }
+
+  private Optional<ButtonTag> createManageTranslationsButton(
+      ProgramDefinition programDefinition, String existingDescription) {
+    Optional<ButtonTag> button =
+        layout.createManageTranslationsButton(
+            programDefinition.adminName(),
+            /* buttonId= */ Optional.empty(),
+            StyleUtils.joinStyles(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "flex", "ml-2"));
+    // Disable the translations button if there's no description in the first place.
+    return button.map(buttonTag -> buttonTag.withCondDisabled(existingDescription.isBlank()));
   }
 
   private DivTag createImageUploadForm(ProgramDefinition program) {
@@ -215,7 +248,6 @@ public final class ProgramImageView extends BaseHtmlView {
         .with(fileUploadViewStrategy.footerTags());
 
     // TODO(#5676): Warn admins of recommended image size and dimensions.
-    // TODO(#5676): Allow admins to remove an already-uploaded file.
   }
 
   private StorageUploadRequest createStorageUploadRequest(ProgramDefinition program) {
@@ -266,5 +298,29 @@ public final class ProgramImageView extends BaseHtmlView {
     // to ApplicantProgramsController#showWithApplicantId, which only allows access to the published
     // versions of programs. When editing a program image, the program is in *draft* form and has a
     // different ID, so ApplicantProgramsController prevents access.
+  }
+
+  private Modal createDeleteImageModal(Http.Request request, ProgramDefinition program) {
+    ButtonTag deleteImageButton =
+        ViewUtils.makeSvgTextButton(DELETE_IMAGE_BUTTON_TEXT, Icons.DELETE)
+            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "mt-8")
+            // Disable the delete button if there's no image in the first place.
+            .withCondDisabled(program.summaryImageFileKey().isEmpty());
+    FormTag deleteBlockForm =
+        form(makeCsrfTokenInputTag(request))
+            .withMethod(Http.HttpVerbs.POST)
+            .withAction(routes.AdminProgramImageController.deleteFileKey(program.id()).url())
+            .with(p("Once you delete this image, you'll need to re-upload a new image."))
+            .with(
+                submitButton(DELETE_IMAGE_BUTTON_TEXT)
+                    .withClasses(ButtonStyles.SOLID_BLUE, "mt-8"));
+
+    return Modal.builder()
+        .setModalId(Modal.randomModalId())
+        .setLocation(Modal.Location.ADMIN_FACING)
+        .setContent(deleteBlockForm)
+        .setModalTitle("Delete this program image?")
+        .setTriggerButtonContent(deleteImageButton)
+        .build();
   }
 }

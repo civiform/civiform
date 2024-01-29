@@ -81,5 +81,11 @@ public final class ApplicantStyles {
   public static final String QUESTION_HELP_TEXT = StyleUtils.joinStyles("text-black", "text-xl");
 
   public static final String APPLICATION_NAV_BAR =
-      StyleUtils.joinStyles("gap-4", "flex", "flex-col", StyleUtils.responsiveMedium("flex-row"));
+      StyleUtils.joinStyles(
+          "gap-4",
+          "flex",
+          "flex-col",
+          StyleUtils.responsiveMedium("flex-row"),
+          "justify-end",
+          "flex-wrap");
 }

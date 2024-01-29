@@ -46,9 +46,7 @@ button.createAccount=Tạo tài khoản
 button.guestLogin=Tiếp tục với tư cách khách
 content.loginDisabledPrompt=Tính năng đăng nhập vào tài khoản đang bị vô hiệu hóa
 content.adminLoginPrompt=Bạn muốn thực hiện thao tác khác?
-content.adminFooterPrompt=Bạn có phải là người quản lý phúc lợi không?
-# Text at the bottom of the home page to prompt administrators to go to the administrator login page
-content.adminFooterPromptNew=Bạn có phải là quản trị viên không?
+content.adminFooterPrompt=Bạn có phải là quản trị viên không?
 link.adminLogin=Đăng nhập với tư cách quản trị viên
 
 #--------------------------------------------------------------------------#
@@ -82,23 +80,13 @@ button.startHereCommonIntakeSr=Bắt đầu tại đây bằng cách điền và
 button.editCommonIntakeSr=Chỉnh sửa thông tin đã gửi cho {0}
 button.continueCommonIntakeSr=Tiếp tục điền vào {0}
 content.submittedDate=Đã gửi {0}
-content.benefits=Nhận quyền lợi
-# Title of the page where applicants can go to find programs
 content.findPrograms=Tìm chương trình
-content.description=CiviForm giúp bạn biết được những lợi ích mà bạn có thể đủ điều kiện hưởng trong {0}. Hãy chọn một đơn đăng ký dưới đây để bắt đầu.
-# Content that explains the benefit of using CiviForm. We'll fill in the name of the city or state.
 content.findProgramsDescription=CiviForm giúp bạn tìm được những chương trình mà bạn có thể đủ điều kiện tham gia trong {0}. Hãy chọn một đơn đăng ký dưới đây để bắt đầu.
-content.saveTime=Tiết kiệm thời gian khi đăng ký nhận phúc lợi
-# Content on the home page to describe the benefit of CiviForm
 content.saveTimeServices=Tiết kiệm thời gian đăng ký các chương trình và dịch vụ
-content.guestDescription=Đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản và đăng ký để nhận nhiều phúc lợi mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký bất cứ lúc nào và kiểm tra trạng thái của đơn đăng ký.
-# Content explaining the benefits of creating an account, with the authentication provider filled in.
-content.guestDescriptionNew=Đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản rồi đăng ký chương trình mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký bất cứ lúc nào và kiểm tra trạng thái của đơn đăng ký.
+content.guestDescription=Đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản rồi đăng ký chương trình mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký bất cứ lúc nào và kiểm tra trạng thái của đơn đăng ký.
 link.programDetails=Chi tiết chương trình
 link.programDetailsSr=Thông tin chi tiết về chương trình {0}, mở trong tab mới
 title.programs=Chương trình và dịch vụ
-title.findServicesSection=Tìm dịch vụ có thể giúp bạn
-# A section of the site that the users should start with
 title.getStartedSection=Bắt đầu
 title.allProgramsSection=Tất cả các chương trình ({0})
 title.status=Trạng thái
@@ -155,31 +143,15 @@ title.applicationConfirmation=Xác nhận đơn đăng ký
 content.confirmed=Cảm ơn bạn đã đăng ký tham gia {0}. Chúng tôi đã nhận được đơn đăng ký của bạn và mã đơn đăng ký là {1}.
 title.createAnAccount=Tạo tài khoản hoặc đăng nhập
 content.pleaseCreateAccount=Nếu bây giờ bạn đăng nhập vào tài khoản của thành phố, thông tin của bạn sẽ được lưu lại và bạn có thể trở lại bất cứ lúc nào để hoàn tất các đơn đăng ký sau này. Nếu chưa có tài khoản, bạn có thể đăng ký ở trang đăng nhập. Dữ liệu bạn đã nhập sẽ không bị mất.
-content.generalLoginModalPrompt=Bạn chưa đăng nhập vào tài khoản nào. Nếu không đăng nhập vào tài khoản, bạn sẽ không thể chỉnh sửa đơn đăng ký, kiểm tra trạng thái của đơn đăng ký, hoặc đăng ký các phúc lợi khác một cách nhanh chóng.
-# Content explaining the benefits of being logged into your account.
-content.generalLoginModalPromptNew=Bạn chưa đăng nhập vào tài khoản nào. Nếu không đăng nhập vào tài khoản, bạn sẽ không thể chỉnh sửa đơn đăng ký, kiểm tra trạng thái của đơn đăng ký, hoặc đăng ký các chương trình khác một cách nhanh chóng.
-content.initialLoginModalPrompt=Trước khi tiếp tục, hãy đăng nhập vào tài khoản {0}  của bạn hoặc tạo một tài khoản. Bạn sẽ có thể đăng ký nhiều phúc lợi mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký và kiểm tra trạng thái của đơn đăng ký.
-# Content explaining the benefits of being logged into your account, with {0} as the authentication provider.
-content.initialLoginModalPromptNew=Trước khi tiếp tục, hãy đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản. Bạn sẽ có thể đăng ký nhiều chương trình mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký và kiểm tra trạng thái của đơn đăng ký.
+content.generalLoginModalPrompt=Bạn chưa đăng nhập vào tài khoản nào. Nếu không đăng nhập vào tài khoản, bạn sẽ không thể chỉnh sửa đơn đăng ký, kiểm tra trạng thái của đơn đăng ký, hoặc đăng ký các chương trình khác một cách nhanh chóng.
+content.initialLoginModalPrompt=Trước khi tiếp tục, hãy đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản. Bạn sẽ có thể đăng ký nhiều chương trình mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký và kiểm tra trạng thái của đơn đăng ký.
 button.continueWithoutAnAccount=Tiếp tục mà không dùng tài khoản
-title.commonIntakeConfirmation=Phúc lợi bạn có thể đủ tiêu chuẩn nhận
-# Title of the section containing programs the applicant may qualify for.
-title.commonIntakeConfirmationNew=Chương trình bạn có thể đủ tiêu chuẩn tham gia
-title.commonIntakeConfirmationTi=Phúc lợi khách hàng của bạn có thể đủ tiêu chuẩn nhận
-# Title of the section containing programs the applicant may qualify for, when someone is filling out the application on behalf of their client.
-title.commonIntakeConfirmationTiNew=Chương trình khách hàng của bạn có thể đủ tiêu chuẩn tham gia
-content.commonIntakeConfirmation=Bạn có thể nhận được những phúc lợi này nếu đăng ký thông qua đơn đăng ký trực tuyến bằng cách nhấp vào ''Đăng ký chương trình''.
-# Text explaining next steps in order to enroll in programs
-content.commonIntakeConfirmationNew=Bạn có thể đăng ký các chương trình này nếu đăng ký thông qua đơn đăng ký trực tuyến bằng cách nhấp vào ''Đăng ký chương trình''.
-content.commonIntakeConfirmationTi=Khách hàng của bạn có thể nhận được những phúc lợi này nếu đăng ký thông qua đơn đăng ký trực tuyến bằng cách nhấp vào ''Đăng ký chương trình''.
-# Text explaining next steps in order to enroll in programs, when filling out the application on behalf of a client
-content.commonIntakeConfirmationTiNew=Khách hàng của bạn có thể đăng ký các chương trình này nếu bạn đăng ký thông qua đơn đăng ký trực tuyến bằng cách nhấp vào ''Đăng ký chương trình''.
-content.commonIntakeNoMatchingPrograms=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà bạn có thể đủ tiêu chuẩn nhận vào lúc này. Tuy nhiên, bạn có thể đăng ký nhận phúc lợi bất cứ lúc nào bằng cách nhấp vào ''Đăng ký chương trình''. Hoặc để xem thêm các chương trình phúc lợi khác, bạn có thể truy cập {0}
-# Content explaining that the screener application couldn't find eligible programs, but allows users to find other programs through another website (substituted for {0})
-content.commonIntakeNoMatchingProgramsNew=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
-content.commonIntakeNoMatchingProgramsTi=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà khách hàng của bạn có thể đủ tiêu chuẩn nhận vào lúc này. Tuy nhiên, bạn có thể đăng ký nhận phúc lợi bất cứ lúc nào bằng cách nhấp vào ''Đăng ký chương trình''. Hoặc để xem thêm các chương trình phúc lợi khác, bạn có thể truy cập {0}
-# Content explaining that the screener application couldn't find eligible programs, but allows users to find other programs on behalf of their client through another website (substituted for {0})
-content.commonIntakeNoMatchingProgramsTiNew=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà khách hàng của bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
+title.commonIntakeConfirmation=Chương trình bạn có thể đủ tiêu chuẩn tham gia
+title.commonIntakeConfirmationTi=Chương trình khách hàng của bạn có thể đủ tiêu chuẩn tham gia
+content.commonIntakeConfirmation=Bạn có thể đăng ký các chương trình này nếu đăng ký thông qua đơn đăng ký trực tuyến bằng cách nhấp vào ''Đăng ký chương trình''.
+content.commonIntakeConfirmationTi=Khách hàng của bạn có thể đăng ký các chương trình này nếu bạn đăng ký thông qua đơn đăng ký trực tuyến bằng cách nhấp vào ''Đăng ký chương trình''.
+content.commonIntakeNoMatchingPrograms=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
+content.commonIntakeNoMatchingProgramsTi=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà khách hàng của bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
 content.commonIntakeNoMatchingProgramsNextStep=Bạn cũng có thể quay lại trang trước để chỉnh sửa câu trả lời của mình.
 button.downloadPdf=Tải bản PDF xuống
 button.applyToPrograms=Đăng ký chương trình
@@ -247,6 +219,7 @@ validation.phoneMustBeLocalToCountry=Số điện thoại bạn đã cung cấp 
 #----------------------------------------------------------------------------------------------------------#
 
 validation.dateMisformatted=Vui lòng nhập ngày ở định dạng YYYY/MM/DD.
+validation.invalidDateFormat=Please enter a date in the correct format
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #

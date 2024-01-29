@@ -2,6 +2,7 @@ package services.cloud.azure;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
@@ -35,5 +36,11 @@ public class AzurePublicStorageTest extends ResetPostgres {
             () ->
                 azurePublicStorage.getPublicDisplayUrl(
                     "program-summary-image/program-10/myFile.jpeg"));
+  }
+
+  @Test
+  public void prunePublicFileStorage_throwsUnsupported() {
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> azurePublicStorage.prunePublicFileStorage(ImmutableSet.of()));
   }
 }

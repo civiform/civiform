@@ -78,9 +78,11 @@ describe('applicant program index page', () => {
     expect(await page.textContent('html')).toContain(
       'Create an account or sign in',
     )
-    await validateScreenshot(page, 'apply-program-login-prompt', {
-      fullPage: false,
-    })
+    await validateScreenshot(
+      page,
+      'apply-program-login-prompt',
+      /* fullPage= */ false,
+    )
 
     // Close the modal and click Apply again. This time, we should not see the login prompt modal.
     await page.click(`.cf-modal .cf-modal-close`)
@@ -251,8 +253,7 @@ describe('applicant program index page', () => {
   })
 })
 
-// TODO(#5676): Re-enable once the deployment scripts are correctly updated.
-xdescribe('applicant program index page with images', () => {
+describe('applicant program index page with images', () => {
   const ctx = createTestContext()
 
   it('shows program with wide image', async () => {

@@ -46,9 +46,7 @@ button.createAccount=建立帳戶
 button.guestLogin=繼續以訪客身分使用
 content.loginDisabledPrompt=目前無法登入帳戶
 content.adminLoginPrompt=需要其他協助嗎？
-content.adminFooterPrompt=您是福利管理員嗎？
-# Text at the bottom of the home page to prompt administrators to go to the administrator login page
-content.adminFooterPromptNew=您是管理員嗎？
+content.adminFooterPrompt=您是管理員嗎？
 link.adminLogin=管理員登入
 
 #--------------------------------------------------------------------------#
@@ -82,23 +80,13 @@ button.startHereCommonIntakeSr=按這裡開始填寫「{0}」
 button.editCommonIntakeSr=編輯您針對「{0}」提交的資訊
 button.continueCommonIntakeSr=繼續填寫「{0}」
 content.submittedDate=提交於 {0}
-content.benefits=取得福利
-# Title of the page where applicants can go to find programs
 content.findPrograms=尋找可加入的計畫
-content.description=CiviForm 可協助您尋找自己可能有資格享有的「{0}」福利。請先在下方選擇申請項目。
-# Content that explains the benefit of using CiviForm. We'll fill in the name of the city or state.
 content.findProgramsDescription=CiviForm 可協助您尋找自己可能有資格參加的{0}計畫。請先在下方選擇申請項目。
-content.saveTime=在提出福利申請時節省時間
-# Content on the home page to describe the benefit of CiviForm
 content.saveTimeServices=在提出計畫和服務申請時節省時間
-content.guestDescription=請登入您的「{0}」帳戶或建立新帳戶，這樣一來，您就不必在針對不同福利提出申請時一再輸入相同的資訊，還可隨時編輯申請書及查看申請狀態。
-# Content explaining the benefits of creating an account, with the authentication provider filled in.
-content.guestDescriptionNew=請登入您的「{0}」帳戶或建立新帳戶，這樣一來，您就不必在申請參加計畫時一再輸入相同的資訊，還可隨時編輯申請書及查看申請狀態。
+content.guestDescription=請登入您的「{0}」帳戶或建立新帳戶，這樣一來，您就不必在申請參加計畫時一再輸入相同的資訊，還可隨時編輯申請書及查看申請狀態。
 link.programDetails=計畫詳情
 link.programDetailsSr=「{0}」計畫詳細資訊 (在新分頁中開啟)
 title.programs=計畫與服務
-title.findServicesSection=尋找可協助您的服務
-# A section of the site that the users should start with
 title.getStartedSection=踏出第一步
 title.allProgramsSection=所有計畫 ({0})
 title.status=狀態
@@ -155,31 +143,15 @@ title.applicationConfirmation=申請確認
 content.confirmed=感謝你申請「{0}」。我們已收到相關申請資料，申請編號為 {1}。
 title.createAnAccount=建立或登入帳戶
 content.pleaseCreateAccount=如果現在登入城市帳戶，系統會儲存你的資訊，你之後隨時能使用這些資訊提出其他申請。如果你還沒有帳戶，可以在登入頁面註冊。已經輸入的資料並不會遺失。
-content.generalLoginModalPrompt=您尚未登入帳戶。如未登入帳戶，將無法編輯申請書、查看申請狀態，或是快速申請其他福利。
-# Content explaining the benefits of being logged into your account.
-content.generalLoginModalPromptNew=您尚未登入帳戶。如未登入帳戶，將無法編輯申請書、查看申請狀態，或是快速申請參加其他計畫。
-content.initialLoginModalPrompt=請先登入「{0} 」帳戶或建立帳戶，再繼續操作。這樣一來，您就不必在針對不同福利提出申請時一再輸入相同的資訊，還可編輯申請書及查看申請狀態。
-# Content explaining the benefits of being logged into your account, with {0} as the authentication provider.
-content.initialLoginModalPromptNew=請先登入「{0}」帳戶或建立帳戶，再繼續操作。您將可申請參加多項計畫，而不必一再輸入相同的資訊，還可編輯申請書及查看申請狀態。
+content.generalLoginModalPrompt=您尚未登入帳戶。如未登入帳戶，將無法編輯申請書、查看申請狀態，或是快速申請參加其他計畫。
+content.initialLoginModalPrompt=請先登入「{0}」帳戶或建立帳戶，再繼續操作。您將可申請參加多項計畫，而不必一再輸入相同的資訊，還可編輯申請書及查看申請狀態。
 button.continueWithoutAnAccount=在不登入帳戶的狀態下繼續操作
-title.commonIntakeConfirmation=您可能符合資格的福利
-# Title of the section containing programs the applicant may qualify for.
-title.commonIntakeConfirmationNew=您可能有資格參加的計畫
-title.commonIntakeConfirmationTi=您的客戶可能符合資格的福利
-# Title of the section containing programs the applicant may qualify for, when someone is filling out the application on behalf of their client.
-title.commonIntakeConfirmationTiNew=您的客戶可能有資格參加的計畫
-content.commonIntakeConfirmation=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您或許能夠享有這些福利。
-# Text explaining next steps in order to enroll in programs
-content.commonIntakeConfirmationNew=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您或許能夠參加這些計畫。
-content.commonIntakeConfirmationTi=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您的客戶或許能夠享有這些福利。
-# Text explaining next steps in order to enroll in programs, when filling out the application on behalf of a client
-content.commonIntakeConfirmationTiNew=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您的客戶或許能夠參加這些計畫。
-content.commonIntakeNoMatchingPrograms=預先篩選工具目前找不到您可能符合資格的計畫。不過，您隨時可以點選「申請參加計畫」提出福利申請，或是前往「{0}」查看其他福利計畫
-# Content explaining that the screener application couldn't find eligible programs, but allows users to find other programs through another website (substituted for {0})
-content.commonIntakeNoMatchingProgramsNew=預先篩選工具目前找不到您可能有資格參加的計畫。不過，您隨時可以點選「申請參加計畫」提出計畫申請，或是前往「{0}」查看其他計畫
-content.commonIntakeNoMatchingProgramsTi=預先篩選工具目前找不到您的客戶可能符合資格的計畫。不過，您隨時可以點選「申請參加計畫」提出福利申請，或是前往「{0}」查看其他福利計畫
-# Content explaining that the screener application couldn't find eligible programs, but allows users to find other programs on behalf of their client through another website (substituted for {0})
-content.commonIntakeNoMatchingProgramsTiNew=預先篩選工具目前找不到您的客戶可能有資格參加的計畫。不過，您隨時可以點選「申請參加計畫」提出計畫申請，或是前往「{0}」查看其他計畫
+title.commonIntakeConfirmation=您可能有資格參加的計畫
+title.commonIntakeConfirmationTi=您的客戶可能有資格參加的計畫
+content.commonIntakeConfirmation=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您或許能夠參加這些計畫。
+content.commonIntakeConfirmationTi=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您的客戶或許能夠參加這些計畫。
+content.commonIntakeNoMatchingPrograms=預先篩選工具目前找不到您可能有資格參加的計畫。不過，您隨時可以點選「申請參加計畫」提出計畫申請，或是前往「{0}」查看其他計畫
+content.commonIntakeNoMatchingProgramsTi=預先篩選工具目前找不到您的客戶可能有資格參加的計畫。不過，您隨時可以點選「申請參加計畫」提出計畫申請，或是前往「{0}」查看其他計畫
 content.commonIntakeNoMatchingProgramsNextStep=您也可以返回上一頁編輯回答。
 button.downloadPdf=下載 PDF
 button.applyToPrograms=申請參加計畫
@@ -247,6 +219,7 @@ validation.phoneMustBeLocalToCountry=您提供的電話號碼不屬於您選取�
 #----------------------------------------------------------------------------------------------------------#
 
 validation.dateMisformatted=日期格式必須為 YYYY/MM/DD。
+validation.invalidDateFormat=Please enter a date in the correct format
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
