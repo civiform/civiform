@@ -253,7 +253,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .withClasses(
                 ReferenceClasses.RADIO_OPTION,
                 BaseStyles.CHECKBOX_LABEL,
-                BaseStyles.BORDER_SEATTLE_BLUE)
+                BaseStyles.BORDER_CIVIFORM_BLUE)
             .with(
                 input()
                     .withId(id)

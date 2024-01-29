@@ -105,7 +105,7 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
             ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
             ReferenceClasses.RADIO_OPTION,
             BaseStyles.RADIO_LABEL,
-            checked ? BaseStyles.BORDER_SEATTLE_BLUE : "")
+            checked ? BaseStyles.BORDER_CIVIFORM_BLUE : "")
         .with(labelTag);
   }
 }

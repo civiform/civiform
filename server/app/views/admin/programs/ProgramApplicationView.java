@@ -274,7 +274,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 "rounded-lg",
                 "bg-white",
                 "text-lg",
-                StyleUtils.focus(BaseStyles.BORDER_SEATTLE_BLUE));
+                StyleUtils.focus(BaseStyles.BORDER_CIVIFORM_BLUE));
 
     // Add the options available to the admin.
     // When no status is currently applied to the application, add a placeholder option that is
