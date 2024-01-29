@@ -14,7 +14,7 @@ public class ApplicantFileNameFormatterTest {
   }
 
   @Test
-  public void isApplicantOwnedFileKey_isTrue() {
+  public void isApplicantOwnedFileKey_applicantIdMatches_isTrue() {
     assertThat(
             ApplicantFileNameFormatter.isApplicantOwnedFileKey(
                 "applicant-1/program-2/block-3-4/${filename}", 1L))
@@ -22,7 +22,7 @@ public class ApplicantFileNameFormatterTest {
   }
 
   @Test
-  public void isApplicantOwnedFileKey_isFalse() {
+  public void isApplicantOwnedFileKey_applicantIdDoesNotMatch_isFalse() {
     assertThat(
             ApplicantFileNameFormatter.isApplicantOwnedFileKey(
                 "applicant-1/program-2/block-3-4/${filename}", 2L))
