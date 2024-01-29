@@ -13,7 +13,7 @@ import {Page} from 'playwright'
 describe('program creation', () => {
   const ctx = createTestContext()
 
-  fit('create program page with images flag off', async () => {
+  it('create program page with images flag off', async () => {
     const {page, adminPrograms} = ctx
     await loginAsAdmin(page)
     await disableFeatureFlag(page, 'program_card_images')
@@ -30,7 +30,7 @@ describe('program creation', () => {
       'confirmationMessage',
       /* submitNewProgram= */ false,
     )
-    await adminPrograms.expectProgramDetailsSaveButton(programName)
+    await adminPrograms.expectProgramDetailsSaveButton()
     await validateScreenshot(page, 'program-creation-page')
 
     // When the program submission goes through with the program_card_images flag off,
@@ -39,7 +39,7 @@ describe('program creation', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  fit('create program page with images flag on', async () => {
+  it('create program page with images flag on', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_card_images')
@@ -56,7 +56,7 @@ describe('program creation', () => {
       'confirmationMessage',
       /* submitNewProgram= */ false,
     )
-    await adminPrograms.expectProgramDetailsSaveAndContinueButton(programName)
+    await adminPrograms.expectProgramDetailsSaveAndContinueButton()
     await validateScreenshot(page, 'program-creation-page-images-flag-on')
 
     // When the program submission goes through with the program_card_images flag on,
@@ -96,7 +96,7 @@ describe('program creation', () => {
     expect(await page.locator('#program-name-input').count()).toEqual(0)
   })
 
-  fit('create program then go back can still go forward', async () => {
+  it('create program then go back can still go forward', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_card_images')
@@ -109,7 +109,8 @@ describe('program creation', () => {
     // able to still go forward to the program images page again.
     await adminProgramImage.clickBackButton()
 
-    await adminPrograms.expectProgramDetailsSaveAndContinueButton(programName)
+    await adminPrograms.expectProgramEditPage(programName)
+    await adminPrograms.expectProgramDetailsSaveAndContinueButton()
 
     await adminPrograms.submitProgramDetailsEdits()
     await adminProgramImage.expectProgramImagePage()
@@ -204,7 +205,7 @@ describe('program creation', () => {
     )
   })
 
-  fit('create program with enumerator and repeated questions', async () => {
+  it('create program with enumerator and repeated questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
