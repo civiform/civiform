@@ -18,6 +18,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
 import repository.VersionRepository;
+import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.ApplicantStorageClient;
 
 /** Controller for handling methods for admins and applicants accessing uploaded files. */
@@ -44,12 +45,12 @@ public class FileController extends CiviFormController {
     return checkApplicantAuthorization(request, applicantId)
         .thenApplyAsync(
             v -> {
-              // Ensure the file being accessed indeed belongs to the applicant.
-              // The key is generated when the applicant first uploaded the file, see below link.
-              // https://github.com/seattle-uat/civiform/blob/4d1e90fddd3d6da2c4a249f4f78442d08f9088d3/server/app/views/applicant/ApplicantProgramBlockEditView.java#L128
-              if (!fileKey.contains(String.format("applicant-%d", applicantId))) {
+              // Ensure the file being accessed belongs to the applicant.
+              // The key is generated when the applicant first uploaded the file.
+              if (!ApplicantFileNameFormatter.isApplicantOwnedFileKey(fileKey, applicantId)) {
                 return notFound();
               }
+
               String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
               return redirect(applicantStorageClient.getPresignedUrlString(decodedFileKey));
             },
