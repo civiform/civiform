@@ -234,7 +234,7 @@ public final class AdminQuestionController extends CiviFormController {
 
               // Handle case someone tries to edit a live question that already has a draft version.
               // In this case we should redirect to the draft version.
-              // https://github.com/seattle-uat/civiform/issues/2497
+              // https://github.com/civiform/civiform/issues/2497
               Optional<QuestionDefinition> possibleDraft =
                   readOnlyService
                       .getActiveAndDraftQuestions()
