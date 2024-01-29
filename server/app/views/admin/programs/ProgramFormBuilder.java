@@ -271,8 +271,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private DomContent programUrlField(String adminName, ProgramEditStatus programEditStatus) {
-    if (programEditStatus == ProgramEditStatus.CREATION_EDIT
-        || programEditStatus == ProgramEditStatus.EDIT) {
+    if (programEditStatus != ProgramEditStatus.CREATION) {
+      // Only allow editing the program URL at program creation time.
       String programUrl =
           baseUrl
               + routes.ApplicantProgramsController.show(MainModule.SLUGIFIER.slugify(adminName))
@@ -330,8 +330,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         && (programEditStatus == ProgramEditStatus.CREATION
             || programEditStatus == ProgramEditStatus.CREATION_EDIT)) {
       // If the admin is in the middle of creating a new program, they'll be redirected to the next
-      // step of adding a
-      // program image, so we want the save button text to reflect that.
+      // step of adding a program image, so we want the save button text to reflect that.
       saveProgramDetailsText = "Save and continue to next step";
     } else {
       // If the admin is editing an existing program, they'll be redirected back to the program

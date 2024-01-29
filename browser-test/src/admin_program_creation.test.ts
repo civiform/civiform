@@ -65,7 +65,7 @@ describe('program creation', () => {
     await adminProgramImage.expectProgramImagePage()
   })
 
-  it('create program then go back prevents URL edits', async () => {
+  it('create program then go back prevents name edits', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_card_images')
@@ -83,15 +83,16 @@ describe('program creation', () => {
       /* submitNewProgram= */ false,
     )
 
+    // On initial program creation, expect an admin can fill in the program name.
     expect(await page.locator('#program-name-input').count()).toEqual(1)
 
     await adminPrograms.submitProgramDetailsEdits()
     await adminProgramImage.expectProgramImagePage()
 
-    // When the admin goes back, they should see the edit program details page but should not be able to modify the
-    // program name (used for the URL).
+    // WHEN the admin goes back to the program details page
     await adminProgramImage.clickBackButton()
 
+    // THEN they should not be able to modify the program name (used for the URL).
     await adminPrograms.expectProgramEditPage(programName)
     expect(await page.locator('#program-name-input').count()).toEqual(0)
   })
@@ -105,10 +106,10 @@ describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminProgramImage.expectProgramImagePage()
 
-    // When the admin goes back to the program details page, they should be
-    // able to still go forward to the program images page again.
+    // WHEN the admin goes back to the program details page
     await adminProgramImage.clickBackButton()
 
+    // THEN they should be able to still go forward to the program images page again.
     await adminPrograms.expectProgramEditPage(programName)
     await adminPrograms.expectProgramDetailsSaveAndContinueButton()
 

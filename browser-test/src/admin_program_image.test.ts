@@ -91,6 +91,7 @@ describe('Admin can manage program image', () => {
       await adminProgramImage.expectProgramImagePage()
 
       await adminProgramImage.expectHasContinueButton()
+      await validateScreenshot(page, 'program-image-with-continue')
     })
 
     it('continue button redirects to program blocks page', async () => {
