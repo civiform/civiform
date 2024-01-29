@@ -191,12 +191,17 @@ public final class ApplicantRoutes {
    * @return Route for the applicant confirm address action
    */
   public Call confirmAddress(
-      CiviFormProfile profile, long applicantId, long programId, String blockId, ApplicantProgramBlocksController.NextAction nextAction) {
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String blockId,
+      ApplicantProgramBlocksController.NextAction nextAction) {
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
           applicantId, programId, blockId, nextAction.name());
     } else {
-      return routes.ApplicantProgramBlocksController.confirmAddress(programId, blockId, nextAction.name());
+      return routes.ApplicantProgramBlocksController.confirmAddress(
+          programId, blockId, nextAction.name());
     }
   }
 
@@ -234,12 +239,17 @@ public final class ApplicantRoutes {
    * @return Route for the applicant update file action
    */
   public Call updateFile(
-      CiviFormProfile profile, long applicantId, long programId, String blockId, ApplicantProgramBlocksController.NextAction nextAction) {
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String blockId,
+      ApplicantProgramBlocksController.NextAction nextAction) {
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
           applicantId, programId, blockId, nextAction.name());
     } else {
-      return routes.ApplicantProgramBlocksController.updateFile(programId, blockId, nextAction.name());
+      return routes.ApplicantProgramBlocksController.updateFile(
+          programId, blockId, nextAction.name());
     }
   }
 
@@ -253,7 +263,11 @@ public final class ApplicantRoutes {
    * @return Route for the applicant update block action
    */
   public Call updateBlock(
-      CiviFormProfile profile, long applicantId, long programId, String blockId, ApplicantProgramBlocksController.NextAction nextAction) {
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String blockId,
+      ApplicantProgramBlocksController.NextAction nextAction) {
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.updateWithApplicantId(
           applicantId, programId, blockId, nextAction.name());

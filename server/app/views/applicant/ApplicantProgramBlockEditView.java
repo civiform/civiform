@@ -229,25 +229,24 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     return div()
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
         .with(renderSaveAndReviewButton(params))
-       //     .with(renderReviewButton(params))
+        //     .with(renderReviewButton(params))
         .with(renderPreviousButton(params))
         .with(renderNextButton(params));
   }
 
-
   private ButtonTag renderSaveAndReviewButton(Params params) {
     String formAction =
-            applicantRoutes
-                    .updateBlock(
-                            params.profile(),
-                            params.applicantId(),
-                            params.programId(),
-                            params.block().getId(),
-                            ApplicantProgramBlocksController.NextAction.REVIEW_PAGE)
-                    .url();
+        applicantRoutes
+            .updateBlock(
+                params.profile(),
+                params.applicantId(),
+                params.programId(),
+                params.block().getId(),
+                ApplicantProgramBlocksController.NextAction.REVIEW_PAGE)
+            .url();
     return submitButton(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
-            .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
-            .withFormaction(formAction);
+        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
+        .withFormaction(formAction);
   }
 
   private ButtonTag renderNextButton(Params params) {

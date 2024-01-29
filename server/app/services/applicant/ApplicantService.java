@@ -36,6 +36,7 @@ import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.StoredFileModel;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.i18n.Lang;
@@ -242,8 +243,10 @@ public final class ApplicantService {
    *       <li>`UnsupportedScalarTypeException` - Specified paths point to an unsupported type of
    *           scalar.
    *     </ul>
+   *     . The second part of the returned pair is `true` if the resulting block has different
+   *     answers than the block before the update.
    */
-  public CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
+  public CompletionStage<Pair<ReadOnlyApplicantProgramService, Boolean>> stageAndUpdateIfValid(
       long applicantId,
       long programId,
       String blockId,
@@ -270,7 +273,7 @@ public final class ApplicantService {
         applicantId, programId, blockId, updateMap, updates, addressServiceAreaValidationEnabled);
   }
 
-  private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
+  private CompletionStage<Pair<ReadOnlyApplicantProgramService, Boolean>> stageAndUpdateIfValid(
       long applicantId,
       long programId,
       String blockId,
@@ -300,8 +303,10 @@ public final class ApplicantService {
                       applicant.getApplicantData(),
                       programDefinition,
                       baseUrl);
+
               Optional<Block> maybeBlockBeforeUpdate =
                   readOnlyApplicantProgramServiceBeforeUpdate.getActiveBlock(blockId);
+
               if (maybeBlockBeforeUpdate.isEmpty()) {
                 return CompletableFuture.failedFuture(
                     new ProgramBlockNotFoundException(programId, blockId));
@@ -341,7 +346,7 @@ public final class ApplicantService {
                     .thenApplyAsync(appDraft -> v));
   }
 
-  private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
+  private CompletionStage<Pair<ReadOnlyApplicantProgramService, Boolean>> stageAndUpdateIfValid(
       ApplicantModel applicant,
       String baseUrl,
       Block blockBeforeUpdate,
@@ -358,6 +363,7 @@ public final class ApplicantService {
               updateMetadata,
               updates,
               serviceAreaUpdate);
+      System.out.println("failed updates=" + failedUpdates);
     } catch (UnsupportedScalarTypeException | PathNotInBlockException e) {
       return CompletableFuture.failedFuture(e);
     }
@@ -372,14 +378,37 @@ public final class ApplicantService {
 
     Optional<Block> blockMaybe =
         roApplicantProgramService.getActiveBlock(blockBeforeUpdate.getId());
+
+    if (blockMaybe.isPresent()) {
+      System.out.println(
+          "block before== block after? " + blockBeforeUpdate.equals(blockMaybe.get()));
+      System.out.println("id=?" + blockBeforeUpdate.getId() + "   " + blockMaybe.get().getId());
+      System.out.println(
+          "definition=?"
+              + blockBeforeUpdate.blockDefinition.equals(blockMaybe.get().blockDefinition));
+      System.out.println(
+          "data=?" + blockBeforeUpdate.applicantData.isDuplicateOf(blockMaybe.get().applicantData));
+      System.out.println(
+          "definition="
+              + blockBeforeUpdate.blockDefinition
+              + "   "
+              + blockMaybe.get().blockDefinition);
+      System.out.println(
+          "data=" + blockBeforeUpdate.applicantData + "   " + blockMaybe.get().applicantData);
+    }
+
     if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
       return accountRepository
           .updateApplicant(applicant)
           .thenApplyAsync(
-              (finishedSaving) -> roApplicantProgramService, httpExecutionContext.current());
+              (finishedSaving) ->
+                  Pair.of(
+                      roApplicantProgramService,
+                      blockBeforeUpdate.isEquivalentTo(blockMaybe.get())),
+              httpExecutionContext.current());
     }
 
-    return CompletableFuture.completedFuture(roApplicantProgramService);
+    return CompletableFuture.completedFuture(Pair.of(roApplicantProgramService, true));
   }
 
   /**

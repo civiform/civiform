@@ -211,8 +211,26 @@ public class ApplicantData extends CfJsonDocumentContext {
         new ApplicantData(other.preferredLocale, other.asJsonString());
     clearFieldsNotRequiredForComparison(otherApplicantData);
 
+    System.out.println("this json=" + thisApplicantData.asJsonString());
+    System.out.println("otherjson=" + otherApplicantData.asJsonString());
     return thisApplicantData.asJsonString().equals(otherApplicantData.asJsonString());
   }
+
+  /*
+  public boolean isEquivalentExcludingMetadata(ApplicantData other) {
+    // Copy data and clear fields not required for comparison.
+    ApplicantData thisApplicantData = new ApplicantData(this.preferredLocale, this.asJsonString());
+    clearFieldsNotRequiredForComparison(thisApplicantData);
+    clearFieldsWithNoText(thisApplicantData);
+    ApplicantData otherApplicantData =
+            new ApplicantData(other.preferredLocale, other.asJsonString());
+    clearFieldsNotRequiredForComparison(otherApplicantData);
+    clearFieldsWithNoText(otherApplicantData);
+
+    return thisApplicantData.asJsonString().equals(otherApplicantData.asJsonString());
+  }
+
+   */
 
   private static void clearFieldsNotRequiredForComparison(ApplicantData applicantData) {
     // The `updated_at` timestamp for an answer should not be considered when
@@ -224,4 +242,11 @@ public class ApplicantData extends CfJsonDocumentContext {
       // Metadata may be missing in unit tests. No harm, no foul.
     }
   }
+
+  /*
+  private static void clearFieldsWithNoText(ApplicantData applicantData) {
+    applicantData.getDocumentContext();
+  }
+
+   */
 }

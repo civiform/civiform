@@ -46,8 +46,8 @@ public final class Block {
    */
   private final String id;
 
-  private final BlockDefinition blockDefinition;
-  private final ApplicantData applicantData;
+  public final BlockDefinition blockDefinition;
+  public final ApplicantData applicantData;
   private final Optional<RepeatedEntity> repeatedEntity;
 
   private Optional<ImmutableList<ApplicantQuestion>> questionsMemo = Optional.empty();
@@ -278,11 +278,31 @@ public final class Block {
             .anyMatch(
                 q -> {
                   Optional<Long> lastUpdatedInProgram = q.getUpdatedInProgramMetadata();
+                  System.out.println(
+                      "last updated in program: "
+                          + lastUpdatedInProgram
+                          + "  for q="
+                          + q.getQuestionText());
                   return lastUpdatedInProgram.isPresent()
                       && lastUpdatedInProgram.get().equals(programId);
                 });
   }
 
+  /** Returns true if this block is functionally equivalent to */
+  // Problem: If an applicant sees a required block then clicks Review, the applicantData JSON will
+  // save
+  // the metadata even if the applicant didn't answer the question:
+  // ApplicantData json before opening the block:
+  //   {"applicant":{}}
+  // ApplicantData json after opening the block but not answering and clicking "review":
+  //   {"applicant":{"name":{"updated_at":0,"program_updated_in":21}}}
+  public boolean isEquivalentTo(Block other) {
+    return this.id.equals(other.id)
+        && this.blockDefinition.equals(other.blockDefinition)
+        && this.applicantData.isDuplicateOf(other.applicantData);
+  }
+
+  // TODO: Try changing the equals to also use "isDuplicateOf" and see if anything breaks?
   @Override
   public boolean equals(@Nullable Object object) {
     if (object instanceof Block) {

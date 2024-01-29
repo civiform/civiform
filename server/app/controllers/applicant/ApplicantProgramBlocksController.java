@@ -142,7 +142,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long programId,
       String blockId,
       Optional<String> questionName) {
-    return editOrReview(request, applicantId, programId, blockId, NextAction.NEXT_VISIBLE, questionName);
+    return editOrReview(
+        request, applicantId, programId, blockId, NextAction.NEXT_VISIBLE, questionName);
   }
 
   /**
@@ -193,7 +194,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long programId,
       String blockId,
       Optional<String> questionName) {
-    return editOrReview(request, applicantId, programId, blockId, NextAction.NEXT_INCOMPLETE, questionName);
+    return editOrReview(
+        request, applicantId, programId, blockId, NextAction.NEXT_INCOMPLETE, questionName);
   }
 
   /**
@@ -290,7 +292,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     settingsManifest.getEsriAddressServiceAreaValidationEnabled(request)),
             httpExecutionContext.current())
         .thenComposeAsync(
-            roApplicantProgramService -> {
+            pair -> {
               removeAddressJsonFromSession(request);
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
               return renderErrorOrRedirectToNextBlock(
@@ -300,8 +302,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   programId,
                   blockId,
                   applicantStage.join(),
-                      nextAction,
-                  roApplicantProgramService);
+                  nextAction,
+                  pair.getLeft());
             },
             httpExecutionContext.current())
         .exceptionally(
@@ -322,7 +324,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   /** Navigates to the previous page of the application. */
   @Secure
   public CompletionStage<Result> previousWithApplicantId(
-      Request request, long applicantId, long programId, int previousBlockIndex, String nextAction) {
+      Request request,
+      long applicantId,
+      long programId,
+      int previousBlockIndex,
+      String nextAction) {
     System.out.println("#previous. nextAction=" + nextAction);
 
     CompletionStage<ApplicantPersonalInfo> applicantStage =
@@ -364,7 +370,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             applicantId,
                             programId,
                             blockId,
-                                nextAction,
+                            nextAction,
                             roApplicantProgramService,
                             block.get(),
                             personalInfo,
@@ -420,7 +426,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       NextAction nextAction,
       Optional<String> questionName) {
     System.out.println("#editOrReview. nextAction=" + nextAction);
-
 
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
@@ -554,7 +559,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             },
             httpExecutionContext.current())
         .thenComposeAsync(
-            (roApplicantProgramService) -> {
+            (pair) -> {
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
               return renderErrorOrRedirectToNextBlock(
                   request,
@@ -563,8 +568,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   programId,
                   blockId,
                   applicantStage.toCompletableFuture().join(),
-                      nextAction,
-                  roApplicantProgramService);
+                  nextAction,
+                  pair.getLeft());
             },
             httpExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
@@ -597,10 +602,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   /**
    * Accepts, validates and saves submission of applicant data for {@code blockId}.
    *
-   * If there are errors, renders the edit page for the same block with the errors. Otherwise, returns the applicable
-   * next step in the flow based on {@code nextAction}.
+   * <p>If there are errors, renders the edit page for the same block with the errors. Otherwise,
+   * returns the applicable next step in the flow based on {@code nextAction}.
    *
-   * @param nextAction specifies what type of page the user should be taken to next if the applicant data for the block is valid. Should be a name of one of the enums specified by {@link NextAction}.
+   * @param nextAction specifies what type of page the user should be taken to next if the applicant
+   *     data for the block is valid. Should be a name of one of the enums specified by {@link
+   *     NextAction}.
    */
   @Secure
   public CompletionStage<Result> updateWithApplicantId(
@@ -624,24 +631,22 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             httpExecutionContext.current())
         .thenComposeAsync(
             formData -> {
-                    if (NextAction.valueOf(nextAction) == NextAction.REVIEW_PAGE && dataIsEmpty(formData)) {
-                      System.out.println("form data is empty -> returning null");
-                      return CompletableFuture.completedFuture(null);
-                    }
-                return applicantService.stageAndUpdateIfValid(
-                    applicantId,
-                    programId,
-                    blockId,
-                    formData,
-                    settingsManifest.getEsriAddressServiceAreaValidationEnabled(request));
-                    },
+              return applicantService.stageAndUpdateIfValid(
+                  applicantId,
+                  programId,
+                  blockId,
+                  formData,
+                  settingsManifest.getEsriAddressServiceAreaValidationEnabled(request));
+            },
             httpExecutionContext.current())
         .thenComposeAsync(
-            roApplicantProgramServiceMaybe -> {
+            pair -> {
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
-              if (roApplicantProgramServiceMaybe == null) {
-                System.out.println("redirecting to review b/c empty");
-                return supplyAsync(() -> redirect(applicantRoutes.review(profile, applicantId, programId).url()));
+              System.out.println("pair=" + pair + "  nextaction=" + nextAction);
+              if (!pair.getRight() && NextAction.valueOf(nextAction) == NextAction.REVIEW_PAGE) {
+                System.out.println("redirecting to review b/c no changes");
+                return supplyAsync(
+                    () -> redirect(applicantRoutes.review(profile, applicantId, programId).url()));
               }
               return renderErrorOrRedirectToNextBlock(
                   request,
@@ -650,16 +655,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   programId,
                   blockId,
                   applicantStage.toCompletableFuture().join(),
-                      nextAction,
-                      roApplicantProgramServiceMaybe);
+                  nextAction,
+                  pair.getLeft());
             },
             httpExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
   }
 
-  /**
-   * See {@link #updateWithApplicantId}.
-   */
+  /** See {@link #updateWithApplicantId}. */
   @Secure
   public CompletionStage<Result> update(
       Request request, long programId, String blockId, String nextAction) {
@@ -674,7 +677,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       // gotten the URL from another source.
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return updateWithApplicantId(request, applicantId.orElseThrow(), programId, blockId, nextAction);
+    return updateWithApplicantId(
+        request, applicantId.orElseThrow(), programId, blockId, nextAction);
   }
 
   // TODO: I think this is the only method that actually needs the next action?
@@ -706,7 +710,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           applicantId,
                           programId,
                           blockId,
-                              nextAction,
+                          nextAction,
                           roApplicantProgramService,
                           thisBlockUpdated,
                           personalInfo,
@@ -736,7 +740,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         applicantId,
                         programId,
                         blockId,
-                            nextAction,
+                        nextAction,
                         roApplicantProgramService,
                         thisBlockUpdated,
                         personalInfo));
@@ -779,10 +783,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     NextAction nextActionEnum = NextAction.valueOf(nextAction); // TODO
     switch (nextActionEnum) {
       case NEXT_INCOMPLETE:
-        nextBlockIdMaybe = roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().map(Block::getId);
+        nextBlockIdMaybe =
+            roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().map(Block::getId);
         break;
       case NEXT_VISIBLE:
-        nextBlockIdMaybe = roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
+        nextBlockIdMaybe =
+            roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
         break;
       case REVIEW_PAGE:
         nextBlockIdMaybe = Optional.empty();
@@ -854,7 +860,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           applicantId,
           programId,
           blockId,
-              nextAction,
+          nextAction,
           suggestionMatch[0].getSingleLineAddress(),
           suggestions);
     } else {
@@ -872,7 +878,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       applicantId,
                       programId,
                       blockId,
-                          nextAction,
+                      nextAction,
                       roApplicantProgramService,
                       thisBlockUpdated,
                       personalInfo,
@@ -904,10 +910,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   // TODO: This doesn't actually work because what if they previously had data then deleted it?
-  // We'd mark the form as empty and then return them to the review stage but not save their deletion
-  private boolean dataIsEmpty(ImmutableMap<String, String> formData) {
-    return formData.values().stream().allMatch(String::isEmpty);
-  }
+  // We'd mark the form as empty and then return them to the review stage but not save their
+  // deletion
 
   private ApplicationBaseView.Params.Builder applicationBaseViewParamsBuilder(
       Request request,
@@ -1012,9 +1016,15 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   public enum NextAction {
-    /** Show the user the next incomplete block. This should be used if the user is reviewing their application and just needs to fill in the last missing answers. */
+    /**
+     * Show the user the next incomplete block. This should be used if the user is reviewing their
+     * application and just needs to fill in the last missing answers.
+     */
     NEXT_INCOMPLETE,
-    /** Show the user the next visible block. This should be used if the user is starting/continuing an application. */
+    /**
+     * Show the user the next visible block. This should be used if the user is starting/continuing
+     * an application.
+     */
     NEXT_VISIBLE,
     /** Show the user the review page with all questions listed. */
     REVIEW_PAGE,
