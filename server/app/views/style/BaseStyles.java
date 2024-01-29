@@ -14,9 +14,9 @@ public final class BaseStyles {
 
   public static final String BG_CIVIFORM_WHITE = "bg-civiform-white";
 
-  public static final String BG_SEATTLE_BLUE = "bg-seattle-blue";
-  public static final String TEXT_SEATTLE_BLUE = "text-seattle-blue";
-  public static final String BORDER_SEATTLE_BLUE = "border-seattle-blue";
+  public static final String BG_CIVIFORM_BLUE = "bg-seattle-blue";
+  public static final String TEXT_CIVIFORM_BLUE = "text-seattle-blue";
+  public static final String BORDER_CIVIFORM_BLUE = "border-seattle-blue";
 
   public static final String TEXT_CIVIFORM_GREEN = "text-civiform-green";
   public static final String BG_CIVIFORM_GREEN_LIGHT = "bg-civiform-green-light";
@@ -57,7 +57,7 @@ public final class BaseStyles {
           BaseStyles.FORM_FIELD_BORDER_COLOR,
           "rounded-lg",
           "w-full",
-          StyleUtils.focus(BORDER_SEATTLE_BLUE));
+          StyleUtils.focus(BORDER_CIVIFORM_BLUE));
 
   /** For use on `input` elements that are not of type "checkbox" or "radio". */
   public static final String INPUT = StyleUtils.joinStyles(INPUT_BASE, "placeholder-gray-500");

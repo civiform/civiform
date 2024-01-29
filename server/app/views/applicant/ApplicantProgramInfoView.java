@@ -76,7 +76,11 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
     H1Tag titleDiv =
         h1().withText(programTitle)
             .withClasses(
-                BaseStyles.TEXT_SEATTLE_BLUE, "text-2xl", "font-semibold", "text-gray-700", "mt-4");
+                BaseStyles.TEXT_CIVIFORM_BLUE,
+                "text-2xl",
+                "font-semibold",
+                "text-gray-700",
+                "mt-4");
 
     // "Markdown" the program description.
     ImmutableList<DomContent> items =
