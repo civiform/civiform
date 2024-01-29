@@ -164,8 +164,7 @@ public final class AdminProgramController extends CiviFormController {
   }
 
   /**
-   * These edits are being performed while an admin is still in the initial creation flow and false
-   * otherwise.
+   * Similar to {@link #edit}, but these edits are being performed while an admin is still in the initial creation flow.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result editInCreationFlow(Request request, long id) throws ProgramNotFoundException {

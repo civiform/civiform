@@ -36,7 +36,11 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
-  /** Renders the edit form. Fields are pre-populated based on the content of existingProgram. */
+  /**
+   * Renders the edit form. Fields are pre-populated based on the content of existingProgram.
+   *
+   * @param isInCreationFlow true if the admin is in the flow of creating a new program and false if the admin is making edits to an existing program.
+   */
   public Content render(
       Request request, ProgramDefinition existingProgram, boolean isInCreationFlow) {
     return render(
