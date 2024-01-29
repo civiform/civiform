@@ -36,6 +36,12 @@ public interface ReadOnlyApplicantProgramService {
   ImmutableList<Block> getAllActiveBlocks();
 
   /**
+   * Get the {@link Block}s for this program and applicant. This only includes blocks that are
+   * hidden from the applicant (i.e.they have a show/hide predicate).
+   */
+  ImmutableList<Block> getAllHiddenBlocks();
+
+  /**
    * Get the {@link Block}s this applicant needs to fill out or has filled out for this program.
    *
    * <p>This list includes any block that is incomplete or has errors (which indicate the applicant
@@ -65,6 +71,9 @@ public interface ReadOnlyApplicantProgramService {
    */
   ImmutableList<ApplicantQuestion> getIneligibleQuestions();
 
+  /** Get the hidden block with the given block ID if there is one. It is empty if there isn't. */
+  Optional<Block> getHiddenBlock(String blockId);
+
   /**
    * Get the active block with the given block ID if there is one. It is empty if there isn't.
    * Active block is the block an applicant must complete for this program. This will not include
@@ -93,6 +102,13 @@ public interface ReadOnlyApplicantProgramService {
   Optional<Block> getFirstIncompleteBlockExcludingStatic();
 
   /**
+   * Returns summary data for each question in the hidden blocks in this application. Hidden block
+   * is the block not visible to the applicant based on the visibility setting by the admin. This
+   * will not include blocks that are active.
+   */
+  ImmutableList<AnswerData> getSummaryDataOnlyHidden();
+
+  /**
    * Returns summary data for each question in the active blocks in this application. Active block
    * is the block an applicant must complete for this program. This will not include blocks that are
    * hidden from the applicant.
@@ -117,8 +133,8 @@ public interface ReadOnlyApplicantProgramService {
   /** Returns if the block has an eligibility predicate. */
   boolean blockHasEligibilityPredicate(String blockId);
 
-  /** Returns if the block eligibility criteria are met. */
-  boolean isBlockEligible(String blockId);
+  /** Returns if the active block eligibility criteria are met. */
+  boolean isActiveBlockEligible(String blockId);
 
   /**
    * Returns true if this program fully supports this applicant's preferred language, and false

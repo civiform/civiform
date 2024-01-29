@@ -755,7 +755,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     Map<String, String> flashingMap = new HashMap<>();
     if (roApplicantProgramService.blockHasEligibilityPredicate(blockId)
-        && roApplicantProgramService.isBlockEligible(blockId)) {
+        && roApplicantProgramService.isActiveBlockEligible(blockId)) {
       flashingMap.put(
           "success-banner",
           messagesApi
@@ -871,7 +871,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ProgramDefinition programDefinition,
       String blockId) {
     if (programDefinition.eligibilityIsGating()) {
-      return !roApplicantProgramService.isBlockEligible(blockId);
+      return !roApplicantProgramService.isActiveBlockEligible(blockId);
     }
     return false;
   }
