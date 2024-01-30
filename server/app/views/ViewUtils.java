@@ -258,8 +258,12 @@ public final class ViewUtils {
    * @param text Optional text label to include with the toggle.
    * @return ButtonTag containing the toggle.
    */
-  public static ButtonTag makeToggleButton(
-      String fieldName, boolean enabled, Optional<String> idPrefix, Optional<String> text) {
+  public static DivTag makeToggleButton(
+      String fieldName,
+      boolean enabled,
+      boolean hidden,
+      Optional<String> idPrefix,
+      Optional<String> text) {
     String buttonId = idPrefix.map((v) -> v + "-toggle").orElse("");
     String inputId = idPrefix.map((v) -> v + "-toggle-input").orElse("");
     String backgroundId = idPrefix.map((v) -> v + "-toggle-background").orElse("");
@@ -269,11 +273,11 @@ public final class ViewUtils {
     ButtonTag button =
         TagCreator.button()
             .withClasses(
-                "cf-toggle",
                 "flex",
                 "px-0",
                 "gap-2",
                 "items-center",
+                "text-left",
                 "text-black",
                 "font-normal",
                 "bg-transparent",
@@ -314,7 +318,7 @@ public final class ViewUtils {
                                 "cf-toggle-nub")
                             .withCondId(idPresent, nubId)));
     text.ifPresent(button::withText);
-    return button;
+    return div().withClass("cf-toggle").withCondHidden(hidden).with(button);
   }
 
   /**
@@ -363,24 +367,31 @@ public final class ViewUtils {
    * determined by the classes passed in. https://designsystem.digital.gov/components/alert/
    *
    * @param text The text to include in the alert.
-   * @param classes One or more of the class options listed above for the USWDS Alert component.
-   * @param maybeTitle An optional title to be included in the alert.
+   * @param hidden Whether or not to set the hidden property on the component.
+   * @param title An optional title to be included in the alert.
+   * @param classes One or more additional classes to apply to the USWDS Alert component.
    * @return DivTag containing the alert.
    */
-  public static DivTag makeAlert(String text, Optional<String> maybeTitle, String... classes) {
+  public static DivTag makeAlert(
+      String text, boolean hidden, Optional<String> title, String... classes) {
     return div()
+        .withCondHidden(hidden)
         .withClasses("usa-alert", String.join(" ", classes))
         .with(
             div()
                 .withClasses("usa-alert__body")
                 .condWith(
-                    maybeTitle.isPresent(),
-                    h4().withClass("usa-alert__heading").withText(maybeTitle.orElse("")))
+                    title.isPresent(),
+                    h4().withClass("usa-alert__heading").withText(title.orElse("")))
                 .with(p().withClass("usa-alert__text").withText(text)));
   }
 
-  public static DivTag makeAlertInfoSlim(String text) {
-    return makeAlert(text, Optional.empty(), BaseStyles.ALERT_INFO, BaseStyles.ALERT_SLIM);
+  public static DivTag makeAlertInfoSlim(String text, boolean hidden, String... classes) {
+    return makeAlert(
+        text,
+        hidden,
+        Optional.empty(),
+        Lists.asList(BaseStyles.ALERT_INFO, BaseStyles.ALERT_SLIM, classes).toArray(new String[0]));
   }
 
   /**

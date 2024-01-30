@@ -211,7 +211,8 @@ public final class QuestionsListView extends BaseHtmlView {
               .with(
                   ViewUtils.makeAlertInfoSlim(
                       "We recommend using all universal questions in your program for personal and"
-                          + " contact information questions."))
+                          + " contact information questions.",
+                      /* hidden= */ false))
               .with(universalQuestionContent));
     }
     questionContent.with(

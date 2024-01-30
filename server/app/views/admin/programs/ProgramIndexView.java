@@ -242,7 +242,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                           ViewUtils.makeAlert(
                               "Warning: This program does not use all recommended"
                                   + " universal questions.",
-                              Optional.empty(),
+                              /* hidden= */ false,
+                              /* title= */ Optional.empty(),
                               BaseStyles.ALERT_WARNING))
                       .with(
                           p("We recommend using all universal questions when possible"
@@ -323,7 +324,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                 ViewUtils.makeAlert(
                     "Due to the nature of shared questions and versioning, all questions and"
                         + " programs will need to be published together.",
-                    Optional.of("All draft questions in programs will be published."),
+                    /* hidden= */ false,
+                    /* title= */ Optional.of("All draft questions in programs will be published."),
                     BaseStyles.ALERT_WARNING),
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_PROGRAM)

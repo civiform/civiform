@@ -457,6 +457,7 @@ public final class QuestionEditView extends BaseHtmlView {
             ViewUtils.makeToggleButton(
                 /* fieldName= */ "isUniversal",
                 /* enabled= */ questionForm.isUniversal(),
+                /* hidden= */ false,
                 /* idPrefix= */ Optional.of("universal"),
                 /* text= */ Optional.of("Set as a universal question")));
   }
