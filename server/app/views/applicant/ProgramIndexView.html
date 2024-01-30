@@ -1,5 +1,19 @@
 <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+      
+        <link th:href="${tailwindStylesheet}" type="text/css" rel="stylesheet">
+        <script th:src="${adminJsBundle}" type="text/javascript"></script>
+      </head>
     <body>
-        <div>Hello world</div>
+        <div>Hello world. I'm putting another subcomponent below</div>
+
+        <div hx-get="/northStarPrograms/button"></div>
     </body>
 </html>
+
+<!--This is a fragment, not rendered as a part of main template but fetched by hx-get --> 
+<button th:fragment="my-button" class="flex gap-2 items-center text-gray-400 font-medium rounded-full">
+    This button is rendered by hx-get
+</button>

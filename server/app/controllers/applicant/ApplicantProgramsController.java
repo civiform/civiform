@@ -13,13 +13,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import modules.ThymeleafModule;
 import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
-import org.thymeleaf.TemplateEngine;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
-import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -49,8 +46,6 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final SettingsManifest settingsManifest;
   private final ProgramSlugHandler programSlugHandler;
   private final ApplicantRoutes applicantRoutes;
-  private final TemplateEngine templateEngine;
-  private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
 
   @Inject
   public ApplicantProgramsController(
@@ -63,9 +58,7 @@ public final class ApplicantProgramsController extends CiviFormController {
       VersionRepository versionRepository,
       SettingsManifest settingsManifest,
       ProgramSlugHandler programSlugHandler,
-      ApplicantRoutes applicantRoutes,
-      TemplateEngine templateEngine,
-      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory) {
+      ApplicantRoutes applicantRoutes) {
     super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
@@ -75,33 +68,6 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programSlugHandler = checkNotNull(programSlugHandler);
     this.applicantRoutes = checkNotNull(applicantRoutes);
-    this.templateEngine = checkNotNull(templateEngine);
-    this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
-  }
-
-  @Secure
-  public CompletionStage<Result> northStarIndex(Request request) {
-    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
-      // This route is only operative for the new URL schema, so send the user home.
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
-
-    Optional<Long> applicantId = getApplicantId(request);
-    if (applicantId.isEmpty()) {
-      // This route should not have been computed for the user in this case, but they may have
-      // gotten the URL from another source.
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
-    CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId.get());
-
-    return applicantStage.thenApplyAsync(
-        v -> {
-          String content =
-              templateEngine.process(
-                  "applicant/ProgramIndexView", playThymeleafContextFactory.create(request));
-          return ok(content).as(Http.MimeTypes.HTML);
-        });
   }
 
   @Secure
