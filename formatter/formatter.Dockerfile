@@ -11,8 +11,7 @@ FROM ${TARGETARCH}
 ENV JAVA_FORMATTER_URL "https://github.com/google/google-java-format/releases/download/v1.18.1/google-java-format-1.18.1-all-deps.jar"
 RUN wget $JAVA_FORMATTER_URL -O /fmt.jar && \
     apk update && \
-    apk add --no-cache --update bash wget npm shfmt git py3-pip && \
-    pip install yapf && \
+    apk add --no-cache --update bash wget npm shfmt git py3-pip py3-yapf && \
     apk cache clean
 
 # Below we pre-install nodejs depdendencies for various
