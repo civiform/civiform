@@ -1,6 +1,9 @@
 {
   "extends": ["config:base"],
   "labels": ["dependencies"],
+  "docker-compose": {
+    "fileMatch": ["^(browser-test|test-support)/[w-]*-compose.*.yml$"]
+  },
   "packageRules": [
     {
       "groupName": "autovalue",
