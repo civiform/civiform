@@ -194,7 +194,13 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withId("main-content")
             .withClasses("mx-auto", "my-4", StyleUtils.responsiveSmall("m-10"));
 
-    DivTag thymeleafContent = div().attr("hx-swap", "outerHTML").attr("hx-get", controllers.applicant.routes.NorthStarApplicantProgramsController.button()).attr("hx-trigger", "load");
+    DivTag thymeleafContent =
+        div()
+            .attr("hx-swap", "outerHTML")
+            .attr(
+                "hx-get",
+                controllers.applicant.routes.NorthStarApplicantProgramsController.button())
+            .attr("hx-trigger", "load");
     content.with(thymeleafContent);
 
     // The different program card containers should have the same styling, by using the program
