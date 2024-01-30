@@ -64,6 +64,7 @@ import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.predicate.JsonPathPredicateGeneratorFactory;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.Question;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails;
 import services.cloud.aws.SimpleEmail;
@@ -313,6 +314,8 @@ public final class ApplicantService {
               }
               Block blockBeforeUpdate = maybeBlockBeforeUpdate.get();
 
+                // checkBlock(blockBeforeUpdate, updateMap);
+
               if (addressServiceAreaValidationEnabled
                   && blockBeforeUpdate.getLeafAddressNodeServiceAreaIds().isPresent()) {
                 return serviceAreaUpdateResolver
@@ -345,6 +348,13 @@ public final class ApplicantService {
                     .createOrUpdateDraft(applicantId, programId)
                     .thenApplyAsync(appDraft -> v));
   }
+
+  /*
+  private void checkBlock(Block blockBeforeUpdate, ImmutableMap<String, String> updates) {
+
+  }
+
+   */
 
   private CompletionStage<Pair<ReadOnlyApplicantProgramService, Boolean>> stageAndUpdateIfValid(
       ApplicantModel applicant,
@@ -395,7 +405,48 @@ public final class ApplicantService {
               + blockMaybe.get().blockDefinition);
       System.out.println(
           "data=" + blockBeforeUpdate.applicantData + "   " + blockMaybe.get().applicantData);
+
+
+
+
+        System.out.println("   before block=======");
+        List<String> answers = blockBeforeUpdate.getQuestions().stream()
+                .map(question -> {System.out.println("ApplicantQuestion=" + question); return question; })
+                .map(ApplicantQuestion::getQuestion)
+                .map(question -> {System.out.println("Question=" + question); return question; })
+                .map(question -> question.getAnswerString())
+                .map(question -> {System.out.println("answer string=" + question); return question; })
+                .collect(Collectors.toList());
+
+        System.out.println("answers=" + answers);
+        System.out.println("============");
+
+        System.out.println("   after block=======");
+        List<String> answers2 = blockMaybe.get().getQuestions().stream()
+                .map(question -> {System.out.println("ApplicantQuestion=" + question); return question; })
+                .map(ApplicantQuestion::getQuestion)
+                .map(question -> {System.out.println("Question=" + question); return question; })
+                .map(question -> question.getAnswerString())
+                .map(question -> {System.out.println("answer string=" + question); return question; })
+                .collect(Collectors.toList());
+
+        System.out.println("answers2=" + answers2);
+        System.out.println("============");
+
+        System.out.println("answers are equal? " + blockBeforeUpdate.answersAreEqual(blockMaybe.get()));
+
+
     }
+
+    boolean wasChanges =!blockBeforeUpdate.answersAreEqual(blockMaybe.get());
+    /*
+    if (blockMaybe.isPresent()) {
+        wasChanges = !blockBeforeUpdate.isEquivalentTo(blockMaybe.get());
+    } else {
+        wasChanges = true;
+    }
+
+     */
 
     if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
       return accountRepository
@@ -404,11 +455,11 @@ public final class ApplicantService {
               (finishedSaving) ->
                   Pair.of(
                       roApplicantProgramService,
-                      blockBeforeUpdate.isEquivalentTo(blockMaybe.get())),
+                          wasChanges),
               httpExecutionContext.current());
     }
 
-    return CompletableFuture.completedFuture(Pair.of(roApplicantProgramService, true));
+    return CompletableFuture.completedFuture(Pair.of(roApplicantProgramService, wasChanges));
   }
 
   /**
@@ -1394,6 +1445,7 @@ public final class ApplicantService {
           default:
             throw new UnsupportedScalarTypeException(type);
         }
+     //   writeMetadataForPath(currentPath, applicantData, updateMetadata);
       }
     }
 
@@ -1403,7 +1455,8 @@ public final class ApplicantService {
           ServiceAreaInclusionGroup.serialize(serviceAreaUpdate.get().value()));
     }
 
-    // Write metadata for all questions in the block, regardless of whether they were blank or not.
+
+      // Write metadata for all questions in the block, regardless of whether they were blank or not.
     block.getQuestions().stream()
         .map(ApplicantQuestion::getContextualizedPath)
         .forEach(path -> writeMetadataForPath(path, applicantData, updateMetadata));

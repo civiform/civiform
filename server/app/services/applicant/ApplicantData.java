@@ -216,7 +216,7 @@ public class ApplicantData extends CfJsonDocumentContext {
     return thisApplicantData.asJsonString().equals(otherApplicantData.asJsonString());
   }
 
-  /*
+/*
   public boolean isEquivalentExcludingMetadata(ApplicantData other) {
     // Copy data and clear fields not required for comparison.
     ApplicantData thisApplicantData = new ApplicantData(this.preferredLocale, this.asJsonString());
@@ -230,7 +230,8 @@ public class ApplicantData extends CfJsonDocumentContext {
     return thisApplicantData.asJsonString().equals(otherApplicantData.asJsonString());
   }
 
-   */
+ */
+
 
   private static void clearFieldsNotRequiredForComparison(ApplicantData applicantData) {
     // The `updated_at` timestamp for an answer should not be considered when
@@ -243,10 +244,11 @@ public class ApplicantData extends CfJsonDocumentContext {
     }
   }
 
-  /*
+/*
   private static void clearFieldsWithNoText(ApplicantData applicantData) {
-    applicantData.getDocumentContext();
+    applicantData.rea
   }
 
-   */
+ */
+
 }

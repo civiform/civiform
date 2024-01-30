@@ -302,6 +302,36 @@ public final class Block {
         && this.applicantData.isDuplicateOf(other.applicantData);
   }
 
+  public boolean answersAreEqual(Block other) {
+    if (!this.id.equals(other.id)) {
+      return false;
+    }
+    if (!this.blockDefinition.equals(other.blockDefinition)) {
+      return false;
+    }
+
+    System.out.println("#BLOCK. this=" + getQuestions().stream().map(ApplicantQuestion::getQuestion).map(
+            question -> "[[[[" + question.getAllPaths() + "][" + question.getAnswerString() + "]]]]"
+            ).collect(ImmutableList.toImmutableList()));
+    System.out.println("#BLOCK. other=" + other.getQuestions().stream().map(ApplicantQuestion::getQuestion).map(
+            question -> "[[[[" + question.getAllPaths() + "][" + question.getAnswerString() + "]]]]"
+    ).collect(ImmutableList.toImmutableList()));
+
+    ImmutableList<Question> thisQuestions = getQuestions().stream().map(ApplicantQuestion::getQuestion).collect(ImmutableList.toImmutableList());
+    ImmutableList<Question> otherQuestions = other.getQuestions().stream().map(ApplicantQuestion::getQuestion).collect(ImmutableList.toImmutableList());
+
+    // TODO: Need to match up the questions?
+
+    return thisQuestions.equals(otherQuestions);
+
+
+      /*
+      getQuestions().stream()
+              .map(ApplicantQuestion::getContextualizedPath)
+
+       */
+  }
+
   // TODO: Try changing the equals to also use "isDuplicateOf" and see if anything breaks?
   @Override
   public boolean equals(@Nullable Object object) {

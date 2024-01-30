@@ -6,6 +6,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import java.util.HashMap;
+
+import org.opensaml.xmlsec.signature.P;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -124,5 +126,44 @@ public abstract class Question {
 
   public ApplicantQuestion getApplicantQuestion() {
     return applicantQuestion;
+  }
+
+  @Override
+  public boolean equals(Object object) {
+    if (!(object instanceof Question)) {
+      return false;
+    }
+    Question other = (Question) object;
+    System.out.println("mypaths=" + getAllPaths() + "  theirpaths=" + other.getAllPaths());
+    if (!getAllPaths().equals(other.getAllPaths())) {
+      return false;
+    }
+
+    for (Path path : getAllPaths()) {
+      System.out.println("for path=" + path +"  this=" + this.getApplicantQuestion().getApplicantData().readAsString(path) + ""
+              + "    other=" + other.getApplicantQuestion().getApplicantData().readAsString(path));
+
+      System.out.println("answerstring.  this=" + this.getApplicantQuestion().getQuestion().getAnswerString() + ""
+              + "    other=" + other.getApplicantQuestion().getQuestion().getAnswerString());
+      // TODO: Is #readAsString appropriate?
+      if (!this.getApplicantQuestion().getApplicantData().readAsString(path).equals(
+              other.getApplicantQuestion().getApplicantData().readAsString(path)
+      )) {
+        // Another option:
+        // From JsonExporter.java
+        /*
+                  presenterFactory
+              .create(answerData.applicantQuestion().getType())
+              .getAllJsonEntries(answerData.createQuestion());
+         */
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return getAllPaths().hashCode(); // TODO
   }
 }
