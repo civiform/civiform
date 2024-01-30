@@ -13,10 +13,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import modules.ThymeleafModule;
 import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
+import org.thymeleaf.TemplateEngine;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -30,9 +33,6 @@ import services.settings.SettingsManifest;
 import views.applicant.ApplicantProgramInfoView;
 import views.applicant.ProgramIndexView;
 import views.components.ToastMessage;
-import modules.ThymeleafModule;
-import org.thymeleaf.TemplateEngine;
-import play.mvc.Http;
 
 /**
  * Controller for handling methods for an applicant applying to programs. CAUTION: you must
@@ -79,8 +79,6 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
   }
 
-
-
   @Secure
   public CompletionStage<Result> northStarIndex(Request request) {
     if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
@@ -96,12 +94,14 @@ public final class ApplicantProgramsController extends CiviFormController {
     }
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId.get());
-  
-        return applicantStage.thenApplyAsync(v -> {
-          String content = templateEngine.process("applicant/ProgramIndexView",  playThymeleafContextFactory.create(request));
+
+    return applicantStage.thenApplyAsync(
+        v -> {
+          String content =
+              templateEngine.process(
+                  "applicant/ProgramIndexView", playThymeleafContextFactory.create(request));
           return ok(content).as(Http.MimeTypes.HTML);
         });
-    
   }
 
   @Secure
