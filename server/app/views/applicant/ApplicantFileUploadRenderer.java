@@ -118,7 +118,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                     params.applicantId(),
                     params.programId(),
                     params.block().getId(),
-                    params.inReview())
+                    params.nextAction())
                 .url();
 
     String key =
@@ -239,7 +239,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                 params.applicantId(),
                 params.programId(),
                 params.block().getId(),
-                params.inReview())
+                params.nextAction())
             .url();
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder()
@@ -308,7 +308,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     DivTag ret =
         div()
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-            .with(renderReviewButton(params))
+            .with(renderReviewButton(applicantRoutes, params))
             .with(renderPreviousButton(params));
     if (maybeSkipOrDeleteButton.isPresent()) {
       ret.with(maybeSkipOrDeleteButton.get());

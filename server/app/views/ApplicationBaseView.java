@@ -8,7 +8,9 @@ import static j2html.TagCreator.span;
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import controllers.applicant.ApplicantRoutes;
+import controllers.applicant.NextApplicantAction;
 import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.PTag;
 import j2html.tags.specialized.SpanTag;
 import java.util.Optional;
@@ -26,14 +28,20 @@ import views.style.BaseStyles;
 public class ApplicationBaseView extends BaseHtmlView {
   final String REVIEW_APPLICATION_BUTTON_ID = "review-application-button";
 
-  protected ATag renderReviewButton(ApplicationBaseView.Params params) {
-    ApplicantRoutes applicantRoutes = params.applicantRoutes();
-    String reviewUrl =
-        applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
-    return a().withHref(reviewUrl)
-        .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
-        .withId(REVIEW_APPLICATION_BUTTON_ID)
-        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT);
+  protected ButtonTag renderReviewButton(
+      ApplicantRoutes applicantRoutes, ApplicationBaseView.Params params) {
+    String formAction =
+        applicantRoutes
+            .updateBlock(
+                params.profile(),
+                params.applicantId(),
+                params.programId(),
+                params.block().getId(),
+                NextApplicantAction.REVIEW_PAGE)
+            .url();
+    return submitButton(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
+        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
+        .withFormaction(formAction);
   }
 
   protected ATag renderPreviousButton(ApplicationBaseView.Params params) {
@@ -49,7 +57,7 @@ public class ApplicationBaseView extends BaseHtmlView {
                   params.applicantId(),
                   params.programId(),
                   previousBlockIndex,
-                  params.inReview())
+                  params.nextAction())
               .url();
     } else {
       ApplicantRoutes applicantRoutes = params.applicantRoutes();
@@ -70,7 +78,7 @@ public class ApplicationBaseView extends BaseHtmlView {
 
     public abstract Builder toBuilder();
 
-    public abstract boolean inReview();
+    public abstract NextApplicantAction nextAction();
 
     public abstract Http.Request request();
 
@@ -110,7 +118,7 @@ public class ApplicationBaseView extends BaseHtmlView {
     public abstract static class Builder {
       public abstract Builder setRequest(Http.Request request);
 
-      public abstract Builder setInReview(boolean inReview);
+      public abstract Builder setNextAction(NextApplicantAction nextAction);
 
       public abstract Builder setMessages(Messages messages);
 

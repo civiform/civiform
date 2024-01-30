@@ -125,4 +125,28 @@ public abstract class Question {
   public ApplicantQuestion getApplicantQuestion() {
     return applicantQuestion;
   }
+
+  /** TODO */
+  public boolean hasEqualAnswers(Question other) {
+    if (!getAllPaths().equals(other.getAllPaths())) {
+      return false;
+    }
+
+    for (Path path : getAllPaths()) {
+      if (!this.getApplicantQuestion()
+          .getApplicantData()
+          .readAsString(path)
+          .equals(other.getApplicantQuestion().getApplicantData().readAsString(path))) {
+        // Another option:
+        // From JsonExporter.java
+        /*
+                 presenterFactory
+             .create(answerData.applicantQuestion().getType())
+             .getAllJsonEntries(answerData.createQuestion());
+        */
+        return false;
+      }
+    }
+    return true;
+  }
 }

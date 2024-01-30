@@ -175,16 +175,21 @@ public final class ApplicantRoutes {
    * @param applicantId - ID of applicant for whom the action should be performed.
    * @param programId - ID of program to review
    * @param blockId - ID of the block containing the address
-   * @param inReview - true if executing the review action (as opposed to edit)
+   * @param nextAction - TODO
    * @return Route for the applicant confirm address action
    */
   public Call confirmAddress(
-      CiviFormProfile profile, long applicantId, long programId, String blockId, boolean inReview) {
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String blockId,
+      NextApplicantAction nextAction) {
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-          applicantId, programId, blockId, inReview);
+          applicantId, programId, blockId, nextAction.name());
     } else {
-      return routes.ApplicantProgramBlocksController.confirmAddress(programId, blockId, inReview);
+      return routes.ApplicantProgramBlocksController.confirmAddress(
+          programId, blockId, nextAction.name());
     }
   }
 
@@ -195,7 +200,7 @@ public final class ApplicantRoutes {
    * @param applicantId - ID of applicant for whom the action should be performed.
    * @param programId - ID of program to review
    * @param previousBlockIndex - index of the previous block
-   * @param inReview - true if executing the review action (as opposed to edit)
+   * @param nextAction - TODO
    * @return Route for the applicant previous block action
    */
   public Call blockPrevious(
@@ -203,13 +208,13 @@ public final class ApplicantRoutes {
       long applicantId,
       long programId,
       int previousBlockIndex,
-      boolean inReview) {
+      NextApplicantAction nextAction) {
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.previousWithApplicantId(
-          applicantId, programId, previousBlockIndex, inReview);
+          applicantId, programId, previousBlockIndex, nextAction.name());
     } else {
       return routes.ApplicantProgramBlocksController.previous(
-          programId, previousBlockIndex, inReview);
+          programId, previousBlockIndex, nextAction.name());
     }
   }
 
@@ -220,16 +225,21 @@ public final class ApplicantRoutes {
    * @param applicantId - ID of applicant for whom the action should be performed.
    * @param programId - ID of program to review
    * @param blockId - ID of the block containing file upload question
-   * @param inReview - true if executing the review action (as opposed to edit)
+   * @param nextAction - TODO
    * @return Route for the applicant update file action
    */
   public Call updateFile(
-      CiviFormProfile profile, long applicantId, long programId, String blockId, boolean inReview) {
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String blockId,
+      NextApplicantAction nextAction) {
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
-          applicantId, programId, blockId, inReview);
+          applicantId, programId, blockId, nextAction.name());
     } else {
-      return routes.ApplicantProgramBlocksController.updateFile(programId, blockId, inReview);
+      return routes.ApplicantProgramBlocksController.updateFile(
+          programId, blockId, nextAction.name());
     }
   }
 
@@ -240,16 +250,20 @@ public final class ApplicantRoutes {
    * @param applicantId - ID of applicant for whom the action should be performed.
    * @param programId - ID of program to review
    * @param blockId - ID of the block to be updated
-   * @param inReview - true if executing the review action (as opposed to edit)
+   * @param nextAction - the next action the applicant would like to take
    * @return Route for the applicant update block action
    */
   public Call updateBlock(
-      CiviFormProfile profile, long applicantId, long programId, String blockId, boolean inReview) {
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String blockId,
+      NextApplicantAction nextAction) {
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.updateWithApplicantId(
-          applicantId, programId, blockId, inReview);
+          applicantId, programId, blockId, nextAction.name());
     } else {
-      return routes.ApplicantProgramBlocksController.update(programId, blockId, inReview);
+      return routes.ApplicantProgramBlocksController.update(programId, blockId, nextAction.name());
     }
   }
 }

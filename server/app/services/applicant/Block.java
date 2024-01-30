@@ -292,6 +292,39 @@ public final class Block {
     return false;
   }
 
+  /** TODO */
+  public boolean hasEqualAnswers(Block other) {
+    if (!this.id.equals(other.id)) {
+      return false;
+    }
+    if (!this.blockDefinition.equals(other.blockDefinition)) {
+      return false;
+    }
+
+    ImmutableList<Question> thisQuestions =
+        this.getQuestions().stream()
+            .map(ApplicantQuestion::getQuestion)
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<Question> otherQuestions =
+        other.getQuestions().stream()
+            .map(ApplicantQuestion::getQuestion)
+            .collect(ImmutableList.toImmutableList());
+
+    if (thisQuestions.size() != otherQuestions.size()) {
+      return false;
+    }
+
+    // TODO: Can we assume the questions will be in the same order? Maybe yes because the block
+    // definition has to be the same?
+    for (int i = 0; i < thisQuestions.size(); i++) {
+      if (thisQuestions.get(i).hasEqualAnswers(otherQuestions.get(i))) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(id, blockDefinition, applicantData);

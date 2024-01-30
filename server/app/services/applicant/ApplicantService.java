@@ -243,7 +243,7 @@ public final class ApplicantService {
    *           scalar.
    *     </ul>
    */
-  public CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
+  public CompletionStage<UpdateResponse> stageAndUpdateIfValid(
       long applicantId,
       long programId,
       String blockId,
@@ -269,7 +269,7 @@ public final class ApplicantService {
         applicantId, programId, blockId, updateMap, updates, addressServiceAreaValidationEnabled);
   }
 
-  private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
+  private CompletionStage<UpdateResponse> stageAndUpdateIfValid(
       long applicantId,
       long programId,
       String blockId,
@@ -340,7 +340,7 @@ public final class ApplicantService {
                     .thenApplyAsync(appDraft -> v));
   }
 
-  private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
+  private CompletionStage<UpdateResponse> stageAndUpdateIfValid(
       ApplicantModel applicant,
       String baseUrl,
       Block blockBeforeUpdate,
@@ -371,14 +371,22 @@ public final class ApplicantService {
 
     Optional<Block> blockMaybe =
         roApplicantProgramService.getActiveBlock(blockBeforeUpdate.getId());
+
+    boolean answersChanged =
+        blockMaybe
+            .map(block -> !blockBeforeUpdate.hasEqualAnswers(block))
+            // If we couldn't fetch the new active block for some reason, assume answers have
+            // changed.
+            .orElse(true);
+    UpdateResponse response = UpdateResponse.create(roApplicantProgramService, answersChanged);
+
     if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
       return accountRepository
           .updateApplicant(applicant)
-          .thenApplyAsync(
-              (finishedSaving) -> roApplicantProgramService, httpExecutionContext.current());
+          .thenApplyAsync((finishedSaving) -> response, httpExecutionContext.current());
     }
 
-    return CompletableFuture.completedFuture(roApplicantProgramService);
+    return CompletableFuture.completedFuture(response);
   }
 
   /**

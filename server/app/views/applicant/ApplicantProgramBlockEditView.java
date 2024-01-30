@@ -158,7 +158,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
                 params.applicantId(),
                 params.programId(),
                 params.block().getId(),
-                params.inReview())
+                params.nextAction())
             .url();
 
     AtomicInteger ordinalErrorCount = new AtomicInteger(0);
@@ -227,7 +227,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   private DivTag renderBottomNavButtons(Params params) {
     return div()
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-        .with(renderReviewButton(params))
+        .with(renderReviewButton(applicantRoutes, params))
         .with(renderPreviousButton(params))
         .with(renderNextButton(params));
   }
