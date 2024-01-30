@@ -22,7 +22,6 @@ import repository.StoredFileRepository;
 import repository.VersionRepository;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.ApplicantStorageClient;
-import views.applicant.ApplicantLayout;
 
 /** Controller for handling methods for admins and applicants accessing uploaded files. */
 public class FileController extends CiviFormController {
@@ -84,7 +83,9 @@ public class FileController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result adminShow(Request request, long programId, String fileKey) {
     // File key may have PII in the filename portion, do not log it.
-    logger.warn("DEPRECATED: Call to /admin/programs/{}/files/:fileKey occurred. This route is obsolete.", programId);
+    logger.warn(
+        "DEPRECATED: Call to /admin/programs/{}/files/:fileKey occurred. This route is obsolete.",
+        programId);
     return adminShowInternal(request, fileKey);
   }
 
