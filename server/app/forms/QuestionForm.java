@@ -194,7 +194,12 @@ public abstract class QuestionForm {
     return this.isUniversal;
   }
 
-  // Awkwardly named, but must match the field name
+  /**
+   * The name of this function must be setIsUniversal in order to match the field name in the view
+   * so that automatic binding of the form field to the QuestionForm data works correctly.
+   *
+   * @param universal Whether the question is marked as universal or not.
+   */
   public final void setIsUniversal(boolean universal) {
     this.isUniversal = universal;
   }
@@ -203,41 +208,63 @@ public abstract class QuestionForm {
     return this.primaryApplicantInfoTags;
   }
 
-  // The names of these functions must match up to the fieldName value in the
-  // PrimaryApplicantInfoTag
+  /**
+   * The name of this function must be in the form of set<field name> and match the fieldName
+   * parameter of PrimaryApplicantInfoTag.APPLICANT_DOB in order for automatic binding of the form
+   * field to the QuestionForm data to work correctly.
+   *
+   * @param val When true, add the tag. When false, remove the tag.
+   */
   public final void setPrimaryApplicantDob(boolean val) {
     setTagState(PrimaryApplicantInfoTag.APPLICANT_DOB, val);
   }
 
+  /**
+   * The name of this function must be in the form of set<field name> and match the fieldName
+   * parameter of PrimaryApplicantInfoTag.APPLICANT_EMAIL in order for automatic binding of the form
+   * field to the QuestionForm data to work correctly.
+   *
+   * @param val When true, add the tag. When false, remove the tag.
+   */
   public final void setPrimaryApplicantEmail(boolean val) {
     setTagState(PrimaryApplicantInfoTag.APPLICANT_EMAIL, val);
   }
 
+  /**
+   * The name of this function must be in the form of set<field name> and match the fieldName
+   * parameter of PrimaryApplicantInfoTag.APPLICANT_NAME in order for automatic binding of the form
+   * field to the QuestionForm data to work correctly.
+   *
+   * @param val When true, add the tag. When false, remove the tag.
+   */
   public final void setPrimaryApplicantName(boolean val) {
     setTagState(PrimaryApplicantInfoTag.APPLICANT_NAME, val);
   }
 
+  /**
+   * The name of this function must be in the form of set<field name> and match the fieldName
+   * parameter of PrimaryApplicantInfoTag.APPLICANT_PHONE in order for automatic binding of the form
+   * field to the QuestionForm data to work correctly.
+   *
+   * @param val When true, add the tag. When false, remove the tag.
+   */
   public final void setPrimaryApplicantPhone(boolean val) {
     setTagState(PrimaryApplicantInfoTag.APPLICANT_PHONE, val);
   }
 
   private void setTagState(PrimaryApplicantInfoTag primaryApplicantInfoTag, boolean isSet) {
-    boolean present = this.primaryApplicantInfoTags.contains(primaryApplicantInfoTag);
-    if (isSet) {
+    boolean currentlyContainsTag = this.primaryApplicantInfoTags.contains(primaryApplicantInfoTag);
+    if (isSet && !currentlyContainsTag) {
       this.primaryApplicantInfoTags =
-          present
-              ? this.primaryApplicantInfoTags
-              : new ImmutableSet.Builder<PrimaryApplicantInfoTag>()
-                  .addAll(this.primaryApplicantInfoTags)
-                  .add(primaryApplicantInfoTag)
-                  .build();
-    } else {
+          new ImmutableSet.Builder<PrimaryApplicantInfoTag>()
+              .addAll(this.primaryApplicantInfoTags)
+              .add(primaryApplicantInfoTag)
+              .build();
+    } else if (!isSet && currentlyContainsTag) {
       this.primaryApplicantInfoTags =
-          present
-              ? this.primaryApplicantInfoTags().stream()
-                  .filter(t -> t != primaryApplicantInfoTag)
-                  .collect(ImmutableSet.toImmutableSet())
-              : this.primaryApplicantInfoTags;
+          this.primaryApplicantInfoTags().stream()
+              .filter(t -> t != primaryApplicantInfoTag)
+              .collect(ImmutableSet.toImmutableSet());
     }
   }
 }
