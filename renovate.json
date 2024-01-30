@@ -2,7 +2,14 @@
   "extends": ["config:base"],
   "labels": ["dependencies"],
   "docker-compose": {
-    "fileMatch": ["^(browser-test|test-support)/[w-]*-compose.*.yml$"]
+    "fileMatch": [
+      "browser-test/browser-test-compose.yml",
+      "browser-test/browser-test-compose.dev.yml",
+      "browser-test/browser-test-compose.dev_local.yml",
+      "test-support/prod-simulator-compose.yml",
+      "test-support/unit-test-docker-compose.yml",
+      "test-support/unit-test-docker-compose.dev.yml"
+    ]
   },
   "packageRules": [
     {
