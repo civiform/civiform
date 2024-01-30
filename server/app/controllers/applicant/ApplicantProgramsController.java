@@ -71,52 +71,22 @@ public final class ApplicantProgramsController extends CiviFormController {
   }
 
 
-  @Secure
-  public CompletionStage<Result> northStarIndexWithApplicantId(Request request, long applicantId) {
-    Optional<CiviFormProfile> requesterProfile = profileUtils.currentUserProfile(request);
 
-    // If the user doesn't have a profile, send them home.
-    if (requesterProfile.isEmpty()) {
+  @Secure
+  public CompletionStage<Result> northStarIndex(Request request) {
+    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
+      // This route is only operative for the new URL schema, so send the user home.
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    Optional<ToastMessage> banner = request.flash().get("banner").map(m -> ToastMessage.alert(m));
-    CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId);
-
-    return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
-        .thenComposeAsync(
-            v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile.get()),
-            httpContext.current())
-        .thenApplyAsync(
-            applicationPrograms -> {
-              return ok(programIndexView.render(
-                      messagesApi.preferred(request),
-                      request,
-                      applicantId,
-                      applicantStage.toCompletableFuture().join(),
-                      applicationPrograms,
-                      banner,
-                      requesterProfile.orElseThrow(
-                          () -> new MissingOptionalException(CiviFormProfile.class))))
-                  // If the user has been to the index page, any existing redirects should be
-                  // cleared to avoid an experience where they're unexpectedly redirected after
-                  // logging in.
-                  .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
-            },
-            httpContext.current())
-        .exceptionally(
-            ex -> {
-              if (ex instanceof CompletionException) {
-                if (ex.getCause() instanceof SecurityException) {
-                  // If the applicant id in the URL does not correspond to the current user, start
-                  // from scratch. This could happen if a user bookmarks a URL.
-                  return redirectToHome();
-                }
-              }
-              throw new RuntimeException(ex);
-            });
+    Optional<Long> applicantId = getApplicantId(request);
+    if (applicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+    return indexWithApplicantId(
+        request, applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)));
   }
 
   @Secure
