@@ -30,6 +30,9 @@ import services.settings.SettingsManifest;
 import views.applicant.ApplicantProgramInfoView;
 import views.applicant.ProgramIndexView;
 import views.components.ToastMessage;
+import modules.ThymeleafModule;
+import org.thymeleaf.TemplateEngine;
+import play.mvc.Http;
 
 /**
  * Controller for handling methods for an applicant applying to programs. CAUTION: you must
@@ -46,6 +49,8 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final SettingsManifest settingsManifest;
   private final ProgramSlugHandler programSlugHandler;
   private final ApplicantRoutes applicantRoutes;
+  private final TemplateEngine templateEngine;
+  private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
 
   @Inject
   public ApplicantProgramsController(
@@ -58,7 +63,9 @@ public final class ApplicantProgramsController extends CiviFormController {
       VersionRepository versionRepository,
       SettingsManifest settingsManifest,
       ProgramSlugHandler programSlugHandler,
-      ApplicantRoutes applicantRoutes) {
+      ApplicantRoutes applicantRoutes,
+      TemplateEngine templateEngine,
+      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory) {
     super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
@@ -68,6 +75,8 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programSlugHandler = checkNotNull(programSlugHandler);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.templateEngine = checkNotNull(templateEngine);
+    this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
   }
 
 
@@ -85,8 +94,14 @@ public final class ApplicantProgramsController extends CiviFormController {
       // gotten the URL from another source.
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return indexWithApplicantId(
-        request, applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)));
+    CompletionStage<ApplicantPersonalInfo> applicantStage =
+        this.applicantService.getPersonalInfo(applicantId.get());
+  
+        return applicantStage.thenApplyAsync(v -> {
+          String content = templateEngine.process("applicant/ProgramIndexView",  playThymeleafContextFactory.create(request));
+          return ok(content).as(Http.MimeTypes.HTML);
+        });
+    
   }
 
   @Secure
