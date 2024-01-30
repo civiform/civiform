@@ -1,6 +1,5 @@
 [![ci](https://github.com/civiform/civiform/actions/workflows/push_tests.yaml/badge.svg)](https://github.com/civiform/civiform/actions/workflows/push_tests.yaml)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6008/badge)](https://bestpractices.coreinfrastructure.org/projects/6008)
-[![Seattle Staging Deploy](https://github.com/seattle-civiform/civiform-deploy-tf/actions/workflows/deploy.yml/badge.svg)](https://github.com/seattle-civiform/civiform-deploy-tf/actions/workflows/deploy.yml)
 [![AWS Staging Deploy](https://github.com/civiform/civiform-staging-deploy/actions/workflows/aws_deploy.yaml/badge.svg?branch=main)](https://github.com/civiform/civiform-staging-deploy/actions/workflows/aws_deploy.yaml)
 ![codecov.io](https://codecov.io/github/civiform/civiform/coverage.svg?branch=main)
 [![Code Style: Google](https://img.shields.io/badge/code%20style-google-blueviolet.svg)](https://google.github.io/styleguide/)
