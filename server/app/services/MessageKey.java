@@ -25,7 +25,7 @@ public enum MessageKey {
   BANNER_ERROR_SAVING_APPLICATION("banner.errorSavingApplication"),
   BANNER_CLIENT_INFO_UPDATED("banner.clientInfoUpdated"),
   BANNER_CLIENT_ACCT_DELETED("banner.clientAcctDeleted"),
-  BANNER_ACCT_DELETE_ERROR("acctDeleteError"),
+  BANNER_ACCT_DELETE_ERROR("banner.acctDeleteError"),
   BANNER_GOV_WEBSITE_SECTION_HEADER("banner.govWebsiteSectionHeader"),
   BANNER_GOV_WEBSITE_SECTION_CONTENT("banner.govWebsiteSectionContent"),
   BANNER_HTTPS_SECTION_HEADER("banner.httpsSectionHeader"),
