@@ -77,7 +77,7 @@ public final class NorthStarApplicantProgramsController extends CiviFormControll
         v -> {
           ThymeleafModule.PlayThymeleafContext context = buildContext(request);
           Content prerenderedJ2Html = iconsView.render(request);
-          context.setVariable("prerenderedSubview", prerenderedJ2Html);
+          context.setVariable("prerenderedSubview", prerenderedJ2Html.body());
 
           String content =
               templateEngine.process(

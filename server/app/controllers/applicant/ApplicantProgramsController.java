@@ -14,7 +14,9 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
+import modules.ThymeleafModule;
 import org.pac4j.play.java.Secure;
+import org.thymeleaf.TemplateEngine;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
@@ -30,6 +32,7 @@ import services.settings.SettingsManifest;
 import views.applicant.ApplicantProgramInfoView;
 import views.applicant.ProgramIndexView;
 import views.components.ToastMessage;
+import play.mvc.Http;
 
 /**
  * Controller for handling methods for an applicant applying to programs. CAUTION: you must
@@ -46,6 +49,8 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final SettingsManifest settingsManifest;
   private final ProgramSlugHandler programSlugHandler;
   private final ApplicantRoutes applicantRoutes;
+  private final TemplateEngine templateEngine;
+  private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
 
   @Inject
   public ApplicantProgramsController(
@@ -58,7 +63,9 @@ public final class ApplicantProgramsController extends CiviFormController {
       VersionRepository versionRepository,
       SettingsManifest settingsManifest,
       ProgramSlugHandler programSlugHandler,
-      ApplicantRoutes applicantRoutes) {
+      ApplicantRoutes applicantRoutes,
+      TemplateEngine templateEngine,
+      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory) {
     super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
@@ -68,6 +75,8 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programSlugHandler = checkNotNull(programSlugHandler);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.templateEngine = checkNotNull(templateEngine);
+    this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
   }
 
   @Secure
@@ -90,19 +99,24 @@ public final class ApplicantProgramsController extends CiviFormController {
             httpContext.current())
         .thenApplyAsync(
             applicationPrograms -> {
-              return ok(programIndexView.render(
-                      messagesApi.preferred(request),
-                      request,
-                      applicantId,
-                      applicantStage.toCompletableFuture().join(),
-                      applicationPrograms,
-                      banner,
-                      requesterProfile.orElseThrow(
-                          () -> new MissingOptionalException(CiviFormProfile.class))))
-                  // If the user has been to the index page, any existing redirects should be
-                  // cleared to avoid an experience where they're unexpectedly redirected after
-                  // logging in.
-                  .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
+              ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
+              // context.setVariable("tailwindStylesheet", assetsFinder.path("stylesheets/tailwind.css"));
+              // context.setVariable("adminJsBundle", assetsFinder.path("dist/admin.bundle.js"));
+              // context.setVariable("ApiDocsController", controllers.api.routes.ApiDocsController);
+              context.setVariable("prerenderedSubview", programIndexView.render(
+                messagesApi.preferred(request),
+                request,
+                applicantId,
+                applicantStage.toCompletableFuture().join(),
+                applicationPrograms,
+                banner,
+                requesterProfile.orElseThrow(
+                    () -> new MissingOptionalException(CiviFormProfile.class))).body());
+    
+              String content =
+                  templateEngine.process(
+                      "applicant/ProgramIndexView", context);
+              return ok(content).as(Http.MimeTypes.HTML);
             },
             httpContext.current())
         .exceptionally(
