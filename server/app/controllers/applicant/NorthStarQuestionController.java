@@ -13,6 +13,7 @@ import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
+import java.util.List;
 
 /** Controller for rendering inputs for questions. */
 public final class NorthStarQuestionController extends CiviFormController {
@@ -37,16 +38,20 @@ public final class NorthStarQuestionController extends CiviFormController {
       String id,
       String name,
       String ariaDescribedByIds,
+      String ariaLabel,
       String value,
       boolean required,
-      boolean autofocus) {
+      boolean autofocus,
+      List<String> errors) {
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
     context.setVariable("id", id);
     context.setVariable("name", name);
     context.setVariable("ariaDescribedByIds", ariaDescribedByIds);
+    context.setVariable("ariaLabel", ariaLabel);
     context.setVariable("value", value);
     context.setVariable("required", required);
     context.setVariable("autofocus", autofocus);
+    context.setVariable("errors", errors);
     String content =
         templateEngine.process(
             "questiontypes/EmailQuestion", ImmutableSet.of("email-question"), context);

@@ -33,10 +33,12 @@ public class EmailQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
     EmailQuestion emailQuestion = applicantQuestion.createEmailQuestion();
-    FieldWithLabel emailField =
-        FieldWithLabel.email()
-            .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader());
 
+    ImmutableList<String> errors =
+        validationErrors.getOrDefault(emailQuestion.getEmailPath(), ImmutableSet.of()).stream()
+            .map((ValidationErrorMessage vem) -> vem.getMessage(params.messages()))
+            .collect(ImmutableList.toImmutableList());
+    FieldWithLabel emailField = FieldWithLabel.email();
     DivTag thymeleafContent =
         div()
             .attr("hx-swap", "outerHTML")
@@ -46,9 +48,11 @@ public class EmailQuestionRenderer extends ApplicantSingleQuestionRenderer {
                     emailField.getId(),
                     emailQuestion.getEmailPath().toString(),
                     StringUtils.join(ariaDescribedByIds, " "),
+                    applicantQuestion.getQuestionTextForScreenReader(),
                     emailQuestion.getEmailValue().orElse(""),
                     !isOptional,
-                    params.autofocusSingleField()))
+                    params.autofocusSingleField(),
+                    errors))
             .attr("hx-trigger", "load");
     return thymeleafContent;
 
@@ -61,7 +65,5 @@ public class EmailQuestionRenderer extends ApplicantSingleQuestionRenderer {
     // if (!validationErrors.isEmpty()) {
     //   emailField.forceAriaInvalid();
     // }
-
-    // return emailField.getEmailTag();
   }
 }
