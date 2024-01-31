@@ -230,7 +230,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     DynamicForm form = formFactory.form().bindFromRequest(request);
     String selectedAddress = form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME);
     Optional<String> maybeAddressJson = request.session().get(ADDRESS_JSON_SESSION_KEY);
-
+    System.out.println("#confirmAddress. selected= " + selectedAddress);
     ImmutableList<AddressSuggestion> suggestions =
         addressSuggestionJsonSerializer.deserialize(
             maybeAddressJson.orElseThrow(() -> new RuntimeException("Address JSON missing")));

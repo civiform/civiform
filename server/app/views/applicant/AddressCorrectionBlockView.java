@@ -10,6 +10,7 @@ import static j2html.TagCreator.label;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.ApplicantRoutes;
+import controllers.applicant.NextApplicantAction;
 import j2html.TagCreator;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
@@ -98,20 +99,10 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
       Address addressAsEntered,
       ImmutableList<AddressSuggestion> suggestions,
       Boolean isEligibilityEnabled) {
-    String formAction =
-        applicantRoutes
-            .confirmAddress(
-                params.profile(),
-                params.applicantId(),
-                params.programId(),
-                params.block().getId(),
-                params.nextAction())
-            .url();
-
     FormTag form =
         form()
             .withId(BLOCK_FORM_ID)
-            .withAction(formAction)
+            .withAction(getFormAction(params, /* nextAction= */ params.nextAction()))
             .withMethod(Http.HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(params.request()));
     MessageKey title =
@@ -157,6 +148,17 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
     form.with(renderBottomNavButtons(params));
 
     return form;
+  }
+
+  private String getFormAction(Params params, NextApplicantAction nextAction) {
+    return applicantRoutes
+        .confirmAddress(
+            params.profile(),
+            params.applicantId(),
+            params.programId(),
+            params.block().getId(),
+            nextAction)
+        .url();
   }
 
   private DivTag renderAsEnteredHeading(
@@ -253,7 +255,9 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   private DivTag renderBottomNavButtons(Params params) {
     return div()
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-        .with(renderReviewButton(settingsManifest, params))
+        .with(
+            renderReviewButton(
+                settingsManifest, params, getFormAction(params, NextApplicantAction.REVIEW_PAGE)))
         .with(renderPreviousButton(params))
         .with(renderNextButton(params));
   }

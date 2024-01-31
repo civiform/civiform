@@ -31,17 +31,22 @@ public class ApplicationBaseView extends BaseHtmlView {
 
   protected DomContent renderReviewButton(
       SettingsManifest settingsManifest, ApplicationBaseView.Params params) {
+    String formAction =
+        params
+            .applicantRoutes()
+            .updateBlock(
+                params.profile(),
+                params.applicantId(),
+                params.programId(),
+                params.block().getId(),
+                NextApplicantAction.REVIEW_PAGE)
+            .url();
+    return renderReviewButton(settingsManifest, params, formAction);
+  }
+
+  protected DomContent renderReviewButton(
+      SettingsManifest settingsManifest, ApplicationBaseView.Params params, String formAction) {
     if (settingsManifest.getSaveOnAllActions(params.request())) {
-      String formAction =
-          params
-              .applicantRoutes()
-              .updateBlock(
-                  params.profile(),
-                  params.applicantId(),
-                  params.programId(),
-                  params.block().getId(),
-                  NextApplicantAction.REVIEW_PAGE)
-              .url();
       return submitButton(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
           .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
           .withFormaction(formAction);
