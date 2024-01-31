@@ -15,6 +15,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import views.FileUploadViewStrategy;
+import play.i18n.Messages;
 
 /** A helper class for constructing type-specific applicant question renderers. */
 public final class ApplicantQuestionRendererFactory {
@@ -35,7 +36,15 @@ public final class ApplicantQuestionRendererFactory {
     return getRenderer(applicantQuestion);
   }
 
-  public ApplicantQuestionRenderer getRenderer(ApplicantQuestion question) {
+  public ApplicantQuestionRenderer getRendererWithMessages(ApplicantQuestion question, Messages messages) {
+    if (question.getType() == QuestionType.STATIC) {
+      return new StaticContentQuestionRenderer(question, messages);
+    } else {
+      return getRenderer(question);
+    }
+  }
+
+  private ApplicantQuestionRenderer getRenderer(ApplicantQuestion question) {
     switch (question.getType()) {
       case ADDRESS:
         return new AddressQuestionRenderer(question);
@@ -61,8 +70,6 @@ public final class ApplicantQuestionRendererFactory {
         return new RadioButtonQuestionRenderer(question);
       case ENUMERATOR:
         return new EnumeratorQuestionRenderer(question);
-      case STATIC:
-        return new StaticContentQuestionRenderer(question);
       case TEXT:
         return new TextQuestionRenderer(question);
       case PHONE:

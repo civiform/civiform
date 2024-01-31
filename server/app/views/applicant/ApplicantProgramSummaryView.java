@@ -164,7 +164,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         div(div()
                 .with(
                     TextFormatter.formatText(
-                        data.questionText(), true, !data.applicantQuestion().isOptional()))
+                        data.questionText(), true, !data.applicantQuestion().isOptional(), messages))
                 .withClasses("font-semibold"))
             .withClasses("pr-2");
 

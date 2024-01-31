@@ -67,7 +67,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
             .asAnchorText()
             .attr(
                 "aria-label",
-                messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase(Locale.ROOT));
+                messages.at(MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName()).toLowerCase(Locale.ROOT));
     UlTag listTag = ul().withClasses("list-disc", "mx-8");
     roApplicantProgramService
         .getIneligibleQuestions()

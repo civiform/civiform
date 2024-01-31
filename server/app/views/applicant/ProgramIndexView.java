@@ -426,7 +426,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         TextFormatter.formatText(
             program.localizedDescription().getOrDefault(preferredLocale),
             /*preserveEmptyLines= */ false,
-            /*addRequiredIndicator= */ false);
+            /*addRequiredIndicator= */ false, messages);
     DivTag description =
         div()
             .withId(baseId + "-description")

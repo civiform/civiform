@@ -1,5 +1,8 @@
 package views.components;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+
 import static j2html.TagCreator.rawHtml;
 
 import com.google.common.base.Splitter;
@@ -7,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import j2html.tags.DomContent;
 import java.util.List;
+import java.util.Locale;
 import java.util.Arrays;
 import org.owasp.html.HtmlChangeListener;
 import org.owasp.html.HtmlPolicyBuilder;
@@ -17,6 +21,12 @@ import org.slf4j.LoggerFactory;
 import views.CiviFormMarkdown;
 import views.ViewUtils;
 import play.i18n.Messages;
+import play.i18n.MessagesApi;
+import play.mvc.Http;
+import services.MessageKey;
+import javax.inject.Inject;
+
+
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -24,21 +34,31 @@ import org.apache.commons.lang3.StringUtils;
 public final class TextFormatter {
 
   private static final Logger logger = LoggerFactory.getLogger(TextFormatter.class);
-
   private static final CiviFormMarkdown CIVIFORM_MARKDOWN = new CiviFormMarkdown();
+
+  public static ImmutableList<DomContent> formatText(String text, boolean preserveEmptyLines, boolean addRequiredIndicator, Messages messages) {
+    // do the messages thing here
+    // call the other method
+
+
+    CIVIFORM_MARKDOWN.setAriaLabel(messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT));
+
+    return formatText(text, preserveEmptyLines, addRequiredIndicator);
+  }
 
   /** Passes provided text through Markdown formatter. */
   public static ImmutableList<DomContent> formatText(
-      String text, boolean preserveEmptyLines, boolean addRequiredIndicator, Messages messages) {
+      String text, boolean preserveEmptyLines, boolean addRequiredIndicator) {
 
     ImmutableList.Builder<DomContent> builder = new ImmutableList.Builder<DomContent>();
 
     if (preserveEmptyLines) {
       text = preserveEmptyLines(text);
     }
+    
     String markdownText = CIVIFORM_MARKDOWN.render(text); // pass in request here
     markdownText = addIconToLinks(markdownText);
-    markdownText = addAriaLabelsToLinks(markdownText, messages);
+    // markdownText = addAriaLabelsToLinks(markdownText, messages);
     markdownText = addTextSize(markdownText);
     if (addRequiredIndicator) {
       markdownText = addRequiredIndicator(markdownText);

@@ -138,7 +138,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
         each(
             params.block().getQuestions(),
             question ->
-                applicantQuestionRendererFactory.getRenderer(question).render(rendererParams)));
+                applicantQuestionRendererFactory.getRendererWithMessages(question, params.messages()).render(rendererParams)));
 
     DivTag skipForms = renderDeleteAndContinueFileUploadForms(params);
     DivTag buttons = renderFileUploadBottomNavButtons(params);
