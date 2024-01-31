@@ -259,6 +259,7 @@ public final class ApplicantRoutes {
       long programId,
       String blockId,
       NextApplicantAction nextAction) {
+    System.out.println("#updateBlock");
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.updateWithApplicantId(
           applicantId, programId, blockId, nextAction.name());

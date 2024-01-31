@@ -26,8 +26,6 @@ import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.BaseStyles;
 
 public class ApplicationBaseView extends BaseHtmlView {
-  final String REVIEW_APPLICATION_BUTTON_ID = "review-application-button";
-
   protected ButtonTag renderReviewButton(
       ApplicantRoutes applicantRoutes, ApplicationBaseView.Params params) {
     String formAction =

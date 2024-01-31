@@ -626,9 +626,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               if (nextActionEnum == NextApplicantAction.REVIEW_PAGE
                   && !updateResponse.answersChanged()) {
                 // If the applicant wants to return to the review page and hasn't changed any
-                // answers, allow them
-                // to do so, regardless of if there's errors (like unfilled in required questions)
-                // or not.
+                // answers, allow them to do so, regardless of if there's errors (like empty
+                // required questions) or not.
                 return supplyAsync(
                     () -> redirect(applicantRoutes.review(profile, applicantId, programId).url()));
               }

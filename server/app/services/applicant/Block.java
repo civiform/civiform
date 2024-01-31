@@ -292,7 +292,7 @@ public final class Block {
     return false;
   }
 
-  /** TODO */
+  /** Returns true if this block has all the same questions with all the same answers as the other block and false otherwise. */
   public boolean hasEqualAnswers(Block other) {
     if (!this.id.equals(other.id)) {
       return false;
@@ -314,10 +314,9 @@ public final class Block {
       return false;
     }
 
-    // TODO: Can we assume the questions will be in the same order? Maybe yes because the block
-    // definition has to be the same?
+    // This assumes that the questions in the two lists will be in the same order.
     for (int i = 0; i < thisQuestions.size(); i++) {
-      if (thisQuestions.get(i).hasEqualAnswers(otherQuestions.get(i))) {
+      if (!thisQuestions.get(i).hasEqualAnswers(otherQuestions.get(i))) {
         return false;
       }
     }
