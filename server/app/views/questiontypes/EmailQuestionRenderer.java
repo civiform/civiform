@@ -1,16 +1,18 @@
 package views.questiontypes;
 
+import static j2html.TagCreator.div;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
-import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.EmailQuestion;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
+import org.apache.commons.lang3.StringUtils;
 
 /** Renders an email question. */
 public class EmailQuestionRenderer extends ApplicantSingleQuestionRenderer {
@@ -31,28 +33,39 @@ public class EmailQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
     EmailQuestion emailQuestion = applicantQuestion.createEmailQuestion();
+    FieldWithLabel emailField = FieldWithLabel.email().setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader());
 
-    FieldWithLabel emailField =
-        FieldWithLabel.email()
-            .setFieldName(emailQuestion.getEmailPath().toString())
-            .setAutocomplete(Optional.of("email"))
-            .setValue(emailQuestion.getEmailValue().orElse(""))
-            .setAttribute("inputmode", "email")
-            .setAriaRequired(!isOptional)
-            .setFieldErrors(
-                params.messages(),
-                validationErrors.getOrDefault(emailQuestion.getEmailPath(), ImmutableSet.of()))
-            .setAriaDescribedByIds(ariaDescribedByIds)
-            .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader());
+    DivTag thymeleafContent =
+        div()
+            .attr("hx-swap", "outerHTML")
+            .attr(
+                "hx-get",
+                controllers.applicant.routes.NorthStarQuestionController.emailQuestion(
+                    emailField.getId(), emailQuestion.getEmailPath().toString(), StringUtils.join(ariaDescribedByIds, " ")))
+            .attr("hx-trigger", "load");
+    return thymeleafContent;
 
-    if (params.autofocusSingleField()) {
-      emailField.focusOnInput();
-    }
+    // FieldWithLabel emailField =
+    //     FieldWithLabel.email()
+    //         .setFieldName(emailQuestion.getEmailPath().toString())
+    //         .setAutocomplete(Optional.of("email"))
+    //         .setValue(emailQuestion.getEmailValue().orElse(""))
+    //         .setAttribute("inputmode", "email")
+    //         .setAriaRequired(!isOptional)
+    //         .setFieldErrors(
+    //             params.messages(),
+    //             validationErrors.getOrDefault(emailQuestion.getEmailPath(), ImmutableSet.of()))
+    //         .setAriaDescribedByIds(ariaDescribedByIds)
+    //         .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader());
 
-    if (!validationErrors.isEmpty()) {
-      emailField.forceAriaInvalid();
-    }
+    // if (params.autofocusSingleField()) {
+    //   emailField.focusOnInput();
+    // }
 
-    return emailField.getEmailTag();
+    // if (!validationErrors.isEmpty()) {
+    //   emailField.forceAriaInvalid();
+    // }
+
+    // return emailField.getEmailTag();
   }
 }

@@ -164,6 +164,9 @@ GET     /programs/:programId/blocks/:previousBlockIndex/previous/:inReview     c
 GET     /programs/:programId/blocks/:blockId/updateFile/:inReview      controllers.applicant.ApplicantProgramBlocksController.updateFile(request: Request, programId: Long, blockId: String, inReview: Boolean)
 POST    /programs/:programId/blocks/:blockId/:inReview                 controllers.applicant.ApplicantProgramBlocksController.update(request: Request, programId: Long, blockId: String, inReview: Boolean)
 
+# Routes for Thymeleaf componenets rendered within J2Html
+GET     /emailQuestion                   controllers.applicant.NorthStarQuestionController.emailQuestion(request: Request, id: String, name: String, ariaDescribedByIds: String)
+
 # This route is special. It may specify a program by id or by program
 # slug. Since Play doesn't allow overloaded controller methods, accept
 # the path parameter as a string and decide how to handle it in the

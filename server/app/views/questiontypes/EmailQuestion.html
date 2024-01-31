@@ -1,0 +1,8 @@
+<div th:fragment="email-question" class="flex flex-col">
+  <input th:id="${id}" th:name="${name}"
+         type="email" inputmode="email" autocomplete="email"
+         value="" maxlength="10000"
+         aria-required="true" th:aria-describedby="${ariaDescribedByIds}"
+         class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-seattle-blue placeholder-gray-500"
+         autofocus>
+</div>

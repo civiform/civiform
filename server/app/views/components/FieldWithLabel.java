@@ -400,6 +400,11 @@ public class FieldWithLabel {
     return this.fieldType;
   }
 
+  public String getId() {
+    genRandIdIfEmpty();
+    return this.id;
+  }
+
   /** Internal getters for final tag generation * */
   private InputTag nonNumberGenTagApplyAttrs() {
     InputTag inputFieldTag = TagCreator.input();
