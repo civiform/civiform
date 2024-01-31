@@ -292,7 +292,10 @@ public final class Block {
     return false;
   }
 
-  /** Returns true if this block has all the same questions with all the same answers as the other block and false otherwise. */
+  /**
+   * Returns true if this block has all the same questions with all the same answers as the other
+   * block and false otherwise.
+   */
   public boolean hasEqualAnswers(Block other) {
     if (!this.id.equals(other.id)) {
       return false;

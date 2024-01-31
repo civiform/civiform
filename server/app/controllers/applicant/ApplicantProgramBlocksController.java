@@ -583,14 +583,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *
    * <p>Returns the applicable next step in the flow:
    *
-   * <p>TODO: Update this
-   *
    * <ul>
+   *   <li>If no changes were made and the next action is review, the program review page is shown.
    *   <li>If there are errors renders the edit page for the same block with the errors.
-   *   <li>If {@code inReview} then the next incomplete block is shown.
-   *   <li>If not {@code inReview} the next visible block is shown.
-   *   <li>If there is no next block the program review page is shown.
+   *   <li>Otherwise, use {@code nextAction} to determine where to take the user next. If there is
+   *       no next block the program review page is shown.
    * </ul>
+   *
+   * @param nextAction should match a name in the {@link NextApplicantAction} enum.
    */
   @Secure
   public CompletionStage<Result> updateWithApplicantId(
@@ -623,7 +623,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenComposeAsync(
             updateResponse -> {
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
-              if (nextActionEnum == NextApplicantAction.REVIEW_PAGE
+              if (settingsManifest.getSaveOnAllActions(request)
+                  && nextActionEnum == NextApplicantAction.REVIEW_PAGE
                   && !updateResponse.answersChanged()) {
                 // If the applicant wants to return to the review page and hasn't changed any
                 // answers, allow them to do so, regardless of if there's errors (like empty

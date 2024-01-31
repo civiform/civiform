@@ -9,8 +9,8 @@ import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import controllers.applicant.ApplicantRoutes;
 import controllers.applicant.NextApplicantAction;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
-import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.PTag;
 import j2html.tags.specialized.SpanTag;
 import java.util.Optional;
@@ -20,26 +20,46 @@ import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
 import services.cloud.ApplicantStorageClient;
+import services.settings.SettingsManifest;
 import views.components.ButtonStyles;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.BaseStyles;
 
 public class ApplicationBaseView extends BaseHtmlView {
-  protected ButtonTag renderReviewButton(
-      ApplicantRoutes applicantRoutes, ApplicationBaseView.Params params) {
-    String formAction =
-        applicantRoutes
-            .updateBlock(
-                params.profile(),
-                params.applicantId(),
-                params.programId(),
-                params.block().getId(),
-                NextApplicantAction.REVIEW_PAGE)
+  final String REVIEW_APPLICATION_BUTTON_ID = "review-application-button";
+
+  protected DomContent renderReviewButton(
+      SettingsManifest settingsManifest, ApplicationBaseView.Params params) {
+    if (settingsManifest.getSaveOnAllActions(params.request())) {
+      String formAction =
+          params
+              .applicantRoutes()
+              .updateBlock(
+                  params.profile(),
+                  params.applicantId(),
+                  params.programId(),
+                  params.block().getId(),
+                  NextApplicantAction.REVIEW_PAGE)
+              .url();
+      return submitButton(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
+          .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
+          .withFormaction(formAction);
+    }
+
+    return renderOldReviewButton(params);
+  }
+
+  protected ATag renderOldReviewButton(ApplicationBaseView.Params params) {
+    String reviewUrl =
+        params
+            .applicantRoutes()
+            .review(params.profile(), params.applicantId(), params.programId())
             .url();
-    return submitButton(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
-        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
-        .withFormaction(formAction);
+    return a().withHref(reviewUrl)
+        .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
+        .withId(REVIEW_APPLICATION_BUTTON_ID)
+        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT);
   }
 
   protected ATag renderPreviousButton(ApplicationBaseView.Params params) {

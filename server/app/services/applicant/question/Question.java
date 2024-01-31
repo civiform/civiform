@@ -126,7 +126,10 @@ public abstract class Question {
     return applicantQuestion;
   }
 
-  /** Returns true if this question has the same answer for every path as the other question and false otherwise. */
+  /**
+   * Returns true if this question has the same answer for every path as the other question and
+   * false otherwise.
+   */
   public boolean hasEqualAnswers(Question other) {
     if (!getAllPaths().equals(other.getAllPaths())) {
       return false;
@@ -137,7 +140,6 @@ public abstract class Question {
           .getApplicantData()
           .readAsString(path)
           .equals(other.getApplicantQuestion().getApplicantData().readAsString(path))) {
-
         return false;
       }
     }

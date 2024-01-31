@@ -175,7 +175,8 @@ public final class ApplicantRoutes {
    * @param applicantId - ID of applicant for whom the action should be performed.
    * @param programId - ID of program to review
    * @param blockId - ID of the block containing the address
-   * @param nextAction - TODO
+   * @param nextAction - the next action the applicant would like to take. Should match a name in
+   *     the {@link NextApplicantAction} enum.
    * @return Route for the applicant confirm address action
    */
   public Call confirmAddress(
@@ -200,7 +201,8 @@ public final class ApplicantRoutes {
    * @param applicantId - ID of applicant for whom the action should be performed.
    * @param programId - ID of program to review
    * @param previousBlockIndex - index of the previous block
-   * @param nextAction - TODO
+   * @param nextAction - the next action the applicant would like to take. Should match a name in
+   *     the {@link NextApplicantAction} enum.
    * @return Route for the applicant previous block action
    */
   public Call blockPrevious(
@@ -225,7 +227,8 @@ public final class ApplicantRoutes {
    * @param applicantId - ID of applicant for whom the action should be performed.
    * @param programId - ID of program to review
    * @param blockId - ID of the block containing file upload question
-   * @param nextAction - TODO
+   * @param nextAction - the next action the applicant would like to take. Should match a name in
+   *     the {@link NextApplicantAction} enum.
    * @return Route for the applicant update file action
    */
   public Call updateFile(
@@ -250,7 +253,8 @@ public final class ApplicantRoutes {
    * @param applicantId - ID of applicant for whom the action should be performed.
    * @param programId - ID of program to review
    * @param blockId - ID of the block to be updated
-   * @param nextAction - the next action the applicant would like to take
+   * @param nextAction - the next action the applicant would like to take. Should match a name in
+   *     the {@link NextApplicantAction} enum.
    * @return Route for the applicant update block action
    */
   public Call updateBlock(
@@ -259,7 +263,6 @@ public final class ApplicantRoutes {
       long programId,
       String blockId,
       NextApplicantAction nextAction) {
-    System.out.println("#updateBlock");
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.updateWithApplicantId(
           applicantId, programId, blockId, nextAction.name());

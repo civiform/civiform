@@ -1,7 +1,6 @@
 import {assertNotNull} from './util'
 
 const UPLOAD_ATTR = 'data-upload-text'
-const REVIEW_BUTTON_ID = 'review-application-button';
 
 export function init() {
   // Prevent attempting to submit a file upload form

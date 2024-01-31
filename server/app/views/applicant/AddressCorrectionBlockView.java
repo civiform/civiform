@@ -28,6 +28,7 @@ import services.Address;
 import services.MessageKey;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
+import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
@@ -46,11 +47,14 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   public static final String SELECTED_ADDRESS_NAME = "selectedAddress";
   private final ApplicantLayout layout;
   private final ApplicantRoutes applicantRoutes;
+  private final SettingsManifest settingsManifest;
 
   @Inject
-  AddressCorrectionBlockView(ApplicantLayout layout, ApplicantRoutes applicantRoutes) {
+  AddressCorrectionBlockView(
+      ApplicantLayout layout, ApplicantRoutes applicantRoutes, SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layout);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -249,7 +253,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   private DivTag renderBottomNavButtons(Params params) {
     return div()
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-        .with(renderReviewButton(applicantRoutes, params))
+        .with(renderReviewButton(settingsManifest, params))
         .with(renderPreviousButton(params))
         .with(renderNextButton(params));
   }

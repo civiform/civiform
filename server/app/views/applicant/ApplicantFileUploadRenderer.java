@@ -1,7 +1,6 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -12,7 +11,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.ApplicantRoutes;
 import j2html.TagCreator;
-import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -310,7 +308,12 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     DivTag ret =
         div()
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-            .with(renderReviewButtonForFileUpload(params))
+            // TODO(#6450): Adjust file upload to have the new review button behavior. It's not
+            // immediately doable
+            //  because file_upload.ts will prevent form submissions if there's no file uploaded,
+            // and we sometimes
+            //  (but not always) want to bypass that for the Review button.
+            .with(renderOldReviewButton(params))
             .with(renderPreviousButton(params));
     if (maybeSkipOrDeleteButton.isPresent()) {
       ret.with(maybeSkipOrDeleteButton.get());
@@ -320,18 +323,5 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
       ret.with(maybeContinueButton.get());
     }
     return ret;
-  }
-
-  // TODO(#6450): This Review button currently has the *old* review behavior, which wouldn't save any answers when clicked.
-  // We should adjust it to have the new review button behavior.
-  // It's not immediately doable because file_upload.ts will prevent form submissions if there's no file uploaded, but
-  // we sometimes (but not always) want to bypass that for the Review button.
-  private ATag renderReviewButtonForFileUpload(ApplicationBaseView.Params params) {
-    ApplicantRoutes applicantRoutes = params.applicantRoutes();
-    String reviewUrl =
-            applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
-    return a().withHref(reviewUrl)
-            .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
-            .withClasses(ButtonStyles.OUTLINED_TRANSPARENT);
   }
 }
