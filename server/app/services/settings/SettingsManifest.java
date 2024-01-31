@@ -1865,7 +1865,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " finishing an application.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                  SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "SAVE_ON_ALL_ACTIONS",
                       "(NOT FOR PRODUCTION USE) Save an applicant's answers when they take any"
