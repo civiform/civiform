@@ -20,6 +20,9 @@ import repository.VersionRepository;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.settings.SettingsManifest;
+import views.components.ToastMessage;
+import com.google.common.collect.ImmutableSet;
+import controllers.AssetsFinder;
 
 /**
  * Controller for handling methods for an applicant applying to programs. CAUTION: you must
@@ -33,6 +36,7 @@ public final class NorthStarApplicantProgramsController extends CiviFormControll
   private final TemplateEngine templateEngine;
   private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
   private final AssetsFinder assetsFinder;
+  private final IconsView iconsView;
 
   @Inject
   public NorthStarApplicantProgramsController(
@@ -42,13 +46,15 @@ public final class NorthStarApplicantProgramsController extends CiviFormControll
       VersionRepository versionRepository,
       SettingsManifest settingsManifest,
       TemplateEngine templateEngine,
-      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory) {
+      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
+      IconsView iconsView) {
     super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
     this.assetsFinder = checkNotNull(assetsFinder);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.templateEngine = checkNotNull(templateEngine);
     this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
+    this.iconsView = checkNotNull(iconsView);
   }
 
   @Secure
@@ -69,8 +75,13 @@ public final class NorthStarApplicantProgramsController extends CiviFormControll
 
     return applicantStage.thenApplyAsync(
         v -> {
+          ThymeleafModule.PlayThymeleafContext context = buildContext(request);
+          Content prerenderedJ2Html = iconsView.render(request);
+          context.setVariable("prerenderedSubview", prerenderedJ2Html);
+
           String content =
-              templateEngine.process("applicant/ProgramIndexView", buildContext(request));
+              templateEngine.process(
+                  "applicant/ProgramIndexView", context);
           return ok(content).as(Http.MimeTypes.HTML);
         });
   }
