@@ -322,7 +322,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void updateDescription_redirectIncludesSameReferer() {
+  public void updateDescription_redirectIncludesSameEditStatus() {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
 
     Result result =
@@ -504,7 +504,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void updateFileKey_redirectIncludesSameReferer() throws ProgramNotFoundException {
+  public void updateFileKey_redirectIncludesSameEditStatus() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
 
     Result result =
@@ -590,7 +590,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void deleteFileKey_redirectIncludesSameReferer() throws ProgramNotFoundException {
+  public void deleteFileKey_redirectIncludesSameEditStatus() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
 
     Result result =
