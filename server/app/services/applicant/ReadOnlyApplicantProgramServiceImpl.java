@@ -281,11 +281,19 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
+  public ImmutableList<AnswerData> getSummaryDataAllQuestions() {
+    ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
+    ImmutableList<Block> blocks = getBlocks((block) -> true);
+    addDataToBuilder(blocks, builder, /* showAnswerText */ true);
+    return builder.build();
+  }
+
+  @Override
   public ImmutableList<AnswerData> getSummaryDataOnlyActive() {
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> activeBlocks = getAllActiveBlocks();
-    addDataToBuilder(activeBlocks, builder, /* hiddenBlocks= */ false);
+    addDataToBuilder(activeBlocks, builder, /* showAnswerText= */ true);
     return builder.build();
   }
 
@@ -294,7 +302,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> hiddenBlocks = getAllHiddenBlocks();
-    addDataToBuilder(hiddenBlocks, builder, /* hiddenBlocks= */ true);
+    addDataToBuilder(hiddenBlocks, builder, /* showAnswerText= */ false);
     return builder.build();
   }
 
@@ -302,11 +310,16 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
    * Helper method for {@link ReadOnlyApplicantProgramServiceImpl#getSummaryDataOnlyActive()} and
    * {@link ReadOnlyApplicantProgramServiceImpl#getSummaryDataOnlyHidden()}. Adds {@link AnswerData}
    * data to {@link ImmutableList.Builder<AnswerData>}.
+   *
+   * @param blocks the blocks to add to the builder
+   * @param builder the builder to add the blocks to
+   * @param showAnswerText whether to include the answer text in the result. If {@code false},
+   *     answers are replaced with "N/A".
    */
   private void addDataToBuilder(
       ImmutableList<Block> blocks,
       ImmutableList.Builder<AnswerData> builder,
-      boolean hiddenBlocks) {
+      boolean showAnswerText) {
     for (Block block : blocks) {
       ImmutableList<ApplicantQuestion> questions = block.getQuestions();
       for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
@@ -320,7 +333,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         String questionText = applicantQuestion.getQuestionText();
         String questionTextForScreenReader = applicantQuestion.getQuestionTextForScreenReader();
         String answerText =
-            hiddenBlocks ? NOT_APPLICABLE : applicantQuestion.getQuestion().getAnswerString();
+            showAnswerText ? applicantQuestion.getQuestion().getAnswerString() : NOT_APPLICABLE;
         Optional<Long> timestamp = applicantQuestion.getLastUpdatedTimeMetadata();
         Optional<Long> updatedProgram = applicantQuestion.getUpdatedInProgramMetadata();
         Optional<String> originalFileName = Optional.empty();
