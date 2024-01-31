@@ -157,7 +157,12 @@ public final class ProgramImageView extends BaseHtmlView {
         break;
       case CREATION:
       case CREATION_EDIT:
-        backTarget = routes.AdminProgramController.editInCreationFlow(programDefinition.id()).url();
+        // By the time we're in the image view, the program has been created so the new status is
+        // CREATION_EDIT.
+        backTarget =
+            routes.AdminProgramController.edit(
+                    programDefinition.id(), ProgramEditStatus.CREATION_EDIT.name())
+                .url();
         break;
       default:
         throw new IllegalStateException("All cases should be handled above");

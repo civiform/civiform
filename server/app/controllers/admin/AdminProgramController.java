@@ -156,23 +156,16 @@ public final class AdminProgramController extends CiviFormController {
         request, result.getResult().id(), ProgramEditStatus.CREATION);
   }
 
-  /** Returns an HTML page containing a form to edit a draft program. */
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result edit(Request request, long id) throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(id);
-    requestChecker.throwIfProgramNotDraft(id);
-    return ok(editView.render(request, program, ProgramEditStatus.EDIT));
-  }
-
   /**
-   * Similar to {@link #edit}, but these edits are being performed while an admin is still in the
-   * initial program creation flow.
+   * Returns an HTML page containing a form to edit a draft program.
+   *
+   * @param editStatus should match the name of one of the enums in {@link ProgramEditStatus}.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result editInCreationFlow(Request request, long id) throws ProgramNotFoundException {
+  public Result edit(Request request, long id, String editStatus) throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(id);
     requestChecker.throwIfProgramNotDraft(id);
-    return ok(editView.render(request, program, ProgramEditStatus.CREATION_EDIT));
+    return ok(editView.render(request, program, ProgramEditStatus.getStatusFromString(editStatus)));
   }
 
   /** POST endpoint for publishing all programs in the draft version. */
@@ -229,11 +222,10 @@ public final class AdminProgramController extends CiviFormController {
   /**
    * POST endpoint for updating the program in the draft version.
    *
-   * @param isInCreationFlow true if the admin is making these updates while in the flow of creating
-   *     a new program and false otherwise.
+   * @param editStatus should match the name of one of the enums in {@link ProgramEditStatus}.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result update(Request request, long programId, boolean isInCreationFlow)
+  public Result update(Request request, long programId, String editStatus)
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
     ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
@@ -244,12 +236,7 @@ public final class AdminProgramController extends CiviFormController {
     // option as part of the checkbox display
     while (programData.getTiGroups().remove(null)) {}
 
-    ProgramEditStatus programEditStatus;
-    if (isInCreationFlow) {
-      programEditStatus = ProgramEditStatus.CREATION_EDIT;
-    } else {
-      programEditStatus = ProgramEditStatus.EDIT;
-    }
+    ProgramEditStatus programEditStatus = ProgramEditStatus.getStatusFromString(editStatus);
 
     // Display any errors with the form input to the user.
     ImmutableSet<CiviFormError> validationErrors =

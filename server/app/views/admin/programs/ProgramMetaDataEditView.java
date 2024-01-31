@@ -101,8 +101,6 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
             ? buildProgramForm(request, programForm.get(), programEditStatus)
             : buildProgramForm(request, existingProgram, programEditStatus);
 
-    boolean isInCreationFlow = programEditStatus == ProgramEditStatus.CREATION_EDIT;
-
     HtmlBundle htmlBundle =
         layout
             .getBundle(request)
@@ -115,7 +113,7 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
                             .with(buildManageQuestionLink(existingProgram.id()))
                             .withAction(
                                 controllers.admin.routes.AdminProgramController.update(
-                                        existingProgram.id(), isInCreationFlow)
+                                        existingProgram.id(), programEditStatus.name())
                                     .url()))
                     .withClasses("mx-4", "my-12", "flex", "flex-col"));
     toastMessage.ifPresent(htmlBundle::addToastMessages);

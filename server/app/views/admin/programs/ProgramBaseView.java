@@ -179,7 +179,9 @@ abstract class ProgramBaseView extends BaseHtmlView {
       case EDIT_PROGRAM_DETAILS:
         return asRedirectElement(
             getStandardizedEditButton("Edit program details"),
-            routes.AdminProgramController.edit(programDefinition.id()).url());
+            routes.AdminProgramController.edit(
+                    programDefinition.id(), ProgramEditStatus.EDIT.name())
+                .url());
       case EDIT_PROGRAM_IMAGE:
         return asRedirectElement(
             ViewUtils.makeSvgTextButton("Edit program image", Icons.IMAGE)
