@@ -372,7 +372,7 @@ describe('Trusted intermediaries', () => {
       firstName: 'first1',
       middleName: 'middle',
       lastName: 'last1',
-      dobDate: '2021-07-10',
+      dobDate: '2021-07-07',
     }
     await tiDashboard.createClient(client1)
     const client2: ClientInformation = {
@@ -380,7 +380,7 @@ describe('Trusted intermediaries', () => {
       firstName: 'first2',
       middleName: 'middle',
       lastName: 'last2',
-      dobDate: '2021-11-10',
+      dobDate: '2021-11-07',
     }
     await tiDashboard.createClient(client2)
     const client3: ClientInformation = {
@@ -388,11 +388,18 @@ describe('Trusted intermediaries', () => {
       firstName: 'first3',
       middleName: 'middle',
       lastName: 'last3',
-      dobDate: '2021-12-10',
+      dobDate: '2021-12-07',
     }
     await tiDashboard.createClient(client3)
 
-    await tiDashboard.searchByDateOfBirth('10', '12', '2021')
+    await tiDashboard.searchByDateOfBirth('07', '12', '2021')
+    await waitForPageJsLoad(page)
+    await tiDashboard.expectDashboardContainClient(client3)
+    await tiDashboard.expectDashboardNotContainClient(client1)
+    await tiDashboard.expectDashboardNotContainClient(client2)
+
+    // If the day is a single digit, the search still works
+    await tiDashboard.searchByDateOfBirth('7', '12', '2021')
     await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardContainClient(client3)
     await tiDashboard.expectDashboardNotContainClient(client1)

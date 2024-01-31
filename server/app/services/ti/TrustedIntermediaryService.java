@@ -267,29 +267,19 @@ public final class TrustedIntermediaryService {
 
   private ImmutableList<AccountModel> searchAccounts(
       SearchParameters searchParameters, ImmutableList<AccountModel> allAccounts) {
+    Optional<LocalDate> maybeDOB = validateAndConvertDate(searchParameters);
     return allAccounts.stream()
         .filter(
             account ->
                 ((account.newestApplicant().get().getApplicantData().getDateOfBirth().isPresent()
-                        && searchParameters.dayQuery().isPresent()
-                        && !searchParameters.dayQuery().get().isEmpty()
-                        && searchParameters.monthQuery().isPresent()
-                        && !searchParameters.monthQuery().get().isEmpty()
-                        && searchParameters.yearQuery().isPresent()
-                        && !searchParameters.yearQuery().get().isEmpty()
+                        && maybeDOB.isPresent()
                         && account
                             .newestApplicant()
                             .get()
                             .getApplicantData()
                             .getDateOfBirth()
                             .get()
-                            .equals(
-                                dateConverter.parseIso8601DateToLocalDate(
-                                    searchParameters.yearQuery().get()
-                                        + "-"
-                                        + searchParameters.monthQuery().get()
-                                        + "-"
-                                        + searchParameters.dayQuery().get())))
+                            .equals(maybeDOB.get()))
                     || (searchParameters.nameQuery().isPresent()
                         && !searchParameters.nameQuery().get().isEmpty()
                         && account
@@ -321,5 +311,21 @@ public final class TrustedIntermediaryService {
       areSearchParamsEmptyOrIncomplete = true;
     }
     return areSearchParamsEmptyOrIncomplete;
+  }
+
+  private Optional<LocalDate> validateAndConvertDate(SearchParameters searchParameters) {
+    if (searchParameters.dayQuery().isPresent()
+        && !searchParameters.dayQuery().get().isEmpty()
+        && searchParameters.monthQuery().isPresent()
+        && !searchParameters.monthQuery().get().isEmpty()
+        && searchParameters.yearQuery().isPresent()
+        && !searchParameters.yearQuery().get().isEmpty()) {
+      return Optional.of(
+          dateConverter.parseDayMonthYearToLocalDate(
+              searchParameters.dayQuery().get(),
+              searchParameters.monthQuery().get(),
+              searchParameters.yearQuery().get()));
+    }
+    return Optional.empty();
   }
 }

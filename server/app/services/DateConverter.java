@@ -52,6 +52,16 @@ public final class DateConverter {
     return LocalDate.parse(dateString, DateTimeFormatter.ISO_DATE);
   }
 
+  /**
+   * Parses string day, month and year and converts them to a {@linkLocalDate}
+   *
+   * @throws DateTimeParseException if conjoined date string is not well-formed.
+   */
+  public LocalDate parseDayMonthYearToLocalDate(String day, String month, String year) {
+    day = day.length() == 1 ? "0" + day : day; // The day needs to be 2 digits
+    return parseIso8601DateToLocalDate(year + "-" + month + "-" + day);
+  }
+
   /** Returns the current LocalDate based on the specified time-zone(zoneId) */
   public LocalDate getCurrentDateForZoneId() {
     return LocalDate.now(this.zoneId);
@@ -87,6 +97,7 @@ public final class DateConverter {
     ZonedDateTime dateTime = time.atZone(zoneId);
     return dateTime.format(DATE_TIME_FORMATTER_WITH_SLASH);
   }
+
   /** Formats an {@link LocalDate} to a String. */
   public String formatIso8601Date(LocalDate date) {
     return date.format(DATE_TIME_FORMATTER_WITH_DASH);
