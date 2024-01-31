@@ -92,7 +92,7 @@ public final class NorthStarApplicantProgramsController extends CiviFormControll
   public Result button(Request request) {
     String content =
         templateEngine.process(
-            "applicant/ProgramIndexView", ImmutableSet.of("my-button"), buildContext(request));
+            "applicant/ButtonView", ImmutableSet.of("my-button"), buildContext(request));
     return ok(content).as(Http.MimeTypes.HTML);
   }
 
