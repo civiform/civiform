@@ -863,11 +863,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Enables setting and displaying whether the answer to a universal question can be acted upon by
-   * the system.
+   * Enables setting a universal question as a question representing information about the
+   * applicant. The system can then take certain actions based on the answer to this question.
    */
-  public boolean getApplicantInfoQuestions(RequestHeader request) {
-    return getBool("APPLICANT_INFO_QUESTIONS", request);
+  public boolean getPrimaryApplicantInfoQuestions(RequestHeader request) {
+    return getBool("PRIMARY_APPLICANT_INFO_QUESTIONS", request);
   }
 
   /**
@@ -1837,9 +1837,10 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
-                      "APPLICANT_INFO_QUESTIONS",
-                      "Enables setting and displaying whether the answer to a universal question"
-                          + " can be acted upon by the system.",
+                      "PRIMARY_APPLICANT_INFO_QUESTIONS",
+                      "Enables setting a universal question as a question representing information"
+                          + " about the applicant. The system can then take certain actions based"
+                          + " on the answer to this question.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
