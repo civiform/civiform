@@ -98,7 +98,7 @@ toast.applicationSaved=Successfully saved application: application ID {0}
 toast.programCompleted=Application was already completed.
 
 #------------------------------------------------------------------------#
-# TRUSTED  INTERMEDIARY DASHBOARD PAGE - text when adding a client #
+# TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding a client #
 #------------------------------------------------------------------------#
 
 banner.clientInfoUpdated=Client info has been successfully updated.
