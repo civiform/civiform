@@ -752,6 +752,11 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "Add programs cards to the confirmation screen that an applicant sees after finishing an application.",
         "type": "bool"
+      },
+      "SAVE_ON_ALL_ACTIONS": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Save an applicant's answers when they take any action ('Review'/'Previous'/'Save and next') instead of only saving on 'Save and next'.",
+        "type": "bool"
       }
     }
   }

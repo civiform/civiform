@@ -895,6 +895,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE", request);
   }
 
+  /**
+   * (NOT FOR PRODUCTION USE) Save an applicant's answers when they take any action
+   * ('Review'/'Previous'/'Save and next') instead of only saving on 'Save and next'
+   */
+  public boolean getSaveOnAllActions(RequestHeader request) {
+    return getBool("SAVE_ON_ALL_ACTIONS", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.of(
           "Branding",
@@ -1855,6 +1863,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE",
                       "Add programs cards to the confirmation screen that an applicant sees after"
                           + " finishing an application.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                  SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "SAVE_ON_ALL_ACTIONS",
+                      "(NOT FOR PRODUCTION USE) Save an applicant's answers when they take any"
+                          + " action ('Review'/'Previous'/'Save and next') instead of only saving"
+                          + " on 'Save and next'.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),
