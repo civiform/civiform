@@ -402,7 +402,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-    public void updateDescription_redirectIncludesSameEditStatus() {
+  public void updateDescription_redirectIncludesSameEditStatus() {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
 
     Result result =
