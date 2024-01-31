@@ -11,7 +11,6 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import controllers.admin.AdminProgramImageController;
 import controllers.admin.routes;
 import forms.admin.ProgramImageDescriptionForm;
 import j2html.tags.specialized.ATag;
@@ -100,24 +99,26 @@ public final class ProgramImageView extends BaseHtmlView {
    * Renders the image currently associated with the program and a form to add / edit / delete the
    * image (and its alt text).
    *
-   * @param referer specifies how an admin got to the program image page so that the "Back" button
-   *     can direct the admin appropriately. This should match a name in the {@link
-   *     AdminProgramImageController.Referer} enum.
+   * @param editStatus specifies whether the program is being created or edited so that the "Back"
+   *     button can direct the admin appropriately. This should match a name in the {@link
+   *     ProgramEditStatus} enum.
    */
-  public Content render(Http.Request request, ProgramDefinition programDefinition, String referer) {
-    AdminProgramImageController.Referer refererEnum = getRefererEnum(referer);
-    ATag backButton = createBackButton(programDefinition, refererEnum);
+  public Content render(
+      Http.Request request, ProgramDefinition programDefinition, String editStatus) {
+    ProgramEditStatus editStatusEnum = ProgramEditStatus.getStatusFromString(editStatus);
+    ATag backButton = createBackButton(programDefinition, editStatusEnum);
 
     DivTag mainContent = div().withClass("mx-20");
 
     H1Tag titleContainer = renderHeader(PAGE_TITLE);
 
     DivTag formsContainer = div();
-    Modal deleteImageModal = createDeleteImageModal(request, programDefinition, referer);
-    formsContainer.with(createImageDescriptionForm(request, programDefinition, referer));
+    Modal deleteImageModal = createDeleteImageModal(request, programDefinition, editStatus);
+    formsContainer.with(createImageDescriptionForm(request, programDefinition, editStatus));
     formsContainer.with(
-        createImageUploadForm(programDefinition, deleteImageModal.getButton(), referer));
-    if (refererEnum == AdminProgramImageController.Referer.CREATION) {
+        createImageUploadForm(programDefinition, deleteImageModal.getButton(), editStatus));
+    if (editStatusEnum == ProgramEditStatus.CREATION
+        || editStatusEnum == ProgramEditStatus.CREATION_EDIT) {
       // When an admin is going through the creation flow, we want to make sure they have a
       // "Continue" button showing them how to finish program creation.
       formsContainer.with(createContinueButton(programDefinition));
@@ -147,26 +148,19 @@ public final class ProgramImageView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private AdminProgramImageController.Referer getRefererEnum(String referer) {
-    try {
-      return AdminProgramImageController.Referer.valueOf(referer);
-    } catch (IllegalArgumentException e) {
-      return AdminProgramImageController.Referer.BLOCKS;
-    }
-  }
-
   private ATag createBackButton(
-      ProgramDefinition programDefinition, AdminProgramImageController.Referer refererEnum) {
+      ProgramDefinition programDefinition, ProgramEditStatus programEditStatus) {
     String backTarget;
-    switch (refererEnum) {
-      case BLOCKS:
+    switch (programEditStatus) {
+      case EDIT:
         backTarget = routes.AdminProgramBlocksController.index(programDefinition.id()).url();
         break;
       case CREATION:
+      case CREATION_EDIT:
         backTarget = routes.AdminProgramController.editInCreationFlow(programDefinition.id()).url();
         break;
       default:
-        throw new IllegalStateException("All referer cases should be handled above");
+        throw new IllegalStateException("All cases should be handled above");
     }
 
     return new LinkElement()

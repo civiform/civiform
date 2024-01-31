@@ -13,5 +13,13 @@ public enum ProgramEditStatus {
    */
   CREATION_EDIT,
   /** The program is being edited after the admin has fully finished the creation flow. */
-  EDIT,
+  EDIT;
+
+  public static ProgramEditStatus getStatusFromString(String status) {
+    try {
+      return ProgramEditStatus.valueOf(status);
+    } catch (IllegalArgumentException e) {
+      return ProgramEditStatus.EDIT;
+    }
+  }
 }

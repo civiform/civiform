@@ -153,7 +153,7 @@ public final class AdminProgramController extends CiviFormController {
     }
 
     return getSaveProgramDetailsRedirect(
-        request, result.getResult().id(), /* isInCreationFlow= */ true);
+        request, result.getResult().id(), ProgramEditStatus.CREATION);
   }
 
   /** Returns an HTML page containing a form to edit a draft program. */
@@ -295,7 +295,7 @@ public final class AdminProgramController extends CiviFormController {
         programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
         settingsManifest.getIntakeFormEnabled(request),
         ImmutableList.copyOf(programData.getTiGroups()));
-    return getSaveProgramDetailsRedirect(request, programId, isInCreationFlow);
+    return getSaveProgramDetailsRedirect(request, programId, programEditStatus);
   }
 
   /** Returns an HTML page containing a form to edit program-level settings. */
@@ -327,13 +327,13 @@ public final class AdminProgramController extends CiviFormController {
 
   /** Returns where admins should be taken to after saving program detail edits. */
   private Result getSaveProgramDetailsRedirect(
-      Request request, long programId, boolean isInCreationFlow) {
-    if (settingsManifest.getProgramCardImages(request) && isInCreationFlow) {
+      Request request, long programId, ProgramEditStatus programEditStatus) {
+    if (settingsManifest.getProgramCardImages(request)
+        && (programEditStatus == ProgramEditStatus.CREATION
+            || programEditStatus == ProgramEditStatus.CREATION_EDIT)) {
       // While creating a new program, we want to direct admins to also add a program image.
       return redirect(
-          routes.AdminProgramImageController.index(
-                  programId, AdminProgramImageController.Referer.CREATION.name())
-              .url());
+          routes.AdminProgramImageController.index(programId, programEditStatus.name()).url());
     } else {
       return redirect(routes.AdminProgramBlocksController.index(programId).url());
     }

@@ -42,15 +42,16 @@ public final class AdminProgramImageController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result index(Http.Request request, long programId, String referer)
+  public Result index(Http.Request request, long programId, String editStatus)
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
     return ok(
-        programImageView.render(request, programService.getProgramDefinition(programId), referer));
+        programImageView.render(
+            request, programService.getProgramDefinition(programId), editStatus));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result updateDescription(Http.Request request, long programId, String referer) {
+  public Result updateDescription(Http.Request request, long programId, String editStatus) {
     requestChecker.throwIfProgramNotDraft(programId);
     Form<ProgramImageDescriptionForm> form =
         formFactory
@@ -73,12 +74,12 @@ public final class AdminProgramImageController extends CiviFormController {
       toastMessage = "Image description set to " + newDescription;
     }
 
-    final String indexUrl = routes.AdminProgramImageController.index(programId, referer).url();
+    final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
     return redirect(indexUrl).flashing("success", toastMessage);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result updateFileKey(Http.Request request, long programId, String referer)
+  public Result updateFileKey(Http.Request request, long programId, String editStatus)
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
 
@@ -103,27 +104,16 @@ public final class AdminProgramImageController extends CiviFormController {
     }
 
     programService.setSummaryImageFileKey(programId, key);
-    final String indexUrl = routes.AdminProgramImageController.index(programId, referer).url();
+    final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
     return redirect(indexUrl).flashing("success", "Image set");
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result deleteFileKey(Http.Request request, long programId, String referer)
+  public Result deleteFileKey(Http.Request request, long programId, String editStatus)
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
     programService.deleteSummaryImageFileKey(programId);
-    final String indexUrl = routes.AdminProgramImageController.index(programId, referer).url();
+    final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
     return redirect(indexUrl).flashing("success", "Image removed");
-  }
-
-  /**
-   * Enum specifying how an admin got to the program image page. This is used to ensure the "Back"
-   * button goes to the right place.
-   */
-  public enum Referer {
-    /** The admin came from the program creation page. */
-    CREATION,
-    /** The admin came from the edit program blocks page. */
-    BLOCKS,
   }
 }

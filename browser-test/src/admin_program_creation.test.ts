@@ -65,7 +65,7 @@ describe('program creation', () => {
     await adminProgramImage.expectProgramImagePage()
   })
 
-  it('create program then go back prevents name edits', async () => {
+  it('create program then go back prevents URL edits', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_card_images')

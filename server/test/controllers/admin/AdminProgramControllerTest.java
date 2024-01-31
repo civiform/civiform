@@ -31,6 +31,7 @@ import services.program.ProgramService;
 import services.question.QuestionService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
+import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
 import views.admin.programs.ProgramNewOneView;
@@ -210,8 +211,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .id();
     assertThat(result.redirectLocation())
         .hasValue(
-            routes.AdminProgramImageController.index(
-                    programId, AdminProgramImageController.Referer.CREATION.name())
+            routes.AdminProgramImageController.index(programId, ProgramEditStatus.CREATION.name())
                 .url());
   }
 
@@ -721,7 +721,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .hasValue(
             routes.AdminProgramImageController.index(
-                    program.id, AdminProgramImageController.Referer.CREATION.name())
+                    program.id, ProgramEditStatus.CREATION_EDIT.name())
                 .url());
   }
 
