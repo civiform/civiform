@@ -17,6 +17,7 @@ import services.LocalizedStrings;
 import services.cloud.PublicFileNameFormatter;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramImageView;
 
 /** Controller for displaying and modifying the image (and alt text) associated with a program. */
@@ -41,6 +42,11 @@ public final class AdminProgramImageController extends CiviFormController {
     this.formFactory = checkNotNull(formFactory);
   }
 
+  /**
+   * Shows the main image upload page.
+   *
+   * @param editStatus should match a name in the {@link ProgramEditStatus} enum.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request, long programId, String editStatus)
       throws ProgramNotFoundException {

@@ -185,7 +185,7 @@ public final class ProgramImageView extends BaseHtmlView {
   }
 
   private DivTag createImageDescriptionForm(
-      Http.Request request, ProgramDefinition programDefinition, String referer) {
+      Http.Request request, ProgramDefinition programDefinition, String editStatus) {
     String existingDescription = getExistingDescription(programDefinition);
     ProgramImageDescriptionForm existingDescriptionForm =
         new ProgramImageDescriptionForm(existingDescription);
@@ -208,7 +208,7 @@ public final class ProgramImageView extends BaseHtmlView {
                 .withMethod("POST")
                 .withAction(
                     routes.AdminProgramImageController.updateDescription(
-                            programDefinition.id(), referer)
+                            programDefinition.id(), editStatus)
                         .url())
                 .with(
                     makeCsrfTokenInputTag(request),
@@ -234,9 +234,9 @@ public final class ProgramImageView extends BaseHtmlView {
   }
 
   private DivTag createImageUploadForm(
-      ProgramDefinition program, ButtonTag deleteButton, String referer) {
+      ProgramDefinition program, ButtonTag deleteButton, String editStatus) {
     boolean hasNoDescription = getExistingDescription(program).isBlank();
-    StorageUploadRequest storageUploadRequest = createStorageUploadRequest(program, referer);
+    StorageUploadRequest storageUploadRequest = createStorageUploadRequest(program, editStatus);
     FormTag form =
         fileUploadViewStrategy
             .renderFileUploadFormElement(storageUploadRequest)
@@ -280,10 +280,10 @@ public final class ProgramImageView extends BaseHtmlView {
   }
 
   private StorageUploadRequest createStorageUploadRequest(
-      ProgramDefinition program, String referer) {
+      ProgramDefinition program, String editStatus) {
     String key = PublicFileNameFormatter.formatPublicProgramImageFileKey(program.id());
     String onSuccessRedirectUrl =
-        baseUrl + routes.AdminProgramImageController.updateFileKey(program.id(), referer).url();
+        baseUrl + routes.AdminProgramImageController.updateFileKey(program.id(), editStatus).url();
     return publicStorageClient.getSignedUploadRequest(key, onSuccessRedirectUrl);
   }
 
@@ -338,7 +338,7 @@ public final class ProgramImageView extends BaseHtmlView {
   }
 
   private Modal createDeleteImageModal(
-      Http.Request request, ProgramDefinition program, String referer) {
+      Http.Request request, ProgramDefinition program, String editStatus) {
     ButtonTag deleteImageButton =
         ViewUtils.makeSvgTextButton(DELETE_IMAGE_BUTTON_TEXT, Icons.DELETE)
             .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "flex", "ml-2")
@@ -348,7 +348,7 @@ public final class ProgramImageView extends BaseHtmlView {
         form(makeCsrfTokenInputTag(request))
             .withMethod(Http.HttpVerbs.POST)
             .withAction(
-                routes.AdminProgramImageController.deleteFileKey(program.id(), referer).url())
+                routes.AdminProgramImageController.deleteFileKey(program.id(), editStatus).url())
             .with(p("Once you delete this image, you'll need to re-upload a new image."))
             .with(
                 submitButton(DELETE_IMAGE_BUTTON_TEXT)

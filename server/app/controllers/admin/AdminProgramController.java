@@ -159,7 +159,7 @@ public final class AdminProgramController extends CiviFormController {
   /**
    * Returns an HTML page containing a form to edit a draft program.
    *
-   * @param editStatus should match the name of one of the enums in {@link ProgramEditStatus}.
+   * @param editStatus should match a name in the {@link ProgramEditStatus} enum.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long id, String editStatus) throws ProgramNotFoundException {
@@ -222,7 +222,7 @@ public final class AdminProgramController extends CiviFormController {
   /**
    * POST endpoint for updating the program in the draft version.
    *
-   * @param editStatus should match the name of one of the enums in {@link ProgramEditStatus}.
+   * @param editStatus should match a name in the {@link ProgramEditStatus} enum.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, long programId, String editStatus)
