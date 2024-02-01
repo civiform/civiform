@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
+import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS;
+import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.EDIT_OR_DISCARD_MODAL_REVIEW;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -576,7 +578,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    */
   @Secure
   public CompletionStage<Result> updateWithApplicantId(
-      Request request, long applicantId, long programId, String blockId, boolean inReview) {
+      Request request, long applicantId, long programId, String blockId, boolean inReview, String applicantRequestedAction) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
 
@@ -611,6 +613,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   blockId,
                   applicantStage.toCompletableFuture().join(),
                   inReview,
+                  ApplicantRequestedAction.getFromString(applicantRequestedAction),
                   roApplicantProgramService);
             },
             httpExecutionContext.current())
@@ -631,14 +634,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    */
   @Secure
   public CompletionStage<Result> update(
-      Request request, long programId, String blockId, boolean inReview) {
+      Request request, long programId, String blockId, boolean inReview, String applicantRequestedAction) {
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
       // gotten the URL from another source.
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return updateWithApplicantId(request, applicantId.orElseThrow(), programId, blockId, inReview);
+    return updateWithApplicantId(request, applicantId.orElseThrow(), programId, blockId, inReview, applicantRequestedAction);
   }
 
   private CompletionStage<Result> renderErrorOrRedirectToNextBlock(
@@ -649,6 +652,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       String blockId,
       ApplicantPersonalInfo personalInfo,
       boolean inReview,
+      ApplicantRequestedAction applicantRequestedAction,
       ReadOnlyApplicantProgramService roApplicantProgramService) {
     Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getActiveBlock(blockId);
     if (thisBlockUpdatedMaybe.isEmpty()) {
@@ -660,6 +664,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     // Validation errors: re-render this block with errors and previously entered data.
     if (thisBlockUpdated.hasErrors()) {
+      ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode;
+      if (applicantRequestedAction == ApplicantRequestedAction.REVIEW_PAGE) {
+        errorDisplayMode = EDIT_OR_DISCARD_MODAL_REVIEW;
+      } else {
+        errorDisplayMode = DISPLAY_ERRORS;
+      }
       return supplyAsync(
           () ->
               ok(
@@ -673,7 +683,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           roApplicantProgramService,
                           thisBlockUpdated,
                           personalInfo,
-                          ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
+                              errorDisplayMode,
                           applicantRoutes,
                           submittingProfile))));
     }
