@@ -97,13 +97,15 @@ title.submittedPrograms=Submitted
 toast.applicationSaved=Successfully saved application: application ID {0}
 toast.programCompleted=Application was already completed.
 
-#------------------------------------------------------------------------#
-# TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding a client #
-#------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------#
+# TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
+#------------------------------------------------------------------------------------------------------#
 
+banner.acctDeleteError=This account cannot be deleted.
+banner.acctDeleteErrorReason=This account cannot be deleted since it has open applications.
 banner.clientInfoUpdated=Client info has been successfully updated.
 banner.clientAcctDeleted=The client account for "{0}" has been successfully deleted.
-banner.acctDeleteError=This account cannot be deleted.
+banner.newClientCreated=New client successfully created.
 
 button.addNewClient=Add new client
 button.backToEditing=Back to editing
@@ -114,31 +116,41 @@ button.nextPage=Next
 button.save=Save
 button.search=Search
 button.viewApplications=View applications
+button.select=Select
+button.clearSearch=Clear search
+button.startApp=Start an application
+button.backToClientList=Back to client list
 
 content.numberOfAppSubmitted={0} applications submitted
 content.warning=There are no applications submitted for this client, so no applications will be lost.
+content.clientCreated=You new client {0} has been added to your client list. You can now begin submitting applications for this client.
 
-dialog.deleteConfirmation=Are you sure you want to delete this client's account?
+dialog.deleteConfirmation=Are you sure you want to delete this client''s account?
 
-label.dob=Date of birth
-label.nameOrEmail=Name(s) or email
+header.clientList=Client list
+header.acctSettings=Account settings
+
+label.email=Email
+label.acctStatus=Account Status
+label.dobExample=For example: January 28,1986
+label.nameExample=ex. Darren Gu, Gu or darren.gu@gmail.com
+label.phoneNumber=PhoneNumber
+label.searchByDob=Search by Date of Birth
+label.searchByName=Search by name(s)
 label.notes=Notes
 label.contactInfo=Contact Information
+label.month=Month
+label.name=Name
+label.day=Day
+label.year=Year
 
-link.aboutCiviform=About CiviForm
-link.accessibilityStatement=Accessibility statement
-link.backToClientList=Back to client list
-link.privacyPolicy=Privacy Policy
+link.edit=Edit
 
-title.acctSettings=Account settings
 title.allClients=All Clients
-title.clientList=Client list
 title.createClient=Create a new client
-title.displayingAllClients=Displaying all clients
+title.displayingOneClient=Displaying 1 client
+title.displayingMultiClients=Displaying {0} clients
 title.orgMembers=Organization members
-
-toast.asterisk=Required fields are marked with an asterisk
-toast.dobExample=For example: January 18,1986
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
