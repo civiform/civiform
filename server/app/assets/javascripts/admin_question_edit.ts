@@ -1,4 +1,4 @@
-import {assertNotNull} from './util'
+import {addEventListenerToElements, assertNotNull} from './util'
 import {ModalController} from './modal'
 
 class AdminQuestionEdit {
@@ -8,6 +8,62 @@ class AdminQuestionEdit {
     if (modal !== null) {
       this.addCustomModalClickHandler(modal)
     }
+
+    const primaryApplicantInfoSection = document.getElementById(
+      'primary-applicant-info',
+    )
+    if (primaryApplicantInfoSection !== null) {
+      this.addUniversalToggleHandler(primaryApplicantInfoSection)
+      this.addEnumeratorDropdownHandler(primaryApplicantInfoSection)
+    }
+  }
+
+  addEnumeratorDropdownHandler(primaryApplicantInfoSection: HTMLElement) {
+    addEventListenerToElements(
+      '#question-enumerator-select',
+      'input',
+      (event: Event) => {
+        const target = event.target as HTMLInputElement
+        const setHidden = target.value !== ''
+        primaryApplicantInfoSection.toggleAttribute('hidden', setHidden)
+      },
+    )
+  }
+
+  addUniversalToggleHandler(primaryApplicantInfoSection: HTMLElement) {
+    const primaryApplicantInfoSubsections =
+      primaryApplicantInfoSection.querySelectorAll(
+        '.cf-primary-applicant-info-subsection',
+      )
+    const universalInput = document.getElementById(
+      'universal-toggle-input',
+    ) as HTMLInputElement
+    addEventListenerToElements('#universal-toggle', 'click', () => {
+      primaryApplicantInfoSubsections.forEach((subsection) => {
+        const toggle = subsection.querySelector('.cf-toggle') as HTMLElement
+        const input = toggle.querySelector(
+          '.cf-toggle-hidden-input',
+        ) as HTMLInputElement
+        const universalAlert = subsection.querySelector(
+          '.cf-primary-applicant-info-universal-alert',
+        ) as HTMLElement
+        const alreadySetAlert = subsection.querySelector(
+          '.cf-primary-applicant-info-tag-already-set-alert',
+        ) // May be null
+        // Do not toggle things if this is hidden because the
+        // "you've already set this action on a different question" alert is showing.
+        if (alreadySetAlert === null) {
+          // Unset the action when we unset universal
+          // Because the universal input doesn't change until after the click event,
+          // we're checking for true here.
+          if (input.value === 'true' && universalInput.value === 'true') {
+            toggle.click()
+          }
+          toggle.toggleAttribute('hidden')
+        }
+        universalAlert.toggleAttribute('hidden')
+      })
+    })
   }
 
   addCustomModalClickHandler(modal: HTMLElement) {
