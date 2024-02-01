@@ -368,7 +368,7 @@ public class FieldWithLabel {
     return this;
   }
 
-  public FieldWithLabel setFieldErrors(Messages messages, ValidationError error) {
+  public FieldWithLabel x(Messages messages, ValidationError error) {
     this.messages = messages;
     this.fieldErrors = ImmutableSet.of(error);
 
@@ -398,11 +398,6 @@ public class FieldWithLabel {
   /** Attribute getters * */
   public String getFieldType() {
     return this.fieldType;
-  }
-
-  public String getId() {
-    genRandIdIfEmpty();
-    return this.id;
   }
 
   /** Internal getters for final tag generation * */
