@@ -368,7 +368,7 @@ public class FieldWithLabel {
     return this;
   }
 
-  public FieldWithLabel x(Messages messages, ValidationError error) {
+  public FieldWithLabel setFieldErrors(Messages messages, ValidationError error) {
     this.messages = messages;
     this.fieldErrors = ImmutableSet.of(error);
 
