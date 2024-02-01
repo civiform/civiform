@@ -14,6 +14,7 @@ import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
+import org.apache.commons.lang3.RandomStringUtils;
 
 /** Controller for rendering inputs for questions. */
 public final class NorthStarQuestionController extends CiviFormController {
@@ -35,7 +36,6 @@ public final class NorthStarQuestionController extends CiviFormController {
   @Secure
   public Result emailQuestion(
       Request request,
-      String id,
       String name,
       String ariaDescribedByIds,
       String ariaLabel,
@@ -45,7 +45,6 @@ public final class NorthStarQuestionController extends CiviFormController {
       List<String> errors) {
     return question(
         request,
-        id,
         name,
         ariaDescribedByIds,
         ariaLabel,
@@ -59,7 +58,6 @@ public final class NorthStarQuestionController extends CiviFormController {
   @Secure
   public Result idQuestion(
       Request request,
-      String id,
       String name,
       String ariaDescribedByIds,
       String ariaLabel,
@@ -69,7 +67,6 @@ public final class NorthStarQuestionController extends CiviFormController {
       List<String> errors) {
     return question(
         request,
-        id,
         name,
         ariaDescribedByIds,
         ariaLabel,
@@ -82,7 +79,6 @@ public final class NorthStarQuestionController extends CiviFormController {
 
   private Result question(
       Request request,
-      String id,
       String name,
       String ariaDescribedByIds,
       String ariaLabel,
@@ -92,7 +88,7 @@ public final class NorthStarQuestionController extends CiviFormController {
       List<String> errors,
       String fragment) {
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
-    context.setVariable("id", id);
+    context.setVariable("id", RandomStringUtils.randomAlphabetic(8));
     context.setVariable("name", name);
     context.setVariable("ariaDescribedByIds", ariaDescribedByIds);
     context.setVariable("ariaLabel", ariaLabel);

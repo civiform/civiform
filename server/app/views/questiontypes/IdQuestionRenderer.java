@@ -11,7 +11,6 @@ import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.IdQuestion;
-import views.components.FieldWithLabel;
 
 /** Renders an id question. */
 public class IdQuestionRenderer extends ApplicantSingleQuestionRenderer {
@@ -38,14 +37,12 @@ public class IdQuestionRenderer extends ApplicantSingleQuestionRenderer {
         validationErrors.getOrDefault(idQuestion.getIdPath(), ImmutableSet.of()).stream()
             .map((ValidationErrorMessage vem) -> vem.getMessage(params.messages()))
             .collect(ImmutableList.toImmutableList());
-    FieldWithLabel idField = FieldWithLabel.input();
     DivTag thymeleafContent =
         div()
             .attr("hx-swap", "outerHTML")
             .attr(
                 "hx-get",
                 controllers.applicant.routes.NorthStarQuestionController.idQuestion(
-                    idField.getId(),
                     idQuestion.getIdPath().toString(),
                     StringUtils.join(ariaDescribedByIds, " "),
                     applicantQuestion.getQuestionTextForScreenReader(),

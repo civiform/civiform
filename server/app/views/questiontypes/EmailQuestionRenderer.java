@@ -11,7 +11,6 @@ import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.EmailQuestion;
-import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
 /** Renders an email question. */
@@ -38,14 +37,12 @@ public class EmailQuestionRenderer extends ApplicantSingleQuestionRenderer {
         validationErrors.getOrDefault(emailQuestion.getEmailPath(), ImmutableSet.of()).stream()
             .map((ValidationErrorMessage vem) -> vem.getMessage(params.messages()))
             .collect(ImmutableList.toImmutableList());
-    FieldWithLabel emailField = FieldWithLabel.email();
     DivTag thymeleafContent =
         div()
             .attr("hx-swap", "outerHTML")
             .attr(
                 "hx-get",
                 controllers.applicant.routes.NorthStarQuestionController.emailQuestion(
-                    emailField.getId(),
                     emailQuestion.getEmailPath().toString(),
                     StringUtils.join(ariaDescribedByIds, " "),
                     applicantQuestion.getQuestionTextForScreenReader(),

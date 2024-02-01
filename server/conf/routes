@@ -165,8 +165,8 @@ GET     /programs/:programId/blocks/:blockId/updateFile/:inReview      controlle
 POST    /programs/:programId/blocks/:blockId/:inReview                 controllers.applicant.ApplicantProgramBlocksController.update(request: Request, programId: Long, blockId: String, inReview: Boolean)
 
 # Routes for Thymeleaf componenets rendered within J2Html
-GET     /emailQuestion                   controllers.applicant.NorthStarQuestionController.emailQuestion(request: Request, id: String, name: String, ariaDescribedByIds: String, ariaLabel: String, value: String, required: Boolean, autofocus: Boolean, errors: java.util.List[String])
-GET     /idQuestion                   controllers.applicant.NorthStarQuestionController.idQuestion(request: Request, id: String, name: String, ariaDescribedByIds: String, ariaLabel: String, value: String, required: Boolean, autofocus: Boolean, errors: java.util.List[String])
+GET     /emailQuestion                   controllers.applicant.NorthStarQuestionController.emailQuestion(request: Request, name: String, ariaDescribedByIds: String, ariaLabel: String, value: String, required: Boolean, autofocus: Boolean, errors: java.util.List[String])
+GET     /idQuestion                   controllers.applicant.NorthStarQuestionController.idQuestion(request: Request, name: String, ariaDescribedByIds: String, ariaLabel: String, value: String, required: Boolean, autofocus: Boolean, errors: java.util.List[String])
 
 # This route is special. It may specify a program by id or by program
 # slug. Since Play doesn't allow overloaded controller methods, accept
