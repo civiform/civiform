@@ -241,6 +241,8 @@ public final class ApplicantRoutes {
    * @param programId - ID of program to review
    * @param blockId - ID of the block to be updated
    * @param inReview - true if executing the review action (as opposed to edit)
+   * @param applicantRequestedAction - the page the applicant would like to see after the updates
+   *     are made
    * @return Route for the applicant update block action
    */
   public Call updateBlock(

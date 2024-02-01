@@ -241,7 +241,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                 params.programId(),
                 params.block().getId(),
                 params.inReview(),
-                ApplicantRequestedAction.NEXT)
+                ApplicantRequestedAction.NEXT_BLOCK)
             .url();
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder()
@@ -310,6 +310,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     DivTag ret =
         div()
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
+            // TODO(#6450): Use the new review button here.
             .with(renderOldReviewButton(params))
             .with(renderPreviousButton(params));
     if (maybeSkipOrDeleteButton.isPresent()) {

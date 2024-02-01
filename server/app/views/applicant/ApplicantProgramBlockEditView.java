@@ -4,9 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.p;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS;
-import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.EDIT_OR_DISCARD_MODAL_REVIEW;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
@@ -35,7 +33,6 @@ import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.ApplicantStyles;
-import views.style.ReferenceClasses;
 
 /** Renders a page for answering questions in a program screen (block). */
 public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
@@ -46,6 +43,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   private final ApplicantQuestionRendererFactory applicantQuestionRendererFactory;
   private final ApplicantRoutes applicantRoutes;
   private final SettingsManifest settingsManifest;
+  private final EditOrDiscardAnswersModalCreator editOrDiscardAnswersModalCreator;
 
   @Inject
   ApplicantProgramBlockEditView(
@@ -53,11 +51,13 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
       ApplicantFileUploadRenderer applicantFileUploadRenderer,
       @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
       ApplicantRoutes applicantRoutes,
+      EditOrDiscardAnswersModalCreator editOrDiscardAnswersModalCreator,
       SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layout);
     this.applicantFileUploadRenderer = checkNotNull(applicantFileUploadRenderer);
     this.applicantQuestionRendererFactory = checkNotNull(applicantQuestionRendererFactory);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.editOrDiscardAnswersModalCreator = checkNotNull(editOrDiscardAnswersModalCreator);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
@@ -69,44 +69,18 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
 
     String errorMessage = "";
     if (params.block().hasErrors()
-        && (ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS.equals(
-                params.errorDisplayMode())
-            || params.errorDisplayMode() == EDIT_OR_DISCARD_MODAL_REVIEW)) {
+        && ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(
+            params.errorDisplayMode())) {
       // Add error message to title for screen reader users.
       errorMessage = " — " + params.messages().at(MessageKey.ERROR_ANNOUNCEMENT_SR.getKeyName());
     }
 
-    System.out.println("display mode=" + params.errorDisplayMode());
-
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
-
     if (params.errorDisplayMode()
-        == ApplicantQuestionRendererParams.ErrorDisplayMode.EDIT_OR_DISCARD_MODAL_REVIEW) {
-      // Show the edit or discard modal for proceeding to review or not
-
-      DivTag modalContent =
-          div()
-              .with(
-                  p(
-                      "There's some errors with the information you've filled in. Would you like to"
-                          + " go back and fix the errors, or go to the review page without"
-                          + " saving?"))
-              .with(
-                  div()
-                      .withClasses("flex", "my-8")
-                      .with(renderReviewWithoutSavingButton(params), renderGoBackAndEditButton()));
-
-      Modal editOrDiscardReviewModal =
-          Modal.builder()
-              .setModalId(Modal.randomModalId())
-              .setLocation(Modal.Location.APPLICANT_FACING)
-              .setContent(modalContent)
-              .setModalTitle("Edit or discard")
-              .setMessages(params.messages())
-              .setWidth(Modal.Width.DEFAULT)
-              .setDisplayOnLoad(true)
-              .build();
-      modals.add(editOrDiscardReviewModal);
+        == ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
+      modals.add(
+          editOrDiscardAnswersModalCreator.createModal(
+              params, ApplicantRequestedAction.REVIEW_PAGE));
     }
 
     HtmlBundle bundle =
@@ -152,21 +126,6 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         params.applicantId());
   }
 
-  private ButtonTag renderGoBackAndEditButton() {
-    return button("Go back and edit")
-        .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.SOLID_BLUE);
-  }
-
-  private ButtonTag renderReviewWithoutSavingButton(Params params) {
-    String reviewUrl =
-        params
-            .applicantRoutes()
-            .review(params.profile(), params.applicantId(), params.programId())
-            .url();
-    return redirectButton("review-without-saving", "Review without saving", reviewUrl)
-        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "mr-2");
-  }
-
   /**
    * If the applicant's preferred language is not supported for this program, render a toast
    * warning. Allow them to dismiss the warning, and once it is dismissed it does not reappear for
@@ -197,7 +156,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     final boolean formHasErrors = params.block().hasErrors();
 
     if (formHasErrors
-        && ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS.equals(
+        && ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(
             params.errorDisplayMode())) {
       form.with(
           div()
@@ -219,7 +178,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
                 params.programId(),
                 params.block().getId(),
                 params.inReview(),
-                ApplicantRequestedAction.NEXT)
+                ApplicantRequestedAction.NEXT_BLOCK)
             .url();
 
     AtomicInteger ordinalErrorCount = new AtomicInteger(0);

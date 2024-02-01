@@ -21,7 +21,16 @@ public abstract class ApplicantQuestionRendererParams {
      * applicant submitting a form.
      */
     DISPLAY_ERRORS,
-    EDIT_OR_DISCARD_MODAL_REVIEW,
+    /**
+     * Validation errors are displayed, *and* a modal is displayed on top of the form asking the
+     * applicant to either (1) correct the errors or (2) discard their changes and continue to the
+     * Review page.
+     */
+    DISPLAY_ERRORS_WITH_MODAL_REVIEW;
+
+    public static boolean shouldShowErrors(ErrorDisplayMode mode) {
+      return mode == DISPLAY_ERRORS || mode == DISPLAY_ERRORS_WITH_MODAL_REVIEW;
+    }
   }
 
   public static Builder builder() {

@@ -29,6 +29,10 @@ import views.style.BaseStyles;
 public class ApplicationBaseView extends BaseHtmlView {
   final String REVIEW_APPLICATION_BUTTON_ID = "review-application-button";
 
+  /**
+   * Renders a "Review" button that will also save the applicant's data before redirecting to the
+   * review page.
+   */
   protected DomContent renderReviewButton(
       SettingsManifest settingsManifest, ApplicationBaseView.Params params) {
     String formAction =
@@ -56,6 +60,10 @@ public class ApplicationBaseView extends BaseHtmlView {
     return renderOldReviewButton(params);
   }
 
+  /**
+   * Returns a "Review" button that will redirect the applicant to the review page *without* saving
+   * the applicant's data.
+   */
   protected ATag renderOldReviewButton(ApplicationBaseView.Params params) {
     String reviewUrl =
         params

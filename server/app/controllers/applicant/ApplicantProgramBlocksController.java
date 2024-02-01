@@ -5,7 +5,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS;
-import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.EDIT_OR_DISCARD_MODAL_REVIEW;
+import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -288,7 +288,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   blockId,
                   applicantStage.join(),
                   inReview,
-                  ApplicantRequestedAction.NEXT, // TODO
+                  // TODO(#6450): Pass in the applicant-requested action to direct them correctly.
+                  ApplicantRequestedAction.NEXT_BLOCK,
                   roApplicantProgramService);
             },
             httpExecutionContext.current())
@@ -540,7 +541,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   blockId,
                   applicantStage.toCompletableFuture().join(),
                   inReview,
-                  ApplicantRequestedAction.NEXT, // TODO
+                  // TODO(#6450): Pass in the applicant-requested action to direct them correctly.
+                  ApplicantRequestedAction.NEXT_BLOCK,
                   roApplicantProgramService);
             },
             httpExecutionContext.current())
@@ -572,11 +574,20 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * <p>Returns the applicable next step in the flow:
    *
    * <ul>
-   *   <li>If there are errors renders the edit page for the same block with the errors.
-   *   <li>If {@code inReview} then the next incomplete block is shown.
-   *   <li>If not {@code inReview} the next visible block is shown.
-   *   <li>If there is no next block the program review page is shown.
+   *   <li>If there are errors, then the edit page for the same block with the errors is shown.
+   *   <li>If {@code applicantRequestedAction} is the {@link ApplicantRequestedAction#REVIEW_PAGE},
+   *       then the review page is shown.
+   *   <li>If {@code applicantRequestedAction} is the {@link ApplicantRequestedAction#NEXT_BLOCK},
+   *       then we use {@code inReview} to determine what block to show next:
+   *       <ul>
+   *         <li>If {@code inReview} then the next incomplete block is shown.
+   *         <li>If not {@code inReview} the next visible block is shown.
+   *         <li>If there is no next block the program review page is shown.
+   *       </ul>
    * </ul>
+   *
+   * @param applicantRequestedAction should match the name of one of the values in {@link
+   *     ApplicantRequestedAction}.
    */
   @Secure
   public CompletionStage<Result> updateWithApplicantId(
@@ -627,18 +638,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .exceptionally(this::handleUpdateExceptions);
   }
 
-  /**
-   * Accepts, validates and saves submission of applicant data for {@code blockId}.
-   *
-   * <p>Returns the applicable next step in the flow:
-   *
-   * <ul>
-   *   <li>If there are errors renders the edit page for the same block with the errors.
-   *   <li>If {@code inReview} then the next incomplete block is shown.
-   *   <li>If not {@code inReview} the next visible block is shown.
-   *   <li>If there is no next block the program review page is shown.
-   * </ul>
-   */
+  /** See {@link #updateWithApplicantId}. */
   @Secure
   public CompletionStage<Result> update(
       Request request,
@@ -678,7 +678,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     if (thisBlockUpdated.hasErrors()) {
       ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode;
       if (applicantRequestedAction == ApplicantRequestedAction.REVIEW_PAGE) {
-        errorDisplayMode = EDIT_OR_DISCARD_MODAL_REVIEW;
+        errorDisplayMode = DISPLAY_ERRORS_WITH_MODAL_REVIEW;
       } else {
         errorDisplayMode = DISPLAY_ERRORS;
       }
