@@ -18,7 +18,7 @@ public enum PrimaryApplicantInfoTag {
       "primaryApplicantDob",
       "Applicant Date Of Birth",
       "Setting this property will allow the answer to be pre-populated with the"
-          + " applicant's date of birth if a TI created this applicant."),
+          + " applicant's date of birth if a Trusted Intermediary created this applicant."),
   APPLICANT_EMAIL(
       QuestionTag.PRIMARY_APPLICANT_EMAIL,
       QuestionType.EMAIL,
@@ -32,15 +32,15 @@ public enum PrimaryApplicantInfoTag {
       QuestionType.NAME,
       "primaryApplicantName",
       "Applicant Name",
-      "Setting this property will allow CiviForm to use the name to identify the"
-          + " user and their application in the UI, as well as make the application searchable by"
+      "Setting this property will allow CiviForm to use the name to identify the user and their"
+          + " application in the user interface, as well as make the application searchable by this"
           + " name."),
   APPLICANT_PHONE(
       QuestionTag.PRIMARY_APPLICANT_PHONE,
       QuestionType.PHONE,
       "primaryApplicantPhone",
       "Applicant Phone Number",
-      "Setting this property will make the application searchable by phone number.");
+      "Setting this property will make the application searchable by this phone number.");
 
   private final QuestionTag tag;
   private final QuestionType type;
