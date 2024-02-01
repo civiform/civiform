@@ -288,6 +288,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   blockId,
                   applicantStage.join(),
                   inReview,
+                  ApplicantRequestedAction.NEXT, // TODO
                   roApplicantProgramService);
             },
             httpExecutionContext.current())
@@ -539,6 +540,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   blockId,
                   applicantStage.toCompletableFuture().join(),
                   inReview,
+                  ApplicantRequestedAction.NEXT, // TODO
                   roApplicantProgramService);
             },
             httpExecutionContext.current())
@@ -578,7 +580,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    */
   @Secure
   public CompletionStage<Result> updateWithApplicantId(
-      Request request, long applicantId, long programId, String blockId, boolean inReview, String applicantRequestedAction) {
+      Request request,
+      long applicantId,
+      long programId,
+      String blockId,
+      boolean inReview,
+      String applicantRequestedAction) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
 
@@ -634,14 +641,19 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    */
   @Secure
   public CompletionStage<Result> update(
-      Request request, long programId, String blockId, boolean inReview, String applicantRequestedAction) {
+      Request request,
+      long programId,
+      String blockId,
+      boolean inReview,
+      String applicantRequestedAction) {
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
       // gotten the URL from another source.
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return updateWithApplicantId(request, applicantId.orElseThrow(), programId, blockId, inReview, applicantRequestedAction);
+    return updateWithApplicantId(
+        request, applicantId.orElseThrow(), programId, blockId, inReview, applicantRequestedAction);
   }
 
   private CompletionStage<Result> renderErrorOrRedirectToNextBlock(
@@ -683,7 +695,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           roApplicantProgramService,
                           thisBlockUpdated,
                           personalInfo,
-                              errorDisplayMode,
+                          errorDisplayMode,
                           applicantRoutes,
                           submittingProfile))));
     }
@@ -746,6 +758,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       ? MessageKey.TOAST_MAY_QUALIFY_TI.getKeyName()
                       : MessageKey.TOAST_MAY_QUALIFY.getKeyName(),
                   roApplicantProgramService.getProgramTitle()));
+    }
+
+    if (applicantRequestedAction == ApplicantRequestedAction.REVIEW_PAGE) {
+      return supplyAsync(() -> redirect(applicantRoutes.review(profile, applicantId, programId)));
     }
 
     Optional<String> nextBlockIdMaybe =

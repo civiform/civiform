@@ -244,13 +244,18 @@ public final class ApplicantRoutes {
    * @return Route for the applicant update block action
    */
   public Call updateBlock(
-      CiviFormProfile profile, long applicantId, long programId, String blockId, boolean inReview,
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String blockId,
+      boolean inReview,
       ApplicantRequestedAction applicantRequestedAction) {
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.updateWithApplicantId(
           applicantId, programId, blockId, inReview, applicantRequestedAction.name());
     } else {
-      return routes.ApplicantProgramBlocksController.update(programId, blockId, inReview, applicantRequestedAction.name());
+      return routes.ApplicantProgramBlocksController.update(
+          programId, blockId, inReview, applicantRequestedAction.name());
     }
   }
 }

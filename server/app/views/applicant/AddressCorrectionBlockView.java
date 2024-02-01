@@ -249,7 +249,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   private DivTag renderBottomNavButtons(Params params) {
     return div()
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-        .with(renderReviewButton(params))
+        .with(renderOldReviewButton(params))
         .with(renderPreviousButton(params))
         .with(renderNextButton(params));
   }
