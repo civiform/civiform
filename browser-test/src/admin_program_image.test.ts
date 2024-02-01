@@ -178,6 +178,15 @@ describe('Admin can manage program image', () => {
       await validateScreenshot(page, 'program-image-with-image-before-save')
     })
 
+    it('prevents image upload when no description', async () => {
+      const {adminProgramImage} = ctx
+
+      await adminProgramImage.setImageDescriptionAndSubmit('')
+      await adminProgramImage.expectProgramImagePage()
+
+      await adminProgramImage.expectDisabledImageFileUpload()
+    })
+
     it('adds new image', async () => {
       const {page, adminProgramImage} = ctx
 
@@ -202,6 +211,7 @@ describe('Admin can manage program image', () => {
       await adminProgramImage.setImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
       )
+      await dismissToast(page)
       await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectImagePreview()
 

@@ -160,11 +160,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> edit(
       Request request, long programId, String blockId, Optional<String> questionName) {
-    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
-      // This route is only operative for the new URL schema, so send the user home.
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
-
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
@@ -210,11 +205,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> review(
       Request request, long programId, String blockId, Optional<String> questionName) {
-    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
-      // This route is only operative for the new URL schema, so send the user home.
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
-
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
@@ -245,11 +235,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> confirmAddress(
       Request request, long programId, String blockId, boolean inReview) {
-    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
-      // This route is only operative for the new URL schema, so send the user home.
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
-
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
@@ -393,11 +378,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> previous(
       Request request, long programId, int previousBlockIndex, boolean inReview) {
-    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
-      // This route is only operative for the new URL schema, so send the user home.
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
-
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
@@ -571,11 +551,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> updateFile(
       Request request, long programId, String blockId, boolean inReview) {
-    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
-      // This route is only operative for the new URL schema, so send the user home.
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
-
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
@@ -656,11 +631,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> update(
       Request request, long programId, String blockId, boolean inReview) {
-    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
-      // This route is only operative for the new URL schema, so send the user home.
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
-
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
@@ -755,7 +725,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     Map<String, String> flashingMap = new HashMap<>();
     if (roApplicantProgramService.blockHasEligibilityPredicate(blockId)
-        && roApplicantProgramService.isBlockEligible(blockId)) {
+        && roApplicantProgramService.isActiveBlockEligible(blockId)) {
       flashingMap.put(
           "success-banner",
           messagesApi
@@ -871,7 +841,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ProgramDefinition programDefinition,
       String blockId) {
     if (programDefinition.eligibilityIsGating()) {
-      return !roApplicantProgramService.isBlockEligible(blockId);
+      return !roApplicantProgramService.isActiveBlockEligible(blockId);
     }
     return false;
   }

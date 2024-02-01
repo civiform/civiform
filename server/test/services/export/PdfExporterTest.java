@@ -33,7 +33,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationOne.id);
     PdfExporter.InMemoryPdf result =
-        exporter.export(applicationOne, /* showEligibilityText= */ false);
+        exporter.export(
+            applicationOne, /* showEligibilityText= */ false, /* includeHiddenBlocks= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -82,7 +83,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationFive.id);
     PdfExporter.InMemoryPdf result =
-        exporter.export(applicationFive, /* showEligibilityText= */ false);
+        exporter.export(
+            applicationFive, /* showEligibilityText= */ false, /* includeHiddenBlocks= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -126,7 +128,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationSix.id);
     PdfExporter.InMemoryPdf result =
-        exporter.export(applicationSix, /* showEligibilityText= */ false);
+        exporter.export(
+            applicationSix, /* showEligibilityText= */ false, /* includeHiddenBlocks= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
     textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
@@ -151,6 +154,30 @@ public class PdfExporterTest extends AbstractExporterTest {
   }
 
   @Test
+  public void validatePDFExport_hiddenQuestionIncluded() throws IOException, DocumentException {
+    createFakeProgramWithVisibilityPredicate();
+
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+    String applicantName = "name-unavailable";
+    String applicantNameWithApplicationId =
+        String.format("%s (%d)", applicantName, applicationSeven.id);
+    PdfExporter.InMemoryPdf result =
+        exporter.export(
+            applicationSeven, /* showEligibilityText= */ false, /* includeHiddenBlocks= */ true);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
+    String programName = applicationSeven.getProgram().getProgramDefinition().adminName();
+    textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
+    pdfReader.close();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+
+    assertThat(textFromPDF).isNotNull();
+    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
+    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
+    assertThat(textFromPDF).contains("Hidden Questions");
+  }
+
+  @Test
   public void validatePDFExport_eligibility() throws IOException, DocumentException {
     createFakeProgramWithEligibilityPredicate();
 
@@ -160,7 +187,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationTwo.id);
     PdfExporter.InMemoryPdf result =
-        exporter.export(applicationTwo, /* showEligibilityText= */ false);
+        exporter.export(
+            applicationTwo, /* showEligibilityText= */ false, /* includeHiddenBlocks= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
     textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
@@ -172,7 +200,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
     assertThat(textFromPDF).doesNotContain("Meets eligibility");
     PdfExporter.InMemoryPdf resultWithEligibility =
-        exporter.export(applicationTwo, /* showEligibilityText= */ true);
+        exporter.export(
+            applicationTwo, /* showEligibilityText= */ true, /* includeHiddenBlocks= */ false);
     PdfReader pdfReaderTwo = new PdfReader(resultWithEligibility.getByteArray());
     StringBuilder textFromPDFTwo = new StringBuilder();
     textFromPDFTwo.append(PdfTextExtractor.getTextFromPage(pdfReaderTwo, 1));

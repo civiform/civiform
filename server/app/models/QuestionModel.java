@@ -6,6 +6,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
 import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbJsonB;
@@ -28,6 +29,7 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -153,7 +155,8 @@ public class QuestionModel extends BaseModel {
             .setQuestionType(QuestionType.valueOf(questionType))
             .setValidationPredicatesString(validationPredicates)
             .setLastModifiedTime(Optional.ofNullable(lastModifiedTime))
-            .setUniversal(questionTags.contains(QuestionTag.UNIVERSAL));
+            .setUniversal(questionTags.contains(QuestionTag.UNIVERSAL))
+            .setPrimaryApplicantInfoTags(getPrimaryApplicantInfoTagsFromQuestionTags(questionTags));
 
     setEnumeratorEntityType(builder);
 
@@ -163,6 +166,24 @@ public class QuestionModel extends BaseModel {
     setQuestionOptions(builder);
 
     this.questionDefinition = builder.build();
+  }
+
+  /**
+   * Given a list of {@link QuestionTag}s, fetches the set of {@link PrimaryApplicantInfoTag}s that
+   * correspond to those QuestionTags. Any {@link QuestionTag} that doesn't have a corresponding
+   * {@link PrimaryApplicantInfoTag} is ignored.
+   *
+   * @param questionTags The list of {@link QuestionTag}s to check.
+   * @return An {@link ImmutableSet} of {@link PrimaryApplicantInfoTag} corresponding to the given
+   *     {@link QuestionTag}s.
+   */
+  private ImmutableSet<PrimaryApplicantInfoTag> getPrimaryApplicantInfoTagsFromQuestionTags(
+      List<QuestionTag> questionTags) {
+    return ImmutableList.copyOf(PrimaryApplicantInfoTag.values()).stream()
+        .filter(
+            primaryApplicantInfoTag ->
+                questionTags.contains(primaryApplicantInfoTag.getQuestionTag()))
+        .collect(ImmutableSet.toImmutableSet());
   }
 
   /**
@@ -276,6 +297,12 @@ public class QuestionModel extends BaseModel {
     } else {
       initTags();
     }
+
+    // Add QuestionTags for PrimaryApplicantInfoTags in the list. Note that this must come after
+    // we have done initTags above, either in this function or in addTag previously.
+    questionDefinition
+        .getPrimaryApplicantInfoTags()
+        .forEach(primaryApplicantInfoTag -> addTag(primaryApplicantInfoTag.getQuestionTag()));
 
     return this;
   }

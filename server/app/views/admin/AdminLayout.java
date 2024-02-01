@@ -152,10 +152,10 @@ public final class AdminLayout extends BaseHtmlLayout {
 
     String activeNavStyle =
         StyleUtils.joinStyles(
-            BaseStyles.TEXT_SEATTLE_BLUE,
+            BaseStyles.TEXT_CIVIFORM_BLUE,
             "font-medium",
             "border-b-2",
-            BaseStyles.BORDER_SEATTLE_BLUE);
+            BaseStyles.BORDER_CIVIFORM_BLUE);
 
     DomContent reportingHeaderLink =
         headerLink(

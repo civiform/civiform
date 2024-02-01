@@ -1,7 +1,9 @@
 import {Page} from 'playwright'
 import {waitForPageJsLoad} from './wait'
+import {dismissToast} from '.'
 
 export class AdminProgramImage {
+  private imageUploadLocator = 'input[type=file]'
   private imageDescriptionLocator = 'input[name="summaryImageDescription"]'
   private translationsButtonLocator = 'button:has-text("Manage translations")'
 
@@ -18,7 +20,18 @@ export class AdminProgramImage {
   }
 
   async setImageFile(imageFileName: string) {
-    await this.page.locator('input[type=file]').setInputFiles(imageFileName)
+    const currentDescription = await this.page
+      .locator(this.imageDescriptionLocator)
+      .inputValue()
+    if (currentDescription == '') {
+      // A description has to be set before an image can be uploaded
+      await this.setImageDescriptionAndSubmit('desc')
+      await dismissToast(this.page)
+    }
+
+    await this.page
+      .locator(this.imageUploadLocator)
+      .setInputFiles(imageFileName)
   }
 
   async setImageFileAndSubmit(imageFileName: string) {
@@ -53,6 +66,12 @@ export class AdminProgramImage {
   async expectDescriptionIs(description: string) {
     const descriptionElement = this.page.locator(this.imageDescriptionLocator)
     expect(await descriptionElement.inputValue()).toBe(description)
+  }
+
+  async expectDisabledImageFileUpload() {
+    expect(
+      await this.page.getAttribute(this.imageUploadLocator, 'disabled'),
+    ).not.toBeNull()
   }
 
   /** Expects that the program card preview does not contain an image. */

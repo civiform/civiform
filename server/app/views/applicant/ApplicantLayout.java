@@ -456,7 +456,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     DivTag progressInner =
         div()
             .withClasses(
-                BaseStyles.BG_SEATTLE_BLUE,
+                BaseStyles.BG_CIVIFORM_BLUE,
                 "transition-all",
                 "duration-300",
                 "h-full",
@@ -472,7 +472,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             .withId("progress-indicator")
             .withClasses(
                 "border",
-                BaseStyles.BORDER_SEATTLE_BLUE,
+                BaseStyles.BORDER_CIVIFORM_BLUE,
                 "rounded-full",
                 "font-semibold",
                 "bg-white",

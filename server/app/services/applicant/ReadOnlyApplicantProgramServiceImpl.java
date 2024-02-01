@@ -34,6 +34,8 @@ import services.question.types.QuestionType;
 /** Implementation class for ReadOnlyApplicantProgramService interface. */
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
 
+  private static final String NOT_APPLICABLE = "N/A";
+
   /**
    * Note that even though {@link ApplicantData} is mutable, we can consider it immutable at this
    * point since there is no shared state between requests. In fact, we call {@link
@@ -45,7 +47,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   private final ProgramDefinition programDefinition;
   private final String baseUrl;
   private final JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory;
-  private ImmutableList<Block> allBlockList;
+  private ImmutableList<Block> allActiveBlockList;
+  private ImmutableList<Block> allHiddenBlockList;
   private ImmutableList<Block> currentBlockList;
 
   public ReadOnlyApplicantProgramServiceImpl(
@@ -116,7 +119,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public boolean isApplicationEligible() {
-    return getAllActiveBlocks().stream().allMatch(block -> isBlockEligible(block.getId()));
+    return getAllActiveBlocks().stream().allMatch(block -> isBlockEligible(block));
   }
 
   @Override
@@ -139,8 +142,13 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-  public boolean isBlockEligible(String blockId) {
+  public boolean isActiveBlockEligible(String blockId) {
     Block block = getActiveBlock(blockId).get();
+    return isBlockEligible(block);
+  }
+
+  /** Helper functions returning if the block eligibility criteria are met. */
+  private boolean isBlockEligible(Block block) {
     Optional<PredicateDefinition> predicate =
         block.getEligibilityDefinition().map(EligibilityDefinition::predicate);
     // No eligibility criteria means the block is eligible.
@@ -152,10 +160,18 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public ImmutableList<Block> getAllActiveBlocks() {
-    if (allBlockList == null) {
-      allBlockList = getBlocks(this::showBlock);
+    if (allActiveBlockList == null) {
+      allActiveBlockList = getBlocks((block) -> showBlock(block));
     }
-    return allBlockList;
+    return allActiveBlockList;
+  }
+
+  @Override
+  public ImmutableList<Block> getAllHiddenBlocks() {
+    if (allHiddenBlockList == null) {
+      allHiddenBlockList = getBlocks((block) -> !showBlock(block));
+    }
+    return allHiddenBlockList;
   }
 
   @Override
@@ -203,6 +219,13 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       }
     }
     return questionList.stream().distinct().collect(toImmutableList());
+  }
+
+  @Override
+  public Optional<Block> getHiddenBlock(String blockId) {
+    return getAllHiddenBlocks().stream()
+        .filter((block) -> block.getId().equals(blockId))
+        .findFirst();
   }
 
   @Override
@@ -261,7 +284,29 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   public ImmutableList<AnswerData> getSummaryDataOnlyActive() {
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
-    ImmutableList<Block> blocks = getAllActiveBlocks();
+    ImmutableList<Block> activeBlocks = getAllActiveBlocks();
+    addDataToBuilder(activeBlocks, builder, /* hiddenBlocks= */ false);
+    return builder.build();
+  }
+
+  @Override
+  public ImmutableList<AnswerData> getSummaryDataOnlyHidden() {
+    // TODO: We need to be able to use this on the admin side with admin-specific l10n.
+    ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
+    ImmutableList<Block> hiddenBlocks = getAllHiddenBlocks();
+    addDataToBuilder(hiddenBlocks, builder, /* hiddenBlocks= */ true);
+    return builder.build();
+  }
+
+  /**
+   * Helper method for {@link ReadOnlyApplicantProgramServiceImpl#getSummaryDataOnlyActive()} and
+   * {@link ReadOnlyApplicantProgramServiceImpl#getSummaryDataOnlyHidden()}. Adds {@link AnswerData}
+   * data to {@link ImmutableList.Builder<AnswerData>}.
+   */
+  private void addDataToBuilder(
+      ImmutableList<Block> blocks,
+      ImmutableList.Builder<AnswerData> builder,
+      boolean hiddenBlocks) {
     for (Block block : blocks) {
       ImmutableList<ApplicantQuestion> questions = block.getQuestions();
       for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
@@ -274,7 +319,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         boolean isEligible = isQuestionEligibleInBlock(block, applicantQuestion);
         String questionText = applicantQuestion.getQuestionText();
         String questionTextForScreenReader = applicantQuestion.getQuestionTextForScreenReader();
-        String answerText = applicantQuestion.getQuestion().getAnswerString();
+        String answerText =
+            hiddenBlocks ? NOT_APPLICABLE : applicantQuestion.getQuestion().getAnswerString();
         Optional<Long> timestamp = applicantQuestion.getLastUpdatedTimeMetadata();
         Optional<Long> updatedProgram = applicantQuestion.getUpdatedInProgramMetadata();
         Optional<String> originalFileName = Optional.empty();
@@ -313,7 +359,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         builder.add(data);
       }
     }
-    return builder.build();
   }
 
   /**
@@ -336,7 +381,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
    * not eligible, check if the question is part of that eligibility condition.
    */
   private boolean isQuestionEligibleInBlock(Block block, ApplicantQuestion question) {
-    return isBlockEligible(block.getId())
+    return isBlockEligible(block)
         || !block
             .getEligibilityDefinition()
             .get()

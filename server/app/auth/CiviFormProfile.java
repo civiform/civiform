@@ -49,8 +49,7 @@ public class CiviFormProfile {
 
   /** Get the latest {@link ApplicantModel} associated with the profile. */
   public CompletableFuture<ApplicantModel> getApplicant() {
-    if (settingsManifest.getNewApplicantUrlSchemaEnabled()
-        && profileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME)) {
+    if (profileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME)) {
       long applicantId =
           profileData.getAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, Long.class);
       return accountRepository
@@ -296,10 +295,6 @@ public class CiviFormProfile {
    * looking up the account each time and finding the corresponding applicant id.
    */
   void storeApplicantIdInProfile(Long applicantId) {
-    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
-      return;
-    }
-
     if (!profileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME)) {
       profileData.addAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, applicantId);
     }
@@ -312,10 +307,6 @@ public class CiviFormProfile {
    * looking up the account each time and finding the corresponding applicant id.
    */
   void storeApplicantIdInProfile(AccountModel account) {
-    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
-      return;
-    }
-
     Long applicantId =
         getApplicantForAccount(account)
             .orElseThrow(() -> new MissingOptionalException(ApplicantModel.class))

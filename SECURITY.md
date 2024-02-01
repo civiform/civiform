@@ -12,6 +12,10 @@ To report a vulnerability, please email civiform-escalations@googlegroups.com
 
 Please include the docker image tag for the version in which you have found the vulnerability, or a link to code on GitHub if that is more appropriate.
 
+## Fixing a Vulnerability
+
+If you fix a vulnerability, you can qualify for the [Patch Rewards Program](https://bughunters.google.com/about/rules/4928084514701312/patch-rewards-program-rules) and receive a reward for your vulnerability fix.
+
 ## Software Bill of Materials
 
 The US Cybersecurity & Infrastructure Security Agency (CISA) recommends the inclusion of a Software Bill of Materials (SBOM). We create the SBOM file with each release. It can be found on the [releases page](https://github.com/civiform/civiform/releases).

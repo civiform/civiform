@@ -22,4 +22,17 @@ public final class ApplicantFileNameFormatter {
     return String.format(
         "applicant-%d/program-%d/block-%s/${filename}", applicantId, programId, blockId);
   }
+
+  /** Check if the formatted file key matches the applicant id */
+  public static boolean isApplicantOwnedFileKey(String fileKey, long applicantId) {
+    if (fileKey.isBlank()) {
+      throw new IllegalArgumentException("'fileKey' must not be blank.");
+    }
+
+    if (applicantId <= 0) {
+      throw new IllegalArgumentException("'applicantId' must be greater than zero.");
+    }
+
+    return fileKey.contains(String.format("applicant-%d", applicantId));
+  }
 }
