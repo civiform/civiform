@@ -55,15 +55,5 @@ public class EmailQuestionRenderer extends ApplicantSingleQuestionRenderer {
                     errors))
             .attr("hx-trigger", "load");
     return thymeleafContent;
-
-    // FieldWithLabel emailField =
-    //     FieldWithLabel.email()
-    //         .setFieldErrors(
-    //             params.messages(),
-    //             validationErrors.getOrDefault(emailQuestion.getEmailPath(), ImmutableSet.of()))
-
-    // if (!validationErrors.isEmpty()) {
-    //   emailField.forceAriaInvalid();
-    // }
   }
 }

@@ -1,0 +1,13 @@
+<input th:fragment="email-input" th:id="${id}" th:name="${name}"
+    type="email" inputmode="email" autocomplete="email"
+    th:value="${value}" maxlength="10000"
+    th:aria-required="${required}" th:aria-describedby="${ariaDescribedByIds}" th:aria-invalid="${!errors.isEmpty()}"
+    class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-seattle-blue placeholder-gray-500"
+    th:attr="autofocus=${autofocus ? true : null}">
+
+<input th:fragment="id-input" th:id="${id}" th:name="${name}"
+    type="text"
+    th:value="${value}" maxlength="10000"
+    th:aria-required="${required}" th:aria-describedby="${ariaDescribedByIds}" th:aria-invalid="${!errors.isEmpty()}"
+    class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-seattle-blue placeholder-gray-500"
+    th:attr="autofocus=${autofocus ? true : null}">

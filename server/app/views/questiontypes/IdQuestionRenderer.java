@@ -1,9 +1,12 @@
 package views.questiontypes;
 
+import static j2html.TagCreator.div;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
+import org.apache.commons.lang3.StringUtils;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
@@ -28,27 +31,29 @@ public class IdQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
+
     IdQuestion idQuestion = applicantQuestion.createIdQuestion();
 
-    FieldWithLabel idField =
-        FieldWithLabel.input()
-            .setFieldName(idQuestion.getIdPath().toString())
-            .setValue(idQuestion.getIdValue().orElse(""))
-            .setAriaRequired(!isOptional)
-            .setFieldErrors(
-                params.messages(),
-                validationErrors.getOrDefault(idQuestion.getIdPath(), ImmutableSet.of()))
-            .setAriaDescribedByIds(ariaDescribedByIds)
-            .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader());
-
-    if (params.autofocusSingleField()) {
-      idField.focusOnInput();
-    }
-
-    if (!validationErrors.isEmpty()) {
-      idField.forceAriaInvalid();
-    }
-
-    return idField.getInputTag();
+    ImmutableList<String> errors =
+        validationErrors.getOrDefault(idQuestion.getIdPath(), ImmutableSet.of()).stream()
+            .map((ValidationErrorMessage vem) -> vem.getMessage(params.messages()))
+            .collect(ImmutableList.toImmutableList());
+    FieldWithLabel idField = FieldWithLabel.input();
+    DivTag thymeleafContent =
+        div()
+            .attr("hx-swap", "outerHTML")
+            .attr(
+                "hx-get",
+                controllers.applicant.routes.NorthStarQuestionController.idQuestion(
+                    idField.getId(),
+                    idQuestion.getIdPath().toString(),
+                    StringUtils.join(ariaDescribedByIds, " "),
+                    applicantQuestion.getQuestionTextForScreenReader(),
+                    idQuestion.getIdValue().orElse(""),
+                    !isOptional,
+                    params.autofocusSingleField(),
+                    errors))
+            .attr("hx-trigger", "load");
+    return thymeleafContent;
   }
 }

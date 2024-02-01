@@ -1,0 +1,9 @@
+<div th:fragment="question" class="mb-2">
+    <label th:for="${id}" class="sr-only" th:text="${ariaLabel}"></label>
+    <div class="flex flex-col">
+        <div th:replace="~{questiontypes/QuestionInputs :: ${fragment}}"></div>
+        <div th:id="${id + '-errors'}" class="text-red-600 text-xs p-1" th:classappend="${errors.isEmpty() ? 'hidden' : ''}">
+            <div th:each="error: ${errors}" th:text="${error}"></div>
+        </div>
+    </div>
+</div>
