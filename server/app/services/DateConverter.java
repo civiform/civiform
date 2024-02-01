@@ -64,7 +64,7 @@ public final class DateConverter {
    * @throws DateTimeParseException if dateString is not well-formed.
    */
   public Instant parseIso8601DateToStartOfDateInstant(String dateString) {
-    return parseIso8601DateToLocalDate(dateString).atStartOfDay(zoneId).toInstant();
+    return parseIso8601DateToLocalDate(dateString).atStartOfDay(ZoneId.of("UTC")).toInstant();
   }
 
   /** Formats an {@link Instant} to a human-readable date and time in the local time zone. */
