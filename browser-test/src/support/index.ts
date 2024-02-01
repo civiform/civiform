@@ -671,3 +671,11 @@ export const extractEmailsForRecipient = async function (
   await page.goto(originalPageUrl)
   return filteredEmails
 }
+
+export const expectEnabled = async (page: Page, locator: string) => {
+  expect(await page.getAttribute(locator, 'disabled')).toBeNull()
+}
+
+export const expectDisabled = async (page: Page, locator: string) => {
+  expect(await page.getAttribute(locator, 'disabled')).not.toBeNull()
+}
