@@ -59,7 +59,7 @@ public final class DateConverter {
 
   /**
    * Parses a string containing a ISO-8601 date (i.e. "YYYY-MM-DD") and converts it to an {@link
-   * Instant} at the beginning of the day in local time zone.
+   * Instant} at the beginning of the day in UTC time zone.
    *
    * @throws DateTimeParseException if dateString is not well-formed.
    */
@@ -87,6 +87,7 @@ public final class DateConverter {
     ZonedDateTime dateTime = time.atZone(zoneId);
     return dateTime.format(DATE_TIME_FORMATTER_WITH_SLASH);
   }
+
   /** Formats an {@link LocalDate} to a String. */
   public String formatIso8601Date(LocalDate date) {
     return date.format(DATE_TIME_FORMATTER_WITH_DASH);
