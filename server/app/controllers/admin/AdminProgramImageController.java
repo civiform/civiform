@@ -17,6 +17,7 @@ import services.LocalizedStrings;
 import services.cloud.PublicFileNameFormatter;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramImageView;
 
 /** Controller for displaying and modifying the image (and alt text) associated with a program. */
@@ -41,14 +42,22 @@ public final class AdminProgramImageController extends CiviFormController {
     this.formFactory = checkNotNull(formFactory);
   }
 
+  /**
+   * Shows the main image upload page.
+   *
+   * @param editStatus should match a name in the {@link ProgramEditStatus} enum.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result index(Http.Request request, long programId) throws ProgramNotFoundException {
+  public Result index(Http.Request request, long programId, String editStatus)
+      throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
-    return ok(programImageView.render(request, programService.getProgramDefinition(programId)));
+    return ok(
+        programImageView.render(
+            request, programService.getProgramDefinition(programId), editStatus));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result updateDescription(Http.Request request, long programId) {
+  public Result updateDescription(Http.Request request, long programId, String editStatus) {
     requestChecker.throwIfProgramNotDraft(programId);
     Form<ProgramImageDescriptionForm> form =
         formFactory
@@ -71,12 +80,12 @@ public final class AdminProgramImageController extends CiviFormController {
       toastMessage = "Image description set to " + newDescription;
     }
 
-    final String indexUrl = routes.AdminProgramImageController.index(programId).url();
+    final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
     return redirect(indexUrl).flashing("success", toastMessage);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result updateFileKey(Http.Request request, long programId)
+  public Result updateFileKey(Http.Request request, long programId, String editStatus)
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
 
@@ -101,16 +110,16 @@ public final class AdminProgramImageController extends CiviFormController {
     }
 
     programService.setSummaryImageFileKey(programId, key);
-    final String indexUrl = routes.AdminProgramImageController.index(programId).url();
+    final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
     return redirect(indexUrl).flashing("success", "Image set");
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result deleteFileKey(Http.Request request, long programId)
+  public Result deleteFileKey(Http.Request request, long programId, String editStatus)
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
     programService.deleteSummaryImageFileKey(programId);
-    final String indexUrl = routes.AdminProgramImageController.index(programId).url();
+    final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
     return redirect(indexUrl).flashing("success", "Image removed");
   }
 }

@@ -23,6 +23,107 @@ describe('Admin can manage program image', () => {
     await validateScreenshot(page, 'program-image-none')
   })
 
+  describe('back button', () => {
+    it('back button redirects to block page if came from block page', async () => {
+      const {page, adminPrograms, adminProgramImage} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_card_images')
+
+      const programName = 'program name'
+      await adminPrograms.addProgram(programName)
+      // Navigate from edit program blocks page -> edit program image page
+      await adminPrograms.gotoEditDraftProgramPage(programName)
+      await adminPrograms.goToProgramImagePage(programName)
+
+      await adminProgramImage.clickBackButton()
+
+      await adminPrograms.expectProgramBlockEditPage()
+    })
+
+    it('back button redirects to details page if came from create program page', async () => {
+      const {page, adminPrograms, adminProgramImage} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_card_images')
+
+      // After creating a program, admin should be redirected to the program images page
+      const programName = 'Back Test Program'
+      await adminPrograms.addProgram(programName)
+      await adminProgramImage.expectProgramImagePage()
+
+      // WHEN back is clicked
+      await adminProgramImage.clickBackButton()
+
+      // THEN the admin goes back to the edit program details page for this new program
+      await adminPrograms.expectProgramEditPage(programName)
+    })
+
+    it('back button preserves location after interaction', async () => {
+      const {page, adminPrograms, adminProgramImage} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_card_images')
+
+      const programName = 'Back Test Program'
+      await adminPrograms.addProgram(programName)
+      await adminProgramImage.expectProgramImagePage()
+
+      // When an admin submits an image or description on the page, the page reloads.
+      // This test verifies that the redirect URL for the back button is preserved
+      // even after those submission and page reloads.
+      await adminProgramImage.setImageDescriptionAndSubmit('description')
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+      )
+
+      await adminProgramImage.clickBackButton()
+
+      await adminPrograms.expectProgramEditPage(programName)
+    })
+  })
+
+  describe('continue button', () => {
+    it('continue button shows if from program creation page', async () => {
+      const {page, adminPrograms, adminProgramImage} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_card_images')
+
+      const programName = 'Back Test Program'
+      await adminPrograms.addProgram(programName)
+      await adminProgramImage.expectProgramImagePage()
+
+      await adminProgramImage.expectHasContinueButton()
+      await validateScreenshot(page, 'program-image-with-continue')
+    })
+
+    it('continue button redirects to program blocks page', async () => {
+      const {page, adminPrograms, adminProgramImage} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_card_images')
+
+      const programName = 'Back Test Program'
+      await adminPrograms.addProgram(programName)
+      await adminProgramImage.expectProgramImagePage()
+      await adminProgramImage.expectHasContinueButton()
+
+      await adminProgramImage.clickContinueButton()
+
+      await adminPrograms.expectProgramBlockEditPage()
+    })
+
+    it('continue button hides if from edit program image page', async () => {
+      const {page, adminPrograms, adminProgramImage} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_card_images')
+
+      const programName = 'program name'
+      await adminPrograms.addProgram(programName)
+      // Navigate from edit program blocks page -> edit program image page
+      await adminPrograms.gotoEditDraftProgramPage(programName)
+      await adminPrograms.goToProgramImagePage(programName)
+
+      await adminProgramImage.expectNoContinueButton()
+    })
+  })
+
   describe('description', () => {
     const programName = 'Test program'
 
