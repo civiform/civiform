@@ -7,7 +7,9 @@ import static j2html.TagCreator.form;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.assistedinject.Assisted;
+import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
@@ -22,9 +24,11 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
+import views.components.Modal;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
@@ -38,17 +42,20 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   private final ApplicantFileUploadRenderer applicantFileUploadRenderer;
   private final ApplicantQuestionRendererFactory applicantQuestionRendererFactory;
   private final ApplicantRoutes applicantRoutes;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   ApplicantProgramBlockEditView(
-      ApplicantLayout layout,
-      ApplicantFileUploadRenderer applicantFileUploadRenderer,
-      @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
-      ApplicantRoutes applicantRoutes) {
+          ApplicantLayout layout,
+          ApplicantFileUploadRenderer applicantFileUploadRenderer,
+          @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
+          ApplicantRoutes applicantRoutes,
+          SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layout);
     this.applicantFileUploadRenderer = checkNotNull(applicantFileUploadRenderer);
     this.applicantQuestionRendererFactory = checkNotNull(applicantQuestionRendererFactory);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(Params params) {
@@ -59,10 +66,33 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
 
     String errorMessage = "";
     if (params.block().hasErrors()
-        && ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS.equals(
-            params.errorDisplayMode())) {
+        && (ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS.equals(
+            params.errorDisplayMode()) || ApplicantQuestionRendererParams.ErrorDisplayMode.EDIT_OR_DISCARD_MODAL_REVIEW.equals(
+            params.errorDisplayMode())
+    )) {
       // Add error message to title for screen reader users.
       errorMessage = " — " + params.messages().at(MessageKey.ERROR_ANNOUNCEMENT_SR.getKeyName());
+    }
+
+    ImmutableList.Builder<Modal> modals = ImmutableList.builder();
+
+    if (params.errorDisplayMode() == ApplicantQuestionRendererParams.ErrorDisplayMode.EDIT_OR_DISCARD_MODAL_REVIEW){
+      // Show the edit or discard modal for proceeding to review or not
+
+      DivTag modalContent = div()
+              .with(div().withText("Hello there"))
+              .with(renderOldReviewButton(params));
+
+      Modal editOrDiscardReviewModal = Modal.builder()
+              .setModalId(Modal.randomModalId())
+              .setLocation(Modal.Location.APPLICANT_FACING)
+              .setContent(modalContent)
+              .setModalTitle("Edit or discard")
+              .setMessages(params.messages())
+              .setWidth(Modal.Width.HALF)
+              .setDisplayOnLoad(true)
+              .build();
+      modals.add(editOrDiscardReviewModal);
     }
 
     HtmlBundle bundle =
@@ -90,6 +120,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
                 false,
                 params.messages()),
             blockDiv)
+            .addModals(modals.build())
         .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
     params.bannerMessage().ifPresent(bundle::addToastMessages);
@@ -158,7 +189,8 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
                 params.applicantId(),
                 params.programId(),
                 params.block().getId(),
-                params.inReview())
+                params.nextActionStrategy(),
+                    ApplicantRequestedAction.NEXT)
             .url();
 
     AtomicInteger ordinalErrorCount = new AtomicInteger(0);
@@ -227,7 +259,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   private DivTag renderBottomNavButtons(Params params) {
     return div()
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-        .with(renderReviewButton(params))
+        .with(renderReviewButton(settingsManifest, params))
         .with(renderPreviousButton(params))
         .with(renderNextButton(params));
   }

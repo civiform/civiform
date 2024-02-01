@@ -7,7 +7,10 @@ import static j2html.TagCreator.span;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
+import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
+import controllers.applicant.NextActionStrategy;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.PTag;
 import j2html.tags.specialized.SpanTag;
@@ -18,6 +21,7 @@ import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
 import services.cloud.ApplicantStorageClient;
+import services.settings.SettingsManifest;
 import views.components.ButtonStyles;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererParams;
@@ -26,14 +30,43 @@ import views.style.BaseStyles;
 public class ApplicationBaseView extends BaseHtmlView {
   final String REVIEW_APPLICATION_BUTTON_ID = "review-application-button";
 
-  protected ATag renderReviewButton(ApplicationBaseView.Params params) {
-    ApplicantRoutes applicantRoutes = params.applicantRoutes();
+  protected DomContent renderReviewButton(
+          SettingsManifest settingsManifest, ApplicationBaseView.Params params) {
+    String formAction =
+            params
+                    .applicantRoutes()
+                    .updateBlock(
+                            params.profile(),
+                            params.applicantId(),
+                            params.programId(),
+                            params.block().getId(),
+                            params.nextActionStrategy(),
+                            ApplicantRequestedAction.REVIEW_PAGE)
+                    .url();
+    return renderReviewButton(settingsManifest, params, formAction);
+  }
+
+  protected DomContent renderReviewButton(
+          SettingsManifest settingsManifest, ApplicationBaseView.Params params, String formAction) {
+    if (settingsManifest.getSaveOnAllActions(params.request())) {
+      return submitButton(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
+              .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
+              .withFormaction(formAction);
+    }
+
+    return renderOldReviewButton(params);
+  }
+
+  protected ATag renderOldReviewButton(ApplicationBaseView.Params params) {
     String reviewUrl =
-        applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
+            params
+                    .applicantRoutes()
+                    .review(params.profile(), params.applicantId(), params.programId())
+                    .url();
     return a().withHref(reviewUrl)
-        .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
-        .withId(REVIEW_APPLICATION_BUTTON_ID)
-        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT);
+            .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
+            .withId(REVIEW_APPLICATION_BUTTON_ID)
+            .withClasses(ButtonStyles.OUTLINED_TRANSPARENT);
   }
 
   protected ATag renderPreviousButton(ApplicationBaseView.Params params) {
@@ -49,7 +82,7 @@ public class ApplicationBaseView extends BaseHtmlView {
                   params.applicantId(),
                   params.programId(),
                   previousBlockIndex,
-                  params.inReview())
+                  params.nextActionStrategy(), ApplicantRequestedAction.PREVIOUS) // TODO
               .url();
     } else {
       ApplicantRoutes applicantRoutes = params.applicantRoutes();
@@ -70,7 +103,7 @@ public class ApplicationBaseView extends BaseHtmlView {
 
     public abstract Builder toBuilder();
 
-    public abstract boolean inReview();
+    public abstract NextActionStrategy nextActionStrategy();
 
     public abstract Http.Request request();
 
@@ -110,7 +143,7 @@ public class ApplicationBaseView extends BaseHtmlView {
     public abstract static class Builder {
       public abstract Builder setRequest(Http.Request request);
 
-      public abstract Builder setInReview(boolean inReview);
+      public abstract Builder setNextActionStrategy(NextActionStrategy nextActionStrategy);
 
       public abstract Builder setMessages(Messages messages);
 
