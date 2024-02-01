@@ -170,6 +170,10 @@ export class AdminProgramImage {
     return `Image description removed`
   }
 
+  descriptionNotClearedToastMessage() {
+    return `Description can't be removed because an image is present. Delete the image before deleting the description.`
+  }
+
   imageUpdatedToastMessage() {
     return `Image set`
   }

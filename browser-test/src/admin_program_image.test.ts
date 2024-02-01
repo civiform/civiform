@@ -216,6 +216,63 @@ describe('Admin can manage program image', () => {
       )
     })
 
+    it('does not remove description if image present (description set to empty)', async () => {
+      const {page, adminProgramImage} = ctx
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Original description',
+      )
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+      )
+
+      await adminProgramImage.setImageDescriptionAndSubmit('')
+
+      await adminProgramImage.expectDescriptionIs('Original description')
+      await validateToastMessage(
+        page,
+        adminProgramImage.descriptionNotClearedToastMessage(),
+      )
+    })
+
+    it('does not remove description if image present (description set to blank)', async () => {
+      const {page, adminProgramImage} = ctx
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Original description',
+      )
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+      )
+
+      await adminProgramImage.setImageDescriptionAndSubmit('      ')
+
+      await adminProgramImage.expectDescriptionIs('Original description')
+      await validateToastMessage(
+        page,
+        adminProgramImage.descriptionNotClearedToastMessage(),
+      )
+    })
+
+    it('can remove description after deleting image', async () => {
+      const {adminProgramImage} = ctx
+
+      // Set a description and image
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Original description',
+      )
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+      )
+
+      // If the image is deleted
+      await adminProgramImage.clickDeleteImageButton()
+      await adminProgramImage.confirmDeleteImageButton()
+
+      // Then the description can also be deleted afterwards
+      await adminProgramImage.setImageDescriptionAndSubmit('')
+
+      await adminProgramImage.expectDescriptionIs('')
+    })
+
     it('disables submit button after save', async () => {
       const {adminProgramImage} = ctx
 

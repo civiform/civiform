@@ -66,22 +66,26 @@ public final class AdminProgramImageController extends CiviFormController {
                 request, ProgramImageDescriptionForm.FIELD_NAMES.toArray(new String[0]));
     String newDescription = form.get().getSummaryImageDescription();
 
+    String toastType;
+    String toastMessage;
     try {
       programService.setSummaryImageDescription(
           programId, LocalizedStrings.DEFAULT_LOCALE, newDescription);
+      toastType = "success";
+      if (newDescription.isBlank()) {
+        toastMessage = "Image description removed";
+      } else {
+        toastMessage = "Image description set to " + newDescription;
+      }
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
-    }
-
-    String toastMessage;
-    if (newDescription.isBlank()) {
-      toastMessage = "Image description removed";
-    } else {
-      toastMessage = "Image description set to " + newDescription;
+    } catch (ImageDescriptionNotRemovableException e) {
+      toastType = "error";
+      toastMessage = e.getMessage();
     }
 
     final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
-    return redirect(indexUrl).flashing("success", toastMessage);
+    return redirect(indexUrl).flashing(toastType, toastMessage);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)

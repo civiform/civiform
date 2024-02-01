@@ -206,7 +206,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void updateDescription_empty_removesDescription() throws ProgramNotFoundException {
+  public void updateDescription_empty_noImageFile_removesDescription()
+      throws ProgramNotFoundException {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("test name")
             .setLocalizedSummaryImageDescription(
@@ -229,7 +230,62 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void updateDescription_blank_removesDescription() throws ProgramNotFoundException {
+  public void updateDescription_empty_hasImageFile_descriptionNotRemoved()
+      throws ProgramNotFoundException {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("test name")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(Locale.US, "original description"))
+            .build();
+    setValidFileKeyOnProgram(program);
+
+    Result result =
+        controller.updateDescription(
+            addCSRFToken(
+                    fakeRequest()
+                        .method("POST")
+                        .bodyForm(ImmutableMap.of("summaryImageDescription", "")))
+                .build(),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    assertThat(updatedProgram.localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(updatedProgram.localizedSummaryImageDescription().get().getDefault())
+        .isEqualTo("original description");
+  }
+
+  @Test
+  public void updateDescription_blank_hasImageFile_descriptionNotRemoved()
+      throws ProgramNotFoundException {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("test name")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(Locale.US, "original description"))
+            .build();
+    setValidFileKeyOnProgram(program);
+
+    Result result =
+        controller.updateDescription(
+            addCSRFToken(
+                    fakeRequest()
+                        .method("POST")
+                        .bodyForm(ImmutableMap.of("summaryImageDescription", "    ")))
+                .build(),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    assertThat(updatedProgram.localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(updatedProgram.localizedSummaryImageDescription().get().getDefault())
+        .isEqualTo("original description");
+  }
+
+  @Test
+  public void updateDescription_blank_noImageFile_removesDescription()
+      throws ProgramNotFoundException {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("test name")
             .setLocalizedSummaryImageDescription(
@@ -300,7 +356,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void updateDescription_empty_toastsSuccess() {
+  public void updateDescription_empty_noImageFile_toastsSuccess() {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("test name")
             .setLocalizedSummaryImageDescription(
@@ -319,6 +375,30 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     assertThat(result.flash().data()).containsOnlyKeys("success");
     assertThat(result.flash().data().get("success")).contains("removed");
+  }
+
+  @Test
+  public void updateDescription_empty_hasImageFile_toastsError() throws ProgramNotFoundException {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("test name")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(Locale.US, "original description"))
+            .build();
+    setValidFileKeyOnProgram(program);
+
+    Result result =
+        controller.updateDescription(
+            addCSRFToken(
+                    fakeRequest()
+                        .method("POST")
+                        .bodyForm(ImmutableMap.of("summaryImageDescription", "")))
+                .build(),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.flash().data()).containsOnlyKeys("error");
+    assertThat(result.flash().data().get("error"))
+        .contains("Description can't be removed because an image is present");
   }
 
   @Test
