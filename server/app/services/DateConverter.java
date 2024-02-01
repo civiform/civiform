@@ -53,7 +53,7 @@ public final class DateConverter {
   }
 
   /**
-   * Parses string day, month and year and converts them to a {@linkLocalDate}
+   * Parses string day, month and year and converts them to a {@link LocalDate}
    *
    * @throws DateTimeParseException if conjoined date string is not well-formed.
    */
