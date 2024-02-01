@@ -99,4 +99,10 @@ public enum PrimaryApplicantInfoTag {
         .filter(t -> t.getQuestionType().equals(questionType))
         .collect(ImmutableSet.toImmutableSet());
   }
+
+  public static ImmutableSet<QuestionType> getAllQuestionTypes() {
+    return ImmutableList.copyOf(PrimaryApplicantInfoTag.values()).stream()
+        .map(t -> t.getQuestionType())
+        .collect(ImmutableSet.toImmutableSet());
+  }
 }
