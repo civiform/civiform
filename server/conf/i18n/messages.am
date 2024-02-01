@@ -121,7 +121,7 @@ button.select=Select
 button.startApp=Start an application
 button.viewApplications=View applications
 
-content.clientCreated=You new client {0} has been added to your client list. You can now begin submitting applications for this client.
+content.clientCreated=Your new client {0} has been added to your client list. You can now begin submitting applications for this client.
 content.numberOfAppSubmitted={0} applications submitted
 content.warning=There are no applications submitted for this client, so no applications will be lost.
 
@@ -134,7 +134,7 @@ label.acctStatus=Account Status
 label.contactInfo=Contact Information
 label.day=Day
 label.dob=Date of birth
-label.dobExample=For example: January 28,1986
+label.dobExample=For example: January 28 1986
 label.email=Email
 label.month=Month
 label.name=Name
