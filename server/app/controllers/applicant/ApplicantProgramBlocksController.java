@@ -624,13 +624,35 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             updateResponse -> {
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
               if (settingsManifest.getSaveOnAllActions(request)
-                  && (nextActionEnum == NextApplicantAction.REVIEW_PAGE || nextActionEnum == NextApplicantAction.PREVIOUS)
                   && !updateResponse.answersChanged()) {
                 // If the applicant wants to return to the previous block or to the review page and hasn't changed any
                 // answers, allow them to do so, regardless of if there's errors (like empty
                 // required questions) or not.
-                return supplyAsync(
-                    () -> redirect(applicantRoutes.review(profile, applicantId, programId).url()));
+                if (nextActionEnum == NextApplicantAction.REVIEW_PAGE) {
+                  return supplyAsync(
+                          () -> redirect(applicantRoutes.review(profile, applicantId, programId).url()));
+                } else if (nextActionEnum == NextApplicantAction.PREVIOUS) {
+                  ReadOnlyApplicantProgramService roApplicantProgramService = updateResponse.readOnlyApplicantProgramService();
+                  Optional<Block> currentBlock = roApplicantProgramService.getActiveBlock(blockId);
+                  System.out.println("blockId=" + blockId + "  returned=" + currentBlock);
+                  if (currentBlock.isEmpty()) {
+                    // TODO: Log?
+                    // If we couldn't find the current block for some reason, take the applicant back to the review page.
+                    return supplyAsync(
+                            () -> redirect(applicantRoutes.review(profile, applicantId, programId).url()));
+                  }
+                  int currentBlockIndex = roApplicantProgramService.getBlockIndex(currentBlock.get().getId());
+                  System.out.println("currentblockindex=" + currentBlockIndex);
+                  if (currentBlockIndex <= 0) {
+                    // We're at the first block (or an invalid block), so take the applicant back to the review page.
+                    return supplyAsync(
+                            () -> redirect(applicantRoutes.review(profile, applicantId, programId).url()));
+                  }
+                  return supplyAsync(
+                          // TODO: Does the next action matter?
+                          () -> redirect(applicantRoutes.blockPrevious(profile, applicantId, programId, /* previousBlockIndex= */ currentBlockIndex - 1, NextApplicantAction.NEXT_VISIBLE))
+                  );
+                }
               }
               return renderErrorOrRedirectToNextBlock(
                   request,

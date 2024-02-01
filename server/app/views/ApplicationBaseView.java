@@ -1,6 +1,7 @@
 package views;
 
 import static j2html.TagCreator.a;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.span;
@@ -68,20 +69,27 @@ public class ApplicationBaseView extends BaseHtmlView {
         .withClasses(ButtonStyles.OUTLINED_TRANSPARENT);
   }
 
-  protected DomContent renderPreviousButton(SettingsManifest settingsManifest, ApplicationBaseView.Params params) {
+  protected DomContent renderPreviousButton(
+          SettingsManifest settingsManifest,
+          ApplicationBaseView.Params params) {
+    String formAction =
+            params
+                    .applicantRoutes()
+                    .updateBlock(
+                            params.profile(),
+                            params.applicantId(),
+                            params.programId(),
+                            params.block().getId(),
+                            NextApplicantAction.PREVIOUS)
+                    .url();
+    return renderPreviousButton(settingsManifest, params, formAction);
+  }
+
+  protected DomContent renderPreviousButton(SettingsManifest settingsManifest, ApplicationBaseView.Params params,
+                                            String formAction) {
     if (settingsManifest.getSaveOnAllActions(params.request())) {
-      String formAction =
-              params
-                      .applicantRoutes()
-                      .updateBlock(
-                              params.profile(),
-                              params.applicantId(),
-                              params.programId(),
-                              params.block().getId(),
-                              NextApplicantAction.PREVIOUS)
-                      .url();
       return submitButton(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
-              // TODO: Solid blue instead?
+              // TODO: Solid blue instead like it was previously?
               .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
               .withFormaction(formAction);
     }
