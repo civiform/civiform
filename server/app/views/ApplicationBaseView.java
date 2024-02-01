@@ -77,17 +77,55 @@ public class ApplicationBaseView extends BaseHtmlView {
         .withClasses(ButtonStyles.OUTLINED_TRANSPARENT);
   }
 
-  protected ATag renderPreviousButton(ApplicationBaseView.Params params) {
-    String redirectUrl =
+  /**
+   * Renders a "Previous" button that will also save the applicant's data before redirecting to the
+   * previous block.
+   */
+  protected DomContent renderPreviousButton(
+      SettingsManifest settingsManifest, ApplicationBaseView.Params params) {
+    String formAction =
         params
             .applicantRoutes()
-            .blockPreviousOrReview(
+            .updateBlock(
                 params.profile(),
                 params.applicantId(),
                 params.programId(),
-                /* currentBlockIndex= */ params.blockIndex(),
-                params.inReview())
+                params.block().getId(),
+                params.inReview(),
+                ApplicantRequestedAction.PREVIOUS_BLOCK)
             .url();
+    return renderPreviousButton(settingsManifest, params, formAction);
+  }
+
+  /**
+   * Renders a "Previous" button that will also save the applicant's data before redirecting to the
+   * previous block.
+   */
+  protected DomContent renderPreviousButton(
+      SettingsManifest settingsManifest, ApplicationBaseView.Params params, String formAction) {
+    if (settingsManifest.getSaveOnAllActions(params.request())) {
+      return submitButton(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
+          .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
+          .withFormaction(formAction);
+    }
+    return renderOldPreviousButton(params);
+  }
+
+  /**
+   * Returns a "Previous" button that will redirect the applicant to the review page *without*
+   * saving the applicant's data.
+   */
+  protected ATag renderOldPreviousButton(ApplicationBaseView.Params params) {
+      String redirectUrl =
+              params
+                      .applicantRoutes()
+                      .blockPreviousOrReview(
+                              params.profile(),
+                              params.applicantId(),
+                              params.programId(),
+                              /* currentBlockIndex= */ params.blockIndex(),
+                              params.inReview())
+                      .url();
     return a().withHref(redirectUrl)
         .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
         .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)

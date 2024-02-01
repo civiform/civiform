@@ -5,6 +5,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS;
+import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW;
 
 import auth.CiviFormProfile;
@@ -682,6 +683,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode;
       if (applicantRequestedAction == ApplicantRequestedAction.REVIEW_PAGE) {
         errorDisplayMode = DISPLAY_ERRORS_WITH_MODAL_REVIEW;
+      } else if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK) {
+        errorDisplayMode = DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
       } else {
         errorDisplayMode = DISPLAY_ERRORS;
       }
@@ -703,6 +706,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           submittingProfile))));
     }
 
+    // TODO(#6450): With the SAVE_ON_ALL_ACTIONS flag enabled, when you enter an address that
+    // requires correction but but then click "Previous", you're still taken forward to the
+    // address correction screen which is unexpected. We should probably show a modal with 3
+    // options: "Edit address", "Go to previous block without saving" and "Go to address
+    // correction"?
     if (settingsManifest.getEsriAddressCorrectionEnabled(request)
         && thisBlockUpdated.hasAddressWithCorrectionEnabled()) {
 
@@ -765,6 +773,25 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     if (applicantRequestedAction == ApplicantRequestedAction.REVIEW_PAGE) {
       return supplyAsync(() -> redirect(applicantRoutes.review(profile, applicantId, programId)));
+    }
+    if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK) {
+      // TODO(#6450): If the user is coming from the address correction view, the index won't be
+      // quite right --
+      // see AddressCorrectionBlockView#renderCustomPreviousButton.
+      int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
+      final int previousBlockIndex = currentBlockIndex - 1;
+      if (currentBlockIndex <= 0) {
+        // We're at the first block (or an invalid block), so take the applicant back to the review
+        // page.
+        return supplyAsync(
+            () -> redirect(applicantRoutes.review(profile, applicantId, programId).url()));
+      }
+      return supplyAsync(
+          () ->
+              redirect(
+                  applicantRoutes
+                      .blockPrevious(profile, applicantId, programId, previousBlockIndex, inReview)
+                      .url()));
     }
 
     Optional<String> nextBlockIdMaybe =

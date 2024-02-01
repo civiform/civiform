@@ -251,7 +251,8 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
         // TODO(#6450): Use the new review button here.
         .with(renderOldReviewButton(params))
-        .with(renderPreviousButton(params))
+        // TODO(#6450): Use the new previous button here.
+        .with(renderCustomPreviousButton(params))
         .with(renderNextButton(params));
   }
 
@@ -261,11 +262,10 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
         .withId("cf-block-submit");
   }
 
-  @Override
-  protected ATag renderPreviousButton(Params params) {
+  private ATag renderCustomPreviousButton(Params params) {
     // Set the block index to the next block, so that the renderPreviousButton
     // method will render the correct block.
     Params newParams = params.toBuilder().setBlockIndex(params.blockIndex() + 1).build();
-    return super.renderPreviousButton(newParams);
+    return renderOldPreviousButton(newParams);
   }
 }

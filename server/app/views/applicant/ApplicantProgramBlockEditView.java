@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
+import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -76,8 +77,10 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     }
 
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
+
     if (settingsManifest.getSaveOnAllActions(params.request())
-        && params.errorDisplayMode() == DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
+        && (params.errorDisplayMode() == DISPLAY_ERRORS_WITH_MODAL_REVIEW
+            || params.errorDisplayMode() == DISPLAY_ERRORS_WITH_MODAL_PREVIOUS)) {
       modals.add(editOrDiscardAnswersModalCreator.createModal(params));
     }
 
@@ -249,7 +252,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     return div()
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
         .with(renderReviewButton(settingsManifest, params))
-        .with(renderPreviousButton(params))
+        .with(renderPreviousButton(settingsManifest, params))
         .with(renderNextButton(params));
   }
 

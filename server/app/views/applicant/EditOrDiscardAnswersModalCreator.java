@@ -2,9 +2,11 @@ package views.applicant;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
+import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW;
 
 import com.google.inject.Inject;
+import controllers.applicant.ApplicantRoutes;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import services.MessageKey;
@@ -31,9 +33,28 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
    *     mode.
    */
   public Modal createModal(ApplicationBaseView.Params params) {
-    if (params.errorDisplayMode() != DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
+    if (!(params.errorDisplayMode() == DISPLAY_ERRORS_WITH_MODAL_PREVIOUS
+        || params.errorDisplayMode() == DISPLAY_ERRORS_WITH_MODAL_REVIEW)) {
       throw new IllegalArgumentException(
-          "The params.errorDisplayMode() should be DISPLAY_ERRORS_WITH_MODAL_REVIEW.");
+          "The params.errorDisplayMode() should be DISPLAY_ERRORS_WITH_MODAL_REVIEW or"
+              + " DISPLAY_ERRORS_WITH_MODAL_PREVIOUS.");
+    }
+
+    // TODO: Use messages again
+    String contentString;
+    ButtonTag withoutSaveButton;
+    if (params.errorDisplayMode() == DISPLAY_ERRORS_WITH_MODAL_PREVIOUS) {
+      contentString =
+          "There's some errors with the information you've filled in. Would you like to"
+              + " go back and fix the errors, or go to the previous block without"
+              + " saving?";
+      withoutSaveButton = renderPreviousWithoutSavingButton(params);
+    } else {
+      contentString =
+          "There's some errors with the information you've filled in. Would you like to"
+              + " go back and fix the errors, or go to the review page without"
+              + " saving?";
+      withoutSaveButton = renderReviewWithoutSavingButton(params);
     }
 
     DivTag modalContent =
@@ -50,7 +71,8 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
                         "justify-end",
                         "my-8",
                         "gap-4")
-                    .with(renderReviewWithoutSavingButton(params), renderStayAndFixButton(params)));
+                    .with(withoutSaveButton, renderStayAndFixButton(params)));
+
     return Modal.builder()
         .setModalId(Modal.randomModalId())
         .setLocation(Modal.Location.APPLICANT_FACING)
@@ -80,6 +102,32 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
             "review-without-saving",
             params.messages().at(MessageKey.MODAL_ERROR_SAVING_REVIEW_NO_SAVE_BUTTON.getKeyName()),
             reviewUrl)
+        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "mr-2");
+  }
+
+  private ButtonTag renderPreviousWithoutSavingButton(ApplicationBaseView.Params params) {
+    // TODO: Copied from ApplicationBaseView
+    System.out.println("blockindex=" + params.blockIndex());
+    int previousBlockIndex = params.blockIndex() - 1;
+    String redirectUrl;
+
+    if (previousBlockIndex >= 0) {
+      ApplicantRoutes applicantRoutes = params.applicantRoutes();
+      redirectUrl =
+          applicantRoutes
+              .blockPrevious(
+                  params.profile(),
+                  params.applicantId(),
+                  params.programId(),
+                  previousBlockIndex,
+                  params.inReview())
+              .url();
+    } else {
+      ApplicantRoutes applicantRoutes = params.applicantRoutes();
+      redirectUrl =
+          applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
+    }
+    return redirectButton("review-without-saving", "See previous block without saving", redirectUrl)
         .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "mr-2");
   }
 }
