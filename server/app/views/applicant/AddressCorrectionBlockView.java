@@ -272,8 +272,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   private DomContent renderCustomPreviousButton(Params params) {
     // Set the block index to the next block, so that the renderPreviousButton
     // method will render the correct block.
-    // TODO: This won't work..
     Params newParams = params.toBuilder().setBlockIndex(params.blockIndex() + 1).build();
-    return renderPreviousButton(settingsManifest, newParams, getFormAction(params, NextApplicantAction.REVIEW_PAGE));
+    return renderPreviousButton(settingsManifest, newParams, getFormAction(params, NextApplicantAction.PREVIOUS));
   }
 }

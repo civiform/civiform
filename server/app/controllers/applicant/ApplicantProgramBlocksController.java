@@ -298,6 +298,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   blockId,
                   applicantStage.join(),
                   nextAction,
+                  /* fromAddressCorrection= */ true,
                   updateResponse.readOnlyApplicantProgramService());
             },
             httpExecutionContext.current())
@@ -553,6 +554,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   blockId,
                   applicantStage.toCompletableFuture().join(),
                   NextApplicantAction.getActionFromString(nextAction),
+                  /* fromAddressCorrection= */ false,
                   updateResponse.readOnlyApplicantProgramService());
             },
             httpExecutionContext.current())
@@ -596,6 +598,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   public CompletionStage<Result> updateWithApplicantId(
       Request request, long applicantId, long programId, String blockId, String nextAction) {
     NextApplicantAction nextActionEnum = NextApplicantAction.getActionFromString(nextAction);
+    System.out.println("next=" + nextAction);
 
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
@@ -632,26 +635,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   return supplyAsync(
                           () -> redirect(applicantRoutes.review(profile, applicantId, programId).url()));
                 } else if (nextActionEnum == NextApplicantAction.PREVIOUS) {
-                  ReadOnlyApplicantProgramService roApplicantProgramService = updateResponse.readOnlyApplicantProgramService();
-                  Optional<Block> currentBlock = roApplicantProgramService.getActiveBlock(blockId);
-                  System.out.println("blockId=" + blockId + "  returned=" + currentBlock);
-                  if (currentBlock.isEmpty()) {
-                    // TODO: Log?
-                    // If we couldn't find the current block for some reason, take the applicant back to the review page.
-                    return supplyAsync(
-                            () -> redirect(applicantRoutes.review(profile, applicantId, programId).url()));
-                  }
-                  int currentBlockIndex = roApplicantProgramService.getBlockIndex(currentBlock.get().getId());
-                  System.out.println("currentblockindex=" + currentBlockIndex);
-                  if (currentBlockIndex <= 0) {
-                    // We're at the first block (or an invalid block), so take the applicant back to the review page.
-                    return supplyAsync(
-                            () -> redirect(applicantRoutes.review(profile, applicantId, programId).url()));
-                  }
-                  return supplyAsync(
-                          // TODO: Does the next action matter?
-                          () -> redirect(applicantRoutes.blockPrevious(profile, applicantId, programId, /* previousBlockIndex= */ currentBlockIndex - 1, NextApplicantAction.NEXT_VISIBLE))
-                  );
+                  return getResultForPrevious(updateResponse.readOnlyApplicantProgramService(),
+                          blockId, profile, applicantId, programId, /* fromAddressCorrection= */ false);
                 }
               }
               return renderErrorOrRedirectToNextBlock(
@@ -662,6 +647,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   blockId,
                   applicantStage.toCompletableFuture().join(),
                   nextActionEnum,
+                  /* fromAddressCorrection= */ false,
                   updateResponse.readOnlyApplicantProgramService());
             },
             httpExecutionContext.current())
@@ -693,6 +679,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         request, applicantId.orElseThrow(), programId, blockId, nextAction);
   }
 
+  // TODO: Rename?
   private CompletionStage<Result> renderErrorOrRedirectToNextBlock(
       Request request,
       CiviFormProfile profile,
@@ -701,6 +688,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       String blockId,
       ApplicantPersonalInfo personalInfo,
       NextApplicantAction nextAction,
+      boolean fromAddressCorrection, // TODO: Don't like this
       ReadOnlyApplicantProgramService roApplicantProgramService) {
     Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getActiveBlock(blockId);
     if (thisBlockUpdatedMaybe.isEmpty()) {
@@ -776,6 +764,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       notFound(e.toString());
     }
 
+    System.out.println("after confirm address here, next=" + nextAction);
+
     Map<String, String> flashingMap = new HashMap<>();
     if (roApplicantProgramService.blockHasEligibilityPredicate(blockId)
         && roApplicantProgramService.isActiveBlockEligible(blockId)) {
@@ -820,6 +810,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             /* questionName= */ Optional.empty()))
                     .flashing(flashingMap));
       }
+    } else if (nextAction == NextApplicantAction.PREVIOUS) {
+      System.out.println("following previous action");
+      return getResultForPrevious(roApplicantProgramService,
+              blockId, profile, applicantId, programId, fromAddressCorrection);
     }
 
     // Redirect the applicant to the review page if the next action is the review page or if the
@@ -1008,5 +1002,38 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       throw new RuntimeException(cause);
     }
     throw new RuntimeException(throwable);
+  }
+
+  private CompletableFuture<Result> getResultForPrevious(
+          ReadOnlyApplicantProgramService roApplicantProgramService,
+          String blockId,
+          CiviFormProfile profile,
+          long applicantId,
+          long programId,
+          boolean fromAddressCorrection) {
+    Optional<Block> currentBlock = roApplicantProgramService.getActiveBlock(blockId);
+    System.out.println("blockId=" + blockId + "  returned=" + currentBlock);
+    if (currentBlock.isEmpty()) {
+      // TODO: Log?
+      // If we couldn't find the current block for some reason, take the applicant back to the review page.
+      return supplyAsync(
+              () -> redirect(applicantRoutes.review(profile, applicantId, programId).url()));
+    }
+    int currentBlockIndex = roApplicantProgramService.getBlockIndex(currentBlock.get().getId());
+    if (fromAddressCorrection) {
+      // TODO: Copy comment
+      currentBlockIndex = currentBlockIndex + 1;
+    }
+    System.out.println("currentblockindex=" + currentBlockIndex);
+    final int previousBlockIndex = currentBlockIndex - 1;
+    if (currentBlockIndex <= 0) {
+      // We're at the first block (or an invalid block), so take the applicant back to the review page.
+      return supplyAsync(
+              () -> redirect(applicantRoutes.review(profile, applicantId, programId).url()));
+    }
+    return supplyAsync(
+            // TODO: Does the next action matter?
+            () -> redirect(applicantRoutes.blockPrevious(profile, applicantId, programId, previousBlockIndex, NextApplicantAction.NEXT_VISIBLE))
+    );
   }
 }
