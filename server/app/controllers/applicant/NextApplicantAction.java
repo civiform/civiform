@@ -15,6 +15,10 @@ public enum NextApplicantAction {
    * starting/continuing an application.
    */
   NEXT_VISIBLE,
+  /**
+   * The applicant wants to see the previous block. If there is no previous block (e.g. the applicant is currently on the first block),
+   * they'll be taken to the review page. */
+  PREVIOUS,
   /** The applicant wants to see the review page with all questions listed. */
   REVIEW_PAGE;
 

@@ -624,9 +624,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             updateResponse -> {
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
               if (settingsManifest.getSaveOnAllActions(request)
-                  && nextActionEnum == NextApplicantAction.REVIEW_PAGE
+                  && (nextActionEnum == NextApplicantAction.REVIEW_PAGE || nextActionEnum == NextApplicantAction.PREVIOUS)
                   && !updateResponse.answersChanged()) {
-                // If the applicant wants to return to the review page and hasn't changed any
+                // If the applicant wants to return to the previous block or to the review page and hasn't changed any
                 // answers, allow them to do so, regardless of if there's errors (like empty
                 // required questions) or not.
                 return supplyAsync(

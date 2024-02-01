@@ -16,6 +16,7 @@ import j2html.tags.specialized.SpanTag;
 import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
+import scala.App;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
@@ -67,7 +68,27 @@ public class ApplicationBaseView extends BaseHtmlView {
         .withClasses(ButtonStyles.OUTLINED_TRANSPARENT);
   }
 
-  protected ATag renderPreviousButton(ApplicationBaseView.Params params) {
+  protected DomContent renderPreviousButton(SettingsManifest settingsManifest, ApplicationBaseView.Params params) {
+    if (settingsManifest.getSaveOnAllActions(params.request())) {
+      String formAction =
+              params
+                      .applicantRoutes()
+                      .updateBlock(
+                              params.profile(),
+                              params.applicantId(),
+                              params.programId(),
+                              params.block().getId(),
+                              NextApplicantAction.PREVIOUS)
+                      .url();
+      return submitButton(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
+              // TODO: Solid blue instead?
+              .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
+              .withFormaction(formAction);
+    }
+    return renderOldPreviousButton(params);
+  }
+
+  protected ATag renderOldPreviousButton(ApplicationBaseView.Params params) {
     int previousBlockIndex = params.blockIndex() - 1;
     String redirectUrl;
 

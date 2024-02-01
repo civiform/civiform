@@ -232,7 +232,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     return div()
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
         .with(renderReviewButton(settingsManifest, params))
-        .with(renderPreviousButton(params))
+        .with(renderPreviousButton(settingsManifest, params))
         .with(renderNextButton(params));
   }
 

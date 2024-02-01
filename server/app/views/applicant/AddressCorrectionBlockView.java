@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import controllers.applicant.ApplicantRoutes;
 import controllers.applicant.NextApplicantAction;
 import j2html.TagCreator;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -258,7 +259,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
         .with(
             renderReviewButton(
                 settingsManifest, params, getFormAction(params, NextApplicantAction.REVIEW_PAGE)))
-        .with(renderPreviousButton(params))
+        .with(renderCustomPreviousButton(params))
         .with(renderNextButton(params));
   }
 
@@ -268,11 +269,11 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
         .withId("cf-block-submit");
   }
 
-  @Override
-  protected ATag renderPreviousButton(Params params) {
+  private DomContent renderCustomPreviousButton(Params params) {
     // Set the block index to the next block, so that the renderPreviousButton
     // method will render the correct block.
+    // TODO: This won't work..
     Params newParams = params.toBuilder().setBlockIndex(params.blockIndex() + 1).build();
-    return super.renderPreviousButton(newParams);
+    return renderPreviousButton(settingsManifest, newParams);
   }
 }

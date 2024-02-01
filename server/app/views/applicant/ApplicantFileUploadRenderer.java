@@ -308,13 +308,13 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     DivTag ret =
         div()
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-            // TODO(#6450): Adjust file upload to have the new review button behavior. It's not
+            // TODO(#6450): Adjust file upload to have the new review and previous button behavior. It's not
             // immediately doable
             //  because file_upload.ts will prevent form submissions if there's no file uploaded,
             // and we sometimes
             //  (but not always) want to bypass that for the Review button.
             .with(renderOldReviewButton(params))
-            .with(renderPreviousButton(params));
+            .with(renderOldPreviousButton(params));
     if (maybeSkipOrDeleteButton.isPresent()) {
       ret.with(maybeSkipOrDeleteButton.get());
     }
