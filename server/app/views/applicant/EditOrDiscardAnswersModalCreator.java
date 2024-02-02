@@ -3,11 +3,12 @@ package views.applicant;
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
+import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW;
 
 import com.google.inject.Inject;
-import controllers.applicant.ApplicantRequestedAction;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import services.MessageKey;
 import views.ApplicationBaseView;
 import views.BaseHtmlView;
 import views.components.ButtonStyles;
@@ -27,43 +28,37 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
    * Creates a modal asking the applicant to either edit their answers so that they pass validation,
    * or discard their answers and proceed with whatever action they were hoping to do.
    *
-   * @param applicantRequestedAction specifies where the applicant should be taken to next if they
-   *     decide to discard their answers. should never be {@link
-   *     ApplicantRequestedAction#NEXT_BLOCK}, because the "Save & next" button should show the
-   *     validation errors without any modal.
+   * @throws IllegalArgumentException if {@code params#errorDisplayMode()} isn't a modal-displaying
+   *     mode.
    */
-  public Modal createModal(
-      ApplicationBaseView.Params params, ApplicantRequestedAction applicantRequestedAction) {
-    if (applicantRequestedAction == ApplicantRequestedAction.NEXT_BLOCK) {
+  public Modal createModal(ApplicationBaseView.Params params) {
+    if (params.errorDisplayMode() != DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
       throw new IllegalArgumentException(
-          "The applicantRequestedAction should never be NEXT_BLOCK.");
+          "The params.errorDisplayMode() should be DISPLAY_ERRORS_WITH_MODAL_REVIEW.");
     }
-    // TODO: Use message strings
     DivTag modalContent =
         div()
-            .with(
-                p(
-                    "There's some errors with the information you've filled in. Would you like to"
-                        + " go back and fix the errors, or go to the review page without"
-                        + " saving?"))
+            .with(p(params.messages().at(MessageKey.MODAL_ERROR_ON_REVIEW_CONTENT.getKeyName())))
             .with(
                 div()
                     .withClasses("flex", "my-8")
-                    .with(renderReviewWithoutSavingButton(params), renderGoBackAndEditButton()));
+                    .with(
+                        renderReviewWithoutSavingButton(params),
+                        renderGoBackAndEditButton(params)));
 
     return Modal.builder()
         .setModalId(Modal.randomModalId())
         .setLocation(Modal.Location.APPLICANT_FACING)
         .setContent(modalContent)
-        .setModalTitle("Edit or discard")
+        .setModalTitle(params.messages().at(MessageKey.MODAL_ERROR_ON_REVIEW_TITLE.getKeyName()))
         .setMessages(params.messages())
         .setWidth(Modal.Width.DEFAULT)
         .setDisplayOnLoad(true)
         .build();
   }
 
-  private ButtonTag renderGoBackAndEditButton() {
-    return button("Go back and edit")
+  private ButtonTag renderGoBackAndEditButton(ApplicationBaseView.Params params) {
+    return button(params.messages().at(MessageKey.MODAL_GO_BACK_AND_EDIT.getKeyName()))
         .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.SOLID_BLUE);
   }
 
@@ -73,7 +68,10 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
             .applicantRoutes()
             .review(params.profile(), params.applicantId(), params.programId())
             .url();
-    return redirectButton("review-without-saving", "Review without saving", reviewUrl)
+    return redirectButton(
+            "review-without-saving",
+            params.messages().at(MessageKey.MODAL_ERROR_ON_REVIEW_NO_SAVE_BUTTON.getKeyName()),
+            reviewUrl)
         .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "mr-2");
   }
 }
