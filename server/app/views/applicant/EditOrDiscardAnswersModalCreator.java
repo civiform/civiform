@@ -42,7 +42,14 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
             .with(p(params.messages().at(MessageKey.MODAL_ERROR_ON_REVIEW_CONTENT.getKeyName())))
             .with(
                 div()
-                    .withClasses("flex", "my-8")
+                    .withClasses(
+                        "flex",
+                        "flex-col",
+                        "sm:flex-row",
+                        "flex-wrap",
+                        "justify-end",
+                        "my-8",
+                        "gap-4")
                     .with(
                         renderReviewWithoutSavingButton(params),
                         renderGoBackAndEditButton(params)));
