@@ -28,7 +28,7 @@ fi
 # We map full browser-test local directory to the container so that it uses local changes.
 # Additionally we map node_modules to a separate anonymous volume so that it doesn't
 # conflict with node_modules created locally.
-if [[ -z "$(docker ps -f "name=${CONTAINER_NAME}" --format "{{.Names}}")" ]]; then
+if [[ -z "$(docker ps --filter "name=${CONTAINER_NAME}" --format "{{.Names}}")" ]]; then
   docker run \
     --detach \
     --interactive \
