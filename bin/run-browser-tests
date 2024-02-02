@@ -12,13 +12,13 @@ docker::set_project_name_browser_tests
 bin/pull-image
 
 readonly CONTAINER_NAME="civiform-browser-test-runner"
-readonly CONTAINER_IMAGE_ID="$(docker inspect "${CONTAINER_NAME}" | jq '.[0].Image')"
+readonly CONTAINER_IMAGE_ID="$(docker inspect "${CONTAINER_NAME}" 2>/dev/null | jq '.[0].Image')"
 readonly LAST_IMAGE_ID="$(docker image inspect civiform-browser-test:latest | jq '.[0].Id')"
 
 # Check if the current browser test image is different. If it is remove the container
 # so that it can be recreated with the newer image.
 if [[ "${CONTAINER_IMAGE_ID}" != "${LAST_IMAGE_ID}" ]]; then
-  docker rm --volumes --force "${CONTAINER_NAME}"
+  docker rm --volumes --force "${CONTAINER_NAME}" 2>/dev/null
 fi
 
 # Check if the container is running. If it is not run the container and detach so it
