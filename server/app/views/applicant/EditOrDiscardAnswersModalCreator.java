@@ -1,6 +1,5 @@
 package views.applicant;
 
-import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW;
@@ -39,7 +38,8 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
 
     DivTag modalContent =
         div()
-            .with(p(params.messages().at(MessageKey.MODAL_ERROR_ON_REVIEW_CONTENT.getKeyName())))
+            .with(
+                p(params.messages().at(MessageKey.MODAL_ERROR_SAVING_REVIEW_CONTENT.getKeyName())))
             .with(
                 div()
                     .withClasses(
@@ -57,7 +57,7 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
         .setModalId(Modal.randomModalId())
         .setLocation(Modal.Location.APPLICANT_FACING)
         .setContent(modalContent)
-        .setModalTitle(params.messages().at(MessageKey.MODAL_ERROR_ON_REVIEW_TITLE.getKeyName()))
+        .setModalTitle(params.messages().at(MessageKey.MODAL_ERROR_SAVING_TITLE.getKeyName()))
         .setMessages(params.messages())
         .setWidth(Modal.Width.DEFAULT)
         .setDisplayOnLoad(true)
@@ -65,7 +65,7 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
   }
 
   private ButtonTag renderGoBackAndEditButton(ApplicationBaseView.Params params) {
-    return button(params.messages().at(MessageKey.MODAL_GO_BACK_AND_EDIT.getKeyName()))
+    return button(params.messages().at(MessageKey.MODAL_ERROR_SAVING_GO_BACK_AND_EDIT.getKeyName()))
         // Adding the MODAL_CLOSE class means that clicking the button will close the modal.
         .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.SOLID_BLUE);
   }
@@ -78,7 +78,7 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
             .url();
     return redirectButton(
             "review-without-saving",
-            params.messages().at(MessageKey.MODAL_ERROR_ON_REVIEW_NO_SAVE_BUTTON.getKeyName()),
+            params.messages().at(MessageKey.MODAL_ERROR_SAVING_REVIEW_NO_SAVE_BUTTON.getKeyName()),
             reviewUrl)
         .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "mr-2");
   }
