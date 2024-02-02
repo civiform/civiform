@@ -560,6 +560,7 @@ export class ApplicantQuestions {
     const modal = await waitForAnyModal(this.page)
     expect(await modal.innerText()).toContain(`Error saving information`)
     expect(await modal.innerText()).toContain(`Review without saving`)
+    expect(await modal.innerText()).toContain(`Go back and edit`)
   }
 
   async clickReviewWithoutSaving() {

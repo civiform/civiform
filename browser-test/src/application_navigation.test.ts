@@ -75,13 +75,6 @@ describe('Applicant navigation flow', () => {
       await adminPrograms.publishProgram(programName)
     })
 
-    afterAll(async () => {
-      const {page} = ctx
-      await loginAsAdmin(page)
-      await disableFeatureFlag(page, 'save_on_all_actions')
-      await logout(page)
-    })
-
     it('clicking previous on first block goes to summary page', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
@@ -145,9 +138,9 @@ describe('Applicant navigation flow', () => {
         await logout(page)
 
         await applicantQuestions.applyProgram(programName)
-
         await applicantQuestions.answerDateQuestion('2021-11-01')
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
         await applicantQuestions.clickReview()
 
         await applicantQuestions.expectReviewPage()
@@ -182,16 +175,16 @@ describe('Applicant navigation flow', () => {
         )
       })
 
-      it('clicking review on missing required questions shows modal', async () => {
+      it('clicking review with missing answers shows modal', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
 
         await applicantQuestions.applyProgram(programName)
-
         await applicantQuestions.answerDateQuestion('')
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
         await applicantQuestions.clickReview()
 
         // The date question is required, so we should see the error modal.
@@ -211,7 +204,6 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
 
         await applicantQuestions.clickReview()
-
         await applicantQuestions.expectErrorOnReviewModal()
 
         await applicantQuestions.clickGoBackAndEdit()
@@ -247,7 +239,6 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.answerEmailQuestion('')
 
         await applicantQuestions.clickReview()
-
         await applicantQuestions.expectErrorOnReviewModal()
 
         // Proceed to the Review page, acknowledging that answers won't be saved
@@ -260,6 +251,13 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.validateNoPreviouslyAnsweredText(
           emailQuestionText,
         )
+      })
+
+      afterAll(async () => {
+        const {page} = ctx
+        await loginAsAdmin(page)
+        await disableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
       })
     })
 

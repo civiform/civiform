@@ -712,6 +712,45 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void update_requestedActionReview_answersSaved() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+    Request request =
+        requestBuilderWithSettings(
+                routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                    applicant.id,
+                    program.id,
+                    /* blockId= */ "1",
+                    /* inReview= */ false,
+                    ApplicantRequestedAction.REVIEW_PAGE.name()))
+            .bodyForm(
+                ImmutableMap.of(
+                    Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
+                    "FakeFirstNameHere",
+                    Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
+                    "FakeLastNameHere"))
+            .build();
+
+    subject
+        .updateWithApplicantId(
+            request,
+            applicant.id,
+            program.id,
+            /* blockId= */ "1",
+            /* inReview= */ false,
+            ApplicantRequestedAction.REVIEW_PAGE.name())
+        .toCompletableFuture()
+        .join();
+
+    applicant.refresh();
+    assertThat(applicant.getApplicantData().asJsonString()).contains("FakeFirstNameHere");
+    assertThat(applicant.getApplicantData().asJsonString()).contains("FakeLastNameHere");
+  }
+
+  @Test
   public void update_savesCorrectedAddressWhenValidAddressIsEntered() {
     program =
         ProgramBuilder.newActiveProgram()
