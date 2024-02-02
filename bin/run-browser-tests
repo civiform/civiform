@@ -14,6 +14,7 @@ bin/pull-image
 readonly CONTAINER_NAME="civiform-browser-test-runner"
 readonly CONTAINER_IMAGE_ID="$(docker inspect "${CONTAINER_NAME}" 2>/dev/null | jq '.[0].Image')"
 readonly LAST_IMAGE_ID="$(docker image inspect civiform-browser-test:latest | jq '.[0].Id')"
+readonly TEST_CIVIC_ENTITY_SHORT_NAME="${TEST_CIVIC_ENTITY_SHORT_NAME:-TestCity}"
 
 # Check if the current browser test image is different. If it is remove the container
 # so that it can be recreated with the newer image.
@@ -35,7 +36,7 @@ if [[ -z "$(docker ps -f "name=${CONTAINER_NAME}" --format "{{.Names}}")" ]]; th
     --volume "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
     --name "${CONTAINER_NAME}" \
     --env RECORD_VIDEO="${RECORD_VIDEO}" \
-    --env TEST_CIVIC_ENTITY_SHORT_NAME="${TEST_CIVIC_ENTITY_SHORT_NAME:-TestCity}" \
+    --env TEST_CIVIC_ENTITY_SHORT_NAME="${TEST_CIVIC_ENTITY_SHORT_NAME}" \
     --network "${DOCKER_NETWORK_NAME}" \
     --entrypoint bash \
     civiform-browser-test:latest
@@ -46,7 +47,7 @@ docker exec \
   --interactive \
   --tty \
   --env RECORD_VIDEO="${RECORD_VIDEO}" \
-  --env TEST_CIVIC_ENTITY_SHORT_NAME="${TEST_CIVIC_ENTITY_SHORT_NAME:-TestCity}" \
+  --env TEST_CIVIC_ENTITY_SHORT_NAME="${TEST_CIVIC_ENTITY_SHORT_NAME}" \
   "${CONTAINER_NAME}" \
   /usr/src/civiform-browser-tests/bin/wait_for_server_start_and_run_tests.sh \
   "$@"
