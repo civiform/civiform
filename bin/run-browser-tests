@@ -5,7 +5,7 @@
 # DOC:   RECORD_VIDEO - If set (typically to 1) records video of the test run.
 # DOC:   TEST_CIVIC_ENTITY_SHORT_NAME - Overrides the default value of the short name.
 # DOC: Globals:
-# DOC:   DOCKER_NETWORK_NAME - from lib/docker.sh 
+# DOC:   DOCKER_NETWORK_NAME - from lib/docker.sh
 
 source bin/lib.sh
 docker::set_project_name_browser_tests
