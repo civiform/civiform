@@ -308,7 +308,11 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     Request request =
         requestBuilderWithSettings(
                 routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id, programId, /* blockId= */ "1", /* inReview= */ false))
+                    applicant.id,
+                    programId,
+                    /* blockId= */ "1",
+                    /* inReview= */ false,
+                    ApplicantRequestedAction.NEXT_BLOCK.name()))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -320,7 +324,12 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     Result result =
         blockController
             .updateWithApplicantId(
-                request, applicant.id, programId, /* blockId= */ "1", /* inReview= */ false)
+                request,
+                applicant.id,
+                programId,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                ApplicantRequestedAction.NEXT_BLOCK.name())
             .toCompletableFuture()
             .join();
 

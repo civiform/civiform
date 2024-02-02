@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
-import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -77,7 +76,8 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     }
 
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
-    if (params.errorDisplayMode() == DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
+    if (settingsManifest.getSaveOnAllActions(params.request())
+        && params.errorDisplayMode() == DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
       modals.add(editOrDiscardAnswersModalCreator.createModal(params));
     }
 
@@ -223,7 +223,8 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
       boolean formHasErrors,
       int ordinalErrorCount,
       Optional<String> applicantSelectedQuestionName) {
-    if (formHasErrors && DISPLAY_ERRORS.equals(errorDisplayMode)) {
+    if (formHasErrors
+        && ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(errorDisplayMode)) {
       return ordinalErrorCount == 1
           ? ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_ERROR
           : ApplicantQuestionRendererParams.AutoFocusTarget.NONE;

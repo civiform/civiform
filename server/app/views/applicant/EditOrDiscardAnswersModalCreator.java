@@ -16,8 +16,8 @@ import views.components.Modal;
 import views.style.ReferenceClasses;
 
 /**
- * A helper class for a modal that's displayed to an applicant when the applicant clicked "Review"
- * or "Previous" but had invalid answers.
+ * A helper class that creates a modal displayed to an applicant when the applicant clicked "Review"
+ * on a block but had invalid answers.
  */
 public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
 
@@ -25,8 +25,8 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
   public EditOrDiscardAnswersModalCreator() {}
 
   /**
-   * Creates a modal asking the applicant to either edit their answers so that they pass validation,
-   * or discard their answers and proceed with whatever action they were hoping to do.
+   * Creates a modal asking the applicant to either (1) edit their answers so that they pass
+   * validation, or (2) discard their answers and proceed with the action they'd chosen.
    *
    * @throws IllegalArgumentException if {@code params#errorDisplayMode()} isn't a modal-displaying
    *     mode.
@@ -36,6 +36,7 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
       throw new IllegalArgumentException(
           "The params.errorDisplayMode() should be DISPLAY_ERRORS_WITH_MODAL_REVIEW.");
     }
+
     DivTag modalContent =
         div()
             .with(p(params.messages().at(MessageKey.MODAL_ERROR_ON_REVIEW_CONTENT.getKeyName())))
@@ -45,7 +46,6 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
                     .with(
                         renderReviewWithoutSavingButton(params),
                         renderGoBackAndEditButton(params)));
-
     return Modal.builder()
         .setModalId(Modal.randomModalId())
         .setLocation(Modal.Location.APPLICANT_FACING)
@@ -59,6 +59,7 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
 
   private ButtonTag renderGoBackAndEditButton(ApplicationBaseView.Params params) {
     return button(params.messages().at(MessageKey.MODAL_GO_BACK_AND_EDIT.getKeyName()))
+        // Adding the MODAL_CLOSE class means that clicking the button will close the modal.
         .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.SOLID_BLUE);
   }
 

@@ -22,13 +22,21 @@ describe('Applicant navigation flow', () => {
 
   describe('navigation with five blocks', () => {
     const programName = 'Test program for navigation flows'
+    const dateQuestionText = 'date question text'
+    const emailQuestionText = 'email question text'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
-      await adminQuestions.addDateQuestion({questionName: 'nav-date-q'})
-      await adminQuestions.addEmailQuestion({questionName: 'nav-email-q'})
+      await adminQuestions.addDateQuestion({
+        questionName: 'nav-date-q',
+        questionText: dateQuestionText,
+      })
+      await adminQuestions.addEmailQuestion({
+        questionName: 'nav-email-q',
+        questionText: emailQuestionText,
+      })
       await adminQuestions.addAddressQuestion({
         questionName: 'nav-address-q',
       })
@@ -65,6 +73,13 @@ describe('Applicant navigation flow', () => {
 
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishProgram(programName)
+    })
+
+    afterAll(async () => {
+      const {page} = ctx
+      await loginAsAdmin(page)
+      await disableFeatureFlag(page, 'save_on_all_actions')
+      await logout(page)
     })
 
     it('clicking previous on first block goes to summary page', async () => {
@@ -117,9 +132,135 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.checkDateQuestionValue('2021-11-01')
       await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
 
-      // Assert that we're on the preview page.
+      // Assert that we're on the review page.
       await applicantQuestions.clickPrevious()
       await applicantQuestions.expectReviewPage()
+    })
+
+    describe('review button', () => {
+      it('clicking review does not save when flag off', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await disableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+        await applicantQuestions.clickReview()
+
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          dateQuestionText,
+        )
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          emailQuestionText,
+        )
+      })
+
+      it('clicking review with correct form shows review page with saved answers', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
+        await applicantQuestions.clickReview()
+
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          dateQuestionText,
+          '11/01/2021',
+        )
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          emailQuestionText,
+          'test1@gmail.com',
+        )
+      })
+
+      it('clicking review on missing required questions shows modal', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+
+        await applicantQuestions.answerDateQuestion('')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+        await applicantQuestions.clickReview()
+
+        // The date question is required, so we should see the error modal.
+        await applicantQuestions.expectErrorOnReviewModal()
+        await validateScreenshot(page, 'error-on-review-modal')
+        await validateAccessibility(page)
+      })
+
+      it('error on review modal > click go back and edit > shows block', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
+        await applicantQuestions.clickReview()
+
+        await applicantQuestions.expectErrorOnReviewModal()
+
+        await applicantQuestions.clickGoBackAndEdit()
+
+        // Verify the previously filled in answers are present
+        await applicantQuestions.checkDateQuestionValue('')
+        await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
+
+        // Answer the date question correctly and try clicking "Review" again
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+
+        await applicantQuestions.clickReview()
+
+        // Verify we're taken to the review page and the answers were saved
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          dateQuestionText,
+          '11/01/2021',
+        )
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          emailQuestionText,
+          'test1@gmail.com',
+        )
+      })
+
+      it('error on review modal > click review without saving > shows review page without saved answers', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('')
+
+        await applicantQuestions.clickReview()
+
+        await applicantQuestions.expectErrorOnReviewModal()
+
+        // Proceed to the Review page, acknowledging that answers won't be saved
+        await applicantQuestions.clickReviewWithoutSaving()
+
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          dateQuestionText,
+        )
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          emailQuestionText,
+        )
+      })
     })
 
     it('verify program details page', async () => {
@@ -1236,7 +1377,7 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.clickNext()
         await applicantQuestions.answerTextQuestion('Some text')
         await applicantQuestions.clickNext()
-        await applicantQuestions.expectAddressHasBeenCorrected(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'With Correction',
           'Address In Area',
         )
@@ -1269,7 +1410,7 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.clickNext()
         await applicantQuestions.expectVerifyAddressPage(true)
         await applicantQuestions.clickNext()
-        await applicantQuestions.expectAddressHasBeenCorrected(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'With Correction',
           'Address In Area',
         )
@@ -1304,7 +1445,7 @@ describe('Applicant navigation flow', () => {
         )
 
         await applicantQuestions.clickNext()
-        await applicantQuestions.expectAddressHasBeenCorrected(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'With Correction',
           'Address In Area',
         )
@@ -1429,7 +1570,7 @@ describe('Applicant navigation flow', () => {
         '98109',
       )
       await applicantQuestions.clickNext()
-      await applicantQuestions.expectAddressHasBeenCorrected(
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
         'With Correction',
         '305 Harrison',
       )

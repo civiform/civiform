@@ -1,6 +1,6 @@
 import {Page} from 'playwright'
 import {readFileSync} from 'fs'
-import {waitForPageJsLoad} from './wait'
+import {waitForAnyModal, waitForPageJsLoad} from './wait'
 import {BASE_URL} from './config'
 
 export class ApplicantQuestions {
@@ -495,7 +495,7 @@ export class ApplicantQuestions {
     expect(await this.page.innerText('legend')).toContain('With Correction')
   }
 
-  async expectAddressHasBeenCorrected(
+  async expectQuestionAnsweredOnReviewPage(
     questionText: string,
     answerText: string,
   ) {
@@ -554,5 +554,19 @@ export class ApplicantQuestions {
 
   async seeStaticQuestion(questionText: string) {
     expect(await this.page.textContent('html')).toContain(questionText)
+  }
+
+  async expectErrorOnReviewModal() {
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain(`Error saving information`)
+    expect(await modal.innerText()).toContain(`Review without saving`)
+  }
+
+  async clickReviewWithoutSaving() {
+    await this.page.click('button:has-text("Review without saving")')
+  }
+
+  async clickGoBackAndEdit() {
+    await this.page.click('button:has-text("Go back and edit")')
   }
 }

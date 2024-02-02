@@ -1,6 +1,9 @@
 package controllers.applicant;
 
-/** An enum representing what page an applicant would like to see next. */
+/**
+ * An enum representing what page an applicant would like to see after completing their current
+ * block.
+ */
 public enum ApplicantRequestedAction {
   /**
    * The applicant wants to see the next block in the form.

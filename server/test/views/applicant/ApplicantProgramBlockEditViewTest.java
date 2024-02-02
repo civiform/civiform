@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import repository.ResetPostgres;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
@@ -25,7 +26,9 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
           Mockito.mock(ApplicantLayout.class),
           Mockito.mock(ApplicantFileUploadRenderer.class),
           Mockito.mock(ApplicantQuestionRendererFactory.class),
-          applicantRoutes);
+          applicantRoutes,
+          new EditOrDiscardAnswersModalCreator(),
+          Mockito.mock(SettingsManifest.class));
 
   @Test
   public void
@@ -51,6 +54,19 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
                 /* ordinalErrorCount= */ 1,
                 /* applicantSelectedQuestionName= */ Optional.empty()))
         .isEqualTo(NONE);
+  }
+
+  @Test
+  public void
+      calculateAutoFocusTarget_formHasErrors_displayWithModalReview_shouldAutofocusFirstError() {
+    assertThat(
+            EMPTY_VIEW.calculateAutoFocusTarget(
+                ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW,
+                ADDRESS_QD,
+                /* formHasErrors */ true,
+                /* ordinalErrorCount= */ 1,
+                /* applicantSelectedQuestionName= */ Optional.empty()))
+        .isEqualTo(FIRST_ERROR);
   }
 
   @Test

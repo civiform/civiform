@@ -49,6 +49,7 @@ public class ApplicationBaseView extends BaseHtmlView {
     return renderReviewButton(settingsManifest, params, formAction);
   }
 
+  /** Renders a "Review" button with a custom action. */
   protected DomContent renderReviewButton(
       SettingsManifest settingsManifest, ApplicationBaseView.Params params, String formAction) {
     if (settingsManifest.getSaveOnAllActions(params.request())) {
