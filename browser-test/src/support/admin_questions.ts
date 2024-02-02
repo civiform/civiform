@@ -19,6 +19,15 @@ type QuestionParams = {
   enumeratorName?: string
   exportOption?: string
   universal?: boolean
+  primaryApplicantInfo?: boolean // Ignored if there isn't one for the question type
+}
+
+// Should match the fieldName set in PrimaryApplicantInfoTag.java
+export enum PrimaryApplicantInfoField {
+  APPLICANT_DOB = 'primaryApplicantDob',
+  APPLICANT_EMAIL = 'primaryApplicantEmail',
+  APPLICANT_NAME = 'primaryApplicantName',
+  APPLICANT_PHONE = 'primaryApplicantPhone',
 }
 
 export enum QuestionType {
@@ -79,7 +88,7 @@ export class AdminQuestions {
   }
 
   async clickSubmitButtonAndNavigate(buttonText: string) {
-    await this.page.click(`button:has-text("${buttonText}")`)
+    await this.page.click(`button:text-is("${buttonText}")`)
     await waitForPageJsLoad(this.page)
   }
 
@@ -627,6 +636,7 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
+    primaryApplicantInfo = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -644,6 +654,12 @@ export class AdminQuestions {
       universal,
     })
 
+    if (universal && primaryApplicantInfo) {
+      await this.clickPrimaryApplicantInfoToggle(
+        PrimaryApplicantInfoField.APPLICANT_PHONE,
+      )
+    }
+
     await this.clickSubmitButtonAndNavigate('Create')
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
@@ -659,6 +675,7 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
+    primaryApplicantInfo = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -675,6 +692,12 @@ export class AdminQuestions {
       exportOption,
       universal,
     })
+
+    if (universal && primaryApplicantInfo) {
+      await this.clickPrimaryApplicantInfoToggle(
+        PrimaryApplicantInfoField.APPLICANT_DOB,
+      )
+    }
 
     await this.clickSubmitButtonAndNavigate('Create')
 
@@ -1023,6 +1046,7 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
+    primaryApplicantInfo = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -1039,6 +1063,12 @@ export class AdminQuestions {
       exportOption,
       universal,
     })
+
+    if (universal && primaryApplicantInfo) {
+      await this.clickPrimaryApplicantInfoToggle(
+        PrimaryApplicantInfoField.APPLICANT_NAME,
+      )
+    }
 
     await this.clickSubmitButtonAndNavigate('Create')
 
@@ -1192,6 +1222,54 @@ export class AdminQuestions {
     return this.page.inputValue('#universal-toggle-input')
   }
 
+  async clickPrimaryApplicantInfoToggle(field: PrimaryApplicantInfoField) {
+    await this.page.click(`#${field}-toggle`)
+  }
+
+  async getPrimaryApplicantInfoToggleValue(fieldName: string) {
+    return this.page.inputValue(`#${fieldName}-toggle-input`)
+  }
+
+  async expectPrimaryApplicantInfoUniversalAlertVisible(visible: boolean) {
+    expect(
+      await this.page
+        .locator('.cf-primary-applicant-info-universal-alert')
+        .isVisible(),
+    ).toEqual(visible)
+  }
+
+  async expectPrimaryApplicantInfoSectionVisible(visible: boolean) {
+    expect(
+      await this.page.locator('#primary-applicant-info').isVisible(),
+    ).toEqual(visible)
+  }
+
+  async expectPrimaryApplicantInfoToggleVisible(
+    fieldName: string,
+    visible: boolean,
+  ) {
+    expect(await this.page.locator(`#${fieldName}-toggle`).isVisible()).toEqual(
+      visible,
+    )
+  }
+
+  async expectPrimaryApplicantInfoToggleValue(
+    fieldName: string,
+    value: boolean,
+  ) {
+    expect(await this.getPrimaryApplicantInfoToggleValue(fieldName)).toEqual(
+      value.toString(),
+    )
+  }
+
+  async expectPrimaryApplicantInfoAlreadySetAlertVisible(visible: boolean) {
+    expect(
+      await this.page
+        .locator('.cf-primary-applicant-info-tag-already-set-alert')
+        .isVisible(),
+    ).toEqual(visible)
+  }
+
   async addIdQuestion({
     questionName,
     description = 'id description',
@@ -1241,6 +1319,7 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
+    primaryApplicantInfo = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -1257,6 +1336,12 @@ export class AdminQuestions {
       exportOption,
       universal,
     })
+
+    if (universal && primaryApplicantInfo) {
+      await this.clickPrimaryApplicantInfoToggle(
+        PrimaryApplicantInfoField.APPLICANT_EMAIL,
+      )
+    }
 
     await this.clickSubmitButtonAndNavigate('Create')
 
