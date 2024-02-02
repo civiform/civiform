@@ -77,7 +77,6 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     }
 
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
-
     if (settingsManifest.getSaveOnAllActions(params.request())
         && (params.errorDisplayMode() == DISPLAY_ERRORS_WITH_MODAL_REVIEW
             || params.errorDisplayMode() == DISPLAY_ERRORS_WITH_MODAL_PREVIOUS)) {

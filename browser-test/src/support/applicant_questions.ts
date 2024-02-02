@@ -567,9 +567,24 @@ export class ApplicantQuestions {
     expect(await modal.innerText()).toContain(`Stay and fix your answers`)
   }
 
+  async expectErrorOnPreviousModal() {
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain(`Error saving information`)
+    expect(await modal.innerText()).toContain(
+      `Go to previous page without saving`,
+    )
+    expect(await modal.innerText()).toContain(`Go back and edit`)
+  }
+
   async clickReviewWithoutSaving() {
     await this.page.click(
       'button:has-text("Continue to review page without saving")',
+    )
+  }
+
+  async clickPreviousWithoutSaving() {
+    await this.page.click(
+      'button:has-text("Go to previous page without saving")',
     )
   }
 

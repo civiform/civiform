@@ -75,59 +75,212 @@ describe('Applicant navigation flow', () => {
       await adminPrograms.publishProgram(programName)
     })
 
-    it('clicking previous on first block goes to summary page', async () => {
-      const {applicantQuestions} = ctx
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickPrevious()
+    fdescribe('previous button', () => {
+      it('clicking previous on first block goes to summary page', async () => {
+        const {applicantQuestions} = ctx
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.clickPrevious()
 
-      // Assert that we're on the preview page.
-      await applicantQuestions.expectReviewPage()
-    })
+        // Assert that we're on the preview page.
+        await applicantQuestions.expectReviewPage()
+      })
 
-    it('clicking previous on later blocks goes to previous blocks', async () => {
-      const {applicantQuestions} = ctx
-      await applicantQuestions.applyProgram(programName)
+      it('clicking previous on later blocks goes to previous blocks', async () => {
+        const {applicantQuestions} = ctx
+        await applicantQuestions.applyProgram(programName)
 
-      // Fill out the first block and click next
-      await applicantQuestions.answerDateQuestion('2021-11-01')
-      await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-      await applicantQuestions.clickNext()
+        // Fill out the first block and click next
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+        await applicantQuestions.clickNext()
 
-      // Nothing to fill in since this is the static question block
-      await applicantQuestions.clickNext()
+        // Nothing to fill in since this is the static question block
+        await applicantQuestions.clickNext()
 
-      // Fill out address question and click next
-      await applicantQuestions.answerAddressQuestion(
-        '1234 St',
-        'Unit B',
-        'Sim',
-        'WA',
-        '54321',
-      )
-      await applicantQuestions.clickNext()
+        // Fill out address question and click next
+        await applicantQuestions.answerAddressQuestion(
+          '1234 St',
+          'Unit B',
+          'Sim',
+          'WA',
+          '54321',
+        )
+        await applicantQuestions.clickNext()
 
-      // Click previous and see file upload page with address
-      await applicantQuestions.clickPrevious()
-      await applicantQuestions.checkAddressQuestionValue(
-        '1234 St',
-        'Unit B',
-        'Sim',
-        'WA',
-        '54321',
-      )
+        // Click previous and see file upload page with address
+        await applicantQuestions.clickPrevious()
+        await applicantQuestions.checkAddressQuestionValue(
+          '1234 St',
+          'Unit B',
+          'Sim',
+          'WA',
+          '54321',
+        )
 
-      // Click previous and see static question page
-      await applicantQuestions.clickPrevious()
-      await applicantQuestions.seeStaticQuestion('static question text')
+        // Click previous and see static question page
+        await applicantQuestions.clickPrevious()
+        await applicantQuestions.seeStaticQuestion('static question text')
 
-      // Click previous and see date and name questions
-      await applicantQuestions.clickPrevious()
-      await applicantQuestions.checkDateQuestionValue('2021-11-01')
-      await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
+        // Click previous and see date and name questions
+        await applicantQuestions.clickPrevious()
+        await applicantQuestions.checkDateQuestionValue('2021-11-01')
+        await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
 
-      // Assert that we're on the review page.
-      await applicantQuestions.clickPrevious()
-      await applicantQuestions.expectReviewPage()
+        // Assert that we're on the review page.
+        await applicantQuestions.clickPrevious()
+        await applicantQuestions.expectReviewPage()
+      })
+
+      it('clicking previous does not save when flag off', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await disableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
+        await applicantQuestions.clickPrevious()
+
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          dateQuestionText,
+        )
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          emailQuestionText,
+        )
+      })
+
+      it('clicking previous with correct form shows review page with saved answers', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
+        await applicantQuestions.clickPrevious()
+
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          dateQuestionText,
+          '11/01/2021',
+        )
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          emailQuestionText,
+          'test1@gmail.com',
+        )
+      })
+
+      it('clicking previous with missing answers shows modal', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
+        await applicantQuestions.clickPrevious()
+
+        // The date question is required, so we should see the error modal.
+        await applicantQuestions.expectErrorOnPreviousModal()
+        await validateScreenshot(page, 'error-on-previous-modal')
+        await validateAccessibility(page)
+      })
+
+      it('error on previous modal > click go back and edit > shows block', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
+        await applicantQuestions.clickPrevious()
+        await applicantQuestions.expectErrorOnPreviousModal()
+
+        await applicantQuestions.clickGoBackAndEdit()
+
+        // Verify the previously filled in answers are present
+        await applicantQuestions.checkDateQuestionValue('')
+        await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
+
+        // Answer the date question correctly and try clicking "Review" again
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+
+        await applicantQuestions.clickPrevious()
+
+        // Verify we're taken to the review page and the answers were saved
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          dateQuestionText,
+          '11/01/2021',
+        )
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          emailQuestionText,
+          'test1@gmail.com',
+        )
+      })
+
+      it('error on previous modal > click previous without saving > shows review page without saved answers', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('')
+
+        await applicantQuestions.clickPrevious()
+        await applicantQuestions.expectErrorOnPreviousModal()
+
+        // Proceed to the previous page (which will be the review page,
+        // since this is the first block), acknowledging that answers won't be saved
+        await applicantQuestions.clickPreviousWithoutSaving()
+
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          dateQuestionText,
+        )
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          emailQuestionText,
+        )
+      })
+
+      it('error on previous modal > click previous without saving > shows previous block', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+        await applicantQuestions.clickNext()
+
+        await applicantQuestions.clickPrevious()
+        await applicantQuestions.expectErrorOnPreviousModal()
+
+        // Proceed to the previous page and verify the first block answers are present
+        await applicantQuestions.clickPreviousWithoutSaving()
+
+        await applicantQuestions.checkDateQuestionValue('2021-11-01')
+        await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
+      })
+
+      afterAll(async () => {
+        const {page} = ctx
+        await loginAsAdmin(page)
+        await disableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+      })
     })
 
     describe('review button', () => {

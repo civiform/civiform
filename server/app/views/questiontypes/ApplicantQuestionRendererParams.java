@@ -33,8 +33,9 @@ public abstract class ApplicantQuestionRendererParams {
     DISPLAY_ERRORS_WITH_MODAL_REVIEW,
     /**
      * Validation errors are displayed, *and* a modal is displayed on top of the form asking the
-     * applicant to either (1) correct the errors or (2) discard their changes and continue to the
-     * previous block.
+     * applicant to either (1) correct the errors or (2) discard their answers and continue to the
+     * previous block. Typically used when the applicant has clicked Previous but their answers
+     * didn't pass validation.
      */
     DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
 

@@ -626,6 +626,46 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void update_withValidationErrors_requestedActionPrevious_staysOnBlockAndShowsErrors() {
+    Request request =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                            applicant.id,
+                            program.id,
+                            /* blockId= */ "1",
+                            /* inReview= */ false,
+                            ApplicantRequestedAction.PREVIOUS_BLOCK.name()))
+                    .bodyForm(
+                        ImmutableMap.of(
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.FIRST_NAME)
+                                .toString(),
+                            "FirstName",
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.LAST_NAME)
+                                .toString(),
+                            "")))
+            .build();
+
+    Result result =
+        subject
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                ApplicantRequestedAction.PREVIOUS_BLOCK.name())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("FirstName");
+    assertThat(contentAsString(result)).contains("Please enter your last name.");
+  }
+
+  @Test
   public void update_withNextBlock_requestedActionNext_redirectsToEditNextBlock() {
     program =
         ProgramBuilder.newActiveProgram()
@@ -743,6 +783,130 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             /* blockId= */ "1",
             /* inReview= */ false,
             new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE))
+        .toCompletableFuture()
+        .join();
+
+    applicant.refresh();
+    assertThat(applicant.getApplicantData().asJsonString()).contains("FakeFirstNameHere");
+    assertThat(applicant.getApplicantData().asJsonString()).contains("FakeLastNameHere");
+  }
+
+  @Test
+  public void update_requestedActionPrevious_redirectsToPreviousBlock() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withBlock("block 2")
+            .withRequiredQuestion(testQuestionBank().applicantFavoriteColor())
+            .withBlock("block 3")
+            .withRequiredQuestion(testQuestionBank().applicantIceCream())
+            .withBlock("block 4")
+            .withRequiredQuestion(testQuestionBank().applicantEmail())
+            .build();
+    Request request =
+        requestBuilderWithSettings(
+                routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                    applicant.id,
+                    program.id,
+                    /* blockId= */ "4",
+                    /* inReview= */ false,
+                    ApplicantRequestedAction.PREVIOUS_BLOCK.name()))
+            .bodyForm(
+                ImmutableMap.of(
+                    Path.create("applicant.applicant_email").toString(), "test@gmail.com"))
+            .build();
+
+    Result result =
+        subject
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "4",
+                /* inReview= */ false,
+                ApplicantRequestedAction.PREVIOUS_BLOCK.name())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    String previousRoute =
+        routes.ApplicantProgramBlocksController.previous(
+            program.id, /* previousBlockIndex= */ 0, /* inReview= */ false);
+    assertThat(result.redirectLocation()).hasValue(previousRoute);
+  }
+
+  @Test
+  public void update_requestedActionPrevious_isFirstBlock_redirectsToReview() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+    Request request =
+        requestBuilderWithSettings(
+                routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                    applicant.id,
+                    program.id,
+                    /* blockId= */ "1",
+                    /* inReview= */ false,
+                    ApplicantRequestedAction.PREVIOUS_BLOCK.name()))
+            .bodyForm(
+                ImmutableMap.of(
+                    Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
+                    "FirstName",
+                    Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
+                    "LastName"))
+            .build();
+
+    Result result =
+        subject
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                ApplicantRequestedAction.PREVIOUS_BLOCK.name())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    String reviewRoute = routes.ApplicantProgramReviewController.review(program.id).url();
+    assertThat(result.redirectLocation()).hasValue(reviewRoute);
+  }
+
+  @Test
+  public void update_requestedActionPrevious_answersSaved() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+    Request request =
+        requestBuilderWithSettings(
+                routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                    applicant.id,
+                    program.id,
+                    /* blockId= */ "1",
+                    /* inReview= */ false,
+                    ApplicantRequestedAction.PREVIOUS_BLOCK.name()))
+            .bodyForm(
+                ImmutableMap.of(
+                    Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
+                    "FakeFirstNameHere",
+                    Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
+                    "FakeLastNameHere"))
+            .build();
+
+    subject
+        .updateWithApplicantId(
+            request,
+            applicant.id,
+            program.id,
+            /* blockId= */ "1",
+            /* inReview= */ false,
+            ApplicantRequestedAction.PREVIOUS_BLOCK.name())
         .toCompletableFuture()
         .join();
 

@@ -251,7 +251,6 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
         // TODO(#6450): Use the new review button here.
         .with(renderOldReviewButton(params))
-        // TODO(#6450): Use the new previous button here.
         .with(renderCustomPreviousButton(params))
         .with(renderNextButton(params));
   }
@@ -266,6 +265,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
     // Set the block index to the next block, so that the renderPreviousButton
     // method will render the correct block.
     Params newParams = params.toBuilder().setBlockIndex(params.blockIndex() + 1).build();
+    // TODO(#6450): Use the new previous button here.
     return renderOldPreviousButton(newParams);
   }
 }

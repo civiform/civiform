@@ -708,9 +708,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     // TODO(#6450): With the SAVE_ON_ALL_ACTIONS flag enabled, when you enter an address that
     // requires correction but but then click "Previous", you're still taken forward to the
-    // address correction screen which is unexpected. We should probably show a modal with 3
-    // options: "Edit address", "Go to previous block without saving" and "Go to address
-    // correction"?
+    // address correction screen which is unexpected.
     if (settingsManifest.getEsriAddressCorrectionEnabled(request)
         && thisBlockUpdated.hasAddressWithCorrectionEnabled()) {
 
@@ -776,8 +774,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
     if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK) {
       // TODO(#6450): If the user is coming from the address correction view, the index won't be
-      // quite right --
-      // see AddressCorrectionBlockView#renderCustomPreviousButton.
+      // quite right -- see AddressCorrectionBlockView#renderCustomPreviousButton.
       int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
       final int previousBlockIndex = currentBlockIndex - 1;
       if (currentBlockIndex <= 0) {

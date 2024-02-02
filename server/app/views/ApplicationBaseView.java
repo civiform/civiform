@@ -111,10 +111,7 @@ public class ApplicationBaseView extends BaseHtmlView {
     return renderOldPreviousButton(params);
   }
 
-  /**
-   * Returns a "Previous" button that will redirect the applicant to the review page *without*
-   * saving the applicant's data.
-   */
+  /** Returns a "Previous" button with a custom action. */
   protected ATag renderOldPreviousButton(ApplicationBaseView.Params params) {
       String redirectUrl =
               params
@@ -131,6 +128,7 @@ public class ApplicationBaseView extends BaseHtmlView {
         .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
         .withId("cf-block-previous");
   }
+
 
   @AutoValue
   public abstract static class Params {

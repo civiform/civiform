@@ -2,11 +2,11 @@ package views.applicant;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
+import static views.ApplicationBaseView.getPreviousUrl;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW;
 
 import com.google.inject.Inject;
-import controllers.applicant.ApplicantRoutes;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import services.MessageKey;
@@ -40,27 +40,19 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
               + " DISPLAY_ERRORS_WITH_MODAL_PREVIOUS.");
     }
 
-    // TODO: Use messages again
-    String contentString;
+    MessageKey content;
     ButtonTag withoutSaveButton;
     if (params.errorDisplayMode() == DISPLAY_ERRORS_WITH_MODAL_PREVIOUS) {
-      contentString =
-          "There's some errors with the information you've filled in. Would you like to"
-              + " go back and fix the errors, or go to the previous block without"
-              + " saving?";
+      content = MessageKey.MODAL_ERROR_SAVING_PREVIOUS_CONTENT;
       withoutSaveButton = renderPreviousWithoutSavingButton(params);
     } else {
-      contentString =
-          "There's some errors with the information you've filled in. Would you like to"
-              + " go back and fix the errors, or go to the review page without"
-              + " saving?";
+      content = MessageKey.MODAL_ERROR_SAVING_REVIEW_CONTENT;
       withoutSaveButton = renderReviewWithoutSavingButton(params);
     }
 
     DivTag modalContent =
         div()
-            .with(
-                p(params.messages().at(MessageKey.MODAL_ERROR_SAVING_REVIEW_CONTENT.getKeyName())))
+            .with(p(params.messages().at(content.getKeyName())))
             .with(
                 div()
                     .withClasses(
@@ -106,28 +98,12 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
   }
 
   private ButtonTag renderPreviousWithoutSavingButton(ApplicationBaseView.Params params) {
-    // TODO: Copied from ApplicationBaseView
-    System.out.println("blockindex=" + params.blockIndex());
-    int previousBlockIndex = params.blockIndex() - 1;
-    String redirectUrl;
-
-    if (previousBlockIndex >= 0) {
-      ApplicantRoutes applicantRoutes = params.applicantRoutes();
-      redirectUrl =
-          applicantRoutes
-              .blockPrevious(
-                  params.profile(),
-                  params.applicantId(),
-                  params.programId(),
-                  previousBlockIndex,
-                  params.inReview())
-              .url();
-    } else {
-      ApplicantRoutes applicantRoutes = params.applicantRoutes();
-      redirectUrl =
-          applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
-    }
-    return redirectButton("review-without-saving", "See previous block without saving", redirectUrl)
+    return redirectButton(
+            "review-without-saving",
+            params
+                .messages()
+                .at(MessageKey.MODAL_ERROR_SAVING_PREVIOUS_NO_SAVE_BUTTON.getKeyName()),
+            getPreviousUrl(params))
         .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "mr-2");
   }
 }
