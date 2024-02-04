@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableSet;
-import io.ebean.DB;
 import io.ebean.DataIntegrityException;
 import java.util.Locale;
 import java.util.Map;
