@@ -72,21 +72,9 @@ public class ProgramModel extends BaseModel {
 
   @DbJsonB private ProgramAcls acls;
 
-  /**
-   * legacyLocalizedName is the legacy storage column for program name translations. Programs
-   * created before early May 2021 may use this, but all other programs should not.
-   */
-  @DbJsonB private ImmutableMap<Locale, String> legacyLocalizedName;
-
   @DbJsonB private LocalizedStrings localizedDescription;
 
   @DbJsonB private LocalizedStrings localizedConfirmationMessage;
-
-  /**
-   * legacyLocalizedDescription is the legacy storage column for program description translations.
-   * Programs created before early May 2021 may use this, but all other programs should not.
-   */
-  @DbJsonB private ImmutableMap<Locale, String> legacyLocalizedDescription;
 
   @Constraints.Required @DbJson private ImmutableList<BlockDefinition> blockDefinitions;
 
@@ -259,6 +247,8 @@ public class ProgramModel extends BaseModel {
             .setAdminDescription(description)
             .setBlockDefinitions(blockDefinitions)
             .setStatusDefinitions(statusDefinitions)
+            .setLocalizedName(localizedName)
+            .setLocalizedDescription(localizedDescription)
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
             .setCreateTime(createTime)
@@ -267,35 +257,10 @@ public class ProgramModel extends BaseModel {
             .setEligibilityIsGating(eligibilityIsGating)
             .setAcls(acls);
 
-    setLocalizedName(builder);
-    setLocalizedDescription(builder);
     setLocalizedConfirmationMessage(builder);
     setLocalizedSummaryImageDescription(builder);
     setSummaryImageFileKey(builder);
     this.programDefinition = builder.build();
-  }
-
-  /** The majority of programs should have `localizedName` and not `legacyLocalizedName`. */
-  private ProgramModel setLocalizedName(ProgramDefinition.Builder builder) {
-    if (localizedName != null) {
-      builder.setLocalizedName(localizedName);
-    } else {
-      builder.setLocalizedName(LocalizedStrings.create(legacyLocalizedName));
-    }
-    return this;
-  }
-
-  /**
-   * The majority of programs should have `localizedDescription` and not
-   * `legacyLocalizedDescription`.
-   */
-  private ProgramModel setLocalizedDescription(ProgramDefinition.Builder builder) {
-    if (localizedDescription != null) {
-      builder.setLocalizedDescription(localizedDescription);
-    } else {
-      builder.setLocalizedDescription(LocalizedStrings.create(legacyLocalizedDescription));
-    }
-    return this;
   }
 
   private ProgramModel setLocalizedConfirmationMessage(ProgramDefinition.Builder builder) {
