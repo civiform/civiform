@@ -66,20 +66,8 @@ public class QuestionModel extends BaseModel {
 
   private @Constraints.Required String description;
 
-  /**
-   * legacyQuestionText is the legacy storage column for question text translations. Questions
-   * created before early May 2021 may use this, but all other question should not.
-   */
-  private @DbJsonB ImmutableMap<Locale, String> legacyQuestionText;
-
   /** questionText is the current storage column for question text translations. */
   private @DbJsonB LocalizedStrings questionText;
-
-  /**
-   * legacyQuestionHelpText is the legacy storage column for question help text translations.
-   * Questions created before early May 2021 may use this, but all other question should not.
-   */
-  private @DbJsonB ImmutableMap<Locale, String> legacyQuestionHelpText;
 
   /** questionHelpText is the current storage column for question help text translations. */
   private @DbJsonB LocalizedStrings questionHelpText;
@@ -87,13 +75,6 @@ public class QuestionModel extends BaseModel {
   private @Constraints.Required String questionType;
 
   private @Constraints.Required @DbJsonB String validationPredicates;
-
-  // legacyQuestionOptions is the legacy storage column for multi-option questions.
-  // A few questions created early on in April 2021 may use this, but all
-  // other multi-option questions should not. In practice one can assume only
-  // a single locale is present for questions that have values stored in this
-  // column.
-  private @DbJsonB ImmutableListMultimap<Locale, String> legacyQuestionOptions;
 
   // questionOptions is the current storage column for multi-option questions.
   private @DbJsonB ImmutableList<QuestionOption> questionOptions;
@@ -153,16 +134,14 @@ public class QuestionModel extends BaseModel {
             .setEnumeratorId(Optional.ofNullable(enumeratorId))
             .setDescription(description)
             .setQuestionType(QuestionType.valueOf(questionType))
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
             .setValidationPredicatesString(validationPredicates)
             .setLastModifiedTime(Optional.ofNullable(lastModifiedTime))
             .setUniversal(questionTags.contains(QuestionTag.UNIVERSAL))
             .setPrimaryApplicantInfoTags(getPrimaryApplicantInfoTagsFromQuestionTags(questionTags));
 
     setEnumeratorEntityType(builder);
-
-    // Build accounting for legacy columns
-    setQuestionText(builder);
-    setQuestionHelpText(builder);
     setQuestionOptions(builder);
 
     this.questionDefinition = builder.build();
@@ -187,78 +166,26 @@ public class QuestionModel extends BaseModel {
   }
 
   /**
-   * Add {@link LocalizedStrings} for question text to the builder, taking into account legacy
-   * columns.
+   * Add {@link QuestionOption}s to the builder.
    *
-   * <p>The majority of questions should have `questionText` and not `legacyQuestionText`.
+   * <p>The majority of questions should have a `questionOptions`.
    */
-  private QuestionModel setQuestionText(QuestionDefinitionBuilder builder) {
-    LocalizedStrings textToSet =
-        Optional.ofNullable(questionText)
-            .orElseGet(() -> LocalizedStrings.create(legacyQuestionText));
-    builder.setQuestionText(textToSet);
-    return this;
-  }
-
-  /**
-   * Add {@link LocalizedStrings} for question help text to the builder, taking into account legacy
-   * columns.
-   *
-   * <p>The majority of questions should have `questionHelpText` and not `legacyQuestionHelpText`.
-   */
-  private QuestionModel setQuestionHelpText(QuestionDefinitionBuilder builder) {
-    LocalizedStrings textToSet =
-        Optional.ofNullable(questionHelpText)
-            .orElseGet(
-                () -> LocalizedStrings.create(legacyQuestionHelpText, /* canBeEmpty= */ true));
-    builder.setQuestionHelpText(textToSet);
-    return this;
-  }
-
-  /**
-   * Add {@link QuestionOption}s to the builder, taking into account legacy columns.
-   *
-   * <p>The majority of questions should have a `questionOptions` and not `legacyQuestionOptions`.
-   */
-  private QuestionModel setQuestionOptions(QuestionDefinitionBuilder builder)
+  private void setQuestionOptions(QuestionDefinitionBuilder builder)
       throws InvalidQuestionTypeException {
     if (!QuestionType.of(questionType).isMultiOptionType()) {
-      return this;
+      return;
     }
 
-    // The majority of multi option questions should have `questionOptions` and not
-    // `legacyQuestionOptions`.
-    // `legacyQuestionOptions` is a legacy implementation that only supported a single locale.
     if (questionOptions != null) {
       builder.setQuestionOptions(questionOptions);
-      return this;
     }
-
-    // If the multi option question does have legacyQuestionOptions, we can assume there is only one
-    // locale and convert the strings to QuestionOption instances each with a single locale.
-    Locale firstKey = legacyQuestionOptions.keySet().stream().iterator().next();
-
-    ImmutableList<QuestionOption> options =
-        Streams.mapWithIndex(
-                legacyQuestionOptions.get(firstKey).stream(),
-                (optionText, i) ->
-                    QuestionOption.create(
-                        Long.valueOf(i),
-                        Long.valueOf(i),
-                        optionText,
-                        LocalizedStrings.of(firstKey, optionText)))
-            .collect(toImmutableList());
-
-    builder.setQuestionOptions(options);
-    return this;
   }
 
-  private QuestionModel setEnumeratorEntityType(QuestionDefinitionBuilder builder)
+  private void setEnumeratorEntityType(QuestionDefinitionBuilder builder)
       throws InvalidQuestionTypeException {
     if (QuestionType.of(questionType).equals(QuestionType.ENUMERATOR)) {
       builder.setEntityType(enumeratorEntityType);
     }
-    return this;
   }
 
   public QuestionDefinition getQuestionDefinition() {

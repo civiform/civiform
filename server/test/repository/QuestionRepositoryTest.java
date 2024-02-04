@@ -249,28 +249,6 @@ public class QuestionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void loadLegacy() {
-    DB.sqlUpdate(
-            "insert into questions (name, description, legacy_question_text,"
-                + " legacy_question_help_text, question_type) values ('old schema"
-                + " entry', 'description', '{\"en_us\": \"text\"}', '{\"en_us\": \"help\"}',"
-                + " 'REPEATER');")
-        .execute();
-
-    QuestionModel found =
-        repo.listQuestions().toCompletableFuture().join().stream()
-            .filter(
-                question -> question.getQuestionDefinition().getName().equals("old schema entry"))
-            .findFirst()
-            .get();
-
-    assertThat(found.getQuestionDefinition().getQuestionText())
-        .isEqualTo(LocalizedStrings.of(Locale.US, "text"));
-    assertThat(found.getQuestionDefinition().getQuestionHelpText())
-        .isEqualTo(LocalizedStrings.of(Locale.US, "help"));
-  }
-
-  @Test
   public void createOrUpdateDraft_managesUniversalTagCorrectly()
       throws UnsupportedQuestionTypeException {
     // Question will be published in an ACTIVE version
