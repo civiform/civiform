@@ -26,6 +26,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import support.ProgramBuilder;
+import views.admin.programs.ProgramEditStatus;
 
 @RunWith(JUnitParamsRunner.class)
 public class AdminProgramImageControllerTest extends ResetPostgres {
@@ -44,12 +45,14 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   public void index_ok_get() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
 
-    Result result = controller.index(addCSRFToken(fakeRequest().method("GET")).build(), program.id);
+    Result result =
+        controller.index(
+            addCSRFToken(fakeRequest().method("GET")).build(),
+            program.id,
+            ProgramEditStatus.CREATION.name());
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Image upload");
-    assertThat(contentAsString(result)).contains("test name");
-    assertThat(contentAsString(result)).contains("Enter image description");
   }
 
   @Test
@@ -57,7 +60,11 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
 
     assertThatThrownBy(
-            () -> controller.index(addCSRFToken(fakeRequest().method("GET")).build(), program.id))
+            () ->
+                controller.index(
+                    addCSRFToken(fakeRequest().method("GET")).build(),
+                    program.id,
+                    ProgramEditStatus.CREATION.name()))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -65,7 +72,10 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   public void index_missingProgram_throws() {
     assertThatThrownBy(
             () ->
-                controller.index(addCSRFToken(fakeRequest().method("GET")).build(), Long.MAX_VALUE))
+                controller.index(
+                    addCSRFToken(fakeRequest().method("GET")).build(),
+                    Long.MAX_VALUE,
+                    ProgramEditStatus.CREATION.name()))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -77,7 +87,11 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                 LocalizedStrings.of(Locale.US, "fake summary description"))
             .build();
 
-    Result result = controller.index(addCSRFToken(fakeRequest().method("GET")).build(), program.id);
+    Result result =
+        controller.index(
+            addCSRFToken(fakeRequest().method("GET")).build(),
+            program.id,
+            ProgramEditStatus.CREATION.name());
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("fake summary description");
@@ -90,7 +104,9 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 controller.updateDescription(
-                    addCSRFToken(fakeRequest().method("POST")).build(), program.id))
+                    addCSRFToken(fakeRequest().method("POST")).build(),
+                    program.id,
+                    ProgramEditStatus.CREATION.name()))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -99,7 +115,9 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 controller.updateDescription(
-                    addCSRFToken(fakeRequest().method("POST")).build(), Long.MAX_VALUE))
+                    addCSRFToken(fakeRequest().method("POST")).build(),
+                    Long.MAX_VALUE,
+                    ProgramEditStatus.CREATION.name()))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -115,7 +133,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "fake description")))
                 .build(),
-            program.id);
+            program.id,
+            ProgramEditStatus.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
@@ -140,7 +159,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "second description")))
                 .build(),
-            program.id);
+            program.id,
+            ProgramEditStatus.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
@@ -171,7 +191,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "new US description")))
                 .build(),
-            program.id);
+            program.id,
+            ProgramEditStatus.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
@@ -185,7 +206,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void updateDescription_empty_removesDescription() throws ProgramNotFoundException {
+  public void updateDescription_empty_noImageFile_removesDescription()
+      throws ProgramNotFoundException {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("test name")
             .setLocalizedSummaryImageDescription(
@@ -199,7 +221,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "")))
                 .build(),
-            program.id);
+            program.id,
+            ProgramEditStatus.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
@@ -207,7 +230,62 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void updateDescription_blank_removesDescription() throws ProgramNotFoundException {
+  public void updateDescription_empty_hasImageFile_descriptionNotRemoved()
+      throws ProgramNotFoundException {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("test name")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(Locale.US, "original description"))
+            .build();
+    setValidFileKeyOnProgram(program);
+
+    Result result =
+        controller.updateDescription(
+            addCSRFToken(
+                    fakeRequest()
+                        .method("POST")
+                        .bodyForm(ImmutableMap.of("summaryImageDescription", "")))
+                .build(),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    assertThat(updatedProgram.localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(updatedProgram.localizedSummaryImageDescription().get().getDefault())
+        .isEqualTo("original description");
+  }
+
+  @Test
+  public void updateDescription_blank_hasImageFile_descriptionNotRemoved()
+      throws ProgramNotFoundException {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("test name")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(Locale.US, "original description"))
+            .build();
+    setValidFileKeyOnProgram(program);
+
+    Result result =
+        controller.updateDescription(
+            addCSRFToken(
+                    fakeRequest()
+                        .method("POST")
+                        .bodyForm(ImmutableMap.of("summaryImageDescription", "    ")))
+                .build(),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    assertThat(updatedProgram.localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(updatedProgram.localizedSummaryImageDescription().get().getDefault())
+        .isEqualTo("original description");
+  }
+
+  @Test
+  public void updateDescription_blank_noImageFile_removesDescription()
+      throws ProgramNotFoundException {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("test name")
             .setLocalizedSummaryImageDescription(
@@ -221,7 +299,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "    ")))
                 .build(),
-            program.id);
+            program.id,
+            ProgramEditStatus.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
@@ -250,7 +329,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "")))
                 .build(),
-            program.id);
+            program.id,
+            ProgramEditStatus.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
@@ -268,14 +348,15 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "fake description")))
                 .build(),
-            program.id);
+            program.id,
+            ProgramEditStatus.CREATION.name());
 
     assertThat(result.flash().data()).containsOnlyKeys("success");
     assertThat(result.flash().data().get("success")).contains("set to fake description");
   }
 
   @Test
-  public void updateDescription_empty_toastsSuccess() {
+  public void updateDescription_empty_noImageFile_toastsSuccess() {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("test name")
             .setLocalizedSummaryImageDescription(
@@ -289,10 +370,56 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                         .method("POST")
                         .bodyForm(ImmutableMap.of("summaryImageDescription", "")))
                 .build(),
-            program.id);
+            program.id,
+            ProgramEditStatus.CREATION.name());
 
     assertThat(result.flash().data()).containsOnlyKeys("success");
     assertThat(result.flash().data().get("success")).contains("removed");
+  }
+
+  @Test
+  public void updateDescription_empty_hasImageFile_toastsError() throws ProgramNotFoundException {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("test name")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(Locale.US, "original description"))
+            .build();
+    setValidFileKeyOnProgram(program);
+
+    Result result =
+        controller.updateDescription(
+            addCSRFToken(
+                    fakeRequest()
+                        .method("POST")
+                        .bodyForm(ImmutableMap.of("summaryImageDescription", "")))
+                .build(),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.flash().data()).containsOnlyKeys("error");
+    assertThat(result.flash().data().get("error"))
+        .contains("Description can't be removed because an image is present");
+  }
+
+  @Test
+  public void updateDescription_redirectIncludesSameEditStatus() {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    Result result =
+        controller.updateDescription(
+            addCSRFToken(
+                    fakeRequest()
+                        .method("POST")
+                        .bodyForm(ImmutableMap.of("summaryImageDescription", "fake description")))
+                .build(),
+            program.id,
+            ProgramEditStatus.EDIT.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramImageController.index(program.id, ProgramEditStatus.EDIT.name())
+                .url());
   }
 
   @Test
@@ -307,7 +434,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             .build();
 
     assertThatExceptionOfType(NotChangeableException.class)
-        .isThrownBy(() -> controller.updateFileKey(request, program.id));
+        .isThrownBy(
+            () -> controller.updateFileKey(request, program.id, ProgramEditStatus.CREATION.name()));
   }
 
   @Test
@@ -320,7 +448,10 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             .build();
 
     assertThatExceptionOfType(NotChangeableException.class)
-        .isThrownBy(() -> controller.updateFileKey(request, /* programId= */ Long.MAX_VALUE));
+        .isThrownBy(
+            () ->
+                controller.updateFileKey(
+                    request, /* programId= */ Long.MAX_VALUE, ProgramEditStatus.CREATION.name()));
   }
 
   @Test
@@ -334,7 +465,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             .build();
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> controller.updateFileKey(request, program.id))
+        .isThrownBy(
+            () -> controller.updateFileKey(request, program.id, ProgramEditStatus.CREATION.name()))
         .withMessageContaining("must contain bucket");
   }
 
@@ -349,7 +481,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             .build();
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> controller.updateFileKey(request, program.id))
+        .isThrownBy(
+            () -> controller.updateFileKey(request, program.id, ProgramEditStatus.CREATION.name()))
         .withMessageContaining("must contain file key");
   }
 
@@ -366,7 +499,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             .build();
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> controller.updateFileKey(request, program.id))
+        .isThrownBy(
+            () -> controller.updateFileKey(request, program.id, ProgramEditStatus.CREATION.name()))
         .withMessageContaining("Key incorrectly formatted");
   }
 
@@ -385,7 +519,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                             "key",
                             "program-summary-image/program-15/myImage.png"))))
             .build(),
-        program.id);
+        program.id,
+        ProgramEditStatus.CREATION.name());
 
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
     assertThat(updatedProgram.summaryImageFileKey()).isNotEmpty();
@@ -418,7 +553,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                             "key",
                             "program-summary-image/program-15/oldImage.png"))))
             .build(),
-        program.id);
+        program.id,
+        ProgramEditStatus.CREATION.name());
 
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
     assertThat(updatedProgram.summaryImageFileKey()).isNotEmpty();
@@ -437,7 +573,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                             "key",
                             "program-summary-image/program-15/newImage.png"))))
             .build(),
-        program.id);
+        program.id,
+        ProgramEditStatus.CREATION.name());
 
     // THEN the database reflects the changes
     updatedProgram = programService.getProgramDefinition(program.id);
@@ -447,12 +584,42 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void updateFileKey_redirectIncludesSameEditStatus() throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    Result result =
+        controller.updateFileKey(
+            addCSRFToken(
+                    fakeRequest(
+                        "POST",
+                        createUriWithQueryString(
+                            ImmutableMap.of(
+                                "bucket",
+                                "fakeBucket",
+                                "key",
+                                "program-summary-image/program-15/newImage.png"))))
+                .build(),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramImageController.index(program.id, ProgramEditStatus.CREATION.name())
+                .url());
+  }
+
+  @Test
   public void deleteFileKey_programNotDraft_throws() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
 
     assertThatExceptionOfType(NotChangeableException.class)
         .isThrownBy(
-            () -> controller.deleteFileKey(addCSRFToken(fakeRequest()).build(), program.id));
+            () ->
+                controller.deleteFileKey(
+                    addCSRFToken(fakeRequest()).build(),
+                    program.id,
+                    ProgramEditStatus.CREATION.name()));
   }
 
   @Test
@@ -461,14 +628,17 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         .isThrownBy(
             () ->
                 controller.deleteFileKey(
-                    addCSRFToken(fakeRequest()).build(), /* programId= */ Long.MAX_VALUE));
+                    addCSRFToken(fakeRequest()).build(),
+                    /* programId= */ Long.MAX_VALUE,
+                    ProgramEditStatus.CREATION.name()));
   }
 
   @Test
   public void deleteFileKey_noFileKeyPresent_stillNoKey() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
 
-    controller.deleteFileKey(addCSRFToken(fakeRequest()).build(), program.id);
+    controller.deleteFileKey(
+        addCSRFToken(fakeRequest()).build(), program.id, ProgramEditStatus.CREATION.name());
 
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
     assertThat(updatedProgram.summaryImageFileKey().isEmpty()).isTrue();
@@ -479,7 +649,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
     setValidFileKeyOnProgram(program);
 
-    controller.deleteFileKey(addCSRFToken(fakeRequest()).build(), program.id);
+    controller.deleteFileKey(
+        addCSRFToken(fakeRequest()).build(), program.id, ProgramEditStatus.CREATION.name());
 
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
     assertThat(updatedProgram.summaryImageFileKey()).isEmpty();
@@ -490,10 +661,27 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
     setValidFileKeyOnProgram(program);
 
-    Result result = controller.deleteFileKey(addCSRFToken(fakeRequest()).build(), program.id);
+    Result result =
+        controller.deleteFileKey(
+            addCSRFToken(fakeRequest()).build(), program.id, ProgramEditStatus.CREATION.name());
 
     assertThat(result.flash().data()).containsOnlyKeys("success");
     assertThat(result.flash().data().get("success")).contains("Image removed");
+  }
+
+  @Test
+  public void deleteFileKey_redirectIncludesSameEditStatus() throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    Result result =
+        controller.deleteFileKey(
+            addCSRFToken(fakeRequest()).build(), program.id, ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramImageController.index(program.id, ProgramEditStatus.CREATION.name())
+                .url());
   }
 
   private String createUriWithQueryString(ImmutableMap<String, String> query) {
@@ -513,7 +701,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                         createUriWithQueryString(
                             ImmutableMap.of("bucket", "fakeBucket", "key", VALID_FILE_KEY))))
                 .build(),
-            program.id);
+            program.id,
+            ProgramEditStatus.CREATION.name());
 
     ProgramDefinition programWithKey = programService.getProgramDefinition(program.id);
     assertThat(programWithKey.summaryImageFileKey()).isNotEmpty();

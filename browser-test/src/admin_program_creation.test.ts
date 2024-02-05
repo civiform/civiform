@@ -30,6 +30,7 @@ describe('program creation', () => {
       'confirmationMessage',
       /* submitNewProgram= */ false,
     )
+    await adminPrograms.expectProgramDetailsSaveButton()
     await validateScreenshot(page, 'program-creation-page')
 
     // When the program submission goes through with the program_card_images flag off,
@@ -55,10 +56,63 @@ describe('program creation', () => {
       'confirmationMessage',
       /* submitNewProgram= */ false,
     )
+    await adminPrograms.expectProgramDetailsSaveAndContinueButton()
     await validateScreenshot(page, 'program-creation-page-images-flag-on')
 
     // When the program submission goes through with the program_card_images flag on,
     // verify we're redirected to the program image upload page.
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminProgramImage.expectProgramImagePage()
+  })
+
+  it('create program then go back prevents URL edits', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(
+      programName,
+      'description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      /* isCommonIntake= */ false,
+      'selectedTI',
+      'confirmationMessage',
+      /* submitNewProgram= */ false,
+    )
+
+    // On initial program creation, expect an admin can fill in the program name.
+    expect(await page.locator('#program-name-input').count()).toEqual(1)
+
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminProgramImage.expectProgramImagePage()
+
+    // WHEN the admin goes back to the program details page
+    await adminProgramImage.clickBackButton()
+
+    // THEN they should not be able to modify the program name (used for the URL).
+    await adminPrograms.expectProgramEditPage(programName)
+    expect(await page.locator('#program-name-input').count()).toEqual(0)
+  })
+
+  it('create program then go back can still go forward', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+    await adminProgramImage.expectProgramImagePage()
+
+    // WHEN the admin goes back to the program details page
+    await adminProgramImage.clickBackButton()
+
+    // THEN they should be able to still go forward to the program images page again.
+    await adminPrograms.expectProgramEditPage(programName)
+    await adminPrograms.expectProgramDetailsSaveAndContinueButton()
+
     await adminPrograms.submitProgramDetailsEdits()
     await adminProgramImage.expectProgramImagePage()
   })
@@ -73,48 +127,16 @@ describe('program creation', () => {
     await validateScreenshot(page, 'program-description-page')
   })
 
-  it('program details page screenshot with images flag on', async () => {
-    const {page, adminPrograms} = ctx
-    await enableFeatureFlag(page, 'program_card_images')
-
-    await loginAsAdmin(page)
-    const programName = 'Apc program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.goToProgramDescriptionPage(programName)
-    await validateScreenshot(
-      page,
-      'program-description-page-with-images-flag-on',
-    )
-  })
-
-  it('program details page redirects to block page if images flag off', async () => {
+  it('program details page redirects to block page', async () => {
     const {page, adminPrograms} = ctx
     await loginAsAdmin(page)
-    await disableFeatureFlag(page, 'program_card_images')
 
     const programName = 'Program Name'
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramDescriptionPage(programName)
     await adminPrograms.submitProgramDetailsEdits()
 
-    // When the images flag is off, saving program edits should redirect back to
-    // the program block edit page.
     await adminPrograms.expectProgramBlockEditPage()
-  })
-
-  it('program details page redirects to image page if images flag on', async () => {
-    const {page, adminPrograms, adminProgramImage} = ctx
-    await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_card_images')
-
-    const programName = 'Program Name'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.goToProgramDescriptionPage(programName)
-    await adminPrograms.submitProgramDetailsEdits()
-
-    // When the images flag is on, saving program edits should redirect to
-    // the program image upload page.
-    await adminProgramImage.expectProgramImagePage()
   })
 
   it('shows correct formatting during question creation', async () => {

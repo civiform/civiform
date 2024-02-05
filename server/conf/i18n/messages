@@ -46,9 +46,7 @@ button.createAccount=Create account
 button.guestLogin=Continue as guest
 content.loginDisabledPrompt=Account login currently disabled
 content.adminLoginPrompt=Looking for something else?
-content.adminFooterPrompt=Are you a benefits administrator?
-# Text at the bottom of the home page to prompt administrators to go to the administrator login page
-content.adminFooterPromptNew=Are you an administrator?
+content.adminFooterPrompt=Are you an administrator?
 link.adminLogin=Admin login
 
 #--------------------------------------------------------------------------#
@@ -83,23 +81,13 @@ button.startHereCommonIntakeSr=Start here by filling out {0}
 button.editCommonIntakeSr=Edit submitted information for {0}
 button.continueCommonIntakeSr=Continue filling out {0}
 content.submittedDate=Submitted {0}
-content.benefits=Get benefits
-# Title of the page where applicants can go to find programs
 content.findPrograms=Find programs
-content.description=CiviForm helps you find benefits you may be eligible for in {0}. Get started by choosing an application below.
-# Content that explains the benefit of using CiviForm. We'll fill in the name of the city or state.
 content.findProgramsDescription=CiviForm helps you find programs you may be eligible for in {0}. Get started by choosing an application below.
-content.saveTime=Save time when applying for benefits
-# Content on the home page to describe the benefit of CiviForm
 content.saveTimeServices=Save time applying for programs and services
-content.guestDescription=Log in to your {0} account or create an account and apply for many benefits without having to enter the same information again. You can also edit applications at any time and check your application statuses.
-# Content explaining the benefits of creating an account, with the authentication provider filled in.
-content.guestDescriptionNew=Log in to your {0} account or create an account and apply to programs without having to enter the same information again. You can also edit applications at any time and check your application statuses.
+content.guestDescription=Log in to your {0} account or create an account and apply to programs without having to enter the same information again. You can also edit applications at any time and check your application statuses.
 link.programDetails=Program details
 link.programDetailsSr=Program details for {0}, opens in a new tab
 title.programs=Programs & services
-title.findServicesSection=Find services that can help you
-# A section of the site that the users should start with
 title.getStartedSection=Get Started
 title.allProgramsSection=All programs ({0})
 title.status=Status
@@ -108,6 +96,62 @@ title.activeProgramsUpdated=Not started
 title.submittedPrograms=Submitted
 toast.applicationSaved=Successfully saved application: application ID {0}
 toast.programCompleted=Application was already completed.
+
+#------------------------------------------------------------------------------------------------------#
+# TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
+#------------------------------------------------------------------------------------------------------#
+
+banner.acctDeleteError=This account cannot be deleted.
+banner.acctDeleteErrorReason=This account cannot be deleted since it has open applications.
+banner.clientInfoUpdated=Client info has been successfully updated.
+banner.clientAcctDeleted=The client account for "{0}" has been successfully deleted.
+banner.newClientCreated=New client successfully created.
+
+button.addNewClient=Add new client
+button.backToClientList=Back to client list
+button.backToEditing=Back to editing
+button.cancel=Cancel
+button.clearSearch=Clear search
+button.deleteAcct=Delete account
+button.keepAcct=Keep account
+button.nextPage=Next
+button.save=Save
+button.search=Search
+button.select=Select
+button.startApp=Start an application
+button.viewApplications=View applications
+
+content.clientCreated=Your new client {0} has been added to your client list. You can now begin submitting applications for this client.
+content.numberOfAppSubmitted={0} applications submitted
+content.warning=There are no applications submitted for this client, so no applications will be lost.
+
+dialog.deleteConfirmation=Are you sure you want to delete this client''s account?
+
+header.acctSettings=Account settings
+header.clientList=Client list
+
+label.acctStatus=Account Status
+label.contactInfo=Contact Information
+label.day=Day
+label.dob=Date of birth
+label.dobExample=For example: January 28 1986
+label.email=Email
+label.month=Month
+label.name=Name
+label.nameExample=For example: Gu or Darren or Darren Gu
+label.notes=Notes
+label.phoneNum=Phone Number
+label.searchByDob=Search by Date of Birth
+label.searchByName=Search by name(s)
+label.year=Year
+
+link.edit=Edit
+
+title.allClients=All Clients
+title.createClient=Create a new client
+title.displayingMultiClients=Displaying {0} clients
+title.displayingOneClient=Displaying 1 client
+title.orgMembers=Organization members
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -156,31 +200,15 @@ title.applicationConfirmation=Application confirmation
 content.confirmed=Thank you for applying to {0}.  Your application has been received, and your application ID is {1}.
 title.createAnAccount=Create an account or sign in
 content.pleaseCreateAccount=Log in to your {0} account or create an account to have your information saved. You''ll be able to return at any time to complete future applications. If you do not already have an account, the login page will allow you to sign up and you won''t lose any data you''ve already entered.
-content.generalLoginModalPrompt=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other benefits quickly.
-# Content explaining the benefits of being logged into your account.
-content.generalLoginModalPromptNew=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other programs quickly.
-content.initialLoginModalPrompt=Before you continue, log in to your {0} account or create an account. You''ll be able to apply for many benefits without having to enter the same information again. You can also edit applications and check your application statuses.
-# Content explaining the benefits of being logged into your account, with {0} as the authentication provider.
-content.initialLoginModalPromptNew=Before you continue, log in to your {0} account or create an account. You''ll be able to apply for multiple programs without having to enter the same information again. You can also edit applications and check your application statuses.
+content.generalLoginModalPrompt=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other programs quickly.
+content.initialLoginModalPrompt=Before you continue, log in to your {0} account or create an account. You''ll be able to apply for multiple programs without having to enter the same information again. You can also edit applications and check your application statuses.
 button.continueWithoutAnAccount=Continue without an account
-title.commonIntakeConfirmation=Benefits you may qualify for
-# Title of the section containing programs the applicant may qualify for.
-title.commonIntakeConfirmationNew=Programs you may qualify for
-title.commonIntakeConfirmationTi=Benefits your client may qualify for
-# Title of the section containing programs the applicant may qualify for, when someone is filling out the application on behalf of their client.
-title.commonIntakeConfirmationTiNew=Programs your client may qualify for 
-content.commonIntakeConfirmation=You may be able to get these benefits if you apply through the online application by clicking ''Apply to programs''.
-# Text explaining next steps in order to enroll in programs
-content.commonIntakeConfirmationNew=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
-content.commonIntakeConfirmationTi=Your client may be able to get these benefits if you apply through the online application by clicking ''Apply to programs''.
-# Text explaining next steps in order to enroll in programs, when filling out the application on behalf of a client
-content.commonIntakeConfirmationTiNew=Your client may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
-content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for benefits at any time, by clicking ''Apply to programs''.  Or to view additional benefit programs you can visit {0}
-# Content explaining that the screener application couldn't find eligible programs, but allows users to find other programs through another website (substituted for {0})
-content.commonIntakeNoMatchingProgramsNew=The pre-screener could not find programs you may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
-content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for benefits at any time, by clicking ''Apply to programs''.  Or to view additional benefit programs you can visit {0}
-# Content explaining that the screener application couldn't find eligible programs, but allows users to find other programs on behalf of their client through another website (substituted for {0})
-content.commonIntakeNoMatchingProgramsTiNew=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
+title.commonIntakeConfirmation=Programs you may qualify for
+title.commonIntakeConfirmationTi=Programs your client may qualify for
+content.commonIntakeConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
+content.commonIntakeConfirmationTi=Your client may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
+content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
+content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
 content.commonIntakeNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
 button.downloadPdf=Download PDF
 button.applyToPrograms=Apply to programs

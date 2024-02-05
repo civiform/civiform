@@ -39,7 +39,7 @@ public final class ApplicantStyles {
   public static final String PROGRAM_APPLICATION_TITLE =
       StyleUtils.joinStyles("text-3xl", "text-black", "font-bold", "mt-8", "mb-4");
   public static final String PROGRAM_TITLE =
-      StyleUtils.joinStyles(BaseStyles.TEXT_SEATTLE_BLUE, "text-lg", "font-bold");
+      StyleUtils.joinStyles(BaseStyles.TEXT_CIVIFORM_BLUE, "text-lg", "font-bold");
 
   public static final String PROGRAM_CARDS_SUBTITLE =
       StyleUtils.joinStyles("my-4", "text-lg", "px-4");
@@ -81,5 +81,11 @@ public final class ApplicantStyles {
   public static final String QUESTION_HELP_TEXT = StyleUtils.joinStyles("text-black", "text-xl");
 
   public static final String APPLICATION_NAV_BAR =
-      StyleUtils.joinStyles("gap-4", "flex", "flex-col", StyleUtils.responsiveMedium("flex-row"));
+      StyleUtils.joinStyles(
+          "gap-4",
+          "flex",
+          "flex-col",
+          StyleUtils.responsiveMedium("flex-row"),
+          "justify-end",
+          "flex-wrap");
 }

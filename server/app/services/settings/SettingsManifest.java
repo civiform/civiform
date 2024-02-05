@@ -895,9 +895,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE", request);
   }
 
-  /** Enables new URL schema that removes applicant ID from applicant actions. */
-  public boolean getNewApplicantUrlSchemaEnabled() {
-    return getBool("NEW_APPLICANT_URL_SCHEMA_ENABLED");
+  /**
+   * (NOT FOR PRODUCTION USE) Save an applicant's answers when they take any action
+   * ('Review'/'Previous'/'Save and next') instead of only saving on 'Save and next'.
+   */
+  public boolean getSaveOnAllActions(RequestHeader request) {
+    return getBool("SAVE_ON_ALL_ACTIONS", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -1864,11 +1867,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "NEW_APPLICANT_URL_SCHEMA_ENABLED",
-                      "Enables new URL schema that removes applicant ID from applicant actions.",
+                      "SAVE_ON_ALL_ACTIONS",
+                      "(NOT FOR PRODUCTION USE) Save an applicant's answers when they take any"
+                          + " action ('Review'/'Previous'/'Save and next') instead of only saving"
+                          + " on 'Save and next'.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.HIDDEN))),
+                      SettingMode.ADMIN_WRITEABLE))),
           "Miscellaneous",
           SettingsSection.create(
               "Miscellaneous",

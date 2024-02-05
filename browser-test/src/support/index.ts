@@ -539,6 +539,34 @@ export const validateScreenshot = async (
   }
 
   expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
+
+  await takeScreenshot(element, `${screenshotFileName}`, fullPage)
+
+  const existingWidth = page.viewportSize()?.width || 1280
+
+  if (mobileScreenshot) {
+    const height = page.viewportSize()?.height || 720
+    // Update the viewport size to different screen widths so we can test on a
+    // variety of sizes
+    await page.setViewportSize({width: 320, height})
+
+    await takeScreenshot(element, `${screenshotFileName}-mobile`, fullPage)
+
+    // Medium width
+    await page.setViewportSize({width: 800, height})
+
+    await takeScreenshot(element, `${screenshotFileName}-medium`, fullPage)
+
+    // Reset back to original width
+    await page.setViewportSize({width: existingWidth, height})
+  }
+}
+
+const takeScreenshot = async (
+  element: Page | Locator,
+  fullScreenshotFileName: string,
+  fullPage?: boolean,
+) => {
   expect(
     await element.screenshot({
       fullPage,
@@ -553,35 +581,9 @@ export const validateScreenshot = async (
     customReceivedDir: 'updated_snapshots',
     customSnapshotIdentifier: ({testPath}) => {
       const dir = path.basename(testPath).replace('.test.ts', '_test')
-      return `${dir}/${screenshotFileName}`
+      return `${dir}/${fullScreenshotFileName}`
     },
   })
-
-  if (mobileScreenshot) {
-    const height = page.viewportSize()?.height || 720
-    // Update the viewport size to be a very narrow screen, and rerun the browser
-    // tests so we have mobile and desktop views.
-    await page.setViewportSize({width: 320, height})
-
-    expect(
-      await element.screenshot({
-        fullPage,
-      }),
-    ).toMatchImageSnapshot({
-      allowSizeMismatch: true,
-      failureThreshold: 0,
-      failureThresholdType: 'percent',
-      customSnapshotsDir: 'image_snapshots',
-      customDiffDir: 'diff_output',
-      storeReceivedOnFailure: true,
-      customReceivedDir: 'updated_snapshots',
-      customSnapshotIdentifier: ({testPath}) => {
-        const dir = path.basename(testPath).replace('.test.ts', '_test')
-        return `${dir}/${screenshotFileName}-mobile`
-      },
-    })
-    await page.setViewportSize({width: 1280, height})
-  }
 }
 
 /*
@@ -668,4 +670,12 @@ export const extractEmailsForRecipient = async function (
 
   await page.goto(originalPageUrl)
   return filteredEmails
+}
+
+export const expectEnabled = async (page: Page, locator: string) => {
+  expect(await page.getAttribute(locator, 'disabled')).toBeNull()
+}
+
+export const expectDisabled = async (page: Page, locator: string) => {
+  expect(await page.getAttribute(locator, 'disabled')).not.toBeNull()
 }

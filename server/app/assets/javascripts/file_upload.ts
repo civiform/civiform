@@ -24,7 +24,6 @@ export function init() {
       const uploadText = assertNotNull(uploadedDiv.getAttribute(UPLOAD_ATTR))
 
       blockForm.addEventListener('change', (event) => {
-        if (uploadedDiv.innerHTML) return
         const files = (event.target! as HTMLInputElement).files
         const file = assertNotNull(files)[0]
         uploadedDiv.innerHTML = uploadText.replace('{0}', file.name)

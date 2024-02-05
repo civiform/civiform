@@ -30,7 +30,6 @@ import java.util.concurrent.CompletionException;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
-import services.TranslationLocales;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
@@ -58,7 +57,6 @@ import views.style.StyleUtils;
 public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
-  private final TranslationLocales translationLocales;
   private final ProgramCardFactory programCardFactory;
   private final SettingsManifest settingsManifest;
 
@@ -67,11 +65,9 @@ public final class ProgramIndexView extends BaseHtmlView {
       AdminLayoutFactory layoutFactory,
       Config config,
       SettingsManifest settingsManifest,
-      TranslationLocales translationLocales,
       ProgramCardFactory programCardFactory) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
-    this.translationLocales = checkNotNull(translationLocales);
     this.programCardFactory = checkNotNull(programCardFactory);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
@@ -410,7 +406,10 @@ public final class ProgramIndexView extends BaseHtmlView {
                     span(" - " + maybeUniversalQuestionsText.orElse(""))),
             new LinkElement()
                 .setText("Edit")
-                .setHref(controllers.admin.routes.AdminProgramController.edit(program.id()).url())
+                .setHref(
+                    controllers.admin.routes.AdminProgramController.edit(
+                            program.id(), ProgramEditStatus.EDIT.name())
+                        .url())
                 .asAnchorText())
         .withClass("pt-2");
   }
@@ -570,16 +569,10 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private Optional<ButtonTag> renderManageTranslationsLink(ProgramDefinition program) {
-    if (translationLocales.translatableLocales().isEmpty()) {
-      return Optional.empty();
-    }
-    String linkDestination =
-        routes.AdminProgramTranslationsController.redirectToFirstLocale(program.adminName()).url();
-    ButtonTag button =
-        makeSvgTextButton("Manage translations", Icons.LANGUAGE)
-            .withId("program-translations-link-" + program.id())
-            .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
-    return Optional.of(asRedirectElement(button, linkDestination));
+    return layout.createManageTranslationsButton(
+        program.adminName(),
+        /* buttonId= */ Optional.of("program-translations-link-" + program.id()),
+        ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
   }
 
   private ButtonTag renderEditStatusesLink(ProgramDefinition program) {
