@@ -100,6 +100,7 @@ toast.programCompleted=Application was already completed.
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
 #------------------------------------------------------------------------------------------------------#
+
 # Message that appears when a user attempts to delete an account and it fails.
 banner.acctDeleteError=This account cannot be deleted.
 # Reason included with the account delete error, which explains the account can't be deleted due to applications the client has open
@@ -182,6 +183,7 @@ label.searchByName=Search by name(s)
 label.year=Year
 
 link.edit=Edit
+
 # This is the header above the list of clients and the client search.
 title.allClients=All Clients
 # This is the heading above a new client creation form.
