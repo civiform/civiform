@@ -776,7 +776,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       // TODO(#6450): If the user is coming from the address correction view, the index won't be
       // quite right -- see AddressCorrectionBlockView#renderCustomPreviousButton.
       int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
-      final int previousBlockIndex = currentBlockIndex - 1;
       if (currentBlockIndex <= 0) {
         // We're at the first block (or an invalid block), so take the applicant back to the review
         // page.
@@ -787,7 +786,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           () ->
               redirect(
                   applicantRoutes
-                      .blockPrevious(profile, applicantId, programId, previousBlockIndex, inReview)
+                      .blockPrevious(
+                          profile, applicantId, programId, currentBlockIndex - 1, inReview)
                       .url()));
     }
 

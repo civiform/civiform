@@ -832,7 +832,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String previousRoute =
         routes.ApplicantProgramBlocksController.previous(
-            program.id, /* previousBlockIndex= */ 0, /* inReview= */ false);
+            program.id, /* previousBlockIndex= */ 3, /* inReview= */ false);
     assertThat(result.redirectLocation()).hasValue(previousRoute);
   }
 

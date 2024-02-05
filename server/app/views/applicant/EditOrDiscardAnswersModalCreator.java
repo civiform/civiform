@@ -5,6 +5,7 @@ import static j2html.TagCreator.p;
 import static views.ApplicationBaseView.getPreviousUrl;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW;
+import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrorsWithModal;
 
 import com.google.inject.Inject;
 import j2html.tags.specialized.ButtonTag;
@@ -15,12 +16,15 @@ import views.BaseHtmlView;
 import views.components.ButtonStyles;
 import views.components.Modal;
 import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 
 /**
  * A helper class that creates a modal displayed to an applicant when the applicant clicked "Review"
  * on a block but had invalid answers.
  */
 public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
+  private static final String WITHOUT_SAVE_BUTTON_CLASSES =
+      StyleUtils.joinStyles(ButtonStyles.OUTLINED_TRANSPARENT, "mr-2");
 
   @Inject
   public EditOrDiscardAnswersModalCreator() {}
@@ -33,11 +37,11 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
    *     mode.
    */
   public Modal createModal(ApplicationBaseView.Params params) {
-    if (!(params.errorDisplayMode() == DISPLAY_ERRORS_WITH_MODAL_PREVIOUS
-        || params.errorDisplayMode() == DISPLAY_ERRORS_WITH_MODAL_REVIEW)) {
+    if (!shouldShowErrorsWithModal(params.errorDisplayMode())) {
       throw new IllegalArgumentException(
-          "The params.errorDisplayMode() should be DISPLAY_ERRORS_WITH_MODAL_REVIEW or"
-              + " DISPLAY_ERRORS_WITH_MODAL_PREVIOUS.");
+          String.format(
+              "The params.errorDisplayMode() is %s which isn't a modal-displaying type",
+              params.errorDisplayMode()));
     }
 
     MessageKey content;
@@ -45,9 +49,11 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
     if (params.errorDisplayMode() == DISPLAY_ERRORS_WITH_MODAL_PREVIOUS) {
       content = MessageKey.MODAL_ERROR_SAVING_PREVIOUS_CONTENT;
       withoutSaveButton = renderPreviousWithoutSavingButton(params);
-    } else {
+    } else if (params.errorDisplayMode() == DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
       content = MessageKey.MODAL_ERROR_SAVING_REVIEW_CONTENT;
       withoutSaveButton = renderReviewWithoutSavingButton(params);
+    } else {
+      throw new IllegalStateException("The params.errorDisplayMode() should be verified above");
     }
 
     DivTag modalContent =
@@ -94,16 +100,16 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
             "review-without-saving",
             params.messages().at(MessageKey.MODAL_ERROR_SAVING_REVIEW_NO_SAVE_BUTTON.getKeyName()),
             reviewUrl)
-        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "mr-2");
+        .withClasses(WITHOUT_SAVE_BUTTON_CLASSES);
   }
 
   private ButtonTag renderPreviousWithoutSavingButton(ApplicationBaseView.Params params) {
     return redirectButton(
-            "review-without-saving",
+            "previous-without-saving",
             params
                 .messages()
                 .at(MessageKey.MODAL_ERROR_SAVING_PREVIOUS_NO_SAVE_BUTTON.getKeyName()),
             getPreviousUrl(params))
-        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "mr-2");
+        .withClasses(WITHOUT_SAVE_BUTTON_CLASSES);
   }
 }

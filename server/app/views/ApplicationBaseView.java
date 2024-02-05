@@ -79,7 +79,7 @@ public class ApplicationBaseView extends BaseHtmlView {
 
   /**
    * Renders a "Previous" button that will also save the applicant's data before redirecting to the
-   * previous block.
+   * previous block (if the feature flag is on).
    */
   protected DomContent renderPreviousButton(
       SettingsManifest settingsManifest, ApplicationBaseView.Params params) {
@@ -97,10 +97,7 @@ public class ApplicationBaseView extends BaseHtmlView {
     return renderPreviousButton(settingsManifest, params, formAction);
   }
 
-  /**
-   * Renders a "Previous" button that will also save the applicant's data before redirecting to the
-   * previous block.
-   */
+  /** Renders a "Previous" button with a custom action. */
   protected DomContent renderPreviousButton(
       SettingsManifest settingsManifest, ApplicationBaseView.Params params, String formAction) {
     if (settingsManifest.getSaveOnAllActions(params.request())) {
@@ -128,7 +125,6 @@ public class ApplicationBaseView extends BaseHtmlView {
         .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
         .withId("cf-block-previous");
   }
-
 
   @AutoValue
   public abstract static class Params {

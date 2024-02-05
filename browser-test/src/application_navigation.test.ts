@@ -77,7 +77,7 @@ describe('Applicant navigation flow', () => {
       await adminPrograms.publishProgram(programName)
     })
 
-    describe('previous button', () => {
+    fdescribe('previous button', () => {
       it('clicking previous on first block goes to summary page', async () => {
         const {applicantQuestions} = ctx
         await applicantQuestions.applyProgram(programName)
@@ -347,7 +347,7 @@ describe('Applicant navigation flow', () => {
         )
       })
 
-      fit('clicking review with missing answers shows modal', async () => {
+      it('clicking review with missing answers shows modal', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')

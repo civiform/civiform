@@ -48,6 +48,14 @@ public abstract class ApplicantQuestionRendererParams {
           || mode == DISPLAY_ERRORS_WITH_MODAL_REVIEW
           || mode == DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
     }
+
+    /**
+     * Returns ture if the given mode indicates that validation errors *and* a modal should be
+     * rendered when displaying the form and false otherwise.
+     */
+    public static boolean shouldShowErrorsWithModal(ErrorDisplayMode mode) {
+      return mode == DISPLAY_ERRORS_WITH_MODAL_REVIEW || mode == DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
+    }
   }
 
   public static Builder builder() {
