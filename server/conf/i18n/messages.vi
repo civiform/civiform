@@ -46,7 +46,7 @@ button.createAccount=Tạo tài khoản
 button.guestLogin=Tiếp tục với tư cách khách
 content.loginDisabledPrompt=Tính năng đăng nhập vào tài khoản đang bị vô hiệu hóa
 content.adminLoginPrompt=Bạn muốn thực hiện thao tác khác?
-content.adminFooterPrompt=Are you an administrator?
+content.adminFooterPrompt=Bạn có phải là quản trị viên không?
 link.adminLogin=Đăng nhập với tư cách quản trị viên
 
 #--------------------------------------------------------------------------#
@@ -60,7 +60,7 @@ button.nextScreen=Lưu và tiếp tục
 button.previousScreen=Trước
 button.review=Xem lại
 button.skipFileUpload=Bỏ qua
-content.blockProgress={0} of {1}
+content.blockProgress={0}/{1}
 toast.localeNotSupported=Rất tiếc, chương trình này chưa được dịch hoàn toàn sang ngôn ngữ bạn ưa dùng.
 link.allDone=Tôi đã hoàn thành
 link.applyToAnotherProgram=Đăng ký một chương trình khác
@@ -84,7 +84,7 @@ content.submittedDate=Đã gửi {0}
 content.findPrograms=Tìm chương trình
 content.findProgramsDescription=CiviForm giúp bạn tìm được những chương trình mà bạn có thể đủ điều kiện tham gia trong {0}. Hãy chọn một đơn đăng ký dưới đây để bắt đầu.
 content.saveTimeServices=Tiết kiệm thời gian đăng ký các chương trình và dịch vụ
-content.guestDescription=Log in to your {0} account or create an account and apply to programs without having to enter the same information again. You can also edit applications at any time and check your application statuses.
+content.guestDescription=Hãy đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản rồi đăng ký tham gia các chương trình mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký bất cứ lúc nào và kiểm tra trạng thái của đơn đăng ký.
 link.programDetails=Chi tiết chương trình
 link.programDetailsSr=Thông tin chi tiết về chương trình {0}, mở trong tab mới
 title.programs=Chương trình và dịch vụ
@@ -200,15 +200,15 @@ title.applicationConfirmation=Xác nhận đơn đăng ký
 content.confirmed=Cảm ơn bạn đã đăng ký tham gia {0}. Chúng tôi đã nhận được đơn đăng ký của bạn và mã đơn đăng ký là {1}.
 title.createAnAccount=Tạo tài khoản hoặc đăng nhập
 content.pleaseCreateAccount=Nếu bây giờ bạn đăng nhập vào tài khoản của thành phố, thông tin của bạn sẽ được lưu lại và bạn có thể trở lại bất cứ lúc nào để hoàn tất các đơn đăng ký sau này. Nếu chưa có tài khoản, bạn có thể đăng ký ở trang đăng nhập. Dữ liệu bạn đã nhập sẽ không bị mất.
-content.generalLoginModalPrompt=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other programs quickly.
-content.initialLoginModalPrompt=Before you continue, log in to your {0} account or create an account. You''ll be able to apply for multiple programs without having to enter the same information again. You can also edit applications and check your application statuses.
+content.generalLoginModalPrompt=Bạn chưa đăng nhập vào tài khoản nào. Nếu không đăng nhập vào tài khoản, bạn sẽ không thể chỉnh sửa đơn đăng ký, kiểm tra trạng thái của đơn đăng ký, hoặc đăng ký tham gia các chương trình khác một cách nhanh chóng.
+content.initialLoginModalPrompt=Trước khi tiếp tục, hãy đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản. Bạn sẽ có thể đăng ký nhiều chương trình mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký và kiểm tra trạng thái của đơn đăng ký.
 button.continueWithoutAnAccount=Tiếp tục mà không dùng tài khoản
-title.commonIntakeConfirmation=Programs you may qualify for
-title.commonIntakeConfirmationTi=Programs your client may qualify for
-content.commonIntakeConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
-content.commonIntakeConfirmationTi=Your client may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
-content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
-content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
+title.commonIntakeConfirmation=Chương trình bạn có thể đủ tiêu chuẩn tham gia
+title.commonIntakeConfirmationTi=Chương trình khách hàng của bạn có thể đủ tiêu chuẩn tham gia
+content.commonIntakeConfirmation=Bạn có thể đăng ký tham gia các chương trình này nếu đăng ký thông qua đơn đăng ký trực tuyến bằng cách nhấp vào ''Đăng ký tham gia chương trình''.
+content.commonIntakeConfirmationTi=Khách hàng của bạn có thể đăng ký tham gia các chương trình này nếu bạn đăng ký thông qua đơn đăng ký trực tuyến bằng cách nhấp vào ''Đăng ký tham gia chương trình''.
+content.commonIntakeNoMatchingPrograms=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký tham gia chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
+content.commonIntakeNoMatchingProgramsTi=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà khách hàng của bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký tham gia chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
 content.commonIntakeNoMatchingProgramsNextStep=Bạn cũng có thể quay lại trang trước để chỉnh sửa câu trả lời của mình.
 button.downloadPdf=Tải bản PDF xuống
 button.applyToPrograms=Đăng ký chương trình
@@ -276,7 +276,7 @@ validation.phoneMustBeLocalToCountry=Số điện thoại bạn đã cung cấp 
 #----------------------------------------------------------------------------------------------------------#
 
 validation.dateMisformatted=Vui lòng nhập ngày ở định dạng YYYY/MM/DD.
-validation.invalidDateFormat=Please enter a date in the correct format
+validation.invalidDateFormat=Hãy nhập ngày theo đúng định dạng
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
