@@ -105,8 +105,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
   public void loadStatusDefinitionsEvolution() {
     DB.sqlUpdate(
             "insert into programs (name, description, block_definitions, status_definitions,"
-                + " program_type) values ('Status Default', 'Description', '[]', '{\"statuses\":"
-                + " []}', 'default');")
+                + " localized_name, localized_description, program_type) values ('Status Default',"
+                + " 'Description', '[]', '{\"statuses\": []}', '{\"isRequired\": true,"
+                + " \"translations\": {\"en_US\": \"Status Default\"}}',  '{\"isRequired\": true,"
+                + " \"translations\": {\"en_US\": \"\"}}', 'default');")
         .execute();
     DB.sqlUpdate(
             "insert into versions_programs (versions_id, programs_id) values ("
