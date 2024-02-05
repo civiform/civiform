@@ -46,7 +46,7 @@ button.createAccount=Crear cuenta
 button.guestLogin=Continuar como invitado
 content.loginDisabledPrompt=Se inhabilitó el acceso a la cuenta por el momento
 content.adminLoginPrompt=¿Estás buscando otra cosa?
-content.adminFooterPrompt=Are you an administrator?
+content.adminFooterPrompt=¿Eres administrador?
 link.adminLogin=Acceso de administrador
 
 #--------------------------------------------------------------------------#
@@ -60,7 +60,7 @@ button.nextScreen=Guardar y continuar
 button.previousScreen=Anterior
 button.review=Revisar
 button.skipFileUpload=Omitir
-content.blockProgress={0} of {1}
+content.blockProgress={0} de {1}
 toast.localeNotSupported=Lo sentimos, este programa no está traducido por completo a tu idioma preferido.
 link.allDone=Listo
 link.applyToAnotherProgram=Solicitar otro programa
@@ -84,7 +84,7 @@ content.submittedDate=Enviada el {0}
 content.findPrograms=Buscar programas
 content.findProgramsDescription=CiviForm te ayuda a encontrar programas en los que puedes participar en {0}. Comienza eligiendo una solicitud a continuación.
 content.saveTimeServices=Ahorra tiempo cuando te inscribas en programas y servicios
-content.guestDescription=Log in to your {0} account or create an account and apply to programs without having to enter the same information again. You can also edit applications at any time and check your application statuses.
+content.guestDescription=Accede a tu cuenta de {0} o crea una para enviar solicitudes de inscripción a programas sin necesidad de volver a ingresar la misma información. También puedes ver el estado de tus solicitudes y modificarlas en cualquier momento.
 link.programDetails=Detalles del programa
 link.programDetailsSr=Detalles del programa {0} (se abre en una pestaña nueva)
 title.programs=Programas y servicios
@@ -200,15 +200,15 @@ title.applicationConfirmation=Confirmación de la solicitud
 content.confirmed=Gracias por solicitar {0}. Recibimos tu solicitud y el ID de la solicitud es {1}.
 title.createAnAccount=Crea una cuenta o accede
 content.pleaseCreateAccount=Si accedes a una cuenta municipal ahora, se guardará tu información y podrás regresar en cualquier momento para completar solicitudes en el futuro. Si no tienes una cuenta, la página de acceso te permitirá registrarte. No perderás los datos que ya ingresaste.
-content.generalLoginModalPrompt=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other programs quickly.
-content.initialLoginModalPrompt=Before you continue, log in to your {0} account or create an account. You''ll be able to apply for multiple programs without having to enter the same information again. You can also edit applications and check your application statuses.
+content.generalLoginModalPrompt=No accediste a una cuenta. No podrás modificar una solicitud, ver su estado ni enviar solicitudes de inscripción rápidamente a otros programas si no tienes una cuenta.
+content.initialLoginModalPrompt=Antes de continuar, accede a tu cuenta de {0} o crea una. Podrás enviar solicitudes de inscripción a varios programas sin necesidad de volver a ingresar la misma información. También puedes editar tus solicitudes y revisar su estado.
 button.continueWithoutAnAccount=Continuar sin una cuenta
-title.commonIntakeConfirmation=Programs you may qualify for
-title.commonIntakeConfirmationTi=Programs your client may qualify for
-content.commonIntakeConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
-content.commonIntakeConfirmationTi=Your client may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
-content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
-content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
+title.commonIntakeConfirmation=Programas para los que cumples los requisitos
+title.commonIntakeConfirmationTi=Programas para los que tu cliente cumple los requisitos
+content.commonIntakeConfirmation=Puedes inscribirte en estos programas si completas la solicitud en línea haciendo clic en ''Apply to programs''.
+content.commonIntakeConfirmationTi=Puedes inscribir a tu cliente en estos programas si completas la solicitud en línea haciendo clic en ''Apply to programs''.
+content.commonIntakeNoMatchingPrograms=El proceso de evaluación no pudo encontrar programas para los que cumplas los requisitos en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
+content.commonIntakeNoMatchingProgramsTi=El proceso de evaluación no pudo encontrar programas para los que tu cliente cumpla los requisitos en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
 content.commonIntakeNoMatchingProgramsNextStep=También puedes volver a la página anterior para editar tus respuestas.
 button.downloadPdf=Descargar PDF
 button.applyToPrograms=Postularse a programas
@@ -276,7 +276,7 @@ validation.phoneMustBeLocalToCountry=El teléfono que proporcionaste no es de es
 #----------------------------------------------------------------------------------------------------------#
 
 validation.dateMisformatted=Ingresa una fecha en el formato AAAA/MM/DD.
-validation.invalidDateFormat=Please enter a date in the correct format
+validation.invalidDateFormat=Ingresa una fecha en el formato correcto.
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
