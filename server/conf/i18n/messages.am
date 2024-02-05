@@ -84,8 +84,7 @@ content.submittedDate={0} ገብቷል
 content.findPrograms=ፕሮግራሞችን ያግኙ
 content.findProgramsDescription=CiviForm በ{0} ውስጥ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች እንዲያገኙ ያግዝዎታል። ከታች አንድ ማመልከቻ በመምረጥ ይጀምሩ።
 content.saveTimeServices=ለፕሮግራሞች እና ለአገልግሎቶች ማመልከቻ ማስገባት ላይ ጊዜ ይቆጥቡ
-content.guestDescription=
-ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ እና ተመሳሳይ መረጃ እንደገና ሳያስገቡ ለፕሮግራሞች ማመልከቻ ያስገቡ። እንዲሁም ማመልከቻዎችን በማንኛውም ጊዜ ማርትዕ እና የመተግበሪያዎን ሁኔታዎች መፈተሽ ይችላሉ።
+content.guestDescription=ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ እና ተመሳሳይ መረጃ እንደገና ሳያስገቡ ለፕሮግራሞች ማመልከቻ ያስገቡ። እንዲሁም ማመልከቻዎችን በማንኛውም ጊዜ ማርትዕ እና የመተግበሪያዎን ሁኔታዎች መፈተሽ ይችላሉ።
 link.programDetails=የፕሮግራም ዝርዝሮች
 link.programDetailsSr=ለ{0} የፕሮግራም ዝርዝሮች፣ በአዲስ ትር ውስጥ ይከፍታል
 title.programs=ፕሮግራሞች እና አገልግሎቶች
