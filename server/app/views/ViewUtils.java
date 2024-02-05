@@ -285,7 +285,6 @@ public final class ViewUtils {
                 StyleUtils.hover("bg-transparent"),
                 StyleUtils.focus("rounded"))
             .withType("button")
-            .withCondId(idPresent, buttonId)
             .with(
                 input()
                     .isHidden()
@@ -319,7 +318,11 @@ public final class ViewUtils {
                                 "cf-toggle-nub")
                             .withCondId(idPresent, nubId)));
     text.ifPresent(button::withText);
-    return div().withClass("cf-toggle").withCondHidden(hidden).with(button);
+    return div()
+        .withClass("cf-toggle")
+        .withCondId(idPresent, buttonId)
+        .withCondHidden(hidden)
+        .with(button);
   }
 
   /**
