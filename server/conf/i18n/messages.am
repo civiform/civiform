@@ -46,7 +46,7 @@ button.createAccount=መለያ ፍጠር
 button.guestLogin=እንደ እንግዳ ቀጥል
 content.loginDisabledPrompt=በመለያ መግባት በአሁኑ ጊዜ ተሰናክሏል
 content.adminLoginPrompt=ሌላ ነገር እየፈለጉ ነው?
-content.adminFooterPrompt=Are you an administrator?
+content.adminFooterPrompt=አስተዳዳሪ ነዎት?
 link.adminLogin=የአስተዳዳሪ መግቢያ
 
 #--------------------------------------------------------------------------#
@@ -60,7 +60,7 @@ button.nextScreen=አስቀምጥ እና ቀጣይ
 button.previousScreen=ቀዳሚ
 button.review=ገምግም
 button.skipFileUpload=ዝለል
-content.blockProgress={0} of {1}
+content.blockProgress={0} ከ{1}
 toast.localeNotSupported=ይቅርታ እንጠይቃለን፣ ይህ ፕሮግራም ሙሉ በሙሉ እርስዎ ወደሚፈልጉት ቋንቋ አልተተረጎመም።
 link.allDone=ሁሉንም ጨርሼያለሁ
 link.applyToAnotherProgram=ወደ ሌላ ፕሮግራም ያመልክቱ
@@ -84,7 +84,7 @@ content.submittedDate={0} ገብቷል
 content.findPrograms=ፕሮግራሞችን ያግኙ
 content.findProgramsDescription=CiviForm በ{0} ውስጥ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች እንዲያገኙ ያግዝዎታል። ከታች አንድ ማመልከቻ በመምረጥ ይጀምሩ።
 content.saveTimeServices=ለፕሮግራሞች እና ለአገልግሎቶች ማመልከቻ ማስገባት ላይ ጊዜ ይቆጥቡ
-content.guestDescription=Log in to your {0} account or create an account and apply to programs without having to enter the same information again. You can also edit applications at any time and check your application statuses.
+content.guestDescription=ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ እና ተመሳሳይ መረጃ እንደገና ሳያስገቡ ለፕሮግራሞች ማመልከቻ ያስገቡ። እንዲሁም ማመልከቻዎችን በማንኛውም ጊዜ ማርትዕ እና የመተግበሪያዎን ሁኔታዎች መፈተሽ ይችላሉ።
 link.programDetails=የፕሮግራም ዝርዝሮች
 link.programDetailsSr=ለ{0} የፕሮግራም ዝርዝሮች፣ በአዲስ ትር ውስጥ ይከፍታል
 title.programs=ፕሮግራሞች እና አገልግሎቶች
@@ -200,15 +200,15 @@ title.applicationConfirmation=የማመልከቻ ማረጋገጫ
 content.confirmed=ለ{0} በማመልከትዎ እናመሰግናለን። ማመልከቻዎ ደርሷል፣ እና የማመልከቻ መታወቂያዎ {1} ነው።
 title.createAnAccount=መለያ ይፍጠሩ ወይም ይግቡ
 content.pleaseCreateAccount=አሁን ወደ የከተማ መለያ ውስጥ ከገቡ መረጃዎ ይቀመጥ እና በማንኛውም ጊዜ በመመለስ የወደፊት ማመልከቻዎችን ማጠናቀቅ ይችላሉ። አስቀድመው መለያ ከሌለዎት የመግቢያ ገጹ እንዲመዘገቡ ያስችልዎታል። አስቀድመው ያስገቡትን ማንኛውም ውሂብ አያጡም።
-content.generalLoginModalPrompt=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other programs quickly.
-content.initialLoginModalPrompt=Before you continue, log in to your {0} account or create an account. You''ll be able to apply for multiple programs without having to enter the same information again. You can also edit applications and check your application statuses.
+content.generalLoginModalPrompt=እርስዎ ወደ መለያ አልገቡም። ያለ መለያ ማመልከቻን ማርትዕ፣ የማመልከቻዎን ሁኔታ መፈተሽ ወይም ለሌላ ፕሮግራሞች በፍጥነት ማመልከት አይችሉም።
+content.initialLoginModalPrompt=ከመቀጠልዎ በፊት ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ። ተመሳሳዩን መረጃ እንደገና ሳያስገቡ ለብዙ ፕሮግራሞች ማመልከት ይችላሉ። እንዲሁም ማመልከቻዎችን ማርትዕ እና የማመልከቻ ሁኔታዎችዎን መፈተሽ ይችላሉ።
 button.continueWithoutAnAccount=ያለ መለያ ቀጥል
-title.commonIntakeConfirmation=Programs you may qualify for
-title.commonIntakeConfirmationTi=Programs your client may qualify for
-content.commonIntakeConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
-content.commonIntakeConfirmationTi=Your client may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
-content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
-content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
+title.commonIntakeConfirmation=እርስዎ ብቁ ሊሆኑ የሚችሉባቸው ፕሮግራሞች
+title.commonIntakeConfirmationTi=ደንበኛዎ ብቁ ሊሆኑ የሚችሉባቸው ፕሮግራሞች
+content.commonIntakeConfirmation=እርስዎ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ በእነዚህ ፕሮግራሞች ውስጥ መመዝገብ ይችሉ ይሆናል።
+content.commonIntakeConfirmationTi=እርስዎ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ ደንበኛዎ በእነዚህ ፕሮግራሞች ውስጥ መመዝገብ ይችሉ ይሆናል።
+content.commonIntakeNoMatchingPrograms=ቅድመ-ማጣሪያው እርስዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለፕሮግራሞች ማመልከት ይችላሉ። ወይም ተጨማሪ ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
+content.commonIntakeNoMatchingProgramsTi=ቅድመ-ማጣሪያው ደንበኛዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለፕሮግራሞች ማመልከት ይችላሉ። ወይም ተጨማሪ ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
 content.commonIntakeNoMatchingProgramsNextStep=እንዲሁም የእርስዎን ምላሾች ለማርትዕ ወደ ቀዳሚው ገጽ መመለስ ይችላሉ።
 button.downloadPdf=PDF አውርድ
 button.applyToPrograms=ለፕሮግራሞች ያመልክቱ
@@ -276,7 +276,7 @@ validation.phoneMustBeLocalToCountry=ያቀረቡት ስልክ የአገሩ አ�
 #----------------------------------------------------------------------------------------------------------#
 
 validation.dateMisformatted=እባክዎ በዓዓዓዓ/ወወ/ቀቀ ቅርጸት ቀን ያስገቡ።
-validation.invalidDateFormat=Please enter a date in the correct format
+validation.invalidDateFormat=እባክዎ ቀንን በትክክለኛው ቅርጸት ያስገቡ
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
