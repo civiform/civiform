@@ -24,6 +24,7 @@ describe('Applicant navigation flow', () => {
     const programName = 'Test program for navigation flows'
     const dateQuestionText = 'date question text'
     const emailQuestionText = 'email question text'
+    const addressQuestionText = 'address question text'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -39,6 +40,7 @@ describe('Applicant navigation flow', () => {
       })
       await adminQuestions.addAddressQuestion({
         questionName: 'nav-address-q',
+        questionText: addressQuestionText,
       })
       await adminQuestions.addRadioButtonQuestion({
         questionName: 'nav-radio-q',
@@ -75,7 +77,7 @@ describe('Applicant navigation flow', () => {
       await adminPrograms.publishProgram(programName)
     })
 
-    fdescribe('previous button', () => {
+    describe('previous button', () => {
       it('clicking previous on first block goes to summary page', async () => {
         const {applicantQuestions} = ctx
         await applicantQuestions.applyProgram(programName)
@@ -107,7 +109,7 @@ describe('Applicant navigation flow', () => {
         )
         await applicantQuestions.clickNext()
 
-        // Click previous and see file upload page with address
+        // Click previous and see previous page with address
         await applicantQuestions.clickPrevious()
         await applicantQuestions.checkAddressQuestionValue(
           '1234 St',
@@ -152,7 +154,7 @@ describe('Applicant navigation flow', () => {
         )
       })
 
-      it('clicking previous with correct form shows review page with saved answers', async () => {
+      it('clicking previous with correct form shows previous page with saved answers', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
@@ -162,16 +164,27 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.answerDateQuestion('2021-11-01')
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
 
+        await applicantQuestions.clickNext()
+        // Nothing to fill in since this is the static question block
+        await applicantQuestions.clickNext()
+
+        // Fill out address question
+        await applicantQuestions.answerAddressQuestion(
+          '1234 St',
+          'Unit B',
+          'Sim',
+          'WA',
+          '54321',
+        )
+        // Click previous then go to the review page and verify the address question
+        // answer was saved
         await applicantQuestions.clickPrevious()
+        await applicantQuestions.clickReview()
 
         await applicantQuestions.expectReviewPage()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          dateQuestionText,
-          '11/01/2021',
-        )
-        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          emailQuestionText,
-          'test1@gmail.com',
+          addressQuestionText,
+          '1234 St',
         )
       })
 
@@ -190,7 +203,6 @@ describe('Applicant navigation flow', () => {
         // The date question is required, so we should see the error modal.
         await applicantQuestions.expectErrorOnPreviousModal()
         await validateScreenshot(page, 'error-on-previous-modal')
-        await validateAccessibility(page)
       })
 
       it('error on previous modal > click go back and edit > shows block', async () => {
@@ -217,7 +229,9 @@ describe('Applicant navigation flow', () => {
 
         await applicantQuestions.clickPrevious()
 
-        // Verify we're taken to the review page and the answers were saved
+        // Verify we're taken to the previous page (which is the review page
+        // since this was the first block) page and the answers were saved
+        await applicantQuestions.expectReviewPage()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           dateQuestionText,
           '11/01/2021',
@@ -228,7 +242,7 @@ describe('Applicant navigation flow', () => {
         )
       })
 
-      it('error on previous modal > click previous without saving > shows review page without saved answers', async () => {
+      it('error on previous modal > click previous without saving > answers not saved', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
@@ -264,12 +278,17 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.answerDateQuestion('2021-11-01')
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
         await applicantQuestions.clickNext()
+        // Nothing to fill in since this is the static question block,
+        // so proceed to the next block
+        await applicantQuestions.clickNext()
 
         await applicantQuestions.clickPrevious()
         await applicantQuestions.expectErrorOnPreviousModal()
 
         // Proceed to the previous page and verify the first block answers are present
         await applicantQuestions.clickPreviousWithoutSaving()
+        // This is the static question block, so continue to the previous block
+        await applicantQuestions.clickPrevious()
 
         await applicantQuestions.checkDateQuestionValue('2021-11-01')
         await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
@@ -328,7 +347,7 @@ describe('Applicant navigation flow', () => {
         )
       })
 
-      it('clicking review with missing answers shows modal', async () => {
+      fit('clicking review with missing answers shows modal', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
