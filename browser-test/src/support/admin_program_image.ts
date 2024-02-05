@@ -1,6 +1,6 @@
 import {Page} from 'playwright'
 import {waitForPageJsLoad} from './wait'
-import {dismissToast, expectDisabled, expectEnabled} from '.'
+import {dismissToast, expectDisabled, expectEnabled, validateScreenshot} from '.'
 
 export class AdminProgramImage {
   private imageUploadLocator = 'input[type=file]'
@@ -80,6 +80,9 @@ export class AdminProgramImage {
 
   async setImageFileAndSubmit(imageFileName: string) {
     await this.setImageFile(imageFileName)
+    if (imageFileName == 'src/assets/program-summary-image-tall.png') {
+     validateScreenshot(this.page, 'adijosiofgjijogrijoaegrio')
+    }
     await this.page.click(this.imageUploadSubmitButtonLocator)
     await waitForPageJsLoad(this.page)
   }
