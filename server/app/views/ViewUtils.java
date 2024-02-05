@@ -282,7 +282,8 @@ public final class ViewUtils {
                 "font-normal",
                 "bg-transparent",
                 "rounded-full",
-                StyleUtils.hover("bg-transparent"))
+                StyleUtils.hover("bg-transparent"),
+                StyleUtils.focus("rounded"))
             .withType("button")
             .withCondId(idPresent, buttonId)
             .with(
