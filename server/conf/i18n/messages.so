@@ -46,7 +46,7 @@ button.createAccount=Akoon samayso
 button.guestLogin=Ku sii wad marti ahaan
 content.loginDisabledPrompt=Gelitaanka koontada hadda waa la xidhay
 content.adminLoginPrompt=Wax kale miyaad raadinaysay?
-content.adminFooterPrompt=Are you an administrator?
+content.adminFooterPrompt=Miyaad tahay maamule?
 link.adminLogin=Admin login
 
 #--------------------------------------------------------------------------#
@@ -60,7 +60,7 @@ button.nextScreen=Tan Xiga
 button.previousScreen=Hore
 button.review=Dib u eeg
 button.skipFileUpload=Ka bood
-content.blockProgress={0} of {1}
+content.blockProgress={0} ee {1}
 toast.localeNotSupported=Waanu ka xunahay, barnaamijkan si buuxda looguma turjumin luqaddaada aad doorbidayso.
 link.allDone=Waan dhameeyay
 link.applyToAnotherProgram=Codso barnaamij kale
@@ -84,7 +84,7 @@ content.submittedDate=La gudbiyay {0}
 content.findPrograms=Hel barnaamijyo
 content.findProgramsDescription=CiviForm waxay kaa caawisaa helida barnaamijyada laga yaabo inaad ugu qalmi karayso{0}. Ku bilow adigoo codsi ka dooranaya hoos.
 content.saveTimeServices=Si aad u ilaaliso wakhtiga markaad codsanayso barnaamijyada iyo adeegyada
-content.guestDescription=Log in to your {0} account or create an account and apply to programs without having to enter the same information again. You can also edit applications at any time and check your application statuses.
+content.guestDescription=Gal akoonkaaga {0} ama samee akoon oo codso barnaamijyada adigoon galineyn isla macluumaadkii markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyada wakhti kasta oo hubin kartaa heerarka codsigaagu marayo.
 link.programDetails=Faahfaahinta barnaamijka
 link.programDetailsSr=Faahfaahinta barnaamijka ee{0}, waxay ku furmaysaa bog cusub
 title.programs=Barnaamijyada iyo adeegyada
@@ -200,15 +200,15 @@ title.applicationConfirmation=AXaqiijinta codsiga
 content.confirmed=Waad ku mahadsan tahay inaad soo gudbisay codsiga {0}. Codsigaagii waa la helay, ID gaaga waa {1}.
 title.createAnAccount=Akoon samee ama gal oo sign in garee
 content.pleaseCreateAccount=Haddii aad hadda gasho city akoonka, macluumaadkaaga waa la kaydin doonaa oo waxaad awoodi doontaa inaad soo noqoto wakhti kasta si aad u buuxiso codsiyada mustaqbalka. Haddii aanad hore u lahayn akoon, bogga galitaanka internetka ayaa kuu ogolaanaya inaad isdiiwaangeliso. Ma lumin doontid wax xog ah oo aad hore u gelisay.
-content.generalLoginModalPrompt=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other programs quickly.
-content.initialLoginModalPrompt=Before you continue, log in to your {0} account or create an account. You''ll be able to apply for multiple programs without having to enter the same information again. You can also edit applications and check your application statuses.
+content.generalLoginModalPrompt=Adigu akoon kuma aanad soo galin. Akoon la'aantiis awood uma yeelan doontid inaad wax ka bedasho codsiga, hubiso heerka codsigaagu marayo, ama aad si deg-dega u codsato barnaamijyo kale
+content.initialLoginModalPrompt=Ka hor inta aanad sii wadin, soo gal {0} akoonkaaga ama samayso akoon. Waxaad awoodi doontaa inaad codsatid dhowr barnaamij adigoon galineyn isla macluumaadkii markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyadaada oo hubin kartaa heerarka codsigaagu marayo.
 button.continueWithoutAnAccount=Sii soco koonto la'aan
-title.commonIntakeConfirmation=Programs you may qualify for
-title.commonIntakeConfirmationTi=Programs your client may qualify for
-content.commonIntakeConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
-content.commonIntakeConfirmationTi=Your client may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
-content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
-content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
+title.commonIntakeConfirmation=Barnaamijyada aad u qalmi karaysid
+title.commonIntakeConfirmationTi=Barnaamijyada macmiilkaagu u qalmi karayo
+content.commonIntakeConfirmation=Waxaad awoodi kartaa inaad iska-diwaan galisid barnaamijyadan hadii aad ku codsatid qaabka codsiga onlaynka ah adigoo gujinaya ''Codso barnaamijyada''.
+content.commonIntakeConfirmationTi=Macmiilkaagu wuxuu awoodi karaa inuu iska diwaangaliyo barnaamijyadan hadii aad codsiga ugu dalabtid/buuxisid qaabka codsiga onlaynka ah adigoo gujinaya ''Codso barnaamijyada''
+content.commonIntakeNoMatchingPrograms=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada aad u qalmi karto wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
+content.commonIntakeNoMatchingProgramsTi=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada uu macmiilkaagu u qalmi karo wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
 content.commonIntakeNoMatchingProgramsNextStep=Sidoo kale waxaad ku noqon kartaa bogga hore si aad wax uga beddesho jawaabahaaga.
 button.downloadPdf=Soo.deji.PDF
 button.applyToPrograms=Codso barnaamijyada
@@ -276,7 +276,7 @@ validation.phoneMustBeLocalToCountry=Telefoonka aad bixisay wadana malaha
 #----------------------------------------------------------------------------------------------------------#
 
 validation.dateMisformatted=Please enter a date in the format YYYY/MM/DD.
-validation.invalidDateFormat=Please enter a date in the correct format
+validation.invalidDateFormat=Fadlan taariikhda ugu qor qaabka saxda ah
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
