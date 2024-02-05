@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.Inject;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -11,8 +12,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Calendar;
-import java.util.TimeZone;
 
 /** Utility class for converting dates between different formats. */
 public final class DateConverter {
@@ -100,10 +99,7 @@ public final class DateConverter {
 
   /** Formats a {@link java.sql.Timestamp} to MM/YY. */
   public String renderAsTwoDigitMonthAndYear(Timestamp timestamp) {
-    var calendar = Calendar.getInstance(TimeZone.getTimeZone(zoneId));
-    calendar.setTimeInMillis(timestamp.getTime());
-
-    return (calendar.get(Calendar.MONTH) + 1) + "/" + calendar.get(Calendar.YEAR);
+    return new SimpleDateFormat("MM/yyyy").format(timestamp);
   }
 
   /** Gets the {@link Long} timestamp from an age, by subtracting the age from today's date. */
