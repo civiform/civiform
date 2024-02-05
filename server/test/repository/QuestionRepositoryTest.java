@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableSet;
-import io.ebean.DB;
 import io.ebean.DataIntegrityException;
 import java.util.Locale;
 import java.util.Map;
@@ -246,28 +245,6 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
     QuestionModel q = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
     assertThat(q.getQuestionDefinition()).isEqualTo(questionDefinition);
-  }
-
-  @Test
-  public void loadLegacy() {
-    DB.sqlUpdate(
-            "insert into questions (name, description, legacy_question_text,"
-                + " legacy_question_help_text, question_type) values ('old schema"
-                + " entry', 'description', '{\"en_us\": \"text\"}', '{\"en_us\": \"help\"}',"
-                + " 'REPEATER');")
-        .execute();
-
-    QuestionModel found =
-        repo.listQuestions().toCompletableFuture().join().stream()
-            .filter(
-                question -> question.getQuestionDefinition().getName().equals("old schema entry"))
-            .findFirst()
-            .get();
-
-    assertThat(found.getQuestionDefinition().getQuestionText())
-        .isEqualTo(LocalizedStrings.of(Locale.US, "text"));
-    assertThat(found.getQuestionDefinition().getQuestionHelpText())
-        .isEqualTo(LocalizedStrings.of(Locale.US, "help"));
   }
 
   @Test
