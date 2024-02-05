@@ -46,7 +46,7 @@ button.createAccount=계정 만들기
 button.guestLogin=게스트로 계속
 content.loginDisabledPrompt=계정 로그인이 현재 사용 중지됨
 content.adminLoginPrompt=다른 내용을 찾고 있나요?
-content.adminFooterPrompt=Are you an administrator?
+content.adminFooterPrompt=관리자이신가요?
 link.adminLogin=관리자 로그인
 
 #--------------------------------------------------------------------------#
@@ -60,7 +60,7 @@ button.nextScreen=저장 후 다음으로 이동
 button.previousScreen=이전
 button.review=검토
 button.skipFileUpload=건너뛰기
-content.blockProgress={0} of {1}
+content.blockProgress={1} 중 {0}
 toast.localeNotSupported=죄송합니다. 이 프로그램은 사용자의 선호 언어로 번역되지 않습니다.
 link.allDone=모두 완료했습니다
 link.applyToAnotherProgram=다른 프로그램 신청
@@ -84,7 +84,7 @@ content.submittedDate=제출 날짜: {0}
 content.findPrograms=프로그램 찾기
 content.findProgramsDescription=CiviForm을 통해 {0}에서 자격 요건에 해당될 수 있는 프로그램을 확인할 수 있습니다. 먼저 아래에서 신청서를 선택하세요.
 content.saveTimeServices=프로그램 및 서비스 신청 시간 절약하기
-content.guestDescription=Log in to your {0} account or create an account and apply to programs without having to enter the same information again. You can also edit applications at any time and check your application statuses.
+content.guestDescription={0} 계정에 로그인하거나 계정을 만들면 같은 정보를 다시 입력하지 않고도 여러 프로그램을 신청할 수 있습니다. 언제든지 신청서를 수정하고 신청서 상태를 확인할 수도 있습니다.
 link.programDetails=프로그램 세부정보
 link.programDetailsSr={0}의 프로그램 세부정보, 새 탭에서 열림
 title.programs=프로그램 및 서비스
@@ -200,15 +200,15 @@ title.applicationConfirmation=애플리케이션 확인
 content.confirmed={0}에 신청해 주셔서 감사합니다. 신청을 접수했으며 신청 ID는 {1}입니다.
 title.createAnAccount=계정 만들기 또는 로그인
 content.pleaseCreateAccount=시 계정에 로그인하면 정보가 저장되며 나중에 언제든지 돌아와서 신청서를 마저 작성할 수 있습니다. 아직 계정이 없다면 로그인 페이지에서 계정을 새로 등록할 수 있습니다. 이미 입력한 데이터는 그대로 유지됩니다.
-content.generalLoginModalPrompt=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other programs quickly.
-content.initialLoginModalPrompt=Before you continue, log in to your {0} account or create an account. You''ll be able to apply for multiple programs without having to enter the same information again. You can also edit applications and check your application statuses.
+content.generalLoginModalPrompt=계정에 로그인되어 있지 않습니다. 계정이 없으면 신청서를 수정하거나, 신청서 상태를 확인하거나, 빠르게 다른 프로그램을 신청할 수 없습니다.
+content.initialLoginModalPrompt=계속하기 전에 {0} 계정에 로그인하거나 계정을 만드세요. 같은 정보를 다시 입력하지 않고도 여러 프로그램을 신청할 수 있습니다. 신청서를 수정하고 신청서 상태를 확인할 수도 있습니다.
 button.continueWithoutAnAccount=계정 없이 계속
-title.commonIntakeConfirmation=Programs you may qualify for
-title.commonIntakeConfirmationTi=Programs your client may qualify for
-content.commonIntakeConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
-content.commonIntakeConfirmationTi=Your client may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
-content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
-content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
+title.commonIntakeConfirmation=자격 요건에 해당될 수 있는 프로그램
+title.commonIntakeConfirmationTi=고객이 자격 요건에 해당될 수 있는 프로그램
+content.commonIntakeConfirmation='프로그램 신청'을 클릭하여 온라인으로 신청하면 등록될 가능성이 있는 프로그램입니다.
+content.commonIntakeConfirmationTi=관리자가 '프로그램 신청'을 클릭하여 온라인으로 신청하면 고객이 등록될 가능성이 있는 프로그램입니다.
+content.commonIntakeNoMatchingPrograms=이번에는 사전 선별 과정에서 자격 요건에 해당될 수 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 프로그램을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 다른 프로그램을 확인해 보세요.
+content.commonIntakeNoMatchingProgramsTi=이번에는 사전 선별 과정에서 고객이 자격 요건에 해당될 수 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 프로그램을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 다른 프로그램을 확인해 보세요.
 content.commonIntakeNoMatchingProgramsNextStep=이전 페이지로 돌아가 응답을 수정할 수도 있습니다.
 button.downloadPdf=PDF 다운로드
 button.applyToPrograms=프로그램 신청
@@ -276,7 +276,7 @@ validation.phoneMustBeLocalToCountry=제공하신 전화번호가 거주 국가�
 #----------------------------------------------------------------------------------------------------------#
 
 validation.dateMisformatted=YYYY/MM/DD 형식으로 날짜를 입력하세요.
-validation.invalidDateFormat=Please enter a date in the correct format
+validation.invalidDateFormat=올바른 형식의 날짜를 입력하세요.
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
