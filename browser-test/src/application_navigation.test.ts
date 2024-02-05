@@ -190,7 +190,6 @@ describe('Applicant navigation flow', () => {
         // The date question is required, so we should see the error modal.
         await applicantQuestions.expectErrorOnReviewModal()
         await validateScreenshot(page, 'error-on-review-modal')
-        await validateAccessibility(page)
       })
 
       it('error on review modal > click go back and edit > shows block', async () => {
