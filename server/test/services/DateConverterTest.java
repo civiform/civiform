@@ -3,6 +3,7 @@ package services;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.text.ParseException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -18,7 +19,7 @@ public class DateConverterTest {
   @Test
   public void workingWith_Iso8601_dates() {
     String original = "2021-01-01Z";
-    Instant parsed = dateConverter.parseIso8601DateToStartOfDateInstant(original);
+    Instant parsed = dateConverter.parseIso8601DateToStartOfLocalDateInstant(original);
     String formatted = dateConverter.formatIso8601Date(parsed);
 
     assertThat(formatted).isEqualTo(original);
@@ -39,10 +40,27 @@ public class DateConverterTest {
   }
 
   @Test
+  public void parseIso8601DateToUTCDateInstant_isSuccessful() {
+    String inputDate = "2022-04-09";
+    Instant expected = Instant.parse("2022-04-09T00:00:00.00Z");
+    Instant result = dateConverter.parseIso8601DateToStartOfUTCDateInstant(inputDate);
+    assertThat(result).isEqualTo(expected);
+  }
+
+  @Test
   public void renderDate_isSuccessful() {
     String expectedResult = "2020-01-01";
     LocalDate date = LocalDate.of(2020, 1, 1);
     String result = dateConverter.formatIso8601Date(date);
+    assertThat(expectedResult).isEqualTo(result);
+  }
+
+  @Test
+  public void renderAsTwoDigitMonthAndYear_isSuccessful() throws ParseException {
+    String expectedResult = "01/2022";
+    String result =
+        dateConverter.renderAsTwoDigitMonthAndYear(
+            java.sql.Timestamp.valueOf("2022-01-01 10:10:10.0"));
     assertThat(expectedResult).isEqualTo(result);
   }
 
