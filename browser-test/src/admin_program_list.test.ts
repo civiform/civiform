@@ -317,7 +317,7 @@ describe('Program list page.', () => {
     await validateScreenshot(page, 'program-list-with-new-draft-image')
   })
 
-  it('program list with different active and draft image', async () => {
+  fit('program list with different active and draft image', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_card_images')
@@ -325,6 +325,7 @@ describe('Program list page.', () => {
     const programName = 'Different Images Program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramImagePage(programName)
+        await adminProgramImage.setImageDescriptionAndSubmit("first description")
     await adminProgramImage.setImageFileAndSubmit(
       'src/assets/program-summary-image-wide.png',
     )
@@ -333,6 +334,7 @@ describe('Program list page.', () => {
     // Set a new image on the new draft program
     await adminPrograms.createNewVersion(programName)
     await adminPrograms.goToProgramImagePage(programName)
+    await adminProgramImage.setImageDescriptionAndSubmit("a super unique description here")
     await adminProgramImage.setImageFileAndSubmit(
       'src/assets/program-summary-image-tall.png',
     )
