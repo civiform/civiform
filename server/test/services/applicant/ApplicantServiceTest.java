@@ -3067,7 +3067,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 program.id,
                 String.valueOf(blockDefinition.id()),
-                addressSuggestion1.getSingleLineAddress(),
+                Optional.of(addressSuggestion1.getSingleLineAddress()),
                 addressSuggestionList)
             .toCompletableFuture()
             .get();
@@ -3175,7 +3175,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 program.id,
                 String.valueOf(blockDefinition.id()),
-                AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE,
+                Optional.of(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE),
                 addressSuggestionList)
             .toCompletableFuture()
             .get();
@@ -3267,7 +3267,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 program.id,
                 String.valueOf(blockDefinition.id()),
-                "asdf",
+                Optional.of("asdf"),
                 addressSuggestionList)
             .toCompletableFuture()
             .get();

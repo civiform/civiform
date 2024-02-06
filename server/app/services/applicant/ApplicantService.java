@@ -1459,7 +1459,7 @@ public final class ApplicantService {
       long applicantId,
       long programId,
       String blockId,
-      String selectedAddress,
+      Optional<String> selectedAddress,
       ImmutableList<AddressSuggestion> addressSuggestions) {
     return getReadOnlyApplicantProgramService(applicantId, programId)
         .thenComposeAsync(
@@ -1479,7 +1479,7 @@ public final class ApplicantService {
                   addressSuggestions.stream()
                       .filter(
                           addressSuggestion ->
-                              addressSuggestion.getSingleLineAddress().equals(selectedAddress))
+                              addressSuggestion.getSingleLineAddress().equals(selectedAddress.orElse("")))
                       .findFirst();
 
               ImmutableMap<String, String> questionPathToValueMap =
@@ -1502,7 +1502,7 @@ public final class ApplicantService {
       String blockId,
       AddressQuestion addressQuestion,
       Optional<AddressSuggestion> suggestionMaybe,
-      String selectedAddress) {
+      Optional<String> selectedAddress) {
 
     ImmutableMap.Builder<String, String> questionPathToValueMap = ImmutableMap.builder();
 
@@ -1525,7 +1525,7 @@ public final class ApplicantService {
       questionPathToValueMap.put(
           addressQuestion.getCorrectedPath().toString(),
           CorrectedAddressState.CORRECTED.getSerializationFormat());
-    } else if (selectedAddress.equals(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE)) {
+    } else if (selectedAddress.isPresent() && selectedAddress.get().equals(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE)) {
       questionPathToValueMap.put(
           addressQuestion.getCorrectedPath().toString(),
           CorrectedAddressState.AS_ENTERED_BY_USER.getSerializationFormat());
