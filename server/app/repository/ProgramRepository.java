@@ -326,7 +326,7 @@ public final class ProgramRepository {
             query
                 .or()
                 .eq("id", Long.parseLong(maybeDigits))
-                .raw("applicant.phoneNumber ILIKE ?", "%" + maybeDigits + "%")
+                .ilike("applicant.phoneNumber", "%" + maybeDigits + "%")
                 .endOr();
       } else {
         String firstNamePath = "applicant.firstName";
@@ -334,11 +334,11 @@ public final class ProgramRepository {
         query =
             query
                 .or()
-                .raw("applicant.emailAddress ILIKE ?", "%" + search + "%")
-                .raw("submitter_email ILIKE ?", "%" + search + "%")
-                .raw(firstNamePath + " || ' ' || " + lastNamePath + " ILIKE ?", "%" + search + "%")
-                .raw(lastNamePath + " || ' ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
-                .raw(lastNamePath + " || ', ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
+                .ilike("applicant.emailAddress", "%" + search + "%")
+                .ilike("submitter_email", "%" + search + "%")
+                .ilike(firstNamePath + " || ' ' || " + lastNamePath, "%" + search + "%")
+                .ilike(lastNamePath + " || ' ' || " + firstNamePath, "%" + search + "%")
+                .ilike(lastNamePath + " || ', ' || " + firstNamePath, "%" + search + "%")
                 .endOr();
       }
     }
