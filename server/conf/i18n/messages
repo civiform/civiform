@@ -120,7 +120,7 @@ button.backToClientList=Back to client list
 button.backToEditing=Back to editing
 # Button that allows the user to cancel the progress they make on adding or editing a client.
 button.cancel=Cancel
-# Button that allows the user to clear the search bar
+# Button that allows the user to clear any search parameters they have already entered.
 button.clearSearch=Clear search
 # Button for a user to delete their client's account
 button.deleteAcct=Delete account
