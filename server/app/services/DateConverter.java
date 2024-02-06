@@ -107,7 +107,7 @@ public final class DateConverter {
     return Instant.ofEpochMilli(timestamp).atZone(this.zoneId).toLocalDate();
   }
 
-  /** Formats a {@link java.sql.Timestamp} to MM/YY. */
+  /** Formats a {@link java.sql.Timestamp} to MM/YYYY. */
   public String renderAsTwoDigitMonthAndYear(Timestamp timestamp) {
     return new SimpleDateFormat("MM/yyyy").format(timestamp);
   }
