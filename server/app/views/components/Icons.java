@@ -2,6 +2,9 @@ package views.components;
 
 import java.util.Optional;
 import services.question.types.QuestionType;
+// import modules.ThymeleafModule;
+// import org.thymeleaf.TemplateEngine;
+// import com.google.common.collect.ImmutableSet;
 
 /**
  * Class to hold constants for icons and provide methods for rendering SVG components. You can see
@@ -516,6 +519,15 @@ public enum Icons {
 
     return svg().with(path(icon.path)).attr("viewBox", iconViewBox);
   }
+
+//   private static String svg(TemplateEngine templateEngine, ThymeleafModule.PlayThymeleafContext context, Icons icon) {
+//     var iconViewBox =
+//         icon.viewBox.orElseGet(() -> String.format("0 0 %1$d %2$d", icon.size, icon.size));
+//     context.setVariable("pathValue", icon.path);
+//     context.setVariable("viewBox", iconViewBox);
+//     return templateEngine.process("components/IconFragment", ImmutableSet.of("icon"), context);
+//   }
+
 
   private static SvgTag svg() {
     return new SvgTag()

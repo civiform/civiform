@@ -53,6 +53,9 @@ import views.components.TextFormatter;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
+import modules.ThymeleafModule;
+import org.thymeleaf.TemplateEngine;
+import com.google.common.collect.ImmutableSet;
 
 /** A renderer to create an individual program information card. */
 public final class ProgramCardViewRenderer {
@@ -60,17 +63,24 @@ public final class ProgramCardViewRenderer {
   private final ProfileUtils profileUtils;
   private final ProgramImageUtils programImageUtils;
   private final SettingsManifest settingsManifest;
+  private final TemplateEngine templateEngine;
+  private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
 
   @Inject
   public ProgramCardViewRenderer(
       ApplicantRoutes applicantRoutes,
       ProfileUtils profileUtils,
       ProgramImageUtils programImageUtils,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      TemplateEngine templateEngine,
+      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory
+    ) {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.profileUtils = checkNotNull(profileUtils);
     this.programImageUtils = checkNotNull(programImageUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.templateEngine = checkNotNull(templateEngine);
+    this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
   }
 
   /**
