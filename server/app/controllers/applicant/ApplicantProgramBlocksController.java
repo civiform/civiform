@@ -221,7 +221,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
 
     DynamicForm form = formFactory.form().bindFromRequest(request);
-    String selectedAddress = form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME);
+    Optional<String> selectedAddress =
+        Optional.ofNullable(form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME));
     Optional<String> maybeAddressJson = request.session().get(ADDRESS_JSON_SESSION_KEY);
 
     ImmutableList<AddressSuggestion> suggestions =
@@ -252,7 +253,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long programId,
       String blockId,
       boolean inReview,
-      String selectedAddress,
+      Optional<String> selectedAddress,
       ImmutableList<AddressSuggestion> suggestions) {
     CompletableFuture<ApplicantPersonalInfo> applicantStage =
         applicantService.getPersonalInfo(applicantId).toCompletableFuture();
@@ -804,7 +805,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           programId,
           blockId,
           inReview,
-          suggestionMatch[0].getSingleLineAddress(),
+          Optional.of(suggestionMatch[0].getSingleLineAddress()),
           suggestions);
     } else {
       String json = addressSuggestionJsonSerializer.serialize(suggestions);
