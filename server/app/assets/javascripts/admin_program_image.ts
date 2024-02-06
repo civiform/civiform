@@ -35,8 +35,10 @@ class AdminProgramImage {
     )
 
     if (descriptionInput.value !== descriptionInput.defaultValue) {
+    console.log("description new -> removing disabled")
       submitButton.removeAttribute('disabled')
     } else {
+    console.log('same description -> setting disabled')
       submitButton.setAttribute('disabled', '')
     }
   }

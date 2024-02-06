@@ -38,6 +38,13 @@ export class AdminProgramImage {
     )
   }
 
+      async printWhenInputChanged(event: InputEvent) {
+        console.log('print when input changed')
+      }
+      async printWhenInputChangedTall(event: InputEvent) {
+        console.log('print when input changed -- TALL')
+      }
+
   async setImageDescription(description: string) {
     await this.page.fill(this.imageDescriptionLocator, description)
   }
@@ -60,6 +67,23 @@ export class AdminProgramImage {
    *   will be removed.
    */
   async setImageFile(imageFileName: string) {
+    console.log('setting input file to ' + imageFileName)
+
+if (imageFileName == 'src/assets/program-summary-image-tall.png') {
+ await this.page.exposeFunction("printWhenInputChangedTall", this.printWhenInputChangedTall)
+
+        await this.page.evaluate(`window.addEventListener('input', e => window.printWhenInputChangedTall(e))`)
+
+} else {
+ await this.page.exposeFunction("printWhenInputChanged", this.printWhenInputChanged)
+
+        await this.page.evaluate(`window.addEventListener('input', e => window.printWhenInputChanged(e))`)
+
+}
+
+
+
+
     const currentDescription = await this.page
       .locator(this.imageDescriptionLocator)
       .inputValue()
