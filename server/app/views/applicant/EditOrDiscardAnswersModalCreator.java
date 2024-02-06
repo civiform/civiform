@@ -2,7 +2,6 @@ package views.applicant;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
-import static views.ApplicationBaseView.getPreviousUrl;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrorsWithModal;
@@ -56,7 +55,7 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
       content = MessageKey.MODAL_ERROR_SAVING_REVIEW_CONTENT;
       withoutSaveButton = renderReviewWithoutSavingButton(params);
     } else {
-      throw new IllegalStateException("The params.errorDisplayMode() should be verified above");
+      throw new IllegalStateException("The params.errorDisplayMode() should be checked above");
     }
 
     DivTag modalContent =
@@ -111,7 +110,15 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
             params
                 .messages()
                 .at(MessageKey.MODAL_ERROR_SAVING_PREVIOUS_NO_SAVE_BUTTON.getKeyName()),
-            getPreviousUrl(params))
+            params
+                .applicantRoutes()
+                .previousBlockOrReview(
+                    params.profile(),
+                    params.applicantId(),
+                    params.programId(),
+                    params.blockIndex(),
+                    params.inReview())
+                .url())
         .withClasses(WITHOUT_SAVE_BUTTON_CLASSES);
   }
 }

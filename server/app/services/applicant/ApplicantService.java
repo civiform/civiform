@@ -1311,6 +1311,11 @@ public final class ApplicantService {
       ImmutableSet<Update> updates,
       Optional<ServiceAreaUpdate> serviceAreaUpdate)
       throws UnsupportedScalarTypeException, PathNotInBlockException {
+
+    block.getQuestions().stream()
+        .map(ApplicantQuestion::getContextualizedPath)
+        .forEach(path -> System.out.println("question path=" + path));
+
     ArrayList<Path> visitedPaths = new ArrayList<>();
     ImmutableMap.Builder<Path, String> failedUpdatesBuilder = ImmutableMap.builder();
     for (Update update : updates) {

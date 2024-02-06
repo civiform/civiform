@@ -278,10 +278,10 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.answerDateQuestion('2021-11-01')
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
         await applicantQuestions.clickNext()
-        // Nothing to fill in since this is the static question block,
-        // so proceed to the next block
+        // Nothing to fill in since this is the static question block
         await applicantQuestions.clickNext()
 
+        // Don't fill in the address question, and try going to previous block
         await applicantQuestions.clickPrevious()
         await applicantQuestions.expectErrorOnPreviousModal()
 

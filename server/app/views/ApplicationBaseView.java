@@ -79,7 +79,7 @@ public class ApplicationBaseView extends BaseHtmlView {
 
   /**
    * Renders a "Previous" button that will also save the applicant's data before redirecting to the
-   * previous block (if the feature flag is on).
+   * previous block (if the SAVE_ON_ALL_ACTIONS feature flag is on).
    */
   protected DomContent renderPreviousButton(
       SettingsManifest settingsManifest, ApplicationBaseView.Params params) {
@@ -108,7 +108,10 @@ public class ApplicationBaseView extends BaseHtmlView {
     return renderOldPreviousButton(params);
   }
 
-  /** Returns a "Previous" button with a custom action. */
+  /**
+   * Returns a "Previous" button that will redirect the applicant to the previous block *without*
+   * saving the applicant's data.
+   */
   protected ATag renderOldPreviousButton(ApplicationBaseView.Params params) {
       String redirectUrl =
               params

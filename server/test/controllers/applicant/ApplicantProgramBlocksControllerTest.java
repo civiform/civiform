@@ -814,7 +814,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     ApplicantRequestedAction.PREVIOUS_BLOCK.name()))
             .bodyForm(
                 ImmutableMap.of(
-                    Path.create("applicant.applicant_email").toString(), "test@gmail.com"))
+                    Path.create("applicant.applicant_email_address.email").toString(),
+                    "test@gmail.com"))
             .build();
 
     Result result =
@@ -832,7 +833,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String previousRoute =
         routes.ApplicantProgramBlocksController.previous(
-            program.id, /* previousBlockIndex= */ 3, /* inReview= */ false);
+                // The 4th block was filled in, which is index 3. So, the previous block would be
+                // index 2.
+                program.id, /* previousBlockIndex= */ 2, /* inReview= */ false)
+            .url();
     assertThat(result.redirectLocation()).hasValue(previousRoute);
   }
 
