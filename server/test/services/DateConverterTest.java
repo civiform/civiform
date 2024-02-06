@@ -17,7 +17,7 @@ public class DateConverterTest {
   private DateConverter dateConverter = new DateConverter(clock);
 
   @Test
-  public void workingWith_Iso8601_dates() {
+  public void parseIso8601DateToLocalDateInstant_isSuccessful() {
     String original = "2021-01-01Z";
     Instant parsed = dateConverter.parseIso8601DateToStartOfLocalDateInstant(original);
     String formatted = dateConverter.formatIso8601Date(parsed);
