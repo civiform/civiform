@@ -3276,22 +3276,21 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(correctedAddress.get(addressQuestion.getCorrectedPath().toString()))
         .isEqualTo(CorrectedAddressState.FAILED.getSerializationFormat());
 
-
     // Act - Tests with null
     ImmutableMap<String, String> correctedAddressWithNull =
-      subject
-        .getCorrectedAddress(
-          applicant.id,
-          program.id,
-          String.valueOf(blockDefinition.id()),
-          Optional.ofNullable(null),
-          addressSuggestionList)
-        .toCompletableFuture()
-        .get();
+        subject
+            .getCorrectedAddress(
+                applicant.id,
+                program.id,
+                String.valueOf(blockDefinition.id()),
+                Optional.ofNullable(null),
+                addressSuggestionList)
+            .toCompletableFuture()
+            .get();
 
     // Assert
     assertThat(correctedAddressWithNull.get(addressQuestion.getCorrectedPath().toString()))
-      .isEqualTo(CorrectedAddressState.FAILED.getSerializationFormat());
+        .isEqualTo(CorrectedAddressState.FAILED.getSerializationFormat());
   }
 
   @Test
