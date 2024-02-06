@@ -60,6 +60,7 @@ button.nextScreen=저장 후 다음으로 이동
 button.previousScreen=이전
 button.review=검토
 button.skipFileUpload=건너뛰기
+content.blockProgress={1} 중 {0}
 toast.localeNotSupported=죄송합니다. 이 프로그램은 사용자의 선호 언어로 번역되지 않습니다.
 link.allDone=모두 완료했습니다
 link.applyToAnotherProgram=다른 프로그램 신청
@@ -95,6 +96,62 @@ title.activeProgramsUpdated=시작 안 함
 title.submittedPrograms=제출됨
 toast.applicationSaved=신청서 저장됨: 신청서 ID {0}
 toast.programCompleted=신청서가 이미 작성되어 있습니다.
+
+#------------------------------------------------------------------------------------------------------#
+# TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
+#------------------------------------------------------------------------------------------------------#
+
+banner.acctDeleteError=This account cannot be deleted.
+banner.acctDeleteErrorReason=This account cannot be deleted since it has open applications.
+banner.clientInfoUpdated=Client info has been successfully updated.
+banner.clientAcctDeleted=The client account for "{0}" has been successfully deleted.
+banner.newClientCreated=New client successfully created.
+
+button.addNewClient=Add new client
+button.backToClientList=Back to client list
+button.backToEditing=Back to editing
+button.cancel=Cancel
+button.clearSearch=Clear search
+button.deleteAcct=Delete account
+button.keepAcct=Keep account
+button.nextPage=Next
+button.save=Save
+button.search=Search
+button.select=Select
+button.startApp=Start an application
+button.viewApplications=View applications
+
+content.clientCreated=Your new client {0} has been added to your client list. You can now begin submitting applications for this client.
+content.numberOfAppSubmitted={0} applications submitted
+content.warning=There are no applications submitted for this client, so no applications will be lost.
+
+dialog.deleteConfirmation=Are you sure you want to delete this client''s account?
+
+header.acctSettings=Account settings
+header.clientList=Client list
+
+label.acctStatus=Account Status
+label.contactInfo=Contact Information
+label.day=Day
+label.dob=Date of birth
+label.dobExample=For example: January 28 1986
+label.email=Email
+label.month=Month
+label.name=Name
+label.nameExample=For example: Gu or Darren or Darren Gu
+label.notes=Notes
+label.phoneNum=Phone Number
+label.searchByDob=Search by Date of Birth
+label.searchByName=Search by name(s)
+label.year=Year
+
+link.edit=편집
+
+title.allClients=All Clients
+title.createClient=Create a new client
+title.displayingMultiClients=Displaying {0} clients
+title.displayingOneClient=Displaying 1 client
+title.orgMembers=Organization members
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -219,7 +276,7 @@ validation.phoneMustBeLocalToCountry=제공하신 전화번호가 거주 국가�
 #----------------------------------------------------------------------------------------------------------#
 
 validation.dateMisformatted=YYYY/MM/DD 형식으로 날짜를 입력하세요.
-validation.invalidDateFormat=Please enter a date in the correct format
+validation.invalidDateFormat=올바른 형식의 날짜를 입력하세요.
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #

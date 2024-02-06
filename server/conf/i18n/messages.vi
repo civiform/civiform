@@ -60,6 +60,7 @@ button.nextScreen=Lưu và tiếp tục
 button.previousScreen=Trước
 button.review=Xem lại
 button.skipFileUpload=Bỏ qua
+content.blockProgress={0}/{1}
 toast.localeNotSupported=Rất tiếc, chương trình này chưa được dịch hoàn toàn sang ngôn ngữ bạn ưa dùng.
 link.allDone=Tôi đã hoàn thành
 link.applyToAnotherProgram=Đăng ký một chương trình khác
@@ -83,7 +84,7 @@ content.submittedDate=Đã gửi {0}
 content.findPrograms=Tìm chương trình
 content.findProgramsDescription=CiviForm giúp bạn tìm được những chương trình mà bạn có thể đủ điều kiện tham gia trong {0}. Hãy chọn một đơn đăng ký dưới đây để bắt đầu.
 content.saveTimeServices=Tiết kiệm thời gian đăng ký các chương trình và dịch vụ
-content.guestDescription=Đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản rồi đăng ký chương trình mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký bất cứ lúc nào và kiểm tra trạng thái của đơn đăng ký.
+content.guestDescription=Hãy đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản rồi đăng ký tham gia các chương trình mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký bất cứ lúc nào và kiểm tra trạng thái của đơn đăng ký.
 link.programDetails=Chi tiết chương trình
 link.programDetailsSr=Thông tin chi tiết về chương trình {0}, mở trong tab mới
 title.programs=Chương trình và dịch vụ
@@ -95,6 +96,62 @@ title.activeProgramsUpdated=Chưa bắt đầu
 title.submittedPrograms=Đã gửi
 toast.applicationSaved=Đã lưu thành công đơn đăng ký: mã đơn đăng ký {0}
 toast.programCompleted=Đăng ký thành công.
+
+#------------------------------------------------------------------------------------------------------#
+# TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
+#------------------------------------------------------------------------------------------------------#
+
+banner.acctDeleteError=This account cannot be deleted.
+banner.acctDeleteErrorReason=This account cannot be deleted since it has open applications.
+banner.clientInfoUpdated=Client info has been successfully updated.
+banner.clientAcctDeleted=The client account for "{0}" has been successfully deleted.
+banner.newClientCreated=New client successfully created.
+
+button.addNewClient=Add new client
+button.backToClientList=Back to client list
+button.backToEditing=Back to editing
+button.cancel=Cancel
+button.clearSearch=Clear search
+button.deleteAcct=Delete account
+button.keepAcct=Keep account
+button.nextPage=Next
+button.save=Save
+button.search=Search
+button.select=Select
+button.startApp=Start an application
+button.viewApplications=View applications
+
+content.clientCreated=Your new client {0} has been added to your client list. You can now begin submitting applications for this client.
+content.numberOfAppSubmitted={0} applications submitted
+content.warning=There are no applications submitted for this client, so no applications will be lost.
+
+dialog.deleteConfirmation=Are you sure you want to delete this client''s account?
+
+header.acctSettings=Account settings
+header.clientList=Client list
+
+label.acctStatus=Account Status
+label.contactInfo=Contact Information
+label.day=Day
+label.dob=Date of birth
+label.dobExample=For example: January 28 1986
+label.email=Email
+label.month=Month
+label.name=Name
+label.nameExample=For example: Gu or Darren or Darren Gu
+label.notes=Notes
+label.phoneNum=Phone Number
+label.searchByDob=Search by Date of Birth
+label.searchByName=Search by name(s)
+label.year=Year
+
+link.edit=Chỉnh sửa
+
+title.allClients=All Clients
+title.createClient=Create a new client
+title.displayingMultiClients=Displaying {0} clients
+title.displayingOneClient=Displaying 1 client
+title.orgMembers=Organization members
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -143,15 +200,15 @@ title.applicationConfirmation=Xác nhận đơn đăng ký
 content.confirmed=Cảm ơn bạn đã đăng ký tham gia {0}. Chúng tôi đã nhận được đơn đăng ký của bạn và mã đơn đăng ký là {1}.
 title.createAnAccount=Tạo tài khoản hoặc đăng nhập
 content.pleaseCreateAccount=Nếu bây giờ bạn đăng nhập vào tài khoản của thành phố, thông tin của bạn sẽ được lưu lại và bạn có thể trở lại bất cứ lúc nào để hoàn tất các đơn đăng ký sau này. Nếu chưa có tài khoản, bạn có thể đăng ký ở trang đăng nhập. Dữ liệu bạn đã nhập sẽ không bị mất.
-content.generalLoginModalPrompt=Bạn chưa đăng nhập vào tài khoản nào. Nếu không đăng nhập vào tài khoản, bạn sẽ không thể chỉnh sửa đơn đăng ký, kiểm tra trạng thái của đơn đăng ký, hoặc đăng ký các chương trình khác một cách nhanh chóng.
+content.generalLoginModalPrompt=Bạn chưa đăng nhập vào tài khoản nào. Nếu không đăng nhập vào tài khoản, bạn sẽ không thể chỉnh sửa đơn đăng ký, kiểm tra trạng thái của đơn đăng ký, hoặc đăng ký tham gia các chương trình khác một cách nhanh chóng.
 content.initialLoginModalPrompt=Trước khi tiếp tục, hãy đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản. Bạn sẽ có thể đăng ký nhiều chương trình mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký và kiểm tra trạng thái của đơn đăng ký.
 button.continueWithoutAnAccount=Tiếp tục mà không dùng tài khoản
 title.commonIntakeConfirmation=Chương trình bạn có thể đủ tiêu chuẩn tham gia
 title.commonIntakeConfirmationTi=Chương trình khách hàng của bạn có thể đủ tiêu chuẩn tham gia
-content.commonIntakeConfirmation=Bạn có thể đăng ký các chương trình này nếu đăng ký thông qua đơn đăng ký trực tuyến bằng cách nhấp vào ''Đăng ký chương trình''.
-content.commonIntakeConfirmationTi=Khách hàng của bạn có thể đăng ký các chương trình này nếu bạn đăng ký thông qua đơn đăng ký trực tuyến bằng cách nhấp vào ''Đăng ký chương trình''.
-content.commonIntakeNoMatchingPrograms=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
-content.commonIntakeNoMatchingProgramsTi=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà khách hàng của bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
+content.commonIntakeConfirmation=Bạn có thể đăng ký tham gia các chương trình này nếu đăng ký thông qua đơn đăng ký trực tuyến bằng cách nhấp vào ''Đăng ký tham gia chương trình''.
+content.commonIntakeConfirmationTi=Khách hàng của bạn có thể đăng ký tham gia các chương trình này nếu bạn đăng ký thông qua đơn đăng ký trực tuyến bằng cách nhấp vào ''Đăng ký tham gia chương trình''.
+content.commonIntakeNoMatchingPrograms=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký tham gia chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
+content.commonIntakeNoMatchingProgramsTi=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà khách hàng của bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký tham gia chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
 content.commonIntakeNoMatchingProgramsNextStep=Bạn cũng có thể quay lại trang trước để chỉnh sửa câu trả lời của mình.
 button.downloadPdf=Tải bản PDF xuống
 button.applyToPrograms=Đăng ký chương trình
@@ -219,7 +276,7 @@ validation.phoneMustBeLocalToCountry=Số điện thoại bạn đã cung cấp 
 #----------------------------------------------------------------------------------------------------------#
 
 validation.dateMisformatted=Vui lòng nhập ngày ở định dạng YYYY/MM/DD.
-validation.invalidDateFormat=Please enter a date in the correct format
+validation.invalidDateFormat=Hãy nhập ngày theo đúng định dạng
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #

@@ -60,6 +60,7 @@ button.nextScreen=Guardar y continuar
 button.previousScreen=Anterior
 button.review=Revisar
 button.skipFileUpload=Omitir
+content.blockProgress={0} de {1}
 toast.localeNotSupported=Lo sentimos, este programa no está traducido por completo a tu idioma preferido.
 link.allDone=Listo
 link.applyToAnotherProgram=Solicitar otro programa
@@ -83,7 +84,7 @@ content.submittedDate=Enviada el {0}
 content.findPrograms=Buscar programas
 content.findProgramsDescription=CiviForm te ayuda a encontrar programas en los que puedes participar en {0}. Comienza eligiendo una solicitud a continuación.
 content.saveTimeServices=Ahorra tiempo cuando te inscribas en programas y servicios
-content.guestDescription=Accede a tu cuenta de {0} o crea una para inscribirte en programas sin necesidad de volver a ingresar la misma información. También puedes ver el estado de tus solicitudes y modificarlas en cualquier momento.
+content.guestDescription=Accede a tu cuenta de {0} o crea una para enviar solicitudes de inscripción a programas sin necesidad de volver a ingresar la misma información. También puedes ver el estado de tus solicitudes y modificarlas en cualquier momento.
 link.programDetails=Detalles del programa
 link.programDetailsSr=Detalles del programa {0} (se abre en una pestaña nueva)
 title.programs=Programas y servicios
@@ -95,6 +96,62 @@ title.activeProgramsUpdated=Sin comenzar
 title.submittedPrograms=Enviados
 toast.applicationSaved=Solicitud guardada con éxito: ID de la solicitud {0}
 toast.programCompleted=Ya se completó la solicitud.
+
+#------------------------------------------------------------------------------------------------------#
+# TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
+#------------------------------------------------------------------------------------------------------#
+
+banner.acctDeleteError=This account cannot be deleted.
+banner.acctDeleteErrorReason=This account cannot be deleted since it has open applications.
+banner.clientInfoUpdated=Client info has been successfully updated.
+banner.clientAcctDeleted=The client account for "{0}" has been successfully deleted.
+banner.newClientCreated=New client successfully created.
+
+button.addNewClient=Add new client
+button.backToClientList=Back to client list
+button.backToEditing=Back to editing
+button.cancel=Cancel
+button.clearSearch=Clear search
+button.deleteAcct=Delete account
+button.keepAcct=Keep account
+button.nextPage=Next
+button.save=Save
+button.search=Search
+button.select=Select
+button.startApp=Start an application
+button.viewApplications=View applications
+
+content.clientCreated=Your new client {0} has been added to your client list. You can now begin submitting applications for this client.
+content.numberOfAppSubmitted={0} applications submitted
+content.warning=There are no applications submitted for this client, so no applications will be lost.
+
+dialog.deleteConfirmation=Are you sure you want to delete this client''s account?
+
+header.acctSettings=Account settings
+header.clientList=Client list
+
+label.acctStatus=Account Status
+label.contactInfo=Contact Information
+label.day=Day
+label.dob=Date of birth
+label.dobExample=For example: January 28 1986
+label.email=Email
+label.month=Month
+label.name=Name
+label.nameExample=For example: Gu or Darren or Darren Gu
+label.notes=Notes
+label.phoneNum=Phone Number
+label.searchByDob=Search by Date of Birth
+label.searchByName=Search by name(s)
+label.year=Year
+
+link.edit=Editar
+
+title.allClients=All Clients
+title.createClient=Create a new client
+title.displayingMultiClients=Displaying {0} clients
+title.displayingOneClient=Displaying 1 client
+title.orgMembers=Organization members
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -143,15 +200,15 @@ title.applicationConfirmation=Confirmación de la solicitud
 content.confirmed=Gracias por solicitar {0}. Recibimos tu solicitud y el ID de la solicitud es {1}.
 title.createAnAccount=Crea una cuenta o accede
 content.pleaseCreateAccount=Si accedes a una cuenta municipal ahora, se guardará tu información y podrás regresar en cualquier momento para completar solicitudes en el futuro. Si no tienes una cuenta, la página de acceso te permitirá registrarte. No perderás los datos que ya ingresaste.
-content.generalLoginModalPrompt=No accediste a una cuenta. No podrás modificar una solicitud, ver su estado ni inscribirte rápidamente en otros programas si no tienes una cuenta.
-content.initialLoginModalPrompt=Antes de continuar, accede a tu cuenta de {0} o crea una. Podrás inscribirte en varios programas sin necesidad de volver a ingresar la misma información. También puedes editar tus solicitudes y revisar su estado.
+content.generalLoginModalPrompt=No accediste a una cuenta. No podrás modificar una solicitud, ver su estado ni enviar solicitudes de inscripción rápidamente a otros programas si no tienes una cuenta.
+content.initialLoginModalPrompt=Antes de continuar, accede a tu cuenta de {0} o crea una. Podrás enviar solicitudes de inscripción a varios programas sin necesidad de volver a ingresar la misma información. También puedes editar tus solicitudes y revisar su estado.
 button.continueWithoutAnAccount=Continuar sin una cuenta
-title.commonIntakeConfirmation=Programas en los que podrías inscribirte
-title.commonIntakeConfirmationTi=Programas en los que podría inscribirse tu cliente
+title.commonIntakeConfirmation=Programas para los que cumples los requisitos
+title.commonIntakeConfirmationTi=Programas para los que tu cliente cumple los requisitos
 content.commonIntakeConfirmation=Puedes inscribirte en estos programas si completas la solicitud en línea haciendo clic en ''Apply to programs''.
 content.commonIntakeConfirmationTi=Puedes inscribir a tu cliente en estos programas si completas la solicitud en línea haciendo clic en ''Apply to programs''.
-content.commonIntakeNoMatchingPrograms=El proceso de evaluación no pudo encontrar programas para los que calificas en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
-content.commonIntakeNoMatchingProgramsTi=El proceso de evaluación no pudo encontrar programas en los que tu cliente podría inscribirse en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
+content.commonIntakeNoMatchingPrograms=El proceso de evaluación no pudo encontrar programas para los que cumplas los requisitos en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
+content.commonIntakeNoMatchingProgramsTi=El proceso de evaluación no pudo encontrar programas para los que tu cliente cumpla los requisitos en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
 content.commonIntakeNoMatchingProgramsNextStep=También puedes volver a la página anterior para editar tus respuestas.
 button.downloadPdf=Descargar PDF
 button.applyToPrograms=Postularse a programas
@@ -219,7 +276,7 @@ validation.phoneMustBeLocalToCountry=El teléfono que proporcionaste no es de es
 #----------------------------------------------------------------------------------------------------------#
 
 validation.dateMisformatted=Ingresa una fecha en el formato AAAA/MM/DD.
-validation.invalidDateFormat=Please enter a date in the correct format
+validation.invalidDateFormat=Ingresa una fecha en el formato correcto.
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #

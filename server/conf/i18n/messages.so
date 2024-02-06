@@ -60,6 +60,7 @@ button.nextScreen=Tan Xiga
 button.previousScreen=Hore
 button.review=Dib u eeg
 button.skipFileUpload=Ka bood
+content.blockProgress={0} ee {1}
 toast.localeNotSupported=Waanu ka xunahay, barnaamijkan si buuxda looguma turjumin luqaddaada aad doorbidayso.
 link.allDone=Waan dhameeyay
 link.applyToAnotherProgram=Codso barnaamij kale
@@ -80,12 +81,10 @@ button.startHereCommonIntakeSr=Ka bilow halkan addoo buuxinaya {0}
 button.editCommonIntakeSr=Wax ka beddel macluumaadka la gudbiyay {0}
 button.continueCommonIntakeSr=Sii wad buuxinta {0}
 content.submittedDate=La gudbiyay {0}
-# Title of the page where applicants can go to find programs
 content.findPrograms=Hel barnaamijyo
-# Content that explains the benefit of using CiviForm. We'll fill in the name of the city or state.
 content.findProgramsDescription=CiviForm waxay kaa caawisaa helida barnaamijyada laga yaabo inaad ugu qalmi karayso{0}. Ku bilow adigoo codsi ka dooranaya hoos.
 content.saveTimeServices=Si aad u ilaaliso wakhtiga markaad codsanayso barnaamijyada iyo adeegyada
-content.guestDescription=Gal akoonkaaga {0} ama samee akoon oo codso barnaamijyada adigoon galineyn macluumaad isku mid ah markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyada wakhti kasta oo hubin kartaa heerarka codsigaagu marayo.
+content.guestDescription=Gal akoonkaaga {0} ama samee akoon oo codso barnaamijyada adigoon galineyn isla macluumaadkii markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyada wakhti kasta oo hubin kartaa heerarka codsigaagu marayo.
 link.programDetails=Faahfaahinta barnaamijka
 link.programDetailsSr=Faahfaahinta barnaamijka ee{0}, waxay ku furmaysaa bog cusub
 title.programs=Barnaamijyada iyo adeegyada
@@ -97,6 +96,62 @@ title.activeProgramsUpdated=Lama bilaabin
 title.submittedPrograms=La gudbiyay
 toast.applicationSaved=Codsiga si guul leh loo keydiyay: ID codsiga {0}
 toast.programCompleted=Codsiga mar hore ayaa la dhammaystiray.
+
+#------------------------------------------------------------------------------------------------------#
+# TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
+#------------------------------------------------------------------------------------------------------#
+
+banner.acctDeleteError=This account cannot be deleted.
+banner.acctDeleteErrorReason=This account cannot be deleted since it has open applications.
+banner.clientInfoUpdated=Client info has been successfully updated.
+banner.clientAcctDeleted=The client account for "{0}" has been successfully deleted.
+banner.newClientCreated=New client successfully created.
+
+button.addNewClient=Add new client
+button.backToClientList=Back to client list
+button.backToEditing=Back to editing
+button.cancel=Cancel
+button.clearSearch=Clear search
+button.deleteAcct=Delete account
+button.keepAcct=Keep account
+button.nextPage=Next
+button.save=Save
+button.search=Search
+button.select=Select
+button.startApp=Start an application
+button.viewApplications=View applications
+
+content.clientCreated=Your new client {0} has been added to your client list. You can now begin submitting applications for this client.
+content.numberOfAppSubmitted={0} applications submitted
+content.warning=There are no applications submitted for this client, so no applications will be lost.
+
+dialog.deleteConfirmation=Are you sure you want to delete this client''s account?
+
+header.acctSettings=Account settings
+header.clientList=Client list
+
+label.acctStatus=Account Status
+label.contactInfo=Contact Information
+label.day=Day
+label.dob=Date of birth
+label.dobExample=For example: January 28 1986
+label.email=Email
+label.month=Month
+label.name=Name
+label.nameExample=For example: Gu or Darren or Darren Gu
+label.notes=Notes
+label.phoneNum=Phone Number
+label.searchByDob=Search by Date of Birth
+label.searchByName=Search by name(s)
+label.year=Year
+
+link.edit=Wax ka beddel
+
+title.allClients=All Clients
+title.createClient=Create a new client
+title.displayingMultiClients=Displaying {0} clients
+title.displayingOneClient=Displaying 1 client
+title.orgMembers=Organization members
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -145,12 +200,12 @@ title.applicationConfirmation=AXaqiijinta codsiga
 content.confirmed=Waad ku mahadsan tahay inaad soo gudbisay codsiga {0}. Codsigaagii waa la helay, ID gaaga waa {1}.
 title.createAnAccount=Akoon samee ama gal oo sign in garee
 content.pleaseCreateAccount=Haddii aad hadda gasho city akoonka, macluumaadkaaga waa la kaydin doonaa oo waxaad awoodi doontaa inaad soo noqoto wakhti kasta si aad u buuxiso codsiyada mustaqbalka. Haddii aanad hore u lahayn akoon, bogga galitaanka internetka ayaa kuu ogolaanaya inaad isdiiwaangeliso. Ma lumin doontid wax xog ah oo aad hore u gelisay.
-content.generalLoginModalPrompt=Adigu akoonti kuma aanad soo galin. Akoon la'aantiis awood uma yeelan doontid inaad wax ka badasho codsiga, hubiso heerka codsigaagu marayo, ama aad si deg-dega u codsato barnaamijyo kale
-content.initialLoginModalPrompt=Ka hor inta aanad sii wadin, soo gal {0} akoonkaaga ama samayso akoon. Waxaad awoodi doontaa inaad codsatid dhowr barnaamij adigoon galineyn macluumaad isku mid ah markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyadaada oo hubin kartaa heerarka codsigaagu marayo.
+content.generalLoginModalPrompt=Adigu akoon kuma aanad soo galin. Akoon la'aantiis awood uma yeelan doontid inaad wax ka bedasho codsiga, hubiso heerka codsigaagu marayo, ama aad si deg-dega u codsato barnaamijyo kale
+content.initialLoginModalPrompt=Ka hor inta aanad sii wadin, soo gal {0} akoonkaaga ama samayso akoon. Waxaad awoodi doontaa inaad codsatid dhowr barnaamij adigoon galineyn isla macluumaadkii markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyadaada oo hubin kartaa heerarka codsigaagu marayo.
 button.continueWithoutAnAccount=Sii soco koonto la'aan
 title.commonIntakeConfirmation=Barnaamijyada aad u qalmi karaysid
 title.commonIntakeConfirmationTi=Barnaamijyada macmiilkaagu u qalmi karayo
-content.commonIntakeConfirmation=Waxaad awoodi kartaa inaad iska-diwaan galisid barnaamijyadan hadii aad ku codsatid qaabka codsiga onlaynka ah adigoo gujinaya '' Codso barnaamijyada''.
+content.commonIntakeConfirmation=Waxaad awoodi kartaa inaad iska-diwaan galisid barnaamijyadan hadii aad ku codsatid qaabka codsiga onlaynka ah adigoo gujinaya ''Codso barnaamijyada''.
 content.commonIntakeConfirmationTi=Macmiilkaagu wuxuu awoodi karaa inuu iska diwaangaliyo barnaamijyadan hadii aad codsiga ugu dalabtid/buuxisid qaabka codsiga onlaynka ah adigoo gujinaya ''Codso barnaamijyada''
 content.commonIntakeNoMatchingPrograms=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada aad u qalmi karto wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
 content.commonIntakeNoMatchingProgramsTi=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada uu macmiilkaagu u qalmi karo wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
@@ -221,7 +276,7 @@ validation.phoneMustBeLocalToCountry=Telefoonka aad bixisay wadana malaha
 #----------------------------------------------------------------------------------------------------------#
 
 validation.dateMisformatted=Please enter a date in the format YYYY/MM/DD.
-validation.invalidDateFormat=Please enter a date in the correct format
+validation.invalidDateFormat=Fadlan taariikhda ugu qor qaabka saxda ah
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #

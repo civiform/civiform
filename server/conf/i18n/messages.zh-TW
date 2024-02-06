@@ -60,6 +60,7 @@ button.nextScreen=儲存並繼續
 button.previousScreen=上一個畫面
 button.review=檢查
 button.skipFileUpload=略過
+content.blockProgress={0}/{1}
 toast.localeNotSupported=很抱歉，這項計畫尚未完整翻譯成您偏好的語言。
 link.allDone=我完成了
 link.applyToAnotherProgram=申請其他計畫
@@ -95,6 +96,62 @@ title.activeProgramsUpdated=未開始
 title.submittedPrograms=已提交
 toast.applicationSaved=申請資料儲存成功：申請編號 {0}
 toast.programCompleted=已完成申請。
+
+#------------------------------------------------------------------------------------------------------#
+# TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
+#------------------------------------------------------------------------------------------------------#
+
+banner.acctDeleteError=This account cannot be deleted.
+banner.acctDeleteErrorReason=This account cannot be deleted since it has open applications.
+banner.clientInfoUpdated=Client info has been successfully updated.
+banner.clientAcctDeleted=The client account for "{0}" has been successfully deleted.
+banner.newClientCreated=New client successfully created.
+
+button.addNewClient=Add new client
+button.backToClientList=Back to client list
+button.backToEditing=Back to editing
+button.cancel=Cancel
+button.clearSearch=Clear search
+button.deleteAcct=Delete account
+button.keepAcct=Keep account
+button.nextPage=Next
+button.save=Save
+button.search=Search
+button.select=Select
+button.startApp=Start an application
+button.viewApplications=View applications
+
+content.clientCreated=Your new client {0} has been added to your client list. You can now begin submitting applications for this client.
+content.numberOfAppSubmitted={0} applications submitted
+content.warning=There are no applications submitted for this client, so no applications will be lost.
+
+dialog.deleteConfirmation=Are you sure you want to delete this client''s account?
+
+header.acctSettings=Account settings
+header.clientList=Client list
+
+label.acctStatus=Account Status
+label.contactInfo=Contact Information
+label.day=Day
+label.dob=Date of birth
+label.dobExample=For example: January 28 1986
+label.email=Email
+label.month=Month
+label.name=Name
+label.nameExample=For example: Gu or Darren or Darren Gu
+label.notes=Notes
+label.phoneNum=Phone Number
+label.searchByDob=Search by Date of Birth
+label.searchByName=Search by name(s)
+label.year=Year
+
+link.edit=編輯
+
+title.allClients=All Clients
+title.createClient=Create a new client
+title.displayingMultiClients=Displaying {0} clients
+title.displayingOneClient=Displaying 1 client
+title.orgMembers=Organization members
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -144,12 +201,12 @@ content.confirmed=感謝你申請「{0}」。我們已收到相關申請資料�
 title.createAnAccount=建立或登入帳戶
 content.pleaseCreateAccount=如果現在登入城市帳戶，系統會儲存你的資訊，你之後隨時能使用這些資訊提出其他申請。如果你還沒有帳戶，可以在登入頁面註冊。已經輸入的資料並不會遺失。
 content.generalLoginModalPrompt=您尚未登入帳戶。如未登入帳戶，將無法編輯申請書、查看申請狀態，或是快速申請參加其他計畫。
-content.initialLoginModalPrompt=請先登入「{0}」帳戶或建立帳戶，再繼續操作。您將可申請參加多項計畫，而不必一再輸入相同的資訊，還可編輯申請書及查看申請狀態。
+content.initialLoginModalPrompt=請先登入「{0}」帳戶或建立帳戶，再繼續操作。登入之後，您就可以申請參加多項計畫，而不必一再輸入相同的資訊，還可編輯申請書及查看申請狀態。
 button.continueWithoutAnAccount=在不登入帳戶的狀態下繼續操作
 title.commonIntakeConfirmation=您可能有資格參加的計畫
 title.commonIntakeConfirmationTi=您的客戶可能有資格參加的計畫
-content.commonIntakeConfirmation=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您或許能夠參加這些計畫。
-content.commonIntakeConfirmationTi=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您的客戶或許能夠參加這些計畫。
+content.commonIntakeConfirmation=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您就有可能加入這些計畫。
+content.commonIntakeConfirmationTi=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您的客戶就有可能加入這些計畫。
 content.commonIntakeNoMatchingPrograms=預先篩選工具目前找不到您可能有資格參加的計畫。不過，您隨時可以點選「申請參加計畫」提出計畫申請，或是前往「{0}」查看其他計畫
 content.commonIntakeNoMatchingProgramsTi=預先篩選工具目前找不到您的客戶可能有資格參加的計畫。不過，您隨時可以點選「申請參加計畫」提出計畫申請，或是前往「{0}」查看其他計畫
 content.commonIntakeNoMatchingProgramsNextStep=您也可以返回上一頁編輯回答。
@@ -219,7 +276,7 @@ validation.phoneMustBeLocalToCountry=您提供的電話號碼不屬於您選取�
 #----------------------------------------------------------------------------------------------------------#
 
 validation.dateMisformatted=日期格式必須為 YYYY/MM/DD。
-validation.invalidDateFormat=Please enter a date in the correct format
+validation.invalidDateFormat=日期的格式不正確，請重新輸入
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
