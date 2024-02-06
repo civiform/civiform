@@ -853,13 +853,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables populating more fields in OIDC logout requests to admin identity provider. */
-  public boolean getAdminOidcEnhancedLogoutEnabled(RequestHeader request) {
-    return getBool("ADMIN_OIDC_ENHANCED_LOGOUT_ENABLED", request);
+  public boolean getAdminOidcEnhancedLogoutEnabled() {
+    return getBool("ADMIN_OIDC_ENHANCED_LOGOUT_ENABLED");
   }
 
   /** Enables populating more fields in OIDC logout requests to applicant identity provider. */
-  public boolean getApplicantOidcEnhancedLogoutEnabled(RequestHeader request) {
-    return getBool("APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED", request);
+  public boolean getApplicantOidcEnhancedLogoutEnabled() {
+    return getBool("APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED");
   }
 
   /**
@@ -1828,14 +1828,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " provider.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED",
                       "Enables populating more fields in OIDC logout requests to applicant identity"
                           + " provider.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "APPLICANT_INFO_QUESTIONS",
                       "Enables setting and displaying whether the answer to a universal question"

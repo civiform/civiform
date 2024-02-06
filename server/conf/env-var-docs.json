@@ -724,12 +724,12 @@
         "type": "bool"
       },
       "ADMIN_OIDC_ENHANCED_LOGOUT_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enables populating more fields in OIDC logout requests to admin identity provider.",
         "type": "bool"
       },
       "APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enables populating more fields in OIDC logout requests to applicant identity provider.",
         "type": "bool"
       },
