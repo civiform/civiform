@@ -16,7 +16,7 @@ public abstract class SubmittedApplicationFilter {
 
   /**
    * If provided and is an unsigned integer, the query will filter to applications with an applicant
-   * ID matching it. If provided and is not an unsigned integer, the query will filter to
+   * ID or phone number matching it. If provided and is not an unsigned integer, the query will filter to
    * applications with email, first name, or last name that contain it.
    */
   public abstract Optional<String> searchNameFragment();

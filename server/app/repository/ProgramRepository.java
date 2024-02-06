@@ -319,7 +319,7 @@ public final class ProgramRepository {
     if (filters.searchNameFragment().isPresent() && !filters.searchNameFragment().get().isBlank()) {
       String search = filters.searchNameFragment().get().trim();
 
-      String maybeDigits = search.replaceAll("[()-.]", "");
+      String maybeDigits = search.replaceAll("[^a-zA-Z0-9 ]", "");
 
       if (maybeDigits.matches("^\\d+$")) {
         query =
