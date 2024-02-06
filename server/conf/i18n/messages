@@ -78,7 +78,7 @@ modal.errorSaving.review.noSaveButton=Go to review page without saving
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
 modal.errorSaving.previous.noSaveButton=Go to previous page without saving
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.goBackAndEditButton=Go back and fix
+modal.errorSaving.goBackAndFixButton=Go back and fix
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
