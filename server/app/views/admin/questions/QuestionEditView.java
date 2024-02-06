@@ -496,7 +496,7 @@ public final class QuestionEditView extends BaseHtmlView {
                       .with(
                           p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
                               .with(
-                                  span(primaryApplicantInfoTag.getDisplayName()),
+                                  span(primaryApplicantInfoTag.getDescription()),
                                   ViewUtils.makeToggleButton(
                                       /* fieldName= */ primaryApplicantInfoTag.getFieldName(),
                                       /* enabled= */ questionForm
@@ -507,7 +507,7 @@ public final class QuestionEditView extends BaseHtmlView {
                                       /* idPrefix= */ Optional.of(
                                           primaryApplicantInfoTag.getFieldName()),
                                       /* text= */ Optional.of(
-                                          primaryApplicantInfoTag.getDescription()))));
+                                          primaryApplicantInfoTag.getDisplayName()))));
               tagSubsection.with(
                   ViewUtils.makeAlertInfoSlim(
                       "You cannot apply this property since the question is not a universal"
