@@ -57,7 +57,8 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
         .setModalId(Modal.randomModalId())
         .setLocation(Modal.Location.APPLICANT_FACING)
         .setContent(modalContent)
-        .setModalTitle(params.messages().at(MessageKey.MODAL_ERROR_SAVING_TITLE.getKeyName()))
+        .setModalTitle(
+            params.messages().at(MessageKey.MODAL_ERROR_SAVING_REVIEW_TITLE.getKeyName()))
         .setMessages(params.messages())
         .setWidth(Modal.Width.DEFAULT)
         .setDisplayOnLoad(true)

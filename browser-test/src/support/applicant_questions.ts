@@ -558,16 +558,20 @@ export class ApplicantQuestions {
 
   async expectErrorOnReviewModal() {
     const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain(`Error saving information`)
-    expect(await modal.innerText()).toContain(`Review without saving`)
-    expect(await modal.innerText()).toContain(`Go back and edit`)
+    expect(await modal.innerText()).toContain(
+      `Questions on this page are not complete`,
+    )
+    expect(await modal.innerText()).toContain(
+      `Go to review page without saving`,
+    )
+    expect(await modal.innerText()).toContain(`Go back and fix`)
   }
 
   async clickReviewWithoutSaving() {
-    await this.page.click('button:has-text("Review without saving")')
+    await this.page.click('button:has-text("Go to review page without saving")')
   }
 
   async clickGoBackAndEdit() {
-    await this.page.click('button:has-text("Go back and edit")')
+    await this.page.click('button:has-text("Go back and fix")')
   }
 }
