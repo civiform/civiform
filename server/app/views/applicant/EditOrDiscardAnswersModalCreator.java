@@ -66,7 +66,8 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
   }
 
   private ButtonTag renderGoBackAndEditButton(ApplicationBaseView.Params params) {
-    return button(params.messages().at(MessageKey.MODAL_ERROR_SAVING_GO_BACK_AND_EDIT.getKeyName()))
+    return button(
+            params.messages().at(MessageKey.MODAL_ERROR_SAVING_GO_BACK_AND_FIX_BUTTON.getKeyName()))
         // Adding the MODAL_CLOSE class means that clicking the button will close the modal.
         .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.SOLID_BLUE);
   }
