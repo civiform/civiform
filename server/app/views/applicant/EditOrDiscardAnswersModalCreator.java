@@ -44,12 +44,15 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
               params.errorDisplayMode()));
     }
 
+    MessageKey title;
     MessageKey content;
     ButtonTag withoutSaveButton;
     if (params.errorDisplayMode() == DISPLAY_ERRORS_WITH_MODAL_PREVIOUS) {
+      title = MessageKey.MODAL_ERROR_SAVING_PREVIOUS_TITLE;
       content = MessageKey.MODAL_ERROR_SAVING_PREVIOUS_CONTENT;
       withoutSaveButton = renderPreviousWithoutSavingButton(params);
     } else if (params.errorDisplayMode() == DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
+      title = MessageKey.MODAL_ERROR_SAVING_REVIEW_TITLE;
       content = MessageKey.MODAL_ERROR_SAVING_REVIEW_CONTENT;
       withoutSaveButton = renderReviewWithoutSavingButton(params);
     } else {
@@ -75,8 +78,7 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
         .setModalId(Modal.randomModalId())
         .setLocation(Modal.Location.APPLICANT_FACING)
         .setContent(modalContent)
-        .setModalTitle(
-            params.messages().at(MessageKey.MODAL_ERROR_SAVING_REVIEW_TITLE.getKeyName()))
+        .setModalTitle(params.messages().at(title.getKeyName()))
         .setMessages(params.messages())
         .setWidth(Modal.Width.DEFAULT)
         .setDisplayOnLoad(true)

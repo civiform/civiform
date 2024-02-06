@@ -77,7 +77,7 @@ describe('Applicant navigation flow', () => {
       await adminPrograms.publishProgram(programName)
     })
 
-    fdescribe('previous button', () => {
+    describe('previous button', () => {
       it('clicking previous on first block goes to summary page', async () => {
         const {applicantQuestions} = ctx
         await applicantQuestions.applyProgram(programName)
