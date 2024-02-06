@@ -221,7 +221,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
 
     DynamicForm form = formFactory.form().bindFromRequest(request);
-    Optional<String> selectedAddress = Optional.ofNullable(form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME));
+    Optional<String> selectedAddress =
+        Optional.ofNullable(form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME));
     Optional<String> maybeAddressJson = request.session().get(ADDRESS_JSON_SESSION_KEY);
 
     ImmutableList<AddressSuggestion> suggestions =

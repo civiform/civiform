@@ -1479,7 +1479,9 @@ public final class ApplicantService {
                   addressSuggestions.stream()
                       .filter(
                           addressSuggestion ->
-                              addressSuggestion.getSingleLineAddress().equals(selectedAddress.orElse("")))
+                              addressSuggestion
+                                  .getSingleLineAddress()
+                                  .equals(selectedAddress.orElse("")))
                       .findFirst();
 
               ImmutableMap<String, String> questionPathToValueMap =
@@ -1525,7 +1527,8 @@ public final class ApplicantService {
       questionPathToValueMap.put(
           addressQuestion.getCorrectedPath().toString(),
           CorrectedAddressState.CORRECTED.getSerializationFormat());
-    } else if (selectedAddress.isPresent() && selectedAddress.get().equals(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE)) {
+    } else if (selectedAddress.isPresent()
+        && selectedAddress.get().equals(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE)) {
       questionPathToValueMap.put(
           addressQuestion.getCorrectedPath().toString(),
           CorrectedAddressState.AS_ENTERED_BY_USER.getSerializationFormat());
