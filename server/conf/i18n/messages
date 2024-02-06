@@ -65,8 +65,10 @@ toast.localeNotSupported=We''re sorry, this program is not fully translated to y
 link.allDone=I''m all done
 link.applyToAnotherProgram=Apply to another program
 link.createAccountOrSignIn=Create account or sign in
-# The title of a pop-up informing the user that there was a problem when saving their information
-modal.errorSaving.title=Error saving information
+# The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
+modal.errorSaving.review.title=Questions on this page are not complete. Would you still like to leave and begin reviewing?
+# The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
+modal.errorSaving.previous.title=Questions on this page are not complete. Would you still like to leave and go to the previous page?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) go back and fix the errors or (2) discard the information they've inputted and continue to the application review page.
 modal.errorSaving.review.content=There are some errors with the information you''ve filled in. Would you like to go back and fix the errors, or go to the review page without saving your answers?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) go back and fix the errors or (2) discard the information they've inputted and continue to the previous page of the application.
