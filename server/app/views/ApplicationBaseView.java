@@ -31,7 +31,7 @@ public class ApplicationBaseView extends BaseHtmlView {
 
   /**
    * Renders a "Review" button that will also save the applicant's data before redirecting to the
-   * review page.
+   * review page (if the SAVE_ON_ALL_ACTIONS feature flag is on).
    */
   protected DomContent renderReviewButton(
       SettingsManifest settingsManifest, ApplicationBaseView.Params params) {
