@@ -651,8 +651,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     emptyPredicateContentBuilder
         .add(text(" You can change this in the "))
         .add(
-            a().withData("testid", "goto-program-settings-link")
-                .withText("program settings.")
+            a().withText("program settings.")
                 .withHref(routes.AdminProgramController.editProgramSettings(program.id()).url())
                 .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT));
     return div().with(emptyPredicateContentBuilder.build());
