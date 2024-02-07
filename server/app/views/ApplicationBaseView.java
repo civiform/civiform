@@ -78,25 +78,16 @@ public class ApplicationBaseView extends BaseHtmlView {
   }
 
   protected ATag renderPreviousButton(ApplicationBaseView.Params params) {
-    int previousBlockIndex = params.blockIndex() - 1;
-    String redirectUrl;
-
-    if (previousBlockIndex >= 0) {
-      ApplicantRoutes applicantRoutes = params.applicantRoutes();
-      redirectUrl =
-          applicantRoutes
-              .blockPrevious(
-                  params.profile(),
-                  params.applicantId(),
-                  params.programId(),
-                  previousBlockIndex,
-                  params.inReview())
-              .url();
-    } else {
-      ApplicantRoutes applicantRoutes = params.applicantRoutes();
-      redirectUrl =
-          applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
-    }
+    String redirectUrl =
+        params
+            .applicantRoutes()
+            .blockPreviousOrReview(
+                params.profile(),
+                params.applicantId(),
+                params.programId(),
+                /* currentBlockIndex= */ params.blockIndex(),
+                params.inReview())
+            .url();
     return a().withHref(redirectUrl)
         .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
         .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
