@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
@@ -2600,7 +2601,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     var programWithEligibleAndIneligibleAnswers =
         ProgramBuilder.newDraftProgram(
                 ProgramDefinition.builder()
-                    .setId(123)
+                    .setId(new Random().nextLong())
                     .setAdminName("name")
                     .setAdminDescription("desc")
                     .setExternalLink("https://usa.gov")
@@ -2675,7 +2676,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel commonIntakeForm =
         ProgramBuilder.newDraftProgram(
                 ProgramDefinition.builder()
-                    .setId(123)
+                    .setId(new Random().nextLong())
                     .setAdminName("common_intake_form")
                     .setAdminDescription("common_intake_form")
                     .setExternalLink("https://usa.gov")
@@ -2962,7 +2963,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     programDefinition =
         ProgramBuilder.newDraftProgram(
                 ProgramDefinition.builder()
-                    .setId(123)
+                    .setId(new Random().nextLong())
                     .setAdminName("name")
                     .setAdminDescription("desc")
                     .setExternalLink("https://usa.gov")
