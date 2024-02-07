@@ -72,7 +72,8 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                         TextFormatter.formatText(
                             applicantQuestion.getQuestionHelpText(),
                             /* preserveEmptyLines= */ false,
-                            /* addRequiredIndicator= */ false, messages)))
+                            /* addRequiredIndicator= */ false,
+                            messages)))
             .withClasses("mb-4");
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
@@ -103,7 +104,8 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
         TextFormatter.formatText(
             applicantQuestion.getQuestionText(),
             /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ !applicantQuestion.isOptional(), messages);
+            /* addRequiredIndicator= */ !applicantQuestion.isOptional(),
+            messages);
     // Reverse the list to have errors appear first.
     ImmutableList<String> ariaDescribedByIds = ariaDescribedByBuilder.build().reverse();
 

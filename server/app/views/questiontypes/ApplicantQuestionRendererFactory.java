@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
+import play.i18n.Messages;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
@@ -14,8 +15,6 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
-import views.FileUploadViewStrategy;
-import play.i18n.Messages;
 import views.applicant.ApplicantFileUploadRenderer;
 
 /** A helper class for constructing type-specific applicant question renderers. */
@@ -37,7 +36,8 @@ public final class ApplicantQuestionRendererFactory {
     return getRenderer(applicantQuestion);
   }
 
-  public ApplicantQuestionRenderer getRendererWithMessages(ApplicantQuestion question, Messages messages) {
+  public ApplicantQuestionRenderer getRendererWithMessages(
+      ApplicantQuestion question, Messages messages) {
     if (question.getType() == QuestionType.STATIC) {
       return new StaticContentQuestionRenderer(question, messages);
     } else {

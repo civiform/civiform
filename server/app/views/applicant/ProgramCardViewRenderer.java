@@ -118,7 +118,8 @@ public final class ProgramCardViewRenderer {
         TextFormatter.formatText(
             program.localizedDescription().getOrDefault(preferredLocale),
             /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ false, messages);
+            /* addRequiredIndicator= */ false,
+            messages);
     DivTag description =
         div()
             .withId(baseId + "-description")

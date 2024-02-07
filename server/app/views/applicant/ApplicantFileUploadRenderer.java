@@ -144,7 +144,9 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
         each(
             params.block().getQuestions(),
             question ->
-                applicantQuestionRendererFactory.getRendererWithMessages(question, params.messages()).render(rendererParams)));
+                applicantQuestionRendererFactory
+                    .getRendererWithMessages(question, params.messages())
+                    .render(rendererParams)));
 
     DivTag skipForms = renderDeleteAndContinueFileUploadForms(params);
     DivTag buttons = renderFileUploadBottomNavButtons(params);

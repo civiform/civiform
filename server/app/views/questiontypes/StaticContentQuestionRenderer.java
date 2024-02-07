@@ -4,10 +4,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
 import j2html.tags.specialized.DivTag;
+import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
 import views.components.TextFormatter;
 import views.style.ReferenceClasses;
-import play.i18n.Messages;
 
 /** This renders the question text as formatted text. */
 public class StaticContentQuestionRenderer implements ApplicantQuestionRenderer {
@@ -32,8 +32,9 @@ public class StaticContentQuestionRenderer implements ApplicantQuestionRenderer 
             .with(
                 TextFormatter.formatText(
                     question.getQuestionText(),
-                    /*preserveEmptyLines= */ true,
-                    /*addRequiredIndicator= */ false, messages));
+                    /* preserveEmptyLines= */ true,
+                    /* addRequiredIndicator= */ false,
+                    messages));
     return div()
         .withId(question.getContextualizedPath().toString())
         .withClasses("mx-auto", "mb-8", this.getReferenceClass())
