@@ -84,7 +84,7 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
 
     // "Markdown" the program description.
     ImmutableList<DomContent> items =
-        TextFormatter.formatText(
+        TextFormatter.formatTextWithAriaLabel(
             programInfo,
             /* preserveEmptyLines= */ true,
             /* addRequiredIndicator= */ false,
