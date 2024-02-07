@@ -40,14 +40,6 @@ public class DateConverterTest {
   }
 
   @Test
-  public void parseIso8601DateToUTCDateInstant_isSuccessful() {
-    String inputDate = "2022-04-09";
-    Instant expected = Instant.parse("2022-04-09T00:00:00.00Z");
-    Instant result = dateConverter.parseIso8601DateToStartOfUTCDateInstant(inputDate);
-    assertThat(result).isEqualTo(expected);
-  }
-
-  @Test
   public void renderDate_isSuccessful() {
     String expectedResult = "2020-01-01";
     LocalDate date = LocalDate.of(2020, 1, 1);

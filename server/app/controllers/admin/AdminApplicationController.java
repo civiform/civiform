@@ -226,7 +226,7 @@ public final class AdminApplicationController extends CiviFormController {
         .map(
             s -> {
               try {
-                return dateConverter.parseIso8601DateToStartOfUTCDateInstant(s);
+                return dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
               } catch (DateTimeParseException e) {
                 throw new BadRequestException("Malformed query param");
               }

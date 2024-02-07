@@ -66,16 +66,6 @@ public final class DateConverter {
     return parseIso8601DateToLocalDate(dateString).atStartOfDay(zoneId).toInstant();
   }
 
-  /**
-   * Parses a string containing a ISO-8601 date (i.e. "YYYY-MM-DD") and converts it to an {@link
-   * Instant} at the beginning of the day in UTC time zone.
-   *
-   * @throws DateTimeParseException if dateString is not well-formed.
-   */
-  public Instant parseIso8601DateToStartOfUTCDateInstant(String dateString) {
-    return parseIso8601DateToLocalDate(dateString).atStartOfDay(ZoneId.of("UTC")).toInstant();
-  }
-
   /** Formats an {@link Instant} to a human-readable date and time in the local time zone. */
   public String renderDateTime(Instant time) {
     ZonedDateTime dateTime = time.atZone(zoneId);
