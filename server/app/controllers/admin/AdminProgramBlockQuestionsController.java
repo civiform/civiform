@@ -192,8 +192,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
           programId,
           blockDefinitionId,
           questionDefinitionId,
-          // Flop the bit to the next (desired state) from the current setting to toggle this
-          // setting
+          // Flop the bit to the next (desired state) from the current setting.
           !programQuestionDefinition.get().addressCorrectionEnabled());
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
