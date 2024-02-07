@@ -7,6 +7,11 @@ import services.cloud.StorageUploadRequest;
 /** An Azure Blob Storage implementation of public storage. */
 public class AzurePublicStorage extends PublicStorageClient {
   @Override
+  public String getBucketName() {
+    throw new UnsupportedOperationException("not implemented");
+  }
+
+  @Override
   public StorageUploadRequest getSignedUploadRequest(
       String fileKey, String successRedirectActionLink) {
     throw new UnsupportedOperationException("not implemented");

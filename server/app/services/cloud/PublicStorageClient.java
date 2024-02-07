@@ -9,6 +9,9 @@ import com.google.common.collect.ImmutableSet;
  * instead.
  */
 public abstract class PublicStorageClient {
+  /** Returns the name of the cloud storage bucket that's storing the files. */
+  public abstract String getBucketName();
+
   /**
    * Creates and returns a request to upload a **publicly accessible** file to cloud storage.
    *

@@ -15,6 +15,7 @@ import play.mvc.Result;
 import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.cloud.PublicFileNameFormatter;
+import services.cloud.PublicStorageClient;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.admin.programs.ProgramEditStatus;
@@ -22,6 +23,7 @@ import views.admin.programs.ProgramImageView;
 
 /** Controller for displaying and modifying the image (and alt text) associated with a program. */
 public final class AdminProgramImageController extends CiviFormController {
+  private final PublicStorageClient publicStorageClient;
   private final ProgramService programService;
   private final ProgramImageView programImageView;
   private final RequestChecker requestChecker;
@@ -29,6 +31,7 @@ public final class AdminProgramImageController extends CiviFormController {
 
   @Inject
   public AdminProgramImageController(
+      PublicStorageClient publicStorageClient,
       ProgramService programService,
       ProgramImageView programImageView,
       RequestChecker requestChecker,
@@ -36,6 +39,7 @@ public final class AdminProgramImageController extends CiviFormController {
       ProfileUtils profileUtils,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
+    this.publicStorageClient = checkNotNull(publicStorageClient);
     this.programService = checkNotNull(programService);
     this.programImageView = checkNotNull(programImageView);
     this.requestChecker = checkNotNull(requestChecker);
@@ -100,7 +104,12 @@ public final class AdminProgramImageController extends CiviFormController {
         request
             .queryString("bucket")
             .orElseThrow(() -> new IllegalArgumentException("Request must contain bucket name"));
-    // TODO(#5676): Verify the bucket name is for the public bucket?
+    if (!bucket.equals(publicStorageClient.getBucketName())) {
+      throw new IllegalArgumentException(
+          String.format(
+              "The bucket name in the request [%s] doesn't match the public bucket name [%s]",
+              bucket, publicStorageClient.getBucketName()));
+    }
 
     String key =
         request
