@@ -406,7 +406,7 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.expectDashboardNotContainClient(client2)
   })
 
-  it('incomplete dob in the client search returns all clients', async () => {
+  it('incomplete dob and no name in the client search returns an error', async () => {
     const {page, tiDashboard} = ctx
     await loginAsTrustedIntermediary(page)
 
@@ -431,8 +431,42 @@ describe('Trusted intermediaries', () => {
 
     await tiDashboard.searchByDateOfBirth('', '', '2021')
     await waitForPageJsLoad(page)
+
+    await tiDashboard.expectDateSearchError()
+    tiDashboard.expectRedDateFieldOutline(true, true, false)
+    await tiDashboard.expectDashboardNotContainClient(client1)
+    await tiDashboard.expectDashboardNotContainClient(client2)
+    await validateScreenshot(page, 'incomplete-dob')
+  })
+
+  it('incomplete dob with name in the client search returns client by name', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client1: ClientInformation = {
+      emailAddress: 'fake@sample.com',
+      firstName: 'first1',
+      middleName: 'middle',
+      lastName: 'last1',
+      dobDate: '1980-07-10',
+    }
+    await tiDashboard.createClient(client1)
+    const client2: ClientInformation = {
+      emailAddress: 'fake2@sample.com',
+      firstName: 'first2',
+      middleName: 'middle',
+      lastName: 'last2',
+      dobDate: '2021-11-10',
+    }
+    await tiDashboard.createClient(client2)
+
+    await tiDashboard.searchByNameAndDateOfBirth('first1', '', '', '2021')
+    await waitForPageJsLoad(page)
+
     await tiDashboard.expectDashboardContainClient(client1)
-    await tiDashboard.expectDashboardContainClient(client2)
+    await tiDashboard.expectDashboardNotContainClient(client2)
   })
 
   it('empty search parameters returns all clients', async () => {

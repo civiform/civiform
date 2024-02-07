@@ -483,38 +483,44 @@ public final class ViewUtils {
    * that the date is well-defined, such as a date of birth.
    * https://designsystem.digital.gov/components/memorable-date/
    *
-   * @param dayValue The default value which should appear in the "Day" input field. If no default,
-   *     can be an empty string.
-   * @param monthValue The default option which should be selected in the "Month" dropdown.
-   * @param yearValue The default value which should appear in the "Year" input field.
+   * @param dayValue The default value which should appear in the "Day" input field
+   * @param monthValue The default option which should be selected in the "Month" dropdown
+   * @param yearValue The default value which should appear in the "Year" input field
+   * @param legend The label string for the date fields
+   * @param showError Whether an error message should appear
    * @return ContainerTag
    */
   public static FieldsetTag makeMemorableDate(
-      String dayValue, String monthValue, String yearValue, String legend) {
+      String dayValue, String monthValue, String yearValue, String legend, boolean showError) {
     FieldsetTag dateFieldset =
         fieldset()
             .withClass("usa-fieldset")
             .with(
                 legend(legend).withClass("usa-legend"),
-                span("For example: January 19 2000").withClass("usa-hint").withId("mdHint"),
+                span("For example: January 28 1986").withClass("usa-hint").withId("mdHint"),
+                div()
+                    .condWith(showError, span("Error: Please enter month, day and year."))
+                    .withClasses("text-red-600 text-xs")
+                    .withId("memorable_date_error"),
                 div()
                     .withClass("usa-memorable-date")
                     .with(
-                        getSelectFormGroup(monthValue),
-                        getDayFormGroup(dayValue),
-                        getYearFormGroup(yearValue)));
+                        getSelectFormGroup(monthValue, showError && monthValue.isEmpty()),
+                        getDayFormGroup(dayValue, showError && dayValue.isEmpty()),
+                        getYearFormGroup(yearValue, showError && yearValue.isEmpty())));
 
     return dateFieldset;
   }
 
   /* Helper function for the Memorable Date */
-  private static DivTag getDayFormGroup(String value) {
+  private static DivTag getDayFormGroup(String value, boolean hasError) {
     return div()
         .withClass("usa-form-group usa-form-group--day")
         .with(
             label("Day").withClass("usa-label").withFor("date_of_birth_day"),
             input()
                 .withClass("usa-input")
+                .withCondClass(hasError, "usa-input--error mt-2.5")
                 .withId("date_of_birth_day")
                 .withName("dayQuery")
                 .attr("aria-describedby", "mdHint")
@@ -525,13 +531,14 @@ public final class ViewUtils {
   }
 
   /* Helper function for the Memorable Date */
-  private static DivTag getYearFormGroup(String value) {
+  private static DivTag getYearFormGroup(String value, boolean hasError) {
     return div()
         .withClass("usa-form-group usa-form-group--year")
         .with(
             label("Year").withClass("usa-label").withFor("date_of_birth_year"),
             input()
                 .withClass("usa-input")
+                .withCondClass(hasError, "usa-input--error mt-2.5")
                 .withId("date_of_birth_year")
                 .withName("yearQuery")
                 .attr("aria-describedby", "mdHint")
@@ -543,13 +550,14 @@ public final class ViewUtils {
   }
 
   /* Helper function for the Memorable Date */
-  private static DivTag getSelectFormGroup(String monthValue) {
+  private static DivTag getSelectFormGroup(String monthValue, boolean hasError) {
     return div()
         .withClass("usa-form-group usa-form-group--month usa-form-group--select")
         .with(
             label("Month").withClass("usa-label").withFor("date_of_birth_month"),
             select()
                 .withClass("usa-select")
+                .withCondClass(hasError, "usa-input--error mt-2.5 py-1")
                 .withId("date_of_birth_month")
                 .withName("monthQuery")
                 .attr("aria-describedby", "mdHint")

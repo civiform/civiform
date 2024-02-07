@@ -70,7 +70,7 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
     DivTag contentDiv =
         div(
                 renderHeader(title),
-                buildProgramForm(request, programForm, /* editExistingProgram = */ false)
+                buildProgramForm(request, programForm, /* editExistingProgram= */ false)
                     .with(makeCsrfTokenInputTag(request))
                     .withAction(controllers.admin.routes.AdminProgramController.create().url()))
             .withClasses("mx-4", "my-12", "flex", "flex-col");

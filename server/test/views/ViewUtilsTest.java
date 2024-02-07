@@ -85,7 +85,7 @@ public class ViewUtilsTest {
 
   @Test
   public void makeMemorableDate_createsDateComponentWithCorrectFieldNames() {
-    FieldsetTag dateComponent = ViewUtils.makeMemorableDate("", "", "", "Test DOB");
+    FieldsetTag dateComponent = ViewUtils.makeMemorableDate("", "", "", "Test DOB", false);
     String rendered = dateComponent.render();
     assertThat(rendered)
         .contains("<input class=\"usa-input\" id=\"date_of_birth_day\" name=\"dayQuery\"");
@@ -93,5 +93,23 @@ public class ViewUtilsTest {
         .contains("<input class=\"usa-input\" id=\"date_of_birth_year\" name=\"yearQuery\"");
     assertThat(rendered)
         .contains("<select class=\"usa-select\" id=\"date_of_birth_month\" name=\"monthQuery\"");
+  }
+
+  @Test
+  public void makeMemorableDate_showsErrorWhenShowErrorIsTrue() {
+    FieldsetTag dateComponent = ViewUtils.makeMemorableDate("", "", "", "Test DOB", true);
+    String rendered = dateComponent.render();
+    assertThat(rendered).contains("<div class=\"text-red-600 text-xs\"><span>Error:");
+
+    assertThat(rendered).contains("<select class=\"usa-input--error");
+  }
+
+  @Test
+  public void makeMemorableDate_doesNotShowErrorWhenShowErrorIsFalse() {
+    FieldsetTag dateComponent = ViewUtils.makeMemorableDate("04", "04", "", "Test DOB", false);
+    String rendered = dateComponent.render();
+    assertThat(rendered).doesNotContain("<div class=\"text-red-600 text-xs\"><span>Error:");
+
+    assertThat(rendered).doesNotContain("usa-input--error");
   }
 }

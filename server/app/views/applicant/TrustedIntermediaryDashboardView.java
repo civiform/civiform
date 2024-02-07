@@ -8,6 +8,7 @@ import static j2html.TagCreator.h4;
 import static j2html.TagCreator.hr;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
+import static j2html.TagCreator.span;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
 import static j2html.TagCreator.td;
@@ -37,6 +38,7 @@ import play.twirl.api.Content;
 import repository.SearchParameters;
 import services.DateConverter;
 import services.applicant.ApplicantPersonalInfo;
+import services.ti.TrustedIntermediaryService;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -104,6 +106,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   private FormTag renderSearchForm(Http.Request request, SearchParameters searchParameters) {
+    boolean isValidSearch = TrustedIntermediaryService.validateSearch(searchParameters);
     return form()
         .withId("ti-search-form")
         .withClasses("mb-6")
@@ -118,23 +121,29 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 .url())
         .with(
             div(
-                    div()
-                        .with(
-                            label("Name(s)").withClass("usa-label").withFor("name-query"),
-                            input()
-                                .withClasses("usa-input")
-                                .withId("name-query")
-                                .withName("nameQuery")
-                                .withValue(searchParameters.nameQuery().orElse(""))),
-                    ViewUtils.makeMemorableDate(
-                            searchParameters.dayQuery().orElse(""),
-                            searchParameters.monthQuery().orElse(""),
-                            searchParameters.yearQuery().orElse(""),
-                            "Date of birth")
-                        .withClass("ml-6"),
-                    makeCsrfTokenInputTag(request),
-                    submitButton("Search").withClasses("ml-6", "h-10"))
-                .withClasses("flex", "items-end"));
+                    div(
+                        label("Search by name(s)")
+                            .withClass("usa-label")
+                            .withId("name-search")
+                            .withFor("name-query"),
+                        span("For example: Gu or Darren or Darren Gu").withClass("usa-hint")),
+                    input()
+                        .withClasses("usa-input", "mt-12")
+                        .withId("name-query")
+                        .withName("nameQuery")
+                        .withValue(searchParameters.nameQuery().orElse("")))
+                .withClasses("flex", "flex-col", "justify-between"),
+            ViewUtils.makeMemorableDate(
+                    searchParameters.dayQuery().orElse(""),
+                    searchParameters.monthQuery().orElse(""),
+                    searchParameters.yearQuery().orElse(""),
+                    "Search by Date of Birth",
+                    !isValidSearch)
+                .withClass("ml-6"),
+            makeCsrfTokenInputTag(request),
+            div(submitButton("Search").withClasses("ml-6", "h-11"))
+                .withClasses("flex", "flex-col", "justify-end"))
+        .withClasses("flex", "my-6");
   }
 
   private DivTag renderTIApplicantsTable(

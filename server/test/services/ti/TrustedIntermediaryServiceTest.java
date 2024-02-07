@@ -343,7 +343,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     SearchParameters searchParameters =
         SearchParameters.builder()
             .setNameQuery(Optional.of(""))
-            .setDayQuery(Optional.of("")) // If any part of the dob is empty, return full list
+            .setDayQuery(Optional.of(""))
+            .setMonthQuery(Optional.of(""))
+            .setYearQuery(Optional.of(""))
             .build();
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
@@ -357,12 +359,48 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     SearchParameters searchParameters =
         SearchParameters.builder()
             .setNameQuery(Optional.empty())
-            // If any part of the DOB is empty (day, month or year) we should return full list
             .setDayQuery(Optional.empty())
+            .setMonthQuery(Optional.empty())
+            .setYearQuery(Optional.empty())
             .build();
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
+    // The size is 3 because two other accounts are added to the tiGroup in setup()
     assertThat(tiResult.getAccounts().get().size()).isEqualTo(3);
+  }
+
+  @Test
+  // In this case, getManagedAccounts returns an empty client list and the view displays an error
+  // message
+  public void getManagedAccounts_SearchWithEmptyStringNameAndPartialDob_returnsNoClients() {
+    setupTiClientAccountWithApplicant("Bobo", "2022-07-08", "bobo@clown.test", tiGroup);
+    SearchParameters searchParameters =
+        SearchParameters.builder()
+            .setNameQuery(Optional.of(""))
+            .setDayQuery(Optional.of("16"))
+            .setMonthQuery(Optional.of(""))
+            .setYearQuery(Optional.of(""))
+            .build();
+    TrustedIntermediarySearchResult tiResult =
+        service.getManagedAccounts(searchParameters, tiGroup);
+    assertThat(tiResult.getAccounts().get().size()).isEqualTo(0);
+  }
+
+  @Test
+  // In this case, getManagedAccounts searches by name and the partial DOB is ignored
+  public void getManagedAccounts_SearchWithNameAndPartialDob_returnsClientsByName() {
+    setupTiClientAccountWithApplicant("Bobo", "2022-07-08", "bobo@clown.test", tiGroup);
+    SearchParameters searchParameters =
+        SearchParameters.builder()
+            .setNameQuery(Optional.of("Bobo"))
+            .setDayQuery(Optional.of("16"))
+            .setMonthQuery(Optional.of(""))
+            .setYearQuery(Optional.of(""))
+            .build();
+    TrustedIntermediarySearchResult tiResult =
+        service.getManagedAccounts(searchParameters, tiGroup);
+    assertThat(tiResult.getAccounts().get().size()).isEqualTo(1);
+    assertThat(tiResult.getAccounts().get().get(0).getApplicantName()).contains("Bobo");
   }
 
   @Test
@@ -380,8 +418,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
     assertThat(tiResult.getAccounts().get().size()).isEqualTo(tiGroup.getManagedAccounts().size());
-    assertThat(tiResult.getErrorMessage().get())
-        .isEqualTo("Please enter date in MM/dd/yyyy format");
+    assertThat(tiResult.getErrorMessage().get()).isEqualTo("Please enter a valid birth date.");
   }
 
   @Test

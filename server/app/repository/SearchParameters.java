@@ -6,6 +6,19 @@ import java.util.Optional;
 @AutoValue
 public abstract class SearchParameters {
 
+  public enum ParamTypes {
+    NAME("name"),
+    DAY("day"),
+    MONTH("month"),
+    YEAR("year");
+
+    public final String label;
+
+    private ParamTypes(String label) {
+      this.label = label;
+    }
+  }
+
   public abstract Optional<String> nameQuery();
 
   public abstract Optional<String> dayQuery();
