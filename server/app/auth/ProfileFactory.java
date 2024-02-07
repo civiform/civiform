@@ -25,11 +25,12 @@ import services.settings.SettingsManifest;
 public final class ProfileFactory {
 
   public static final String FAKE_ADMIN_AUTHORITY_ID = "fake-admin";
+  public static final String APPLICANT_ID_ATTRIBUTE_NAME = "applicant_id";
   private final DatabaseExecutionContext dbContext;
   private final HttpExecutionContext httpContext;
   private final Provider<VersionRepository> versionRepositoryProvider;
   private final Provider<ApiKeyService> apiKeyService;
-  private final Provider<AccountRepository> userRepositoryProvider;
+  private final Provider<AccountRepository> accountRepositoryProvider;
   private final SettingsManifest settingsManifest;
 
   @Inject
@@ -38,18 +39,27 @@ public final class ProfileFactory {
       HttpExecutionContext httpContext,
       Provider<VersionRepository> versionRepositoryProvider,
       Provider<ApiKeyService> apiKeyService,
-      Provider<AccountRepository> userRepositoryProvider,
+      Provider<AccountRepository> accountRepositoryProvider,
       SettingsManifest settingsManifest) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
     this.httpContext = Preconditions.checkNotNull(httpContext);
     this.versionRepositoryProvider = Preconditions.checkNotNull(versionRepositoryProvider);
     this.apiKeyService = Preconditions.checkNotNull(apiKeyService);
-    this.userRepositoryProvider = Preconditions.checkNotNull(userRepositoryProvider);
+    this.accountRepositoryProvider = Preconditions.checkNotNull(accountRepositoryProvider);
     this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
   }
 
   public CiviFormProfileData createNewApplicant() {
-    return create(new Role[] {Role.ROLE_APPLICANT});
+    CiviFormProfileData profileData = create(new Role[] {Role.ROLE_APPLICANT});
+
+    // Store the applicant id in the profile.
+    //
+    // The profile ID corresponds to the *account* id, but controllers need the applicant id. We
+    // store it in the profile for easy retrieval without a db lookup.
+    CiviFormProfile profile = wrapProfileData(profileData);
+    profile.getAccount().thenAccept(account -> profile.storeApplicantIdInProfile(account)).join();
+
+    return profileData;
   }
 
   public CiviFormProfileData createNewAdmin() {
@@ -77,7 +87,8 @@ public final class ProfileFactory {
   }
 
   public CiviFormProfile wrapProfileData(CiviFormProfileData p) {
-    return new CiviFormProfile(dbContext, httpContext, p, settingsManifest);
+    return new CiviFormProfile(
+        dbContext, httpContext, p, settingsManifest, accountRepositoryProvider.get());
   }
 
   /**
@@ -106,7 +117,10 @@ public final class ProfileFactory {
   }
 
   public CiviFormProfile wrap(ApplicantModel applicant) {
-    return wrapProfileData(new CiviFormProfileData(applicant.getAccount().id));
+    CiviFormProfileData profileData = new CiviFormProfileData(applicant.getAccount().id);
+    CiviFormProfile profile = wrapProfileData(profileData);
+    profile.getAccount().thenAccept(account -> profile.storeApplicantIdInProfile(account)).join();
+    return profile;
   }
 
   public CiviFormProfileData createNewProgramAdmin() {
@@ -162,7 +176,7 @@ public final class ProfileFactory {
 
   /** This creates a trusted intermediary. */
   public CiviFormProfileData createFakeTrustedIntermediary() {
-    AccountRepository accountRepository = userRepositoryProvider.get();
+    AccountRepository accountRepository = accountRepositoryProvider.get();
     List<TrustedIntermediaryGroupModel> existingGroups =
         accountRepository.listTrustedIntermediaryGroups();
     TrustedIntermediaryGroupModel group;

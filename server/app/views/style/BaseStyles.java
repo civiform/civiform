@@ -14,9 +14,9 @@ public final class BaseStyles {
 
   public static final String BG_CIVIFORM_WHITE = "bg-civiform-white";
 
-  public static final String BG_SEATTLE_BLUE = "bg-seattle-blue";
-  public static final String TEXT_SEATTLE_BLUE = "text-seattle-blue";
-  public static final String BORDER_SEATTLE_BLUE = "border-seattle-blue";
+  public static final String BG_CIVIFORM_BLUE = "bg-seattle-blue";
+  public static final String TEXT_CIVIFORM_BLUE = "text-seattle-blue";
+  public static final String BORDER_CIVIFORM_BLUE = "border-seattle-blue";
 
   public static final String TEXT_CIVIFORM_GREEN = "text-civiform-green";
   public static final String BG_CIVIFORM_GREEN_LIGHT = "bg-civiform-green-light";
@@ -57,7 +57,7 @@ public final class BaseStyles {
           BaseStyles.FORM_FIELD_BORDER_COLOR,
           "rounded-lg",
           "w-full",
-          StyleUtils.focus(BORDER_SEATTLE_BLUE));
+          StyleUtils.focus(BORDER_CIVIFORM_BLUE));
 
   /** For use on `input` elements that are not of type "checkbox" or "radio". */
   public static final String INPUT = StyleUtils.joinStyles(INPUT_BASE, "placeholder-gray-500");
@@ -94,6 +94,13 @@ public final class BaseStyles {
 
   /** For use on an `input` of type "radio". */
   public static final String RADIO = CHECKBOX;
+
+  /** For use on a `select` element. */
+  public static final String SELECT = StyleUtils.joinStyles(BaseStyles.INPUT, "h-11.5");
+
+  /** For use on a `select` element with an error, using INPUT_WITH_ERROR instead of INPUT. */
+  public static final String SELECT_WITH_ERROR =
+      StyleUtils.joinStyles(BaseStyles.INPUT_WITH_ERROR, "h-11.5");
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Modal style classes
@@ -183,4 +190,12 @@ public final class BaseStyles {
           "underline",
           "font-bold",
           StyleUtils.hover("bg-gray-200", "opacity-90"));
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // USWDS Alert style classes
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
+  public static String ALERT_INFO = "usa-alert--info";
+  public static String ALERT_WARNING = "usa-alert--warning";
+  public static String ALERT_SLIM = "usa-alert--slim";
 }

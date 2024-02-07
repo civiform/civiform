@@ -74,12 +74,17 @@ public class DevDatabaseSeedController extends Controller {
     if (!isDevOrStaging) {
       return notFound();
     }
+    return ok(view.render(request, request.flash().get("success")));
+  }
+
+  public Result data(Request request) {
+    if (!isDevOrStaging) {
+      return notFound();
+    }
     ActiveAndDraftPrograms activeAndDraftPrograms = programService.getActiveAndDraftPrograms();
     ImmutableList<QuestionDefinition> questionDefinitions =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join().getAllQuestions();
-    return ok(
-        view.render(
-            request, activeAndDraftPrograms, questionDefinitions, request.flash().get("success")));
+    return ok(view.seedDataView(request, activeAndDraftPrograms, questionDefinitions));
   }
 
   public Result seedQuestions() {
@@ -134,7 +139,16 @@ public class DevDatabaseSeedController extends Controller {
     return ok("The cache has been cleared");
   }
 
+  /**
+   * Clear cache if it is enabled in settings.
+   *
+   * <p>Note: this is not safe to do in most deployed instances, because there may be multiple
+   * tasks, but we assume all dev instances only have one task.
+   */
   private void clearCacheIfEnabled() {
+    if (!isDevOrStaging) {
+      return;
+    }
     if (settingsManifest.getVersionCacheEnabled()) {
       programsByVersionCache.removeAll().toCompletableFuture().join();
       questionsByVersionCache.removeAll().toCompletableFuture().join();

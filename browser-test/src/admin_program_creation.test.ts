@@ -13,9 +13,108 @@ import {Page} from 'playwright'
 describe('program creation', () => {
   const ctx = createTestContext()
 
-  beforeEach(async () => {
-    const {page} = ctx
-    await enableFeatureFlag(page, 'universal_questions')
+  it('create program page with images flag off', async () => {
+    const {page, adminPrograms} = ctx
+    await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(
+      programName,
+      'description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      /* isCommonIntake= */ false,
+      'selectedTI',
+      'confirmationMessage',
+      /* submitNewProgram= */ false,
+    )
+    await adminPrograms.expectProgramDetailsSaveButton()
+    await validateScreenshot(page, 'program-creation-page')
+
+    // When the program submission goes through with the program_card_images flag off,
+    // verify we're redirected to the block edit page.
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminPrograms.expectProgramBlockEditPage(programName)
+  })
+
+  it('create program page with images flag on', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(
+      programName,
+      'description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      /* isCommonIntake= */ false,
+      'selectedTI',
+      'confirmationMessage',
+      /* submitNewProgram= */ false,
+    )
+    await adminPrograms.expectProgramDetailsSaveAndContinueButton()
+    await validateScreenshot(page, 'program-creation-page-images-flag-on')
+
+    // When the program submission goes through with the program_card_images flag on,
+    // verify we're redirected to the program image upload page.
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminProgramImage.expectProgramImagePage()
+  })
+
+  it('create program then go back prevents URL edits', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(
+      programName,
+      'description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      /* isCommonIntake= */ false,
+      'selectedTI',
+      'confirmationMessage',
+      /* submitNewProgram= */ false,
+    )
+
+    // On initial program creation, expect an admin can fill in the program name.
+    expect(await page.locator('#program-name-input').count()).toEqual(1)
+
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminProgramImage.expectProgramImagePage()
+
+    // WHEN the admin goes back to the program details page
+    await adminProgramImage.clickBackButton()
+
+    // THEN they should not be able to modify the program name (used for the URL).
+    await adminPrograms.expectProgramEditPage(programName)
+    expect(await page.locator('#program-name-input').count()).toEqual(0)
+  })
+
+  it('create program then go back can still go forward', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+    await adminProgramImage.expectProgramImagePage()
+
+    // WHEN the admin goes back to the program details page
+    await adminProgramImage.clickBackButton()
+
+    // THEN they should be able to still go forward to the program images page again.
+    await adminPrograms.expectProgramEditPage(programName)
+    await adminPrograms.expectProgramDetailsSaveAndContinueButton()
+
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminProgramImage.expectProgramImagePage()
   })
 
   it('program details page screenshot', async () => {
@@ -26,6 +125,18 @@ describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramDescriptionPage(programName)
     await validateScreenshot(page, 'program-description-page')
+  })
+
+  it('program details page redirects to block page', async () => {
+    const {page, adminPrograms} = ctx
+    await loginAsAdmin(page)
+
+    const programName = 'Program Name'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramDescriptionPage(programName)
+    await adminPrograms.submitProgramDetailsEdits()
+
+    await adminPrograms.expectProgramBlockEditPage()
   })
 
   it('shows correct formatting during question creation', async () => {
@@ -88,7 +199,11 @@ describe('program creation', () => {
       'universal note',
     )
 
-    await validateScreenshot(page, 'open-question-search', {fullPage: false})
+    await validateScreenshot(
+      page,
+      'open-question-search',
+      /* fullPage= */ false,
+    )
   })
 
   it('create program with enumerator and repeated questions', async () => {
@@ -362,7 +477,7 @@ describe('program creation', () => {
     const programName = 'Apc program 3'
     await adminPrograms.addProgram(programName)
     await adminPrograms.openQuestionBank()
-    await validateScreenshot(page, 'question-bank-empty', {fullPage: false})
+    await validateScreenshot(page, 'question-bank-empty', /* fullPage= */ false)
     await page.click('#create-question-button')
     await page.click('#create-text-question')
     await waitForPageJsLoad(page)
@@ -397,9 +512,11 @@ describe('program creation', () => {
       `question ${universalQuestionName} created`,
     )
     await adminPrograms.expectProgramBlockEditPage(programName)
-    await validateScreenshot(page, 'question-bank-with-created-question', {
-      fullPage: false,
-    })
+    await validateScreenshot(
+      page,
+      'question-bank-with-created-question',
+      /* fullPage= */ false,
+    )
 
     await adminQuestions.expectDraftQuestionExist(questionName, questionText)
     await adminQuestions.expectDraftQuestionExist(
@@ -607,9 +724,11 @@ describe('program creation', () => {
     await loginAsAdmin(page)
 
     await adminPrograms.launchDeleteScreenModal()
-    await validateScreenshot(page, 'delete-screen-confirmation-modal', {
-      fullPage: false,
-    })
+    await validateScreenshot(
+      page,
+      'delete-screen-confirmation-modal',
+      /* fullPage= */ false,
+    )
   })
 
   async function expectQuestionsOrderWithinBlock(
@@ -686,9 +805,11 @@ describe('program creation', () => {
 
     let modal = await waitForAnyModal(page)
     expect(await modal.innerText()).toContain(`Confirm pre-screener change?`)
-    await validateScreenshot(page, 'confirm-common-intake-change-modal', {
-      fullPage: false,
-    })
+    await validateScreenshot(
+      page,
+      'confirm-common-intake-change-modal',
+      /* fullPage= */ false,
+    )
 
     // Modal gets re-rendered if needed.
     await dismissModal(page)

@@ -5,8 +5,9 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.span;
 
+import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
-import controllers.applicant.routes;
+import controllers.applicant.ApplicantRoutes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.PTag;
 import j2html.tags.specialized.SpanTag;
@@ -16,7 +17,7 @@ import play.mvc.Http;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
-import services.cloud.StorageClient;
+import services.cloud.ApplicantStorageClient;
 import views.components.ButtonStyles;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererParams;
@@ -26,9 +27,9 @@ public class ApplicationBaseView extends BaseHtmlView {
   final String REVIEW_APPLICATION_BUTTON_ID = "review-application-button";
 
   protected ATag renderReviewButton(ApplicationBaseView.Params params) {
+    ApplicantRoutes applicantRoutes = params.applicantRoutes();
     String reviewUrl =
-        routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
-            .url();
+        applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
     return a().withHref(reviewUrl)
         .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
         .withId(REVIEW_APPLICATION_BUTTON_ID)
@@ -40,18 +41,24 @@ public class ApplicationBaseView extends BaseHtmlView {
     String redirectUrl;
 
     if (previousBlockIndex >= 0) {
+      ApplicantRoutes applicantRoutes = params.applicantRoutes();
       redirectUrl =
-          routes.ApplicantProgramBlocksController.previous(
-                  params.applicantId(), params.programId(), previousBlockIndex, params.inReview())
+          applicantRoutes
+              .blockPrevious(
+                  params.profile(),
+                  params.applicantId(),
+                  params.programId(),
+                  previousBlockIndex,
+                  params.inReview())
               .url();
     } else {
+      ApplicantRoutes applicantRoutes = params.applicantRoutes();
       redirectUrl =
-          routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
-              .url();
+          applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
     }
     return a().withHref(redirectUrl)
         .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
-        .withClasses(ButtonStyles.SOLID_BLUE)
+        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
         .withId("cf-block-previous");
   }
 
@@ -83,7 +90,7 @@ public class ApplicationBaseView extends BaseHtmlView {
 
     public abstract boolean preferredLanguageSupported();
 
-    public abstract StorageClient storageClient();
+    public abstract ApplicantStorageClient applicantStorageClient();
 
     public abstract String baseUrl();
 
@@ -94,6 +101,10 @@ public class ApplicationBaseView extends BaseHtmlView {
     public abstract Optional<ToastMessage> bannerMessage();
 
     public abstract Optional<String> applicantSelectedQuestionName();
+
+    public abstract ApplicantRoutes applicantRoutes();
+
+    public abstract CiviFormProfile profile();
 
     @AutoValue.Builder
     public abstract static class Builder {
@@ -117,7 +128,8 @@ public class ApplicationBaseView extends BaseHtmlView {
 
       public abstract Builder setPreferredLanguageSupported(boolean preferredLanguageSupported);
 
-      public abstract Builder setStorageClient(StorageClient storageClient);
+      public abstract Builder setApplicantStorageClient(
+          ApplicantStorageClient applicantStorageClient);
 
       public abstract Builder setBaseUrl(String baseUrl);
 
@@ -129,6 +141,10 @@ public class ApplicationBaseView extends BaseHtmlView {
       public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo personalInfo);
 
       public abstract Builder setApplicantSelectedQuestionName(Optional<String> questionName);
+
+      public abstract Builder setApplicantRoutes(ApplicantRoutes applicantRoutes);
+
+      public abstract Builder setProfile(CiviFormProfile profile);
 
       public abstract Params build();
     }

@@ -1,6 +1,7 @@
 import {
   createTestContext,
   dropTables,
+  isHermeticTestEnvironment,
   loginAsAdmin,
   logout,
   seedPrograms,
@@ -18,25 +19,40 @@ describe('Viewing API docs', () => {
   })
 
   it('Views active API docs', async () => {
-    const {page, adminPrograms} = ctx
+    // TODO: fix the problem with these test on probers
+    // https://github.com/civiform/civiform/issues/6158
+    if (isHermeticTestEnvironment()) {
+      const {page, adminPrograms, adminQuestions} = ctx
 
-    await page.goto(BASE_URL)
-    await loginAsAdmin(page)
+      await page.goto(BASE_URL)
+      await loginAsAdmin(page)
 
-    await adminPrograms.publishAllDrafts()
-    await page.click('text=API docs')
+      await adminPrograms.publishAllDrafts()
 
-    expect(await page.textContent('html')).toContain(
-      '"program_name" : "comprehensive-sample-program"',
-    )
+      // Add additional option to checkbox to ensure all historical options are shown
+      await adminQuestions.gotoQuestionEditPage('Sample Checkbox Question')
+      await adminQuestions.deleteMultiOptionAnswer(0)
+      await adminQuestions.addMultiOptionAnswer({
+        adminName: 'spirograph',
+        text: 'spirograph',
+      })
+      await adminQuestions.clickSubmitButtonAndNavigate('Update')
+      await adminPrograms.publishAllDrafts()
 
-    await validateScreenshot(page, 'comprehensive-program-active-version')
+      await page.click('text=API docs')
 
-    await page.selectOption('#select-slug', {value: 'minimal-sample-program'})
-    expect(await page.textContent('html')).toContain(
-      '"program_name" : "minimal-sample-program"',
-    )
-    await validateScreenshot(page, 'minimal-program-active-version')
+      expect(await page.textContent('html')).toContain(
+        '"program_name" : "comprehensive-sample-program"',
+      )
+
+      await validateScreenshot(page, 'comprehensive-program-active-version')
+
+      await page.selectOption('#select-slug', {value: 'minimal-sample-program'})
+      expect(await page.textContent('html')).toContain(
+        '"program_name" : "minimal-sample-program"',
+      )
+      await validateScreenshot(page, 'minimal-program-active-version')
+    }
   })
 
   it('Views active API docs without logging in', async () => {
@@ -76,34 +92,38 @@ describe('Viewing API docs', () => {
   })
 
   it('Views draft API docs when available', async () => {
-    const {page} = ctx
+    if (isHermeticTestEnvironment()) {
+      const {page} = ctx
 
-    await page.goto(BASE_URL)
-    await loginAsAdmin(page)
-    await page.click('text=API docs')
+      await page.goto(BASE_URL)
+      await loginAsAdmin(page)
+      await page.click('text=API docs')
 
-    await page.selectOption('#select-slug', {value: 'minimal-sample-program'})
-    await page.selectOption('#select-version', {value: 'draft'})
-    expect(await page.textContent('html')).toContain(
-      '"program_name" : "minimal-sample-program"',
-    )
-    await validateScreenshot(page, 'draft-available')
+      await page.selectOption('#select-slug', {value: 'minimal-sample-program'})
+      await page.selectOption('#select-version', {value: 'draft'})
+      expect(await page.textContent('html')).toContain(
+        '"program_name" : "minimal-sample-program"',
+      )
+      await validateScreenshot(page, 'draft-available')
+    }
   })
 
   it('Shows error on draft API docs when no draft available', async () => {
-    const {page, adminPrograms} = ctx
+    if (isHermeticTestEnvironment()) {
+      const {page, adminPrograms} = ctx
 
-    await page.goto(BASE_URL)
-    await loginAsAdmin(page)
-    await adminPrograms.publishAllDrafts()
-    await page.click('text=API docs')
+      await page.goto(BASE_URL)
+      await loginAsAdmin(page)
+      await adminPrograms.publishAllDrafts()
+      await page.click('text=API docs')
 
-    await page.selectOption('#select-slug', {value: 'minimal-sample-program'})
-    await page.selectOption('#select-version', {value: 'draft'})
-    expect(await page.textContent('html')).toContain(
-      'Program and version not found',
-    )
-    await validateScreenshot(page, 'draft-not-available')
+      await page.selectOption('#select-slug', {value: 'minimal-sample-program'})
+      await page.selectOption('#select-version', {value: 'draft'})
+      expect(await page.textContent('html')).toContain(
+        'Program and version not found',
+      )
+      await validateScreenshot(page, 'draft-not-available')
+    }
   })
 
   it('Opens help accordion with a click', async () => {

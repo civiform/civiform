@@ -9,10 +9,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import controllers.BadRequestException;
+import controllers.admin.ImageDescriptionNotRemovableException;
 import forms.BlockForm;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +32,7 @@ import models.DisplayMode;
 import models.ProgramModel;
 import models.VersionModel;
 import modules.MainModule;
+import org.apache.commons.lang3.StringUtils;
 import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.AccountRepository;
@@ -66,10 +68,11 @@ public final class ProgramService {
       "A public description for the program is required";
   private static final String MISSING_DISPLAY_MODE_MSG =
       "A program visibility option must be selected";
-  private static final String MISSING_ADMIN_DESCRIPTION_MSG = "A program note is required";
   private static final String MISSING_ADMIN_NAME_MSG = "A program URL is required";
   private static final String INVALID_ADMIN_NAME_MSG =
       "A program URL may only contain lowercase letters, numbers, and dashes";
+  private static final String INVALID_PROGRAM_SLUG_MSG =
+      "A program URL must contain at least one letter";
   private static final String INVALID_PROGRAM_LINK_FORMAT_MSG =
       "A program link must begin with 'http://' or 'https://'";
   private static final String MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE =
@@ -221,27 +224,24 @@ public final class ProgramService {
   }
 
   private CompletionStage<ProgramDefinition> syncProgramAssociations(ProgramModel program) {
-    if (isActiveOrDraftProgram(program)) {
+    VersionModel activeVersion = versionRepository.getActiveVersion();
+    VersionModel maxVersionForProgram =
+        programRepository.getVersionsForProgram(program).stream()
+            .max(Comparator.comparingLong(p -> p.id))
+            .orElseThrow();
+    // If the max version is greater than the active version, it is a draft
+    if (maxVersionForProgram.id > activeVersion.id) {
+      // This method makes multiple calls to get questions for the active and
+      // draft versions, so we should only call it if we're syncing program
+      // associations for a draft program (which means we're in the admin flow).
       return syncProgramDefinitionQuestions(program.getProgramDefinition())
           .thenApply(ProgramDefinition::orderBlockDefinitions);
     }
 
-    // Any version that the program is in has all the questions the program has.
-    VersionModel version =
-        programRepository.getVersionsForProgram(program).stream().findAny().get();
     ProgramDefinition programDefinition =
-        syncProgramDefinitionQuestions(program.getProgramDefinition(), version);
+        syncProgramDefinitionQuestions(program.getProgramDefinition(), maxVersionForProgram);
 
     return CompletableFuture.completedStage(programDefinition.orderBlockDefinitions());
-  }
-
-  private boolean isActiveOrDraftProgram(ProgramModel program) {
-    return Streams.concat(
-            versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()).stream(),
-            versionRepository
-                .getProgramsForVersion(versionRepository.getDraftVersionOrCreate())
-                .stream())
-        .anyMatch(p -> p.id.equals(program.id));
   }
 
   /**
@@ -280,7 +280,6 @@ public final class ProgramService {
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForCreate(
             adminName,
-            adminDescription,
             defaultDisplayName,
             defaultDisplayDescription,
             externalLink,
@@ -327,7 +326,6 @@ public final class ProgramService {
    *
    * @param adminName a name for this program for internal use by admins - this is immutable once
    *     set
-   * @param adminDescription the description of this program - visible only to admins
    * @param displayName a name for this program
    * @param displayDescription the description of what the program provides
    * @param externalLink A link to an external page containing additional program details
@@ -337,7 +335,6 @@ public final class ProgramService {
    */
   public ImmutableSet<CiviFormError> validateProgramDataForCreate(
       String adminName,
-      String adminDescription,
       String displayName,
       String displayDescription,
       String externalLink,
@@ -345,17 +342,13 @@ public final class ProgramService {
       ImmutableList<Long> tiGroups) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     errorsBuilder.addAll(
-        validateProgramData(
-            adminDescription,
-            displayName,
-            displayDescription,
-            externalLink,
-            displayMode,
-            tiGroups));
+        validateProgramData(displayName, displayDescription, externalLink, displayMode, tiGroups));
     if (adminName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
       errorsBuilder.add(CiviFormError.of(INVALID_ADMIN_NAME_MSG));
+    } else if (StringUtils.isNumeric(MainModule.SLUGIFIER.slugify(adminName))) {
+      errorsBuilder.add(CiviFormError.of(INVALID_PROGRAM_SLUG_MSG));
     } else if (hasProgramNameCollision(adminName)) {
       errorsBuilder.add(CiviFormError.of("A program URL of " + adminName + " already exists"));
     }
@@ -412,7 +405,7 @@ public final class ProgramService {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForUpdate(
-            adminDescription, displayName, displayDescription, externalLink, displayMode, tiGroups);
+            displayName, displayDescription, externalLink, displayMode, tiGroups);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -520,7 +513,6 @@ public final class ProgramService {
    * Checks if the provided data would be valid to update an existing program with. Does not
    * actually update any programs.
    *
-   * @param adminDescription the description of this program - visible only to admins
    * @param displayName a name for this program
    * @param displayDescription the description of what the program provides
    * @param externalLink A link to an external page containing additional program details
@@ -528,14 +520,13 @@ public final class ProgramService {
    * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
    */
   public ImmutableSet<CiviFormError> validateProgramDataForUpdate(
-      String adminDescription,
       String displayName,
       String displayDescription,
       String externalLink,
       String displayMode,
       ImmutableList<Long> tiGroups) {
     return validateProgramData(
-        adminDescription, displayName, displayDescription, externalLink, displayMode, tiGroups);
+        displayName, displayDescription, externalLink, displayMode, tiGroups);
   }
 
   /** Create a new draft starting from the program specified by `id`. */
@@ -549,7 +540,6 @@ public final class ProgramService {
   }
 
   private ImmutableSet<CiviFormError> validateProgramData(
-      String adminDescription,
       String displayName,
       String displayDescription,
       String externalLink,
@@ -566,9 +556,6 @@ public final class ProgramService {
     }
     if (displayMode.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_MODE_MSG));
-    }
-    if (adminDescription.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_DESCRIPTION_MSG));
     }
     if (!isValidAbsoluteLink(externalLink)) {
       errorsBuilder.add(CiviFormError.of(INVALID_PROGRAM_LINK_FORMAT_MSG));
@@ -891,11 +878,21 @@ public final class ProgramService {
    *
    * <p>If the {@code locale} is the default locale and the {@code summaryImageDescription} is empty
    * or blank, then the description for *all* locales will be erased.
+   *
+   * @throws ImageDescriptionNotRemovableException if the admin tries to remove a description while
+   *     they still have an image.
    */
   public ProgramDefinition setSummaryImageDescription(
       long programId, Locale locale, String summaryImageDescription)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
+
+    if (summaryImageDescription.isBlank() && programDefinition.summaryImageFileKey().isPresent()) {
+      throw new ImageDescriptionNotRemovableException(
+          "Description can't be removed because an image is present. Delete the image before"
+              + " deleting the description.");
+    }
+
     Optional<LocalizedStrings> newStrings =
         getUpdatedSummaryImageDescription(programDefinition, locale, summaryImageDescription);
     programDefinition =
@@ -935,6 +932,34 @@ public final class ProgramService {
       newStrings = currentDescription.get().updateTranslation(locale, summaryImageDescription);
     }
     return Optional.of(newStrings);
+  }
+
+  /**
+   * Sets a key that can be used to fetch the summary image for the given program from cloud
+   * storage.
+   */
+  public ProgramDefinition setSummaryImageFileKey(long programId, String fileKey)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    programDefinition =
+        programDefinition.toBuilder().setSummaryImageFileKey(Optional.of(fileKey)).build();
+    return programRepository
+        .updateProgramSync(programDefinition.toProgram())
+        .getProgramDefinition();
+  }
+
+  /**
+   * Removes the key used to fetch the given program's summary image from cloud storage so that
+   * there is no longer an image shown for the given program.
+   */
+  public ProgramDefinition deleteSummaryImageFileKey(long programId)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    programDefinition =
+        programDefinition.toBuilder().setSummaryImageFileKey(Optional.empty()).build();
+    return programRepository
+        .updateProgramSync(programDefinition.toProgram())
+        .getProgramDefinition();
   }
 
   /**
@@ -1651,8 +1676,9 @@ public final class ProgramService {
    */
   private CompletionStage<ProgramDefinition> syncProgramDefinitionQuestions(
       ProgramDefinition programDefinition) {
-    // Note: This method is also used for non question updates.  It'd likely be
-    // good to have a focused method for that.
+    // Note: This method is also used for non question updates.
+    // TODO(#6249) We should have a focused method for that because getReadOnlyQuestionService()
+    // makes multiple calls to get question data for the active and draft versions.
     return questionService
         .getReadOnlyQuestionService()
         .thenApplyAsync(

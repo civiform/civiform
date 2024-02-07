@@ -26,8 +26,8 @@ public class TextFormatterTest {
     ImmutableList<DomContent> content =
         TextFormatter.formatText(
             "hello google.com http://internet.website https://secure.website",
-            /*preserveEmptyLines=*/ false,
-            /*addRequiredIndicator=*/ false);
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ false);
     String htmlContent = content.get(0).render();
 
     // URLs without protocols are not turned into links
@@ -55,8 +55,8 @@ public class TextFormatterTest {
     ImmutableList<DomContent> content =
         TextFormatter.formatText(
             "[this is a link](https://www.google.com)",
-            /*preserveEmptyLines=*/ false,
-            /*addRequiredIndicator=*/ false);
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ false);
     String htmlContent = content.get(0).render();
     assertIsExternalUrlWithIcon(
         htmlContent,
@@ -71,8 +71,8 @@ public class TextFormatterTest {
     ImmutableList<DomContent> content =
         TextFormatter.formatText(
             "Enter your full legal name.",
-            /*preserveEmptyLines=*/ false,
-            /*addRequiredIndicator= */ true);
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ true);
 
     assertThat(content.get(0).render())
         .isEqualTo(
@@ -81,12 +81,30 @@ public class TextFormatterTest {
   }
 
   @Test
+  public void correctlyInsertsRequiredIndicatorBeforeList() {
+    ImmutableList<DomContent> content =
+        TextFormatter.formatText(
+            "Here is some text.\n" + "* list item one\n" + "* list item two",
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ true);
+    String htmlContent = content.get(0).render();
+
+    assertThat(htmlContent)
+        .contains(
+            "<p>Here is some text.<span class=\"text-red-600"
+                + " font-semibold\">\u00a0*</span></p>\n");
+    assertThat(htmlContent).contains("<li>list item one</li>");
+    assertThat(htmlContent).contains("<li>list item two</li>");
+    assertThat(htmlContent).contains("</ul>\n");
+  }
+
+  @Test
   public void listRendersCorrectly() {
     String withList =
         "This is my list:\n" + "* cream cheese\n" + "* eggs\n" + "* sugar\n" + "* vanilla";
     ImmutableList<DomContent> content =
         TextFormatter.formatText(
-            withList, /*preserveEmptyLines=*/ false, /*addRequiredIndicator=*/ false);
+            withList, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
     String htmlContent = content.get(0).render();
 
     assertThat(htmlContent).contains("<p>This is my list:</p>");
@@ -109,7 +127,7 @@ public class TextFormatterTest {
             + "This is the third (or sixth) line of content.";
     ImmutableList<DomContent> preservedBlanksContent =
         TextFormatter.formatText(
-            withBlankLine, /*preserveEmptyLines=*/ true, /*addRequiredIndicator=*/ false);
+            withBlankLine, /* preserveEmptyLines= */ true, /* addRequiredIndicator= */ false);
     assertThat(preservedBlanksContent.get(0).render())
         .contains(
             "<p>This is the first line of content.<br />\u00A0</p>\n"
@@ -121,7 +139,7 @@ public class TextFormatterTest {
 
     ImmutableList<DomContent> nonPreservedBlanksContent =
         TextFormatter.formatText(
-            withBlankLine, /*preserveEmptyLines=*/ false, /*addRequiredIndicator=*/ false);
+            withBlankLine, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
 
     assertThat(nonPreservedBlanksContent.get(0).render())
         .isEqualTo(
@@ -136,7 +154,7 @@ public class TextFormatterTest {
         "# Hello!\nThis is a string with *italics* and **bold** and `inline code`";
     ImmutableList<DomContent> formattedText =
         TextFormatter.formatText(
-            stringWithMarkdown, /*preserveEmptyLines=*/ false, /*addRequiredIndicator=*/ false);
+            stringWithMarkdown, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
     assertThat(formattedText.get(0).render())
         .isEqualTo(
             "<h2>Hello!</h2>\n"
@@ -149,7 +167,9 @@ public class TextFormatterTest {
     String stringWithScriptTag = "<script>alert('bad-time');</script>";
     ImmutableList<DomContent> formattedText =
         TextFormatter.formatText(
-            stringWithScriptTag, /*preserveEmptyLines=*/ false, /*addRequiredIndicator=*/ false);
+            stringWithScriptTag,
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ false);
     assertThat(formattedText.get(0).render()).isEqualTo("\n");
   }
 

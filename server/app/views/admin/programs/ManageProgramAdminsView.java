@@ -91,7 +91,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
         FieldWithLabel.email()
             .setId("admin-email-input")
             .setFieldName("adminEmail")
-            .setLabelText("Admin email address");
+            .setLabelText("Admin email address (Email address is case-sensitive)");
     return div()
         .with(
             formTag.with(
@@ -99,8 +99,8 @@ public class ManageProgramAdminsView extends BaseHtmlView {
                 makeCsrfTokenInputTag(request),
                 submitButton("Add")
                     .withId("add-admin-button")
-                    .withClasses(ButtonStyles.SOLID_BLUE, "ml-2", "mb-6")))
-        .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
+                    .withClasses(ButtonStyles.SOLID_BLUE, "ml-2")))
+        .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-2", "mb-6", "p-4");
   }
 
   private DivTag renderExistingAdmins(
@@ -108,7 +108,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
     return div()
         .with(
             table()
-                .withClasses("border", "border-gray-300", "shadow-md", "w-full")
+                .withClasses("border", "border-gray-300", "shadow-md", "w-full", "mt-2")
                 .with(renderExistingAdminsTableHeader())
                 .with(
                     tbody(

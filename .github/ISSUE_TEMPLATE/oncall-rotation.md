@@ -1,14 +1,14 @@
 ---
 name: Oncall rotation
 about: Weekly oncall rotation checklist and log
-title: 'Oncall: 2023-XX-XX'
-labels: ''
+title: 'Oncall: 2024-XX-XX'
+labels: 'oncall'
 assignees: ''
 ---
 
-The Oncall is responsible for releasing a new version of CiviForm on Wednesday during their rotation and general upkeep through their rotation. This is an aid for each rotation, but the docs are the source of truth.
+The Oncall is responsible for releasing a new version of CiviForm on Tuesday during their rotation and general upkeep through their rotation. This is an aid for each rotation, but the docs are the source of truth.
 
-Rotations begin each Monday, with the release happening on Wednesday.
+Rotations begin each Monday, with the release happening on Tuesday.
 
 Please check off all items at their appropriate times during your rotation.
 
@@ -28,7 +28,7 @@ Resources:
   - File key naming changes
   - Changes to other stateful parts of the application (i.e. changes to the format of things stored in the database not necessarily requiring an evolution)
   - Config setting addition or removal
-- [ ] Create a Draft Release by 12 PT Wed
+- [ ] Create a Draft Release by 12 PT on Tuesday
 - [ ] Contact Matthew Sprenke for QA on Slack
 - [ ] If Matthew is unavailable have the general team attempt a best-effort QA.
 - [ ] After QA, publish the release

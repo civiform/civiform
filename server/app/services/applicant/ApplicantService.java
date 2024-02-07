@@ -300,7 +300,7 @@ public final class ApplicantService {
                       programDefinition,
                       baseUrl);
               Optional<Block> maybeBlockBeforeUpdate =
-                  readOnlyApplicantProgramServiceBeforeUpdate.getBlock(blockId);
+                  readOnlyApplicantProgramServiceBeforeUpdate.getActiveBlock(blockId);
               if (maybeBlockBeforeUpdate.isEmpty()) {
                 return CompletableFuture.failedFuture(
                     new ProgramBlockNotFoundException(programId, blockId));
@@ -369,7 +369,8 @@ public final class ApplicantService {
             baseUrl,
             failedUpdates);
 
-    Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockBeforeUpdate.getId());
+    Optional<Block> blockMaybe =
+        roApplicantProgramService.getActiveBlock(blockBeforeUpdate.getId());
     if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
       return accountRepository
           .updateApplicant(applicant)
@@ -1138,13 +1139,13 @@ public final class ApplicantService {
      */
     public abstract Optional<LifecycleStage> latestApplicationLifecycleStage();
 
-    static Builder builder() {
+    public static Builder builder() {
       return new AutoValue_ApplicantService_ApplicantProgramData.Builder();
     }
 
     @AutoValue.Builder
-    abstract static class Builder {
-      abstract Builder setProgram(ProgramDefinition v);
+    public abstract static class Builder {
+      public abstract Builder setProgram(ProgramDefinition v);
 
       abstract Builder setIsProgramMaybeEligible(Optional<Boolean> v);
 
@@ -1154,7 +1155,7 @@ public final class ApplicantService {
 
       abstract Builder setLatestApplicationLifecycleStage(Optional<LifecycleStage> v);
 
-      abstract ApplicantProgramData build();
+      public abstract ApplicantProgramData build();
     }
   }
 
@@ -1458,12 +1459,12 @@ public final class ApplicantService {
       long applicantId,
       long programId,
       String blockId,
-      String selectedAddress,
+      Optional<String> selectedAddress,
       ImmutableList<AddressSuggestion> addressSuggestions) {
     return getReadOnlyApplicantProgramService(applicantId, programId)
         .thenComposeAsync(
             roApplicantProgramService -> {
-              Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
+              Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockId);
 
               if (blockMaybe.isEmpty()) {
                 return CompletableFuture.failedFuture(
@@ -1478,7 +1479,9 @@ public final class ApplicantService {
                   addressSuggestions.stream()
                       .filter(
                           addressSuggestion ->
-                              addressSuggestion.getSingleLineAddress().equals(selectedAddress))
+                              addressSuggestion
+                                  .getSingleLineAddress()
+                                  .equals(selectedAddress.orElse("")))
                       .findFirst();
 
               ImmutableMap<String, String> questionPathToValueMap =
@@ -1501,7 +1504,7 @@ public final class ApplicantService {
       String blockId,
       AddressQuestion addressQuestion,
       Optional<AddressSuggestion> suggestionMaybe,
-      String selectedAddress) {
+      Optional<String> selectedAddress) {
 
     ImmutableMap.Builder<String, String> questionPathToValueMap = ImmutableMap.builder();
 
@@ -1524,7 +1527,8 @@ public final class ApplicantService {
       questionPathToValueMap.put(
           addressQuestion.getCorrectedPath().toString(),
           CorrectedAddressState.CORRECTED.getSerializationFormat());
-    } else if (selectedAddress.equals(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE)) {
+    } else if (selectedAddress.isPresent()
+        && selectedAddress.get().equals(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE)) {
       questionPathToValueMap.put(
           addressQuestion.getCorrectedPath().toString(),
           CorrectedAddressState.AS_ENTERED_BY_USER.getSerializationFormat());
@@ -1584,7 +1588,7 @@ public final class ApplicantService {
     return getReadOnlyApplicantProgramService(applicantId, programId)
         .thenComposeAsync(
             roApplicantProgramService -> {
-              Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
+              Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockId);
 
               if (blockMaybe.isEmpty()) {
                 return CompletableFuture.failedFuture(

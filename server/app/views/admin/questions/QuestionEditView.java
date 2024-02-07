@@ -35,12 +35,12 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.BaseHtmlView;
-import views.FileUploadViewStrategy;
 import views.HtmlBundle;
 import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.applicant.ApplicantFileUploadRenderer;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
@@ -56,7 +56,7 @@ import views.style.StyleUtils;
 public final class QuestionEditView extends BaseHtmlView {
   private final AdminLayout layout;
   private final Messages messages;
-  private final FileUploadViewStrategy fileUploadViewStrategy;
+  private final ApplicantFileUploadRenderer applicantFileUploadRenderer;
   private final SettingsManifest settingsManifest;
 
   private static final String NO_ENUMERATOR_DISPLAY_STRING = "does not repeat";
@@ -68,12 +68,12 @@ public final class QuestionEditView extends BaseHtmlView {
   public QuestionEditView(
       AdminLayoutFactory layoutFactory,
       MessagesApi messagesApi,
-      FileUploadViewStrategy fileUploadViewStrategy,
+      ApplicantFileUploadRenderer applicantFileUploadRenderer,
       SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
-    this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
+    this.applicantFileUploadRenderer = checkNotNull(applicantFileUploadRenderer);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
@@ -209,7 +209,7 @@ public final class QuestionEditView extends BaseHtmlView {
   private Content renderWithPreview(
       Request request, DivTag formContent, QuestionType type, String title, Optional<Modal> modal) {
     DivTag previewContent =
-        QuestionPreview.renderQuestionPreview(type, messages, fileUploadViewStrategy);
+        QuestionPreview.renderQuestionPreview(type, messages, applicantFileUploadRenderer);
 
     HtmlBundle htmlBundle =
         layout.getBundle(request).setTitle(title).addMainContent(formContent, previewContent);

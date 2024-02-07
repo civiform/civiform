@@ -55,13 +55,20 @@ public final class PdfExporter {
    * inMemoryPDF object. The InMemoryPdf object is passed back to the AdminController Class to
    * generate the required PDF.
    */
-  public InMemoryPdf export(ApplicationModel application) throws DocumentException, IOException {
+  public InMemoryPdf export(
+      ApplicationModel application, boolean showEligibilityText, boolean includeHiddenBlocks)
+      throws DocumentException, IOException {
     ReadOnlyApplicantProgramService roApplicantService =
         applicantService
             .getReadOnlyApplicantProgramService(application)
             .toCompletableFuture()
             .join();
-    ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
+
+    ImmutableList<AnswerData> answersOnlyActive = roApplicantService.getSummaryDataOnlyActive();
+    ImmutableList<AnswerData> answersOnlyHidden = ImmutableList.<AnswerData>of();
+    if (includeHiddenBlocks) {
+      answersOnlyHidden = roApplicantService.getSummaryDataOnlyHidden();
+    }
 
     // We expect a name to be present at this point. However, if it's not, we use a placeholder
     // rather than throwing an error here.
@@ -71,11 +78,13 @@ public final class PdfExporter {
     String filename = String.format("%s-%s.pdf", applicantNameWithApplicationId, nowProvider.get());
     byte[] bytes =
         buildPDF(
-            answers,
+            answersOnlyActive,
+            answersOnlyHidden,
             applicantNameWithApplicationId,
             application.getProgram().getProgramDefinition(),
             application.getLatestStatus(),
-            getSubmitTime(application.getSubmitTime()));
+            getSubmitTime(application.getSubmitTime()),
+            showEligibilityText);
     return new InMemoryPdf(bytes, filename);
   }
 
@@ -86,11 +95,13 @@ public final class PdfExporter {
   }
 
   private byte[] buildPDF(
-      ImmutableList<AnswerData> answers,
+      ImmutableList<AnswerData> answersOnlyActive,
+      ImmutableList<AnswerData> answersOnlyHidden,
       String applicantNameWithApplicationId,
       ProgramDefinition programDefinition,
       Optional<String> statusValue,
-      String submitTime)
+      String submitTime,
+      boolean showEligibilityText)
       throws DocumentException, IOException {
     ByteArrayOutputStream byteArrayOutputStream = null;
     PdfWriter writer = null;
@@ -122,7 +133,7 @@ public final class PdfExporter {
       document.add(submitTimeInformation);
       document.add(Chunk.NEWLINE);
       boolean isEligibilityEnabledInProgram = programDefinition.hasEligibilityEnabled();
-      for (AnswerData answerData : answers) {
+      for (AnswerData answerData : answersOnlyActive) {
         Paragraph question =
             new Paragraph(
                 answerData.questionDefinition().getName(),
@@ -150,7 +161,7 @@ public final class PdfExporter {
             new Paragraph("Answered on : " + date, FontFactory.getFont(FontFactory.HELVETICA, 10));
         time.setAlignment(Paragraph.ALIGN_RIGHT);
         Paragraph eligibility = new Paragraph();
-        if (isEligibilityEnabledInProgram) {
+        if (showEligibilityText && isEligibilityEnabledInProgram) {
           try {
             Optional<EligibilityDefinition> eligibilityDef =
                 programDefinition.getBlockDefinition(answerData.blockId()).eligibilityDefinition();
@@ -179,6 +190,26 @@ public final class PdfExporter {
         document.add(time);
         if (!eligibility.isEmpty()) {
           document.add(eligibility);
+        }
+      }
+      if (!answersOnlyHidden.isEmpty()) {
+        document.add(Chunk.NEWLINE);
+        Paragraph hiddenText =
+            new Paragraph(
+                "Hidden Questions : ", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15));
+        document.add(hiddenText);
+        document.add(Chunk.NEWLINE);
+        for (AnswerData answerData : answersOnlyHidden) {
+          Paragraph question =
+              new Paragraph(
+                  answerData.questionDefinition().getName(),
+                  FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+          final Paragraph answer;
+          answer =
+              new Paragraph(
+                  answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11));
+          document.add(question);
+          document.add(answer);
         }
       }
     } finally {

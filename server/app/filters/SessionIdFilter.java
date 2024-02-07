@@ -3,7 +3,6 @@ package filters;
 import static play.mvc.Results.redirect;
 
 import akka.stream.Materializer;
-import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -14,11 +13,10 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 /** Filter that ensures all sessions have have a unique ID. */
+
+// TODO(#6113): Remove this filter in favor of populating a pac4j profile attribute.
 public final class SessionIdFilter extends Filter {
   public static final String SESSION_ID = "sessionId";
-
-  private static final ImmutableSet<String> excludedPrefixes =
-      ImmutableSet.of("/api/", "/assets/", "/dev/", "/favicon", "/playIndex");
 
   @Inject
   public SessionIdFilter(Materializer mat) {
@@ -26,7 +24,7 @@ public final class SessionIdFilter extends Filter {
   }
 
   private boolean shouldApplyThisFilter(Http.RequestHeader requestHeader) {
-    return excludedPrefixes.stream().noneMatch(prefix -> requestHeader.uri().startsWith(prefix))
+    return NonUserRoutePrefixes.noneMatch(requestHeader)
         // Since we are using redirects, we only apply this filter for a GET request.
         && requestHeader.method().equals("GET")
         && requestHeader.session().get(SESSION_ID).isEmpty();

@@ -506,6 +506,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("AWS_S3_FILE_LIMIT_MB");
   }
 
+  /** s3 bucket to store **publicly accessible** files in. */
+  public Optional<String> getAwsS3PublicBucketName() {
+    return getString("AWS_S3_PUBLIC_BUCKET_NAME");
+  }
+
+  /** The max size (in Mb) of **publicly accessible** files uploaded to s3. */
+  public Optional<String> getAwsS3PublicFileLimitMb() {
+    return getString("AWS_S3_PUBLIC_FILE_LIMIT_MB");
+  }
+
   /** The azure account name where the blob storage service exists. */
   public Optional<String> getAzureStorageAccountName() {
     return getString("AZURE_STORAGE_ACCOUNT_NAME");
@@ -843,13 +853,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables populating more fields in OIDC logout requests to admin identity provider. */
-  public boolean getAdminOidcEnhancedLogoutEnabled(RequestHeader request) {
-    return getBool("ADMIN_OIDC_ENHANCED_LOGOUT_ENABLED", request);
+  public boolean getAdminOidcEnhancedLogoutEnabled() {
+    return getBool("ADMIN_OIDC_ENHANCED_LOGOUT_ENABLED");
   }
 
   /** Enables populating more fields in OIDC logout requests to applicant identity provider. */
-  public boolean getApplicantOidcEnhancedLogoutEnabled(RequestHeader request) {
-    return getBool("APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED", request);
+  public boolean getApplicantOidcEnhancedLogoutEnabled() {
+    return getBool("APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED");
+  }
+
+  /**
+   * Enables setting and displaying whether the answer to a universal question can be acted upon by
+   * the system.
+   */
+  public boolean getApplicantInfoQuestions(RequestHeader request) {
+    return getBool("APPLICANT_INFO_QUESTIONS", request);
   }
 
   /**
@@ -867,6 +885,22 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getProgramCardImages(RequestHeader request) {
     return getBool("PROGRAM_CARD_IMAGES", request);
+  }
+
+  /**
+   * Add programs cards to the confirmation screen that an applicant sees after finishing an
+   * application.
+   */
+  public boolean getSuggestProgramsOnApplicationConfirmationPage(RequestHeader request) {
+    return getBool("SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE", request);
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) Save an applicant's answers when they take any action
+   * ('Review'/'Previous'/'Save and next') instead of only saving on 'Save and next'.
+   */
+  public boolean getSaveOnAllActions(RequestHeader request) {
+    return getBool("SAVE_ON_ALL_ACTIONS", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -1447,6 +1481,19 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
+                              "AWS_S3_PUBLIC_BUCKET_NAME",
+                              "s3 bucket to store **publicly accessible** files in.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
+                              "AWS_S3_PUBLIC_FILE_LIMIT_MB",
+                              "The max size (in Mb) of **publicly accessible** files uploaded to"
+                                  + " s3.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
                               "AZURE_STORAGE_ACCOUNT_NAME",
                               "The azure account name where the blob storage service exists.",
                               /* isRequired= */ false,
@@ -1781,11 +1828,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " provider.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED",
                       "Enables populating more fields in OIDC logout requests to applicant identity"
                           + " provider.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
+                      "APPLICANT_INFO_QUESTIONS",
+                      "Enables setting and displaying whether the answer to a universal question"
+                          + " can be acted upon by the system.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
@@ -1802,6 +1856,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "PROGRAM_CARD_IMAGES",
                       "Enables images on program cards, both for admins to upload them and for"
                           + " applicants to view them.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE",
+                      "Add programs cards to the confirmation screen that an applicant sees after"
+                          + " finishing an application.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "SAVE_ON_ALL_ACTIONS",
+                      "(NOT FOR PRODUCTION USE) Save an applicant's answers when they take any"
+                          + " action ('Review'/'Previous'/'Save and next') instead of only saving"
+                          + " on 'Save and next'.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),

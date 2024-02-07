@@ -17,10 +17,11 @@ public final class PdfExporterService {
     this.pdfExporter = checkNotNull(pdfExporter);
   }
 
-  public PdfExporter.InMemoryPdf generatePdf(ApplicationModel application) {
+  public PdfExporter.InMemoryPdf generatePdf(
+      ApplicationModel application, boolean showEligibilityText, boolean includeHiddenBlocks) {
     PdfExporter.InMemoryPdf pdf;
     try {
-      pdf = pdfExporter.export(application);
+      pdf = pdfExporter.export(application, showEligibilityText, includeHiddenBlocks);
     } catch (DocumentException | IOException e) {
       throw new RuntimeException(e);
     }

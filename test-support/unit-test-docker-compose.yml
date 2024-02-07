@@ -1,7 +1,7 @@
 # Use postgres/example user/password credentials
 services:
   db:
-    image: postgres:12.14
+    image: postgres:12.17
     restart: always
     expose:
       - '5432'
@@ -33,6 +33,9 @@ services:
       - 9100:9000
       - 8459:8459
     environment:
+      - AWS_ACCESS_KEY_ID=testAccessKey
+      - AWS_SECRET_ACCESS_KEY=testSecretKey
+      - AWS_SESSION_TOKEN=testSession
       - IDCS_CLIENT_ID=idcs-fake-oidc-client
       - IDCS_SECRET=idcs-fake-oidc-secret
       - IDCS_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration

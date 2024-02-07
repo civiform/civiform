@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.BadRequestException;
+import controllers.admin.ImageDescriptionNotRemovableException;
 import forms.BlockForm;
 import io.ebean.DB;
 import java.util.ArrayList;
@@ -210,8 +211,7 @@ public class ProgramServiceTest extends ResetPostgres {
         .containsExactlyInAnyOrder(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program URL is required"),
-            CiviFormError.of("A program note is required"));
+            CiviFormError.of("A program URL is required"));
   }
 
   @Test
@@ -433,20 +433,13 @@ public class ProgramServiceTest extends ResetPostgres {
   public void validateProgramDataForCreate_returnsErrors() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
-            "",
-            "",
-            "",
-            "",
-            "",
-            DisplayMode.PUBLIC.getValue(),
-            ImmutableList.copyOf(new ArrayList<>()));
+            "", "", "", "", DisplayMode.PUBLIC.getValue(), ImmutableList.copyOf(new ArrayList<>()));
 
     assertThat(result)
         .containsExactlyInAnyOrder(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program URL is required"),
-            CiviFormError.of("A program note is required"));
+            CiviFormError.of("A program URL is required"));
   }
 
   @Test
@@ -455,7 +448,6 @@ public class ProgramServiceTest extends ResetPostgres {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
             adminName,
-            "description",
             "display name",
             "display desc",
             "https://usa.gov",
@@ -469,11 +461,43 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  @Parameters({"123", "235", "56789"})
+  public void validateProgramDataForCreate_requiresSlugBeingAlphanumerical_failsIfNoLetters(
+      String adminName) {
+    ImmutableSet<CiviFormError> result =
+        ps.validateProgramDataForCreate(
+            adminName,
+            "display name",
+            "display desc",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.copyOf(new ArrayList<>()));
+
+    assertThat(result)
+        .containsExactly(CiviFormError.of("A program URL must contain at least one letter"));
+  }
+
+  @Test
+  @Parameters({"a7859", "b8419", "c-302"})
+  public void validateProgramDataForCreate_requiresSlugBeingAlphanumerical_validIfOneLetter(
+      String adminName) {
+    ImmutableSet<CiviFormError> result =
+        ps.validateProgramDataForCreate(
+            adminName,
+            "display name",
+            "display desc",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.copyOf(new ArrayList<>()));
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
   public void validateProgramDataForCreate_requiresTIListInSelectTiMode() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
             "program",
-            "description",
             "display name",
             "display desc",
             "https://usa.gov",
@@ -489,7 +513,6 @@ public class ProgramServiceTest extends ResetPostgres {
   public void validateProgramDataForUpdate_requiresTIListInSELECT_TIMode() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForUpdate(
-            "program",
             "description",
             "display name",
             "https://usa.gov",
@@ -530,7 +553,6 @@ public class ProgramServiceTest extends ResetPostgres {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
             "name-one",
-            "description",
             "display name",
             "display desc",
             "https://usa.gov",
@@ -545,7 +567,6 @@ public class ProgramServiceTest extends ResetPostgres {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
             "name-two",
-            "description",
             "display name",
             "display description",
             "https://usa.gov",
@@ -563,7 +584,6 @@ public class ProgramServiceTest extends ResetPostgres {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
             "name-two",
-            "description",
             "display name",
             "display description",
             "https://usa.gov",
@@ -674,8 +694,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getErrors())
         .containsOnly(
             CiviFormError.of("A public display name for the program is required"),
-            CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program note is required"));
+            CiviFormError.of("A public description for the program is required"));
   }
 
   @Test
@@ -2805,7 +2824,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void setSummaryImageDescription_defaultLocaleAndBlank_removesAllTranslations()
-      throws ProgramNotFoundException, TranslationNotFoundException {
+      throws ProgramNotFoundException {
     ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
     ps.setSummaryImageDescription(program.id(), Locale.US, "US description");
     ps.setSummaryImageDescription(program.id(), Locale.CANADA, "Canada description");
@@ -2814,5 +2833,67 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition result = ps.setSummaryImageDescription(program.id(), DEFAULT_LOCALE, "");
 
     assertThat(result.localizedSummaryImageDescription().isPresent()).isFalse();
+  }
+
+  @Test
+  public void setSummaryImageDescription_blank_hasImageFile_throwsNotRemovableException()
+      throws ProgramNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+    ps.setSummaryImageDescription(program.id(), Locale.US, "US description");
+    ps.setSummaryImageFileKey(program.id(), "fileKey.png");
+
+    assertThatThrownBy(() -> ps.setSummaryImageDescription(program.id(), Locale.US, ""))
+        .isInstanceOf(ImageDescriptionNotRemovableException.class)
+        .hasMessageContaining("Description can't be removed because an image is present");
+  }
+
+  @Test
+  public void setSummaryImageFileKey_missingProgram_throws() {
+    assertThatThrownBy(() -> ps.setSummaryImageFileKey(Long.MAX_VALUE, "fileKey"))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID:");
+  }
+
+  @Test
+  public void setSummaryImageFileKey_keySet() throws ProgramNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+
+    ProgramDefinition result1 = ps.setSummaryImageFileKey(program.id(), "fileKey1.png");
+
+    assertThat(result1.summaryImageFileKey().isPresent()).isTrue();
+    assertThat(result1.summaryImageFileKey().get()).isEqualTo("fileKey1.png");
+
+    ProgramDefinition result2 = ps.setSummaryImageFileKey(program.id(), "fileKey2.png");
+
+    assertThat(result2.summaryImageFileKey().isPresent()).isTrue();
+    assertThat(result2.summaryImageFileKey().get()).isEqualTo("fileKey2.png");
+  }
+
+  @Test
+  public void deleteSummaryImageFileKey_missingProgram_throws() {
+    assertThatThrownBy(() -> ps.deleteSummaryImageFileKey(Long.MAX_VALUE))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID:");
+  }
+
+  @Test
+  public void deleteSummaryImageFileKey_noFileKeyPresent_stillNoKey()
+      throws ProgramNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+
+    ProgramDefinition result = ps.deleteSummaryImageFileKey(program.id());
+
+    assertThat(result.summaryImageFileKey()).isEmpty();
+  }
+
+  @Test
+  public void deleteSummaryImageFileKey_hadFileKey_keyRemoved() throws ProgramNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+    ProgramDefinition setResult = ps.setSummaryImageFileKey(program.id(), "fileKey1.png");
+    assertThat(setResult.summaryImageFileKey()).isPresent();
+
+    ProgramDefinition deleteResult = ps.deleteSummaryImageFileKey(program.id());
+
+    assertThat(deleteResult.summaryImageFileKey()).isEmpty();
   }
 }

@@ -118,7 +118,7 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
         testQuestionBank.applicantAddress().getQuestionDefinition();
     assertThatThrownBy(() -> repo.getAllHistoricMultiOptionAdminNames(questionDefinition))
         .isInstanceOf(RuntimeException.class)
-        .hasMessage("The Question Type is not checkbox");
+        .hasMessage("The Question Type is not a multi-option type");
   }
 
   @Test

@@ -125,6 +125,7 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
         FieldWithLabel.input()
             .setFieldName(addressQuestion.getZipPath().toString())
             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_ZIPCODE.getKeyName()))
+            .setAttribute("inputmode", "numeric")
             .setAutocomplete(Optional.of("postal-code"))
             .setValue(addressQuestion.getZipValue().orElse(""))
             .setFieldErrors(

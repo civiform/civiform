@@ -448,7 +448,7 @@ public final class QuestionsListView extends BaseHtmlView {
                   "cursor-pointer",
                   "font-medium",
                   "underline",
-                  BaseStyles.TEXT_SEATTLE_BLUE,
+                  BaseStyles.TEXT_CIVIFORM_BLUE,
                   StyleUtils.hover("text-black"))
               .withText("See list"));
     }

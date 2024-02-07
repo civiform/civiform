@@ -168,7 +168,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
 
     String title =
         String.format("%s condition for %s", predicateTypeNameTitleCase, blockDefinition.name());
-    String removePredicateFormId = UUID.randomUUID().toString();
+    String removePredicateFormId = String.format("form-%s", UUID.randomUUID());
     FormTag removePredicateForm =
         form(csrfTag)
             .withId(removePredicateFormId)

@@ -86,6 +86,22 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
   }
 
   @Test
+  public void mergeCiviFormProfile_noGroupsInProfileDoesNotThrow() {
+    OidcProfile profile = new OidcProfile();
+    profile.addAttribute("email", "email@example.com");
+    profile.removeAttribute("groups");
+    // Required for OIDC profiles.
+    profile.addAttribute("iss", "issuer");
+    profile.setId("subject");
+
+    PlayWebContext context = new PlayWebContext(fakeRequest().build());
+    CiviFormProfileData profileData =
+        genericOidcProfileCreator.mergeCiviFormProfile(Optional.empty(), profile, context);
+
+    assertThat(profileData.getRoles()).doesNotContain("ROLE_CIVIFORM_ADMIN");
+  }
+
+  @Test
   public void genericOidcProfileCreator_identityProviderTypeIsCorrect() {
     assertThat(genericOidcProfileCreator.identityProviderType())
         .isEqualTo(IdentityProviderType.ADMIN_IDENTITY_PROVIDER);

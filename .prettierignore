@@ -1,6 +1,7 @@
 # Note: for changes to this file to take effect the formatter docker image
 #       must be rebuilt and pushed using bin/build-formatter
 
+.git
 node_modules
 project
 target

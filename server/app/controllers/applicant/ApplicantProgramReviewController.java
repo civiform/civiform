@@ -6,6 +6,7 @@ import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAM_SLUG_LOGIN
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import java.util.Optional;
@@ -59,6 +60,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final PreventDuplicateSubmissionView preventDuplicateSubmissionView;
   private final SettingsManifest settingsManifest;
   private final ProgramService programService;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public ApplicantProgramReviewController(
@@ -71,7 +73,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
       ProfileUtils profileUtils,
       SettingsManifest settingsManifest,
       ProgramService programService,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      ApplicantRoutes applicantRoutes) {
     super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
@@ -81,9 +84,12 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.preventDuplicateSubmissionView = checkNotNull(preventDuplicateSubmissionView);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programService = checkNotNull(programService);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
-  public CompletionStage<Result> review(Request request, long applicantId, long programId) {
+  @Secure
+  public CompletionStage<Result> reviewWithApplicantId(
+      Request request, long applicantId, long programId) {
     Optional<CiviFormProfile> submittingProfile = profileUtils.currentUserProfile(request);
 
     // If the user isn't already logged in within their browser session, send them home.
@@ -131,7 +137,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           ImmutableList.of(flashBanner, flashSuccessBanner, notEligibleBanner))
                       .setMessages(messages)
                       .setProgramId(programId)
-                      .setRequest(request);
+                      .setRequest(request)
+                      .setProfile(
+                          submittingProfile.orElseThrow(
+                              () -> new MissingOptionalException(CiviFormProfile.class)));
 
               // Show a login prompt on the review page if we were redirected from a program slug
               // and user is a guest.
@@ -140,8 +149,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 Modal loginPromptModal =
                     createLoginPromptModal(
                             messages,
-                            /* postLoginRedirectTo= */ controllers.applicant.routes
-                                .DeepLinkController.programBySlug(
+                            /* postLoginRedirectTo= */ routes.ApplicantProgramsController.show(
                                     request.flash().get("redirected-from-program-slug").get())
                                 .url(),
                             messages.at(
@@ -176,12 +184,27 @@ public class ApplicantProgramReviewController extends CiviFormController {
             });
   }
 
+  @Secure
+  public CompletionStage<Result> review(Request request, long programId) {
+    Optional<Long> applicantId = getApplicantId(request);
+    if (applicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+    return reviewWithApplicantId(
+        request,
+        applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)),
+        programId);
+  }
+
   /**
    * Handles application submission. For applicants, submits the application. For admins previewing
    * the program, does not submit the application and simply redirects to the program page.
    */
   @Secure
-  public CompletionStage<Result> submit(Request request, long applicantId, long programId) {
+  public CompletionStage<Result> submitWithApplicantId(
+      Request request, long applicantId, long programId) {
     Optional<CiviFormProfile> submittingProfile = profileUtils.currentUserProfile(request);
 
     // If the user isn't already logged in within their browser session, send them home.
@@ -211,6 +234,24 @@ public class ApplicantProgramReviewController extends CiviFormController {
             });
   }
 
+  /**
+   * Handles application submission. For applicants, submits the application. For admins previewing
+   * the program, does not submit the application and simply redirects to the program page.
+   */
+  @Secure
+  public CompletionStage<Result> submit(Request request, long programId) {
+    Optional<Long> applicantId = getApplicantId(request);
+    if (applicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+    return submitWithApplicantId(
+        request,
+        applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)),
+        programId);
+  }
+
   /** Returns true if eligibility is gating and the application is ineligible, false otherwise. */
   private boolean shouldShowNotEligibleBanner(
       ReadOnlyApplicantProgramService roApplicantProgramService, long programId)
@@ -223,7 +264,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   private ApplicantProgramSummaryView.Params.Builder generateParamsBuilder(
       ReadOnlyApplicantProgramService roApplicantProgramService) {
-    ImmutableList<AnswerData> summaryData = roApplicantProgramService.getSummaryData();
+    ImmutableList<AnswerData> summaryData = roApplicantProgramService.getSummaryDataOnlyActive();
     int totalBlockCount = roApplicantProgramService.getAllActiveBlocks().size();
     int completedBlockCount = roApplicantProgramService.getActiveAndCompletedInProgramBlockCount();
     String programTitle = roApplicantProgramService.getProgramTitle();
@@ -258,7 +299,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       applicantId,
                       programId,
                       applicationId,
-                      routes.ApplicantProgramsController.index(applicantId).url());
+                      applicantRoutes.index(submittingProfile, applicantId).url());
               return found(endOfProgramSubmission);
             },
             httpExecutionContext.current())
@@ -268,7 +309,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 Throwable cause = ex.getCause();
                 if (cause instanceof ApplicationSubmissionException) {
                   Call reviewPage =
-                      routes.ApplicantProgramReviewController.review(applicantId, programId);
+                      applicantRoutes.review(submittingProfile, applicantId, programId);
                   String errorMsg =
                       messagesApi
                           .preferred(request)
@@ -281,7 +322,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           .preferred(request)
                           .at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName());
                   Call reviewPage =
-                      routes.ApplicantProgramReviewController.review(applicantId, programId);
+                      applicantRoutes.review(submittingProfile, applicantId, programId);
                   return redirect(reviewPage).flashing("error", errorMsg);
                 }
                 if (cause instanceof ApplicationNotEligibleException) {
@@ -312,15 +353,12 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           request,
                           roApplicantProgramService,
                           messagesApi.preferred(request),
-                          applicantId));
+                          applicantId,
+                          profileUtils.currentUserProfileOrThrow(request)));
                 }
                 throw new RuntimeException(cause);
               }
               throw new RuntimeException(ex);
             });
-  }
-
-  private static Result redirectToHome() {
-    return redirect(controllers.routes.HomeController.index().url());
   }
 }

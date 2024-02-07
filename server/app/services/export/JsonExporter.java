@@ -117,7 +117,8 @@ public final class JsonExporter {
     ReadOnlyApplicantProgramService roApplicantProgramService =
         applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
 
-    ImmutableList<AnswerData> answerDataList = roApplicantProgramService.getSummaryData();
+    ImmutableList<AnswerData> answerDataList =
+        roApplicantProgramService.getSummaryDataAllQuestions();
     ImmutableMap.Builder<Path, Optional<?>> entriesBuilder = ImmutableMap.builder();
 
     for (AnswerData answerData : answerDataList) {

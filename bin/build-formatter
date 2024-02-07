@@ -3,9 +3,10 @@
 # DOC: Build a new formatter docker image
 # DOC: Optional environment variables:
 # DOC:   PUSH_IMAGE - Push the newly built image to Docker Hub if set to any value
-# DOC:   NAMESPACE  - Overrides the default docker namespace of civiform
+# DOC:   NAMESPACE  - Overrides the default docker namespace of civiform. To push
+# DOC:                to an alternative registry include it in the NAMESPACE.
+# DOC:                Example: ghcr.io/civiform/civiform would push to to GitHub container registry
 # DOC:   PLATFORM   - Platform architechture to build (e.g. linux/amd64, arm64v8)
-# DOC: Does not support pushing to alternate registries
 
 source bin/lib.sh
 
@@ -14,8 +15,8 @@ readonly IMAGE="formatter"
 readonly LOCATION="."
 readonly DOCKERFILE="formatter/formatter.Dockerfile"
 
-BUILD_ARGS=(-f "${DOCKERFILE}"
-  -t "${NAMESPACE}/${IMAGE}:latest"
+BUILD_ARGS=(--file "${DOCKERFILE}"
+  --tag "${NAMESPACE}/${IMAGE}:latest"
   --cache-from "${NAMESPACE}/${IMAGE}"
   --build-arg BUILDKIT_INLINE_CACHE=1
   "${LOCATION}")

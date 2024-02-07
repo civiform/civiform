@@ -9,16 +9,19 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.PTag;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
+import views.ProgramImageUtils;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
 import views.style.ReferenceClasses;
@@ -28,11 +31,14 @@ import views.style.StyleUtils;
 public final class ProgramCardFactory {
 
   private final ViewUtils viewUtils;
+  private final ProgramImageUtils programImageUtils;
   private final SettingsManifest settingsManifest;
 
   @Inject
-  public ProgramCardFactory(ViewUtils viewUtils, SettingsManifest settingsManifest) {
+  public ProgramCardFactory(
+      ViewUtils viewUtils, ProgramImageUtils programImageUtils, SettingsManifest settingsManifest) {
     this.viewUtils = checkNotNull(viewUtils);
+    this.programImageUtils = checkNotNull(programImageUtils);
     this.settingsManifest = settingsManifest;
   }
 
@@ -46,14 +52,16 @@ public final class ProgramCardFactory {
     DivTag statusDiv = div();
     if (cardData.draftProgram().isPresent()) {
       statusDiv =
-          statusDiv.with(renderProgramRow(/* isActive = */ false, cardData.draftProgram().get()));
+          statusDiv.with(
+              renderProgramRow(request, /* isActive= */ false, cardData.draftProgram().get()));
     }
 
     if (cardData.activeProgram().isPresent()) {
       statusDiv =
           statusDiv.with(
               renderProgramRow(
-                  /* isActive = */ true,
+                  request,
+                  /* isActive= */ true,
                   cardData.activeProgram().get(),
                   cardData.draftProgram().isPresent() ? "border-t" : ""));
     }
@@ -63,7 +71,7 @@ public final class ProgramCardFactory {
             .withClass("flex")
             .with(
                 div()
-                    .withClasses("w-1/3", "py-7")
+                    .withClasses("w-1/4", "py-7")
                     .with(
                         p(programTitleText)
                             .withClasses(
@@ -76,8 +84,8 @@ public final class ProgramCardFactory {
                             .with(
                                 TextFormatter.formatText(
                                     programDescriptionText,
-                                    /*preserveEmptyLines=*/ false,
-                                    /*addRequiredIndicator=*/ false))
+                                    /* preserveEmptyLines= */ false,
+                                    /* addRequiredIndicator= */ false))
                             .withClasses("line-clamp-2", "text-gray-700", "text-base"))
                     .condWith(
                         shouldShowCommonIntakeFormIndicator(request, displayProgram),
@@ -107,7 +115,10 @@ public final class ProgramCardFactory {
   }
 
   private DivTag renderProgramRow(
-      boolean isActive, ProgramCardData.ProgramRow programRow, String... extraStyles) {
+      Http.Request request,
+      boolean isActive,
+      ProgramCardData.ProgramRow programRow,
+      String... extraStyles) {
     ProgramDefinition program = programRow.program();
     String updatedPrefix = "Edited on ";
     Optional<Instant> updatedTime = program.lastModifiedTime();
@@ -133,6 +144,11 @@ public final class ProgramCardFactory {
             isActive ? ProgramDisplayType.ACTIVE : ProgramDisplayType.DRAFT,
             "ml-2",
             StyleUtils.responsiveXLarge("ml-8"));
+
+    boolean shouldShowUniversalQuestionsCount =
+        settingsManifest.getUniversalQuestions(request)
+            && programRow.universalQuestionsText().isPresent();
+
     return div()
         .withClasses(
             "py-7",
@@ -141,6 +157,7 @@ public final class ProgramCardFactory {
             StyleUtils.hover("bg-gray-100"),
             StyleUtils.joinStyles(extraStyles))
         .with(
+            createImageIcon(program, request),
             badge,
             div()
                 .withClasses("ml-4", StyleUtils.responsiveXLarge("ml-10"))
@@ -150,7 +167,10 @@ public final class ProgramCardFactory {
                             span(String.format("%d", blockCount)).withClass("font-semibold"),
                             span(blockCount == 1 ? " screen, " : " screens, "),
                             span(String.format("%d", questionCount)).withClass("font-semibold"),
-                            span(questionCount == 1 ? " question" : " questions"))),
+                            span(questionCount == 1 ? " question" : " questions"))
+                        .condWith(
+                            shouldShowUniversalQuestionsCount,
+                            p(programRow.universalQuestionsText().orElse("")))),
             div().withClass("flex-grow"),
             div()
                 .withClasses("flex", "space-x-2", "pr-6", "font-medium")
@@ -186,6 +206,22 @@ public final class ProgramCardFactory {
       return cardData.draftProgram().get().program();
     }
     return cardData.activeProgram().get().program();
+  }
+
+  private DivTag createImageIcon(ProgramDefinition program, Http.Request request) {
+    if (!settingsManifest.getProgramCardImages(request)) {
+      // If the program card images feature isn't enabled, don't make any changes to the admin page.
+      return div();
+    }
+    Optional<ImgTag> image =
+        programImageUtils.createProgramImage(
+            request, program, Locale.getDefault(), /* isWithinProgramCard= */ false);
+    if (image.isPresent()) {
+      return div().withClasses("w-16", "h-9").with(image.get());
+    } else {
+      // Show a grayed-out placeholder image if there's no program image.
+      return div().with(Icons.svg(Icons.IMAGE).withClasses("w-16", "h-9", "text-gray-300"));
+    }
   }
 
   public static Comparator<ProgramCardData> programTypeThenLastModifiedThenNameComparator() {
@@ -230,6 +266,8 @@ public final class ProgramCardFactory {
 
       abstract ImmutableList<ButtonTag> extraRowActions();
 
+      abstract Optional<String> universalQuestionsText();
+
       public static Builder builder() {
         return new AutoValue_ProgramCardFactory_ProgramCardData_ProgramRow.Builder();
       }
@@ -241,6 +279,8 @@ public final class ProgramCardFactory {
         public abstract Builder setRowActions(ImmutableList<ButtonTag> v);
 
         public abstract Builder setExtraRowActions(ImmutableList<ButtonTag> v);
+
+        public abstract Builder setUniversalQuestionsText(Optional<String> v);
 
         public abstract ProgramRow build();
       }

@@ -7,20 +7,20 @@
     "probe": "jest --testTimeout=180000 --forceExit --maxConcurrency=1 --runInBand"
   },
   "devDependencies": {
-    "@types/jest": "29.5.10",
-    "@types/jest-image-snapshot": "6.2.3",
-    "@types/node": "18.18.12",
-    "@typescript-eslint/eslint-plugin": "6.10.0",
-    "@typescript-eslint/parser": "6.10.0",
-    "axe-core": "4.8.2",
-    "axios": "1.6.2",
-    "eslint": "8.54.0",
+    "@types/jest": "29.5.12",
+    "@types/jest-image-snapshot": "6.4.0",
+    "@types/node": "20.11.16",
+    "@typescript-eslint/eslint-plugin": "6.20.0",
+    "@typescript-eslint/parser": "6.20.0",
+    "axe-core": "4.8.3",
+    "axios": "1.6.7",
+    "eslint": "8.56.0",
     "jest": "29.7.0",
-    "jest-image-snapshot": "6.2.0",
-    "playwright": "1.39.0",
-    "ts-jest": "29.1.1",
-    "ts-node": "10.9.1",
+    "jest-image-snapshot": "6.4.0",
+    "playwright": "1.41.2",
+    "ts-jest": "29.1.2",
+    "ts-node": "10.9.2",
     "ts-node-dev": "2.0.0",
-    "typescript": "5.2.2"
+    "typescript": "5.3.3"
   }
 }

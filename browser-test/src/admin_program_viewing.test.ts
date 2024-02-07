@@ -9,22 +9,15 @@ import {
 describe('admin program view page', () => {
   const ctx = createTestContext()
 
-  it('view active program, without draft and after creating draft', async () => {
+  it('view active program shows read only view', async () => {
     const {page, adminPrograms} = ctx
     await loginAsAdmin(page)
 
-    const programName = 'Apc program'
+    const programName = 'Active Program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.publishAllDrafts()
     await adminPrograms.gotoViewActiveProgramPage(programName)
     await validateScreenshot(page, 'program-read-only-view')
-    await adminPrograms.gotoAdminProgramsPage()
-    await validateScreenshot(page, 'program-list-only-one-active-program')
-    await adminPrograms.createNewVersion(programName)
-
-    await adminPrograms.gotoViewActiveProgramPage(programName)
-    await adminPrograms.gotoAdminProgramsPage()
-    await validateScreenshot(page, 'program-list-active-and-draft-program')
   })
 
   it('view draft program has edit image button if images flag on', async () => {
@@ -34,6 +27,7 @@ describe('admin program view page', () => {
 
     const programName = 'Draft Program'
     await adminPrograms.addProgram(programName)
+    await adminPrograms.gotoEditDraftProgramPage(programName)
 
     await validateScreenshot(page, 'program-draft-view-images-flag-on')
   })
@@ -45,6 +39,7 @@ describe('admin program view page', () => {
 
     const programName = 'Draft Program'
     await adminPrograms.addProgram(programName)
+    await adminPrograms.gotoEditDraftProgramPage(programName)
 
     await validateScreenshot(page, 'program-draft-view-images-flag-off')
   })
@@ -52,7 +47,6 @@ describe('admin program view page', () => {
   it('view program with universal questions', async () => {
     const {page, adminPrograms, adminQuestions} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'universal_questions')
 
     const programName = 'Program with universal questions'
     await adminQuestions.addTextQuestion({
@@ -92,6 +86,56 @@ describe('admin program view page', () => {
       true,
     )
     await validateScreenshot(page, 'program-view-universal-questions')
+  })
+
+  it('view program, view multiple blocks, then start editing with extra long screen name and description', async () => {
+    const {page, adminPrograms, adminQuestions} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'esri_address_correction_enabled')
+
+    const programName = 'Apc program'
+    await adminQuestions.addAddressQuestion({questionName: 'address-q'})
+
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.addProgramBlock(programName, 'screen 2 description', [])
+    await adminPrograms.editProgramBlockWithBlockName(
+      programName,
+      'Screen 2 ooooooooooooooooooooooooooooooooooooooooooooooooooo' +
+        'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' +
+        'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' +
+        'ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo',
+      'dummy description oooooooooooooooooooooooooooooooooooooo' +
+        'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' +
+        'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' +
+        'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' +
+        'ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo',
+      ['address-q'],
+    )
+    await adminPrograms.publishAllDrafts()
+
+    await adminPrograms.gotoViewActiveProgramPage(programName)
+
+    await adminPrograms.gotoToBlockInReadOnlyProgram('1')
+    await adminPrograms.expectReadOnlyProgramBlock('1')
+    await adminPrograms.gotoToBlockInReadOnlyProgram('2')
+    await adminPrograms.expectReadOnlyProgramBlock('2')
+
+    await adminPrograms.expectQuestionCardWithLabel(
+      'address-q',
+      'required question',
+    )
+    await validateScreenshot(
+      page,
+      'view-program-block-2-long-screen-name-and-description',
+    )
+
+    await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
+    await adminPrograms.expectProgramBlockEditPage(programName)
+
+    await validateScreenshot(
+      page,
+      'view-program-start-editing-extra-long-screen-name-and-description',
+    )
   })
 
   it('view program, view multiple blocks, then start editing', async () => {

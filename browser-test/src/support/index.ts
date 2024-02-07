@@ -5,14 +5,11 @@ import {
   chromium,
   Frame,
   Page,
-  PageScreenshotOptions,
-  LocatorScreenshotOptions,
   Locator,
   devices,
   BrowserContextOptions,
 } from 'playwright'
 import * as path from 'path'
-import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 import {waitForPageJsLoad} from './wait'
 import {
   BASE_URL,
@@ -294,7 +291,7 @@ export const logout = async (page: Page, closeToast = true) => {
   // page with civiform js where we should waitForPageJsLoad. Because
   // the process goes through a sequence of redirects we need to wait
   // for the final destination URL (the programs index page), to make tests reliable.
-  await page.waitForURL('**/applicants/**')
+  await page.waitForURL('**/programs')
   await validateToastMessage(page, 'Your session has ended.')
   if (closeToast) await dismissToast(page)
 }
@@ -383,7 +380,7 @@ async function loginAsTestUserAwsStaging(
   await page.fill('input[name=username]', TEST_USER_LOGIN)
   await page.fill('input[name=password]', TEST_USER_PASSWORD)
   await Promise.all([
-    page.waitForURL(isTi ? '**/admin/**' : '**/applicants/**', {
+    page.waitForURL(isTi ? '**/admin/**' : /.*\/programs.*/, {
       waitUntil: 'networkidle',
     }),
     // Auth0 has an additional hidden "Continue" button that does nothing for some reason
@@ -425,7 +422,7 @@ async function loginAsTestUserFakeOidc(
   // A screen is shown prompting the user to authorize a set of scopes.
   // This screen is skipped if the user has already logged in once.
   await Promise.all([
-    page.waitForURL(isTi ? '**/admin/**' : '**/applicants/**', {
+    page.waitForURL(isTi ? '**/admin/**' : /\/programs.*/, {
       waitUntil: 'networkidle',
     }),
     page.click('button:has-text("Continue")'),
@@ -513,11 +510,10 @@ export const validateAccessibility = async (page: Page) => {
 export const validateScreenshot = async (
   element: Page | Locator,
   screenshotFileName: string,
-  screenshotOptions?: PageScreenshotOptions | LocatorScreenshotOptions,
-  matchImageSnapshotOptions?: MatchImageSnapshotOptions,
   fullPage?: boolean,
+  mobileScreenshot?: boolean,
 ) => {
-  if (fullPage == null) {
+  if (fullPage === undefined) {
     fullPage = true
   }
 
@@ -541,11 +537,39 @@ export const validateScreenshot = async (
       window.scrollTo(0, 0)
     })
   }
+
   expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
+
+  await takeScreenshot(element, `${screenshotFileName}`, fullPage)
+
+  const existingWidth = page.viewportSize()?.width || 1280
+
+  if (mobileScreenshot) {
+    const height = page.viewportSize()?.height || 720
+    // Update the viewport size to different screen widths so we can test on a
+    // variety of sizes
+    await page.setViewportSize({width: 320, height})
+
+    await takeScreenshot(element, `${screenshotFileName}-mobile`, fullPage)
+
+    // Medium width
+    await page.setViewportSize({width: 800, height})
+
+    await takeScreenshot(element, `${screenshotFileName}-medium`, fullPage)
+
+    // Reset back to original width
+    await page.setViewportSize({width: existingWidth, height})
+  }
+}
+
+const takeScreenshot = async (
+  element: Page | Locator,
+  fullScreenshotFileName: string,
+  fullPage?: boolean,
+) => {
   expect(
     await element.screenshot({
       fullPage,
-      ...screenshotOptions,
     }),
   ).toMatchImageSnapshot({
     allowSizeMismatch: true,
@@ -557,9 +581,8 @@ export const validateScreenshot = async (
     customReceivedDir: 'updated_snapshots',
     customSnapshotIdentifier: ({testPath}) => {
       const dir = path.basename(testPath).replace('.test.ts', '_test')
-      return `${dir}/${screenshotFileName}`
+      return `${dir}/${fullScreenshotFileName}`
     },
-    ...matchImageSnapshotOptions,
   })
 }
 
@@ -647,4 +670,12 @@ export const extractEmailsForRecipient = async function (
 
   await page.goto(originalPageUrl)
   return filteredEmails
+}
+
+export const expectEnabled = async (page: Page, locator: string) => {
+  expect(await page.getAttribute(locator, 'disabled')).toBeNull()
+}
+
+export const expectDisabled = async (page: Page, locator: string) => {
+  expect(await page.getAttribute(locator, 'disabled')).not.toBeNull()
 }

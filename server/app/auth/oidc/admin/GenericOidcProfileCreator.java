@@ -54,7 +54,7 @@ public class GenericOidcProfileCreator extends CiviformOidcProfileCreator {
   private boolean isGlobalAdmin(OidcProfile profile) {
     @SuppressWarnings("unchecked")
     List<String> groups = (List) profile.getAttribute(this.groupsAttributeName);
-    return groups.contains(this.adminGroupName);
+    return groups != null && groups.contains(this.adminGroupName);
   }
 
   @Override

@@ -14,6 +14,7 @@ import play.http.HttpEntity;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
 import play.mvc.Http;
+import play.mvc.Result;
 
 /** This is a simple filter that produces an apache-style access log. */
 @Singleton
@@ -24,12 +25,23 @@ public class LoggingFilter extends EssentialFilter {
   private static final Logger log = LoggerFactory.getLogger("loggingfilter");
   private final Config config;
 
-  /** @param exec This class is needed to execute code asynchronously. */
+  /**
+   * @param exec This class is needed to execute code asynchronously.
+   */
   @Inject
   public LoggingFilter(Executor exec, Clock clock, Config config) {
     this.exec = checkNotNull(exec);
     this.clock = checkNotNull(clock);
     this.config = config;
+  }
+
+  private String statusWithOptionalRedirectLocation(Result result) {
+    int status = result.status();
+    if (status >= 300 && status < 400 && result.redirectLocation().isPresent()) {
+      return String.format("%d -> %s", status, result.redirectLocation().orElseThrow());
+    } else {
+      return String.valueOf(status);
+    }
   }
 
   /**
@@ -46,7 +58,11 @@ public class LoggingFilter extends EssentialFilter {
                   result -> {
                     long time = clock.millis() - startTime;
                     log.info(
-                        "{}\t{}\t{}ms\t{}", request.method(), request.uri(), time, result.status());
+                        "{}\t{}\t{}ms\t{}",
+                        request.method(),
+                        request.uri(),
+                        time,
+                        statusWithOptionalRedirectLocation(result));
                     if (config.getBoolean("filters.LoggingFilter.enable_request_session_logging")) {
                       log.info("request session values: {}", request.session().data().toString());
                     }

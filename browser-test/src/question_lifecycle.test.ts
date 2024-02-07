@@ -6,8 +6,6 @@ import {
   seedQuestions,
   validateScreenshot,
   waitForPageJsLoad,
-  enableFeatureFlag,
-  disableFeatureFlag,
 } from './support'
 import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
@@ -186,6 +184,34 @@ describe('normal question lifecycle', () => {
     expect(await adminNames[2].inputValue()).toContain('option1_admin')
     expect(await adminNames[3].inputValue()).toContain('option5_admin')
     expect(await adminNames[4].inputValue()).toContain('option4_admin')
+  })
+
+  it('shows markdown format correctly in the preview when creating a new question', async () => {
+    const {page, adminQuestions} = ctx
+    const questionName = 'markdown formatted question'
+
+    await loginAsAdmin(page)
+
+    await adminQuestions.createCheckboxQuestion({
+      questionName: questionName,
+      questionText: 'https://google.com **bold**',
+      helpText: '*italic* [link](https://test.com)',
+      options: [
+        {adminName: 'red_admin', text: 'red'},
+        {adminName: 'green_admin', text: 'green'},
+        {adminName: 'orange_admin', text: 'orange'},
+        {adminName: 'blue_admin', text: 'blue'},
+      ],
+    })
+
+    await adminQuestions.gotoQuestionEditPage(questionName)
+    expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
+      'https://google.com</a> <strong>bold</strong>',
+    )
+    expect(await page.innerHTML('.cf-applicant-question-help-text')).toContain(
+      '<em>italic</em>',
+    )
+    await validateScreenshot(page, 'question-with-markdown-formatted-preview')
   })
 
   it('shows error when creating a dropdown question and admin left an option field blank', async () => {
@@ -423,7 +449,6 @@ describe('normal question lifecycle', () => {
     // Since the flag is not enabled, the modal should not appear and you should be redirected to the admin questions page
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
 
-    await enableFeatureFlag(page, 'universal_questions')
     await adminQuestions.gotoQuestionEditPage(questionName)
     await adminQuestions.clickUniversalToggle()
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
@@ -446,7 +471,6 @@ describe('normal question lifecycle', () => {
       'Remove from universal questions',
     )
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
-    await disableFeatureFlag(page, 'universal_questions')
   })
 
   it('redirects to draft question when trying to edit original question', async () => {

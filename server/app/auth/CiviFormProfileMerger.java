@@ -1,5 +1,6 @@
 package auth;
 
+import auth.controllers.MissingOptionalException;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import javax.inject.Provider;
@@ -81,6 +82,15 @@ public final class CiviFormProfileMerger {
         // Merge the two applicants and prefer the newer one.
         guestProfile = Optional.of(mergeProfiles(applicantInDatabase.get(), guestProfile.get()));
       }
+      // Ideally, the applicant id would already be populated in `guestProfile`. However, there
+      // could be profiles in user sessions that were created before we started populating this
+      // info.
+      guestProfile
+          .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class))
+          .storeApplicantIdInProfile(
+              applicantInDatabase.orElseThrow(
+                      () -> new MissingOptionalException(ApplicantModel.class))
+                  .id);
     }
     return guestProfile;
   }

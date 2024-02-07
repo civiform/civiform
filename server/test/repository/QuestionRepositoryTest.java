@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableSet;
-import io.ebean.DB;
 import io.ebean.DataIntegrityException;
 import java.util.Locale;
 import java.util.Map;
@@ -15,6 +14,7 @@ import models.QuestionTag;
 import org.junit.Before;
 import org.junit.Test;
 import services.LocalizedStrings;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -248,28 +248,6 @@ public class QuestionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void loadLegacy() {
-    DB.sqlUpdate(
-            "insert into questions (name, description, legacy_question_text,"
-                + " legacy_question_help_text, question_type) values ('old schema"
-                + " entry', 'description', '{\"en_us\": \"text\"}', '{\"en_us\": \"help\"}',"
-                + " 'REPEATER');")
-        .execute();
-
-    QuestionModel found =
-        repo.listQuestions().toCompletableFuture().join().stream()
-            .filter(
-                question -> question.getQuestionDefinition().getName().equals("old schema entry"))
-            .findFirst()
-            .get();
-
-    assertThat(found.getQuestionDefinition().getQuestionText())
-        .isEqualTo(LocalizedStrings.of(Locale.US, "text"));
-    assertThat(found.getQuestionDefinition().getQuestionHelpText())
-        .isEqualTo(LocalizedStrings.of(Locale.US, "help"));
-  }
-
-  @Test
   public void createOrUpdateDraft_managesUniversalTagCorrectly()
       throws UnsupportedQuestionTypeException {
     // Question will be published in an ACTIVE version
@@ -298,5 +276,160 @@ public class QuestionRepositoryTest extends ResetPostgres {
         new QuestionDefinitionBuilder(question.getQuestionDefinition()).setUniversal(false).build();
     question = repo.createOrUpdateDraft(nextQuestionDefinition);
     assertThat(question.getQuestionTags().contains(QuestionTag.UNIVERSAL)).isFalse();
+  }
+
+  @Test
+  public void createOrUpdateDraft_managesPrimaryApplicantInfoTagsCorrectl()
+      throws UnsupportedQuestionTypeException {
+    QuestionModel nameQuestion = testQuestionBank.applicantName();
+    QuestionModel dateQuestion = testQuestionBank.applicantDate();
+    QuestionModel emailQuestion = testQuestionBank.applicantEmail();
+    QuestionModel phoneQuestion = testQuestionBank.applicantPhone();
+
+    // Create new draft, ensure tags are correct
+    QuestionDefinition nameQuestionDefinition = addTagToDefinition(nameQuestion);
+    QuestionDefinition dateQuestionDefinition = addTagToDefinition(dateQuestion);
+    QuestionDefinition emailQuestionDefinition = addTagToDefinition(emailQuestion);
+    QuestionDefinition phoneQuestionDefinition = addTagToDefinition(phoneQuestion);
+
+    nameQuestion = repo.createOrUpdateDraft(nameQuestionDefinition);
+    dateQuestion = repo.createOrUpdateDraft(dateQuestionDefinition);
+    emailQuestion = repo.createOrUpdateDraft(emailQuestionDefinition);
+    phoneQuestion = repo.createOrUpdateDraft(phoneQuestionDefinition);
+
+    assertThat(
+            nameQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_NAME.getQuestionTag()))
+        .isTrue();
+    assertThat(
+            dateQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_DOB.getQuestionTag()))
+        .isTrue();
+    assertThat(
+            emailQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_EMAIL.getQuestionTag()))
+        .isTrue();
+    assertThat(
+            phoneQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag()))
+        .isTrue();
+
+    versionRepo.publishNewSynchronizedVersion();
+
+    // Remove tags on a new draft and ensure they are removed
+    nameQuestionDefinition = removeTagsFromDefinition(nameQuestion);
+    dateQuestionDefinition = removeTagsFromDefinition(dateQuestion);
+    emailQuestionDefinition = removeTagsFromDefinition(emailQuestion);
+    phoneQuestionDefinition = removeTagsFromDefinition(phoneQuestion);
+
+    nameQuestion = repo.createOrUpdateDraft(nameQuestionDefinition);
+    dateQuestion = repo.createOrUpdateDraft(dateQuestionDefinition);
+    emailQuestion = repo.createOrUpdateDraft(emailQuestionDefinition);
+    phoneQuestion = repo.createOrUpdateDraft(phoneQuestionDefinition);
+
+    assertThat(
+            nameQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_NAME.getQuestionTag()))
+        .isFalse();
+    assertThat(
+            dateQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_DOB.getQuestionTag()))
+        .isFalse();
+    assertThat(
+            emailQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_EMAIL.getQuestionTag()))
+        .isFalse();
+    assertThat(
+            phoneQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag()))
+        .isFalse();
+
+    // Update existing draft, ensure tags are correct
+    nameQuestionDefinition = addTagToDefinition(nameQuestion);
+    dateQuestionDefinition = addTagToDefinition(dateQuestion);
+    emailQuestionDefinition = addTagToDefinition(emailQuestion);
+    phoneQuestionDefinition = addTagToDefinition(phoneQuestion);
+
+    nameQuestion = repo.createOrUpdateDraft(nameQuestionDefinition);
+    dateQuestion = repo.createOrUpdateDraft(dateQuestionDefinition);
+    emailQuestion = repo.createOrUpdateDraft(emailQuestionDefinition);
+    phoneQuestion = repo.createOrUpdateDraft(phoneQuestionDefinition);
+
+    assertThat(
+            nameQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_NAME.getQuestionTag()))
+        .isTrue();
+    assertThat(
+            dateQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_DOB.getQuestionTag()))
+        .isTrue();
+    assertThat(
+            emailQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_EMAIL.getQuestionTag()))
+        .isTrue();
+    assertThat(
+            phoneQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag()))
+        .isTrue();
+
+    // Ensure we can remove tags on an existing draft question
+    nameQuestionDefinition = removeTagsFromDefinition(nameQuestion);
+    dateQuestionDefinition = removeTagsFromDefinition(dateQuestion);
+    emailQuestionDefinition = removeTagsFromDefinition(emailQuestion);
+    phoneQuestionDefinition = removeTagsFromDefinition(phoneQuestion);
+
+    nameQuestion = repo.createOrUpdateDraft(nameQuestionDefinition);
+    dateQuestion = repo.createOrUpdateDraft(dateQuestionDefinition);
+    emailQuestion = repo.createOrUpdateDraft(emailQuestionDefinition);
+    phoneQuestion = repo.createOrUpdateDraft(phoneQuestionDefinition);
+
+    assertThat(
+            nameQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_NAME.getQuestionTag()))
+        .isFalse();
+    assertThat(
+            dateQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_DOB.getQuestionTag()))
+        .isFalse();
+    assertThat(
+            emailQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_EMAIL.getQuestionTag()))
+        .isFalse();
+    assertThat(
+            phoneQuestion
+                .getQuestionTags()
+                .contains(PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag()))
+        .isFalse();
+  }
+
+  private QuestionDefinition addTagToDefinition(QuestionModel question)
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinition definition = question.getQuestionDefinition();
+    return new QuestionDefinitionBuilder(definition)
+        .setPrimaryApplicantInfoTags(
+            PrimaryApplicantInfoTag.getAllTagsForQuestionType(definition.getQuestionType()))
+        .build();
+  }
+
+  private QuestionDefinition removeTagsFromDefinition(QuestionModel question)
+      throws UnsupportedQuestionTypeException {
+    return new QuestionDefinitionBuilder(question.getQuestionDefinition())
+        .setPrimaryApplicantInfoTags(ImmutableSet.of())
+        .build();
   }
 }

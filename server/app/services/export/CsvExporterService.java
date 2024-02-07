@@ -118,7 +118,7 @@ public final class CsvExporterService {
           programService.getSubmittedProgramApplications(programDefinition.id())) {
         applicantService
             .getReadOnlyApplicantProgramService(application, programDefinition)
-            .getSummaryData()
+            .getSummaryDataOnlyActive()
             .forEach(data -> answerMap.putIfAbsent(data.contextualizedPath(), data));
       }
     }
@@ -227,7 +227,7 @@ public final class CsvExporterService {
               .toCompletableFuture()
               .join();
       roApplicantService
-          .getSummaryData()
+          .getSummaryDataOnlyActive()
           .forEach(data -> answerMap.putIfAbsent(answerDataKey(data), data));
     }
 

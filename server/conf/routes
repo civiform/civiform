@@ -6,8 +6,10 @@
 GET /*path/ controllers.UntrailingController.untrail(path: String)
 
 # Redirect automatic requests from the browser to the specified favicon.
-GET     /favicon.ico    controllers.HomeController.favicon()
-GET     /favicon.png    controllers.HomeController.favicon()
+GET     /favicon.ico                         controllers.HomeController.favicon()
+GET     /favicon.png                         controllers.HomeController.favicon()
+GET     /apple-touch-icon.png                controllers.HomeController.favicon()
+GET     /apple-touch-icon-precomposed.png    controllers.HomeController.favicon()
 
 # The landing page
 GET     /                           controllers.HomeController.index(request: Request)
@@ -17,7 +19,7 @@ GET     /securePlayIndex            controllers.HomeController.securePlayIndex()
 # A controller for pages for an admin to create and maintain programs
 GET     /admin/programs                                         controllers.admin.AdminProgramController.index(request: Request)
 GET     /admin/programs/new                                     controllers.admin.AdminProgramController.newOne(request: Request)
-GET     /admin/programs/:programId/edit                         controllers.admin.AdminProgramController.edit(request: Request, programId: Long)
+GET     /admin/programs/:programId/edit/:editStatus                         controllers.admin.AdminProgramController.edit(request: Request, programId: Long, editStatus: String)
 GET     /admin/programs/:programId/preview                      controllers.admin.AdminProgramPreviewController.preview(request: Request, programId: Long)
 GET     /admin/programs/:programId/back                         controllers.admin.AdminProgramPreviewController.back(request: Request, programId: Long)
 GET     /admin/programs/:programId/settings/edit                controllers.admin.AdminProgramController.editProgramSettings(request: Request, programId: Long)
@@ -25,7 +27,7 @@ POST    /admin/programs/:programId/newVersion                   controllers.admi
 POST    /admin/programs                                         controllers.admin.AdminProgramController.create(request: Request)
 POST    /admin/programs/publish                                 controllers.admin.AdminProgramController.publish()
 POST    /admin/programs/:programId/publish                      controllers.admin.AdminProgramController.publishProgram(request: Request, programId: Long)
-POST    /admin/programs/:programId                              controllers.admin.AdminProgramController.update(request: Request, programId: Long)
+POST    /admin/programs/:programId/update/:editStatus     controllers.admin.AdminProgramController.update(request: Request, programId: Long, editStatus: String)
 POST    /admin/programs/:programId/setEligibilityIsGating       controllers.admin.AdminProgramController.setEligibilityIsGating(request: Request, programId: Long)
 
 # Routes for a CiviForm admin to manage program admins for a given program.
@@ -91,8 +93,10 @@ GET     /admin/questions/:questionName/translations/:locale/edit  controllers.ad
 POST    /admin/questions/:questionName/translations/:locale       controllers.admin.AdminQuestionTranslationsController.update(request: Request, questionName: String, locale: String)
 
 # Routes for a CiviForm admin to manage program image
-GET     /admin/programs/:programId/image             controllers.admin.AdminProgramImageController.index(request: Request, programId: Long)
-POST    /admin/programs/:programId/image/description controllers.admin.AdminProgramImageController.updateDescription(request: Request, programId: Long)
+GET     /admin/programs/:programId/image/:editStatus             controllers.admin.AdminProgramImageController.index(request: Request, programId: Long, editStatus: String)
+POST    /admin/programs/:programId/image/description/:editStatus  controllers.admin.AdminProgramImageController.updateDescription(request: Request, programId: Long, editStatus: String)
+GET /admin/programs/:programId/image/file/:editStatus                     controllers.admin.AdminProgramImageController.updateFileKey(request: Request, programId: Long, editStatus: String)
+POST    /admin/programs/:programId/image/file/delete/:editStatus  controllers.admin.AdminProgramImageController.deleteFileKey(request: Request, programId: Long, editStatus: String)
 
 # Trusted Intermediary routes
 GET     /admin/tiGroups                    controllers.admin.TrustedIntermediaryManagementController.index(request: Request)
@@ -104,7 +108,8 @@ POST    /admin/tiGroups/:id/removeTi       controllers.admin.TrustedIntermediary
 
 GET     /admin/tiDash                                         controllers.ti.TrustedIntermediaryController.dashboard(request: Request, nameQuery: java.util.Optional[String], dateQuery: java.util.Optional[String], page: java.util.Optional[Integer])
 POST    /admin/tiGroups/:id/addApplicant                      controllers.ti.TrustedIntermediaryController.addApplicant(id: Long, request: Request)
-POST    /admin/tiGroups/updateDateOfBirth/:accountId          controllers.ti.TrustedIntermediaryController.updateDateOfBirth(accountId: Long, request: Request)
+GET     /admin/tiGroups/editClient/:accountId                 controllers.ti.TrustedIntermediaryController.editClient(accountId: Long, request: Request)
+POST    /admin/tiGroups/updateClientInfo/:id                  controllers.ti.TrustedIntermediaryController.updateClientInfo(id: Long, request: Request)
 
 # Controller for admins only, related to applications
 GET     /admin/programs/:programId/applications                             controllers.admin.AdminApplicationController.index(request: Request, programId: Long, search: java.util.Optional[String], page: java.util.Optional[Integer], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], applicationStatus: java.util.Optional[String], selectedApplicationUri: java.util.Optional[String])
@@ -147,18 +152,41 @@ GET     /assets/*file               controllers.Assets.versioned(file)
 GET     /applicants/:applicantId/edit                                       controllers.applicant.ApplicantInformationController.setLangFromBrowser(request: Request, applicantId: Long)
 POST    /applicants/:applicantId                                            controllers.applicant.ApplicantInformationController.setLangFromSwitcher(request: Request, applicantId: Long)
 
-# Program methods for applicants
-GET     /applicants/:applicantId/programs                                                      controllers.applicant.ApplicantProgramsController.index(request: Request, applicantId: Long)
-GET     /applicants/:applicantId/programs/:programId                                           controllers.applicant.ApplicantProgramsController.view(request: Request, applicantId: Long, programId: Long)
-GET     /applicants/:applicantId/programs/:programId/edit                                      controllers.applicant.ApplicantProgramsController.edit(request: Request, applicantId: Long, programId: Long)
-GET     /applicants/:applicantId/programs/:programId/review                                    controllers.applicant.ApplicantProgramReviewController.review(request: Request, applicantId: Long, programId: Long)
-POST    /applicants/:applicantId/programs/:programId/submit                                    controllers.applicant.ApplicantProgramReviewController.submit(request: Request, applicantId: Long, programId: Long)
-GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit                      controllers.applicant.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: String, questionName: java.util.Optional[String])
-GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/review                    controllers.applicant.ApplicantProgramBlocksController.review(request: Request, applicantId: Long, programId: Long, blockId: String, questionName: java.util.Optional[String])
-POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/confirmAddress/:inReview  controllers.applicant.ApplicantProgramBlocksController.confirmAddress(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
-GET     /applicants/:applicantId/programs/:programId/blocks/:blockIndex/previous/:inReview     controllers.applicant.ApplicantProgramBlocksController.previous(request: Request, applicantId: Long, programId: Long, blockIndex: Int, inReview: Boolean)
-GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/updateFile/:inReview      controllers.applicant.ApplicantProgramBlocksController.updateFile(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
-POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview                 controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
+# Program methods for applicants (new)
+GET     /programs                   controllers.applicant.ApplicantProgramsController.index(request: Request)
+GET     /programs/:programId/edit   controllers.applicant.ApplicantProgramsController.edit(request: Request, programId: Long)
+GET     /programs/:programId/review controllers.applicant.ApplicantProgramReviewController.review(request: Request, programId: Long)
+POST    /programs/:programId/submit controllers.applicant.ApplicantProgramReviewController.submit(request: Request, programId: Long)
+GET     /programs/:programId/blocks/:blockId/edit                      controllers.applicant.ApplicantProgramBlocksController.edit(request: Request, programId: Long, blockId: String, questionName: java.util.Optional[String])
+GET     /programs/:programId/blocks/:blockId/review                    controllers.applicant.ApplicantProgramBlocksController.review(request: Request, programId: Long, blockId: String, questionName: java.util.Optional[String])
+POST    /programs/:programId/blocks/:blockId/confirmAddress/:inReview  controllers.applicant.ApplicantProgramBlocksController.confirmAddress(request: Request, programId: Long, blockId: String, inReview: Boolean)
+GET     /programs/:programId/blocks/:previousBlockIndex/previous/:inReview     controllers.applicant.ApplicantProgramBlocksController.previous(request: Request, programId: Long, previousBlockIndex: Int, inReview: Boolean)
+GET     /programs/:programId/blocks/:blockId/updateFile/:inReview      controllers.applicant.ApplicantProgramBlocksController.updateFile(request: Request, programId: Long, blockId: String, inReview: Boolean)
+POST    /programs/:programId/blocks/:blockId/:inReview                 controllers.applicant.ApplicantProgramBlocksController.update(request: Request, programId: Long, blockId: String, inReview: Boolean)
+
+# This route is special. It may specify a program by id or by program
+# slug. Since Play doesn't allow overloaded controller methods, accept
+# the path parameter as a string and decide how to handle it in the
+# controller.
+GET     /programs/:programParam     controllers.applicant.ApplicantProgramsController.show(request: Request, programParam: String)
+
+# Program methods for TI actions on behalf of applicants.
+#
+# Also: Program methods for applicants (legacy). Maintained for now
+# because some applicants will have profiles in the sessions that
+# do not yet contain the applicant id, so we maintain these routes
+# during migration.
+GET     /applicants/:applicantId/programs                                                      controllers.applicant.ApplicantProgramsController.indexWithApplicantId(request: Request, applicantId: Long)
+GET     /applicants/:applicantId/programs/:programId                                           controllers.applicant.ApplicantProgramsController.showWithApplicantId(request: Request, applicantId: Long, programId: Long)
+GET     /applicants/:applicantId/programs/:programId/edit                                      controllers.applicant.ApplicantProgramsController.editWithApplicantId(request: Request, applicantId: Long, programId: Long)
+GET     /applicants/:applicantId/programs/:programId/review                                    controllers.applicant.ApplicantProgramReviewController.reviewWithApplicantId(request: Request, applicantId: Long, programId: Long)
+POST    /applicants/:applicantId/programs/:programId/submit                                    controllers.applicant.ApplicantProgramReviewController.submitWithApplicantId(request: Request, applicantId: Long, programId: Long)
+GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit                      controllers.applicant.ApplicantProgramBlocksController.editWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, questionName: java.util.Optional[String])
+GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/review                    controllers.applicant.ApplicantProgramBlocksController.reviewWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, questionName: java.util.Optional[String])
+POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/confirmAddress/:inReview  controllers.applicant.ApplicantProgramBlocksController.confirmAddressWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
+GET     /applicants/:applicantId/programs/:programId/blocks/:previousBlockIndex/previous/:inReview     controllers.applicant.ApplicantProgramBlocksController.previousWithApplicantId(request: Request, applicantId: Long, programId: Long, previousBlockIndex: Int, inReview: Boolean)
+GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/updateFile/:inReview      controllers.applicant.ApplicantProgramBlocksController.updateFileWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
+POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview                 controllers.applicant.ApplicantProgramBlocksController.updateWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
 
 # API
 GET     /api/v1/checkAuth                                   controllers.api.CiviFormApiController.checkAuth()
@@ -173,9 +201,6 @@ GET     /support/unsupportedBrowser    controllers.SupportController.handleUnsup
 
 # Methods for program admins
 GET     /programAdmin       controllers.admin.ProgramAdminController.index(request: Request)
-
-# Deep-link methods
-GET     /programs/:programSlug      controllers.applicant.DeepLinkController.programBySlug(request: Request, programSlug: String)
 
 # Upsell methods
 GET     /download                   controllers.applicant.UpsellController.download(request: Request, applicationId: Long, applicantId: Long)
@@ -211,6 +236,7 @@ GET     /logout                      @org.pac4j.play.LogoutController.logout(req
 ## Methods for development
 # Seed the database with test content to develop against, and clear the database
 GET     /dev/seed                        controllers.dev.seeding.DevDatabaseSeedController.index(request: Request)
+GET     /dev/seed/data                   controllers.dev.seeding.DevDatabaseSeedController.data(request: Request)
 POST    /dev/seedQuestions               controllers.dev.seeding.DevDatabaseSeedController.seedQuestions()
 POST    /dev/seedPrograms                controllers.dev.seeding.DevDatabaseSeedController.seedPrograms()
 POST    /dev/seed/clear                  controllers.dev.seeding.DevDatabaseSeedController.clear()
@@ -220,6 +246,9 @@ GET     /dev/icons                       controllers.dev.IconsController.index(r
 # Change feature flags.
 GET     /dev/feature/:flag/disable     controllers.dev.FeatureFlagOverrideController.disable(request: Request, flag: String)
 GET     /dev/feature/:flag/enable      controllers.dev.FeatureFlagOverrideController.enable(request: Request, flag: String)
+
+# Display user profile
+GET     /dev/profile                   controllers.dev.ProfileController.index(request: Request)
 
 ## Prometheus metrics export
 GET     /metrics          controllers.monitoring.MetricsController.getMetrics()

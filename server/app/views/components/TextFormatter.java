@@ -112,10 +112,18 @@ public final class TextFormatter {
 
   private static String addRequiredIndicator(String markdownText) {
     int indexOfClosingTag = markdownText.lastIndexOf("</");
-    String closingTag = markdownText.substring(indexOfClosingTag);
-    String stringWithRequiredIndicator =
-        ViewUtils.requiredQuestionIndicator().toString().concat(closingTag);
-    return markdownText.substring(0, indexOfClosingTag) + stringWithRequiredIndicator;
+    String insertTextAfterRequiredIndicator = markdownText.substring(indexOfClosingTag);
+    // For required questions that end in a list, we want the required indicator to show up at
+    // the end of the paragraph that precedes the list
+    if (insertTextAfterRequiredIndicator.contains("ul")) {
+      int indexOfOpeningUlTag = markdownText.lastIndexOf("<ul");
+      String substringWithoutList = markdownText.substring(0, indexOfOpeningUlTag);
+      indexOfClosingTag = substringWithoutList.lastIndexOf("</");
+      insertTextAfterRequiredIndicator = markdownText.substring(indexOfClosingTag);
+    }
+    String markdownWithRequiredIndicator =
+        ViewUtils.requiredQuestionIndicator().toString().concat(insertTextAfterRequiredIndicator);
+    return markdownText.substring(0, indexOfClosingTag) + markdownWithRequiredIndicator;
   }
 
   private static String sanitizeHtml(String markdownText) {
@@ -150,7 +158,7 @@ public final class TextFormatter {
             .toFactory();
 
     PolicyFactory policy = customPolicy.and(Sanitizers.LINKS);
-    return policy.sanitize(markdownText, buildHtmlChangeListener(), /*context=*/ null);
+    return policy.sanitize(markdownText, buildHtmlChangeListener(), /* context= */ null);
   }
 
   private static HtmlChangeListener<Object> buildHtmlChangeListener() {

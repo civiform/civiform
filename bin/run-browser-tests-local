@@ -7,7 +7,7 @@ source bin/lib.sh
 # machine which can be different from the browser used by browser-test docker
 # image and produce different screenshots.
 export DISABLE_SCREENSHOTS=true
-export BASE_URL=http://localhost:9999
+export BASE_URL="${BASE_URL:-http://localhost:9999}"
 export LOCALSTACK_URL=http://localhost.localstack.cloud:6645
 
 cd browser-test

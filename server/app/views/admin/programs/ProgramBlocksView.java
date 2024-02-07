@@ -312,6 +312,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   "px-" + listIndentationFactor,
                   "border",
                   "border-white",
+                  "max-w-md",
                   StyleUtils.hover("border-gray-300"),
                   selectedClasses);
       String switchBlockLink;
@@ -426,8 +427,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     DivTag blockInfoDisplay =
         div()
-            .with(div(blockForm.getName()).withClasses("text-xl", "font-bold", "py-2"))
-            .with(div(blockForm.getDescription()).withClasses("text-lg", "max-w-prose"))
+            .with(div(blockForm.getName()).withClasses("text-xl", "font-bold", "py-2", "break-all"))
+            .with(
+                div(blockForm.getDescription()).withClasses("text-lg", "max-w-prose", "break-all"))
             .withId("block-info-display-" + blockDefinition.id())
             .withClasses("my-4");
 

@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
@@ -17,6 +18,7 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
+import j2html.tags.specialized.H2Tag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.PTag;
 import j2html.tags.specialized.SpanTag;
@@ -42,6 +44,10 @@ public abstract class BaseHtmlView {
 
   public static H1Tag renderHeader(String headerText, String... additionalClasses) {
     return h1(headerText).withClasses("mb-4", StyleUtils.joinStyles(additionalClasses));
+  }
+
+  public static H2Tag renderSubHeader(String headerText, String... additionalClasses) {
+    return h2(headerText).withClasses("mb-4", StyleUtils.joinStyles(additionalClasses));
   }
 
   public static DivTag fieldErrors(
@@ -88,7 +94,7 @@ public abstract class BaseHtmlView {
    *
    * @return The element itself.
    */
-  protected static <T extends Tag> T asRedirectElement(T element, String redirectUrl) {
+  public static <T extends Tag> T asRedirectElement(T element, String redirectUrl) {
     // Attribute `data-redirect-to` is handled in JS by main.ts file.
     element.attr("data-redirect-to", redirectUrl);
     return element;

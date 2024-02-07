@@ -4,9 +4,10 @@
 # DOC: Builds for "linux/amd64" unless PLATFORM is set
 # DOC: Optional environment variables:
 # DOC:   PUSH_IMAGE - Push the newly built image to Docker Hub if set to any value. Default: no value
-# DOC:   NAMESPACE  - Overrides the default docker namespace of civiform: Default: civiform
+# DOC:   NAMESPACE  - Overrides the default docker namespace of civiform. To push
+# DOC:                to an alternative registry include it in the NAMESPACE.
+# DOC:                Example: ghcr.io/civiform/civiform would push to to GitHub container registry
 # DOC:   PLATFORM   - Platform architechture to build (e.g. linux/amd64, arm64v8). Default: linux/amd64
-# DOC: Does not support pushing to alternate registries
 
 source bin/lib.sh
 
@@ -23,10 +24,10 @@ readonly HOST_CPU_ARCH="$(docker info --format='{{.Architecture}}')"
 
 echo "Building ${SNAPSHOT_TAG}..."
 
-BUILD_ARGS=(-f "${DOCKERFILE}"
-  -t "${NAMESPACE}/${IMAGE}"
-  -t "${NAMESPACE}/${IMAGE}:latest"
-  -t "${NAMESPACE}/${IMAGE}:${SNAPSHOT_TAG}"
+BUILD_ARGS=(--file "${DOCKERFILE}"
+  --tag "${NAMESPACE}/${IMAGE}"
+  --tag "${NAMESPACE}/${IMAGE}:latest"
+  --tag "${NAMESPACE}/${IMAGE}:${SNAPSHOT_TAG}"
   --cache-from "${NAMESPACE}/${IMAGE}"
   --build-arg BUILDKIT_INLINE_CACHE=1
   --build-arg git_commit_sha="${GIT_SHA}"

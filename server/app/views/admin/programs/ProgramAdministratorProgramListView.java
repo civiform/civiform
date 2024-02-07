@@ -115,7 +115,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
   private ButtonTag renderShareLink(ProgramDefinition program) {
     String programLink =
         baseUrl
-            + controllers.applicant.routes.DeepLinkController.programBySlug(program.slug()).url();
+            + controllers.applicant.routes.ApplicantProgramsController.show(program.slug()).url();
     return makeSvgTextButton("Share link", Icons.CONTENT_COPY)
         .withClass(ButtonStyles.CLEAR_WITH_ICON)
         .withData("copyable-program-link", programLink);

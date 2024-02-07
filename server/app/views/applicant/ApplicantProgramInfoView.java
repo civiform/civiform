@@ -6,8 +6,10 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.span;
 
+import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
@@ -31,10 +33,12 @@ import views.style.ReferenceClasses;
 public class ApplicantProgramInfoView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
-  public ApplicantProgramInfoView(ApplicantLayout layout) {
+  public ApplicantProgramInfoView(ApplicantLayout layout, ApplicantRoutes applicantRoutes) {
     this.layout = checkNotNull(layout);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   public Content render(
@@ -42,7 +46,8 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
       ProgramDefinition program,
       Http.Request request,
       long applicantId,
-      ApplicantPersonalInfo personalInfo) {
+      ApplicantPersonalInfo personalInfo,
+      CiviFormProfile profile) {
 
     Locale preferredLocale = messages.lang().toLocale();
     String programTitle = program.localizedName().getOrDefault(preferredLocale);
@@ -53,7 +58,7 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
             .getBundle(request)
             .addMainStyles("mx-12", "my-8")
             .addMainContent(topContent(programTitle, programInfo, messages))
-            .addMainContent(createButtons(applicantId, program.id(), messages));
+            .addMainContent(createButtons(applicantId, program.id(), messages, profile));
 
     return layout.renderWithNav(request, personalInfo, messages, bundle, applicantId);
   }
@@ -71,22 +76,24 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
     H1Tag titleDiv =
         h1().withText(programTitle)
             .withClasses(
-                BaseStyles.TEXT_SEATTLE_BLUE, "text-2xl", "font-semibold", "text-gray-700", "mt-4");
+                BaseStyles.TEXT_CIVIFORM_BLUE,
+                "text-2xl",
+                "font-semibold",
+                "text-gray-700",
+                "mt-4");
 
     // "Markdown" the program description.
     ImmutableList<DomContent> items =
         TextFormatter.formatText(
-            programInfo, /*preserveEmptyLines= */ true, /*addRequiredIndicator= */ false, messages);
-
+            programInfo, /* preserveEmptyLines= */ true, /* addRequiredIndicator= */ false, messages);
     DivTag descriptionDiv = div().withClasses("py-2").with(items);
 
     return div(allProgramsDiv, titleDiv, descriptionDiv);
   }
 
-  private DivTag createButtons(Long applicantId, Long programId, Messages messages) {
-    String applyUrl =
-        controllers.applicant.routes.ApplicantProgramReviewController.review(applicantId, programId)
-            .url();
+  private DivTag createButtons(
+      Long applicantId, Long programId, Messages messages, CiviFormProfile profile) {
+    String applyUrl = applicantRoutes.review(profile, applicantId, programId).url();
     ATag applyLink =
         a().withText(messages.at(MessageKey.BUTTON_APPLY.getKeyName()))
             .withHref(applyUrl)

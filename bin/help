@@ -1,36 +1,105 @@
 #! /usr/bin/env bash
 
 # DOC: Print descriptions of each bin script.
+# DOC: Use -h for help to show optional usage flags
 
 source bin/lib.sh
 
-missing=""
+function print_help {
+  echo "Usage: 
+  ${0} [options] 
 
-for f in bin/* bin/**/*; do
-  # Files containing library code for scripts have .sh or .py file extension,
-  # don't include those or directories.
-  if [[ -d "${f}" || "${f}" =~ .+\.sh || "${f}" =~ .+\.py ]]; then
-    continue
-  fi
+OPTIONS
+  -h    shows this help message
+  -n    disable colorized output 
+  -s    print file name and help text on the same line (useful for grep)"
+}
 
-  help=$(cat $f | { grep "DOC\:" || true; })
+# Get arguments
+NO_COLOR_OUTPUT="false"
+SINGLE_LINE_OUTPUT="false"
 
-  if [[ -z $help ]]; then
-    out::column_print 40 "$f" "MISSING DOCSTRING"
-    missing="${f}"
-    continue
-  fi
-
-  help_without_prefix=$(echo "$help" | sed -e "s/^\# DOC\: //")
-
-  out::column_print 40 "$f" "$help_without_prefix"
+while getopts "hns" opt; do
+  case "${opt}" in
+    h)
+      print_help
+      exit 0
+      ;;
+    n)
+      NO_COLOR_OUTPUT="true"
+      ;;
+    s)
+      SINGLE_LINE_OUTPUT="true"
+      ;;
+    *)
+      break
+      ;;
+  esac
 done
 
-if [[ -z "${missing}" ]]; then
-  exit 0
+# Set up variables
+FILENAME_SEPARATOR="\n"
+
+if [[ "${SINGLE_LINE_OUTPUT}" == "true" ]]; then
+  FILENAME_SEPARATOR=" "
 fi
 
-echo
-out::error "${missing} is missing a docstring. Please fix."
+# Define variables with ANSI color codes to enable color output
+COLOR_FILENAME="\033[0;35m" # 35 is magenta unless the pc overrides the color
+COLOR_ERROR="\033[0;31m"    # 31 is red unless the pc overrides the color
+COLOR_RESET="\033[0m"       # This is the reset code to set output back to default color
 
-exit 1
+# Set the ANSI color code variables to nothing in order to print without color
+if [[ "${NO_COLOR_OUTPUT}" == "true" ]]; then
+  COLOR_FILENAME=""
+  COLOR_ERROR=""
+  COLOR_RESET=""
+fi
+
+# Make variables readonly
+readonly NO_COLOR_OUTPUT
+readonly SINGLE_LINE_OUTPUT
+readonly COLOR_FILENAME
+readonly COLOR_ERROR
+readonly COLOR_RESET
+
+# Begin work
+FILES_MISSING_DOCSTRING=()
+
+# Get a sorted list of potential files with help text
+HELP_FILES="$(find bin \
+  -type f \
+  -not -iname '*.sh' \
+  -not -iname "*.py" \
+  -not -iname "*.pyc" \
+  | sort)"
+
+while read -r HELP_FILE; do
+  # Pull the help text from the file and remove the doc string token for easier reading
+  HELP_TEXT="$(grep --regexp "^# DOC\:" "${HELP_FILE}" \
+    | sed -e "s/^\# DOC\: //")"
+
+  # Remove extra lines break when in single line mode
+  if [[ "${SINGLE_LINE_OUTPUT}" == "true" ]]; then
+    HELP_TEXT="$(echo "${HELP_TEXT}" | awk 1 ORS=" ")"
+  fi
+
+  # Print formatted string of file name and help text when there is help text found or
+  # store the file in the missing list
+  if [[ -n "${HELP_TEXT}" ]]; then
+    printf "%b%s\n\n" "${COLOR_FILENAME}${HELP_FILE}${COLOR_RESET}${FILENAME_SEPARATOR}" "${HELP_TEXT}"
+  else
+    FILES_MISSING_DOCSTRING+=("${HELP_FILE}")
+  fi
+done <<<"${HELP_FILES}"
+
+# Print a full list of files that are missing help text
+if [[ "${#FILES_MISSING_DOCSTRING[@]}" -gt 0 ]]; then
+  printf "%b\n" "${COLOR_ERROR}----------------------------------------------------------${COLOR_RESET}"
+  printf "%b\n" "${COLOR_ERROR}The following file(s) are missing a docstring. Please fix.${COLOR_RESET}"
+  printf "%b\n" "${COLOR_ERROR}----------------------------------------------------------${COLOR_RESET}"
+  printf "* %s\n" "${FILES_MISSING_DOCSTRING[@]}"
+  exit 1
+fi
+
+exit 0

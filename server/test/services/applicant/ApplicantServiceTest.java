@@ -836,6 +836,9 @@ public class ApplicantServiceTest extends ResetPostgres {
                         .build()))
             .getResult();
 
+    // Publish version and fetch results
+    versionRepository.publishNewSynchronizedVersion();
+
     ProgramModel firstProgram =
         ProgramBuilder.newActiveProgram("first test program", "desc")
             .withBlock()
@@ -2567,8 +2570,6 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    // Publish version and fetch results
-    versionRepository.publishNewSynchronizedVersion();
     var result =
         subject
             .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
@@ -2587,7 +2588,6 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
 
-    System.out.println("reemax setting up pqs");
     // Set up program and questions
     NameQuestionDefinition eligibleQuestion =
         createNameQuestion("question_with_matching_eligibility");
@@ -2619,7 +2619,6 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
     programWithEligibleAndIneligibleAnswers.save();
     versionRepository.publishNewSynchronizedVersion();
-    System.out.println("published 1");
 
     // Fill out application
     answerNameQuestion(
@@ -2634,7 +2633,6 @@ public class ApplicantServiceTest extends ResetPostgres {
             .id(),
         applicant.id,
         programWithEligibleAndIneligibleAnswers.id);
-    System.out.println("answered 1");
     answerNameQuestion(
         ineligibleQuestion,
         "Solána",
@@ -2648,18 +2646,12 @@ public class ApplicantServiceTest extends ResetPostgres {
         applicant.id,
         programWithEligibleAndIneligibleAnswers.id);
 
-    System.out.println("answered 2");
-
     applicationRepository
         .submitApplication(
             applicant.id, programWithEligibleAndIneligibleAnswers.id, Optional.empty())
         .toCompletableFuture()
         .join();
-    System.out.println("submitted ");
 
-    // Publish version and fetch results
-    versionRepository.publishNewSynchronizedVersion();
-    System.out.println("publish2");
     var result =
         subject
             .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
@@ -2714,8 +2706,6 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    // Publish version and fetch results
-    versionRepository.publishNewSynchronizedVersion();
     var result =
         subject
             .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
@@ -2763,8 +2753,6 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    // Publish version and fetch results
-    versionRepository.publishNewSynchronizedVersion();
     var result =
         subject
             .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
@@ -3079,7 +3067,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 program.id,
                 String.valueOf(blockDefinition.id()),
-                addressSuggestion1.getSingleLineAddress(),
+                Optional.of(addressSuggestion1.getSingleLineAddress()),
                 addressSuggestionList)
             .toCompletableFuture()
             .get();
@@ -3187,7 +3175,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 program.id,
                 String.valueOf(blockDefinition.id()),
-                AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE,
+                Optional.of(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE),
                 addressSuggestionList)
             .toCompletableFuture()
             .get();
@@ -3272,20 +3260,36 @@ public class ApplicantServiceTest extends ResetPostgres {
     ImmutableList<AddressSuggestion> addressSuggestionList =
         ImmutableList.of(addressSuggestion1, addressSuggestion2);
 
-    // Act
+    // Act - Tests with invalid value
     ImmutableMap<String, String> correctedAddress =
         subject
             .getCorrectedAddress(
                 applicant.id,
                 program.id,
                 String.valueOf(blockDefinition.id()),
-                "asdf",
+                Optional.of("asdf"),
                 addressSuggestionList)
             .toCompletableFuture()
             .get();
 
     // Assert
     assertThat(correctedAddress.get(addressQuestion.getCorrectedPath().toString()))
+        .isEqualTo(CorrectedAddressState.FAILED.getSerializationFormat());
+
+    // Act - Tests with null
+    ImmutableMap<String, String> correctedAddressWithNull =
+        subject
+            .getCorrectedAddress(
+                applicant.id,
+                program.id,
+                String.valueOf(blockDefinition.id()),
+                Optional.ofNullable(null),
+                addressSuggestionList)
+            .toCompletableFuture()
+            .get();
+
+    // Assert
+    assertThat(correctedAddressWithNull.get(addressQuestion.getCorrectedPath().toString()))
         .isEqualTo(CorrectedAddressState.FAILED.getSerializationFormat());
   }
 

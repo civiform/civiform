@@ -5,12 +5,12 @@ import static views.questiontypes.ApplicantQuestionRendererParams.AutoFocusTarge
 import static views.questiontypes.ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD;
 import static views.questiontypes.ApplicantQuestionRendererParams.AutoFocusTarget.NONE;
 
+import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
 import org.junit.Test;
 import org.mockito.Mockito;
 import repository.ResetPostgres;
 import services.question.types.QuestionDefinition;
-import views.FileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
@@ -18,15 +18,14 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
 
   private static QuestionDefinition ADDRESS_QD =
       testQuestionBank.applicantAddress().getQuestionDefinition();
-  // While mocking is generally discouraged, some tests in this file don't need c'tor so mocking
-  // them is a
-  // convenient way to construct an instance of the class under test. The mocks are
-  // not otherwise used.
+  private static ApplicantRoutes applicantRoutes = new ApplicantRoutes();
+
   private static ApplicantProgramBlockEditView EMPTY_VIEW =
       new ApplicantProgramBlockEditView(
           Mockito.mock(ApplicantLayout.class),
-          Mockito.mock(FileUploadViewStrategy.class),
-          Mockito.mock(ApplicantQuestionRendererFactory.class));
+          Mockito.mock(ApplicantFileUploadRenderer.class),
+          Mockito.mock(ApplicantQuestionRendererFactory.class),
+          applicantRoutes);
 
   @Test
   public void

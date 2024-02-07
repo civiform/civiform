@@ -12,8 +12,10 @@ import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.applicant.AuthenticateUpsellCreator.createNewAccountButton;
 
 import annotations.BindingAnnotations;
+import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.applicant.ApplicantRoutes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.SectionTag;
 
@@ -59,17 +61,18 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
       ApplicantPersonalInfo personalInfo,
       Long applicantId,
       Long programId,
-      boolean isTrustedIntermediary,
+      CiviFormProfile profile,
       ImmutableList<ApplicantService.ApplicantProgramData> eligiblePrograms,
       Messages messages,
-      Optional<ToastMessage> bannerMessage) {
+      Optional<ToastMessage> bannerMessage,
+      ApplicantRoutes applicantRoutes) {
     boolean shouldUpsell = shouldUpsell(account);
 
     Modal loginPromptModal =
         createLoginPromptModal(
                 messages,
                 redirectTo,
-                /* description =*/ messages.at(MessageKey.GENERAL_LOGIN_MODAL_PROMPT.getKeyName()),
+                /* description= */ messages.at(MessageKey.GENERAL_LOGIN_MODAL_PROMPT.getKeyName()),
                 /* bypassMessage= */ MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT)
             .build();
 
@@ -79,9 +82,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
           redirectButton(
                   "go-back-and-edit",
                   messages.at(MessageKey.BUTTON_GO_BACK_AND_EDIT.getKeyName()),
-                  controllers.applicant.routes.ApplicantProgramReviewController.review(
-                          applicantId, programId)
-                      .url())
+                  applicantRoutes.review(profile, applicantId, programId).url())
               .withClasses(ButtonStyles.OUTLINED_TRANSPARENT));
     }
 
@@ -97,17 +98,20 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
           createApplyToProgramsButton(
               "apply-to-programs",
               messages.at(MessageKey.BUTTON_APPLY_TO_PROGRAMS.getKeyName()),
-              applicantId));
+              applicantId,
+              profile,
+              applicantRoutes));
     }
 
     String title =
-        isTrustedIntermediary
+        profile.isTrustedIntermediary()
             ? messages.at(MessageKey.TITLE_COMMON_INTAKE_CONFIRMATION_TI.getKeyName())
             : messages.at(MessageKey.TITLE_COMMON_INTAKE_CONFIRMATION.getKeyName());
     var content =
         createMainContent(
             title,
-            eligibleProgramsSection(request, eligiblePrograms, messages, isTrustedIntermediary)
+            eligibleProgramsSection(
+                    request, eligiblePrograms, messages, profile.isTrustedIntermediary())
                 .withClasses("mb-4"),
             shouldUpsell,
             messages,
