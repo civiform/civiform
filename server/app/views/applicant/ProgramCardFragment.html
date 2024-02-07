@@ -1,0 +1,51 @@
+<li th:fragment="program-card" th:id="${id}" class="cf-application-card w-72 bg-white rounded-xl shadow-md border border-gray-200 flex flex-col">
+    <div class="block shrink-0 bg-seattle-blue rounded-t-xl h-3"></div>
+    [(${programImage})]
+    <div th:id="${id + '-data'}" class="w-full px-4 pt-4 h-56 overflow-auto">
+        <div th:replace="~{applicant/ProgramCardFragment :: application-status}"></div>
+        <div th:replace="~{applicant/ProgramCardFragment :: eligibility-tag}"></div>
+        <h4 th:if="${nestedUnderSubheading}" th:id="${id + '-title'}"
+            class="cf-application-card-title text-lg font-semibold" th:text="${programLocalizedName}">
+        </h4>
+        <h3 th:if="${!nestedUnderSubheading}" th:id="${id + '-title'}"
+            class="cf-application-card-title text-lg font-semibold" th:text="${programLocalizedName}">
+        </h3>
+        <div th:id="${id + '-description'}" class="cf-application-card-description text-xs my-2 line-clamp-5">
+            <p th:text="${displayDescription}"></p>
+        </div>
+        <div>
+            <a th:id="${id + '-info-link'}" th:href="${programDetailsLink}" target="_blank"
+                class="text-blue-600 hover:text-blue-500 inline-flex items-center mb-2 text-sm underline"
+                th:aria-label="${programDetailsAriaLabel}">
+                [(${programDetailsText})][(${openInNewIcon})]
+            </a>
+        </div>
+        <div th:if="${showSubmittedDate}" th:replace="~{applicant/ProgramCardFragment :: submitted-date}"></div>
+    </div>
+    <div class="mt-4 mb-6 flex items-center justify-center">
+        <button id="uuid-75ca8451-b823-45e4-bad0-6bafb30f6b46-button" aria-label="Apply to Minimal Sample Program" class="cf-apply-button block py-2 text-center rounded-full border bg-seattle-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-sm">
+            Apply
+        </button>
+    </div>
+</li>
+
+
+<p th:fragment="application-status" th:if="${hasApplicationStatus}" class="border rounded-full px-2 py-1 mb-4 gap-x-2 inline-block w-auto bg-blue-100">
+    <!-- Add classes to icon -->
+    [(${infoIcon})]
+    <span th:text="${applicationStatus}" class="p2 text-xs font-medium text-seattle-blue"></span>
+</p>
+
+<!-- Add tagClass and color -->
+<p th:fragment="eligibility-tag" th:if="${shouldShowEligibilityTag}" 
+   class="border rounded-full px-2 py-1 mb-4 gap-x-2 inline-block w-auto"
+   th:classappend="${eligibilityContainerClasses}">
+    <!-- Add icon classes-->
+    [(${eligibilityIcon})]
+    <!-- add text color -->
+    <span th:text="${eligibilityText}" class="p-2 text-xs font-medium" th:classappend="${eligibilityTextClasses}"></span>
+</p>
+
+<div th:fragment="submitted-date" class="text-xs text-gray-700">
+    [(${beforeDateText})]<span class="font-semibold" th:text="${submittedDateText}"></span>[(${afterDateText})]
+</div>

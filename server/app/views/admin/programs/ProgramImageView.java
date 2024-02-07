@@ -18,7 +18,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
-import j2html.tags.specialized.LiTag;
+import j2html.tags.DomContent;
 import java.time.ZoneId;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -282,7 +282,7 @@ public final class ProgramImageView extends BaseHtmlView {
     ApplicantService.ApplicantProgramData card =
         ApplicantService.ApplicantProgramData.builder().setProgram(program).build();
 
-    LiTag programCard =
+    DomContent programCard =
         programCardViewRenderer.createProgramCard(
             request,
             messages,

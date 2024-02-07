@@ -1,61 +1,40 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.a;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.h3;
-import static j2html.TagCreator.h4;
-import static j2html.TagCreator.li;
-import static j2html.TagCreator.p;
-import static j2html.TagCreator.span;
-import static j2html.TagCreator.text;
-import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
+import static j2html.TagCreator.rawHtml;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAMS_INDEX_LOGIN_PROMPT;
-
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableSet;
 import controllers.applicant.ApplicantRoutes;
-import j2html.TagCreator;
-import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
-import j2html.tags.specialized.ATag;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.LiTag;
-import j2html.tags.specialized.PTag;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
+import modules.ThymeleafModule;
+import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
-import services.program.StatusDefinitions;
 import services.settings.SettingsManifest;
 import views.HtmlBundle;
 import views.ProgramImageUtils;
 import views.TranslationUtils;
-import views.components.ButtonStyles;
 import views.components.Icons;
-import views.components.LinkElement;
 import views.components.Modal;
 import views.components.TextFormatter;
-import views.style.ApplicantStyles;
 import views.style.BaseStyles;
+
 import views.style.ReferenceClasses;
-import modules.ThymeleafModule;
-import org.thymeleaf.TemplateEngine;
-import com.google.common.collect.ImmutableSet;
 
 /** A renderer to create an individual program information card. */
 public final class ProgramCardViewRenderer {
@@ -73,8 +52,7 @@ public final class ProgramCardViewRenderer {
       ProgramImageUtils programImageUtils,
       SettingsManifest settingsManifest,
       TemplateEngine templateEngine,
-      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory
-    ) {
+      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory) {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.profileUtils = checkNotNull(profileUtils);
     this.programImageUtils = checkNotNull(programImageUtils);
@@ -94,7 +72,7 @@ public final class ProgramCardViewRenderer {
    * @param nestedUnderSubheading true if this card appears under a heading (like "In Progress") and
    *     false otherwise.
    */
-  public LiTag createProgramCard(
+  public DomContent createProgramCard(
       Http.Request request,
       Messages messages,
       ApplicantPersonalInfo.ApplicantType applicantType,
@@ -114,75 +92,91 @@ public final class ProgramCardViewRenderer {
     Optional<DomContent> programImage =
         programImageUtils.createProgramImage(
             request, program, preferredLocale, /* isWithinProgramCard= */ true);
-
-    ContainerTag title =
-        nestedUnderSubheading
-            ? h4().withId(baseId + "-title")
-                .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
-                .withText(program.localizedName().getOrDefault(preferredLocale))
-            : h3().withId(baseId + "-title")
-                .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
-                .withText(program.localizedName().getOrDefault(preferredLocale));
     ImmutableList<DomContent> descriptionContent =
         TextFormatter.formatText(
             program.localizedDescription().getOrDefault(preferredLocale),
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ false);
-    DivTag description =
-        div()
-            .withId(baseId + "-description")
-            .withClasses(
-                ReferenceClasses.APPLICATION_CARD_DESCRIPTION, "text-xs", "my-2", "line-clamp-5")
-            .with(descriptionContent);
 
-    DivTag programData =
-        div()
-            .withId(baseId + "-data")
-            .withClasses("w-full", "px-4", "pt-4", "h-56", "overflow-auto");
-
-    if (cardData.latestSubmittedApplicationStatus().isPresent()) {
-      programData.with(
-          programCardApplicationStatus(
-              messages, preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
-    }
-
-    if (shouldShowEligibilityTag(cardData)) {
-      programData.with(
-          eligibilityTag(request, messages, cardData.isProgramMaybeEligible().get(), profileUtils));
-    }
-
-    programData.with(title, description);
-
+    ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
+    context.setVariable("openInNewIcon", Icons.svg(templateEngine, context, Icons.OPEN_IN_NEW, ImmutableSet.of("mr-2", "w-5", "h-5")));
+    context.setVariable("id", baseId);
+    context.setVariable(
+        "programLocalizedName", program.localizedName().getOrDefault(preferredLocale));
+    context.setVariable("descriptionContent", descriptionContent);
+    context.setVariable("nestedUnderSubheading", nestedUnderSubheading);
     // Use external link if it is present else use the default Program details page
     String programDetailsLink =
         program.externalLink().isEmpty()
             ? applicantRoutes.show(profile, applicantId, program.id()).url()
             : program.externalLink();
-    ATag infoLink =
-        new LinkElement()
-            .setId(baseId + "-info-link")
-            .setStyles("mb-2", "text-sm", "underline")
-            .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
-            .setHref(programDetailsLink)
-            .opensInNewTab()
-            .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
-            .asAnchorText()
-            .attr(
-                "aria-label",
-                messages.at(
-                    MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName(),
-                    program.localizedName().getOrDefault(preferredLocale)));
-    programData.with(div(infoLink));
-
-    if (cardData.latestSubmittedApplicationTime().isPresent()) {
-      programData.with(
-          programCardSubmittedDate(
-              messages, cardData.latestSubmittedApplicationTime().get(), zoneId));
+    context.setVariable("programDetailsLink", programDetailsLink);
+    context.setVariable(
+        "programDetailsText", messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()));
+    context.setVariable(
+        "programDetailsAriaLabel",
+        messages.at(
+            MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName(),
+            program.localizedName().getOrDefault(preferredLocale)));
+    if (programImage.isPresent()) {
+      context.setVariable("programImage", programImage.get().render());
+    }
+    boolean hasApplicationStatus = cardData.latestSubmittedApplicationStatus().isPresent();
+    context.setVariable("hasApplicationStatus", hasApplicationStatus);
+    if (hasApplicationStatus) {
+      context.setVariable(
+          "applicationStatusText",
+          String.format(
+              "%s: %s",
+              messages.at(MessageKey.TITLE_STATUS.getKeyName()),
+              cardData
+                  .latestSubmittedApplicationStatus()
+                  .get()
+                  .localizedStatusText()
+                  .getOrDefault(preferredLocale)));
+    }
+    boolean shouldShowEligibilityTag = shouldShowEligibilityTag(cardData);
+    context.setVariable("shouldShowEligibilityTag", shouldShowEligibilityTag);
+    if (shouldShowEligibilityTag) {
+      CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
+      boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
+      MessageKey mayQualifyMessage =
+          isTrustedIntermediary ? MessageKey.TAG_MAY_QUALIFY_TI : MessageKey.TAG_MAY_QUALIFY;
+      MessageKey mayNotQualifyMessage =
+          isTrustedIntermediary ? MessageKey.TAG_MAY_NOT_QUALIFY_TI : MessageKey.TAG_MAY_NOT_QUALIFY;
+          boolean isEligible = cardData.isProgramMaybeEligible().get();
+      Icons icon = isEligible ? Icons.CHECK_CIRCLE : Icons.INFO;
+      String color = isEligible ? BaseStyles.BG_CIVIFORM_GREEN_LIGHT : "bg-gray-200";
+      String textColor = isEligible ? BaseStyles.TEXT_CIVIFORM_GREEN : "text-black";
+      String tagClass =
+          isEligible ? ReferenceClasses.ELIGIBLE_TAG : ReferenceClasses.NOT_ELIGIBLE_TAG;
+      String tagText =
+          isEligible ? mayQualifyMessage.getKeyName() : mayNotQualifyMessage.getKeyName();
+      context.setVariable("eligibilityIcon", Icons.svg(templateEngine, context, icon, ImmutableSet.of("inline-block", "h-4.5", "w-4.5", textColor)));
+      context.setVariable("eligibilityText", messages.at(tagText));
+      context.setVariable("eligibilityContainerClasses", color + " " + tagClass);
+      context.setVariable("eligibilityTextClasses", textColor);
     }
 
-    String actionUrl = applicantRoutes.review(profile, applicantId, program.id()).url();
+    boolean showSubmittedDate = cardData.latestSubmittedApplicationTime().isPresent();
+    context.setVariable("showSubmittedDate", showSubmittedDate);
+    if (showSubmittedDate) {
+      TranslationUtils.TranslatedStringSplitResult translateResult =
+          TranslationUtils.splitTranslatedSingleArgString(messages, MessageKey.SUBMITTED_DATE);
+      context.setVariable("beforeDateText", translateResult.beforeInterpretedContent());
+      context.setVariable("afterDateText", translateResult.afterInterpretedContent());
+      ZonedDateTime dateTime = cardData.latestSubmittedApplicationTime().get().atZone(zoneId);
+      String formattedSubmitTime =
+          DateTimeFormatter.ofLocalizedDate(
+                  // SHORT will print dates as 1/2/2022.
+                  FormatStyle.SHORT)
+              .format(dateTime);
+      context.setVariable("submittedDateText", formattedSubmitTime);
+    }
 
-    Modal loginPromptModal =
+        String actionUrl = applicantRoutes.review(profile, applicantId, program.id()).url();
+
+        Modal loginPromptModal =
         createLoginPromptModal(
                 messages,
                 actionUrl,
@@ -195,35 +189,29 @@ public final class ProgramCardViewRenderer {
             .build();
     bundle.addModals(loginPromptModal);
 
-    // If the user is a guest, show the login prompt modal, which has a button
-    // to continue on to the application. Otherwise, show the button to go to the
-    // application directly.
-    ContainerTag content =
-        applicantType == GUEST
-            ? TagCreator.button().withId(loginPromptModal.getTriggerButtonId())
-            : a().withHref(actionUrl).withId(baseId + "-apply");
+    return rawHtml(
+        templateEngine.process(
+            "applicant/ProgramCardFragment", ImmutableSet.of("program-card"), context));
 
-    content
-        .withText(messages.at(buttonTitle.getKeyName()))
-        .attr(
-            "aria-label",
-            messages.at(
-                buttonSrText.getKeyName(), program.localizedName().getOrDefault(preferredLocale)))
-        .withClasses(ReferenceClasses.APPLY_BUTTON, ButtonStyles.SOLID_BLUE_TEXT_SM);
+    // // If the user is a guest, show the login prompt modal, which has a button
+    // // to continue on to the application. Otherwise, show the button to go to the
+    // // application directly.
+    // ContainerTag content =
+    //     applicantType == GUEST
+    //         ? TagCreator.button().withId(loginPromptModal.getTriggerButtonId())
+    //         : a().withHref(actionUrl).withId(baseId + "-apply");
 
-    DivTag actionDiv =
-        div(content).withClasses("mt-4", "mb-6", "flex", "items-center", "justify-center");
-    LiTag cardListItem =
-        li().withId(baseId)
-            .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
-            .with(
-                // The visual bar at the top of each program card.
-                div()
-                    .withClasses(
-                        "block", "shrink-0", BaseStyles.BG_CIVIFORM_BLUE, "rounded-t-xl", "h-3"));
-    programImage.ifPresent(cardListItem::with);
+    // content
+    //     .withText(messages.at(buttonTitle.getKeyName()))
+    //     .attr(
+    //         "aria-label",
+    //         messages.at(
+    //             buttonSrText.getKeyName(),
+    // program.localizedName().getOrDefault(preferredLocale)))
+    //     .withClasses(ReferenceClasses.APPLY_BUTTON, ButtonStyles.SOLID_BLUE_TEXT_SM);
 
-    return cardListItem.with(programData).with(actionDiv);
+
+    // return cardListItem.with(programData).with(actionDiv);
   }
 
   /**
@@ -236,88 +224,5 @@ public final class ProgramCardViewRenderer {
     }
 
     return cardData.program().eligibilityIsGating() || cardData.isProgramMaybeEligible().get();
-  }
-
-  private PTag programCardApplicationStatus(
-      Messages messages, Locale preferredLocale, StatusDefinitions.Status status) {
-    return p().withClasses(
-            "border",
-            "rounded-full",
-            "px-2",
-            "py-1",
-            "mb-4",
-            "gap-x-2",
-            "inline-block",
-            "w-auto",
-            "bg-blue-100")
-        .with(
-            Icons.svg(Icons.INFO)
-                // 4.5 is 18px as defined in tailwind.config.js
-                .withClasses("inline-block", "h-4.5", "w-4.5", BaseStyles.TEXT_CIVIFORM_BLUE),
-            span(String.format(
-                    "%s: %s",
-                    messages.at(MessageKey.TITLE_STATUS.getKeyName()),
-                    status.localizedStatusText().getOrDefault(preferredLocale)))
-                .withClasses("p-2", "text-xs", "font-medium", BaseStyles.TEXT_CIVIFORM_BLUE));
-  }
-
-  private PTag eligibilityTag(
-      Http.Request request, Messages messages, boolean isEligible, ProfileUtils profileUtils) {
-    CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
-    boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
-    MessageKey mayQualifyMessage =
-        isTrustedIntermediary ? MessageKey.TAG_MAY_QUALIFY_TI : MessageKey.TAG_MAY_QUALIFY;
-    MessageKey mayNotQualifyMessage =
-        isTrustedIntermediary ? MessageKey.TAG_MAY_NOT_QUALIFY_TI : MessageKey.TAG_MAY_NOT_QUALIFY;
-    Icons icon = isEligible ? Icons.CHECK_CIRCLE : Icons.INFO;
-    String color = isEligible ? BaseStyles.BG_CIVIFORM_GREEN_LIGHT : "bg-gray-200";
-    String textColor = isEligible ? BaseStyles.TEXT_CIVIFORM_GREEN : "text-black";
-    String tagClass =
-        isEligible ? ReferenceClasses.ELIGIBLE_TAG : ReferenceClasses.NOT_ELIGIBLE_TAG;
-    String tagText =
-        isEligible ? mayQualifyMessage.getKeyName() : mayNotQualifyMessage.getKeyName();
-    return p().withClasses(
-            tagClass,
-            "border",
-            "rounded-full",
-            "px-2",
-            "py-1",
-            "mb-4",
-            "gap-x-2",
-            "inline-block",
-            "w-auto",
-            color)
-        .with(
-            Icons.svg(icon)
-                // 4.5 is 18px as defined in tailwind.config.js
-                .withClasses("inline-block", "h-4.5", "w-4.5", textColor),
-            span(messages.at(tagText)).withClasses("p-2", "text-xs", "font-medium", textColor));
-  }
-
-  private DivTag programCardSubmittedDate(Messages messages, Instant submittedDate, ZoneId zoneId) {
-    TranslationUtils.TranslatedStringSplitResult translateResult =
-        TranslationUtils.splitTranslatedSingleArgString(messages, MessageKey.SUBMITTED_DATE);
-    String beforeContent = translateResult.beforeInterpretedContent();
-    String afterContent = translateResult.afterInterpretedContent();
-
-    List<DomContent> submittedComponents = Lists.newArrayList();
-    if (!beforeContent.isEmpty()) {
-      submittedComponents.add(text(beforeContent));
-    }
-
-    ZonedDateTime dateTime = submittedDate.atZone(zoneId);
-    String formattedSubmitTime =
-        DateTimeFormatter.ofLocalizedDate(
-                // SHORT will print dates as 1/2/2022.
-                FormatStyle.SHORT)
-            .format(dateTime);
-    submittedComponents.add(
-        span(formattedSubmitTime).withClasses(ReferenceClasses.BT_DATE, "font-semibold"));
-
-    if (!afterContent.isEmpty()) {
-      submittedComponents.add(text(afterContent));
-    }
-
-    return div().withClasses("text-xs", "text-gray-700").with(submittedComponents);
   }
 }

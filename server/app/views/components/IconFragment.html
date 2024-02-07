@@ -1,3 +1,3 @@
-<svg hx-fragment="icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="currentColor" stroke-width="1%" aria-hidden="true">
-  <path th:value="${$pathValue}" th:viewBox="${viewBox}"></path>
+<svg th:fragment="icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="currentColor" stroke-width="1%" aria-hidden="true" th:viewBox="${viewBox}" th:class="${svgClasses}">
+  <path th:d="${pathValue}"></path>
 </svg>
