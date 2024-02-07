@@ -245,8 +245,8 @@ public final class TrustedIntermediaryService {
    *     nameQuery is present, a match between the Account holder's name and the nameQuery is
    *     performed. If dayQuery, monthQuery and yearQuery are present, a match between the Account
    *     holder's Date of Birth and the date queries is performed. The matched results are collected
-   *     and sent as an Immutable List. If name query is empty and any of the date queries are
-   *     empty, an empty list is returned.
+   *     and sent as an Immutable List. If name query is empty and only some of the date queries are
+   *     present, but not all, an empty list is returned.
    * @param tiGroup - this is TrustedIntermediaryGroup for which the list of associated account is
    *     requested. This is needed to fetch all the accounts from the user repository.
    * @return a result object containing the ListOfAccounts which may be filtered by the Search
