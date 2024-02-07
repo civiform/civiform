@@ -99,7 +99,8 @@ public class ViewUtilsTest {
   public void makeMemorableDate_showsErrorWhenShowErrorIsTrue() {
     FieldsetTag dateComponent = ViewUtils.makeMemorableDate("", "", "", "Test DOB", true);
     String rendered = dateComponent.render();
-    assertThat(rendered).contains("<div class=\"text-red-600 text-xs\" id=\"memorable_date_error\"><span>Error:");
+    assertThat(rendered)
+        .contains("<div class=\"text-red-600 text-xs\" id=\"memorable_date_error\"><span>Error:");
 
     assertThat(rendered).contains("<select class=\"usa-input--error");
   }
