@@ -513,7 +513,9 @@ public final class QuestionEditView extends BaseHtmlView {
                       "You cannot edit this setting since the question is not a universal"
                           + " question.",
                       /* hidden= */ questionForm.isUniversal(),
-                      /* classes...= */ "cf-primary-applicant-info-universal-alert", "mb-4", "usa-alert-primary-applicant-info"));
+                      /* classes...= */ "cf-primary-applicant-info-universal-alert",
+                      "mb-4",
+                      "usa-alert-primary-applicant-info"));
               tagSubsection.condWith(
                   differentQuestionHasTag,
                   ViewUtils.makeAlertInfoSlim(
@@ -522,7 +524,9 @@ public final class QuestionEditView extends BaseHtmlView {
                               + " question named %s.",
                           currentQuestionForTag.map(QuestionDefinition::getName).orElse("")),
                       /* hidden= */ false,
-                      /* classes...= */ "cf-primary-applicant-info-tag-already-set-alert", "mb-4", "usa-alert-primary-applicant-info"));
+                      /* classes...= */ "cf-primary-applicant-info-tag-already-set-alert",
+                      "mb-4",
+                      "usa-alert-primary-applicant-info"));
               result.with(tagSubsection);
             });
     return result;
