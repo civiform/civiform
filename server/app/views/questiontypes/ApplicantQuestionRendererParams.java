@@ -34,7 +34,7 @@ public abstract class ApplicantQuestionRendererParams {
 
     /**
      * Returns true if the given mode indicates that validation errors should be rendered when
-     * displaying the question and false otherwise.
+     * displaying the form and false otherwise.
      */
     public static boolean shouldShowErrors(ErrorDisplayMode mode) {
       return mode == DISPLAY_ERRORS || mode == DISPLAY_ERRORS_WITH_MODAL_REVIEW;

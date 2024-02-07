@@ -574,15 +574,15 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * <p>Returns the applicable next step in the flow:
    *
    * <ul>
-   *   <li>If there are errors, then the edit page for the same block with the errors is shown.
+   *   <li>If there are errors, then renders the edit page for the same block with the errors shown.
    *   <li>If {@code applicantRequestedAction} is the {@link ApplicantRequestedAction#REVIEW_PAGE},
-   *       then the review page is shown.
+   *       then renders the review page.
    *   <li>If {@code applicantRequestedAction} is the {@link ApplicantRequestedAction#NEXT_BLOCK},
    *       then we use {@code inReview} to determine what block to show next:
    *       <ul>
-   *         <li>If {@code inReview} then the next incomplete block is shown.
-   *         <li>If not {@code inReview} the next visible block is shown.
-   *         <li>If there is no next block the program review page is shown.
+   *         <li>If {@code inReview}, then renders the next incomplete block.
+   *         <li>If not {@code inReview}, then renders the next visible block.
+   *         <li>If there is no next block, then renders the review page.
    *       </ul>
    * </ul>
    *
