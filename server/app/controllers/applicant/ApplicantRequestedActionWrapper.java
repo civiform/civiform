@@ -44,8 +44,7 @@ public final class ApplicantRequestedActionWrapper
       // a user is filling out an application, so only create the logger if we have to.
       LoggerFactory.getLogger(ApplicantRequestedActionWrapper.class)
           .error(
-              "ApplicantRequestedActionWrapper had null action in #getAction; returning default of"
-                  + " NEXT_BLOCK");
+              "ApplicantRequestedActionWrapper had null action in #getAction; returning default");
       return DEFAULT_ACTION;
     }
     return this.action;
@@ -71,9 +70,7 @@ public final class ApplicantRequestedActionWrapper
   public String javascriptUnbind() {
     if (this.action == null) {
       LoggerFactory.getLogger(ApplicantRequestedActionWrapper.class)
-          .error(
-              "ApplicantRequestedActionWrapper had null action in #unbind; returning default of"
-                  + " NEXT_BLOCK");
+          .error("ApplicantRequestedActionWrapper had null action in #unbind; returning default");
       return DEFAULT_ACTION.name();
     }
     return this.action.name();
