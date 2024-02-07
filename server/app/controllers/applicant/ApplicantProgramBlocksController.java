@@ -579,6 +579,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *   <li>If {@code applicantRequestedActionWrapper#getAction} is the {@link
    *       ApplicantRequestedAction#REVIEW_PAGE}, then renders the review page.
    *   <li>If {@code applicantRequestedActionWrapper#getAction} is the {@link
+   *       ApplicantRequestedAction#PREVIOUS_BLOCK}, then renders the previous block (or the review
+   *       page if the applicant is currently on the first block).
+   *   <li>If {@code applicantRequestedActionWrapper#getAction} is the {@link
    *       ApplicantRequestedAction#NEXT_BLOCK}, then we use {@code inReview} to determine what
    *       block to show next:
    *       <ul>
