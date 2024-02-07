@@ -116,16 +116,16 @@ public class ApplicationBaseView extends BaseHtmlView {
    * saving the applicant's data.
    */
   protected ATag renderOldPreviousButton(ApplicationBaseView.Params params) {
-      String redirectUrl =
-              params
-                      .applicantRoutes()
-                      .blockPreviousOrReview(
-                              params.profile(),
-                              params.applicantId(),
-                              params.programId(),
-                              /* currentBlockIndex= */ params.blockIndex(),
-                              params.inReview())
-                      .url();
+    String redirectUrl =
+        params
+            .applicantRoutes()
+            .blockPreviousOrReview(
+                params.profile(),
+                params.applicantId(),
+                params.programId(),
+                /* currentBlockIndex= */ params.blockIndex(),
+                params.inReview())
+            .url();
     return a().withHref(redirectUrl)
         .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
         .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
