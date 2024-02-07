@@ -138,8 +138,7 @@ public final class ProgramImageView extends BaseHtmlView {
             .addMainContent(div().with(backButton, mainContent))
             .addModals(deleteImageModal);
 
-    // TODO(#5676): This toast code is re-implemented across multiple controllers. Can we write a
-    // helper method for it?
+    // TODO(#6593): Write a helper method for this toast display logic.
     Http.Flash flash = request.flash();
     if (flash.get("success").isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()));
@@ -273,15 +272,12 @@ public final class ProgramImageView extends BaseHtmlView {
             .isDisabled());
     buttonsDiv.with(deleteButton);
 
-    // TODO(#5676): Replace with final UX once we have it.
     return div()
         .withClass("mt-10")
         .with(fullForm)
         .with(buttonsDiv)
         .with(p("Note: Image description is required before uploading an image.").withClass("mt-1"))
         .with(fileUploadViewStrategy.footerTags());
-
-    // TODO(#5676): Warn admins of recommended image size and dimensions.
   }
 
   private StorageUploadRequest createStorageUploadRequest(

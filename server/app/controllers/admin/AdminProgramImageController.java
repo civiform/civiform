@@ -106,8 +106,8 @@ public final class AdminProgramImageController extends CiviFormController {
         request
             .queryString("key")
             .orElseThrow(() -> new IllegalArgumentException("Request must contain file key name"));
-    // TODO(#5676): If Azure support is needed, see ApplicantProgramBlocksController#updateFile for
-    // some additional Azure-specific logic that's needed.
+    // Note: If Azure support is needed, see ApplicantProgramBlocksController#updateFile for
+    // some additional Azure-specific logic that should also be added here.
 
     if (!PublicFileNameFormatter.isFileKeyForPublicProgramImage(key)) {
       throw new IllegalArgumentException("Key incorrectly formatted for public program image file");
