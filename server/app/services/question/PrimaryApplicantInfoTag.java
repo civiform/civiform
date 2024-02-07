@@ -16,31 +16,30 @@ public enum PrimaryApplicantInfoTag {
       QuestionTag.PRIMARY_APPLICANT_DOB,
       QuestionType.DATE,
       "primaryApplicantDob",
-      "Applicant Date Of Birth",
-      "Setting this property will allow the answer to be pre-populated with the"
-          + " applicant's date of birth if a Trusted Intermediary created this applicant."),
+      "Set answer as applicant date of birth",
+      "If this is turned on, the answer will be pre-filled with the applicant's date of birth that"
+          + " the staff member input during account setup."),
   APPLICANT_EMAIL(
       QuestionTag.PRIMARY_APPLICANT_EMAIL,
       QuestionType.EMAIL,
       "primaryApplicantEmail",
-      "Applicant Email Address",
-      "Setting this property will allow the email address collected from this"
-          + " question to be used to email status updates to guest applicants, as well as make the"
-          + " application searchable by this address."),
+      "Set answer as applicant email address",
+      "If this is turned on, the email address collected from this question will be used to email"
+          + " updates to guest applicants. Admins can also search for an application with this"
+          + " email address."),
   APPLICANT_NAME(
       QuestionTag.PRIMARY_APPLICANT_NAME,
       QuestionType.NAME,
       "primaryApplicantName",
-      "Applicant Name",
-      "Setting this property will allow CiviForm to use the name to identify the user and their"
-          + " application in the user interface, as well as make the application searchable by this"
-          + " name."),
+      "Set answer as applicant Name",
+      "If this is turned on, the name collected from this question will be used to identify an"
+          + " applicant and search for their application."),
   APPLICANT_PHONE(
       QuestionTag.PRIMARY_APPLICANT_PHONE,
       QuestionType.PHONE,
       "primaryApplicantPhone",
-      "Applicant Phone Number",
-      "Setting this property will make the application searchable by this phone number.");
+      "Set answer as applicant phone number",
+      "If this is turned on, admins can search for an application by this collected phone number.");
 
   private final QuestionTag tag;
   private final QuestionType type;
@@ -56,9 +55,9 @@ public enum PrimaryApplicantInfoTag {
    * @param type The QuestionType this PrimaryApplicantInfoTag can be applied to
    * @param fieldName The name of the field used in the QuestionForm for setting the tag for a
    *     question
-   * @param displayName The string used in the question create/edit UI as a title for the toggle
+   * @param displayName The string used in the question create/edit UI as a label for the toggle
    * @param description The string used in the question create/edit UI to describe what this tag is
-   *     for
+   *     for. Appears above the toggle in smaller text.
    */
   PrimaryApplicantInfoTag(
       QuestionTag tag,

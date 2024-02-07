@@ -510,7 +510,7 @@ public final class QuestionEditView extends BaseHtmlView {
                                           primaryApplicantInfoTag.getDisplayName()))));
               tagSubsection.with(
                   ViewUtils.makeAlertInfoSlim(
-                      "You cannot apply this property since the question is not a universal"
+                      "You cannot edit this setting since the question is not a universal"
                           + " question.",
                       /* hidden= */ questionForm.isUniversal(),
                       /* classes...= */ "cf-primary-applicant-info-universal-alert", "mb-4", "usa-alert-primary-applicant-info"));
@@ -518,7 +518,7 @@ public final class QuestionEditView extends BaseHtmlView {
                   differentQuestionHasTag,
                   ViewUtils.makeAlertInfoSlim(
                       String.format(
-                          "You cannot apply this property since this property is already set on a"
+                          "You cannot edit this setting since this property is already set on a"
                               + " question named %s.",
                           currentQuestionForTag.map(QuestionDefinition::getName).orElse("")),
                       /* hidden= */ false,
