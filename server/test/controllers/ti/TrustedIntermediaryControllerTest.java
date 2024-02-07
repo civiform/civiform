@@ -75,8 +75,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     account.setManagedByGroup(tiGroup2);
     account.save();
 
-    assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
-        .isEqualTo("2022-07-18");
+    assertThat(testApplicant.get().getDateOfBirth().get().toString()).isEqualTo("2022-07-18");
     Http.RequestBuilder requestBuilder2 =
         addCSRFToken(
             fakeRequest()
@@ -157,8 +156,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     AccountModel account = testApplicant.get().getAccount();
     account.setManagedByGroup(trustedIntermediaryGroup);
     account.save();
-    assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
-        .isEqualTo("2022-07-18");
+    assertThat(testApplicant.get().getDateOfBirth().get().toString()).isEqualTo("2022-07-18");
     Http.RequestBuilder requestBuilder2 =
         addCSRFToken(
             fakeRequest()
@@ -192,15 +190,11 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
 
     ApplicantModel applicantModel = accountFinal.newestApplicant().get();
     // assert dob,name,phone
-    assertThat(applicantModel.getApplicantData().getDateOfBirth().get().toString())
-        .isEqualTo("2022-07-07");
-    assertThat(applicantModel.getApplicantData().getApplicantFirstName().get())
-        .isEqualTo("clientFirst");
-    assertThat(applicantModel.getApplicantData().getApplicantMiddleName().get())
-        .isEqualTo("clientMiddle");
-    assertThat(applicantModel.getApplicantData().getApplicantLastName().get())
-        .isEqualTo("clientLast");
-    assertThat(applicantModel.getApplicantData().getPhoneNumber().get()).isEqualTo("4259879090");
+    assertThat(applicantModel.getDateOfBirth().get().toString()).isEqualTo("2022-07-07");
+    assertThat(applicantModel.getFirstName().get()).isEqualTo("clientFirst");
+    assertThat(applicantModel.getMiddleName().get()).isEqualTo("clientMiddle");
+    assertThat(applicantModel.getLastName().get()).isEqualTo("clientLast");
+    assertThat(applicantModel.getPhoneNumber().get()).isEqualTo("4259879090");
   }
 
   @Test
@@ -262,8 +256,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail("sample2@fake.com").toCompletableFuture().join();
-    assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
-        .isEqualTo("2022-07-18");
+    assertThat(testApplicant.get().getDateOfBirth().get().toString()).isEqualTo("2022-07-18");
   }
 
   private AccountModel setupForEditUpdateClient(String email) {
@@ -291,8 +284,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail(email).toCompletableFuture().join();
-    assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
-        .isEqualTo("2022-07-18");
+    assertThat(testApplicant.get().getDateOfBirth().get().toString()).isEqualTo("2022-07-18");
     AccountModel account = repo.lookupAccountByEmail(email).get();
     return account;
   }

@@ -6,12 +6,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import models.ApplicantModel;
 import org.junit.Test;
+import repository.ResetPostgres;
 import services.Path;
-import services.WellKnownPaths;
 import services.applicant.question.Scalar;
 
-public class ApplicantDataTest {
+public class ApplicantDataTest extends ResetPostgres {
 
   @Test
   public void preferredLocale_defaultsToEnglish() {
@@ -24,40 +25,54 @@ public class ApplicantDataTest {
     ApplicantData data = new ApplicantData();
     assertThat(data.hasPreferredLocale()).isFalse();
 
-    data = new ApplicantData("{\"applicant\":{}}");
+    data = new ApplicantData("{\"applicant\":{}}", null);
     assertThat(data.hasPreferredLocale()).isFalse();
 
-    data = new ApplicantData(Optional.empty(), "{\"applicant\":{}}");
+    data = new ApplicantData(Optional.empty(), "{\"applicant\":{}}", null);
     assertThat(data.hasPreferredLocale()).isFalse();
 
-    data = new ApplicantData(Optional.of(Locale.FRENCH), "{\"applicant\":{}}");
+    data = new ApplicantData(Optional.of(Locale.FRENCH), "{\"applicant\":{}}", null);
     assertThat(data.hasPreferredLocale()).isTrue();
+  }
+
+  private ApplicantData createNewApplicantData() {
+    ApplicantModel applicant = new ApplicantModel();
+    applicant.save();
+    return new ApplicantData(applicant);
   }
 
   @Test
   public void getApplicantName_exists() {
-    ApplicantData data = new ApplicantData();
+    ApplicantData data = createNewApplicantData();
     data.setUserName("First Last");
     assertThat(data.getApplicantName()).isEqualTo(Optional.of("Last, First"));
   }
 
   @Test
+  public void getApplicantName_withMiddleName_exists() {
+    ApplicantData data = createNewApplicantData();
+    data.setUserName("First Middle Last");
+    assertThat(data.getApplicantName()).isEqualTo(Optional.of("Last, First"));
+    assertThat(data.getApplicant().getMiddleName().get()).isEqualTo("Middle");
+  }
+
+  @Test
   public void getApplicantName_noName() {
-    ApplicantData data = new ApplicantData();
+    ApplicantData data = createNewApplicantData();
     assertThat(data.getApplicantName()).isEmpty();
   }
 
   @Test
   public void asJsonString() {
-    ApplicantData data = new ApplicantData();
-    data.setUserName("First Last");
-    assertThat(data.asJsonString())
-        .isEqualTo("{\"applicant\":{\"name\":{\"last_name\":\"Last\",\"first_name\":\"First\"}}}");
+    String blob =
+        "{\"applicant\":{\"name\":{\"first_name\":\"First\",\"last_name\":\"Last\",\"program_updated_in\":2,\"updated_at\":1690288712068}}}";
+    ApplicantData data = new ApplicantData(blob, new ApplicantModel());
+    assertThat(data.asJsonString()).isEqualTo(blob);
   }
 
   @Test
   public void withFailedUpdates() {
-    ApplicantData data = new ApplicantData();
+    ApplicantData data = createNewApplicantData();
     Path samplePath = Path.create("samplepath").join(Scalar.FIRST_NAME);
     data.setFailedUpdates(ImmutableMap.of(samplePath, "invalid_value"));
 
@@ -66,43 +81,15 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void setDateOfBirth_isSuccessful() {
-    ApplicantData data = new ApplicantData();
-    String sampleDob = "2022-01-05";
-    data.setDateOfBirth(sampleDob);
-    assertThat(data.getDateOfBirth().get()).isEqualTo(sampleDob);
-    assertThat(data.asJsonString())
-        .isEqualTo("{\"applicant\":{\"applicant_date_of_birth\":{\"date\":1641340800000}}}");
-  }
-
-  @Test
-  public void getDateOfBirth_canHandleDeprecatedDobPath() {
-    ApplicantData data = new ApplicantData();
-    String sampleDob = "2022-01-05";
-    data.putDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED, sampleDob);
-    assertThat(data.getDateOfBirth().get()).isEqualTo(sampleDob);
-    assertThat(data.asJsonString())
-        .isEqualTo("{\"applicant\":{\"applicant_date_of_birth\":1641340800000}}");
-  }
-
-  @Test
-  public void getDateOfBirth_isEmptyWhenNotSet() {
-    ApplicantData applicantData = new ApplicantData();
-    assertThat(applicantData.getDateOfBirth()).isEqualTo(Optional.empty());
-  }
-
-  @Test
   public void isDuplicate_returnsTrue() {
-    String userName = "First Last";
-    String dob = "2022-01-05";
-
-    ApplicantData data1 = new ApplicantData();
-    data1.setUserName(userName);
-    data1.setDateOfBirth(dob);
-
-    ApplicantData data2 = new ApplicantData();
-    data2.setUserName(userName);
-    data2.setDateOfBirth(dob);
+    ApplicantData data1 =
+        new ApplicantData(
+            "{\"applicant\":{\"name\":{\"first_name\":\"First\",\"last_name\":\"Last\",\"program_updated_in\":2,\"updated_at\":1690288712068}}}",
+            new ApplicantModel());
+    ApplicantData data2 =
+        new ApplicantData(
+            "{\"applicant\":{\"name\":{\"first_name\":\"First\",\"last_name\":\"Last\",\"program_updated_in\":2,\"updated_at\":1690288712068}}}",
+            new ApplicantModel());
 
     assertThat(data1.isDuplicateOf(data2)).isTrue();
     assertThat(data2.isDuplicateOf(data1)).isTrue();
@@ -110,17 +97,14 @@ public class ApplicantDataTest {
 
   @Test
   public void isDuplicate_returnsFalse() {
-    String userName1 = "First Last";
-    String userName2 = "User Name";
-    String dob = "2022-01-05";
-
-    ApplicantData data1 = new ApplicantData();
-    data1.setUserName(userName1);
-    data1.setDateOfBirth(dob);
-
-    ApplicantData data2 = new ApplicantData();
-    data2.setUserName(userName2);
-    data2.setDateOfBirth(dob);
+    ApplicantData data1 =
+        new ApplicantData(
+            "{\"applicant\":{\"name\":{\"first_name\":\"First\",\"last_name\":\"Last\",\"program_updated_in\":2,\"updated_at\":1690288712068}}}",
+            new ApplicantModel());
+    ApplicantData data2 =
+        new ApplicantData(
+            "{\"applicant\":{\"name\":{\"first_name\":\"User\",\"last_name\":\"Name\",\"program_updated_in\":2,\"updated_at\":1690293297676}}}",
+            new ApplicantModel());
 
     assertThat(data1.isDuplicateOf(data2)).isFalse();
     assertThat(data2.isDuplicateOf(data1)).isFalse();
@@ -134,10 +118,12 @@ public class ApplicantDataTest {
     // applicant data.
     ApplicantData data1 =
         new ApplicantData(
-            "{\"applicant\":{\"name\":{\"first_name\":\"First\",\"last_name\":\"Last\",\"program_updated_in\":2,\"updated_at\":1690288712068}}}");
+            "{\"applicant\":{\"name\":{\"first_name\":\"First\",\"last_name\":\"Last\",\"program_updated_in\":2,\"updated_at\":1690288712068}}}",
+            new ApplicantModel());
     ApplicantData data2 =
         new ApplicantData(
-            "{\"applicant\":{\"name\":{\"first_name\":\"First\",\"last_name\":\"Last\",\"program_updated_in\":2,\"updated_at\":1690293297676}}}");
+            "{\"applicant\":{\"name\":{\"first_name\":\"First\",\"last_name\":\"Last\",\"program_updated_in\":2,\"updated_at\":1690293297676}}}",
+            new ApplicantModel());
 
     assertThat(data1.isDuplicateOf(data2)).isTrue();
     assertThat(data2.isDuplicateOf(data1)).isTrue();
