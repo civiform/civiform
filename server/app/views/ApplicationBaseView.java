@@ -97,7 +97,10 @@ public class ApplicationBaseView extends BaseHtmlView {
     return renderPreviousButton(settingsManifest, params, formAction);
   }
 
-  /** Renders a "Previous" button with a custom action. */
+  /**
+   * Renders a "Previous" button with a custom action (if the SAVE_ON_ALL_ACTIONS feature flag is
+   * on).
+   */
   protected DomContent renderPreviousButton(
       SettingsManifest settingsManifest, ApplicationBaseView.Params params, String formAction) {
     if (settingsManifest.getSaveOnAllActions(params.request())) {

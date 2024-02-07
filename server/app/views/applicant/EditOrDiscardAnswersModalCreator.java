@@ -112,7 +112,7 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
                 .at(MessageKey.MODAL_ERROR_SAVING_PREVIOUS_NO_SAVE_BUTTON.getKeyName()),
             params
                 .applicantRoutes()
-                .previousBlockOrReview(
+                .blockPreviousOrReview(
                     params.profile(),
                     params.applicantId(),
                     params.programId(),

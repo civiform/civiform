@@ -783,7 +783,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           () ->
               redirect(
                   applicantRoutes
-                      .previousBlockOrReview(
+                      .blockPreviousOrReview(
                           profile, applicantId, programId, currentBlockIndex, inReview)
                       .url()));
     }
