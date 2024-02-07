@@ -16,6 +16,7 @@ import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -178,7 +179,9 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                         data.questionText(),
                         /* preserveEmptyLines */ true,
                         !data.applicantQuestion().isOptional(),
-                        messages))
+                        messages
+                            .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                            .toLowerCase(Locale.ROOT)))
                 .withClasses("font-semibold"))
             .withClasses("pr-2");
 

@@ -7,15 +7,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import j2html.tags.DomContent;
 import java.util.List;
-import java.util.Locale;
 import org.owasp.html.HtmlChangeListener;
 import org.owasp.html.HtmlPolicyBuilder;
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.i18n.Messages;
-import services.MessageKey;
 import views.CiviFormMarkdown;
 import views.ViewUtils;
 
@@ -24,12 +21,12 @@ public final class TextFormatter {
 
   private static final Logger logger = LoggerFactory.getLogger(TextFormatter.class);
   private static final CiviFormMarkdown CIVIFORM_MARKDOWN = new CiviFormMarkdown();
+  public static final String DEFAULT_ARIA_LABEL = "opens in a new tab";
 
   /** Adds an aria label to links before passing provided text through Markdown formatter. */
   public static ImmutableList<DomContent> formatTextWithAriaLabel(
-      String text, boolean preserveEmptyLines, boolean addRequiredIndicator, Messages messages) {
-    CIVIFORM_MARKDOWN.setAriaLabel(
-        messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT));
+      String text, boolean preserveEmptyLines, boolean addRequiredIndicator, String ariaLabel) {
+    CIVIFORM_MARKDOWN.setAriaLabel(ariaLabel);
     return formatText(text, preserveEmptyLines, addRequiredIndicator);
   }
 
@@ -51,6 +48,11 @@ public final class TextFormatter {
 
     builder.add(rawHtml(sanitizeHtml(markdownText)));
     return builder.build();
+  }
+
+  /** Used for testing */
+  public static void resetAriaLabelToDefault() {
+    CIVIFORM_MARKDOWN.setAriaLabel(DEFAULT_ARIA_LABEL);
   }
 
   private static String preserveEmptyLines(String text) {

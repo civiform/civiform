@@ -114,7 +114,9 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                             customConfirmationMessage.getOrDefault(locale),
                             /* preserveEmptyLines= */ true,
                             /* addRequiredIndicator= */ false,
-                            messages))
+                            messages
+                                .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                                .toLowerCase(Locale.ROOT)))
                     .withClasses("mb-4")),
             shouldUpsell,
             messages,

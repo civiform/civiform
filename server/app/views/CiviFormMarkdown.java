@@ -12,13 +12,14 @@ import org.commonmark.node.OrderedList;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.AttributeProvider;
 import org.commonmark.renderer.html.HtmlRenderer;
+import views.components.TextFormatter;
 import views.style.ApplicantStyles;
 import views.style.StyleUtils;
 
 /** Renders markdown to HTML with styles consistent with CiviForm's UI. */
 public final class CiviFormMarkdown {
 
-  private static String ariaLabel = "opens in a new tab";
+  private static String ariaLabel = TextFormatter.DEFAULT_ARIA_LABEL;
 
   public void setAriaLabel(String ariaLabelString) {
     ariaLabel = ariaLabelString;

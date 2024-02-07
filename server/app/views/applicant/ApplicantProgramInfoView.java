@@ -88,7 +88,7 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
             programInfo,
             /* preserveEmptyLines= */ true,
             /* addRequiredIndicator= */ false,
-            messages);
+            messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT));
     DivTag descriptionDiv = div().withClasses("py-2").with(items);
 
     return div(allProgramsDiv, titleDiv, descriptionDiv);

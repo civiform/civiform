@@ -86,7 +86,9 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                                         question.getQuestionText(), /* preserveEmptyLines */
                                         false, /* addRequiredIndicator */
                                         false,
-                                        messages)))));
+                                        messages
+                                            .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                                            .toLowerCase(Locale.ROOT))))));
 
     DivTag content =
         div()

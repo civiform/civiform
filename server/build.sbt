@@ -120,7 +120,7 @@ lazy val root = (project in file("."))
       // code contains it - we can't control that.
       "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
       "-implicit:class",
-      // "-Werror",
+      "-Werror",
       // The compile option below is a hack that preserves generated files. Normally,
       // AutoValue generates .java files, compiles them into .class files, and then deletes
       // the .java files. This option keeps the .java files in the specified directory,

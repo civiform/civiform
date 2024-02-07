@@ -119,7 +119,7 @@ public final class ProgramCardViewRenderer {
             program.localizedDescription().getOrDefault(preferredLocale),
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ false,
-            messages);
+            messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT));
     DivTag description =
         div()
             .withId(baseId + "-description")

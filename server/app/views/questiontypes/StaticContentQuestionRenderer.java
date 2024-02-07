@@ -4,7 +4,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
 import j2html.tags.specialized.DivTag;
+import java.util.Locale;
 import play.i18n.Messages;
+import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import views.components.TextFormatter;
 import views.style.ReferenceClasses;
@@ -34,7 +36,9 @@ public class StaticContentQuestionRenderer implements ApplicantQuestionRenderer 
                     question.getQuestionText(),
                     /* preserveEmptyLines= */ true,
                     /* addRequiredIndicator= */ false,
-                    messages));
+                    messages
+                        .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                        .toLowerCase(Locale.ROOT)));
     return div()
         .withId(question.getContextualizedPath().toString())
         .withClasses("mx-auto", "mb-8", this.getReferenceClass())
