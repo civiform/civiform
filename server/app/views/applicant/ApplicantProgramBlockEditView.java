@@ -222,7 +222,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         applicantQuestionRendererFactory,
         "Must call init function for initializing ApplicantQuestionRendererFactory");
     return applicantQuestionRendererFactory
-        .getRendererWithMessages(question, params.messages())
+        .getRenderer(question, Optional.of(params.messages()))
         .render(params);
   }
 

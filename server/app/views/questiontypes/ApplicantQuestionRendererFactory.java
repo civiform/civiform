@@ -33,19 +33,11 @@ public final class ApplicantQuestionRendererFactory {
         ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty());
-    return getRenderer(applicantQuestion);
+    return getRenderer(applicantQuestion, Optional.empty());
   }
 
-  public ApplicantQuestionRenderer getRendererWithMessages(
-      ApplicantQuestion question, Messages messages) {
-    if (question.getType() == QuestionType.STATIC) {
-      return new StaticContentQuestionRenderer(question, messages);
-    } else {
-      return getRenderer(question);
-    }
-  }
-
-  private ApplicantQuestionRenderer getRenderer(ApplicantQuestion question) {
+  public ApplicantQuestionRenderer getRenderer(
+      ApplicantQuestion question, Optional<Messages> maybeMessages) {
     switch (question.getType()) {
       case ADDRESS:
         return new AddressQuestionRenderer(question);
@@ -71,6 +63,8 @@ public final class ApplicantQuestionRendererFactory {
         return new RadioButtonQuestionRenderer(question);
       case ENUMERATOR:
         return new EnumeratorQuestionRenderer(question);
+      case STATIC:
+        return new StaticContentQuestionRenderer(question, maybeMessages);
       case TEXT:
         return new TextQuestionRenderer(question);
       case PHONE:
