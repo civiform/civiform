@@ -229,7 +229,8 @@ public final class ApiKeyService {
     }
 
     try {
-      Instant expiration = dateConverter.parseIso8601DateToStartOfDateInstant(expirationString);
+      Instant expiration =
+          dateConverter.parseIso8601DateToStartOfLocalDateInstant(expirationString);
       apiKey.setExpiration(expiration);
     } catch (DateTimeParseException e) {
       return form.withError(

@@ -406,7 +406,10 @@ public final class ProgramIndexView extends BaseHtmlView {
                     span(" - " + maybeUniversalQuestionsText.orElse(""))),
             new LinkElement()
                 .setText("Edit")
-                .setHref(controllers.admin.routes.AdminProgramController.edit(program.id()).url())
+                .setHref(
+                    controllers.admin.routes.AdminProgramController.edit(
+                            program.id(), ProgramEditStatus.EDIT.name())
+                        .url())
                 .asAnchorText())
         .withClass("pt-2");
   }

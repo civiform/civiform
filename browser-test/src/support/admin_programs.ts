@@ -162,6 +162,16 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
   }
 
+  async expectProgramDetailsSaveAndContinueButton() {
+    expect(await this.page.innerText('#program-update-button')).toEqual(
+      'Save and continue to next step',
+    )
+  }
+
+  async expectProgramDetailsSaveButton() {
+    expect(await this.page.innerText('#program-update-button')).toEqual('Save')
+  }
+
   async editProgram(
     programName: string,
     visibility = ProgramVisibility.PUBLIC,

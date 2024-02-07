@@ -3067,7 +3067,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 program.id,
                 String.valueOf(blockDefinition.id()),
-                addressSuggestion1.getSingleLineAddress(),
+                Optional.of(addressSuggestion1.getSingleLineAddress()),
                 addressSuggestionList)
             .toCompletableFuture()
             .get();
@@ -3175,7 +3175,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 program.id,
                 String.valueOf(blockDefinition.id()),
-                AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE,
+                Optional.of(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE),
                 addressSuggestionList)
             .toCompletableFuture()
             .get();
@@ -3260,20 +3260,36 @@ public class ApplicantServiceTest extends ResetPostgres {
     ImmutableList<AddressSuggestion> addressSuggestionList =
         ImmutableList.of(addressSuggestion1, addressSuggestion2);
 
-    // Act
+    // Act - Tests with invalid value
     ImmutableMap<String, String> correctedAddress =
         subject
             .getCorrectedAddress(
                 applicant.id,
                 program.id,
                 String.valueOf(blockDefinition.id()),
-                "asdf",
+                Optional.of("asdf"),
                 addressSuggestionList)
             .toCompletableFuture()
             .get();
 
     // Assert
     assertThat(correctedAddress.get(addressQuestion.getCorrectedPath().toString()))
+        .isEqualTo(CorrectedAddressState.FAILED.getSerializationFormat());
+
+    // Act - Tests with null
+    ImmutableMap<String, String> correctedAddressWithNull =
+        subject
+            .getCorrectedAddress(
+                applicant.id,
+                program.id,
+                String.valueOf(blockDefinition.id()),
+                Optional.ofNullable(null),
+                addressSuggestionList)
+            .toCompletableFuture()
+            .get();
+
+    // Assert
+    assertThat(correctedAddressWithNull.get(addressQuestion.getCorrectedPath().toString()))
         .isEqualTo(CorrectedAddressState.FAILED.getSerializationFormat());
   }
 

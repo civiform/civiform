@@ -7,7 +7,6 @@ import {
   logout,
   loginAsAdmin,
   validateAccessibility,
-  enableFeatureFlag,
 } from './support'
 import {TEST_USER_AUTH_STRATEGY} from './support/config'
 
@@ -50,46 +49,10 @@ describe('applicant auth', () => {
         'Do you want to sign-out from',
       )
     })
-
-    it('applicant can confirm central provider logout, enhanced version', async () => {
-      const {page} = ctx
-      await enableFeatureFlag(page, 'applicant_oidc_enhanced_logout_enabled')
-      await loginAsTestUser(page)
-      expect(await ctx.page.textContent('html')).toContain(
-        `Logged in as ${testUserDisplayName()}`,
-      )
-
-      await page.click('text=Logout')
-
-      await validateScreenshot(page, 'central-provider-logout')
-      expect(await ctx.page.textContent('html')).toContain(
-        'Do you want to sign-out from',
-      )
-    })
   }
 
   it('applicant can logout', async () => {
     const {page} = ctx
-    await loginAsTestUser(page)
-    expect(await ctx.page.textContent('html')).toContain(
-      `Logged in as ${testUserDisplayName()}`,
-    )
-
-    await logout(page)
-
-    expect(await ctx.page.textContent('html')).toContain('Find programs')
-
-    // Try login again, ensuring that full login process is followed. If login
-    // page doesn't ask for username/password - the method will fail.
-    await loginAsTestUser(page)
-    expect(await ctx.page.textContent('html')).toContain(
-      `Logged in as ${testUserDisplayName()}`,
-    )
-  })
-
-  it('applicant can logout, enhanced version', async () => {
-    const {page} = ctx
-    await enableFeatureFlag(page, 'applicant_oidc_enhanced_logout_enabled')
     await loginAsTestUser(page)
     expect(await ctx.page.textContent('html')).toContain(
       `Logged in as ${testUserDisplayName()}`,

@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import controllers.BadRequestException;
+import controllers.admin.ImageDescriptionNotRemovableException;
 import forms.BlockForm;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -877,11 +878,21 @@ public final class ProgramService {
    *
    * <p>If the {@code locale} is the default locale and the {@code summaryImageDescription} is empty
    * or blank, then the description for *all* locales will be erased.
+   *
+   * @throws ImageDescriptionNotRemovableException if the admin tries to remove a description while
+   *     they still have an image.
    */
   public ProgramDefinition setSummaryImageDescription(
       long programId, Locale locale, String summaryImageDescription)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
+
+    if (summaryImageDescription.isBlank() && programDefinition.summaryImageFileKey().isPresent()) {
+      throw new ImageDescriptionNotRemovableException(
+          "Description can't be removed because an image is present. Delete the image before"
+              + " deleting the description.");
+    }
+
     Optional<LocalizedStrings> newStrings =
         getUpdatedSummaryImageDescription(programDefinition, locale, summaryImageDescription);
     programDefinition =

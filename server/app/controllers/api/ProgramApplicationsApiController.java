@@ -221,7 +221,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
 
   private Instant parseParamDateToInstant(String paramName, String paramDate) {
     try {
-      return dateConverter.parseIso8601DateToStartOfDateInstant(paramDate);
+      return dateConverter.parseIso8601DateToStartOfLocalDateInstant(paramDate);
     } catch (DateTimeParseException e) {
       throw new BadApiRequestException("Malformed query param: " + paramName);
     }

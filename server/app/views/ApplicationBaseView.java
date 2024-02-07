@@ -58,7 +58,7 @@ public class ApplicationBaseView extends BaseHtmlView {
     }
     return a().withHref(redirectUrl)
         .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
-        .withClasses(ButtonStyles.SOLID_BLUE)
+        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
         .withId("cf-block-previous");
   }
 

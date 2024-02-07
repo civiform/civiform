@@ -29,7 +29,6 @@ import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
 import org.pac4j.play.PlayWebContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.mvc.Http;
 import repository.AccountRepository;
 import services.settings.SettingsManifest;
 
@@ -97,11 +96,11 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
   }
 
   private Optional<JWT> getIdTokenForAccount(long accountId, WebContext context) {
-    PlayWebContext playWebContext = (PlayWebContext) context;
-    if (!enhancedLogoutEnabled(context)) {
+    if (!enhancedLogoutEnabled()) {
       return Optional.empty();
     }
 
+    PlayWebContext playWebContext = (PlayWebContext) context;
     Optional<String> sessionId = playWebContext.getNativeSession().get(SessionIdFilter.SESSION_ID);
     if (sessionId.isEmpty()) {
       // The session id is only populated if the feature flag is enabled.
@@ -172,16 +171,14 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
     return Optional.empty();
   }
 
-  private boolean enhancedLogoutEnabled(WebContext context) {
-    PlayWebContext playWebContext = (PlayWebContext) context;
-    Http.RequestHeader request = playWebContext.getNativeJavaRequest();
+  private boolean enhancedLogoutEnabled() {
     // Sigh. This would be much nicer with switch expressions (Java 12) and exhaustive switch (Java
     // 17).
     switch (identityProviderType) {
       case ADMIN_IDENTITY_PROVIDER:
-        return settingsManifest.getAdminOidcEnhancedLogoutEnabled(request);
+        return settingsManifest.getAdminOidcEnhancedLogoutEnabled();
       case APPLICANT_IDENTITY_PROVIDER:
-        return settingsManifest.getApplicantOidcEnhancedLogoutEnabled(request);
+        return settingsManifest.getApplicantOidcEnhancedLogoutEnabled();
       default:
         throw new NotImplementedException(
             "Identity provider type not handled: " + identityProviderType);
