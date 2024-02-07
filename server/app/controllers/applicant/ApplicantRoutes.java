@@ -189,7 +189,7 @@ public final class ApplicantRoutes {
   }
 
   /**
-   * Returns the route corresponding to the applicant previous block action, or the route *
+   * Returns the route corresponding to the applicant previous block action, or the route
    * corresponding to the review page if there's no valid previous block.
    *
    * @param profile - Profile corresponding to the logged-in user (applicant or TI).
