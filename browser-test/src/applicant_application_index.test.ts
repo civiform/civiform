@@ -485,8 +485,6 @@ describe('applicant program index page with images', () => {
     await validateAccessibility(page)
   })
 
-  // TODO(#5676): Test with a very small image.
-
   async function submitApplicationAndApplyStatus(
     page: Page,
     programName: string,
