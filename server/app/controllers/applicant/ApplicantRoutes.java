@@ -254,10 +254,17 @@ public final class ApplicantRoutes {
       ApplicantRequestedAction applicantRequestedAction) {
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.updateWithApplicantId(
-          applicantId, programId, blockId, inReview, applicantRequestedAction.name());
+          applicantId,
+          programId,
+          blockId,
+          inReview,
+          new ApplicantRequestedActionWrapper(applicantRequestedAction));
     } else {
       return routes.ApplicantProgramBlocksController.update(
-          programId, blockId, inReview, applicantRequestedAction.name());
+          programId,
+          blockId,
+          inReview,
+          new ApplicantRequestedActionWrapper(applicantRequestedAction));
     }
   }
 }

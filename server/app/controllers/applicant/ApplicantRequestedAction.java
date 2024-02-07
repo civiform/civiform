@@ -16,12 +16,5 @@ public enum ApplicantRequestedAction {
   /** The applicant wants to see the review page with all the questions. */
   REVIEW_PAGE;
 
-  /** Returns the action represented by the given string. */
-  public static ApplicantRequestedAction getFromString(String action) {
-    try {
-      return ApplicantRequestedAction.valueOf(action);
-    } catch (IllegalArgumentException e) {
-      return ApplicantRequestedAction.NEXT_BLOCK;
-    }
-  }
+  public static final ApplicantRequestedAction DEFAULT_ACTION = NEXT_BLOCK;
 }

@@ -312,7 +312,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
                     programId,
                     /* blockId= */ "1",
                     /* inReview= */ false,
-                    ApplicantRequestedAction.NEXT_BLOCK.name()))
+                    new ApplicantRequestedActionWrapper()))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -329,7 +329,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
                 programId,
                 /* blockId= */ "1",
                 /* inReview= */ false,
-                ApplicantRequestedAction.NEXT_BLOCK.name())
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 

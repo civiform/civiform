@@ -733,7 +733,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
                     PROGRAM_ID,
                     BLOCK_ID,
                     Boolean.valueOf(inReview),
-                    ApplicantRequestedAction.getFromString(applicantRequestedAction))
+                    ApplicantRequestedAction.valueOf(applicantRequestedAction))
                 .url())
         .isEqualTo(expectedUpdateBlockUrl);
 
@@ -765,7 +765,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
                     PROGRAM_ID,
                     BLOCK_ID,
                     Boolean.valueOf(inReview),
-                    ApplicantRequestedAction.getFromString(applicantRequestedAction))
+                    ApplicantRequestedAction.valueOf(applicantRequestedAction))
                 .url())
         .isEqualTo(expectedUpdateBlockUrl);
 
@@ -796,7 +796,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
                     PROGRAM_ID,
                     BLOCK_ID,
                     Boolean.valueOf(inReview),
-                    ApplicantRequestedAction.getFromString(applicantRequestedAction))
+                    ApplicantRequestedAction.valueOf(applicantRequestedAction))
                 .url())
         .isEqualTo(expectedUpdateBlockUrl);
 

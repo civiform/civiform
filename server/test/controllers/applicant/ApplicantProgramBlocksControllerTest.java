@@ -327,7 +327,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     program.id,
                     /* blockId= */ "1",
                     /* inReview= */ false,
-                    ApplicantRequestedAction.NEXT_BLOCK.name()))
+                    new ApplicantRequestedActionWrapper()))
             .build();
 
     Result result =
@@ -338,7 +338,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 program.id,
                 /* blockId= */ "1",
                 /* inReview= */ false,
-                ApplicantRequestedAction.NEXT_BLOCK.name())
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -361,7 +361,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         program.id,
                         /* blockId= */ "1",
                         /* inReview= */ false,
-                        ApplicantRequestedAction.NEXT_BLOCK.name())))
+                        new ApplicantRequestedActionWrapper())))
             .build();
     Result result =
         subject
@@ -391,7 +391,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         program.id,
                         /* blockId= */ "1",
                         /* inReview= */ false,
-                        ApplicantRequestedAction.NEXT_BLOCK.name())))
+                        new ApplicantRequestedActionWrapper())))
             .build();
     Result result =
         subject
@@ -415,7 +415,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         program.id,
                         /* blockId= */ "1",
                         /* inReview= */ false,
-                        ApplicantRequestedAction.NEXT_BLOCK.name())))
+                        new ApplicantRequestedActionWrapper())))
             .build();
     Result result =
         subject
@@ -441,7 +441,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     badProgramId,
                     /* blockId= */ "1",
                     /* inReview= */ false,
-                    ApplicantRequestedAction.NEXT_BLOCK.name()))
+                    new ApplicantRequestedActionWrapper()))
             .build();
 
     Result result =
@@ -452,7 +452,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 badProgramId,
                 /* blockId= */ "1",
                 /* inReview= */ false,
-                ApplicantRequestedAction.NEXT_BLOCK.name())
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -469,7 +469,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     program.id,
                     badBlockId,
                     /* inReview= */ false,
-                    ApplicantRequestedAction.NEXT_BLOCK.name()))
+                    new ApplicantRequestedActionWrapper()))
             .build();
 
     Result result =
@@ -480,7 +480,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 program.id,
                 badBlockId,
                 /* inReview= */ false,
-                ApplicantRequestedAction.NEXT_BLOCK.name())
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -496,7 +496,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     program.id,
                     /* blockId= */ "1",
                     /* inReview= */ false,
-                    ApplicantRequestedAction.NEXT_BLOCK.name()))
+                    new ApplicantRequestedActionWrapper()))
             .bodyForm(ImmutableMap.of("fake.path", "value"))
             .build();
 
@@ -508,7 +508,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 program.id,
                 /* blockId= */ "1",
                 /* inReview= */ false,
-                ApplicantRequestedAction.NEXT_BLOCK.name())
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -525,7 +525,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     program.id,
                     /* blockId= */ "1",
                     /* inReview= */ false,
-                    ApplicantRequestedAction.NEXT_BLOCK.name()))
+                    new ApplicantRequestedActionWrapper()))
             .bodyForm(ImmutableMap.of(reservedPath, "value"))
             .build();
 
@@ -537,7 +537,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 program.id,
                 /* blockId= */ "1",
                 /* inReview= */ false,
-                ApplicantRequestedAction.NEXT_BLOCK.name())
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -554,7 +554,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                             program.id,
                             /* blockId= */ "1",
                             /* inReview= */ false,
-                            ApplicantRequestedAction.NEXT_BLOCK.name()))
+                            new ApplicantRequestedActionWrapper()))
                     .bodyForm(
                         ImmutableMap.of(
                             Path.create("applicant.applicant_name")
@@ -575,7 +575,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 program.id,
                 /* blockId= */ "1",
                 /* inReview= */ false,
-                ApplicantRequestedAction.NEXT_BLOCK.name())
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -594,7 +594,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                             program.id,
                             /* blockId= */ "1",
                             /* inReview= */ false,
-                            ApplicantRequestedAction.REVIEW_PAGE.name()))
+                            new ApplicantRequestedActionWrapper(
+                                ApplicantRequestedAction.REVIEW_PAGE)))
                     .bodyForm(
                         ImmutableMap.of(
                             Path.create("applicant.applicant_name")
@@ -615,7 +616,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 program.id,
                 /* blockId= */ "1",
                 /* inReview= */ false,
-                ApplicantRequestedAction.REVIEW_PAGE.name())
+                new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE))
             .toCompletableFuture()
             .join();
 
@@ -640,7 +641,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     program.id,
                     /* blockId= */ "1",
                     /* inReview= */ false,
-                    ApplicantRequestedAction.NEXT_BLOCK.name()))
+                    new ApplicantRequestedActionWrapper(ApplicantRequestedAction.NEXT_BLOCK)))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -657,7 +658,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 program.id,
                 /* blockId= */ "1",
                 /* inReview= */ false,
-                ApplicantRequestedAction.NEXT_BLOCK.name())
+                new ApplicantRequestedActionWrapper(ApplicantRequestedAction.NEXT_BLOCK))
             .toCompletableFuture()
             .join();
 
@@ -685,7 +686,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     program.id,
                     /* blockId= */ "1",
                     /* inReview= */ false,
-                    ApplicantRequestedAction.REVIEW_PAGE.name()))
+                    new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE)))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -702,7 +703,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 program.id,
                 /* blockId= */ "1",
                 /* inReview= */ false,
-                ApplicantRequestedAction.REVIEW_PAGE.name())
+                new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE))
             .toCompletableFuture()
             .join();
 
@@ -725,7 +726,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     program.id,
                     /* blockId= */ "1",
                     /* inReview= */ false,
-                    ApplicantRequestedAction.REVIEW_PAGE.name()))
+                    new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE)))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -741,7 +742,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             program.id,
             /* blockId= */ "1",
             /* inReview= */ false,
-            ApplicantRequestedAction.REVIEW_PAGE.name())
+            new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE))
         .toCompletableFuture()
         .join();
 
@@ -765,7 +766,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                             program.id,
                             "1",
                             false,
-                            ApplicantRequestedAction.NEXT_BLOCK.name()))
+                            new ApplicantRequestedActionWrapper()))
                     .session("ESRI_ADDRESS_CORRECTION_ENABLED", "true")
                     .bodyForm(
                         ImmutableMap.of(
@@ -794,7 +795,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 program.id,
                 /* blockId= */ "1",
                 /* inReview= */ false,
-                ApplicantRequestedAction.NEXT_BLOCK.name())
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -824,7 +825,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     program.id,
                     /* blockId= */ "1",
                     /* inReview= */ false,
-                    ApplicantRequestedAction.NEXT_BLOCK.name()))
+                    new ApplicantRequestedActionWrapper()))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -841,7 +842,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 program.id,
                 /* blockId= */ "1",
                 /* inReview= */ false,
-                ApplicantRequestedAction.NEXT_BLOCK.name())
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
