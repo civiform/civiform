@@ -30,7 +30,7 @@ public class StaticContentQuestionRenderer implements ApplicantQuestionRenderer 
         div()
             .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, "mb-2", "font-bold", "text-xl")
             .with(
-                TextFormatter.formatText(
+                TextFormatter.formatTextWithAriaLabel(
                     question.getQuestionText(),
                     /* preserveEmptyLines= */ true,
                     /* addRequiredIndicator= */ false,

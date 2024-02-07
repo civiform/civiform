@@ -69,7 +69,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                         ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
                         ApplicantStyles.QUESTION_HELP_TEXT)
                     .with(
-                        TextFormatter.formatText(
+                        TextFormatter.formatTextWithAriaLabel(
                             applicantQuestion.getQuestionHelpText(),
                             /* preserveEmptyLines= */ false,
                             /* addRequiredIndicator= */ false,
@@ -101,7 +101,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     }
 
     ImmutableList<DomContent> questionTextDoms =
-        TextFormatter.formatText(
+        TextFormatter.formatTextWithAriaLabel(
             applicantQuestion.getQuestionText(),
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ !applicantQuestion.isOptional(),

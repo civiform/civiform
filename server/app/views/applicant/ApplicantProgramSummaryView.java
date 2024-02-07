@@ -174,9 +174,9 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     DivTag questionContent =
         div(div()
                 .with(
-                    TextFormatter.formatText(
+                    TextFormatter.formatTextWithAriaLabel(
                         data.questionText(),
-                        true,
+                        /* preserveEmptyLines */ true,
                         !data.applicantQuestion().isOptional(),
                         messages))
                 .withClasses("font-semibold"))

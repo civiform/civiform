@@ -115,7 +115,7 @@ public final class ProgramCardViewRenderer {
                 .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
                 .withText(program.localizedName().getOrDefault(preferredLocale));
     ImmutableList<DomContent> descriptionContent =
-        TextFormatter.formatText(
+        TextFormatter.formatTextWithAriaLabel(
             program.localizedDescription().getOrDefault(preferredLocale),
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ false,

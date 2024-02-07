@@ -18,7 +18,7 @@ import views.style.StyleUtils;
 /** Renders markdown to HTML with styles consistent with CiviForm's UI. */
 public final class CiviFormMarkdown {
 
-  private static String ariaLabel = "test label";
+  private static String ariaLabel = "opens in a new tab";
 
   public void setAriaLabel(String ariaLabelString) {
     ariaLabel = ariaLabelString;

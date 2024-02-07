@@ -1,6 +1,5 @@
 package views.components;
 
-
 import static j2html.TagCreator.rawHtml;
 
 import com.google.common.base.Splitter;
@@ -28,14 +27,11 @@ public final class TextFormatter {
   private static final Logger logger = LoggerFactory.getLogger(TextFormatter.class);
   private static final CiviFormMarkdown CIVIFORM_MARKDOWN = new CiviFormMarkdown();
 
-  public static ImmutableList<DomContent> formatText(
+  /** Adds an aria label to links before passing provided text through Markdown formatter. */
+  public static ImmutableList<DomContent> formatTextWithAriaLabel(
       String text, boolean preserveEmptyLines, boolean addRequiredIndicator, Messages messages) {
-    // do the messages thing here
-    // call the other method
-
     CIVIFORM_MARKDOWN.setAriaLabel(
         messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT));
-
     return formatText(text, preserveEmptyLines, addRequiredIndicator);
   }
 
@@ -49,9 +45,8 @@ public final class TextFormatter {
       text = preserveEmptyLines(text);
     }
 
-    String markdownText = CIVIFORM_MARKDOWN.render(text); // pass in request here
+    String markdownText = CIVIFORM_MARKDOWN.render(text);
     markdownText = addIconToLinks(markdownText);
-    // markdownText = addAriaLabelsToLinks(markdownText, messages);
     markdownText = addTextSize(markdownText);
     if (addRequiredIndicator) {
       markdownText = addRequiredIndicator(markdownText);

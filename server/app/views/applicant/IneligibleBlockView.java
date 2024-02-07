@@ -82,8 +82,11 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                     li().with(
                             div()
                                 .with(
-                                    TextFormatter.formatText(
-                                        question.getQuestionText(), false, false)))));
+                                    TextFormatter.formatTextWithAriaLabel(
+                                        question.getQuestionText(), /* preserveEmptyLines */
+                                        false, /* addRequiredIndicator */
+                                        false,
+                                        messages)))));
 
     DivTag content =
         div()
