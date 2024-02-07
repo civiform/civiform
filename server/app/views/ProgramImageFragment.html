@@ -1,0 +1,6 @@
+<img th:fragment="image"
+    th:src="${src}"
+    th:alt="${altText}"
+    class="w-full aspect-video object-cover"
+    th:classappend="${isWithinProgramCard ? 'rounded-b-lg' : ''}">
+</img>

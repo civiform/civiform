@@ -7,9 +7,9 @@ import static j2html.TagCreator.span;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.PTag;
 import java.time.Instant;
 import java.util.Comparator;
@@ -213,7 +213,7 @@ public final class ProgramCardFactory {
       // If the program card images feature isn't enabled, don't make any changes to the admin page.
       return div();
     }
-    Optional<ImgTag> image =
+    Optional<DomContent> image =
         programImageUtils.createProgramImage(
             request, program, Locale.getDefault(), /* isWithinProgramCard= */ false);
     if (image.isPresent()) {

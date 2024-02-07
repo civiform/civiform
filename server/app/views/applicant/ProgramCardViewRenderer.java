@@ -23,7 +23,6 @@ import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.PTag;
 import java.time.Instant;
@@ -102,7 +101,7 @@ public final class ProgramCardViewRenderer {
 
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
-    Optional<ImgTag> programImage =
+    Optional<DomContent> programImage =
         programImageUtils.createProgramImage(
             request, program, preferredLocale, /* isWithinProgramCard= */ true);
 
