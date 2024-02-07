@@ -651,7 +651,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
     emptyPredicateContentBuilder
         .add(text(" You can change this in the "))
         .add(
-            a().withText("program settings.")
+            a().withData("testid", "goto-program-settings-link")
+                .withText("program settings.")
                 .withHref(routes.AdminProgramController.editProgramSettings(program.id()).url())
                 .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT));
     return div().with(emptyPredicateContentBuilder.build());
@@ -971,7 +972,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
 
     String toggleAddressCorrectionAction =
-        controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
+        controllers.admin.routes.AdminProgramBlockQuestionsController
+            .toggleAddressCorrectionEnabledState(
                 programDefinition.id(), blockDefinition.id(), questionDefinition.getId())
             .url();
     ButtonTag addressCorrectionButton =
@@ -1018,7 +1020,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 input()
                     .isHidden()
                     .withName("addressCorrectionEnabled")
-                    .withValue(addressCorrectionEnabled ? "false" : "true"))
+                    .withValue(String.valueOf(addressCorrectionEnabled)))
             .with(addressCorrectionButton));
   }
 

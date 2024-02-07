@@ -292,12 +292,11 @@ describe('program creation', () => {
 
     const addressCorrectionInput = adminPrograms.getAddressCorrectionToggle()
 
-    // the input value shows what it will be set to when clicked
-    expect(await addressCorrectionInput.inputValue()).toBe('true')
+    expect(await addressCorrectionInput.inputValue()).toBe('false')
 
     await adminPrograms.clickAddressCorrectionToggle()
 
-    expect(await addressCorrectionInput.inputValue()).toBe('false')
+    expect(await addressCorrectionInput.inputValue()).toBe('true')
 
     await validateScreenshot(
       page,
@@ -346,18 +345,16 @@ describe('program creation', () => {
     const addressCorrectionHelpText2 =
       adminPrograms.getAddressCorrectionHelpTextByName('ace-address-two')
 
-    // the input value shows what it will be set to when clicked, so the
-    // opposite of its current value
-    expect(await addressCorrectionInput1.inputValue()).toBe('true')
-    expect(await addressCorrectionInput2.inputValue()).toBe('true')
+    expect(await addressCorrectionInput1.inputValue()).toBe('false')
+    expect(await addressCorrectionInput2.inputValue()).toBe('false')
 
     expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
     expect(await addressCorrectionHelpText2.innerText()).not.toContain(helpText)
 
     await adminPrograms.clickAddressCorrectionToggleByName('ace-address-one')
 
-    expect(await addressCorrectionInput1.inputValue()).toBe('false')
-    expect(await addressCorrectionInput2.inputValue()).toBe('true')
+    expect(await addressCorrectionInput1.inputValue()).toBe('true')
+    expect(await addressCorrectionInput2.inputValue()).toBe('false')
     expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
     expect(await addressCorrectionHelpText2.innerText()).toContain(helpText)
 
@@ -369,8 +366,8 @@ describe('program creation', () => {
     // Trying to toggle the other one should not do anything
     await adminPrograms.clickAddressCorrectionToggleByName('ace-address-two')
 
-    expect(await addressCorrectionInput1.inputValue()).toBe('false')
-    expect(await addressCorrectionInput2.inputValue()).toBe('true')
+    expect(await addressCorrectionInput1.inputValue()).toBe('true')
+    expect(await addressCorrectionInput2.inputValue()).toBe('false')
     expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
     expect(await addressCorrectionHelpText2.innerText()).toContain(helpText)
 
@@ -383,8 +380,8 @@ describe('program creation', () => {
     await adminPrograms.clickAddressCorrectionToggleByName('ace-address-one')
     await adminPrograms.clickAddressCorrectionToggleByName('ace-address-two')
 
-    expect(await addressCorrectionInput1.inputValue()).toBe('true')
-    expect(await addressCorrectionInput2.inputValue()).toBe('false')
+    expect(await addressCorrectionInput1.inputValue()).toBe('false')
+    expect(await addressCorrectionInput2.inputValue()).toBe('true')
     expect(await addressCorrectionHelpText1.innerText()).toContain(helpText)
     expect(await addressCorrectionHelpText2.innerText()).not.toContain(helpText)
 
@@ -417,12 +414,11 @@ describe('program creation', () => {
 
     const addressCorrectionInput = adminPrograms.getAddressCorrectionToggle()
 
-    // the input value shows what it will be set to when clicked
-    expect(await addressCorrectionInput.inputValue()).toBe('true')
+    expect(await addressCorrectionInput.inputValue()).toBe('false')
 
     await adminPrograms.clickAddressCorrectionToggle()
     // should be the same as before with button submit disabled
-    expect(await addressCorrectionInput.inputValue()).toBe('true')
+    expect(await addressCorrectionInput.inputValue()).toBe('false')
   })
 
   it('change questions order within block', async () => {
