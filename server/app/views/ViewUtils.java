@@ -381,6 +381,7 @@ public final class ViewUtils {
     return div()
         .withCondHidden(hidden)
         .withClasses("usa-alert", String.join(" ", classes))
+
         .with(
             div()
                 .withClasses("usa-alert__body")
