@@ -14,6 +14,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Optional;
 import models.AccountModel;
+import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
 import play.data.Form;
 import play.i18n.Messages;
@@ -21,7 +22,6 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.AccountRepository;
 import services.DateConverter;
-import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
 import services.ti.TrustedIntermediaryService;
 import views.BaseHtmlView;
@@ -95,7 +95,7 @@ public class EditTiClientView extends BaseHtmlView {
       Http.Request request,
       Optional<Form<EditTiClientInfoForm>> form,
       Messages messages) {
-    ApplicantData applicantData = account.newestApplicant().get().getApplicantData();
+    ApplicantModel applicant = account.newestApplicant().get();
     FormTag formTag =
         form()
             .withId("edit-ti")
@@ -108,7 +108,7 @@ public class EditTiClientView extends BaseHtmlView {
                 .setFieldName("firstName")
                 .setLabelText("First name")
                 .setRequired(true)
-                .setValue(applicantData.getApplicantFirstName()),
+                .setValue(applicant.getFirstName()),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_FIRST_NAME,
             messages);
@@ -119,7 +119,7 @@ public class EditTiClientView extends BaseHtmlView {
                 .setId("edit-middle-name-input")
                 .setFieldName("middleName")
                 .setLabelText("Middle name")
-                .setValue(applicantData.getApplicantMiddleName()),
+                .setValue(applicant.getMiddleName()),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_MIDDLE_NAME,
             messages);
@@ -130,7 +130,7 @@ public class EditTiClientView extends BaseHtmlView {
                 .setFieldName("lastName")
                 .setLabelText("Last name")
                 .setRequired(true)
-                .setValue(applicantData.getApplicantLastName()),
+                .setValue(applicant.getLastName()),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_LAST_NAME,
             messages);
@@ -142,7 +142,7 @@ public class EditTiClientView extends BaseHtmlView {
                 .setAttribute("inputmode", "tel")
                 .setFieldName("phoneNumber")
                 .setLabelText("Phone number")
-                .setValue(applicantData.getPhoneNumber().orElse("")),
+                .setValue(applicant.getPhoneNumber()),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_PHONE,
             messages);
@@ -171,7 +171,7 @@ public class EditTiClientView extends BaseHtmlView {
                 .setLabelText("Date of birth")
                 .setRequired(true)
                 .setValue(
-                    applicantData
+                    applicant
                         .getDateOfBirth()
                         .map(this.dateConverter::formatIso8601Date)
                         .orElse("")),

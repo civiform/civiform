@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -48,6 +50,15 @@ public class ApplicantModel extends BaseModel {
   @OneToMany(mappedBy = "applicant")
   private List<ApplicationModel> applications;
 
+  // Primary applicant information
+  private String firstName;
+  private String middleName;
+  private String lastName;
+  private String emailAddress;
+  private String countryCode;
+  private String phoneNumber;
+  private LocalDate dateOfBirth;
+
   public ApplicantModel() {
     super();
   }
@@ -68,13 +79,13 @@ public class ApplicantModel extends BaseModel {
     if (this.applicantData == null && (object != null && !object.isEmpty())) {
       if (preferredLocale == null || preferredLocale.isEmpty()) {
         // Default to English until the applicant specifies their preferred language.
-        this.applicantData = new ApplicantData(object);
+        this.applicantData = new ApplicantData(object, this);
       } else {
         this.applicantData =
-            new ApplicantData(Optional.of(Locale.forLanguageTag(preferredLocale)), object);
+            new ApplicantData(Optional.of(Locale.forLanguageTag(preferredLocale)), object, this);
       }
     } else if (this.applicantData == null) {
-      this.applicantData = new ApplicantData();
+      this.applicantData = new ApplicantData(this);
     }
     return applicantData;
   }
@@ -87,6 +98,77 @@ public class ApplicantModel extends BaseModel {
             ? getApplicantData().preferredLocale().toLanguageTag()
             : null;
     this.object = objectAsJsonString();
+  }
+
+  public ApplicantModel setFirstName(String firstName) {
+    this.firstName = firstName.isEmpty() || firstName.isBlank() ? null : firstName;
+    return this;
+  }
+
+  public Optional<String> getFirstName() {
+    return Optional.ofNullable(this.firstName);
+  }
+
+  public ApplicantModel setMiddleName(String middleName) {
+    this.middleName = middleName.isEmpty() || middleName.isBlank() ? null : middleName;
+    return this;
+  }
+
+  public Optional<String> getMiddleName() {
+    return Optional.ofNullable(middleName);
+  }
+
+  public ApplicantModel setLastName(String lastName) {
+    this.lastName = lastName.isEmpty() || lastName.isBlank() ? null : lastName;
+    return this;
+  }
+
+  public Optional<String> getLastName() {
+    return Optional.ofNullable(lastName);
+  }
+
+  public ApplicantModel setEmailAddress(String emailAddress) {
+    this.emailAddress = emailAddress.isEmpty() || emailAddress.isBlank() ? null : emailAddress;
+    return this;
+  }
+
+  public Optional<String> getEmailAddress() {
+    return Optional.ofNullable(emailAddress);
+  }
+
+  public ApplicantModel setCountryCode(String countryCode) {
+    this.countryCode = countryCode.isEmpty() || countryCode.isBlank() ? null : countryCode;
+    return this;
+  }
+
+  public Optional<String> getCountryCode() {
+    return Optional.ofNullable(countryCode);
+  }
+
+  public ApplicantModel setPhoneNumber(String phoneNumber) {
+    this.phoneNumber = phoneNumber.isEmpty() || phoneNumber.isBlank() ? null : phoneNumber;
+    return this;
+  }
+
+  public Optional<String> getPhoneNumber() {
+    return Optional.ofNullable(phoneNumber);
+  }
+
+  public ApplicantModel setDateOfBirth(LocalDate dateOfBirth) {
+    this.dateOfBirth = dateOfBirth;
+    return this;
+  }
+
+  public ApplicantModel setDateOfBirth(String dateOfBirth) {
+    this.dateOfBirth =
+        dateOfBirth.isEmpty() || dateOfBirth.isBlank()
+            ? null
+            : LocalDate.parse(dateOfBirth, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    return this;
+  }
+
+  public Optional<LocalDate> getDateOfBirth() {
+    return Optional.ofNullable(dateOfBirth);
   }
 
   private String objectAsJsonString() {

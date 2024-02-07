@@ -97,10 +97,11 @@ public class ApplicationModel extends BaseModel {
   public ApplicantData getApplicantData() {
     if (this.preferredLocale == null || this.preferredLocale.isEmpty()) {
       // Default to English.
-      return new ApplicantData(this.object);
+      return new ApplicantData(this.object, this.applicant);
     }
 
-    return new ApplicantData(Optional.of(Locale.forLanguageTag(preferredLocale)), this.object);
+    return new ApplicantData(
+        Optional.of(Locale.forLanguageTag(preferredLocale)), this.object, this.applicant);
   }
 
   public ApplicationModel setApplicantData(ApplicantData data) {

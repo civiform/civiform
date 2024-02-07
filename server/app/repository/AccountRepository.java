@@ -30,7 +30,6 @@ import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
 import org.pac4j.oidc.profile.OidcProfile;
 import services.CiviFormError;
-import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
 import services.ti.EmailAddressExistsException;
 import services.ti.NoSuchTrustedIntermediaryError;
@@ -184,11 +183,14 @@ public final class AccountRepository {
           throw new EmailAddressExistsException();
         }
         account.setEmailAddress(email);
+        applicant.setEmailAddress(email);
       }
       account.setTiNote(tiNote);
-      applicant.getApplicantData().setPhoneNumber(phoneNumber);
-      applicant.getApplicantData().updateUserName(firstName, middleName, lastName);
-      applicant.getApplicantData().setDateOfBirth(newDob);
+      applicant.setPhoneNumber(phoneNumber);
+      applicant.setFirstName(firstName);
+      applicant.setMiddleName(middleName);
+      applicant.setLastName(lastName);
+      applicant.setDateOfBirth(newDob);
       account.save();
       applicant.save();
       database.saveAll(account, applicant);
@@ -343,9 +345,11 @@ public final class AccountRepository {
     newAccount.save();
     ApplicantModel applicant = new ApplicantModel();
     applicant.setAccount(newAccount);
-    ApplicantData applicantData = applicant.getApplicantData();
-    applicantData.setUserName(form.getFirstName(), form.getMiddleName(), form.getLastName());
-    applicantData.setDateOfBirth(form.getDob());
+    applicant.setFirstName(form.getFirstName());
+    applicant.setMiddleName(form.getMiddleName());
+    applicant.setLastName(form.getLastName());
+    applicant.setDateOfBirth(form.getDob());
+    applicant.setEmailAddress(form.getEmailAddress());
     applicant.save();
   }
 

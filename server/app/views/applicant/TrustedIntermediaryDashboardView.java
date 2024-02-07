@@ -49,7 +49,6 @@ import repository.SearchParameters;
 import services.DateConverter;
 import services.PhoneValidationResult;
 import services.PhoneValidationUtils;
-import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
 import services.ti.TrustedIntermediaryService;
 import views.BaseHtmlView;
@@ -307,8 +306,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     if (newestApplicant.isEmpty()) {
       return div();
     }
-    ApplicantData applicantData = newestApplicant.get().getApplicantData();
-    Optional<String> maybePhoneNumber = applicantData.getPhoneNumber();
+    Optional<String> maybePhoneNumber = newestApplicant.get().getPhoneNumber();
     String email = account.getEmailAddress();
 
     return div(
@@ -389,7 +387,6 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     String currentDob =
         newestApplicant
             .get()
-            .getApplicantData()
             .getDateOfBirth()
             .map(this.dateConverter::formatIso8601Date)
             .orElse("");
