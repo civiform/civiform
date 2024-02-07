@@ -7,9 +7,16 @@ import services.cloud.StorageUploadRequest;
 /** A fake implementation of {@link PublicStorageClient} to be used in tests. */
 public final class FakePublicStorageClient extends PublicStorageClient {
 
+  public static final String FAKE_BUCKET_NAME = "fakeBucket";
+
   private ImmutableSet<String> lastInUseFileKeys;
 
   public FakePublicStorageClient() {}
+
+  @Override
+  public String getBucketName() {
+    return FAKE_BUCKET_NAME;
+  }
 
   @Override
   public StorageUploadRequest getSignedUploadRequest(

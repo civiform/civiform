@@ -8,7 +8,9 @@ import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
+import static support.cloud.FakePublicStorageClient.FAKE_BUCKET_NAME;
 
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -17,16 +19,20 @@ import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ResetPostgres;
+import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import support.ProgramBuilder;
+import support.cloud.FakePublicStorageClient;
 import views.admin.programs.ProgramEditStatus;
+import views.admin.programs.ProgramImageView;
 
 @RunWith(JUnitParamsRunner.class)
 public class AdminProgramImageControllerTest extends ResetPostgres {
@@ -38,7 +44,15 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   @Before
   public void setup() {
     programService = instanceOf(ProgramService.class);
-    controller = instanceOf(AdminProgramImageController.class);
+    controller =
+        new AdminProgramImageController(
+            new FakePublicStorageClient(),
+            programService,
+            instanceOf(ProgramImageView.class),
+            instanceOf(RequestChecker.class),
+            instanceOf(FormFactory.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(VersionRepository.class));
   }
 
   @Test
@@ -430,7 +444,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         addCSRFToken(
                 fakeRequest()
                     .method("POST")
-                    .bodyForm(ImmutableMap.of("bucket", "fakeBucket", "key", "fakeFileKey")))
+                    .bodyForm(ImmutableMap.of("bucket", FAKE_BUCKET_NAME, "key", "fakeFileKey")))
             .build();
 
     assertThatExceptionOfType(NotChangeableException.class)
@@ -444,7 +458,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         addCSRFToken(
                 fakeRequest()
                     .method("POST")
-                    .bodyForm(ImmutableMap.of("bucket", "fakeBucket", "key", "fakeFileKey")))
+                    .bodyForm(ImmutableMap.of("bucket", FAKE_BUCKET_NAME, "key", "fakeFileKey")))
             .build();
 
     assertThatExceptionOfType(NotChangeableException.class)
@@ -477,7 +491,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     Http.Request request =
         addCSRFToken(
                 fakeRequest(
-                    "POST", createUriWithQueryString(ImmutableMap.of("bucket", "fakeBucket"))))
+                    "POST", createUriWithQueryString(ImmutableMap.of("bucket", FAKE_BUCKET_NAME))))
             .build();
 
     assertThatExceptionOfType(IllegalArgumentException.class)
@@ -487,7 +501,24 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void updateFileKey_incorrectlyFormatted_throwsException() {
+  public void updateFileKey_bucketDoesNotMatchPublicBucket_throwsException() {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    Http.Request request =
+        addCSRFToken(
+                fakeRequest(
+                    "POST",
+                    createUriWithQueryString(ImmutableMap.of("bucket", FAKE_BUCKET_NAME + "abc"))))
+            .build();
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(
+            () -> controller.updateFileKey(request, program.id, ProgramEditStatus.CREATION.name()))
+        .withMessageContaining("doesn't match the public bucket name");
+  }
+
+  @Test
+  public void updateFileKey_keyIncorrectlyFormatted_throwsException() {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
 
     Http.Request request =
@@ -495,7 +526,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                 fakeRequest(
                     "POST",
                     createUriWithQueryString(
-                        ImmutableMap.of("bucket", "fakeBucket", "key", "applicant-10/myFile"))))
+                        ImmutableMap.of("bucket", FAKE_BUCKET_NAME, "key", "applicant-10/myFile"))))
             .build();
 
     assertThatExceptionOfType(IllegalArgumentException.class)
@@ -515,7 +546,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                     createUriWithQueryString(
                         ImmutableMap.of(
                             "bucket",
-                            "fakeBucket",
+                            FAKE_BUCKET_NAME,
                             "key",
                             "program-summary-image/program-15/myImage.png"))))
             .build(),
@@ -549,7 +580,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                     createUriWithQueryString(
                         ImmutableMap.of(
                             "bucket",
-                            "fakeBucket",
+                            FAKE_BUCKET_NAME,
                             "key",
                             "program-summary-image/program-15/oldImage.png"))))
             .build(),
@@ -569,7 +600,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                     createUriWithQueryString(
                         ImmutableMap.of(
                             "bucket",
-                            "fakeBucket",
+                            FAKE_BUCKET_NAME,
                             "key",
                             "program-summary-image/program-15/newImage.png"))))
             .build(),
@@ -595,7 +626,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                         createUriWithQueryString(
                             ImmutableMap.of(
                                 "bucket",
-                                "fakeBucket",
+                                FAKE_BUCKET_NAME,
                                 "key",
                                 "program-summary-image/program-15/newImage.png"))))
                 .build(),
@@ -699,7 +730,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                     fakeRequest(
                         "POST",
                         createUriWithQueryString(
-                            ImmutableMap.of("bucket", "fakeBucket", "key", VALID_FILE_KEY))))
+                            ImmutableMap.of("bucket", FAKE_BUCKET_NAME, "key", VALID_FILE_KEY))))
                 .build(),
             program.id,
             ProgramEditStatus.CREATION.name());
