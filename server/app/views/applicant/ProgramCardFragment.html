@@ -22,11 +22,7 @@
         </div>
         <div th:if="${showSubmittedDate}" th:replace="~{applicant/ProgramCardFragment :: submitted-date}"></div>
     </div>
-    <div class="mt-4 mb-6 flex items-center justify-center">
-        <button id="uuid-75ca8451-b823-45e4-bad0-6bafb30f6b46-button" aria-label="Apply to Minimal Sample Program" class="cf-apply-button block py-2 text-center rounded-full border bg-seattle-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-sm">
-            Apply
-        </button>
-    </div>
+    <div th:replace="~{applicant/ProgramCardFragment :: apply-button}"></div>
 </li>
 
 
@@ -36,7 +32,6 @@
     <span th:text="${applicationStatus}" class="p2 text-xs font-medium text-seattle-blue"></span>
 </p>
 
-<!-- Add tagClass and color -->
 <p th:fragment="eligibility-tag" th:if="${shouldShowEligibilityTag}" 
    class="border rounded-full px-2 py-1 mb-4 gap-x-2 inline-block w-auto"
    th:classappend="${eligibilityContainerClasses}">
@@ -48,4 +43,9 @@
 
 <div th:fragment="submitted-date" class="text-xs text-gray-700">
     [(${beforeDateText})]<span class="font-semibold" th:text="${submittedDateText}"></span>[(${afterDateText})]
+</div>
+
+<div th:fragment="apply-button" class="mt-4 mb-6 flex items-center justify-center">
+    <button th:if="${isGuest}" th:id="${loginModalId}" th:class="${applyButtonClasses}" th:text="${applyButtonText}" th:aria-label="${applyButtonAriaLabel}"></button>
+    <a th:unless="${isGuest}" th:href="${actionUrl}" th:id="${id + '-apply'}" th:class="${applyButtonClasses}" th:text="${applyButtonText}" th:aria-label="${applyButtonAriaLabel}"></a>
 </div>

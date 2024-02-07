@@ -2,8 +2,10 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.rawHtml;
+import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAMS_INDEX_LOGIN_PROMPT;
+
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
@@ -29,11 +31,11 @@ import services.settings.SettingsManifest;
 import views.HtmlBundle;
 import views.ProgramImageUtils;
 import views.TranslationUtils;
+import views.components.ButtonStyles;
 import views.components.Icons;
 import views.components.Modal;
 import views.components.TextFormatter;
 import views.style.BaseStyles;
-
 import views.style.ReferenceClasses;
 
 /** A renderer to create an individual program information card. */
@@ -99,7 +101,10 @@ public final class ProgramCardViewRenderer {
             /* addRequiredIndicator= */ false);
 
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
-    context.setVariable("openInNewIcon", Icons.svg(templateEngine, context, Icons.OPEN_IN_NEW, ImmutableSet.of("mr-2", "w-5", "h-5")));
+    context.setVariable(
+        "openInNewIcon",
+        Icons.svg(
+            templateEngine, context, Icons.OPEN_IN_NEW, ImmutableSet.of("mr-2", "w-5", "h-5")));
     context.setVariable("id", baseId);
     context.setVariable(
         "programLocalizedName", program.localizedName().getOrDefault(preferredLocale));
@@ -143,8 +148,10 @@ public final class ProgramCardViewRenderer {
       MessageKey mayQualifyMessage =
           isTrustedIntermediary ? MessageKey.TAG_MAY_QUALIFY_TI : MessageKey.TAG_MAY_QUALIFY;
       MessageKey mayNotQualifyMessage =
-          isTrustedIntermediary ? MessageKey.TAG_MAY_NOT_QUALIFY_TI : MessageKey.TAG_MAY_NOT_QUALIFY;
-          boolean isEligible = cardData.isProgramMaybeEligible().get();
+          isTrustedIntermediary
+              ? MessageKey.TAG_MAY_NOT_QUALIFY_TI
+              : MessageKey.TAG_MAY_NOT_QUALIFY;
+      boolean isEligible = cardData.isProgramMaybeEligible().get();
       Icons icon = isEligible ? Icons.CHECK_CIRCLE : Icons.INFO;
       String color = isEligible ? BaseStyles.BG_CIVIFORM_GREEN_LIGHT : "bg-gray-200";
       String textColor = isEligible ? BaseStyles.TEXT_CIVIFORM_GREEN : "text-black";
@@ -152,7 +159,13 @@ public final class ProgramCardViewRenderer {
           isEligible ? ReferenceClasses.ELIGIBLE_TAG : ReferenceClasses.NOT_ELIGIBLE_TAG;
       String tagText =
           isEligible ? mayQualifyMessage.getKeyName() : mayNotQualifyMessage.getKeyName();
-      context.setVariable("eligibilityIcon", Icons.svg(templateEngine, context, icon, ImmutableSet.of("inline-block", "h-4.5", "w-4.5", textColor)));
+      context.setVariable(
+          "eligibilityIcon",
+          Icons.svg(
+              templateEngine,
+              context,
+              icon,
+              ImmutableSet.of("inline-block", "h-4.5", "w-4.5", textColor)));
       context.setVariable("eligibilityText", messages.at(tagText));
       context.setVariable("eligibilityContainerClasses", color + " " + tagClass);
       context.setVariable("eligibilityTextClasses", textColor);
@@ -174,9 +187,12 @@ public final class ProgramCardViewRenderer {
       context.setVariable("submittedDateText", formattedSubmitTime);
     }
 
-        String actionUrl = applicantRoutes.review(profile, applicantId, program.id()).url();
+    // If the user is a guest, show the login prompt modal, which has a button
+    // to continue on to the application. Otherwise, show the button to go to the
+    // application directly.
+    String actionUrl = applicantRoutes.review(profile, applicantId, program.id()).url();
 
-        Modal loginPromptModal =
+    Modal loginPromptModal =
         createLoginPromptModal(
                 messages,
                 actionUrl,
@@ -189,29 +205,20 @@ public final class ProgramCardViewRenderer {
             .build();
     bundle.addModals(loginPromptModal);
 
+    context.setVariable("isGuest", applicantType == GUEST);
+    context.setVariable("actionUrl", actionUrl);
+    context.setVariable("loginModalId", loginPromptModal.getTriggerButtonId());
+    context.setVariable(
+        "applyButtonClasses",
+        ReferenceClasses.APPLY_BUTTON + " " + ButtonStyles.SOLID_BLUE_TEXT_SM);
+    context.setVariable("applyButtonText", messages.at(buttonTitle.getKeyName()));
+    context.setVariable(
+        "applyButtonAriaLabel",
+        messages.at(
+            buttonSrText.getKeyName(), program.localizedName().getOrDefault(preferredLocale)));
     return rawHtml(
         templateEngine.process(
             "applicant/ProgramCardFragment", ImmutableSet.of("program-card"), context));
-
-    // // If the user is a guest, show the login prompt modal, which has a button
-    // // to continue on to the application. Otherwise, show the button to go to the
-    // // application directly.
-    // ContainerTag content =
-    //     applicantType == GUEST
-    //         ? TagCreator.button().withId(loginPromptModal.getTriggerButtonId())
-    //         : a().withHref(actionUrl).withId(baseId + "-apply");
-
-    // content
-    //     .withText(messages.at(buttonTitle.getKeyName()))
-    //     .attr(
-    //         "aria-label",
-    //         messages.at(
-    //             buttonSrText.getKeyName(),
-    // program.localizedName().getOrDefault(preferredLocale)))
-    //     .withClasses(ReferenceClasses.APPLY_BUTTON, ButtonStyles.SOLID_BLUE_TEXT_SM);
-
-
-    // return cardListItem.with(programData).with(actionDiv);
   }
 
   /**

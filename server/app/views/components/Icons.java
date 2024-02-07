@@ -3,10 +3,9 @@ package views.components;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import modules.ThymeleafModule;
+import org.apache.commons.lang3.StringUtils;
 import org.thymeleaf.TemplateEngine;
 import services.question.types.QuestionType;
-import org.apache.commons.lang3.StringUtils;
-
 
 /**
  * Class to hold constants for icons and provide methods for rendering SVG components. You can see
@@ -523,13 +522,18 @@ public enum Icons {
   }
 
   public static String svg(
-      TemplateEngine templateEngine, ThymeleafModule.PlayThymeleafContext context, Icons icon, ImmutableSet<String> svgClasses) {
+      TemplateEngine templateEngine,
+      ThymeleafModule.PlayThymeleafContext context,
+      Icons icon,
+      ImmutableSet<String> svgClasses) {
     var iconViewBox =
         icon.viewBox.orElseGet(() -> String.format("0 0 %1$d %2$d", icon.size, icon.size));
     context.setVariable("pathValue", icon.path);
     context.setVariable("viewBox", iconViewBox);
     context.setVariable("svgClasses", StringUtils.join(svgClasses, " "));
-    System.out.println("An icon: " + templateEngine.process("components/IconFragment", ImmutableSet.of("icon"), context));
+    System.out.println(
+        "An icon: "
+            + templateEngine.process("components/IconFragment", ImmutableSet.of("icon"), context));
     return templateEngine.process("components/IconFragment", ImmutableSet.of("icon"), context);
   }
 
