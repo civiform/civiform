@@ -1,5 +1,6 @@
 package controllers.applicant;
 
+import static controllers.applicant.ApplicantProgramBlocksController.ADDRESS_JSON_SESSION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
@@ -14,6 +15,7 @@ import static support.CfTestHelpers.requestBuilderWithSettings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
+import controllers.geo.AddressSuggestionJsonSerializer;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,13 +29,18 @@ import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import repository.StoredFileRepository;
+import services.Address;
 import services.Path;
 import services.applicant.question.Scalar;
+import services.geo.AddressLocation;
+import services.geo.AddressSuggestion;
 import support.ProgramBuilder;
+import views.applicant.AddressCorrectionBlockView;
 
 public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   private ApplicantProgramBlocksController subject;
+  private AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private ProgramModel program;
   private ApplicantModel applicant;
 
@@ -42,6 +49,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     resetDatabase();
 
     subject = instanceOf(ApplicantProgramBlocksController.class);
+    addressSuggestionJsonSerializer = instanceOf(AddressSuggestionJsonSerializer.class);
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
@@ -1349,6 +1357,182 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
 
+  /////// Start of the new tests
+
+  @Test
+  public void confirmAddress_invalidApplicant_returnsUnauthorized() {
+    long badApplicantId = applicant.id + 1000;
+    Request request =
+        requestBuilderWithSettings(
+                routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
+                    badApplicantId, program.id, /* blockId= */ "1", /* inReview= */ false))
+            .session(ADDRESS_JSON_SESSION_KEY, createAddressJson())
+            .build();
+
+    Result result =
+        subject
+            .confirmAddressWithApplicantId(
+                request, badApplicantId, program.id, /* blockId= */ "1", /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void confirmAddress_applicantAccessToDraftProgram_returnsUnauthorized() {
+    ProgramModel draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
+            .build();
+
+    Request request =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                    routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
+                        applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)))
+            .session(ADDRESS_JSON_SESSION_KEY, createAddressJson())
+            .build();
+    Result result =
+        subject
+            .confirmAddressWithApplicantId(
+                request, applicant.id, draftProgram.id, /* blockId= */ "1", /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void confirmAddress_civiformAdminAccessToDraftProgram_isOk() {
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
+    applicant = adminAccount.newestApplicant().orElseThrow();
+    ProgramModel draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
+            .build();
+
+    Request request =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                    routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
+                        applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)))
+            .session(ADDRESS_JSON_SESSION_KEY, createAddressJson())
+            .build();
+    Result result =
+        subject
+            .confirmAddressWithApplicantId(
+                request, applicant.id, draftProgram.id, /* blockId= */ "1", /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void confirmAddress_obsoleteProgram_isOk() {
+    ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+
+    Request request =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                    routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
+                        applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)))
+            .session(ADDRESS_JSON_SESSION_KEY, createAddressJson())
+            .build();
+    Result result =
+        subject
+            .confirmAddressWithApplicantId(
+                request,
+                applicant.id,
+                obsoleteProgram.id,
+                /* blockId= */ "1",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void confirmAddress_toAProgramThatDoesNotExist_returns404() {
+    Request request =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                    routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
+                        applicant.id,
+                        program.id + 1000,
+                        /* blockId= */ "1",
+                        /* inReview= */ false)))
+            .session(ADDRESS_JSON_SESSION_KEY, createAddressJson())
+            .build();
+
+    Result result =
+        subject
+            .confirmAddressWithApplicantId(
+                request, applicant.id, program.id + 1000, /* blockId= */ "1", /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void confirmAddress_noAddressJson_throws() {}
+
+  @Test
+  public void confirmAddress_noSelectedAddress_TODO() {}
+
+  @Test
+  public void confirmAddress_suggestionChosen_savesSuggestion() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
+            .withBlock("block 2")
+            .withRequiredQuestion(testQuestionBank().applicantIceCream())
+            .build();
+
+    String originalAddressString = createAddressJson();
+    String selectedAddress = "123 Selected Ave, Redlands, California, 92373";
+
+    Request request =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
+                            applicant.id, program.id, "1", false))
+                    .session(ADDRESS_JSON_SESSION_KEY, originalAddressString)
+                    .bodyForm(
+                        ImmutableMap.of(
+                            AddressCorrectionBlockView.SELECTED_ADDRESS_NAME, selectedAddress)))
+            .build();
+    Result result =
+        subject
+            .confirmAddressWithApplicantId(
+                request, applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    // check that the user is redirected to the next page
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    String nextBlockEditRoute =
+        routes.ApplicantProgramBlocksController.edit(
+                program.id, /* blockId= */ "2", /* questionName= */ Optional.empty())
+            .url();
+    assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
+
+    // assert that the corrected address is saved
+    applicant.refresh();
+    assertThat(applicant.getApplicantData().asJsonString()).contains(selectedAddress);
+  }
+
+  @Test
+  public void confirmAddress_originalAddressChosen_savesOriginal() {}
+
+  // TODO: Verify session value is cleared
+
   private RequestBuilder addQueryString(
       RequestBuilder request, ImmutableMap<String, String> query) {
     String queryString =
@@ -1356,5 +1540,28 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .map(entry -> String.format("%s=%s", entry.getKey(), entry.getValue()))
             .collect(Collectors.joining("&"));
     return request.uri(request.uri() + "?" + queryString);
+  }
+
+  private String createAddressJson() {
+    AddressSuggestion address =
+        AddressSuggestion.builder()
+            .setAddress(
+                Address.builder()
+                    .setStreet("456 Original Ave")
+                    .setLine2("")
+                    .setCity("Seattle")
+                    .setState("WA")
+                    .setZip("99999")
+                    .build())
+            .setScore(90)
+            .setLocation(
+                AddressLocation.builder()
+                    .setLatitude(3.0)
+                    .setLongitude(3.1)
+                    .setWellKnownId(4)
+                    .build())
+            .setSingleLineAddress("456 Original Ave Seattle, WA 99999")
+            .build();
+    return addressSuggestionJsonSerializer.serialize(ImmutableList.of(address));
   }
 }
