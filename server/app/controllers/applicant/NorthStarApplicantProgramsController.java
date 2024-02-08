@@ -1,37 +1,25 @@
 package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
-import static java.util.concurrent.CompletableFuture.supplyAsync;
 
-import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import auth.controllers.MissingOptionalException;
+import com.google.common.collect.ImmutableSet;
+import controllers.AssetsFinder;
 import controllers.CiviFormController;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import modules.ThymeleafModule;
 import org.pac4j.play.java.Secure;
 import org.thymeleaf.TemplateEngine;
-import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
-import services.applicant.ApplicantService.ApplicantProgramData;
-import services.applicant.Block;
-import services.program.ProgramDefinition;
-import services.program.ProgramNotFoundException;
 import services.settings.SettingsManifest;
-import views.components.ToastMessage;
-import com.google.common.collect.ImmutableSet;
-import controllers.AssetsFinder;
 
 /**
  * Controller for handling methods for an applicant applying to programs. CAUTION: you must
@@ -82,8 +70,7 @@ public final class NorthStarApplicantProgramsController extends CiviFormControll
     return applicantStage.thenApplyAsync(
         v -> {
           String content =
-              templateEngine.process(
-                  "applicant/ProgramIndexView", buildContext(request));
+              templateEngine.process("applicant/ProgramIndexView", buildContext(request));
           return ok(content).as(Http.MimeTypes.HTML);
         });
   }
@@ -99,6 +86,8 @@ public final class NorthStarApplicantProgramsController extends CiviFormControll
   private ThymeleafModule.PlayThymeleafContext buildContext(Request request) {
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
     context.setVariable("tailwindStylesheet", assetsFinder.path("stylesheets/tailwind.css"));
+    context.setVariable("uswdsStylesheet", assetsFinder.path("dist/uswds.min.css"));
+    context.setVariable("uswdsJsBundle", assetsFinder.path("javascripts/uswds/uswds-init.min.js"));
     context.setVariable("adminJsBundle", assetsFinder.path("dist/admin.bundle.js"));
     context.setVariable("ApiDocsController", controllers.api.routes.ApiDocsController);
     return context;
