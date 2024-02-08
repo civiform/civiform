@@ -241,15 +241,30 @@ public final class ApplicantRoutes {
    * @param programId - ID of program to review
    * @param blockId - ID of the block to be updated
    * @param inReview - true if executing the review action (as opposed to edit)
+   * @param applicantRequestedAction - the page the applicant would like to see after the updates
+   *     are made
    * @return Route for the applicant update block action
    */
   public Call updateBlock(
-      CiviFormProfile profile, long applicantId, long programId, String blockId, boolean inReview) {
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String blockId,
+      boolean inReview,
+      ApplicantRequestedAction applicantRequestedAction) {
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.updateWithApplicantId(
-          applicantId, programId, blockId, inReview);
+          applicantId,
+          programId,
+          blockId,
+          inReview,
+          new ApplicantRequestedActionWrapper(applicantRequestedAction));
     } else {
-      return routes.ApplicantProgramBlocksController.update(programId, blockId, inReview);
+      return routes.ApplicantProgramBlocksController.update(
+          programId,
+          blockId,
+          inReview,
+          new ApplicantRequestedActionWrapper(applicantRequestedAction));
     }
   }
 }

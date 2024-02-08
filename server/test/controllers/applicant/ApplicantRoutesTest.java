@@ -710,8 +710,9 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  @Parameters({"true", "false"})
-  public void testUpdateBlockRoute_forApplicantWithIdInProfile_newSchemaEnabled(String inReview) {
+  @Parameters({"true, REVIEW_PAGE", "false, REVIEW_PAGE", "true, NEXT_BLOCK", "false, NEXT_BLOCK"})
+  public void testUpdateBlockRoute_forApplicantWithIdInProfile_newSchemaEnabled(
+      String inReview, String applicantRequestedAction) {
     Counts before = getApplicantIdInProfileCounts();
 
     CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
@@ -721,11 +722,18 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedUpdateBlockUrl =
-        String.format("/programs/%d/blocks/%s/%s", PROGRAM_ID, BLOCK_ID, inReview);
+        String.format(
+            "/programs/%d/blocks/%s/%s/%s",
+            PROGRAM_ID, BLOCK_ID, inReview, applicantRequestedAction);
     assertThat(
             new ApplicantRoutes()
                 .updateBlock(
-                    applicantProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Boolean.valueOf(inReview))
+                    applicantProfile,
+                    APPLICANT_ID,
+                    PROGRAM_ID,
+                    BLOCK_ID,
+                    Boolean.valueOf(inReview),
+                    ApplicantRequestedAction.valueOf(applicantRequestedAction))
                 .url())
         .isEqualTo(expectedUpdateBlockUrl);
 
@@ -735,8 +743,9 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  @Parameters({"true", "false"})
-  public void testUpdateBlockRoute_forApplicantWithoutIdInProfile(String inReview) {
+  @Parameters({"true, REVIEW_PAGE", "false, REVIEW_PAGE", "true, NEXT_BLOCK", "false, NEXT_BLOCK"})
+  public void testUpdateBlockRoute_forApplicantWithoutIdInProfile(
+      String inReview, String applicantRequestedAction) {
     Counts before = getApplicantIdInProfileCounts();
 
     CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
@@ -746,12 +755,17 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     String expectedUpdateBlockUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%s/%s",
-            APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReview);
+            "/applicants/%d/programs/%d/blocks/%s/%s/%s",
+            APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReview, applicantRequestedAction);
     assertThat(
             new ApplicantRoutes()
                 .updateBlock(
-                    applicantProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Boolean.valueOf(inReview))
+                    applicantProfile,
+                    APPLICANT_ID,
+                    PROGRAM_ID,
+                    BLOCK_ID,
+                    Boolean.valueOf(inReview),
+                    ApplicantRequestedAction.valueOf(applicantRequestedAction))
                 .url())
         .isEqualTo(expectedUpdateBlockUrl);
 
@@ -761,8 +775,9 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  @Parameters({"true", "false"})
-  public void testUpdateBlockRoute_forTrustedIntermediary(String inReview) {
+  @Parameters({"true, REVIEW_PAGE", "false, REVIEW_PAGE", "true, NEXT_BLOCK", "false, NEXT_BLOCK"})
+  public void testUpdateBlockRoute_forTrustedIntermediary(
+      String inReview, String applicantRequestedAction) {
     Counts before = getApplicantIdInProfileCounts();
 
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
@@ -771,12 +786,17 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     String expectedUpdateBlockUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%s/%s",
-            APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReview);
+            "/applicants/%d/programs/%d/blocks/%s/%s/%s",
+            APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReview, applicantRequestedAction);
     assertThat(
             new ApplicantRoutes()
                 .updateBlock(
-                    tiProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Boolean.valueOf(inReview))
+                    tiProfile,
+                    APPLICANT_ID,
+                    PROGRAM_ID,
+                    BLOCK_ID,
+                    Boolean.valueOf(inReview),
+                    ApplicantRequestedAction.valueOf(applicantRequestedAction))
                 .url())
         .isEqualTo(expectedUpdateBlockUrl);
 

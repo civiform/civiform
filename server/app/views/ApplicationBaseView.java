@@ -7,7 +7,9 @@ import static j2html.TagCreator.span;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
+import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.PTag;
 import j2html.tags.specialized.SpanTag;
@@ -18,6 +20,7 @@ import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
 import services.cloud.ApplicantStorageClient;
+import services.settings.SettingsManifest;
 import views.components.ButtonStyles;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererParams;
@@ -26,10 +29,48 @@ import views.style.BaseStyles;
 public class ApplicationBaseView extends BaseHtmlView {
   final String REVIEW_APPLICATION_BUTTON_ID = "review-application-button";
 
-  protected ATag renderReviewButton(ApplicationBaseView.Params params) {
-    ApplicantRoutes applicantRoutes = params.applicantRoutes();
+  /**
+   * Renders a "Review" button that will also save the applicant's data before redirecting to the
+   * review page (if the SAVE_ON_ALL_ACTIONS feature flag is on).
+   */
+  protected DomContent renderReviewButton(
+      SettingsManifest settingsManifest, ApplicationBaseView.Params params) {
+    String formAction =
+        params
+            .applicantRoutes()
+            .updateBlock(
+                params.profile(),
+                params.applicantId(),
+                params.programId(),
+                params.block().getId(),
+                params.inReview(),
+                ApplicantRequestedAction.REVIEW_PAGE)
+            .url();
+    return renderReviewButton(settingsManifest, params, formAction);
+  }
+
+  /** Renders a "Review" button with a custom action. */
+  protected DomContent renderReviewButton(
+      SettingsManifest settingsManifest, ApplicationBaseView.Params params, String formAction) {
+    if (settingsManifest.getSaveOnAllActions(params.request())) {
+      return submitButton(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
+          .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
+          .withFormaction(formAction);
+    }
+
+    return renderOldReviewButton(params);
+  }
+
+  /**
+   * Returns a "Review" button that will redirect the applicant to the review page *without* saving
+   * the applicant's data.
+   */
+  protected ATag renderOldReviewButton(ApplicationBaseView.Params params) {
     String reviewUrl =
-        applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
+        params
+            .applicantRoutes()
+            .review(params.profile(), params.applicantId(), params.programId())
+            .url();
     return a().withHref(reviewUrl)
         .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
         .withId(REVIEW_APPLICATION_BUTTON_ID)

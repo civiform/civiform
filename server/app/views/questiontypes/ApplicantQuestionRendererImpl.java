@@ -76,16 +76,11 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
             .withClasses("mb-4");
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
-    switch (params.errorDisplayMode()) {
-      case HIDE_ERRORS:
-        validationErrors = ImmutableMap.of();
-        break;
-      case DISPLAY_ERRORS:
-        validationErrors = applicantQuestion.getQuestion().getValidationErrors();
-        break;
-      default:
-        throw new IllegalArgumentException(
-            String.format("Unhandled error display mode: %s", params.errorDisplayMode()));
+    if (ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(
+        params.errorDisplayMode())) {
+      validationErrors = applicantQuestion.getQuestion().getValidationErrors();
+    } else {
+      validationErrors = ImmutableMap.of();
     }
 
     ImmutableSet<ValidationErrorMessage> questionErrors =
