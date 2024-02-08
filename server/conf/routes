@@ -73,7 +73,7 @@ POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions          
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/delete                       controllers.admin.AdminProgramBlockQuestionsController.destroy(programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/setOptional                  controllers.admin.AdminProgramBlockQuestionsController.setOptional(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/move                         controllers.admin.AdminProgramBlockQuestionsController.move(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/setAddressCorrectionEnabled  controllers.admin.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/toggleAddressCorrectionEnabledState  controllers.admin.AdminProgramBlockQuestionsController.toggleAddressCorrectionEnabledState(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
 
 # A controller for a page for an admin to view, edit, and create questions
 GET     /admin/questions             controllers.admin.AdminQuestionController.index(request: Request)

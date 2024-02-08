@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers.Labels;
 import com.google.common.collect.ImmutableList;
-import forms.ProgramQuestionDefinitionAddressCorrectionEnabledForm;
 import forms.ProgramQuestionDefinitionOptionalityForm;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -17,12 +16,14 @@ import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
+import services.program.BlockDefinition;
 import services.program.CantAddQuestionToBlockException;
 import services.program.IllegalPredicateOrderingException;
 import services.program.InvalidQuestionPositionException;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramQuestionDefinition;
 import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
@@ -157,12 +158,13 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
   /** POST endpoint for editing whether or not a question has address correction enabled. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
-  public Result setAddressCorrectionEnabled(
+  public Result toggleAddressCorrectionEnabledState(
       Request request, long programId, long blockDefinitionId, long questionDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
       ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       // In these cases, we warn admins that changing address correction is not allowed in the
       // tooltip, so we can silently ignore the request.
@@ -176,18 +178,22 @@ public class AdminProgramBlockQuestionsController extends Controller {
                 programId, blockDefinitionId));
       }
 
-      ProgramQuestionDefinitionAddressCorrectionEnabledForm
-          programQuestionDefinitionAddressCorrectionEnabledForm =
-              formFactory
-                  .form(ProgramQuestionDefinitionAddressCorrectionEnabledForm.class)
-                  .bindFromRequest(request)
-                  .get();
+      Optional<ProgramQuestionDefinition> programQuestionDefinition =
+          blockDefinition.programQuestionDefinitions().stream()
+              .filter(pqd -> pqd.id() == questionDefinitionId)
+              .findFirst();
+
+      if (programQuestionDefinition.isEmpty()) {
+        throw new ProgramQuestionDefinitionNotFoundException(
+            programId, blockDefinitionId, questionDefinitionId);
+      }
 
       programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
           programId,
           blockDefinitionId,
           questionDefinitionId,
-          programQuestionDefinitionAddressCorrectionEnabledForm.getAddressCorrectionEnabled());
+          // Flop the bit to the next (desired state) from the current setting.
+          !programQuestionDefinition.get().addressCorrectionEnabled());
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
