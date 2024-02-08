@@ -372,7 +372,52 @@ describe('Trusted intermediaries', () => {
       firstName: 'first1',
       middleName: 'middle',
       lastName: 'last1',
-      dobDate: '2021-07-10',
+      dobDate: '2021-07-07',
+    }
+    await tiDashboard.createClient(client1)
+    const client2: ClientInformation = {
+      emailAddress: 'fake2@sample.com',
+      firstName: 'first2',
+      middleName: 'middle',
+      lastName: 'last2',
+      dobDate: '2021-11-07',
+    }
+    await tiDashboard.createClient(client2)
+    const client3: ClientInformation = {
+      emailAddress: 'fake3@sample.com',
+      firstName: 'first3',
+      middleName: 'middle',
+      lastName: 'last3',
+      dobDate: '2021-12-07',
+    }
+    await tiDashboard.createClient(client3)
+
+    await tiDashboard.searchByDateOfBirth('07', '12', '2021')
+    await waitForPageJsLoad(page)
+    await tiDashboard.expectDashboardContainClient(client3)
+    await tiDashboard.expectDashboardNotContainClient(client1)
+    await tiDashboard.expectDashboardNotContainClient(client2)
+
+    // If the day is a single digit, the search still works
+    await tiDashboard.searchByDateOfBirth('7', '12', '2021')
+    await waitForPageJsLoad(page)
+    await tiDashboard.expectDashboardContainClient(client3)
+    await tiDashboard.expectDashboardNotContainClient(client1)
+    await tiDashboard.expectDashboardNotContainClient(client2)
+  })
+
+  it('incomplete dob and no name in the client search returns an error', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client1: ClientInformation = {
+      emailAddress: 'fake@sample.com',
+      firstName: 'first1',
+      middleName: 'middle',
+      lastName: 'last1',
+      dobDate: '1980-07-10',
     }
     await tiDashboard.createClient(client1)
     const client2: ClientInformation = {
@@ -383,19 +428,44 @@ describe('Trusted intermediaries', () => {
       dobDate: '2021-11-10',
     }
     await tiDashboard.createClient(client2)
-    const client3: ClientInformation = {
-      emailAddress: 'fake3@sample.com',
-      firstName: 'first3',
-      middleName: 'middle',
-      lastName: 'last3',
-      dobDate: '2021-12-10',
-    }
-    await tiDashboard.createClient(client3)
 
-    await tiDashboard.searchByDateOfBirth(client3.dobDate)
+    await tiDashboard.searchByDateOfBirth('', '', '2021')
     await waitForPageJsLoad(page)
-    await tiDashboard.expectDashboardContainClient(client3)
+
+    await tiDashboard.expectDateSearchError()
+    tiDashboard.expectRedDateFieldOutline(true, true, false)
     await tiDashboard.expectDashboardNotContainClient(client1)
+    await tiDashboard.expectDashboardNotContainClient(client2)
+    await validateScreenshot(page, 'incomplete-dob')
+  })
+
+  it('incomplete dob with name in the client search returns client by name', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client1: ClientInformation = {
+      emailAddress: 'fake@sample.com',
+      firstName: 'first1',
+      middleName: 'middle',
+      lastName: 'last1',
+      dobDate: '1980-07-10',
+    }
+    await tiDashboard.createClient(client1)
+    const client2: ClientInformation = {
+      emailAddress: 'fake2@sample.com',
+      firstName: 'first2',
+      middleName: 'middle',
+      lastName: 'last2',
+      dobDate: '2021-11-10',
+    }
+    await tiDashboard.createClient(client2)
+
+    await tiDashboard.searchByNameAndDateOfBirth('first1', '', '', '2021')
+    await waitForPageJsLoad(page)
+
+    await tiDashboard.expectDashboardContainClient(client1)
     await tiDashboard.expectDashboardNotContainClient(client2)
   })
 
@@ -422,7 +492,7 @@ describe('Trusted intermediaries', () => {
     }
     await tiDashboard.createClient(client2)
 
-    await tiDashboard.searchByNameAndDateOfBirth('', '')
+    await tiDashboard.searchByNameAndDateOfBirth('', '', '', '')
     await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardContainClient(client1)
     await tiDashboard.expectDashboardContainClient(client2)

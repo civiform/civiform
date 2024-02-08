@@ -81,7 +81,9 @@ public class EditTiClientView extends BaseHtmlView {
         baseUrl
             + controllers.ti.routes.TrustedIntermediaryController.dashboard(
                     /* nameQuery= */ Optional.empty(),
-                    /* dateQuery= */ Optional.empty(),
+                    /* dayQuery= */ Optional.empty(),
+                    /* monthQuery= */ Optional.empty(),
+                    /* yearQuery= */ Optional.empty(),
                     /* page= */ Optional.of(1))
                 .url();
     LinkElement link = new LinkElement().setHref(tiDashLink).setText("Back to client list");
@@ -190,7 +192,9 @@ public class EditTiClientView extends BaseHtmlView {
         baseUrl
             + controllers.ti.routes.TrustedIntermediaryController.dashboard(
                     /* nameQuery= */ Optional.empty(),
-                    /* dateQuery= */ Optional.empty(),
+                    /* dayQuery= */ Optional.empty(),
+                    /* monthQuery= */ Optional.empty(),
+                    /* yearQuery= */ Optional.empty(),
                     /* page= */ Optional.of(1))
                 .url();
     return div()

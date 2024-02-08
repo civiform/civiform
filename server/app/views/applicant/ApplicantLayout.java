@@ -338,7 +338,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private String getTiDashboardHref() {
     return controllers.ti.routes.TrustedIntermediaryController.dashboard(
             /* nameQuery= */ Optional.empty(),
-            /* dateQuery= */ Optional.empty(),
+            /* dayQuery= */ Optional.empty(),
+            /* monthQuery= */ Optional.empty(),
+            /* yearQuery= */ Optional.empty(),
             /* page= */ Optional.of(1))
         .url();
   }
@@ -559,7 +561,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
       URI tiDashboardUri =
           new URI(
               controllers.ti.routes.TrustedIntermediaryController.dashboard(
-                      Optional.empty(), Optional.empty(), Optional.empty())
+                      Optional.empty(),
+                      Optional.empty(),
+                      Optional.empty(),
+                      Optional.empty(),
+                      Optional.empty())
                   .url());
       tiDashboardPath = tiDashboardUri.getPath();
     } catch (URISyntaxException e) {

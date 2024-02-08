@@ -4,7 +4,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.h4;
 import static j2html.TagCreator.hr;
+import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
+import static j2html.TagCreator.span;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
 import static j2html.TagCreator.td;
@@ -34,8 +38,10 @@ import play.twirl.api.Content;
 import repository.SearchParameters;
 import services.DateConverter;
 import services.applicant.ApplicantPersonalInfo;
+import services.ti.TrustedIntermediaryService;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.admin.ti.TrustedIntermediaryGroupListView;
 import views.components.FieldWithLabel;
 import views.components.Icons;
@@ -78,7 +84,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 requiredFieldsExplanationContent(),
                 renderAddNewForm(tiGroup, request),
                 hr().withClasses("mt-6"),
-                renderSubHeader("Clients").withClass("my-4"),
+                renderSubHeader("All Clients").withClass("my-4"),
+                h4("Search"),
                 renderSearchForm(request, searchParameters),
                 renderTIApplicantsTable(managedAccounts, searchParameters, page, totalPageCount),
                 hr().withClasses("mt-6"),
@@ -99,35 +106,44 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   private FormTag renderSearchForm(Http.Request request, SearchParameters searchParameters) {
+    boolean isValidSearch = TrustedIntermediaryService.validateSearch(searchParameters);
     return form()
-        .withClass("w-1/4")
+        .withId("ti-search-form")
+        .withClasses("mb-6")
         .withMethod("GET")
         .withAction(
             routes.TrustedIntermediaryController.dashboard(
-                    /* paramName=  nameQuery */
-                    Optional.empty(),
-                    /* paramName=  dateQuery */
-                    Optional.empty(),
-                    /* paramName=  page */
-                    Optional.empty())
+                    /* paramName=  nameQuery */ Optional.empty(),
+                    /* paramName=  dayQuery */ Optional.empty(),
+                    /* paramName=  monthQuery */ Optional.empty(),
+                    /* paramName=  yearQuery */ Optional.empty(),
+                    /* paramName=  page */ Optional.empty())
                 .url())
         .with(
-            FieldWithLabel.input()
-                .setId("name-query")
-                .setFieldName("nameQuery")
-                .setValue(searchParameters.nameQuery().orElse(""))
-                .setLabelText("Search by Name")
-                .getInputTag()
-                .withClasses("w-full"),
-            FieldWithLabel.date()
-                .setId("search-date")
-                .setFieldName("dateQuery")
-                .setValue(searchParameters.dateQuery().orElse(""))
-                .setLabelText("Search Date of Birth")
-                .getInputTag()
-                .withClass("w-full"),
+            div(
+                    div(
+                        label("Search by name(s)")
+                            .withClass("usa-label")
+                            .withId("name-search")
+                            .withFor("name-query"),
+                        span("For example: Gu or Darren or Darren Gu").withClass("usa-hint")),
+                    input()
+                        .withClasses("usa-input", "mt-12")
+                        .withId("name-query")
+                        .withName("nameQuery")
+                        .withValue(searchParameters.nameQuery().orElse("")))
+                .withClasses("flex", "flex-col", "justify-between"),
+            ViewUtils.makeMemorableDate(
+                    searchParameters.dayQuery().orElse(""),
+                    searchParameters.monthQuery().orElse(""),
+                    searchParameters.yearQuery().orElse(""),
+                    "Search by Date of Birth",
+                    !isValidSearch)
+                .withClass("ml-6"),
             makeCsrfTokenInputTag(request),
-            submitButton("Search").withClasses("m-2"));
+            div(submitButton("Search").withClasses("ml-6", "h-11"))
+                .withClasses("flex", "flex-col", "justify-end"))
+        .withClasses("flex", "my-6");
   }
 
   private DivTag renderTIApplicantsTable(
@@ -154,7 +170,9 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             pageNumber ->
                 routes.TrustedIntermediaryController.dashboard(
                     searchParameters.nameQuery(),
-                    searchParameters.dateQuery(),
+                    searchParameters.dayQuery(),
+                    searchParameters.monthQuery(),
+                    searchParameters.yearQuery(),
                     Optional.of(pageNumber))));
   }
 

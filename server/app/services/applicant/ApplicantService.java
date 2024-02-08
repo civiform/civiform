@@ -648,7 +648,9 @@ public final class ApplicantService {
         baseUrl
             + controllers.ti.routes.TrustedIntermediaryController.dashboard(
                     /* nameQuery= */ Optional.empty(),
-                    /* dateQuery= */ Optional.empty(),
+                    /* dayQuery= */ Optional.empty(),
+                    /* monthQuery= */ Optional.empty(),
+                    /* yearQuery= */ Optional.empty(),
                     /* page= */ Optional.of(1))
                 .url();
     CompletableFuture<Optional<Locale>> localeFuture =
