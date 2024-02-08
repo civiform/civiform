@@ -469,6 +469,7 @@ public final class VersionRepository {
   public ImmutableList<QuestionModel> getQuestionsForVersion(VersionModel version) {
     // Only set the version cache for active and obsolete versions
     if (settingsManifest.getVersionCacheEnabled()
+        // The version ID would only be null when VersionModel is instantiated in a test
         && version.id != null
         && version.id <= getActiveVersion().id) {
       return questionsByVersionCache.getOrElseUpdate(
