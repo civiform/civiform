@@ -38,7 +38,6 @@ public final class ApplicantRequestedActionWrapper
     return this;
   }
 
-
   @NotNull
   public ApplicantRequestedAction getAction() {
     if (this.action.isEmpty()) {
