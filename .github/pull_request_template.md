@@ -20,7 +20,7 @@ Read the full guidelines for PRs [here](https://github.com/civiform/civiform/wik
 
 #### Database evolutions
 
-Read the guidlines [here](https://github.com/civiform/civiform/wiki/Database#writing-database-evolutions)
+Read the guidelines [here](https://github.com/civiform/civiform/wiki/Database#writing-database-evolutions)
 
 - [ ] Assigned two reviewers
 - [ ] Guarded against already existing resources using `IF NOT EXISTS` and `IF EXISTS`
