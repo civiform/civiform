@@ -17,9 +17,6 @@ import support.TestQuestionBank;
 
 public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
   private VersionRepository versionRepository;
-  private final ReadOnlyQuestionService emptyService =
-      new ReadOnlyVersionedQuestionServiceImpl(
-          new VersionModel(LifecycleStage.OBSOLETE), instanceOf(VersionRepository.class));
   private TestQuestionBank testQuestionBank;
   private QuestionModel nameQuestion;
   private QuestionModel addressQuestion;
@@ -43,6 +40,11 @@ public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
 
   @Test
   public void getAll_returnsEmpty() {
+    VersionModel obsoleteVersion = new VersionModel(LifecycleStage.OBSOLETE);
+    obsoleteVersion.save();
+    ReadOnlyQuestionService emptyService =
+        new ReadOnlyVersionedQuestionServiceImpl(
+            obsoleteVersion, instanceOf(VersionRepository.class));
     assertThat(emptyService.getAllQuestions()).isEmpty();
   }
 
