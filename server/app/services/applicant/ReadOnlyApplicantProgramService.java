@@ -102,11 +102,10 @@ public interface ReadOnlyApplicantProgramService {
   Optional<Block> getFirstIncompleteBlockExcludingStatic();
 
   /**
-   * Returns summary data for each question in the hidden blocks in this application. Hidden block
-   * is the block not visible to the applicant based on the visibility setting by the admin. This
-   * will not include blocks that are active.
+   * Returns summary data for each question in this application. Includes blocks that are hidden
+   * from the applicant due to visibility conditions.
    */
-  ImmutableList<AnswerData> getSummaryDataOnlyHidden();
+  ImmutableList<AnswerData> getSummaryDataAllQuestions();
 
   /**
    * Returns summary data for each question in the active blocks in this application. Active block
@@ -114,6 +113,13 @@ public interface ReadOnlyApplicantProgramService {
    * hidden from the applicant.
    */
   ImmutableList<AnswerData> getSummaryDataOnlyActive();
+
+  /**
+   * Returns summary data for each question in the hidden blocks in this application. Hidden block
+   * is the block not visible to the applicant based on the visibility setting by the admin. This
+   * will not include blocks that are active.
+   */
+  ImmutableList<AnswerData> getSummaryDataOnlyHidden();
 
   /** Get the string identifiers for all stored files for this application. */
   ImmutableList<String> getStoredFileKeys();

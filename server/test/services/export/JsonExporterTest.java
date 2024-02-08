@@ -675,7 +675,6 @@ public class JsonExporterTest extends AbstractExporterTest {
             SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
-    //    resultAsserter.assertJsonAtApplicationPath(".applicant_household_members", "[ ]");
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_household_members",
         "{\n" // comment to prevent fmt wrapping
@@ -966,6 +965,38 @@ public class JsonExporterTest extends AbstractExporterTest {
             + "    }\n"
             + "  } ],\n"
             + "  \"question_type\" : \"ENUMERATOR\"\n"
+            + "}");
+  }
+
+  @Test
+  public void export_questionWithVisibilityPredicate_isInResponseWhenHiddenFromApplicant() {
+    createFakeQuestions();
+    ProgramModel fakeProgram =
+        new FakeProgramBuilder().withDateQuestionWithVisibilityPredicateOnTextQuestion().build();
+    new FakeApplicationFiller(fakeProgram).answerTextQuestion("red").submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    // assert answered question
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_favorite_color",
+        "{\n" // comment to prevent fmt wrapping
+            + "  \"question_type\" : \"TEXT\",\n"
+            + "  \"text\" : \"red\"\n"
+            + "}");
+    // assert hidden question is still in export
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_birth_date",
+        "{\n" // comment to prevent fmt wrapping
+            + "  \"date\" : null,\n"
+            + "  \"question_type\" : \"DATE\"\n"
             + "}");
   }
 

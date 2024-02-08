@@ -2,6 +2,7 @@ package services.cloud.aws;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
@@ -23,7 +24,7 @@ import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 /** An AWS Simple Storage Service (S3) implementation of public storage. */
 @Singleton
 public final class AwsPublicStorage extends PublicStorageClient {
-  private static final String AWS_PUBLIC_S3_BUCKET_CONF_PATH = "aws.s3.public_bucket";
+  @VisibleForTesting static final String AWS_PUBLIC_S3_BUCKET_CONF_PATH = "aws.s3.public_bucket";
   private static final String AWS_PUBLIC_S3_FILE_LIMIT_CONF_PATH = "aws.s3.public_file_limit_mb";
 
   private static final Logger logger = LoggerFactory.getLogger(AwsPublicStorage.class);
@@ -57,6 +58,11 @@ public final class AwsPublicStorage extends PublicStorageClient {
     } else {
       client = new NullClient();
     }
+  }
+
+  @Override
+  public String getBucketName() {
+    return bucket;
   }
 
   @Override

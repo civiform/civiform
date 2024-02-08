@@ -7,6 +7,8 @@ import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import forms.EditTiClientInfoForm;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -238,11 +240,13 @@ public final class TrustedIntermediaryService {
   /**
    * Gets all the TrustedIntermediaryAccount managed by the given TI Group with/without filtering
    *
-   * @param searchParameters - This object contains a nameQuery and/or a dateQuery String. If both
-   *     are empty- an unfiltered list of accounts is returned. If nameQuery is present- a match
-   *     between the Account holder's name and the nameQuery is performed. If dateQuery is present -
-   *     a match between the Account holder's Date of Birth and the dateQuery is performed - the
-   *     matched results are collected and sent as an Immutable List.
+   * @param searchParameters - This object contains a nameQuery, a dayQuery, a monthQuery and a
+   *     yearQuery String. If all are empty, an unfiltered list of accounts is returned. If
+   *     nameQuery is present, a match between the Account holder's name and the nameQuery is
+   *     performed. If dayQuery, monthQuery and yearQuery are present, a match between the Account
+   *     holder's Date of Birth and the date queries is performed. The matched results are collected
+   *     and sent as an Immutable List. If name query is empty and only some of the date queries are
+   *     present, but not all, an empty list is returned.
    * @param tiGroup - this is TrustedIntermediaryGroup for which the list of associated account is
    *     requested. This is needed to fetch all the accounts from the user repository.
    * @return a result object containing the ListOfAccounts which may be filtered by the Search
@@ -251,49 +255,103 @@ public final class TrustedIntermediaryService {
   public TrustedIntermediarySearchResult getManagedAccounts(
       SearchParameters searchParameters, TrustedIntermediaryGroupModel tiGroup) {
     ImmutableList<AccountModel> allAccounts = tiGroup.getManagedAccounts();
-    /* Filtering to transform empty strings into empty optionals.
-    Empty parameters should return all accounts. */
-    Optional<String> filteredNameQuery =
-        searchParameters.nameQuery().filter(s -> !s.isEmpty() && !s.isBlank());
-    Optional<String> filteredDateQuery =
-        searchParameters.dateQuery().filter(s -> !s.isEmpty() && !s.isBlank());
-    if (filteredNameQuery.isEmpty() && filteredDateQuery.isEmpty()) {
+    List<SearchParameters.ParamTypes> missingParams = findMissingSearchParams(searchParameters);
+    if (missingParams.size() == 4) {
       return TrustedIntermediarySearchResult.success(allAccounts);
     }
     final ImmutableList<AccountModel> searchedResult;
     try {
-      searchedResult = searchAccounts(searchParameters, allAccounts);
+      searchedResult = searchAccounts(searchParameters, allAccounts, missingParams);
     } catch (DateTimeParseException e) {
-      return TrustedIntermediarySearchResult.fail(
-          allAccounts, "Please enter date in MM/dd/yyyy format");
+      return TrustedIntermediarySearchResult.fail(allAccounts, "Please enter a valid birth date.");
     }
     return TrustedIntermediarySearchResult.success(searchedResult);
   }
 
   private ImmutableList<AccountModel> searchAccounts(
-      SearchParameters searchParameters, ImmutableList<AccountModel> allAccounts) {
+      SearchParameters searchParameters,
+      ImmutableList<AccountModel> allAccounts,
+      List<SearchParameters.ParamTypes> missingParams) {
+    Optional<LocalDate> maybeDOB =
+        validateAndConvertSearchParamDOB(searchParameters, missingParams);
     return allAccounts.stream()
         .filter(
             account ->
                 ((account.newestApplicant().get().getApplicantData().getDateOfBirth().isPresent()
-                        && searchParameters.dateQuery().isPresent()
-                        && !searchParameters.dateQuery().get().isEmpty()
+                        && maybeDOB.isPresent()
                         && account
                             .newestApplicant()
                             .get()
                             .getApplicantData()
                             .getDateOfBirth()
                             .get()
-                            .equals(
-                                dateConverter.parseIso8601DateToLocalDate(
-                                    searchParameters.dateQuery().get())))
-                    || (searchParameters.nameQuery().isPresent()
-                        && !searchParameters.nameQuery().get().isEmpty()
+                            .equals(maybeDOB.get()))
+                    || (!missingParams.contains(SearchParameters.ParamTypes.NAME)
                         && account
                             .getApplicantName()
                             .toLowerCase(Locale.ROOT)
                             .contains(
                                 searchParameters.nameQuery().get().toLowerCase(Locale.ROOT)))))
         .collect(ImmutableList.toImmutableList());
+  }
+
+  private static List<SearchParameters.ParamTypes> findMissingSearchParams(
+      SearchParameters searchParameters) {
+    List<SearchParameters.ParamTypes> missing = new ArrayList<>();
+
+    /* Filtering to transform empty strings into empty optionals.
+    Empty parameters should return all accounts. */
+    Optional<String> filteredNameQuery =
+        searchParameters.nameQuery().filter(s -> !s.isEmpty() && !s.isBlank());
+    Optional<String> filteredDayQuery =
+        searchParameters.dayQuery().filter(s -> !s.isEmpty() && !s.isBlank());
+    Optional<String> filteredMonthQuery =
+        searchParameters.monthQuery().filter(s -> !s.isEmpty() && !s.isBlank());
+    Optional<String> filteredYearQuery =
+        searchParameters.yearQuery().filter(s -> !s.isEmpty() && !s.isBlank());
+
+    if (filteredNameQuery.isEmpty()) {
+      missing.add(SearchParameters.ParamTypes.NAME);
+    }
+    if (filteredDayQuery.isEmpty()) {
+      missing.add(SearchParameters.ParamTypes.DAY);
+    }
+    if (filteredMonthQuery.isEmpty()) {
+      missing.add(SearchParameters.ParamTypes.MONTH);
+    }
+    if (filteredYearQuery.isEmpty()) {
+      missing.add(SearchParameters.ParamTypes.YEAR);
+    }
+
+    return missing;
+  }
+
+  public static boolean validateSearch(SearchParameters searchParameters) {
+    List<SearchParameters.ParamTypes> missingParams =
+        TrustedIntermediaryService.findMissingSearchParams(searchParameters);
+    boolean isValidSearch =
+        missingParams.size() == 4
+            || !missingParams.contains(SearchParameters.ParamTypes.NAME)
+            || (!missingParams.contains(SearchParameters.ParamTypes.DAY)
+                && !missingParams.contains(SearchParameters.ParamTypes.MONTH)
+                && !missingParams.contains(SearchParameters.ParamTypes.YEAR));
+    return isValidSearch;
+  }
+
+  private Optional<LocalDate> validateAndConvertSearchParamDOB(
+      SearchParameters searchParameters, List<SearchParameters.ParamTypes> missing) {
+    if (missing.stream()
+        .noneMatch(
+            paramType ->
+                paramType.equals(SearchParameters.ParamTypes.DAY)
+                    || paramType.equals(SearchParameters.ParamTypes.MONTH)
+                    || paramType.equals(SearchParameters.ParamTypes.YEAR))) {
+      return Optional.of(
+          dateConverter.parseDayMonthYearToLocalDate(
+              searchParameters.dayQuery().get(),
+              searchParameters.monthQuery().get(),
+              searchParameters.yearQuery().get()));
+    }
+    return Optional.empty();
   }
 }

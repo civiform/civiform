@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static services.cloud.aws.AwsPublicStorage.AWS_PUBLIC_S3_BUCKET_CONF_PATH;
 import static support.cloud.FakeAwsS3Client.DELETION_ERROR_FILE_KEY;
 import static support.cloud.FakeAwsS3Client.LIST_ERROR_FILE_KEY;
 
@@ -26,6 +27,14 @@ public class AwsPublicStorageTest extends ResetPostgres {
 
   private final FakeAwsS3Client fakeAwsS3Client = new FakeAwsS3Client();
   private final Credentials credentials = instanceOf(Credentials.class);
+
+  @Test
+  public void getBucketName_returnsBucketFromConfig() {
+    AwsPublicStorage awsPublicStorage = instanceOf(AwsPublicStorage.class);
+
+    assertThat(awsPublicStorage.getBucketName())
+        .isEqualTo(instanceOf(Config.class).getString(AWS_PUBLIC_S3_BUCKET_CONF_PATH));
+  }
 
   @Test
   public void getSignedUploadRequest_prodEnv_actionLinkIsProdAws() {

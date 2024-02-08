@@ -60,10 +60,25 @@ button.nextScreen=Susunod
 button.previousScreen=Nakaraang
 button.review=Pagsusuri
 button.skipFileUpload=Laktawan
+content.blockProgress={0} sa {1}
 toast.localeNotSupported=Pasensya na, hindi ganap na nakasalin ang program na ito sa iyong mas gustong wika.
 link.allDone=Ako ay tapos na
 link.applyToAnotherProgram=Mag-aplay sa ibang programa
 link.createAccountOrSignIn=Gumawa ng account o magsign-in
+# The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
+modal.errorSaving.review.title=Questions on this page are not complete. Would you still like to leave and begin reviewing?
+# The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
+modal.errorSaving.previous.title=Questions on this page are not complete. Would you still like to leave and go to the previous page?
+# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) go back and fix the errors or (2) discard the information they've inputted and continue to the application review page.
+modal.errorSaving.review.content=There are some errors with the information you''ve filled in. Would you like to go back and fix the errors, or go to the review page without saving your answers?
+# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) go back and fix the errors or (2) discard the information they've inputted and continue to the previous page of the application.
+modal.errorSaving.previous.content=There are some errors with the information you''ve filled in. Would you like to go back and fix the errors, or go to the previous question page without saving your answers?
+# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
+modal.errorSaving.review.noSaveButton=Go to review page without saving
+# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
+modal.errorSaving.previous.noSaveButton=Go to previous page without saving
+# Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
+modal.errorSaving.goBackAndFixButton=Go back and fix
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -95,6 +110,104 @@ title.activeProgramsUpdated=Hindi sinimulan
 title.submittedPrograms=Isinumite
 toast.applicationSaved=Successfully saved application: Matagumpay na nai-save ang aplikasyon: ID ng aplikasyon {0}
 toast.programCompleted=Nakumpleto na ang aplikasyon.
+
+#------------------------------------------------------------------------------------------------------#
+# TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
+#------------------------------------------------------------------------------------------------------#
+
+# Message that appears when a user attempts to delete an account and it fails.
+banner.acctDeleteError=This account cannot be deleted.
+# Reason included with the account delete error, which explains the account can't be deleted due to applications the client has open
+banner.acctDeleteErrorReason=This account cannot be deleted since it has open applications.
+# Message when information about a client, like their name or contact information is updated.
+banner.clientInfoUpdated=Client info has been successfully updated.
+# Message when a client account for a user is successfully deleted, with the name of the client substituted in
+banner.clientAcctDeleted=The client account for "{0}" has been successfully deleted.
+# Message when a user successfully creates a client account.
+banner.newClientCreated=New client successfully created.
+
+# Button that allows a user to add a client to the CiviForm system.
+button.addNewClient=Add new client
+# Button that brings the user back to the list of their clients.
+button.backToClientList=Back to client list
+# Button that allows the user to navigate back to the edit page after they click to delete a client and get an error.
+button.backToEditing=Back to editing
+# Button that allows the user to cancel the progress they make on adding or editing a client.
+button.cancel=Cancel
+# Button that allows the user to clear any search parameters they have already entered.
+button.clearSearch=Clear search
+# Button for a user to delete their client's account
+button.deleteAcct=Delete account
+# Button option when asked if the user is sure they want to delete an account.
+button.keepAcct=Keep account
+# Button to navigate to the next page.
+button.nextPage=Next
+# Button to save information that has been entered.
+button.save=Save
+# Button to execute a search to filter a client list.
+button.search=Search
+# Button to select a client.
+button.select=Select
+# Button to start an application on behalf of a client.
+button.startApp=Start an application
+# Button to view the applications belonging to an applicant.
+button.viewApplications=View applications
+
+# Part of the confirmation banner which appears after a new client has been added to a community-based organization.
+content.clientCreated=Your new client {0} has been added to your client list. You can now begin submitting applications for this client.
+# For each client on the client list, shows the number of applications that have been submitted for them.
+content.numberOfAppSubmitted={0} applications submitted
+# Some explanation text on the confirmation modal when deleting a client.
+content.warning=There are no applications submitted for this client, so no applications will be lost.
+# Confirmation modal text when the user tries to delete a client account.
+dialog.deleteConfirmation=Are you sure you want to delete this client''s account?
+
+# Header for the page with the Organization Members table.
+header.acctSettings=Account settings
+# Tab label for getting to the client list page
+header.clientList=Client list
+
+# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last login XX-XX-XXXX".
+label.acctStatus=Account Status
+# Label above the phone number for each client on the client list.
+label.contactInfo=Contact Information
+# The label above the input field for the day of the client birth date. i.e. 12 for November 12
+label.day=Day
+# Label above the birth date input field when creating or editing a client
+label.dob=Date of birth
+# Example above the 3 birth date input fields (Month, Day, Year).
+label.dobExample=For example: January 28 1986
+# Label above the "Email" column of the community-based organization members table.
+label.email=Email
+# The label above the dropdown select field for the month of the client birth date.
+label.month=Month
+# Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
+label.name=Name
+# Example above the name input field for the client search.
+label.nameExample=For example: Gu or Darren or Darren Gu
+# Label above the text input field for notes about a client.
+label.notes=Notes
+# Label above the phone number input field when creating or editing a client.
+label.phoneNum=Phone Number
+# The label above the Date of Birth search input for the client search.
+label.searchByDob=Search by Date of Birth
+# The label above the name search field of the client search.
+label.searchByName=Search by name(s)
+# The label above the input field for the year of the client birth date.
+label.year=Year
+
+link.edit=I-edit
+
+# This is the header above the list of clients and the client search.
+title.allClients=All Clients
+# This is the heading above a new client creation form.
+title.createClient=Create a new client
+# This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
+title.displayingMultiClients=Displaying {0} clients
+# This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
+title.displayingOneClient=Displaying 1 client
+# This is the heading above a table that contains the members of the current community-based organization.
+title.orgMembers=Organization members
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -219,7 +332,7 @@ validation.phoneMustBeLocalToCountry=Hindi nabibilang sa bansa ang ibinigay mong
 #----------------------------------------------------------------------------------------------------------#
 
 validation.dateMisformatted=Please enter a date in the format YYYY/MM/DD.
-validation.invalidDateFormat=Please enter a date in the correct format
+validation.invalidDateFormat=Maglagay ng petsa sa tamang format
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #

@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
@@ -2600,7 +2601,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     var programWithEligibleAndIneligibleAnswers =
         ProgramBuilder.newDraftProgram(
                 ProgramDefinition.builder()
-                    .setId(123)
+                    .setId(new Random().nextLong())
                     .setAdminName("name")
                     .setAdminDescription("desc")
                     .setExternalLink("https://usa.gov")
@@ -2675,7 +2676,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel commonIntakeForm =
         ProgramBuilder.newDraftProgram(
                 ProgramDefinition.builder()
-                    .setId(123)
+                    .setId(new Random().nextLong())
                     .setAdminName("common_intake_form")
                     .setAdminDescription("common_intake_form")
                     .setExternalLink("https://usa.gov")
@@ -2962,7 +2963,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     programDefinition =
         ProgramBuilder.newDraftProgram(
                 ProgramDefinition.builder()
-                    .setId(123)
+                    .setId(new Random().nextLong())
                     .setAdminName("name")
                     .setAdminDescription("desc")
                     .setExternalLink("https://usa.gov")
@@ -3067,7 +3068,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 program.id,
                 String.valueOf(blockDefinition.id()),
-                addressSuggestion1.getSingleLineAddress(),
+                Optional.of(addressSuggestion1.getSingleLineAddress()),
                 addressSuggestionList)
             .toCompletableFuture()
             .get();
@@ -3175,7 +3176,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 program.id,
                 String.valueOf(blockDefinition.id()),
-                AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE,
+                Optional.of(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE),
                 addressSuggestionList)
             .toCompletableFuture()
             .get();
@@ -3260,20 +3261,36 @@ public class ApplicantServiceTest extends ResetPostgres {
     ImmutableList<AddressSuggestion> addressSuggestionList =
         ImmutableList.of(addressSuggestion1, addressSuggestion2);
 
-    // Act
+    // Act - Tests with invalid value
     ImmutableMap<String, String> correctedAddress =
         subject
             .getCorrectedAddress(
                 applicant.id,
                 program.id,
                 String.valueOf(blockDefinition.id()),
-                "asdf",
+                Optional.of("asdf"),
                 addressSuggestionList)
             .toCompletableFuture()
             .get();
 
     // Assert
     assertThat(correctedAddress.get(addressQuestion.getCorrectedPath().toString()))
+        .isEqualTo(CorrectedAddressState.FAILED.getSerializationFormat());
+
+    // Act - Tests with null
+    ImmutableMap<String, String> correctedAddressWithNull =
+        subject
+            .getCorrectedAddress(
+                applicant.id,
+                program.id,
+                String.valueOf(blockDefinition.id()),
+                Optional.ofNullable(null),
+                addressSuggestionList)
+            .toCompletableFuture()
+            .get();
+
+    // Assert
+    assertThat(correctedAddressWithNull.get(addressQuestion.getCorrectedPath().toString()))
         .isEqualTo(CorrectedAddressState.FAILED.getSerializationFormat());
   }
 

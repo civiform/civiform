@@ -17,6 +17,12 @@ public class AzurePublicStorageTest extends ResetPostgres {
   }
 
   @Test
+  public void getBucketName_throwsUnsupported() {
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> azurePublicStorage.getBucketName());
+  }
+
+  @Test
   public void getSignedUploadRequest_throwsUnsupported() {
     assertThatExceptionOfType(UnsupportedOperationException.class)
         .isThrownBy(() -> azurePublicStorage.getSignedUploadRequest("fileKey", "successRedirect"));

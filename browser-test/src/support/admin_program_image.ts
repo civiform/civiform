@@ -1,11 +1,16 @@
 import {Page} from 'playwright'
 import {waitForPageJsLoad} from './wait'
-import {dismissToast} from '.'
+import {dismissToast, expectDisabled, expectEnabled} from '.'
 
 export class AdminProgramImage {
   private imageUploadLocator = 'input[type=file]'
   private imageDescriptionLocator = 'input[name="summaryImageDescription"]'
+  private imageUploadSubmitButtonLocator =
+    'button[form=image-file-upload-form][type="submit"]'
+  private imageDescriptionSubmitButtonLocator =
+    'button[form=image-description-form][type="submit"]'
   private translationsButtonLocator = 'button:has-text("Manage translations")'
+  private continueButtonLocator = '#continue-button'
 
   private page!: Page
 
@@ -13,12 +18,47 @@ export class AdminProgramImage {
     this.page = page
   }
 
-  async setImageDescriptionAndSubmit(description: string) {
+  async clickBackButton() {
+    await this.page.click('a:has-text("Back")')
+  }
+
+  async clickContinueButton() {
+    await this.page.click(this.continueButtonLocator)
+  }
+
+  async expectHasContinueButton() {
+    expect(await this.page.locator(this.continueButtonLocator).count()).toEqual(
+      1,
+    )
+  }
+
+  async expectNoContinueButton() {
+    expect(await this.page.locator(this.continueButtonLocator).count()).toEqual(
+      0,
+    )
+  }
+
+  async setImageDescription(description: string) {
     await this.page.fill(this.imageDescriptionLocator, description)
-    await this.page.click('button[form=image-description-form]')
+  }
+
+  async submitImageDescription() {
+    await this.page.click(this.imageDescriptionSubmitButtonLocator)
     await waitForPageJsLoad(this.page)
   }
 
+  async setImageDescriptionAndSubmit(description: string) {
+    await this.setImageDescription(description)
+    await this.submitImageDescription()
+  }
+
+  /*
+   * Sets the given image file on the file <input> element.
+   *
+   * @param {string} imageFileName specifies a path to the image file.
+   *   If this string is empty, the file currently set on the element
+   *   will be removed.
+   */
   async setImageFile(imageFileName: string) {
     const currentDescription = await this.page
       .locator(this.imageDescriptionLocator)
@@ -29,14 +69,18 @@ export class AdminProgramImage {
       await dismissToast(this.page)
     }
 
-    await this.page
-      .locator(this.imageUploadLocator)
-      .setInputFiles(imageFileName)
+    if (imageFileName !== '') {
+      await this.page
+        .locator(this.imageUploadLocator)
+        .setInputFiles(imageFileName)
+    } else {
+      await this.page.locator(this.imageUploadLocator).setInputFiles([])
+    }
   }
 
   async setImageFileAndSubmit(imageFileName: string) {
     await this.setImageFile(imageFileName)
-    await this.page.click('button[form=image-file-upload-form]')
+    await this.page.click(this.imageUploadSubmitButtonLocator)
     await waitForPageJsLoad(this.page)
   }
 
@@ -68,10 +112,28 @@ export class AdminProgramImage {
     expect(await descriptionElement.inputValue()).toBe(description)
   }
 
+  async expectDisabledImageDescriptionSubmit() {
+    await expectDisabled(this.page, this.imageDescriptionSubmitButtonLocator)
+  }
+
+  async expectEnabledImageDescriptionSubmit() {
+    await expectEnabled(this.page, this.imageDescriptionSubmitButtonLocator)
+  }
+
+  async expectDisabledImageFileUploadSubmit() {
+    await expectDisabled(this.page, this.imageUploadSubmitButtonLocator)
+  }
+
+  async expectEnabledImageFileUploadSubmit() {
+    await expectEnabled(this.page, this.imageUploadSubmitButtonLocator)
+  }
+
   async expectDisabledImageFileUpload() {
-    expect(
-      await this.page.getAttribute(this.imageUploadLocator, 'disabled'),
-    ).not.toBeNull()
+    await expectDisabled(this.page, this.imageUploadLocator)
+  }
+
+  async expectEnabledImageFileUpload() {
+    await expectEnabled(this.page, this.imageUploadLocator)
   }
 
   /** Expects that the program card preview does not contain an image. */
@@ -89,15 +151,11 @@ export class AdminProgramImage {
   }
 
   async expectDisabledTranslationButton() {
-    expect(
-      await this.page.getAttribute(this.translationsButtonLocator, 'disabled'),
-    ).not.toBeNull()
+    await expectDisabled(this.page, this.translationsButtonLocator)
   }
 
   async expectEnabledTranslationButton() {
-    expect(
-      await this.page.getAttribute(this.translationsButtonLocator, 'disabled'),
-    ).toBeNull()
+    await expectEnabled(this.page, this.translationsButtonLocator)
   }
 
   async clickTranslationButton() {
@@ -110,6 +168,10 @@ export class AdminProgramImage {
 
   descriptionClearedToastMessage() {
     return `Image description removed`
+  }
+
+  descriptionNotClearedToastMessage() {
+    return `Description can't be removed because an image is present. Delete the image before deleting the description.`
   }
 
   imageUpdatedToastMessage() {

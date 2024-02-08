@@ -13,6 +13,7 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
 import forms.admin.ProgramImageDescriptionForm;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -46,10 +47,9 @@ import views.applicant.ProgramCardViewRenderer;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ToastMessage;
-import views.components.breadcrumb.BreadcrumbFactory;
-import views.components.breadcrumb.BreadcrumbItem;
 import views.fileupload.FileUploadViewStrategy;
 import views.style.StyleUtils;
 
@@ -64,7 +64,6 @@ public final class ProgramImageView extends BaseHtmlView {
   private static final String DELETE_IMAGE_BUTTON_TEXT = "Delete image";
 
   private final AdminLayout layout;
-  private final BreadcrumbFactory breadcrumbFactory;
   private final String baseUrl;
   private final FormFactory formFactory;
   private final FileUploadViewStrategy fileUploadViewStrategy;
@@ -77,7 +76,6 @@ public final class ProgramImageView extends BaseHtmlView {
   @Inject
   public ProgramImageView(
       AdminLayoutFactory layoutFactory,
-      BreadcrumbFactory breadcrumbFactory,
       Config config,
       FormFactory formFactory,
       FileUploadViewStrategy fileUploadViewStrategy,
@@ -87,7 +85,6 @@ public final class ProgramImageView extends BaseHtmlView {
       PublicStorageClient publicStorageClient,
       ZoneId zoneId) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
-    this.breadcrumbFactory = checkNotNull(breadcrumbFactory);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.formFactory = checkNotNull(formFactory);
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
@@ -101,19 +98,31 @@ public final class ProgramImageView extends BaseHtmlView {
   /**
    * Renders the image currently associated with the program and a form to add / edit / delete the
    * image (and its alt text).
+   *
+   * @param editStatus specifies whether the program is being created or edited so that the "Back"
+   *     button can direct the admin appropriately. This should match a name in the {@link
+   *     ProgramEditStatus} enum.
    */
-  public Content render(Http.Request request, ProgramDefinition programDefinition) {
-    // TODO(#5676): Replace breadcrumbs with a back button.
-    DivTag breadcrumbs = createBreadcrumbs(programDefinition);
+  public Content render(
+      Http.Request request, ProgramDefinition programDefinition, String editStatus) {
+    ProgramEditStatus editStatusEnum = ProgramEditStatus.getStatusFromString(editStatus);
+    ATag backButton = createBackButton(programDefinition, editStatusEnum);
 
     DivTag mainContent = div().withClass("mx-20");
 
     H1Tag titleContainer = renderHeader(PAGE_TITLE);
 
     DivTag formsContainer = div();
-    Modal deleteImageModal = createDeleteImageModal(request, programDefinition);
-    formsContainer.with(createImageDescriptionForm(request, programDefinition));
-    formsContainer.with(createImageUploadForm(programDefinition, deleteImageModal.getButton()));
+    Modal deleteImageModal = createDeleteImageModal(request, programDefinition, editStatus);
+    formsContainer.with(createImageDescriptionForm(request, programDefinition, editStatus));
+    formsContainer.with(
+        createImageUploadForm(programDefinition, deleteImageModal.getButton(), editStatus));
+    if (editStatusEnum == ProgramEditStatus.CREATION
+        || editStatusEnum == ProgramEditStatus.CREATION_EDIT) {
+      // When an admin is going through the creation flow, we want to make sure they have a
+      // "Continue" button showing them how to finish program creation.
+      formsContainer.with(createContinueButton(programDefinition));
+    }
 
     DivTag formsAndCurrentCardContainer =
         div().withClasses("grid", "grid-cols-2", "gap-10", "w-full");
@@ -126,38 +135,58 @@ public final class ProgramImageView extends BaseHtmlView {
         layout
             .getBundle(request)
             .setTitle(PAGE_TITLE)
-            .addMainContent(div().with(breadcrumbs, mainContent))
+            .addMainContent(div().with(backButton, mainContent))
             .addModals(deleteImageModal);
 
-    // TODO(#5676): This toast code is re-implemented across multiple controllers. Can we write a
-    // helper method for it?
+    // TODO(#6593): Write a helper method for this toast display logic.
     Http.Flash flash = request.flash();
     if (flash.get("success").isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()));
+    } else if (flash.get("error").isPresent()) {
+      htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(flash.get("error").get()));
     }
 
     return layout.renderCentered(htmlBundle);
   }
 
-  private DivTag createBreadcrumbs(ProgramDefinition program) {
-    ImmutableList<BreadcrumbItem> breadcrumbItems =
-        ImmutableList.of(
-            BreadcrumbItem.create(
-                "All Programs",
-                /* link= */ baseUrl + routes.AdminProgramController.index().url(),
-                /* icon= */ null),
-            BreadcrumbItem.create(
-                program.localizedName().getDefault(),
-                /* link= */ baseUrl + routes.AdminProgramBlocksController.index(program.id()).url(),
-                /* icon= */ null),
-            BreadcrumbItem.create(PAGE_TITLE, /* link= */ null, Icons.IMAGE));
-    return div()
-        .withClasses("mt-4", "mx-10")
-        .with(breadcrumbFactory.buildBreadcrumbTrail(breadcrumbItems));
+  private ATag createBackButton(
+      ProgramDefinition programDefinition, ProgramEditStatus programEditStatus) {
+    String backTarget;
+    switch (programEditStatus) {
+      case EDIT:
+        backTarget = routes.AdminProgramBlocksController.index(programDefinition.id()).url();
+        break;
+      case CREATION:
+      case CREATION_EDIT:
+        // By the time we're in the image view, the program has been created so the new status is
+        // CREATION_EDIT.
+        backTarget =
+            routes.AdminProgramController.edit(
+                    programDefinition.id(), ProgramEditStatus.CREATION_EDIT.name())
+                .url();
+        break;
+      default:
+        throw new IllegalStateException("All cases should be handled above");
+    }
+
+    return new LinkElement()
+        .setHref(backTarget)
+        .setIcon(Icons.ARROW_LEFT, LinkElement.IconPosition.START)
+        .setText("Back")
+        .setStyles("my-6", "ml-10")
+        .asAnchorText();
+  }
+
+  private ButtonTag createContinueButton(ProgramDefinition programDefinition) {
+    return redirectButton(
+            "continue-button",
+            "Continue",
+            routes.AdminProgramBlocksController.index(programDefinition.id()).url())
+        .withClasses(ButtonStyles.SOLID_BLUE, "mt-20");
   }
 
   private DivTag createImageDescriptionForm(
-      Http.Request request, ProgramDefinition programDefinition) {
+      Http.Request request, ProgramDefinition programDefinition, String editStatus) {
     String existingDescription = getExistingDescription(programDefinition);
     ProgramImageDescriptionForm existingDescriptionForm =
         new ProgramImageDescriptionForm(existingDescription);
@@ -168,7 +197,9 @@ public final class ProgramImageView extends BaseHtmlView {
     buttonsDiv.with(
         submitButton("Save image description")
             .withForm(IMAGE_DESCRIPTION_FORM_ID)
-            .withClasses(ButtonStyles.SOLID_BLUE, "flex"));
+            .withClasses(ButtonStyles.SOLID_BLUE, "flex")
+            // admin_program_image.ts will enable the submit button when the description changes.
+            .isDisabled());
     Optional<ButtonTag> manageTranslationsButton =
         createManageTranslationsButton(programDefinition, existingDescription);
     manageTranslationsButton.ifPresent(buttonsDiv::with);
@@ -179,7 +210,8 @@ public final class ProgramImageView extends BaseHtmlView {
                 .withId(IMAGE_DESCRIPTION_FORM_ID)
                 .withMethod("POST")
                 .withAction(
-                    routes.AdminProgramImageController.updateDescription(programDefinition.id())
+                    routes.AdminProgramImageController.updateDescription(
+                            programDefinition.id(), editStatus)
                         .url())
                 .with(
                     makeCsrfTokenInputTag(request),
@@ -204,9 +236,10 @@ public final class ProgramImageView extends BaseHtmlView {
     return button.map(buttonTag -> buttonTag.withCondDisabled(existingDescription.isBlank()));
   }
 
-  private DivTag createImageUploadForm(ProgramDefinition program, ButtonTag deleteButton) {
+  private DivTag createImageUploadForm(
+      ProgramDefinition program, ButtonTag deleteButton, String editStatus) {
     boolean hasNoDescription = getExistingDescription(program).isBlank();
-    StorageUploadRequest storageUploadRequest = createStorageUploadRequest(program);
+    StorageUploadRequest storageUploadRequest = createStorageUploadRequest(program, editStatus);
     FormTag form =
         fileUploadViewStrategy
             .renderFileUploadFormElement(storageUploadRequest)
@@ -235,24 +268,23 @@ public final class ProgramImageView extends BaseHtmlView {
         submitButton("Save image")
             .withForm(IMAGE_FILE_UPLOAD_FORM_ID)
             .withClasses(ButtonStyles.SOLID_BLUE, "flex")
-            .withCondDisabled(hasNoDescription));
+            // admin_program_image.ts will enable the submit button when an image has been uploaded.
+            .isDisabled());
     buttonsDiv.with(deleteButton);
 
-    // TODO(#5676): Replace with final UX once we have it.
     return div()
         .withClass("mt-10")
         .with(fullForm)
         .with(buttonsDiv)
         .with(p("Note: Image description is required before uploading an image.").withClass("mt-1"))
         .with(fileUploadViewStrategy.footerTags());
-
-    // TODO(#5676): Warn admins of recommended image size and dimensions.
   }
 
-  private StorageUploadRequest createStorageUploadRequest(ProgramDefinition program) {
+  private StorageUploadRequest createStorageUploadRequest(
+      ProgramDefinition program, String editStatus) {
     String key = PublicFileNameFormatter.formatPublicProgramImageFileKey(program.id());
     String onSuccessRedirectUrl =
-        baseUrl + routes.AdminProgramImageController.updateFileKey(program.id()).url();
+        baseUrl + routes.AdminProgramImageController.updateFileKey(program.id(), editStatus).url();
     return publicStorageClient.getSignedUploadRequest(key, onSuccessRedirectUrl);
   }
 
@@ -306,7 +338,8 @@ public final class ProgramImageView extends BaseHtmlView {
     // different ID, so ApplicantProgramsController prevents access.
   }
 
-  private Modal createDeleteImageModal(Http.Request request, ProgramDefinition program) {
+  private Modal createDeleteImageModal(
+      Http.Request request, ProgramDefinition program, String editStatus) {
     ButtonTag deleteImageButton =
         ViewUtils.makeSvgTextButton(DELETE_IMAGE_BUTTON_TEXT, Icons.DELETE)
             .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "flex", "ml-2")
@@ -315,7 +348,8 @@ public final class ProgramImageView extends BaseHtmlView {
     FormTag deleteBlockForm =
         form(makeCsrfTokenInputTag(request))
             .withMethod(Http.HttpVerbs.POST)
-            .withAction(routes.AdminProgramImageController.deleteFileKey(program.id()).url())
+            .withAction(
+                routes.AdminProgramImageController.deleteFileKey(program.id(), editStatus).url())
             .with(p("Once you delete this image, you'll need to re-upload a new image."))
             .with(
                 submitButton(DELETE_IMAGE_BUTTON_TEXT)

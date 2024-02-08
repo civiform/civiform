@@ -824,6 +824,18 @@ export class AdminQuestions {
     )
   }
 
+  async addMultiOptionAnswer(option: QuestionOption) {
+    await this.page.click('#add-new-option')
+    const lastDiv = this.page
+      .locator('#question-settings')
+      .locator('div.cf-multi-option-question-option')
+      .last()
+    await lastDiv.locator('.cf-multi-option-input input').fill(option.text)
+    await lastDiv
+      .locator('.cf-multi-option-admin-input input')
+      .fill(option.adminName)
+  }
+
   async fillMultiOptionAnswer(index: number, option: QuestionOption) {
     await this.page.fill(
       AdminQuestions.multiOptionInputSelector(index),

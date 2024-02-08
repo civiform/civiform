@@ -5,14 +5,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.ProgramAcls;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.DbJsonB;
 import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
 import java.time.Instant;
 import java.util.List;
-import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -72,21 +70,9 @@ public class ProgramModel extends BaseModel {
 
   @DbJsonB private ProgramAcls acls;
 
-  /**
-   * legacyLocalizedName is the legacy storage column for program name translations. Programs
-   * created before early May 2021 may use this, but all other programs should not.
-   */
-  @DbJsonB private ImmutableMap<Locale, String> legacyLocalizedName;
-
   @DbJsonB private LocalizedStrings localizedDescription;
 
   @DbJsonB private LocalizedStrings localizedConfirmationMessage;
-
-  /**
-   * legacyLocalizedDescription is the legacy storage column for program description translations.
-   * Programs created before early May 2021 may use this, but all other programs should not.
-   */
-  @DbJsonB private ImmutableMap<Locale, String> legacyLocalizedDescription;
 
   @Constraints.Required @DbJson private ImmutableList<BlockDefinition> blockDefinitions;
 
@@ -259,6 +245,8 @@ public class ProgramModel extends BaseModel {
             .setAdminDescription(description)
             .setBlockDefinitions(blockDefinitions)
             .setStatusDefinitions(statusDefinitions)
+            .setLocalizedName(localizedName)
+            .setLocalizedDescription(localizedDescription)
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
             .setCreateTime(createTime)
@@ -267,35 +255,10 @@ public class ProgramModel extends BaseModel {
             .setEligibilityIsGating(eligibilityIsGating)
             .setAcls(acls);
 
-    setLocalizedName(builder);
-    setLocalizedDescription(builder);
     setLocalizedConfirmationMessage(builder);
     setLocalizedSummaryImageDescription(builder);
     setSummaryImageFileKey(builder);
     this.programDefinition = builder.build();
-  }
-
-  /** The majority of programs should have `localizedName` and not `legacyLocalizedName`. */
-  private ProgramModel setLocalizedName(ProgramDefinition.Builder builder) {
-    if (localizedName != null) {
-      builder.setLocalizedName(localizedName);
-    } else {
-      builder.setLocalizedName(LocalizedStrings.create(legacyLocalizedName));
-    }
-    return this;
-  }
-
-  /**
-   * The majority of programs should have `localizedDescription` and not
-   * `legacyLocalizedDescription`.
-   */
-  private ProgramModel setLocalizedDescription(ProgramDefinition.Builder builder) {
-    if (localizedDescription != null) {
-      builder.setLocalizedDescription(localizedDescription);
-    } else {
-      builder.setLocalizedDescription(LocalizedStrings.create(legacyLocalizedDescription));
-    }
-    return this;
   }
 
   private ProgramModel setLocalizedConfirmationMessage(ProgramDefinition.Builder builder) {

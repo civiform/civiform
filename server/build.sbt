@@ -36,11 +36,11 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20180219.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.23.13",
-      "software.amazon.awssdk" % "ses" % "2.23.13",
+      "software.amazon.awssdk" % "s3" % "2.23.19",
+      "software.amazon.awssdk" % "ses" % "2.23.19",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.11.1",
+      "com.azure" % "azure-identity" % "1.11.2",
       "com.azure" % "azure-storage-blob" % "12.25.1",
 
       // Database and database testing libraries
@@ -54,9 +54,9 @@ lazy val root = (project in file("."))
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
-      "org.assertj" % "assertj-core" % "3.25.2" % Test,
+      "org.assertj" % "assertj-core" % "3.25.3" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
-      "org.assertj" % "assertj-core" % "3.25.2" % Test,
+      "org.assertj" % "assertj-core" % "3.25.3" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "33.0.0-jre" % Test,

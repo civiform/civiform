@@ -23,6 +23,107 @@ describe('Admin can manage program image', () => {
     await validateScreenshot(page, 'program-image-none')
   })
 
+  describe('back button', () => {
+    it('back button redirects to block page if came from block page', async () => {
+      const {page, adminPrograms, adminProgramImage} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_card_images')
+
+      const programName = 'program name'
+      await adminPrograms.addProgram(programName)
+      // Navigate from edit program blocks page -> edit program image page
+      await adminPrograms.gotoEditDraftProgramPage(programName)
+      await adminPrograms.goToProgramImagePage(programName)
+
+      await adminProgramImage.clickBackButton()
+
+      await adminPrograms.expectProgramBlockEditPage()
+    })
+
+    it('back button redirects to details page if came from create program page', async () => {
+      const {page, adminPrograms, adminProgramImage} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_card_images')
+
+      // After creating a program, admin should be redirected to the program images page
+      const programName = 'Back Test Program'
+      await adminPrograms.addProgram(programName)
+      await adminProgramImage.expectProgramImagePage()
+
+      // WHEN back is clicked
+      await adminProgramImage.clickBackButton()
+
+      // THEN the admin goes back to the edit program details page for this new program
+      await adminPrograms.expectProgramEditPage(programName)
+    })
+
+    it('back button preserves location after interaction', async () => {
+      const {page, adminPrograms, adminProgramImage} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_card_images')
+
+      const programName = 'Back Test Program'
+      await adminPrograms.addProgram(programName)
+      await adminProgramImage.expectProgramImagePage()
+
+      // When an admin submits an image or description on the page, the page reloads.
+      // This test verifies that the redirect URL for the back button is preserved
+      // even after those submission and page reloads.
+      await adminProgramImage.setImageDescriptionAndSubmit('description')
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+      )
+
+      await adminProgramImage.clickBackButton()
+
+      await adminPrograms.expectProgramEditPage(programName)
+    })
+  })
+
+  describe('continue button', () => {
+    it('continue button shows if from program creation page', async () => {
+      const {page, adminPrograms, adminProgramImage} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_card_images')
+
+      const programName = 'Back Test Program'
+      await adminPrograms.addProgram(programName)
+      await adminProgramImage.expectProgramImagePage()
+
+      await adminProgramImage.expectHasContinueButton()
+      await validateScreenshot(page, 'program-image-with-continue')
+    })
+
+    it('continue button redirects to program blocks page', async () => {
+      const {page, adminPrograms, adminProgramImage} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_card_images')
+
+      const programName = 'Back Test Program'
+      await adminPrograms.addProgram(programName)
+      await adminProgramImage.expectProgramImagePage()
+      await adminProgramImage.expectHasContinueButton()
+
+      await adminProgramImage.clickContinueButton()
+
+      await adminPrograms.expectProgramBlockEditPage()
+    })
+
+    it('continue button hides if from edit program image page', async () => {
+      const {page, adminPrograms, adminProgramImage} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_card_images')
+
+      const programName = 'program name'
+      await adminPrograms.addProgram(programName)
+      // Navigate from edit program blocks page -> edit program image page
+      await adminPrograms.gotoEditDraftProgramPage(programName)
+      await adminPrograms.goToProgramImagePage(programName)
+
+      await adminProgramImage.expectNoContinueButton()
+    })
+  })
+
   describe('description', () => {
     const programName = 'Test program'
 
@@ -37,9 +138,13 @@ describe('Admin can manage program image', () => {
     it('sets new description', async () => {
       const {page, adminProgramImage} = ctx
 
-      await adminProgramImage.setImageDescriptionAndSubmit(
-        'Fake image description',
+      await adminProgramImage.setImageDescription('Fake image description')
+      await validateScreenshot(
+        page,
+        'program-image-with-description-before-save',
       )
+
+      await adminProgramImage.submitImageDescription()
       await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectDescriptionIs('Fake image description')
       await validateToastMessage(
@@ -111,11 +216,121 @@ describe('Admin can manage program image', () => {
       )
     })
 
+    it('does not remove description if image present (description set to empty)', async () => {
+      const {page, adminProgramImage} = ctx
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Original description',
+      )
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+      )
+
+      await adminProgramImage.setImageDescriptionAndSubmit('')
+
+      await adminProgramImage.expectDescriptionIs('Original description')
+      await validateToastMessage(
+        page,
+        adminProgramImage.descriptionNotClearedToastMessage(),
+      )
+    })
+
+    it('does not remove description if image present (description set to blank)', async () => {
+      const {page, adminProgramImage} = ctx
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Original description',
+      )
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+      )
+
+      await adminProgramImage.setImageDescriptionAndSubmit('      ')
+
+      await adminProgramImage.expectDescriptionIs('Original description')
+      await validateToastMessage(
+        page,
+        adminProgramImage.descriptionNotClearedToastMessage(),
+      )
+    })
+
+    it('can remove description after deleting image', async () => {
+      const {adminProgramImage} = ctx
+
+      // Set a description and image
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Original description',
+      )
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+      )
+
+      // If the image is deleted
+      await adminProgramImage.clickDeleteImageButton()
+      await adminProgramImage.confirmDeleteImageButton()
+
+      // Then the description can also be deleted afterwards
+      await adminProgramImage.setImageDescriptionAndSubmit('')
+
+      await adminProgramImage.expectDescriptionIs('')
+    })
+
+    it('disables submit button after save', async () => {
+      const {adminProgramImage} = ctx
+
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+
+      // On page reload the submit button should be disabled because no changes
+      // have been made to the description since submission.
+      await adminProgramImage.expectDisabledImageDescriptionSubmit()
+    })
+
+    it('disables submit button when no text change', async () => {
+      const {adminProgramImage} = ctx
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+
+      // Set an identical description and verify submit is still disabled.
+      await adminProgramImage.setImageDescription('Fake image description')
+      await adminProgramImage.expectDisabledImageDescriptionSubmit()
+
+      // Set a new description then go back to the original description
+      // and verify submit is still disabled.
+      await adminProgramImage.setImageDescription('Something different')
+      await adminProgramImage.setImageDescription('Fake image description')
+      await adminProgramImage.expectDisabledImageDescriptionSubmit()
+    })
+
+    it('enables submit button when change', async () => {
+      const {adminProgramImage} = ctx
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+
+      await adminProgramImage.setImageDescription('Something different')
+
+      await adminProgramImage.expectEnabledImageDescriptionSubmit()
+    })
+
+    it('enables submit button when text removed', async () => {
+      const {adminProgramImage} = ctx
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+
+      // Verify that we enable the submit button if the admin
+      // updates the description to be empty.
+      await adminProgramImage.setImageDescription('')
+
+      await adminProgramImage.expectEnabledImageDescriptionSubmit()
+    })
+
     it('disables translation button when no description', async () => {
       const {adminProgramImage} = ctx
 
-      await adminProgramImage.setImageDescriptionAndSubmit('')
       await adminProgramImage.expectProgramImagePage()
+      await adminProgramImage.expectDescriptionIs('')
 
       await adminProgramImage.expectDisabledTranslationButton()
     })
@@ -181,10 +396,51 @@ describe('Admin can manage program image', () => {
     it('prevents image upload when no description', async () => {
       const {adminProgramImage} = ctx
 
-      await adminProgramImage.setImageDescriptionAndSubmit('')
       await adminProgramImage.expectProgramImagePage()
+      await adminProgramImage.expectDescriptionIs('')
 
       await adminProgramImage.expectDisabledImageFileUpload()
+      await adminProgramImage.expectDisabledImageFileUploadSubmit()
+    })
+
+    it('disables submit button when no image', async () => {
+      const {adminProgramImage} = ctx
+      // The submit button will also be disabled if there's no description,
+      // which we don't want to test here. So, set a description to rule
+      // that out.
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+
+      await adminProgramImage.expectDisabledImageFileUploadSubmit()
+    })
+
+    it('enables submit button when image', async () => {
+      const {adminProgramImage} = ctx
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+
+      await adminProgramImage.setImageFile(
+        'src/assets/program-summary-image-wide.png',
+      )
+
+      await adminProgramImage.expectEnabledImageFileUploadSubmit()
+    })
+
+    it('disables submit button when image removed', async () => {
+      const {adminProgramImage} = ctx
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+      await adminProgramImage.setImageFile(
+        'src/assets/program-summary-image-wide.png',
+      )
+      await adminProgramImage.expectEnabledImageFileUploadSubmit()
+
+      await adminProgramImage.setImageFile('')
+
+      await adminProgramImage.expectDisabledImageFileUploadSubmit()
     })
 
     it('adds new image', async () => {

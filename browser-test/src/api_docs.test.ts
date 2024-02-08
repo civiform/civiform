@@ -22,12 +22,23 @@ describe('Viewing API docs', () => {
     // TODO: fix the problem with these test on probers
     // https://github.com/civiform/civiform/issues/6158
     if (isHermeticTestEnvironment()) {
-      const {page, adminPrograms} = ctx
+      const {page, adminPrograms, adminQuestions} = ctx
 
       await page.goto(BASE_URL)
       await loginAsAdmin(page)
 
       await adminPrograms.publishAllDrafts()
+
+      // Add additional option to checkbox to ensure all historical options are shown
+      await adminQuestions.gotoQuestionEditPage('Sample Checkbox Question')
+      await adminQuestions.deleteMultiOptionAnswer(0)
+      await adminQuestions.addMultiOptionAnswer({
+        adminName: 'spirograph',
+        text: 'spirograph',
+      })
+      await adminQuestions.clickSubmitButtonAndNavigate('Update')
+      await adminPrograms.publishAllDrafts()
+
       await page.click('text=API docs')
 
       expect(await page.textContent('html')).toContain(

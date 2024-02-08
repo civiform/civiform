@@ -160,11 +160,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> edit(
       Request request, long programId, String blockId, Optional<String> questionName) {
-    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
-      // This route is only operative for the new URL schema, so send the user home.
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
-
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
@@ -210,11 +205,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> review(
       Request request, long programId, String blockId, Optional<String> questionName) {
-    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
-      // This route is only operative for the new URL schema, so send the user home.
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
-
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
@@ -231,7 +221,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
 
     DynamicForm form = formFactory.form().bindFromRequest(request);
-    String selectedAddress = form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME);
+    Optional<String> selectedAddress =
+        Optional.ofNullable(form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME));
     Optional<String> maybeAddressJson = request.session().get(ADDRESS_JSON_SESSION_KEY);
 
     ImmutableList<AddressSuggestion> suggestions =
@@ -245,11 +236,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> confirmAddress(
       Request request, long programId, String blockId, boolean inReview) {
-    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
-      // This route is only operative for the new URL schema, so send the user home.
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
-
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
@@ -267,7 +253,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long programId,
       String blockId,
       boolean inReview,
-      String selectedAddress,
+      Optional<String> selectedAddress,
       ImmutableList<AddressSuggestion> suggestions) {
     CompletableFuture<ApplicantPersonalInfo> applicantStage =
         applicantService.getPersonalInfo(applicantId).toCompletableFuture();
@@ -393,11 +379,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> previous(
       Request request, long programId, int previousBlockIndex, boolean inReview) {
-    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
-      // This route is only operative for the new URL schema, so send the user home.
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
-
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
@@ -571,11 +552,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> updateFile(
       Request request, long programId, String blockId, boolean inReview) {
-    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
-      // This route is only operative for the new URL schema, so send the user home.
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
-
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
@@ -656,11 +632,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> update(
       Request request, long programId, String blockId, boolean inReview) {
-    if (!settingsManifest.getNewApplicantUrlSchemaEnabled()) {
-      // This route is only operative for the new URL schema, so send the user home.
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
-
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
@@ -834,7 +805,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           programId,
           blockId,
           inReview,
-          suggestionMatch[0].getSingleLineAddress(),
+          Optional.of(suggestionMatch[0].getSingleLineAddress()),
           suggestions);
     } else {
       String json = addressSuggestionJsonSerializer.serialize(suggestions);

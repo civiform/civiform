@@ -6,7 +6,6 @@ import io.ebean.Database;
 import java.util.LinkedHashSet;
 import javax.inject.Inject;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionType;
 
 /** Implements queries related to CSV exporting needs. */
 public final class ExportServiceRepository {
@@ -25,8 +24,8 @@ public final class ExportServiceRepository {
    */
   public ImmutableList<String> getAllHistoricMultiOptionAdminNames(
       QuestionDefinition questionDefinition) {
-    if (!questionDefinition.getQuestionType().equals(QuestionType.CHECKBOX)) {
-      throw new RuntimeException("The Question Type is not checkbox");
+    if (!questionDefinition.getQuestionType().isMultiOptionType()) {
+      throw new RuntimeException("The Question Type is not a multi-option type");
     }
     String questionName = questionDefinition.getName();
     LinkedHashSet<String> allOptions = new LinkedHashSet<>();

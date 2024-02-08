@@ -314,7 +314,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     SearchParameters searchParameters =
         SearchParameters.builder()
             .setNameQuery(Optional.empty())
-            .setDateQuery(Optional.of("2022-12-12"))
+            .setDayQuery(Optional.of("12"))
+            .setMonthQuery(Optional.of("12"))
+            .setYearQuery(Optional.of("2022"))
             .build();
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
@@ -328,10 +330,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     setupTiClientAccountWithApplicant("Emily", "2022-07-08", "email20", tiGroup);
     setupTiClientAccountWithApplicant("Third", "2022-07-10", "email30", tiGroup);
     SearchParameters searchParameters =
-        SearchParameters.builder()
-            .setNameQuery(Optional.of("Emily"))
-            .setDateQuery(Optional.empty())
-            .build();
+        SearchParameters.builder().setNameQuery(Optional.of("Emily")).build();
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
     assertThat(tiResult.getAccounts().get().size()).isEqualTo(1);
@@ -344,7 +343,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     SearchParameters searchParameters =
         SearchParameters.builder()
             .setNameQuery(Optional.of(""))
-            .setDateQuery(Optional.of(""))
+            .setDayQuery(Optional.of(""))
+            .setMonthQuery(Optional.of(""))
+            .setYearQuery(Optional.of(""))
             .build();
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
@@ -358,11 +359,48 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     SearchParameters searchParameters =
         SearchParameters.builder()
             .setNameQuery(Optional.empty())
-            .setDateQuery(Optional.empty())
+            .setDayQuery(Optional.empty())
+            .setMonthQuery(Optional.empty())
+            .setYearQuery(Optional.empty())
             .build();
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
+    // The size is 3 because two other accounts are added to the tiGroup in setup()
     assertThat(tiResult.getAccounts().get().size()).isEqualTo(3);
+  }
+
+  @Test
+  // In this case, getManagedAccounts returns an empty client list and the view displays an error
+  // message
+  public void getManagedAccounts_SearchWithEmptyStringNameAndPartialDob_returnsNoClients() {
+    setupTiClientAccountWithApplicant("Bobo", "2022-07-08", "bobo@clown.test", tiGroup);
+    SearchParameters searchParameters =
+        SearchParameters.builder()
+            .setNameQuery(Optional.of(""))
+            .setDayQuery(Optional.of("16"))
+            .setMonthQuery(Optional.of(""))
+            .setYearQuery(Optional.of(""))
+            .build();
+    TrustedIntermediarySearchResult tiResult =
+        service.getManagedAccounts(searchParameters, tiGroup);
+    assertThat(tiResult.getAccounts().get().size()).isEqualTo(0);
+  }
+
+  @Test
+  // In this case, getManagedAccounts searches by name and the partial DOB is ignored
+  public void getManagedAccounts_SearchWithNameAndPartialDob_returnsClientsByName() {
+    setupTiClientAccountWithApplicant("Bobo", "2022-07-08", "bobo@clown.test", tiGroup);
+    SearchParameters searchParameters =
+        SearchParameters.builder()
+            .setNameQuery(Optional.of("Bobo"))
+            .setDayQuery(Optional.of("16"))
+            .setMonthQuery(Optional.of(""))
+            .setYearQuery(Optional.of(""))
+            .build();
+    TrustedIntermediarySearchResult tiResult =
+        service.getManagedAccounts(searchParameters, tiGroup);
+    assertThat(tiResult.getAccounts().get().size()).isEqualTo(1);
+    assertThat(tiResult.getAccounts().get().get(0).getApplicantName()).contains("Bobo");
   }
 
   @Test
@@ -373,13 +411,14 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     SearchParameters searchParameters =
         SearchParameters.builder()
             .setNameQuery(Optional.empty())
-            .setDateQuery(Optional.of("22-22-22"))
+            .setDayQuery(Optional.of("2"))
+            .setMonthQuery(Optional.of("Feb"))
+            .setYearQuery(Optional.of("2"))
             .build();
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
     assertThat(tiResult.getAccounts().get().size()).isEqualTo(tiGroup.getManagedAccounts().size());
-    assertThat(tiResult.getErrorMessage().get())
-        .isEqualTo("Please enter date in MM/dd/yyyy format");
+    assertThat(tiResult.getErrorMessage().get()).isEqualTo("Please enter a valid birth date.");
   }
 
   @Test
