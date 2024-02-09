@@ -240,7 +240,9 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     checkNotNull(
         applicantQuestionRendererFactory,
         "Must call init function for initializing ApplicantQuestionRendererFactory");
-    return applicantQuestionRendererFactory.getRenderer(question).render(params);
+    return applicantQuestionRendererFactory
+        .getRenderer(question, Optional.of(params.messages()))
+        .render(params);
   }
 
   private DivTag renderBottomNavButtons(Params params) {

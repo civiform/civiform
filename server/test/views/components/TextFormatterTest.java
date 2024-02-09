@@ -13,8 +13,9 @@ import j2html.tags.DomContent;
 import java.util.List;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
+import repository.ResetPostgres;
 
-public class TextFormatterTest {
+public class TextFormatterTest extends ResetPostgres {
 
   private void assertIsExternalUrlWithIcon(
       String actualValue, String expectedValue, String endsWith) {
@@ -39,14 +40,14 @@ public class TextFormatterTest {
     assertIsExternalUrlWithIcon(
         contentArr.get(0),
         "<a href=\"http://internet.website\" class=\"text-blue-900 font-bold opacity-75 underline"
-            + " hover:opacity-100\" target=\"_blank\" rel=\"nofollow noopener"
-            + " noreferrer\">http://internet.website<svg",
+            + " hover:opacity-100\" target=\"_blank\" aria-label=\"opens in a new tab\""
+            + " rel=\"nofollow noopener noreferrer\">http://internet.website<svg",
         "</svg>");
     assertIsExternalUrlWithIcon(
         htmlContent,
         "<a href=\"https://secure.website\" class=\"text-blue-900 font-bold opacity-75 underline"
-            + " hover:opacity-100\" target=\"_blank\" rel=\"nofollow noopener"
-            + " noreferrer\">https://secure.website<svg",
+            + " hover:opacity-100\" target=\"_blank\" aria-label=\"opens in a new tab\""
+            + " rel=\"nofollow noopener noreferrer\">https://secure.website<svg",
         "</svg></a></p>\n");
   }
 
@@ -61,8 +62,8 @@ public class TextFormatterTest {
     assertIsExternalUrlWithIcon(
         htmlContent,
         "<a href=\"https://www.google.com\" class=\"text-blue-900 font-bold opacity-75 underline"
-            + " hover:opacity-100\" target=\"_blank\" rel=\"nofollow noopener noreferrer\">this is"
-            + " a link",
+            + " hover:opacity-100\" target=\"_blank\" aria-label=\"opens in a new tab\""
+            + " rel=\"nofollow noopener noreferrer\">this is a link",
         "</svg></a></p>\n");
   }
 
@@ -210,5 +211,18 @@ public class TextFormatterTest {
         .isEqualTo("HTML element: \"script\" was caught and discarded.");
     assertThat(logsList.get(1).getMessage())
         .isEqualTo("HTML attribute: \"id\" was caught and discarded.");
+  }
+
+  @Test
+  public void formatTextWithAriaLabel_addsAriaLabel() {
+    ImmutableList<DomContent> content =
+        TextFormatter.formatTextWithAriaLabel(
+            "[link](https://www.example.com)", false, false, "test aria label");
+
+    assertThat(content.get(0).render()).contains("aria-label=\"test aria label\"");
+
+    // Set the aria label back to the default for the other tests
+    TextFormatter.resetAriaLabelToDefault();
+    ;
   }
 }
