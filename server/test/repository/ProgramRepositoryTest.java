@@ -62,7 +62,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
     versionRepo = instanceOf(VersionRepository.class);
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     programCache = instanceOf(SyncCacheApi.class);
-    programDefCache = instanceOf(SyncCacheApi.class);
     versionsByProgramCache = instanceOf(SyncCacheApi.class);
 
     BindingKey<SyncCacheApi> programDefKey =
