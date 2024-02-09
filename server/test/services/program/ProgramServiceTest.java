@@ -34,6 +34,9 @@ import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import play.cache.NamedCacheImpl;
+import play.cache.SyncCacheApi;
+import play.inject.BindingKey;
 import repository.ResetPostgres;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -63,9 +66,14 @@ public class ProgramServiceTest extends ResetPostgres {
   private QuestionDefinition colorQuestion;
   private QuestionDefinition nameQuestion;
   private ProgramService ps;
+  private SyncCacheApi programDefCache;
 
   @Before
   public void setProgramServiceImpl() {
+    BindingKey<SyncCacheApi> programDefKey =
+        new BindingKey<>(SyncCacheApi.class)
+            .qualifiedWith(new NamedCacheImpl("program-definition"));
+    programDefCache = instanceOf(programDefKey.asScala());
     ps = instanceOf(ProgramService.class);
   }
 
@@ -1029,7 +1037,6 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition = ProgramBuilder.newActiveProgram().buildDefinition();
 
     CompletionStage<ProgramDefinition> found = ps.getProgramDefinitionAsync(programDefinition.id());
-
     assertThat(found.toCompletableFuture().join().id()).isEqualTo(programDefinition.id());
   }
 
@@ -1061,6 +1068,31 @@ public class ProgramServiceTest extends ResetPostgres {
     QuestionDefinition foundQuestion =
         found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
     assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
+  }
+
+  @Test
+  public void getProgramDefinitionAsync_setsCacheWithQuestionDefinitions() throws Exception {
+    QuestionDefinition question = nameQuestion;
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestionDefinition(question)
+            .buildDefinition();
+
+    ProgramDefinition found =
+        ps.getProgramDefinitionAsync(program.id()).toCompletableFuture().join();
+    ProgramDefinition cachedProgram =
+        (ProgramDefinition) programDefCache.get(String.valueOf(program.id())).get();
+
+    QuestionDefinition foundQuestion =
+        cachedProgram
+            .blockDefinitions()
+            .get(0)
+            .programQuestionDefinitions()
+            .get(0)
+            .getQuestionDefinition();
+    assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
+    assertThat(found.getQuestionIdsInProgram()).isEqualTo(cachedProgram.getQuestionIdsInProgram());
   }
 
   @Test
@@ -1169,7 +1201,7 @@ public class ProgramServiceTest extends ResetPostgres {
   @Test
   public void addRepeatedBlockToProgram() throws Exception {
     ProgramModel program =
-        ProgramBuilder.newActiveProgram()
+        ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
             .withRepeatedBlock()
@@ -1218,7 +1250,7 @@ public class ProgramServiceTest extends ResetPostgres {
   @Test
   public void addRepeatedBlockToProgram_toEndOfBlockList() throws Exception {
     ProgramModel program =
-        ProgramBuilder.newActiveProgram()
+        ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .withBlock()

@@ -228,10 +228,10 @@ public final class ProgramService {
   }
 
   private CompletionStage<ProgramDefinition> syncProgramAssociations(ProgramModel program) {
-    if (settingsManifest.getProgramCacheEnabled()
-        && programRepository.getProgramDefinitionFromCache(program).isPresent()) {
+    if (settingsManifest.getQuestionCacheEnabled()
+        && programRepository.getFullProgramDefinitionFromCache(program).isPresent()) {
       return CompletableFuture.completedStage(
-          programRepository.getProgramDefinitionFromCache(program).get());
+          programRepository.getFullProgramDefinitionFromCache(program).get());
     }
     VersionModel activeVersion = versionRepository.getActiveVersion();
     VersionModel maxVersionForProgram =
@@ -250,10 +250,10 @@ public final class ProgramService {
     ProgramDefinition programDefinition =
         syncProgramDefinitionQuestions(program.getProgramDefinition(), maxVersionForProgram);
 
-    if (settingsManifest.getProgramCacheEnabled()) {
+    if (settingsManifest.getQuestionCacheEnabled()) {
       // It is safe to set the program definition cache, since we have already checked that it is
       // not a draft program.
-      programRepository.setProgramDefinitionCache(
+      programRepository.setFullProgramDefinitionCache(
           program.id, programDefinition.orderBlockDefinitions());
     }
 
@@ -1424,7 +1424,7 @@ public final class ProgramService {
       // We only need to get the question data if the program has eligibility conditions and the
       // program definition is not in the cache.
       if (programDef.hasEligibilityEnabled()
-          && !programRepository.getProgramDefinitionFromCache(p).isPresent()) {
+          && !programRepository.getFullProgramDefinitionFromCache(p).isPresent()) {
         VersionModel v =
             programRepository.getVersionsForProgram(p).stream().findAny().orElseThrow();
         ReadOnlyQuestionService questionServiceForVersion = versionToQuestionService.get(v.id);
@@ -1445,8 +1445,8 @@ public final class ProgramService {
                     return programDef;
                   }
                   Long programId = programDef.id();
-                  if (programRepository.getProgramDefinitionFromCache(programId).isPresent()) {
-                    return programRepository.getProgramDefinitionFromCache(programId).get();
+                  if (programRepository.getFullProgramDefinitionFromCache(programId).isPresent()) {
+                    return programRepository.getFullProgramDefinitionFromCache(programId).get();
                   }
                   try {
                     return syncProgramDefinitionQuestions(

@@ -2999,7 +2999,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     QuestionModel question = testQuestionBank.applicantAddress();
 
     ProgramModel program =
-        ProgramBuilder.newActiveProgram("program")
+        ProgramBuilder.newDraftProgram("program")
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
@@ -3109,7 +3109,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     QuestionModel question = testQuestionBank.applicantAddress();
 
     ProgramModel program =
-        ProgramBuilder.newActiveProgram("program")
+        ProgramBuilder.newDraftProgram("program")
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
@@ -3201,7 +3201,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     QuestionModel question = testQuestionBank.applicantAddress();
 
     ProgramModel program =
-        ProgramBuilder.newActiveProgram("program")
+        ProgramBuilder.newDraftProgram("program")
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
@@ -3307,7 +3307,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     QuestionModel question = testQuestionBank.applicantAddress();
 
     ProgramModel program =
-        ProgramBuilder.newActiveProgram("program")
+        ProgramBuilder.newDraftProgram("program")
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
@@ -3379,7 +3379,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     QuestionModel question = testQuestionBank.applicantAddress();
 
     ProgramModel program =
-        ProgramBuilder.newActiveProgram("program")
+        ProgramBuilder.newDraftProgram("program")
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .withBlock()
             .withRequiredQuestion(question)
