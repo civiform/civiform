@@ -490,6 +490,8 @@ public final class QuestionEditView extends BaseHtmlView {
                   currentQuestionForTag
                       .map(question -> !question.getName().equals(questionForm.getQuestionName()))
                       .orElse(false);
+              String otherQuestionName =
+                  currentQuestionForTag.map(QuestionDefinition::getName).orElse("");
               DivTag tagSubsection =
                   div()
                       .withClass("cf-primary-applicant-info-subsection")
@@ -512,7 +514,7 @@ public final class QuestionEditView extends BaseHtmlView {
                   ViewUtils.makeAlertInfoSlim(
                       "You cannot edit this setting since the question is not a universal"
                           + " question.",
-                      /* hidden= */ questionForm.isUniversal(),
+                      /* hidden= */ questionForm.isUniversal() || differentQuestionHasTag,
                       /* classes...= */ "cf-primary-applicant-info-universal-alert",
                       "mb-4",
                       "usa-alert-primary-applicant-info"));
@@ -522,10 +524,21 @@ public final class QuestionEditView extends BaseHtmlView {
                       String.format(
                           "You cannot edit this setting since this property is already set on a"
                               + " question named %s.",
-                          currentQuestionForTag.map(QuestionDefinition::getName).orElse("")),
-                      /* hidden= */ false,
-                      /* classes...= */ "cf-primary-applicant-info-tag-already-set-alert",
+                          otherQuestionName),
+                      /* hidden= */ !questionForm.isUniversal(),
+                      /* classes...= */ "cf-primary-applicant-info-tag-set-alert",
                       "mb-4",
+                      "usa-alert-primary-applicant-info"));
+              tagSubsection.condWith(
+                  differentQuestionHasTag,
+                  ViewUtils.makeAlertInfoSlim(
+                      String.format(
+                          "You cannot edit this setting since the question is not a universal"
+                              + " question, and because this property is already set on a question"
+                              + " named %s.",
+                          otherQuestionName),
+                      /* hidden= */ questionForm.isUniversal(),
+                      /* classes...= */ "cf-primary-applicant-info-tag-set-not-universal-alert",
                       "usa-alert-primary-applicant-info"));
               result.with(tagSubsection);
             });

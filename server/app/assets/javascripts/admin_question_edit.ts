@@ -48,7 +48,10 @@ class AdminQuestionEdit {
           '.cf-primary-applicant-info-universal-alert',
         ) as HTMLElement
         const alreadySetAlert = subsection.querySelector(
-          '.cf-primary-applicant-info-tag-already-set-alert',
+          '.cf-primary-applicant-info-tag-set-alert',
+        ) // May be null
+        const alreadySetNotUniversalAlert = subsection.querySelector(
+          '.cf-primary-applicant-info-tag-set-not-universal-alert',
         ) // May be null
         // Do not toggle things if this is hidden because the
         // "you've already set this action on a different question" alert is showing.
@@ -60,8 +63,11 @@ class AdminQuestionEdit {
             toggle.click()
           }
           toggle.toggleAttribute('hidden')
+          universalAlert.toggleAttribute('hidden')
+        } else {
+          alreadySetAlert.toggleAttribute('hidden')
+          alreadySetNotUniversalAlert?.toggleAttribute('hidden')
         }
-        universalAlert.toggleAttribute('hidden')
       })
     })
   }
