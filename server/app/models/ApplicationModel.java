@@ -94,11 +94,6 @@ public class ApplicationModel extends BaseModel {
     return this.program;
   }
 
-  /** Returns the admin name of the program this application is associated with. */
-  public String getProgramName() {
-    return getProgram().getProgramDefinition().adminName();
-  }
-
   public ApplicantData getApplicantData() {
     if (this.preferredLocale == null || this.preferredLocale.isEmpty()) {
       // Default to English.
