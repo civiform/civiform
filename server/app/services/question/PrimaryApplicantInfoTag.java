@@ -18,7 +18,7 @@ public enum PrimaryApplicantInfoTag {
       "primaryApplicantDob",
       "Set answer as applicant date of birth",
       "If this is turned on, the answer will be pre-filled with the applicant's date of birth that"
-          + " the staff member input during account setup."),
+          + " the Trusted Intermediary input during client account setup."),
   APPLICANT_EMAIL(
       QuestionTag.PRIMARY_APPLICANT_EMAIL,
       QuestionType.EMAIL,
