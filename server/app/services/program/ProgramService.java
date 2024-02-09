@@ -52,7 +52,6 @@ import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
-import services.settings.SettingsManifest;
 
 /**
  * The service responsible for accessing the Program resource. Admins create programs to represent
@@ -84,7 +83,6 @@ public final class ProgramService {
   private final HttpExecutionContext httpExecutionContext;
   private final AccountRepository accountRepository;
   private final VersionRepository versionRepository;
-  private final SettingsManifest settingsManifest;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
 
   @Inject
@@ -94,14 +92,12 @@ public final class ProgramService {
       AccountRepository accountRepository,
       VersionRepository versionRepository,
       HttpExecutionContext ec,
-      SettingsManifest settingsManifest,
       ProgramBlockValidationFactory programBlockValidationFactory) {
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
     this.httpExecutionContext = checkNotNull(ec);
     this.accountRepository = checkNotNull(accountRepository);
     this.versionRepository = checkNotNull(versionRepository);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
   }
 
@@ -147,7 +143,7 @@ public final class ProgramService {
   }
 
   /**
-   * Get the definition for a given program.
+   * Get the full definition for a given program.
    *
    * <p>This method loads question definitions for all block definitions from a version the program
    * is in. If the program contains a question that is not in any versions associated with the
@@ -169,7 +165,8 @@ public final class ProgramService {
   }
 
   /**
-   * Get the definition of a given program asynchronously. The ID may correspond to any version.
+   * Get the full definition of a given program asynchronously. The ID may correspond to any
+   * version.
    *
    * @param id the ID of the program to retrieve
    * @return the {@link ProgramDefinition} for the given ID if it exists, or a
@@ -178,16 +175,38 @@ public final class ProgramService {
    */
   public CompletionStage<ProgramDefinition> getFullProgramDefinitionAsync(long id) {
     return programRepository
-        .lookupProgram(id)
-        .thenComposeAsync(
-            programMaybe -> {
-              if (programMaybe.isEmpty()) {
-                return CompletableFuture.failedFuture(new ProgramNotFoundException(id));
-              }
+        .getFullProgramDefinitionFromCache(id)
+        .map(CompletableFuture::completedStage)
+        .orElse(
+            programRepository
+                .lookupProgram(id)
+                .thenComposeAsync(
+                    programMaybe -> {
+                      if (programMaybe.isEmpty()) {
+                        return CompletableFuture.failedFuture(new ProgramNotFoundException(id));
+                      }
 
-              return syncProgramAssociations(programMaybe.get());
-            },
-            httpExecutionContext.current());
+                      return syncProgramAssociations(programMaybe.get());
+                    },
+                    httpExecutionContext.current()));
+  }
+
+  /**
+   * Get the full definition for a given program from the cache if it is available.
+   *
+   * <p>If the full program definition does not yet exist in the cache or caching is not enabled, a
+   * method is called to sync program associations, which gets the full program definition, and sets
+   * the cache if enabled.
+   *
+   * <p>The cache is set within the {@link #syncProgramAssociations} method, since that method
+   * already checks whether the program is not a draft program, and we only want to set the cache if
+   * the program has been published.
+   */
+  public CompletionStage<ProgramDefinition> getFullProgramDefinition(ProgramModel p) {
+    return programRepository
+        .getFullProgramDefinitionFromCache(p)
+        .map(programDef -> CompletableFuture.completedStage(programDef))
+        .orElse(syncProgramAssociations(p));
   }
 
   /**
@@ -201,7 +220,7 @@ public final class ProgramService {
   public CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(String programSlug) {
     return programRepository
         .getActiveProgramFromSlug(programSlug)
-        .thenComposeAsync(this::syncProgramAssociations, httpExecutionContext.current());
+        .thenComposeAsync(this::getFullProgramDefinition, httpExecutionContext.current());
   }
 
   /**
@@ -223,16 +242,18 @@ public final class ProgramService {
    */
   public ImmutableList<ProgramDefinition> getAllProgramDefinitionVersions(long programId) {
     return programRepository.getAllProgramVersions(programId).stream()
-        .map(program -> syncProgramAssociations(program).toCompletableFuture().join())
+        .map(p -> getFullProgramDefinition(p).toCompletableFuture().join())
         .collect(ImmutableList.toImmutableList());
   }
 
+  /**
+   * Get the program definition with the underlying question data.
+   *
+   * <p>Any callers of this function syncing program associations for a non-draft version should use
+   * {@link #getFullProgramDefinition(ProgramModel)} to first try getting the full program
+   * definition from the cache.
+   */
   private CompletionStage<ProgramDefinition> syncProgramAssociations(ProgramModel program) {
-    if (settingsManifest.getQuestionCacheEnabled()
-        && programRepository.getFullProgramDefinitionFromCache(program).isPresent()) {
-      return CompletableFuture.completedStage(
-          programRepository.getFullProgramDefinitionFromCache(program).get());
-    }
     VersionModel activeVersion = versionRepository.getActiveVersion();
     VersionModel maxVersionForProgram =
         programRepository.getVersionsForProgram(program).stream()
@@ -251,12 +272,10 @@ public final class ProgramService {
         syncProgramDefinitionQuestions(
             programRepository.getProgramDefinition(program), maxVersionForProgram);
 
-    if (settingsManifest.getQuestionCacheEnabled()) {
-      // It is safe to set the program definition cache, since we have already checked that it is
-      // not a draft program.
-      programRepository.setFullProgramDefinitionCache(
-          program.id, programDefinition.orderBlockDefinitions());
-    }
+    // It is safe to set the program definition cache, since we have already checked that it is
+    // not a draft program.
+    programRepository.setFullProgramDefinitionCache(
+        program.id, programDefinition.orderBlockDefinitions());
 
     return CompletableFuture.completedStage(programDefinition.orderBlockDefinitions());
   }
