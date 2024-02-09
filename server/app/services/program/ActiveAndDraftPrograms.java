@@ -133,7 +133,7 @@ public final class ActiveAndDraftPrograms {
 
   private ProgramDefinition getProgramDefinition(ProgramService service, long id) {
     try {
-      return service.getProgramDefinition(id);
+      return service.getFullProgramDefinition(id);
     } catch (ProgramNotFoundException e) {
       // This is not possible because we query with existing program ids.
       throw new RuntimeException(e);

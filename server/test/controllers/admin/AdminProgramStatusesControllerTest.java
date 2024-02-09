@@ -136,7 +136,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     // Load the updated program and ensure the status is present.
-    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.statusDefinitions().getStatuses())
         .isEqualTo(
             ImmutableList.of(
@@ -175,7 +175,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     // Load the updated program and ensure the status is present.
-    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.statusDefinitions().getStatuses())
         .isEqualTo(
             ImmutableList.of(
@@ -208,7 +208,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
         .containsExactlyEntriesOf(
             ImmutableMap.of("success", "bar has been updated to the default status"));
     assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
-    ProgramDefinition newlyUpdatedProgram = programService.getProgramDefinition(program.id);
+    ProgramDefinition newlyUpdatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(newlyUpdatedProgram.statusDefinitions().getStatuses())
         .isEqualTo(
             ImmutableList.of(
@@ -261,7 +261,8 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
             .build();
 
     // Load the updated program and ensure the status is present.
-    assertThat(programService.getProgramDefinition(program.id).statusDefinitions().getStatuses())
+    assertThat(
+            programService.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
         .isEqualTo(ImmutableList.of(expectedStatus, REJECTED_STATUS, WITH_STATUS_TRANSLATIONS));
   }
 
@@ -308,7 +309,8 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
             .build();
 
     // Load the updated program and ensure the status is present.
-    assertThat(programService.getProgramDefinition(program.id).statusDefinitions().getStatuses())
+    assertThat(
+            programService.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
         .isEqualTo(ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS, expectedStatus));
   }
 
@@ -348,7 +350,8 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
             .build();
 
     // Load the updated program and ensure the status is present.
-    assertThat(programService.getProgramDefinition(program.id).statusDefinitions().getStatuses())
+    assertThat(
+            programService.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
         .isEqualTo(ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS, expectedStatus));
   }
 
@@ -384,7 +387,8 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
             .build();
 
     // Load the updated program and ensure the status is present.
-    assertThat(programService.getProgramDefinition(program.id).statusDefinitions().getStatuses())
+    assertThat(
+            programService.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
         .isEqualTo(ImmutableList.of(expectedStatus, REJECTED_STATUS, WITH_STATUS_TRANSLATIONS));
 
     Result result2 =
@@ -419,7 +423,8 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
             .build();
 
     // Load the updated program and ensure the status is present.
-    assertThat(programService.getProgramDefinition(program.id).statusDefinitions().getStatuses())
+    assertThat(
+            programService.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
         .isEqualTo(ImmutableList.of(foo, bar, WITH_STATUS_TRANSLATIONS));
   }
 
@@ -442,7 +447,8 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(Helpers.contentAsString(result)).contains("This field is required");
     assertThat(contentAsString(result)).containsOnlyOnce(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
-    assertThat(programService.getProgramDefinition(program.id).statusDefinitions().getStatuses())
+    assertThat(
+            programService.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
         .isEqualTo(ORIGINAL_STATUSES);
   }
 
@@ -466,7 +472,8 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
         .contains("A status with name Rejected already exists");
     assertThat(contentAsString(result)).containsOnlyOnce(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
-    assertThat(programService.getProgramDefinition(program.id).statusDefinitions().getStatuses())
+    assertThat(
+            programService.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
         .isEqualTo(ORIGINAL_STATUSES);
   }
 
@@ -490,7 +497,8 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
         .contains("The status being edited no longer exists");
     assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
-    assertThat(programService.getProgramDefinition(program.id).statusDefinitions().getStatuses())
+    assertThat(
+            programService.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
         .isEqualTo(ORIGINAL_STATUSES);
   }
 
@@ -514,7 +522,8 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
         .contains("A status with name Rejected already exists");
     assertThat(contentAsString(result)).containsOnlyOnce(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
-    assertThat(programService.getProgramDefinition(program.id).statusDefinitions().getStatuses())
+    assertThat(
+            programService.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
         .isEqualTo(ORIGINAL_STATUSES);
   }
 
@@ -557,7 +566,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     // Load the updated program and ensure the status is present.
-    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.statusDefinitions().getStatuses())
         .isEqualTo(ImmutableList.of(APPROVED_STATUS, WITH_STATUS_TRANSLATIONS));
   }
@@ -578,7 +587,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     // Load the updated program and ensure statuses weren't updated.
-    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.statusDefinitions().getStatuses()).isEqualTo(ORIGINAL_STATUSES);
   }
 
@@ -594,7 +603,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
 
     // Load the updated program and ensure statuses weren't updated.
-    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.statusDefinitions().getStatuses()).isEqualTo(ORIGINAL_STATUSES);
   }
 

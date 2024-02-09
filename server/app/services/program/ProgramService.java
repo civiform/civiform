@@ -157,9 +157,9 @@ public final class ProgramService {
    * @return the {@link ProgramDefinition} for the given ID if it exists
    * @throws ProgramNotFoundException when ID does not correspond to a real Program
    */
-  public ProgramDefinition getProgramDefinition(long id) throws ProgramNotFoundException {
+  public ProgramDefinition getFullProgramDefinition(long id) throws ProgramNotFoundException {
     try {
-      return getProgramDefinitionAsync(id).toCompletableFuture().join();
+      return getFullProgramDefinitionAsync(id).toCompletableFuture().join();
     } catch (CompletionException e) {
       if (e.getCause() instanceof ProgramNotFoundException) {
         throw new ProgramNotFoundException(id);
@@ -176,7 +176,7 @@ public final class ProgramService {
    *     ProgramNotFoundException is thrown when the future completes and ID does not correspond to
    *     a real Program
    */
-  public CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id) {
+  public CompletionStage<ProgramDefinition> getFullProgramDefinitionAsync(long id) {
     return programRepository
         .lookupProgram(id)
         .thenComposeAsync(
@@ -420,7 +420,7 @@ public final class ProgramService {
       Boolean isIntakeFormFeatureEnabled,
       ImmutableList<Long> tiGroups)
       throws ProgramNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForUpdate(
             displayName, displayDescription, externalLink, displayMode, tiGroups);
@@ -553,7 +553,7 @@ public final class ProgramService {
     // effectively reset the  draft which is not part of any user flow. Given the interdependency of
     // draft updates this is likely to cause issues as in #2179.
     return programRepository.getProgramDefinition(
-        programRepository.createOrUpdateDraft(this.getProgramDefinition(id).toProgram()));
+        programRepository.createOrUpdateDraft(this.getFullProgramDefinition(id).toProgram()));
   }
 
   private ImmutableSet<CiviFormError> validateProgramData(
@@ -606,7 +606,7 @@ public final class ProgramService {
   public ErrorAnd<ProgramDefinition, CiviFormError> updateLocalization(
       long programId, Locale locale, LocalizationUpdate localizationUpdate)
       throws ProgramNotFoundException, OutOfDateStatusesException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     validateProgramText(errorsBuilder, "display name", localizationUpdate.localizedDisplayName());
     validateProgramText(
@@ -743,7 +743,7 @@ public final class ProgramService {
   public ErrorAnd<ProgramDefinition, CiviFormError> appendStatus(
       long programId, StatusDefinitions.Status status)
       throws ProgramNotFoundException, DuplicateStatusException {
-    ProgramDefinition program = getProgramDefinition(programId);
+    ProgramDefinition program = getFullProgramDefinition(programId);
     if (program.statusDefinitions().getStatuses().stream()
         .filter(s -> s.statusText().equals(status.statusText()))
         .findAny()
@@ -801,7 +801,7 @@ public final class ProgramService {
       String toReplaceStatusName,
       Function<StatusDefinitions.Status, StatusDefinitions.Status> statusReplacer)
       throws ProgramNotFoundException, DuplicateStatusException {
-    ProgramDefinition program = getProgramDefinition(programId);
+    ProgramDefinition program = getFullProgramDefinition(programId);
     ImmutableMap<String, Integer> statusNameToIndex =
         statusNameToIndexMap(program.statusDefinitions().getStatuses());
     if (!statusNameToIndex.containsKey(toReplaceStatusName)) {
@@ -846,7 +846,7 @@ public final class ProgramService {
    */
   public ErrorAnd<ProgramDefinition, CiviFormError> deleteStatus(
       long programId, String toRemoveStatusName) throws ProgramNotFoundException {
-    ProgramDefinition program = getProgramDefinition(programId);
+    ProgramDefinition program = getFullProgramDefinition(programId);
     ImmutableMap<String, Integer> statusNameToIndex =
         statusNameToIndexMap(program.statusDefinitions().getStatuses());
     if (!statusNameToIndex.containsKey(toRemoveStatusName)) {
@@ -885,7 +885,7 @@ public final class ProgramService {
    */
   public ProgramDefinition setEligibilityIsGating(long programId, boolean gating)
       throws ProgramNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     programDefinition = programDefinition.toBuilder().setEligibilityIsGating(gating).build();
     return programRepository.getProgramDefinition(
         programRepository.updateProgramSync(programDefinition.toProgram()));
@@ -903,7 +903,7 @@ public final class ProgramService {
   public ProgramDefinition setSummaryImageDescription(
       long programId, Locale locale, String summaryImageDescription)
       throws ProgramNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
     if (summaryImageDescription.isBlank() && programDefinition.summaryImageFileKey().isPresent()) {
       throw new ImageDescriptionNotRemovableException(
@@ -957,7 +957,7 @@ public final class ProgramService {
    */
   public ProgramDefinition setSummaryImageFileKey(long programId, String fileKey)
       throws ProgramNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     programDefinition =
         programDefinition.toBuilder().setSummaryImageFileKey(Optional.of(fileKey)).build();
     return programRepository.getProgramDefinition(
@@ -970,7 +970,7 @@ public final class ProgramService {
    */
   public ProgramDefinition deleteSummaryImageFileKey(long programId)
       throws ProgramNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     programDefinition =
         programDefinition.toBuilder().setSummaryImageFileKey(Optional.empty()).build();
     return programRepository.getProgramDefinition(
@@ -1019,7 +1019,7 @@ public final class ProgramService {
   private ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(
       long programId, Optional<Long> enumeratorBlockId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     if (enumeratorBlockId.isPresent()
         && !programDefinition.hasEnumerator(enumeratorBlockId.get())) {
       throw new ProgramBlockDefinitionNotFoundException(programId, enumeratorBlockId.get());
@@ -1073,7 +1073,7 @@ public final class ProgramService {
       throws ProgramNotFoundException, IllegalPredicateOrderingException {
     final ProgramModel program;
     try {
-      program = getProgramDefinition(programId).moveBlock(blockId, direction).toProgram();
+      program = getFullProgramDefinition(programId).moveBlock(blockId, direction).toProgram();
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(
           "Something happened to the program's block while trying to move it", e);
@@ -1099,7 +1099,7 @@ public final class ProgramService {
   public ErrorAnd<ProgramDefinition, CiviFormError> updateBlock(
       long programId, long blockDefinitionId, BlockForm blockForm)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
             .setName(blockForm.getName())
@@ -1140,7 +1140,7 @@ public final class ProgramService {
       throws ProgramNotFoundException,
           ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
@@ -1169,7 +1169,7 @@ public final class ProgramService {
           QuestionNotFoundException,
           ProgramNotFoundException,
           ProgramBlockDefinitionNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
@@ -1232,7 +1232,7 @@ public final class ProgramService {
           ProgramNotFoundException,
           ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
     for (long questionId : questionIds) {
       if (!programDefinition.hasQuestion(questionId)) {
@@ -1274,7 +1274,7 @@ public final class ProgramService {
       throws ProgramNotFoundException,
           ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
@@ -1305,7 +1305,7 @@ public final class ProgramService {
           ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException,
           EligibilityNotValidForProgramTypeException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
     if (programDefinition.isCommonIntakeForm() && eligibility.isPresent()) {
       throw new EligibilityNotValidForProgramTypeException(programDefinition.programType());
@@ -1378,7 +1378,7 @@ public final class ProgramService {
       throws ProgramNotFoundException,
           ProgramNeedsABlockException,
           IllegalPredicateOrderingException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
     ImmutableList<BlockDefinition> newBlocks =
         programDefinition.blockDefinitions().stream()
@@ -1480,7 +1480,7 @@ public final class ProgramService {
       throws ProgramNotFoundException,
           ProgramBlockDefinitionNotFoundException,
           ProgramQuestionDefinitionNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
     if (!blockDefinition.programQuestionDefinitions().stream()
@@ -1532,7 +1532,7 @@ public final class ProgramService {
           ProgramBlockDefinitionNotFoundException,
           ProgramQuestionDefinitionNotFoundException,
           ProgramQuestionDefinitionInvalidException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
     if (!blockDefinition.programQuestionDefinitions().stream()
@@ -1597,7 +1597,7 @@ public final class ProgramService {
           ProgramBlockDefinitionNotFoundException,
           ProgramQuestionDefinitionNotFoundException,
           InvalidQuestionPositionException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
     ImmutableList<ProgramQuestionDefinition> questions =

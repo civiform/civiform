@@ -124,7 +124,7 @@ public final class AdminApplicationController extends CiviFormController {
     final ProgramDefinition program;
 
     try {
-      program = programService.getProgramDefinition(programId);
+      program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
@@ -181,7 +181,7 @@ public final class AdminApplicationController extends CiviFormController {
                 .setApplicationStatus(applicationStatus)
                 .build();
       }
-      ProgramDefinition program = programService.getProgramDefinition(programId);
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
       String csv = exporterService.getProgramAllVersionsCsv(programId, filters);
@@ -202,7 +202,7 @@ public final class AdminApplicationController extends CiviFormController {
   public Result downloadSingleVersion(Http.Request request, long programId)
       throws ProgramNotFoundException {
     try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
       String csv = exporterService.getProgramCsv(programId);
@@ -257,7 +257,7 @@ public final class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result download(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
     try {
       checkProgramAdminAuthorization(request, program.adminName()).join();
     } catch (CompletionException | NoSuchElementException e) {
@@ -282,7 +282,7 @@ public final class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result show(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
     String programName = program.adminName();
 
     try {
@@ -339,7 +339,7 @@ public final class AdminApplicationController extends CiviFormController {
           StatusEmailNotFoundException,
           StatusNotFoundException,
           AccountHasNoEmailException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
     String programName = program.adminName();
 
     try {
@@ -417,7 +417,7 @@ public final class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result updateNote(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
     String programName = program.adminName();
 
     try {
@@ -491,7 +491,7 @@ public final class AdminApplicationController extends CiviFormController {
 
     final ProgramDefinition program;
     try {
-      program = programService.getProgramDefinition(programId);
+      program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();

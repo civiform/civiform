@@ -151,7 +151,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             ProgramEditStatus.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(updatedProgram.localizedSummaryImageDescription().get().get(Locale.US))
         .isEqualTo("fake description");
@@ -177,7 +177,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             ProgramEditStatus.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(updatedProgram.localizedSummaryImageDescription().get().get(Locale.US))
         .isEqualTo("second description");
@@ -209,7 +209,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             ProgramEditStatus.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(updatedProgram.localizedSummaryImageDescription().get().get(Locale.US))
         .isEqualTo("new US description");
@@ -239,7 +239,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             ProgramEditStatus.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.localizedSummaryImageDescription().isEmpty()).isTrue();
   }
 
@@ -264,7 +264,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             ProgramEditStatus.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(updatedProgram.localizedSummaryImageDescription().get().getDefault())
         .isEqualTo("original description");
@@ -291,7 +291,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             ProgramEditStatus.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(updatedProgram.localizedSummaryImageDescription().get().getDefault())
         .isEqualTo("original description");
@@ -317,7 +317,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             ProgramEditStatus.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.localizedSummaryImageDescription().isEmpty()).isTrue();
   }
 
@@ -347,7 +347,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             ProgramEditStatus.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.localizedSummaryImageDescription().isEmpty()).isTrue();
   }
 
@@ -553,7 +553,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         program.id,
         ProgramEditStatus.CREATION.name());
 
-    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.summaryImageFileKey()).isNotEmpty();
     assertThat(updatedProgram.summaryImageFileKey().get())
         .isEqualTo("program-summary-image/program-15/myImage.png");
@@ -587,7 +587,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         program.id,
         ProgramEditStatus.CREATION.name());
 
-    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.summaryImageFileKey()).isNotEmpty();
     assertThat(updatedProgram.summaryImageFileKey().get())
         .isEqualTo("program-summary-image/program-15/oldImage.png");
@@ -608,7 +608,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         ProgramEditStatus.CREATION.name());
 
     // THEN the database reflects the changes
-    updatedProgram = programService.getProgramDefinition(program.id);
+    updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.summaryImageFileKey()).isNotEmpty();
     assertThat(updatedProgram.summaryImageFileKey().get())
         .isEqualTo("program-summary-image/program-15/newImage.png");
@@ -671,7 +671,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     controller.deleteFileKey(
         addCSRFToken(fakeRequest()).build(), program.id, ProgramEditStatus.CREATION.name());
 
-    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.summaryImageFileKey().isEmpty()).isTrue();
   }
 
@@ -683,7 +683,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     controller.deleteFileKey(
         addCSRFToken(fakeRequest()).build(), program.id, ProgramEditStatus.CREATION.name());
 
-    ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.summaryImageFileKey()).isEmpty();
   }
 
@@ -735,7 +735,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             program.id,
             ProgramEditStatus.CREATION.name());
 
-    ProgramDefinition programWithKey = programService.getProgramDefinition(program.id);
+    ProgramDefinition programWithKey = programService.getFullProgramDefinition(program.id);
     assertThat(programWithKey.summaryImageFileKey()).isNotEmpty();
     assertThat(programWithKey.summaryImageFileKey().get()).isEqualTo(VALID_FILE_KEY);
     return result;

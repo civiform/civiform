@@ -57,7 +57,7 @@ public final class AdminProgramImageController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
     return ok(
         programImageView.render(
-            request, programService.getProgramDefinition(programId), editStatus));
+            request, programService.getFullProgramDefinition(programId), editStatus));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)

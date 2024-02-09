@@ -732,7 +732,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     try {
-      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       if (shouldRenderIneligibleBlockView(roApplicantProgramService, programDefinition, blockId)) {
         return supplyAsync(
             () ->

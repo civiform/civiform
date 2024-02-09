@@ -163,7 +163,7 @@ public final class AdminProgramController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long id, String editStatus) throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(id);
+    ProgramDefinition program = programService.getFullProgramDefinition(id);
     requestChecker.throwIfProgramNotDraft(id);
     return ok(editView.render(request, program, ProgramEditStatus.getStatusFromString(editStatus)));
   }
@@ -181,7 +181,7 @@ public final class AdminProgramController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result publishProgram(Request request, long programId) throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
@@ -202,7 +202,7 @@ public final class AdminProgramController extends CiviFormController {
       // TODO(#2246): Implement FE staleness detection system to handle this more robustly.
       Optional<ProgramModel> existingDraft =
           versionRepository.getProgramByNameForVersion(
-              programService.getProgramDefinition(programId).adminName(),
+              programService.getFullProgramDefinition(programId).adminName(),
               versionRepository.getDraftVersionOrCreate());
       final Long idToEdit;
       if (existingDraft.isPresent()) {
@@ -228,7 +228,7 @@ public final class AdminProgramController extends CiviFormController {
   public Result update(Request request, long programId, String editStatus)
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
-    ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+    ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm programData = programForm.bindFromRequest(request).get();
 
@@ -289,7 +289,7 @@ public final class AdminProgramController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result editProgramSettings(Request request, Long programId)
       throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
     requestChecker.throwIfProgramNotDraft(programId);
     return ok(programSettingsEditView.render(request, program));
   }

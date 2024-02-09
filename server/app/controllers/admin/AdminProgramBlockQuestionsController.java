@@ -163,7 +163,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
-      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       // In these cases, we warn admins that changing address correction is not allowed in the
