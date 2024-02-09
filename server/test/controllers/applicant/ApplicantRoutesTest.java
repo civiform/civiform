@@ -472,7 +472,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
     "true, REVIEW_PAGE",
     "false, PREVIOUS_BLOCK",
     "true, NEXT_BLOCK",
-    "false, NEXT_BLOCK"
+    "false, NEXT_BLOCK",
   })
   public void testConfirmAddressRoute_forApplicantWithIdInProfile_newSchemaEnabled(
       String inReview, String applicantRequestedAction) {
@@ -508,7 +508,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
     "true, PREVIOUS_BLOCK",
     "false, REVIEW_PAGE",
     "true, NEXT_BLOCK",
-    "false, NEXT_BLOCK"
+    "false, NEXT_BLOCK",
   })
   public void testConfirmAddressRoute_forApplicantWithoutIdInProfile(
       String inReview, String applicantRequestedAction) {
@@ -545,7 +545,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
     "true, PREVIOUS_BLOCK",
     "false, REVIEW_PAGE",
     "true, NEXT_BLOCK",
-    "false, NEXT_BLOCK"
+    "false, NEXT_BLOCK",
   })
   public void testConfirmAddressRoute_forTrustedIntermediary(
       String inReview, String applicantRequestedAction) {

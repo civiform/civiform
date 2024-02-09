@@ -1971,7 +1971,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     .setWellKnownId(4)
                     .build())
             // This is the typical format for addresses we receive from ESRI.
-            .setSingleLineAddress(SUGGESTED_ADDRESS)
+            .setSingleLineAddress("456 Suggested Ave, Seattle, Washington, 99999")
             .build();
     return addressSuggestionJsonSerializer.serialize(ImmutableList.of(address));
   }
