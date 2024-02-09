@@ -129,6 +129,12 @@ public class ProgramModel extends BaseModel {
     return ImmutableList.copyOf(versions);
   }
 
+  /**
+   * Gets the program definition from the database.
+   *
+   * <p>This should never be called directly, but instead called from {@link
+   * repository.ProgramRepository#getProgramDefinition}.
+   */
   public ProgramDefinition getProgramDefinition() {
     return checkNotNull(this.programDefinition);
   }

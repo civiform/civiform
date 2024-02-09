@@ -10,6 +10,37 @@ real implementations.
 To start this server run `python app.py` from this directory or start the docker
 container `docker run --name mockweb -p 8000:8000 civiform/mock-web-services:latest`
 
+### Testing changes locally
+
+If you want to modify Mock Web Services and verify your changes locally, there
+are two options.
+
+#### Option 1: Python
+
+You can use the `app.py` script to run the app locally:
+
+```bash
+cd mock-web-services
+pip install -r requirements.txt
+python app.py
+```
+
+Then, you can check the responses on http://localhost:8000 (see sample URLs
+below). This is the fastest way to iterate.
+
+#### Option 2: Local Server
+
+You can also re-build the Mock Web Services then re-run your local server to see
+the changes in the context of the CiviForm app:
+
+```bash
+bin/build-mock-web-services
+bin/run-dev
+```
+
+If it doesn't seem to update, try deleting the `mock-web-services` container
+under `civiform` and try again.
+
 ## Esri Endpoints
 
 There are currently two endpoints to handle Esri ArcGIS endpoints we leverage.

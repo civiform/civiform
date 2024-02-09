@@ -80,7 +80,7 @@ public final class ApplicationRepository {
               .createQuery(ApplicationModel.class)
               .where()
               .eq("applicant.id", applicant.id)
-              .eq("program.name", program.getProgramDefinition().adminName())
+              .eq("program.name", programRepository.getProgramDefinition(program).adminName())
               .setLabel("ApplicationModel.findList")
               .setProfileLocation(queryProfileLocationBuilder.create("submitApplicationInternal"))
               .findList();
@@ -118,7 +118,7 @@ public final class ApplicationRepository {
                 + " will be set to OBSOLETE. Application IDs: {}",
             applicant.id,
             program.id,
-            program.getProgramDefinition().adminName(),
+            programRepository.getProgramDefinition(program).adminName(),
             String.join(
                 ",",
                 previousActive.stream()
@@ -134,7 +134,7 @@ public final class ApplicationRepository {
                   + " not saved",
               applicant.id,
               program.id,
-              program.getProgramDefinition().adminName());
+              programRepository.getProgramDefinition(program).adminName());
           throw new DuplicateApplicationException();
         }
         // https://github.com/civiform/civiform/issues/3227
@@ -240,7 +240,7 @@ public final class ApplicationRepository {
               .createQuery(ApplicationModel.class)
               .where()
               .eq("applicant.id", applicant.id)
-              .eq("program.name", program.getProgramDefinition().adminName())
+              .eq("program.name", programRepository.getProgramDefinition(program).adminName())
               .eq("lifecycle_stage", LifecycleStage.DRAFT)
               .setLabel("ApplicationModel.findById")
               .setProfileLocation(
