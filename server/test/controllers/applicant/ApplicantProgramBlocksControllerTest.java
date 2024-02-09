@@ -1487,7 +1487,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                         routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                            applicant.id, program.id, "1", false))
+                            applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false))
                     // Don't set the ADDRESS_JSON_SESSION_KEY on the session
                     .bodyForm(
                         ImmutableMap.of(
@@ -1526,8 +1526,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         routes.ApplicantProgramBlocksController.updateWithApplicantId(
                             applicant.id,
                             program.id,
-                            "1",
-                            false,
+                            /* blockId= */ "1",
+                            /* inReview= */ false,
                             new ApplicantRequestedActionWrapper()))
                     .session("ESRI_ADDRESS_CORRECTION_ENABLED", "true")
                     .bodyForm(
@@ -1569,7 +1569,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                         routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                            applicant.id, program.id, "1", false))
+                            applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false))
                     .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson()))
             .build();
 
@@ -1640,7 +1640,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                         routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                            applicant.id, program.id, "1", false))
+                            applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false))
                     .session(ADDRESS_JSON_SESSION_KEY, addressSuggestionString)
                     .bodyForm(
                         ImmutableMap.of(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME, address)))
@@ -1689,8 +1689,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         routes.ApplicantProgramBlocksController.updateWithApplicantId(
                             applicant.id,
                             program.id,
-                            "1",
-                            false,
+                            /* blockId= */ "1",
+                            /* inReview= */ false,
                             new ApplicantRequestedActionWrapper()))
                     .session("ESRI_ADDRESS_CORRECTION_ENABLED", "true")
                     .bodyForm(
@@ -1728,7 +1728,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                         routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                            applicant.id, program.id, "1", false))
+                            applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false))
                     .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
                     .bodyForm(
                         ImmutableMap.of(
