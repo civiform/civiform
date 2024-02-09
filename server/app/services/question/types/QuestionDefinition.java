@@ -304,7 +304,7 @@ public abstract class QuestionDefinition {
       if (multiOptionQuestionDefinition.getOptionAdminNames().stream()
           // This is O(n^2) but the list is small and it's simpler than creating a Set
           .filter(n -> !existingAdminNames.contains(n.toLowerCase(Locale.ROOT)))
-          .anyMatch(s -> !s.matches("[0-9a-zA-Z_-]+"))) {
+          .anyMatch(s -> !s.matches("[0-9a-z_-]+"))) {
         errors.add(
             CiviFormError.of(
                 "Multi-option admin names can only contain letters, numbers, underscores, and"
