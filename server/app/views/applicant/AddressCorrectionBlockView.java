@@ -249,7 +249,11 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
                 settingsManifest,
                 params,
                 getFormAction(params, ApplicantRequestedAction.REVIEW_PAGE)))
-        .with(renderAddressCorrectionSpecificPreviousButton(params))
+        .with(
+            renderPreviousButton(
+                settingsManifest,
+                params,
+                getFormAction(params, ApplicantRequestedAction.PREVIOUS_BLOCK)))
         .with(renderNextButton(params));
   }
 

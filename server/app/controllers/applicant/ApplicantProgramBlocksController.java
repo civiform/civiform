@@ -313,6 +313,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicantStage.join(),
                   inReview,
                   applicantRequestedAction,
+                  /* fromAddressCorrection= */ true,
                   roApplicantProgramService);
             },
             httpExecutionContext.current())
@@ -566,6 +567,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   inReview,
                   // TODO(#6450): Pass in the applicant-requested action to direct them correctly.
                   ApplicantRequestedAction.NEXT_BLOCK,
+                  /* fromAddressCorrection= */ false,
                   roApplicantProgramService);
             },
             httpExecutionContext.current())
@@ -656,6 +658,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicantStage.toCompletableFuture().join(),
                   inReview,
                   applicantRequestedActionWrapper.getAction(),
+                  /* fromAddressCorrection= */ false,
                   roApplicantProgramService);
             },
             httpExecutionContext.current())
@@ -694,6 +697,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ApplicantPersonalInfo personalInfo,
       boolean inReview,
       ApplicantRequestedAction applicantRequestedAction,
+      boolean fromAddressCorrection,
       ReadOnlyApplicantProgramService roApplicantProgramService) {
     Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getActiveBlock(blockId);
     if (thisBlockUpdatedMaybe.isEmpty()) {
@@ -807,6 +811,25 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       // instead be taken to the block that does contain the address question.
       // See AddressCorrectionBlockView#renderCustomPreviousButton.
       int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
+      return supplyAsync(
+          () ->
+              redirect(
+                  applicantRoutes
+                      .blockPreviousOrReview(
+                          profile, applicantId, programId, currentBlockIndex, inReview)
+                      .url()));
+    }
+
+    if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK) {
+      int thisBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
+      if (fromAddressCorrection) {
+        // If we're coming from the address correction view, "thisBlock" will be the block that had
+        // the address question. When an applicant is on the address correction view and clicks
+        // "Previous", we want them to go back to the block with the address question, which means
+        // the "current block" should be considered the block **after** "thisBlock".
+        thisBlockIndex += 1;
+      }
+      final int currentBlockIndex = thisBlockIndex;
       return supplyAsync(
           () ->
               redirect(
