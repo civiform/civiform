@@ -14,6 +14,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
+import repository.ProgramRepository;
 import repository.VersionRepository;
 import services.apikey.ApiKeyService;
 import services.settings.SettingsManifest;
@@ -29,6 +30,7 @@ public final class ProfileFactory {
   private final DatabaseExecutionContext dbContext;
   private final HttpExecutionContext httpContext;
   private final Provider<VersionRepository> versionRepositoryProvider;
+  private final Provider<ProgramRepository> programRepositoryProvider;
   private final Provider<ApiKeyService> apiKeyService;
   private final Provider<AccountRepository> accountRepositoryProvider;
   private final SettingsManifest settingsManifest;
@@ -38,12 +40,14 @@ public final class ProfileFactory {
       DatabaseExecutionContext dbContext,
       HttpExecutionContext httpContext,
       Provider<VersionRepository> versionRepositoryProvider,
+      Provider<ProgramRepository> programRepositoryProvider,
       Provider<ApiKeyService> apiKeyService,
       Provider<AccountRepository> accountRepositoryProvider,
       SettingsManifest settingsManifest) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
     this.httpContext = Preconditions.checkNotNull(httpContext);
     this.versionRepositoryProvider = Preconditions.checkNotNull(versionRepositoryProvider);
+    this.programRepositoryProvider = Preconditions.checkNotNull(programRepositoryProvider);
     this.apiKeyService = Preconditions.checkNotNull(apiKeyService);
     this.accountRepositoryProvider = Preconditions.checkNotNull(accountRepositoryProvider);
     this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
@@ -141,7 +145,9 @@ public final class ProfileFactory {
                   .get()
                   .getProgramsForVersion(versionRepositoryProvider.get().getActiveVersion())
                   .forEach(
-                      program -> account.addAdministeredProgram(program.getProgramDefinition()));
+                      program ->
+                          account.addAdministeredProgram(
+                              programRepositoryProvider.get().getProgramDefinition(program)));
               account.setEmailAddress(String.format("fake-local-admin-%d@example.com", account.id));
               account.setAuthorityId(generateFakeAdminAuthorityId());
               account.save();
@@ -166,7 +172,9 @@ public final class ProfileFactory {
                   .get()
                   .getProgramsForVersion(versionRepositoryProvider.get().getActiveVersion())
                   .forEach(
-                      program -> account.addAdministeredProgram(program.getProgramDefinition()));
+                      program ->
+                          account.addAdministeredProgram(
+                              programRepositoryProvider.get().getProgramDefinition(program)));
               account.setEmailAddress(String.format("fake-local-admin-%d@example.com", account.id));
               account.save();
             })

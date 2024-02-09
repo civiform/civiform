@@ -18,6 +18,7 @@ import play.i18n.MessagesApi;
 import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
+import repository.ProgramRepository;
 import services.DeploymentType;
 import services.LocalizedStrings;
 import services.MessageKey;
@@ -40,6 +41,8 @@ public final class ProgramAdminApplicationService {
   private final ApplicantService applicantService;
   private final ApplicationEventRepository eventRepository;
   private final AccountRepository accountRepository;
+
+  private final ProgramRepository programRepository;
   private final SimpleEmail emailClient;
   private final String baseUrl;
   private final boolean isStaging;
@@ -53,6 +56,7 @@ public final class ProgramAdminApplicationService {
       ApplicantService applicantService,
       ApplicationEventRepository eventRepository,
       AccountRepository accountRepository,
+      ProgramRepository programRepository,
       Config configuration,
       SimpleEmail emailClient,
       DeploymentType deploymentType,
@@ -61,6 +65,7 @@ public final class ProgramAdminApplicationService {
     this.applicantService = checkNotNull(applicantService);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.accountRepository = checkNotNull(accountRepository);
+    this.programRepository = checkNotNull(programRepository);
     this.eventRepository = checkNotNull(eventRepository);
     this.emailClient = checkNotNull(emailClient);
     this.messagesApi = checkNotNull(messagesApi);
@@ -117,7 +122,10 @@ public final class ProgramAdminApplicationService {
       Optional<String> adminSubmitterEmail = application.getSubmitterEmail();
       if (adminSubmitterEmail.isPresent()) {
         sendAdminSubmitterEmail(
-            program.getProgramDefinition(), applicant, statusDef, adminSubmitterEmail);
+            programRepository.getProgramDefinition(program),
+            applicant,
+            statusDef,
+            adminSubmitterEmail);
       }
       // Notify the applicant.
       ApplicantPersonalInfo personalInfo =
@@ -127,7 +135,8 @@ public final class ProgramAdminApplicationService {
               ? personalInfo.loggedIn().email()
               : Optional.empty();
       if (applicantEmail.isPresent()) {
-        sendApplicantEmail(program.getProgramDefinition(), applicant, statusDef, applicantEmail);
+        sendApplicantEmail(
+            programRepository.getProgramDefinition(program), applicant, statusDef, applicantEmail);
       } else {
         // An email was requested to be sent but the applicant doesn't have one.
         throw new AccountHasNoEmailException(applicant.getAccount().id);
@@ -243,8 +252,14 @@ public final class ProgramAdminApplicationService {
       Optional<ApplicationModel> application, ProgramDefinition program)
       throws ProgramNotFoundException {
     if (application.isEmpty()
-        || application.get().getProgramName().isEmpty()
-        || !application.get().getProgramName().equals(program.adminName())) {
+        || programRepository
+            .getProgramDefinition(application.get().getProgram())
+            .adminName()
+            .isEmpty()
+        || !programRepository
+            .getProgramDefinition(application.get().getProgram())
+            .adminName()
+            .equals(program.adminName())) {
       throw new ProgramNotFoundException("Application or program is empty or mismatched");
     }
     return application;
