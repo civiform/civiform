@@ -54,6 +54,7 @@ public final class ProgramRepository {
   private final Provider<VersionRepository> versionRepository;
   private final SettingsManifest settingsManifest;
   private final SyncCacheApi programCache;
+  private final SyncCacheApi programDefCache;
   private final SyncCacheApi versionsByProgramCache;
 
   @Inject
@@ -62,12 +63,14 @@ public final class ProgramRepository {
       Provider<VersionRepository> versionRepository,
       SettingsManifest settingsManifest,
       @NamedCache("program") SyncCacheApi programCache,
+      @NamedCache("program-definition") SyncCacheApi programDefCache,
       @NamedCache("program-versions") SyncCacheApi versionsByProgramCache) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
     this.versionRepository = checkNotNull(versionRepository);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programCache = checkNotNull(programCache);
+    this.programDefCache = checkNotNull(programDefCache);
     this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
   }
 
@@ -121,6 +124,37 @@ public final class ProgramRepository {
     }
 
     return names.build();
+  }
+
+  /**
+   * Gets the program definition that contains the related question data from the cache (if
+   * enabled).
+   */
+  public Optional<ProgramDefinition> getFullProgramDefinitionFromCache(ProgramModel program) {
+    return getFullProgramDefinitionFromCache(program.id);
+  }
+
+  public Optional<ProgramDefinition> getFullProgramDefinitionFromCache(long programId) {
+    if (settingsManifest.getQuestionCacheEnabled()) {
+      return programDefCache.get(String.valueOf(programId));
+    }
+    return Optional.empty();
+  }
+
+  /**
+   * Sets the program definition that contains the related question data in the cache (if enabled).
+   *
+   * <p>Draft program definition data must not be set in the cache.
+   */
+  public void setFullProgramDefinitionCache(long programId, ProgramDefinition programDefinition) {
+    if (settingsManifest.getQuestionCacheEnabled()
+        // We only set the cache if it hasn't yet been set for the ID.
+        && getFullProgramDefinitionFromCache(programId).isEmpty()) {
+      // We should never set the cache for draft programs.
+      if (!versionRepository.get().isDraftProgram(programId)) {
+        programDefCache.set(String.valueOf(programId), programDefinition);
+      }
+    }
   }
 
   /**
