@@ -1697,7 +1697,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.answerTextQuestion('answer 2')
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.expectAddressHasBeenCorrected(
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
         questionAddress,
         'Address In Area',
       )
@@ -1726,7 +1726,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.answerTextQuestion('answer 2')
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.expectAddressHasBeenCorrected(
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
         questionAddress,
         'Nonlegit Address',
       )
