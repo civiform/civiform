@@ -1359,7 +1359,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void confirmAddress_invalidApplicant_returnsUnauthorized() {
-    long badApplicantId = applicant.id + 1000;
+    long badApplicantId = Long.MAX_VALUE;
+
     Request request =
         requestBuilderWithSettings(
                 routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
@@ -1460,21 +1461,20 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void confirmAddress_toAProgramThatDoesNotExist_returns400() {
+    long badProgramId = Long.MAX_VALUE;
+
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                        applicant.id,
-                        program.id + 1000,
-                        /* blockId= */ "1",
-                        /* inReview= */ false)))
+                        applicant.id, badProgramId, /* blockId= */ "1", /* inReview= */ false)))
             .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .build();
 
     Result result =
         subject
             .confirmAddressWithApplicantId(
-                request, applicant.id, program.id + 1000, /* blockId= */ "1", /* inReview= */ false)
+                request, applicant.id, badProgramId, /* blockId= */ "1", /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -1492,7 +1492,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     .bodyForm(
                         ImmutableMap.of(
                             AddressCorrectionBlockView.SELECTED_ADDRESS_NAME,
-                            "123 Main St Boston, MA 02111")))
+                            "123 Main St, Boston, Massachusetts, 02111")))
             .build();
 
     assertThatThrownBy(
@@ -1610,7 +1610,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withRequiredQuestion(testQuestionBank().applicantIceCream())
             .build();
 
-    String address = "456 Suggested Ave Seattle, WA 99999";
+    String address = "456 Suggested Ave, Seattle, Washington, 99999";
     AddressSuggestion addressSuggestion =
         AddressSuggestion.builder()
             .setAddress(
@@ -1794,7 +1794,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     .setLongitude(3.1)
                     .setWellKnownId(4)
                     .build())
-            .setSingleLineAddress("456 Original Ave Seattle, WA 99999")
+            // This is the typical format for addresses we receive from ESRI.
+            .setSingleLineAddress("456 Suggested Ave, Seattle, Washington, 99999")
             .build();
     return addressSuggestionJsonSerializer.serialize(ImmutableList.of(address));
   }
