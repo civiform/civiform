@@ -127,6 +127,21 @@ public final class ProgramRepository {
   }
 
   /**
+   * Gets the program definition from the cache if it exists, otherwise calls the method on the
+   * program model.
+   *
+   * <p>The program definition in the cache will have all the associated question data.
+   *
+   * <p>This method should replace any calls to ProgramModel.getProgramDefinition()
+   */
+  public ProgramDefinition getProgramDefinition(ProgramModel program) {
+    if (getFullProgramDefinitionFromCache(program).isPresent()) {
+      return getFullProgramDefinitionFromCache(program).get();
+    }
+    return program.getProgramDefinition();
+  }
+
+  /**
    * Gets the program definition that contains the related question data from the cache (if
    * enabled).
    */
@@ -167,7 +182,7 @@ public final class ProgramRepository {
         versionRepository
             .get()
             .getProgramByNameForVersion(
-                existingProgram.getProgramDefinition().adminName(), draftVersion);
+                getProgramDefinition(existingProgram).adminName(), draftVersion);
     if (existingDraftOpt.isPresent()) {
       ProgramModel existingDraft = existingDraftOpt.get();
       if (!existingDraft.id.equals(existingProgram.id)) {
@@ -179,7 +194,7 @@ public final class ProgramRepository {
             existingProgram.id);
       }
       ProgramModel updatedDraft =
-          existingProgram.getProgramDefinition().toBuilder()
+          getProgramDefinition(existingProgram).toBuilder()
               .setId(existingDraft.id)
               .build()
               .toProgram();
@@ -193,8 +208,7 @@ public final class ProgramRepository {
       // Program -> builder -> back to program in order to clear any metadata stored in the program
       // (for example, version information).
       ProgramModel newDraft =
-          new ProgramModel(
-              existingProgram.getProgramDefinition().toBuilder().build(), draftVersion);
+          new ProgramModel(getProgramDefinition(existingProgram).toBuilder().build(), draftVersion);
       newDraft = insertProgramSync(newDraft);
       draftVersion.refresh();
       Preconditions.checkState(
@@ -204,10 +218,10 @@ public final class ProgramRepository {
           draftVersion.getLifecycleStage().equals(LifecycleStage.DRAFT),
           "Draft version must remain a draft throughout this transaction.");
       // Ensure we didn't add a duplicate with other code running at the same time.
-      String programName = existingProgram.getProgramDefinition().adminName();
+      String programName = getProgramDefinition(existingProgram).adminName();
       Preconditions.checkState(
           versionRepository.get().getProgramsForVersion(draftVersion).stream()
-                  .map(ProgramModel::getProgramDefinition)
+                  .map(this::getProgramDefinition)
                   .map(ProgramDefinition::adminName)
                   .filter(programName::equals)
                   .count()
@@ -288,7 +302,7 @@ public final class ProgramRepository {
     if (program.isEmpty()) {
       throw new ProgramNotFoundException(programId);
     }
-    return getProgramAdministrators(program.get().getProgramDefinition().adminName());
+    return getProgramAdministrators(getProgramDefinition(program.get()).adminName());
   }
 
   public ImmutableList<ProgramModel> getAllProgramVersions(long programId) {
