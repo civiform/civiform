@@ -158,8 +158,10 @@ public class DevDatabaseSeedController extends Controller {
     }
     if (settingsManifest.getProgramCacheEnabled()) {
       programCache.removeAll().toCompletableFuture().join();
-      programDefCache.removeAll().toCompletableFuture().join();
       versionsByProgramCache.removeAll().toCompletableFuture().join();
+    }
+    if (settingsManifest.getQuestionCacheEnabled()) {
+      programDefCache.removeAll().toCompletableFuture().join();
     }
   }
 

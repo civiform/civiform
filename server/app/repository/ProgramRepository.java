@@ -130,15 +130,15 @@ public final class ProgramRepository {
    * Gets the program definition that contains the related question data from the cache (if
    * enabled).
    */
-  public Optional<ProgramDefinition> getProgramDefinitionFromCache(ProgramModel program) {
-    if (settingsManifest.getProgramCacheEnabled()) {
+  public Optional<ProgramDefinition> getFullProgramDefinitionFromCache(ProgramModel program) {
+    if (settingsManifest.getQuestionCacheEnabled()) {
       return programDefCache.get(String.valueOf(program.id));
     }
     return Optional.empty();
   }
 
-  public Optional<ProgramDefinition> getProgramDefinitionFromCache(long programId) {
-    if (settingsManifest.getProgramCacheEnabled()) {
+  public Optional<ProgramDefinition> getFullProgramDefinitionFromCache(long programId) {
+    if (settingsManifest.getQuestionCacheEnabled()) {
       return programDefCache.get(String.valueOf(programId));
     }
     return Optional.empty();
@@ -149,8 +149,8 @@ public final class ProgramRepository {
    *
    * <p>Draft program definition data must not be set in the cache.
    */
-  public void setProgramDefinitionCache(long programId, ProgramDefinition programDefinition) {
-    if (settingsManifest.getProgramCacheEnabled()) {
+  public void setFullProgramDefinitionCache(long programId, ProgramDefinition programDefinition) {
+    if (settingsManifest.getQuestionCacheEnabled()) {
       programDefCache.set(String.valueOf(programId), programDefinition);
     }
   }
