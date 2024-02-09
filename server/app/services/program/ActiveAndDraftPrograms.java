@@ -56,7 +56,7 @@ public final class ActiveAndDraftPrograms {
             .map(
                 program ->
                     service.isPresent()
-                        ? getFullProgramDefinition(service.get(), program.id)
+                        ? getProgramDefinition(service.get(), program.id)
                         : program.getProgramDefinition())
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
@@ -66,7 +66,7 @@ public final class ActiveAndDraftPrograms {
             .map(
                 program ->
                     service.isPresent()
-                        ? getFullProgramDefinition(service.get(), program.id)
+                        ? getProgramDefinition(service.get(), program.id)
                         : program.getProgramDefinition())
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
@@ -131,7 +131,7 @@ public final class ActiveAndDraftPrograms {
     return draftPrograms.size() > 0;
   }
 
-  private ProgramDefinition getFullProgramDefinition(ProgramService service, long id) {
+  private ProgramDefinition getProgramDefinition(ProgramService service, long id) {
     try {
       return service.getFullProgramDefinition(id);
     } catch (ProgramNotFoundException e) {
