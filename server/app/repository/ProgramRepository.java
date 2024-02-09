@@ -130,6 +130,8 @@ public final class ProgramRepository {
    * Gets the program definition from the cache if it exists, otherwise calls the method on the
    * program model.
    *
+   * <p>The program definition in the cache will have all the associated question data.
+   *
    * <p>This method should replace any calls to ProgramModel.getProgramDefinition()
    */
   public ProgramDefinition getProgramDefinition(ProgramModel program) {
