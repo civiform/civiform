@@ -44,18 +44,18 @@ class AdminQuestionEdit {
         const input = toggle.querySelector(
           '.cf-toggle-hidden-input',
         ) as HTMLInputElement
-        const universalAlert = subsection.querySelector(
-          '.cf-primary-applicant-info-universal-alert',
-        ) as HTMLElement
-        const alreadySetAlert = subsection.querySelector(
-          '.cf-primary-applicant-info-tag-set-alert',
+        const alert = assertNotNull(
+          subsection.querySelector('.cf-primary-applicant-info-alert'),
+        ) as HTMLDivElement
+        const alreadySetAlertText = subsection.getAttribute(
+          'data-already-set-alert',
         ) // May be null
-        const alreadySetNotUniversalAlert = subsection.querySelector(
-          '.cf-primary-applicant-info-tag-set-not-universal-alert',
+        const nonUniversalAlreadySetAlertText = subsection.getAttribute(
+          'data-non-universal-already-set-alert',
         ) // May be null
         // Do not toggle things if this is hidden because the
         // "you've already set this action on a different question" alert is showing.
-        if (alreadySetAlert === null) {
+        if (alreadySetAlertText === null) {
           // Unset the action when we unset universal
           // Because the universal input doesn't change until after the click event,
           // we're checking for true here.
@@ -63,10 +63,16 @@ class AdminQuestionEdit {
             toggle.click()
           }
           toggle.toggleAttribute('hidden')
-          universalAlert.toggleAttribute('hidden')
+          alert.toggleAttribute('hidden')
         } else {
-          alreadySetAlert.toggleAttribute('hidden')
-          alreadySetNotUniversalAlert?.toggleAttribute('hidden')
+          const text = alert.querySelector(
+            '.usa-alert__text',
+          ) as HTMLParagraphElement
+          if (text.innerText === alreadySetAlertText) {
+            text.innerText = assertNotNull(nonUniversalAlreadySetAlertText)
+          } else {
+            text.innerText = assertNotNull(alreadySetAlertText)
+          }
         }
       })
     })
