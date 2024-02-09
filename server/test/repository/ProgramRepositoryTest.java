@@ -26,7 +26,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
+import play.inject.BindingKey;
 import play.libs.F;
 import services.IdentifierBasedPaginationSpec;
 import services.LocalizedStrings;
@@ -36,6 +38,7 @@ import services.WellKnownPaths;
 import services.applicant.ApplicantData;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramType;
 import services.program.StatusDefinitions;
@@ -59,8 +62,13 @@ public class ProgramRepositoryTest extends ResetPostgres {
     versionRepo = instanceOf(VersionRepository.class);
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     programCache = instanceOf(SyncCacheApi.class);
-    programDefCache = instanceOf(SyncCacheApi.class);
     versionsByProgramCache = instanceOf(SyncCacheApi.class);
+
+    BindingKey<SyncCacheApi> programDefKey =
+        new BindingKey<>(SyncCacheApi.class)
+            .qualifiedWith(new NamedCacheImpl("program-definition"));
+    programDefCache = instanceOf(programDefKey.asScala());
+
     repo =
         new ProgramRepository(
             instanceOf(DatabaseExecutionContext.class),
@@ -101,6 +109,42 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
     assertThat(found).hasValue(two);
     assertThat(programCache.get(String.valueOf(two.id))).hasValue(found);
+  }
+
+  @Test
+  public void getFullProgramDefinitionFromCache_getsFromCacheWhenPresent() {
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(true);
+    ProgramModel program = resourceCreator.insertActiveProgram("testInCache");
+    repo.setFullProgramDefinitionCache(program.id, program.getProgramDefinition());
+    Optional<ProgramDefinition> programDefFromCache =
+        repo.getFullProgramDefinitionFromCache(program);
+
+    assertThat(programDefFromCache).isPresent();
+    assertThat(programDefFromCache.get().getQuestionIdsInProgram())
+        .isEqualTo(program.getProgramDefinition().getQuestionIdsInProgram());
+  }
+
+  @Test
+  public void getFullProgramDefinitionFromCache_returnsEmptyOptionalWhenNotPresent() {
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(false);
+    ProgramModel program = resourceCreator.insertActiveProgram("testNotInCache");
+    // We don't set the cache, but we try to get it here.
+    Optional<ProgramDefinition> programDefFromCache =
+        repo.getFullProgramDefinitionFromCache(program);
+
+    assertThat(programDefFromCache).isEmpty();
+  }
+
+  @Test
+  public void getFullProgramDefinitionFromCache_returnsEmptyOptionalWhenCacheDisabled() {
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(false);
+
+    ProgramModel program = resourceCreator.insertActiveProgram("testCacheDisabled");
+    repo.setFullProgramDefinitionCache(program.id, program.getProgramDefinition());
+    Optional<ProgramDefinition> programDefFromCache =
+        repo.getFullProgramDefinitionFromCache(program);
+
+    assertThat(programDefFromCache).isEmpty();
   }
 
   // Verify the StatusDefinitions default value in evolution 40 loads.

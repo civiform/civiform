@@ -1444,7 +1444,7 @@ public final class ProgramService {
                   if (!programDef.hasEligibilityEnabled()) {
                     return programDef;
                   }
-                  Long programId = programDef.id();
+                  long programId = programDef.id();
                   if (programRepository.getFullProgramDefinitionFromCache(programId).isPresent()) {
                     return programRepository.getFullProgramDefinitionFromCache(programId).get();
                   }
