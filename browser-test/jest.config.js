@@ -10,4 +10,5 @@ module.exports = {
   },
   globalSetup: './src/delete_database.ts',
   setupFilesAfterEnv: ['./src/support/setup-jest.ts'],
+  verbose: true,
 }
