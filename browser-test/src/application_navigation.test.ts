@@ -1415,7 +1415,7 @@ describe('Applicant navigation flow', () => {
     })
   })
 
-  fdescribe('navigation with address correction enabled', () => {
+  describe('navigation with address correction enabled', () => {
     const multiBlockMultiAddressProgram =
       'Address correction multi-block, multi-address program'
     const singleBlockMultiAddressProgram =
