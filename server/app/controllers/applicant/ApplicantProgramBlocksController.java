@@ -264,6 +264,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     return CompletableFuture.allOf(
             checkApplicantAuthorization(request, applicantId), applicantStage)
+        .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
             v ->
                 applicantService.getCorrectedAddress(

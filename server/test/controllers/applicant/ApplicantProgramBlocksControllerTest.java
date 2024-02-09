@@ -2,6 +2,7 @@ package controllers.applicant;
 
 import static controllers.applicant.ApplicantProgramBlocksController.ADDRESS_JSON_SESSION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
@@ -38,7 +39,6 @@ import support.ProgramBuilder;
 import views.applicant.AddressCorrectionBlockView;
 
 public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
-
   private ApplicantProgramBlocksController subject;
   private AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private ProgramModel program;
@@ -1357,8 +1357,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
 
-  /////// Start of the new tests
-
   @Test
   public void confirmAddress_invalidApplicant_returnsUnauthorized() {
     long badApplicantId = applicant.id + 1000;
@@ -1366,7 +1364,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         requestBuilderWithSettings(
                 routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
                     badApplicantId, program.id, /* blockId= */ "1", /* inReview= */ false))
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressJson())
+            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .build();
 
     Result result =
@@ -1392,7 +1390,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
                         applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)))
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressJson())
+            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .build();
     Result result =
         subject
@@ -1419,7 +1417,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
                         applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)))
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressJson())
+            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .build();
     Result result =
         subject
@@ -1433,14 +1431,18 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void confirmAddress_obsoleteProgram_isOk() {
-    ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+    ProgramModel obsoleteProgram =
+        ProgramBuilder.newObsoleteProgram("program")
+            .withBlock()
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
+            .build();
 
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
                         applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)))
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressJson())
+            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .build();
     Result result =
         subject
@@ -1457,7 +1459,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void confirmAddress_toAProgramThatDoesNotExist_returns404() {
+  public void confirmAddress_toAProgramThatDoesNotExist_returns400() {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
@@ -1466,7 +1468,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         program.id + 1000,
                         /* blockId= */ "1",
                         /* inReview= */ false)))
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressJson())
+            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .build();
 
     Result result =
@@ -1476,14 +1478,127 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
   @Test
-  public void confirmAddress_noAddressJson_throws() {}
+  public void confirmAddress_noAddressJson_throws() {
+    Request request =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
+                            applicant.id, program.id, "1", false))
+                    // Don't set the ADDRESS_JSON_SESSION_KEY on the session
+                    .bodyForm(
+                        ImmutableMap.of(
+                            AddressCorrectionBlockView.SELECTED_ADDRESS_NAME,
+                            "123 Main St Boston, MA 02111")))
+            .build();
+
+    assertThatThrownBy(
+            () ->
+                subject
+                    .confirmAddressWithApplicantId(
+                        request,
+                        applicant.id,
+                        program.id,
+                        /* blockId= */ "1",
+                        /* inReview= */ false)
+                    .toCompletableFuture()
+                    .join())
+        .isInstanceOf(RuntimeException.class);
+  }
 
   @Test
-  public void confirmAddress_noSelectedAddress_TODO() {}
+  public void confirmAddress_noSelectedAddressInForm_originalAddressSavedAndCorrectionFailed() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
+            .withBlock("block 2")
+            .withRequiredQuestion(testQuestionBank().applicantIceCream())
+            .build();
+
+    // First, answer the address question
+    Request answerAddressQuestionRequest =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                            applicant.id,
+                            program.id,
+                            "1",
+                            false,
+                            new ApplicantRequestedActionWrapper()))
+                    .session("ESRI_ADDRESS_CORRECTION_ENABLED", "true")
+                    .bodyForm(
+                        ImmutableMap.of(
+                            Path.create("applicant.applicant_address")
+                                .join(Scalar.STREET)
+                                .toString(),
+                            "Legit Address",
+                            Path.create("applicant.applicant_address")
+                                .join(Scalar.LINE2)
+                                .toString(),
+                            "",
+                            Path.create("applicant.applicant_address").join(Scalar.CITY).toString(),
+                            "Boston",
+                            Path.create("applicant.applicant_address")
+                                .join(Scalar.STATE)
+                                .toString(),
+                            "MA",
+                            Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(),
+                            "02111")))
+            .build();
+    Result result =
+        subject
+            .updateWithApplicantId(
+                answerAddressQuestionRequest,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
+            .toCompletableFuture()
+            .join();
+    // Check that we're taken to the address correction screen with some suggestions
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.session().get(ADDRESS_JSON_SESSION_KEY)).isPresent();
+
+    // Then, send a confirmAddress request but don't fill in SELECTED_ADDRESS_NAME in the form body
+    Request request =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
+                            applicant.id, program.id, "1", false))
+                    .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson()))
+            .build();
+
+    Result confirmAddressResult =
+        subject
+            .confirmAddressWithApplicantId(
+                request, applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    // Check that the user is redirected to the next block
+    assertThat(confirmAddressResult.status()).isEqualTo(SEE_OTHER);
+    String nextBlockEditRoute =
+        routes.ApplicantProgramBlocksController.edit(
+                program.id, /* blockId= */ "2", /* questionName= */ Optional.empty())
+            .url();
+    assertThat(confirmAddressResult.redirectLocation()).hasValue(nextBlockEditRoute);
+
+    // Check that the original address is saved but the address correction was marked as a failure
+    applicant.refresh();
+    String applicantData = applicant.getApplicantData().asJsonString();
+    assertThat(applicantData).contains("Legit Address");
+    assertThat(applicantData).contains("Boston");
+    assertThat(applicantData).contains("02111");
+    assertThat(applicantData).contains("Failed");
+
+    // Check that the address suggestions are cleared from the session even after a failure
+    assertThat(confirmAddressResult.session()).isNull();
+  }
 
   @Test
   public void confirmAddress_suggestionChosen_savesSuggestion() {
@@ -1495,18 +1610,40 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withRequiredQuestion(testQuestionBank().applicantIceCream())
             .build();
 
-    String originalAddressString = createAddressJson();
-    String selectedAddress = "123 Selected Ave, Redlands, California, 92373";
+    String address = "456 Suggested Ave Seattle, WA 99999";
+    AddressSuggestion addressSuggestion =
+        AddressSuggestion.builder()
+            .setAddress(
+                Address.builder()
+                    .setStreet("456 Suggested Ave")
+                    .setLine2("")
+                    .setCity("Seattle")
+                    .setState("WA")
+                    .setZip("99999")
+                    .build())
+            .setScore(90)
+            .setLocation(
+                AddressLocation.builder()
+                    .setLatitude(3.0)
+                    .setLongitude(3.1)
+                    .setWellKnownId(4)
+                    .build())
+            .setSingleLineAddress(address)
+            .build();
+    String addressSuggestionString =
+        addressSuggestionJsonSerializer.serialize(ImmutableList.of(addressSuggestion));
 
+    // The selected address (set in the body form with the key SELECTED_ADDRESS_NAME) should match
+    // one of the address
+    // suggestions (set in the session with the key ADDRESS_JSON_SESSION_KEY).
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
                         routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
                             applicant.id, program.id, "1", false))
-                    .session(ADDRESS_JSON_SESSION_KEY, originalAddressString)
+                    .session(ADDRESS_JSON_SESSION_KEY, addressSuggestionString)
                     .bodyForm(
-                        ImmutableMap.of(
-                            AddressCorrectionBlockView.SELECTED_ADDRESS_NAME, selectedAddress)))
+                        ImmutableMap.of(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME, address)))
             .build();
     Result result =
         subject
@@ -1515,7 +1652,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    // check that the user is redirected to the next page
+    // Check that the user is redirected to the next block
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
         routes.ApplicantProgramBlocksController.edit(
@@ -1523,15 +1660,113 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
 
-    // assert that the corrected address is saved
+    // Check that the selected suggested address is saved
     applicant.refresh();
-    assertThat(applicant.getApplicantData().asJsonString()).contains(selectedAddress);
+    String applicantData = applicant.getApplicantData().asJsonString();
+    assertThat(applicantData).contains("456 Suggested Ave");
+    assertThat(applicantData).contains("Seattle");
+    assertThat(applicantData).contains("99999");
+    assertThat(applicantData).contains("Corrected");
+
+    // Check that the address suggestions are cleared from the session
+    assertThat(result.session()).isNull();
   }
 
   @Test
-  public void confirmAddress_originalAddressChosen_savesOriginal() {}
+  public void confirmAddress_originalAddressChosen_savesOriginal() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
+            .withBlock("block 2")
+            .withRequiredQuestion(testQuestionBank().applicantIceCream())
+            .build();
 
-  // TODO: Verify session value is cleared
+    // First, answer the address question
+    Request answerAddressQuestionRequest =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                            applicant.id,
+                            program.id,
+                            "1",
+                            false,
+                            new ApplicantRequestedActionWrapper()))
+                    .session("ESRI_ADDRESS_CORRECTION_ENABLED", "true")
+                    .bodyForm(
+                        ImmutableMap.of(
+                            Path.create("applicant.applicant_address")
+                                .join(Scalar.STREET)
+                                .toString(),
+                            "Legit Address",
+                            Path.create("applicant.applicant_address")
+                                .join(Scalar.LINE2)
+                                .toString(),
+                            "",
+                            Path.create("applicant.applicant_address").join(Scalar.CITY).toString(),
+                            "Boston",
+                            Path.create("applicant.applicant_address")
+                                .join(Scalar.STATE)
+                                .toString(),
+                            "MA",
+                            Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(),
+                            "02111")))
+            .build();
+    Result result =
+        subject
+            .updateWithApplicantId(
+                answerAddressQuestionRequest,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
+            .toCompletableFuture()
+            .join();
+
+    // Then, choose the original address during address correction
+    Request confirmAddressRequest =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
+                            applicant.id, program.id, "1", false))
+                    .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
+                    .bodyForm(
+                        ImmutableMap.of(
+                            AddressCorrectionBlockView.SELECTED_ADDRESS_NAME,
+                            AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE)))
+            .build();
+
+    Result confirmAddressResult =
+        subject
+            .confirmAddressWithApplicantId(
+                confirmAddressRequest,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    // Check that the user is redirected to the next page
+    assertThat(confirmAddressResult.status()).isEqualTo(SEE_OTHER);
+    String nextBlockEditRoute =
+        routes.ApplicantProgramBlocksController.edit(
+                program.id, /* blockId= */ "2", /* questionName= */ Optional.empty())
+            .url();
+    assertThat(confirmAddressResult.redirectLocation()).hasValue(nextBlockEditRoute);
+
+    // Check that the original address is saved
+    applicant.refresh();
+    String applicantData = applicant.getApplicantData().asJsonString();
+    assertThat(applicantData).contains("Legit Address");
+    assertThat(applicantData).contains("Boston");
+    assertThat(applicantData).contains("02111");
+    assertThat(applicantData).contains("AsEnteredByUser");
+
+    // Check that the address suggestions are cleared from the session
+    assertThat(confirmAddressResult.session()).isNull();
+  }
 
   private RequestBuilder addQueryString(
       RequestBuilder request, ImmutableMap<String, String> query) {
@@ -1542,12 +1777,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     return request.uri(request.uri() + "?" + queryString);
   }
 
-  private String createAddressJson() {
+  private String createAddressSuggestionsJson() {
     AddressSuggestion address =
         AddressSuggestion.builder()
             .setAddress(
                 Address.builder()
-                    .setStreet("456 Original Ave")
+                    .setStreet("456 Suggested Ave")
                     .setLine2("")
                     .setCity("Seattle")
                     .setState("WA")
