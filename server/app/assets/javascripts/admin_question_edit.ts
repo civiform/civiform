@@ -40,23 +40,24 @@ class AdminQuestionEdit {
     ) as HTMLInputElement
     addEventListenerToElements('#universal-toggle', 'click', () => {
       primaryApplicantInfoSubsections.forEach((subsection) => {
-        const toggle = subsection.querySelector('.cf-toggle') as HTMLElement
-        const input = toggle.querySelector(
-          '.cf-toggle-hidden-input',
-        ) as HTMLInputElement
+        // If the property is already set on another question, only
+        // the alert exists and we swap the text. Otherwise, we show/hide
+        // the alert and the toggle.
         const alert = assertNotNull(
           subsection.querySelector('.cf-primary-applicant-info-alert'),
         ) as HTMLDivElement
         const alreadySetAlertText = subsection.getAttribute(
           'data-already-set-alert',
         ) // May be null
-        const nonUniversalAlreadySetAlertText = subsection.getAttribute(
-          'data-non-universal-already-set-alert',
-        ) // May be null
-        // Do not toggle things if this is hidden because the
-        // "you've already set this action on a different question" alert is showing.
         if (alreadySetAlertText === null) {
-          // Unset the action when we unset universal
+          const toggle = assertNotNull(
+            subsection.querySelector('.cf-toggle'),
+          ) as HTMLDivElement
+          const input = assertNotNull(
+            toggle.querySelector('.cf-toggle-hidden-input'),
+          ) as HTMLInputElement
+
+          // Unset the PAI toggle when we unset universal.
           // Because the universal input doesn't change until after the click event,
           // we're checking for true here.
           if (input.value === 'true' && universalInput.value === 'true') {
@@ -65,6 +66,9 @@ class AdminQuestionEdit {
           toggle.toggleAttribute('hidden')
           alert.toggleAttribute('hidden')
         } else {
+          const nonUniversalAlreadySetAlertText = assertNotNull(
+            subsection.getAttribute('data-non-universal-already-set-alert'),
+          )
           const text = alert.querySelector(
             '.usa-alert__text',
           ) as HTMLParagraphElement

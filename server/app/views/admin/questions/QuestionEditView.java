@@ -490,63 +490,66 @@ public final class QuestionEditView extends BaseHtmlView {
                   currentQuestionForTag
                       .map(question -> !question.getName().equals(questionForm.getQuestionName()))
                       .orElse(false);
-              String otherQuestionName =
-                  currentQuestionForTag.map(QuestionDefinition::getName).orElse("");
+              DivTag tagSubsection = div().withClass("cf-primary-applicant-info-subsection");
 
-              // If this property isn't set on a different question, then we only have the universal
-              // alert
-              // and either show or hide it. If it is set on a different question, we will always
-              // only show
-              // the alert, and swap the text of the alert accordingly in admin_question_edit.ts.
-              String initialAlertText =
-                  "You cannot edit this setting since the question is not a universal question.";
-              String alreadySetAlertText =
-                  String.format(
-                      "You cannot edit this setting since this property is already set on a"
-                          + " question named %s.",
-                      otherQuestionName);
-              String nonUniversalAlreadySetAlertText =
-                  String.format(
-                      "You cannot edit this setting since the question is not a universal question"
-                          + " and because this property is already set on a question named %s.",
-                      otherQuestionName);
               if (differentQuestionHasTag) {
-                initialAlertText =
+                // Only include the alert. We'll swap the text based on the state of the
+                // universal toggle in admin_question_edit.ts.
+                String otherQuestionName =
+                    currentQuestionForTag.map(QuestionDefinition::getName).orElseThrow();
+                String alreadySetAlertText =
+                    String.format(
+                        "You cannot edit this setting since this property is already set on a"
+                            + " question named %s.",
+                        otherQuestionName);
+                String nonUniversalAlreadySetAlertText =
+                    String.format(
+                        "You cannot edit this setting since the question is not a universal"
+                            + " question and because this property is already set on a question"
+                            + " named %s.",
+                        otherQuestionName);
+                String initialAlertText =
                     questionForm.isUniversal()
                         ? alreadySetAlertText
                         : nonUniversalAlreadySetAlertText;
-              }
-              DivTag tagSubsection =
-                  div()
-                      .withClass("cf-primary-applicant-info-subsection")
-                      .with(
-                          p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
-                              .with(
-                                  span(primaryApplicantInfoTag.getDescription()),
-                                  ViewUtils.makeToggleButton(
-                                      /* fieldName= */ primaryApplicantInfoTag.getFieldName(),
-                                      /* enabled= */ questionForm
-                                          .primaryApplicantInfoTags()
-                                          .contains(primaryApplicantInfoTag),
-                                      /* hidden= */ !questionForm.isUniversal()
-                                          || differentQuestionHasTag,
-                                      /* idPrefix= */ Optional.of(
-                                          primaryApplicantInfoTag.getFieldName()),
-                                      /* text= */ Optional.of(
-                                          primaryApplicantInfoTag.getDisplayName()))))
-                      .with(
-                          ViewUtils.makeAlertInfoSlim(
-                              initialAlertText,
-                              /* hidden= */ questionForm.isUniversal() && !differentQuestionHasTag,
-                              /* classes...= */ "cf-primary-applicant-info-alert",
-                              // This removes the top 1rem margin built in to the USWDS component
-                              "usa-alert-primary-applicant-info"));
-              if (differentQuestionHasTag) {
                 tagSubsection =
                     tagSubsection
+                        .with(
+                            ViewUtils.makeAlertInfoSlim(
+                                initialAlertText,
+                                /* hidden= */ false,
+                                /* classes...= */ "cf-primary-applicant-info-alert",
+                                "usa-alert-primary-applicant-info"))
                         .withData("already-set-alert", alreadySetAlertText)
                         .withData(
                             "non-universal-already-set-alert", nonUniversalAlreadySetAlertText);
+              } else {
+                // Include both the toggle and the alert. We'll show/hide each based on the state
+                // of the universal toggle in admin_question_edit.ts.
+                tagSubsection =
+                    tagSubsection
+                        .with(
+                            p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
+                                .with(
+                                    span(primaryApplicantInfoTag.getDescription()),
+                                    ViewUtils.makeToggleButton(
+                                        /* fieldName= */ primaryApplicantInfoTag.getFieldName(),
+                                        /* enabled= */ questionForm
+                                            .primaryApplicantInfoTags()
+                                            .contains(primaryApplicantInfoTag),
+                                        /* hidden= */ !questionForm.isUniversal(),
+                                        /* idPrefix= */ Optional.of(
+                                            primaryApplicantInfoTag.getFieldName()),
+                                        /* text= */ Optional.of(
+                                            primaryApplicantInfoTag.getDisplayName()))))
+                        .with(
+                            ViewUtils.makeAlertInfoSlim(
+                                "You cannot edit this setting since the question is not a universal"
+                                    + " question.",
+                                /* hidden= */ questionForm.isUniversal(),
+                                /* classes...= */ "cf-primary-applicant-info-alert",
+                                // This removes the top 1rem margin built in to the USWDS component
+                                "usa-alert-primary-applicant-info"));
               }
               result.with(tagSubsection);
             });
