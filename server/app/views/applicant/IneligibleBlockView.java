@@ -70,7 +70,9 @@ public final class IneligibleBlockView extends ApplicationBaseView {
             .asAnchorText()
             .attr(
                 "aria-label",
-                messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase(Locale.ROOT));
+                messages
+                    .at(MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName())
+                    .toLowerCase(Locale.ROOT));
     UlTag listTag = ul().withClasses("list-disc", "mx-8");
     roApplicantProgramService
         .getIneligibleQuestions()
@@ -80,8 +82,13 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                     li().with(
                             div()
                                 .with(
-                                    TextFormatter.formatText(
-                                        question.getQuestionText(), false, false)))));
+                                    TextFormatter.formatTextWithAriaLabel(
+                                        question.getQuestionText(), /* preserveEmptyLines */
+                                        false, /* addRequiredIndicator */
+                                        false,
+                                        messages
+                                            .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                                            .toLowerCase(Locale.ROOT))))));
 
     DivTag content =
         div()

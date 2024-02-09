@@ -1096,6 +1096,26 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void getProgramDefinitionAsync_doesNotSetCacheForDraft() throws Exception {
+    QuestionDefinition question = nameQuestion;
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestionDefinition(question)
+            .buildDefinition();
+
+    ProgramDefinition found =
+        ps.getProgramDefinitionAsync(program.id()).toCompletableFuture().join();
+    Optional<ProgramDefinition> maybeCachedProgram =
+        programDefCache.get(String.valueOf(program.id()));
+
+    QuestionDefinition foundQuestion =
+        found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
+    assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
+    assertThat(maybeCachedProgram).isEmpty();
+  }
+
+  @Test
   public void getActiveProgramDefinitionAsync_getsActiveProgram() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("Test Program").buildDefinition();

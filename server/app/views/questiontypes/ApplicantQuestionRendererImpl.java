@@ -9,8 +9,10 @@ import com.google.common.collect.ImmutableSet;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
+import java.util.Locale;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
@@ -69,10 +71,13 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                         ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
                         ApplicantStyles.QUESTION_HELP_TEXT)
                     .with(
-                        TextFormatter.formatText(
+                        TextFormatter.formatTextWithAriaLabel(
                             applicantQuestion.getQuestionHelpText(),
                             /* preserveEmptyLines= */ false,
-                            /* addRequiredIndicator= */ false)))
+                            /* addRequiredIndicator= */ false,
+                            messages
+                                .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                                .toLowerCase(Locale.ROOT))))
             .withClasses("mb-4");
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
@@ -95,10 +100,11 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     }
 
     ImmutableList<DomContent> questionTextDoms =
-        TextFormatter.formatText(
+        TextFormatter.formatTextWithAriaLabel(
             applicantQuestion.getQuestionText(),
             /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ !applicantQuestion.isOptional());
+            /* addRequiredIndicator= */ !applicantQuestion.isOptional(),
+            messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT));
     // Reverse the list to have errors appear first.
     ImmutableList<String> ariaDescribedByIds = ariaDescribedByBuilder.build().reverse();
 

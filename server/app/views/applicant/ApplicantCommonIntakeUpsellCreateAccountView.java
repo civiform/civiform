@@ -18,6 +18,7 @@ import com.google.inject.Inject;
 import controllers.applicant.ApplicantRoutes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.SectionTag;
+import java.util.Locale;
 import java.util.Optional;
 import models.AccountModel;
 import play.i18n.Messages;
@@ -140,7 +141,13 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
               .opensInNewTab()
               .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
               .asAnchorText()
-              .attr("aria-label", linkText);
+              .attr(
+                  "aria-label",
+                  linkText
+                      + " "
+                      + messages
+                          .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                          .toLowerCase(Locale.ROOT));
 
       return eligibleProgramsSection.with(
           p(isTrustedIntermediary

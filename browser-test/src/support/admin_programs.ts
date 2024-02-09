@@ -1179,4 +1179,12 @@ export class AdminPrograms {
   async clickCommonIntakeFormToggle() {
     await this.page.click('input[name=isCommonIntakeForm]')
   }
+
+  async toggleEligibilityGating() {
+    await this.page.getByTestId('goto-program-settings-link').click()
+    await this.page.waitForLoadState()
+    await this.page.click('#eligibility-toggle')
+    await this.page.getByText('Back').click()
+    await this.page.waitForLoadState()
+  }
 }
