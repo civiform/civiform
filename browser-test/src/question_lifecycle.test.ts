@@ -570,14 +570,20 @@ describe('normal question lifecycle', () => {
     })
 
     // Verify alert shown when universal isn't set, and hidden when it is
-    await adminQuestions.expectPrimaryApplicantInfoAlert(PrimaryApplicantInfoAlertType.NON_UNIVERAL, true)
+    await adminQuestions.expectPrimaryApplicantInfoAlert(
+      PrimaryApplicantInfoAlertType.NON_UNIVERAL,
+      true,
+    )
     await adminQuestions.expectPrimaryApplicantInfoToggleVisible(
       nameField,
       false,
     )
     await validateScreenshot(page, 'primary-applicant-info-universal-not-set')
     await adminQuestions.clickUniversalToggle()
-    await adminQuestions.expectPrimaryApplicantInfoAlert(PrimaryApplicantInfoAlertType.NON_UNIVERAL, false)
+    await adminQuestions.expectPrimaryApplicantInfoAlert(
+      PrimaryApplicantInfoAlertType.NON_UNIVERAL,
+      false,
+    )
     await adminQuestions.expectPrimaryApplicantInfoToggleVisible(
       nameField,
       true,
@@ -625,13 +631,19 @@ describe('normal question lifecycle', () => {
 
     // Edit question, verify alert/toggle shown/hidden correctly
     await adminQuestions.gotoQuestionEditPage(nameQuestion)
-    await adminQuestions.expectPrimaryApplicantInfoAlert(PrimaryApplicantInfoAlertType.NON_UNIVERAL, true)
+    await adminQuestions.expectPrimaryApplicantInfoAlert(
+      PrimaryApplicantInfoAlertType.NON_UNIVERAL,
+      true,
+    )
     await adminQuestions.expectPrimaryApplicantInfoToggleVisible(
       nameField,
       false,
     )
     await adminQuestions.clickUniversalToggle()
-    await adminQuestions.expectPrimaryApplicantInfoAlert(PrimaryApplicantInfoAlertType.NON_UNIVERAL, false)
+    await adminQuestions.expectPrimaryApplicantInfoAlert(
+      PrimaryApplicantInfoAlertType.NON_UNIVERAL,
+      false,
+    )
     await adminQuestions.expectPrimaryApplicantInfoToggleVisible(
       nameField,
       true,
@@ -687,7 +699,10 @@ describe('normal question lifecycle', () => {
     // Verify the PAI tag gets unset when universal gets unset
     await adminQuestions.gotoQuestionEditPage(nameQuestion)
     await adminQuestions.clickUniversalToggle()
-    await adminQuestions.expectPrimaryApplicantInfoAlert(PrimaryApplicantInfoAlertType.NON_UNIVERAL, true)
+    await adminQuestions.expectPrimaryApplicantInfoAlert(
+      PrimaryApplicantInfoAlertType.NON_UNIVERAL,
+      true,
+    )
     await adminQuestions.expectPrimaryApplicantInfoToggleVisible(
       nameField,
       false,
@@ -722,12 +737,21 @@ describe('normal question lifecycle', () => {
       universal: true,
     })
     await adminQuestions.gotoQuestionEditPage(nonPaiNameQuestion)
-    await adminQuestions.expectPrimaryApplicantInfoAlert(PrimaryApplicantInfoAlertType.ALREADY_SET, true)
+    await adminQuestions.expectPrimaryApplicantInfoAlert(
+      PrimaryApplicantInfoAlertType.ALREADY_SET,
+      true,
+    )
     await validateScreenshot(page, 'primary-applicant-info-already-set')
 
     // Unset universal, make sure the alert shows the appropriate text
     await adminQuestions.clickUniversalToggle()
-    await adminQuestions.expectPrimaryApplicantInfoAlert(PrimaryApplicantInfoAlertType.NON_UNIVERSAL_AND_ALREADY_SET, true)
-    await validateScreenshot(page, 'primary-applicant-info-non-universal-and-already-set')
+    await adminQuestions.expectPrimaryApplicantInfoAlert(
+      PrimaryApplicantInfoAlertType.NON_UNIVERSAL_AND_ALREADY_SET,
+      true,
+    )
+    await validateScreenshot(
+      page,
+      'primary-applicant-info-non-universal-and-already-set',
+    )
   })
 })

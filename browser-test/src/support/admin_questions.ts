@@ -31,9 +31,9 @@ export enum PrimaryApplicantInfoField {
 }
 
 export enum PrimaryApplicantInfoAlertType {
-  NON_UNIVERAL = "You cannot edit this setting since the question is not a universal question.",
-  ALREADY_SET = "You cannot edit this setting since this property is already set on a question named",
-  NON_UNIVERSAL_AND_ALREADY_SET = "You cannot edit this setting since the question is not a universal question and because this property is already set on a question named",
+  NON_UNIVERAL = 'You cannot edit this setting since the question is not a universal question.',
+  ALREADY_SET = 'You cannot edit this setting since this property is already set on a question named',
+  NON_UNIVERSAL_AND_ALREADY_SET = 'You cannot edit this setting since the question is not a universal question and because this property is already set on a question named',
 }
 
 export enum QuestionType {
@@ -1236,10 +1236,15 @@ export class AdminQuestions {
     return this.page.inputValue(`#${fieldName}-toggle-input`)
   }
 
-  async expectPrimaryApplicantInfoAlert(type: PrimaryApplicantInfoAlertType, visible: boolean) {
-    const alert = await this.page.locator('.cf-primary-applicant-info-alert')
-    const text = await this.page.locator('.cf-primary-applicant-info-alert .usa-alert__text')
-    expect(await alert.innerText()).toMatch(new RegExp(type.valueOf()))
+  async expectPrimaryApplicantInfoAlert(
+    type: PrimaryApplicantInfoAlertType,
+    visible: boolean,
+  ) {
+    const alert = this.page.locator('.cf-primary-applicant-info-alert')
+    const text = this.page.locator(
+      '.cf-primary-applicant-info-alert .usa-alert__text',
+    )
+    expect(await text.innerText()).toMatch(new RegExp(type.valueOf()))
     expect(await alert.isVisible()).toEqual(visible)
   }
 
