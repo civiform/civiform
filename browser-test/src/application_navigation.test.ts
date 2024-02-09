@@ -1787,7 +1787,7 @@ describe('Applicant navigation flow', () => {
         // Verify the applicant's answer is saved
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           addressWithCorrectionText,
-          'Failure Test',
+          'Address In Area',
         )
 
         await logout(page)
