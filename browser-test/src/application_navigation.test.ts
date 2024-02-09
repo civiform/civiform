@@ -1629,8 +1629,7 @@ describe('Applicant navigation flow', () => {
       const addressCorrectionInput =
         adminPrograms.getAddressCorrectionToggleByName(questionAddress)
 
-      // TODO: Change this to true when done with other PR 6598 before merging this PR
-      expect(await addressCorrectionInput.inputValue()).toBe('false')
+      expect(await addressCorrectionInput.inputValue()).toBe('true')
 
       // Set thing to soft eligibilty
       await adminPrograms.toggleEligibilityGating()
