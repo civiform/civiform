@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.Inject;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -11,8 +12,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Calendar;
-import java.util.TimeZone;
 
 /** Utility class for converting dates between different formats. */
 public final class DateConverter {
@@ -52,6 +51,16 @@ public final class DateConverter {
     return LocalDate.parse(dateString, DateTimeFormatter.ISO_DATE);
   }
 
+  /**
+   * Parses string day, month and year and converts them to a {@link LocalDate}
+   *
+   * @throws DateTimeParseException if conjoined date string is not well-formed.
+   */
+  public LocalDate parseDayMonthYearToLocalDate(String day, String month, String year) {
+    day = day.length() == 1 ? "0" + day : day; // The day needs to be 2 digits
+    return parseIso8601DateToLocalDate(year + "-" + month + "-" + day);
+  }
+
   /** Returns the current LocalDate based on the specified time-zone(zoneId) */
   public LocalDate getCurrentDateForZoneId() {
     return LocalDate.now(this.zoneId);
@@ -59,11 +68,11 @@ public final class DateConverter {
 
   /**
    * Parses a string containing a ISO-8601 date (i.e. "YYYY-MM-DD") and converts it to an {@link
-   * Instant} at the beginning of the day in local time zone.
+   * Instant} at the beginning of the day in Local time zone.
    *
    * @throws DateTimeParseException if dateString is not well-formed.
    */
-  public Instant parseIso8601DateToStartOfDateInstant(String dateString) {
+  public Instant parseIso8601DateToStartOfLocalDateInstant(String dateString) {
     return parseIso8601DateToLocalDate(dateString).atStartOfDay(zoneId).toInstant();
   }
 
@@ -87,6 +96,7 @@ public final class DateConverter {
     ZonedDateTime dateTime = time.atZone(zoneId);
     return dateTime.format(DATE_TIME_FORMATTER_WITH_SLASH);
   }
+
   /** Formats an {@link LocalDate} to a String. */
   public String formatIso8601Date(LocalDate date) {
     return date.format(DATE_TIME_FORMATTER_WITH_DASH);
@@ -97,12 +107,9 @@ public final class DateConverter {
     return Instant.ofEpochMilli(timestamp).atZone(this.zoneId).toLocalDate();
   }
 
-  /** Formats a {@link java.sql.Timestamp} to MM/YY. */
+  /** Formats a {@link java.sql.Timestamp} to MM/YYYY. */
   public String renderAsTwoDigitMonthAndYear(Timestamp timestamp) {
-    var calendar = Calendar.getInstance(TimeZone.getTimeZone(zoneId));
-    calendar.setTimeInMillis(timestamp.getTime());
-
-    return (calendar.get(Calendar.MONTH) + 1) + "/" + calendar.get(Calendar.YEAR);
+    return new SimpleDateFormat("MM/yyyy").format(timestamp);
   }
 
   /** Gets the {@link Long} timestamp from an age, by subtracting the age from today's date. */

@@ -86,4 +86,9 @@
   .cf-radio-option:focus-within {
     @apply border-4;
   }
+
+  /* Overriding the style set by USWDS for this element */
+  #name-search {
+    @apply mt-0;
+  }
 }

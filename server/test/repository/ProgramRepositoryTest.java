@@ -103,43 +103,15 @@ public class ProgramRepositoryTest extends ResetPostgres {
     assertThat(programCache.get(String.valueOf(two.id))).hasValue(found);
   }
 
-  @Test
-  public void loadLegacy() {
-    DB.sqlUpdate(
-            "insert into programs (name, description, block_definitions, legacy_localized_name,"
-                + " legacy_localized_description, program_type) values ('Old Schema Entry',"
-                + " 'Description', '[]', '{\"en_us\": \"name\"}', '{\"en_us\": \"description\"}',"
-                + " 'default');")
-        .execute();
-    DB.sqlUpdate(
-            "insert into versions_programs (versions_id, programs_id) values ("
-                + "(select id from versions where lifecycle_stage = 'active'),"
-                + "(select id from programs where name = 'Old Schema Entry'));")
-        .execute();
-
-    ProgramModel found =
-        versionRepo.getActiveVersion().getPrograms().stream()
-            .filter(
-                program -> program.getProgramDefinition().adminName().equals("Old Schema Entry"))
-            .findFirst()
-            .get();
-
-    assertThat(found.getProgramDefinition().adminName()).isEqualTo("Old Schema Entry");
-    assertThat(found.getProgramDefinition().adminDescription()).isEqualTo("Description");
-    assertThat(found.getProgramDefinition().localizedName())
-        .isEqualTo(LocalizedStrings.of(Locale.US, "name"));
-    assertThat(found.getProgramDefinition().localizedDescription())
-        .isEqualTo(LocalizedStrings.of(Locale.US, "description"));
-  }
-
   // Verify the StatusDefinitions default value in evolution 40 loads.
   @Test
   public void loadStatusDefinitionsEvolution() {
     DB.sqlUpdate(
-            "insert into programs (name, description, block_definitions, legacy_localized_name,"
-                + " legacy_localized_description, status_definitions, program_type) values"
-                + " ('Status Default', 'Description', '[]', '{\"en_us\": \"name\"}','{\"en_us\":"
-                + " \"description\"}', '{\"statuses\": []}', 'default');")
+            "insert into programs (name, description, block_definitions, status_definitions,"
+                + " localized_name, localized_description, program_type) values ('Status Default',"
+                + " 'Description', '[]', '{\"statuses\": []}', '{\"isRequired\": true,"
+                + " \"translations\": {\"en_US\": \"Status Default\"}}',  '{\"isRequired\": true,"
+                + " \"translations\": {\"en_US\": \"\"}}', 'default');")
         .execute();
     DB.sqlUpdate(
             "insert into versions_programs (versions_id, programs_id) values ("

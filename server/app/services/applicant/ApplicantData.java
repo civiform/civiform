@@ -78,6 +78,38 @@ public class ApplicantData extends CfJsonDocumentContext {
     return Optional.of(firstName);
   }
 
+  public Optional<String> getApplicantFirstName() {
+    return readString(WellKnownPaths.APPLICANT_FIRST_NAME);
+  }
+
+  public Optional<String> getApplicantMiddleName() {
+    return readString(WellKnownPaths.APPLICANT_MIDDLE_NAME);
+  }
+
+  public Optional<String> getApplicantLastName() {
+    return readString(WellKnownPaths.APPLICANT_LAST_NAME);
+  }
+
+  /** Updates the TI client name in the Applicant table */
+  public void updateUserName(
+      String firstName, @Nullable String middleName, @Nullable String lastName) {
+    putString(WellKnownPaths.APPLICANT_FIRST_NAME, firstName);
+    if (middleName != null) {
+      putString(WellKnownPaths.APPLICANT_MIDDLE_NAME, middleName);
+    }
+    if (lastName != null) {
+      putString(WellKnownPaths.APPLICANT_LAST_NAME, lastName);
+    }
+  }
+
+  public Optional<String> getPhoneNumber() {
+    return readString(WellKnownPaths.APPLICANT_PHONE_NUMBER);
+  }
+
+  public void setPhoneNumber(String phoneNumber) {
+    putPhoneNumber(WellKnownPaths.APPLICANT_PHONE_NUMBER, phoneNumber);
+  }
+
   public void setUserName(String displayName) {
     String firstName;
     String lastName = null;

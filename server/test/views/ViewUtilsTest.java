@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import controllers.AssetsFinder;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
@@ -80,5 +81,36 @@ public class ViewUtilsTest {
         ViewUtils.makeUSWDSModal(
             p("Welcome to the test modal!"), "test-modal", "header", "Button text", false, "", "");
     assertThat(modal.render()).doesNotContain("usa-modal__footer");
+  }
+
+  @Test
+  public void makeMemorableDate_createsDateComponentWithCorrectFieldNames() {
+    FieldsetTag dateComponent = ViewUtils.makeMemorableDate("", "", "", "Test DOB", false);
+    String rendered = dateComponent.render();
+    assertThat(rendered)
+        .contains("<input class=\"usa-input\" id=\"date_of_birth_day\" name=\"dayQuery\"");
+    assertThat(rendered)
+        .contains("<input class=\"usa-input\" id=\"date_of_birth_year\" name=\"yearQuery\"");
+    assertThat(rendered)
+        .contains("<select class=\"usa-select\" id=\"date_of_birth_month\" name=\"monthQuery\"");
+  }
+
+  @Test
+  public void makeMemorableDate_showsErrorWhenShowErrorIsTrue() {
+    FieldsetTag dateComponent = ViewUtils.makeMemorableDate("", "", "", "Test DOB", true);
+    String rendered = dateComponent.render();
+    assertThat(rendered)
+        .contains("<div class=\"text-red-600 text-xs\" id=\"memorable_date_error\"><span>Error:");
+
+    assertThat(rendered).contains("<select class=\"usa-input--error");
+  }
+
+  @Test
+  public void makeMemorableDate_doesNotShowErrorWhenShowErrorIsFalse() {
+    FieldsetTag dateComponent = ViewUtils.makeMemorableDate("04", "04", "", "Test DOB", false);
+    String rendered = dateComponent.render();
+    assertThat(rendered).doesNotContain("<div class=\"text-red-600 text-xs\"><span>Error:");
+
+    assertThat(rendered).doesNotContain("usa-input--error");
   }
 }

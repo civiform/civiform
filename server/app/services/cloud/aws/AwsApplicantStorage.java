@@ -6,8 +6,6 @@ import static org.mockito.Mockito.when;
 import static services.cloud.aws.AwsStorageUtils.AWS_PRESIGNED_URL_DURATION;
 
 import com.typesafe.config.Config;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -181,13 +179,11 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
     LocalStackClient(Config config, AwsStorageUtils awsStorageUtils) {
       this.config = checkNotNull(config);
       this.awsStorageUtils = checkNotNull(awsStorageUtils);
-      String localEndpoint = awsStorageUtils.localStackEndpoint(config);
-      try {
-        URI localUri = new URI(localEndpoint);
-        presigner = S3Presigner.builder().endpointOverride(localUri).region(region).build();
-      } catch (URISyntaxException e) {
-        throw new RuntimeException(e);
-      }
+      this.presigner =
+          S3Presigner.builder()
+              .endpointOverride(awsStorageUtils.localStackEndpoint(config))
+              .region(region)
+              .build();
     }
 
     @Override

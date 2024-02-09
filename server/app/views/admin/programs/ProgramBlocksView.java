@@ -971,7 +971,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
 
     String toggleAddressCorrectionAction =
-        controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
+        controllers.admin.routes.AdminProgramBlockQuestionsController
+            .toggleAddressCorrectionEnabledState(
                 programDefinition.id(), blockDefinition.id(), questionDefinition.getId())
             .url();
     ButtonTag addressCorrectionButton =
@@ -1018,7 +1019,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 input()
                     .isHidden()
                     .withName("addressCorrectionEnabled")
-                    .withValue(addressCorrectionEnabled ? "false" : "true"))
+                    .withValue(String.valueOf(addressCorrectionEnabled)))
             .with(addressCorrectionButton));
   }
 

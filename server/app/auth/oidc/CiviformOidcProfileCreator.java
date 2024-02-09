@@ -28,7 +28,6 @@ import org.pac4j.oidc.profile.creator.OidcProfileCreator;
 import org.pac4j.play.PlayWebContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.mvc.Http;
 import repository.AccountRepository;
 import services.settings.SettingsManifest;
 
@@ -154,7 +153,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
 
     Optional<String> sessionId = getSessionId(context);
-    if (sessionId.isPresent() && enhancedLogoutEnabled(context)) {
+    if (sessionId.isPresent() && enhancedLogoutEnabled()) {
       // Save the id_token from the returned OidcProfile in the account so that it can be
       // retrieved at logout time.
       civiformProfile
@@ -244,16 +243,14 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     return profile.getAccount().join().getMemberOfGroup().isPresent();
   }
 
-  private boolean enhancedLogoutEnabled(WebContext context) {
-    PlayWebContext playWebContext = (PlayWebContext) context;
-    Http.RequestHeader request = playWebContext.getNativeJavaRequest();
+  private boolean enhancedLogoutEnabled() {
     // Sigh. This would be much nicer with switch expressions (Java 12) and exhaustive switch (Java
     // 17).
     switch (identityProviderType()) {
       case ADMIN_IDENTITY_PROVIDER:
-        return settingsManifest.getAdminOidcEnhancedLogoutEnabled(request);
+        return settingsManifest.getAdminOidcEnhancedLogoutEnabled();
       case APPLICANT_IDENTITY_PROVIDER:
-        return settingsManifest.getApplicantOidcEnhancedLogoutEnabled(request);
+        return settingsManifest.getApplicantOidcEnhancedLogoutEnabled();
       default:
         throw new NotImplementedException(
             "Identity provider type not handled: " + identityProviderType());

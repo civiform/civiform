@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.BadRequestException;
+import controllers.admin.ImageDescriptionNotRemovableException;
 import forms.BlockForm;
 import io.ebean.DB;
 import java.util.ArrayList;
@@ -2823,7 +2824,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void setSummaryImageDescription_defaultLocaleAndBlank_removesAllTranslations()
-      throws ProgramNotFoundException, TranslationNotFoundException {
+      throws ProgramNotFoundException {
     ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
     ps.setSummaryImageDescription(program.id(), Locale.US, "US description");
     ps.setSummaryImageDescription(program.id(), Locale.CANADA, "Canada description");
@@ -2832,6 +2833,18 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition result = ps.setSummaryImageDescription(program.id(), DEFAULT_LOCALE, "");
 
     assertThat(result.localizedSummaryImageDescription().isPresent()).isFalse();
+  }
+
+  @Test
+  public void setSummaryImageDescription_blank_hasImageFile_throwsNotRemovableException()
+      throws ProgramNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+    ps.setSummaryImageDescription(program.id(), Locale.US, "US description");
+    ps.setSummaryImageFileKey(program.id(), "fileKey.png");
+
+    assertThatThrownBy(() -> ps.setSummaryImageDescription(program.id(), Locale.US, ""))
+        .isInstanceOf(ImageDescriptionNotRemovableException.class)
+        .hasMessageContaining("Description can't be removed because an image is present");
   }
 
   @Test
@@ -2854,5 +2867,33 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThat(result2.summaryImageFileKey().isPresent()).isTrue();
     assertThat(result2.summaryImageFileKey().get()).isEqualTo("fileKey2.png");
+  }
+
+  @Test
+  public void deleteSummaryImageFileKey_missingProgram_throws() {
+    assertThatThrownBy(() -> ps.deleteSummaryImageFileKey(Long.MAX_VALUE))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID:");
+  }
+
+  @Test
+  public void deleteSummaryImageFileKey_noFileKeyPresent_stillNoKey()
+      throws ProgramNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+
+    ProgramDefinition result = ps.deleteSummaryImageFileKey(program.id());
+
+    assertThat(result.summaryImageFileKey()).isEmpty();
+  }
+
+  @Test
+  public void deleteSummaryImageFileKey_hadFileKey_keyRemoved() throws ProgramNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+    ProgramDefinition setResult = ps.setSummaryImageFileKey(program.id(), "fileKey1.png");
+    assertThat(setResult.summaryImageFileKey()).isPresent();
+
+    ProgramDefinition deleteResult = ps.deleteSummaryImageFileKey(program.id());
+
+    assertThat(deleteResult.summaryImageFileKey()).isEmpty();
   }
 }

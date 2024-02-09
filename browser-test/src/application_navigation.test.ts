@@ -22,13 +22,21 @@ describe('Applicant navigation flow', () => {
 
   describe('navigation with five blocks', () => {
     const programName = 'Test program for navigation flows'
+    const dateQuestionText = 'date question text'
+    const emailQuestionText = 'email question text'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
-      await adminQuestions.addDateQuestion({questionName: 'nav-date-q'})
-      await adminQuestions.addEmailQuestion({questionName: 'nav-email-q'})
+      await adminQuestions.addDateQuestion({
+        questionName: 'nav-date-q',
+        questionText: dateQuestionText,
+      })
+      await adminQuestions.addEmailQuestion({
+        questionName: 'nav-email-q',
+        questionText: emailQuestionText,
+      })
       await adminQuestions.addAddressQuestion({
         questionName: 'nav-address-q',
       })
@@ -117,9 +125,139 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.checkDateQuestionValue('2021-11-01')
       await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
 
-      // Assert that we're on the preview page.
+      // Assert that we're on the review page.
       await applicantQuestions.clickPrevious()
       await applicantQuestions.expectReviewPage()
+    })
+
+    describe('review button', () => {
+      it('clicking review does not save when flag off', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await disableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
+        await applicantQuestions.clickReview()
+
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          dateQuestionText,
+        )
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          emailQuestionText,
+        )
+      })
+
+      it('clicking review with correct form shows review page with saved answers', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
+        await applicantQuestions.clickReview()
+
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          dateQuestionText,
+          '11/01/2021',
+        )
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          emailQuestionText,
+          'test1@gmail.com',
+        )
+      })
+
+      it('clicking review with missing answers shows modal', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
+        await applicantQuestions.clickReview()
+
+        // The date question is required, so we should see the error modal.
+        await applicantQuestions.expectErrorOnReviewModal()
+        await validateScreenshot(page, 'error-on-review-modal')
+      })
+
+      it('error on review modal > click go back and edit > shows block', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectErrorOnReviewModal()
+
+        await applicantQuestions.clickGoBackAndEdit()
+
+        // Verify the previously filled in answers are present
+        await applicantQuestions.checkDateQuestionValue('')
+        await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
+
+        // Answer the date question correctly and try clicking "Review" again
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+
+        await applicantQuestions.clickReview()
+
+        // Verify we're taken to the review page and the answers were saved
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          dateQuestionText,
+          '11/01/2021',
+        )
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          emailQuestionText,
+          'test1@gmail.com',
+        )
+      })
+
+      it('error on review modal > click review without saving > shows review page without saved answers', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('')
+
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectErrorOnReviewModal()
+
+        // Proceed to the Review page, acknowledging that answers won't be saved
+        await applicantQuestions.clickReviewWithoutSaving()
+
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          dateQuestionText,
+        )
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          emailQuestionText,
+        )
+      })
+
+      afterAll(async () => {
+        const {page} = ctx
+        await loginAsAdmin(page)
+        await disableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+      })
     })
 
     it('verify program details page', async () => {
@@ -158,7 +296,7 @@ describe('Applicant navigation flow', () => {
       await logout(page)
       // Verify we are on program list page.
       expect(await page.innerText('h1')).toContain(
-        'Save time when applying for benefits',
+        'Save time applying for programs and services',
       )
 
       const cardHtml = await page.innerHTML(
@@ -184,7 +322,12 @@ describe('Applicant navigation flow', () => {
       )
       expect(cardText).not.toContain('External site')
       await validateAccessibility(page)
-      await validateScreenshot(page, 'program-list-page')
+      await validateScreenshot(
+        page,
+        'program-list-page',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
     })
 
     it('verify program preview page', async () => {
@@ -194,7 +337,12 @@ describe('Applicant navigation flow', () => {
       // Verify we are on program preview page.
       await applicantQuestions.expectReviewPage()
       await validateAccessibility(page)
-      await validateScreenshot(page, 'program-preview')
+      await validateScreenshot(
+        page,
+        'program-preview',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
     })
 
     it('can answer third question directly', async () => {
@@ -220,7 +368,12 @@ describe('Applicant navigation flow', () => {
       )
       await applicantQuestions.clickNext()
       await applicantQuestions.clickReview()
-      await validateScreenshot(page, 'third-question-answered')
+      await validateScreenshot(
+        page,
+        'third-question-answered',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
 
       await page.click(
         '.cf-applicant-summary-row:has(div:has-text("address question text")) a:has-text("Edit")',
@@ -263,7 +416,12 @@ describe('Applicant navigation flow', () => {
       // Verify we are on program review page.
       await applicantQuestions.expectReviewPage()
       await validateAccessibility(page)
-      await validateScreenshot(page, 'program-review')
+      await validateScreenshot(
+        page,
+        'program-review',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
     })
 
     it('verify program submission page for guest', async () => {
@@ -298,7 +456,12 @@ describe('Applicant navigation flow', () => {
         await page.locator('.cf-application-id + div').textContent(),
       ).toContain('This is the custom confirmation message with markdown')
       await validateAccessibility(page)
-      await validateScreenshot(page, 'program-submission-guest')
+      await validateScreenshot(
+        page,
+        'program-submission-guest',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
 
       // Click the "Apply to another program" button while a guest, which triggers
       // a modal to prompt the guest to login or create an account. Note that
@@ -308,6 +471,8 @@ describe('Applicant navigation flow', () => {
       await validateScreenshot(
         page,
         'program-submission-guest-login-prompt-modal',
+        /* fullPage= */ false,
+        /* mobileScreenshot= */ true,
       )
     })
 
@@ -344,7 +509,12 @@ describe('Applicant navigation flow', () => {
         await page.locator('.cf-application-id + div').textContent(),
       ).toContain('This is the custom confirmation message with markdown')
       await validateAccessibility(page)
-      await validateScreenshot(page, 'program-submission-logged-in')
+      await validateScreenshot(
+        page,
+        'program-submission-logged-in',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
     })
 
     it('shows error with incomplete submission', async () => {
@@ -362,14 +532,19 @@ describe('Applicant navigation flow', () => {
         const formEl = document.querySelector('.cf-debounced-form')!
         formEl.appendChild(buttonEl)
       })
-      const submitButton = page.locator('#test-form-submit')!
+      const submitButton = page.locator('#test-form-submit')
       await submitButton.click()
 
       await validateToastMessage(
         page,
         "Error: There's been an update to the application",
       )
-      await validateScreenshot(page, 'program-out-of-date')
+      await validateScreenshot(
+        page,
+        'program-out-of-date',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
     })
 
     it('shows "no changes" page when a duplicate application is submitted', async () => {
@@ -405,7 +580,12 @@ describe('Applicant navigation flow', () => {
 
       // See the duplicate submissions page
       await applicantQuestions.expectDuplicatesPage()
-      await validateScreenshot(page, 'duplicate-submission-page')
+      await validateScreenshot(
+        page,
+        'duplicate-submission-page',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
       await validateAccessibility(page)
 
       // Click the "Continue editing" button to return to the review page
@@ -524,6 +704,8 @@ describe('Applicant navigation flow', () => {
       await validateScreenshot(
         page,
         'cif-ineligible-signed-in-confirmation-page',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
       )
       await validateAccessibility(page)
     })
@@ -546,7 +728,12 @@ describe('Applicant navigation flow', () => {
         /* wantEligiblePrograms= */ [secondProgramName],
       )
 
-      await validateScreenshot(page, 'cif-eligible-signed-in-confirmation-page')
+      await validateScreenshot(
+        page,
+        'cif-eligible-signed-in-confirmation-page',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
       await validateAccessibility(page)
     })
 
@@ -567,7 +754,12 @@ describe('Applicant navigation flow', () => {
         /* wantEligiblePrograms= */ [],
       )
 
-      await validateScreenshot(page, 'cif-ineligible-guest-confirmation-page')
+      await validateScreenshot(
+        page,
+        'cif-ineligible-guest-confirmation-page',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
       await validateAccessibility(page)
     })
 
@@ -588,11 +780,21 @@ describe('Applicant navigation flow', () => {
         /* wantEligiblePrograms= */ [secondProgramName],
       )
 
-      await validateScreenshot(page, 'cif-eligible-guest-confirmation-page')
+      await validateScreenshot(
+        page,
+        'cif-eligible-guest-confirmation-page',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
       await validateAccessibility(page)
 
       await page.click('button:has-text("Apply to programs")')
-      await validateScreenshot(page, 'cif-submission-guest-login-prompt-modal')
+      await validateScreenshot(
+        page,
+        'cif-submission-guest-login-prompt-modal',
+        /* fullPage= */ false,
+        /* mobileScreenshot= */ true,
+      )
     })
 
     it('shows intake form as submitted after completion', async () => {
@@ -614,7 +816,12 @@ describe('Applicant navigation flow', () => {
 
       await page.click('button:has-text("Apply to programs")')
       await page.click('button:has-text("Continue without an account")')
-      await validateScreenshot(page, 'cif-shows-submitted')
+      await validateScreenshot(
+        page,
+        'cif-shows-submitted',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
     })
 
     it('does not show eligible programs and shows TI text on confirmation page when no programs are eligible and a TI', async () => {
@@ -649,7 +856,12 @@ describe('Applicant navigation flow', () => {
         /* wantEligiblePrograms= */ [],
       )
 
-      await validateScreenshot(page, 'cif-ineligible-ti-confirmation-page')
+      await validateScreenshot(
+        page,
+        'cif-ineligible-ti-confirmation-page',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
     })
 
     it('shows eligible programs and TI text on confirmation page when programs are eligible and a TI', async () => {
@@ -683,7 +895,12 @@ describe('Applicant navigation flow', () => {
         /* wantTrustedIntermediary= */ true,
         /* wantEligiblePrograms= */ [secondProgramName],
       )
-      await validateScreenshot(page, 'cif-eligible-ti-confirmation-page')
+      await validateScreenshot(
+        page,
+        'cif-eligible-ti-confirmation-page',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
     })
   })
 
@@ -762,7 +979,12 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
-      await validateScreenshot(page, 'application-ineligible-same-application')
+      await validateScreenshot(
+        page,
+        'application-ineligible-same-application',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
       await validateAccessibility(page)
     })
 
@@ -774,7 +996,12 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.answerNumberQuestion('5')
       await applicantQuestions.clickNext()
       await validateToastMessage(page, 'may qualify')
-      await validateScreenshot(page, 'eligible-toast')
+      await validateScreenshot(
+        page,
+        'eligible-toast',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
 
       // Verify the question is marked eligible
       await applicantQuestions.gotoApplicantHomePage()
@@ -782,7 +1009,12 @@ describe('Applicant navigation flow', () => {
         fullProgramName,
         /* isEligible= */ true,
       )
-      await validateScreenshot(page, 'eligible-home-page-program-tag')
+      await validateScreenshot(
+        page,
+        'eligible-home-page-program-tag',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
       await validateAccessibility(page)
 
       // Go back to in progress application and submit.
@@ -822,7 +1054,12 @@ describe('Applicant navigation flow', () => {
 
       // Verify the question is marked ineligible.
       await applicantQuestions.gotoApplicantHomePage()
-      await validateScreenshot(page, 'ineligible-home-page-program-tag')
+      await validateScreenshot(
+        page,
+        'ineligible-home-page-program-tag',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
       await applicantQuestions.seeEligibilityTag(
         fullProgramName,
         /* isEligible= */ false,
@@ -832,7 +1069,12 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
-      await validateScreenshot(page, 'application-ineligible-preexisting-data')
+      await validateScreenshot(
+        page,
+        'application-ineligible-preexisting-data',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
       await validateAccessibility(page)
     })
 
@@ -894,6 +1136,57 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.clickSubmit()
       await applicantQuestions.expectIneligiblePage()
+    })
+
+    it('ineligible page renders markdown', async () => {
+      const {
+        page,
+        adminQuestions,
+        applicantQuestions,
+        adminPredicates,
+        adminPrograms,
+      } = ctx
+      const questionName = 'question-with-markdown'
+      const programName = 'Program with markdown question'
+
+      // Add a question with markdown in the question text
+      await loginAsAdmin(page)
+      await adminQuestions.addTextQuestion({
+        questionName: questionName,
+        questionText:
+          'This is a _question_ with some [markdown](https://www.example.com)',
+      })
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlock(programName, 'first description', [
+        questionName,
+      ])
+      // Add an eligiblity condition on the markdown question
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+      )
+      await adminPredicates.addPredicate(
+        questionName,
+        /* action= */ null,
+        'text',
+        'is equal to',
+        'foo',
+      )
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(programName)
+      await logout(page)
+
+      // Apply to the program and answer the eligibility question with an ineligible answer
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerTextQuestion('bar')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+      await validateScreenshot(
+        page,
+        'ineligible-page-with-markdown',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
     })
 
     it('shows may be eligible with nongating eligibility', async () => {
@@ -1081,7 +1374,7 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.clickNext()
         await applicantQuestions.answerTextQuestion('Some text')
         await applicantQuestions.clickNext()
-        await applicantQuestions.expectAddressHasBeenCorrected(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'With Correction',
           'Address In Area',
         )
@@ -1114,7 +1407,7 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.clickNext()
         await applicantQuestions.expectVerifyAddressPage(true)
         await applicantQuestions.clickNext()
-        await applicantQuestions.expectAddressHasBeenCorrected(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'With Correction',
           'Address In Area',
         )
@@ -1141,10 +1434,15 @@ describe('Applicant navigation flow', () => {
         // Only doing accessibility and screenshot checks for address correction page
         // once since they are all the same
         await validateAccessibility(page)
-        await validateScreenshot(page, 'verify-address-page')
+        await validateScreenshot(
+          page,
+          'verify-address-page',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
 
         await applicantQuestions.clickNext()
-        await applicantQuestions.expectAddressHasBeenCorrected(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'With Correction',
           'Address In Area',
         )
@@ -1169,7 +1467,12 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.expectVerifyAddressPage(false)
 
         await validateAccessibility(page)
-        await validateScreenshot(page, 'no-suggestions-returned')
+        await validateScreenshot(
+          page,
+          'no-suggestions-returned',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
 
         // Can continue on anyway
         await applicantQuestions.clickNext()
@@ -1196,7 +1499,12 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.expectVerifyAddressPage(false)
 
         await validateAccessibility(page)
-        await validateScreenshot(page, 'esri-service-errored')
+        await validateScreenshot(
+          page,
+          'esri-service-errored',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
 
         // Can continue on anyway
         await applicantQuestions.clickNext()
@@ -1259,7 +1567,7 @@ describe('Applicant navigation flow', () => {
         '98109',
       )
       await applicantQuestions.clickNext()
-      await applicantQuestions.expectAddressHasBeenCorrected(
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
         'With Correction',
         '305 Harrison',
       )

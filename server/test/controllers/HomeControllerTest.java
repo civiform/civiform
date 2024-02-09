@@ -5,24 +5,15 @@ import static play.api.test.Helpers.testServerPort;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.route;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.core.context.HttpConstants;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ResetPostgres;
-import services.settings.SettingsManifest;
 import support.CfTestHelpers;
 import support.CfTestHelpers.ResultWithFinalRequestUri;
 
 public class HomeControllerTest extends ResetPostgres {
-  private SettingsManifest settingsManifest;
-
-  @Before
-  public void setup() {
-    settingsManifest = instanceOf(SettingsManifest.class);
-  }
-
   @Test
   public void testUnauthenticatedSecurePage() {
     Http.RequestBuilder request =
@@ -32,11 +23,7 @@ public class HomeControllerTest extends ResetPostgres {
         CfTestHelpers.doRequestWithInternalRedirects(app, request);
 
     assertThat(resultWithFinalRequestUri.getResult().status()).isEqualTo(HttpConstants.OK);
-    if (settingsManifest.getNewApplicantUrlSchemaEnabled()) {
-      assertThat(resultWithFinalRequestUri.getFinalRequestUri()).isEqualTo("/programs");
-    } else {
-      assertThat(resultWithFinalRequestUri.getFinalRequestUri()).endsWith("/programs");
-    }
+    assertThat(resultWithFinalRequestUri.getFinalRequestUri()).isEqualTo("/programs");
   }
 
   @Test

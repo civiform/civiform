@@ -1,22 +1,53 @@
 #! /usr/bin/env bash
 
 # DOC: Run the browser tests using Docker. Requires browser test env already running.
+# DOC: Optional environment variables:
+# DOC:   RECORD_VIDEO - If set (typically to 1) records video of the test run.
+# DOC:   TEST_CIVIC_ENTITY_SHORT_NAME - Overrides the default value of the short name.
+# DOC: Globals:
+# DOC:   DOCKER_NETWORK_NAME - from lib/docker.sh
 
 source bin/lib.sh
 docker::set_project_name_browser_tests
 bin/pull-image
 
-# Run browser tests from within the civiform-browser-test container. We map
-# full browser-test local directory to the container so that it uses local changes.
-# Additionally we map node_modules to a separate volume so that it doesn't
+readonly CONTAINER_NAME="civiform-browser-test-runner"
+readonly CONTAINER_IMAGE_ID="$(docker inspect "${CONTAINER_NAME}" 2>/dev/null | jq '.[0].Image')"
+readonly LAST_IMAGE_ID="$(docker image inspect civiform-browser-test:latest | jq '.[0].Id')"
+readonly TEST_CIVIC_ENTITY_SHORT_NAME="${TEST_CIVIC_ENTITY_SHORT_NAME:-TestCity}"
+
+# Check if the current browser test image is different. If it is remove the container
+# so that it can be recreated with the newer image.
+if [[ "${CONTAINER_IMAGE_ID}" != "${LAST_IMAGE_ID}" ]]; then
+  docker rm --volumes --force "${CONTAINER_NAME}" 2>/dev/null
+fi
+
+# Check if the container is running. If it is not run the container and detach so it
+# stays running in docker.
+#
+# We map full browser-test local directory to the container so that it uses local changes.
+# Additionally we map node_modules to a separate anonymous volume so that it doesn't
 # conflict with node_modules created locally.
-# --init enables https://github.com/krallin/tini
-docker run --rm -it \
-  -v "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
-  -e RECORD_VIDEO="${RECORD_VIDEO}" \
-  -e TEST_CIVIC_ENTITY_SHORT_NAME="${TEST_CIVIC_ENTITY_SHORT_NAME:-TestCity}" \
-  --network "${DOCKER_NETWORK_NAME}" \
-  --init \
-  civiform-browser-test:latest \
+if [[ -z "$(docker ps --filter "name=${CONTAINER_NAME}" --format "{{.Names}}")" ]]; then
+  docker run \
+    --detach \
+    --interactive \
+    --tty \
+    --volume "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
+    --name "${CONTAINER_NAME}" \
+    --env RECORD_VIDEO="${RECORD_VIDEO}" \
+    --env TEST_CIVIC_ENTITY_SHORT_NAME="${TEST_CIVIC_ENTITY_SHORT_NAME}" \
+    --network "${DOCKER_NETWORK_NAME}" \
+    --entrypoint bash \
+    civiform-browser-test:latest
+fi
+
+# Run browser tests from within the civiform-browser-test container.
+docker exec \
+  --interactive \
+  --tty \
+  --env RECORD_VIDEO="${RECORD_VIDEO}" \
+  --env TEST_CIVIC_ENTITY_SHORT_NAME="${TEST_CIVIC_ENTITY_SHORT_NAME}" \
+  "${CONTAINER_NAME}" \
   /usr/src/civiform-browser-tests/bin/wait_for_server_start_and_run_tests.sh \
   "$@"
