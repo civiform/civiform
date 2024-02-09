@@ -485,7 +485,9 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedConfirmAddressUrl =
-        String.format("/programs/%d/blocks/%s/confirmAddress/%s", PROGRAM_ID, BLOCK_ID, inReview);
+        String.format(
+            "/programs/%d/blocks/%s/confirmAddress/%s/%s",
+            PROGRAM_ID, BLOCK_ID, inReview, applicantRequestedAction);
     assertThat(
             new ApplicantRoutes()
                 .confirmAddress(
@@ -521,8 +523,8 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     String expectedConfirmAddressUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%s/confirmAddress/%s",
-            APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReview);
+            "/applicants/%d/programs/%d/blocks/%s/confirmAddress/%s/%s",
+            APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReview, applicantRequestedAction);
     assertThat(
             new ApplicantRoutes()
                 .confirmAddress(
@@ -557,8 +559,8 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     String expectedConfirmAddressUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%s/confirmAddress/%s",
-            APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReview);
+            "/applicants/%d/programs/%d/blocks/%s/confirmAddress/%s/%s",
+            APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReview, applicantRequestedAction);
     assertThat(
             new ApplicantRoutes()
                 .confirmAddress(
