@@ -1589,6 +1589,10 @@ describe('Applicant navigation flow', () => {
       const {page, adminQuestions, adminPrograms, adminPredicates} = ctx
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
+      await enableFeatureFlag(
+        page,
+        'esri_address_service_area_validation_enabled',
+      )
 
       // Create Questions
       await adminQuestions.addAddressQuestion({
@@ -1673,7 +1677,6 @@ describe('Applicant navigation flow', () => {
 
     it('when address is eligible show hidden screen', async () => {
       const {page, applicantQuestions} = ctx
-      await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await applicantQuestions.applyProgram(programName)
 
       // Fill out application and submit.
@@ -1688,6 +1691,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.expectVerifyAddressPage(true)
       await applicantQuestions.clickNext()
+      // Screen 1 will only be visible when the address is validated as being eligible. This test case uses an valid address.
       await applicantQuestions.answerTextQuestion('answer 1')
       await applicantQuestions.clickNext()
       await applicantQuestions.answerTextQuestion('answer 2')
@@ -1704,7 +1708,6 @@ describe('Applicant navigation flow', () => {
 
     it('when address is not eligible do not show hidden screen', async () => {
       const {page, applicantQuestions} = ctx
-      await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await applicantQuestions.applyProgram(programName)
 
       // Fill out application and submit.
@@ -1719,6 +1722,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.expectVerifyAddressPage(false)
       await applicantQuestions.clickNext()
+      // Screen 1 will only be visible when the address is validated as being eligible. This test case uses an invalid address.
       await applicantQuestions.answerTextQuestion('answer 2')
       await applicantQuestions.clickNext()
 
