@@ -444,6 +444,22 @@ public class QuestionDefinitionTest {
   }
 
   @Test
+  public void validate_multiOptionQuestion_withDuplicateOptionsWithDifferentCase_returnsError() {
+    QuestionDefinitionConfig config = configBuilder.build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(
+                1L, "Parks_and_Recreation", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(
+                2L, "Parks_and_recreation", LocalizedStrings.withDefaultValue("a")));
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.CHECKBOX);
+    assertThat(question.validate())
+        .containsOnly(CiviFormError.of("Multi-option question options must be unique"));
+  }
+
+  @Test
   public void validate_multiOptionQuestion_withDuplicateOptionAdminNames_returnsError() {
     QuestionDefinitionConfig config = configBuilder.build();
     ImmutableList<QuestionOption> questionOptions =
@@ -525,6 +541,37 @@ public class QuestionDefinitionTest {
 
   @Test
   public void
+      validate_multiOptionQuestion_withValidOptionInPreviousDraftSameOptionWithDifferentCaseInNewOption_ReturnsError() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("test")
+            .setDescription("test")
+            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    ImmutableList<QuestionOption> previousQuestionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "OptionA", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "OptionB", LocalizedStrings.withDefaultValue("b")));
+    QuestionDefinition previousQuestion =
+        new MultiOptionQuestionDefinition(
+            config, previousQuestionOptions, MultiOptionQuestionType.CHECKBOX);
+
+    ImmutableList<QuestionOption> updatedQuestionOptions =
+        ImmutableList.<QuestionOption>builder()
+            .addAll(previousQuestionOptions)
+            .add(QuestionOption.create(2L, "optionA", LocalizedStrings.withDefaultValue("optiona")))
+            .build();
+    QuestionDefinition updatedQuestion =
+        new MultiOptionQuestionDefinition(
+            config, updatedQuestionOptions, MultiOptionQuestionType.CHECKBOX);
+
+    assertThat(updatedQuestion.validate(Optional.of(previousQuestion)))
+        .containsOnly(CiviFormError.of("Multi-option question admin names must be unique"));
+  }
+
+  @Test
+  public void
       validate_multiOptionQuestion_withInvalidOptionAdminNameInPreviousAndUpdatedDefinition_returnsError() {
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()
@@ -549,7 +596,6 @@ public class QuestionDefinitionTest {
     QuestionDefinition updatedQuestion =
         new MultiOptionQuestionDefinition(
             config, updatedQuestionOptions, MultiOptionQuestionType.CHECKBOX);
-
     assertThat(updatedQuestion.validate(Optional.of(previousQuestion)))
         .containsOnly(
             CiviFormError.of(
