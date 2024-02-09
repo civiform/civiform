@@ -147,8 +147,13 @@ public final class ProgramRepository {
    * <p>Draft program definition data must not be set in the cache.
    */
   public void setFullProgramDefinitionCache(long programId, ProgramDefinition programDefinition) {
-    if (settingsManifest.getQuestionCacheEnabled()) {
-      programDefCache.set(String.valueOf(programId), programDefinition);
+    if (settingsManifest.getQuestionCacheEnabled()
+        // We only set the cache if it hasn't yet been set for the ID.
+        && getFullProgramDefinitionFromCache(programId).isEmpty()) {
+      // We should never set the cache for draft programs.
+      if (!versionRepository.get().isDraftProgram(programId)) {
+        programDefCache.set(String.valueOf(programId), programDefinition);
+      }
     }
   }
 

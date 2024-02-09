@@ -112,10 +112,23 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void setFullProgramDefinitionFromCache_doesNotSetWhenDraft() {
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(true);
+    ProgramModel program = resourceCreator.insertDraftProgram("testDraftInCache");
+
+    repo.setFullProgramDefinitionCache(program.id, program.getProgramDefinition());
+    Optional<ProgramDefinition> programDefFromCache =
+        repo.getFullProgramDefinitionFromCache(program);
+
+    assertThat(programDefFromCache).isEmpty();
+  }
+
+  @Test
   public void getFullProgramDefinitionFromCache_getsFromCacheWhenPresent() {
     Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(true);
     ProgramModel program = resourceCreator.insertActiveProgram("testInCache");
     repo.setFullProgramDefinitionCache(program.id, program.getProgramDefinition());
+
     Optional<ProgramDefinition> programDefFromCache =
         repo.getFullProgramDefinitionFromCache(program);
 
@@ -126,8 +139,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void getFullProgramDefinitionFromCache_returnsEmptyOptionalWhenNotPresent() {
-    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(false);
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(true);
     ProgramModel program = resourceCreator.insertActiveProgram("testNotInCache");
+
     // We don't set the cache, but we try to get it here.
     Optional<ProgramDefinition> programDefFromCache =
         repo.getFullProgramDefinitionFromCache(program);
@@ -138,9 +152,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
   @Test
   public void getFullProgramDefinitionFromCache_returnsEmptyOptionalWhenCacheDisabled() {
     Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(false);
-
     ProgramModel program = resourceCreator.insertActiveProgram("testCacheDisabled");
     repo.setFullProgramDefinitionCache(program.id, program.getProgramDefinition());
+
     Optional<ProgramDefinition> programDefFromCache =
         repo.getFullProgramDefinitionFromCache(program);
 
