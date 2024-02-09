@@ -30,6 +30,12 @@ export enum PrimaryApplicantInfoField {
   APPLICANT_PHONE = 'primaryApplicantPhone',
 }
 
+export enum PrimaryApplicantInfoAlertType {
+  NON_UNIVERAL = "You cannot edit this setting since the question is not a universal question.",
+  ALREADY_SET = "You cannot edit this setting since this property is already set on a question named",
+  NON_UNIVERSAL_AND_ALREADY_SET = "You cannot edit this setting since the question is not a universal question and because this property is already set on a question named",
+}
+
 export enum QuestionType {
   ADDRESS = 'address',
   CHECKBOX = 'checkbox',
@@ -1230,12 +1236,11 @@ export class AdminQuestions {
     return this.page.inputValue(`#${fieldName}-toggle-input`)
   }
 
-  async expectPrimaryApplicantInfoUniversalAlertVisible(visible: boolean) {
-    expect(
-      await this.page
-        .locator('.cf-primary-applicant-info-universal-alert')
-        .isVisible(),
-    ).toEqual(visible)
+  async expectPrimaryApplicantInfoAlert(type: PrimaryApplicantInfoAlertType, visible: boolean) {
+    const alert = await this.page.locator('.cf-primary-applicant-info-alert')
+    const text = await this.page.locator('.cf-primary-applicant-info-alert .usa-alert__text')
+    expect(await alert.innerText()).toMatch(new RegExp(type.valueOf()))
+    expect(await alert.isVisible()).toEqual(visible)
   }
 
   async expectPrimaryApplicantInfoSectionVisible(visible: boolean) {
@@ -1260,14 +1265,6 @@ export class AdminQuestions {
     expect(await this.getPrimaryApplicantInfoToggleValue(fieldName)).toEqual(
       value.toString(),
     )
-  }
-
-  async expectPrimaryApplicantInfoAlreadySetAlertVisible(visible: boolean) {
-    expect(
-      await this.page
-        .locator('.cf-primary-applicant-info-tag-already-set-alert')
-        .isVisible(),
-    ).toEqual(visible)
   }
 
   async addIdQuestion({
