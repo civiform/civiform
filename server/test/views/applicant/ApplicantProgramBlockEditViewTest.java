@@ -1,14 +1,12 @@
 package views.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 import static views.questiontypes.ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_ERROR;
 import static views.questiontypes.ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD;
 import static views.questiontypes.ApplicantQuestionRendererParams.AutoFocusTarget.NONE;
 
 import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import repository.ResetPostgres;
@@ -21,20 +19,16 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
 
   private static QuestionDefinition ADDRESS_QD =
       testQuestionBank.applicantAddress().getQuestionDefinition();
-  private static SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-  private static ApplicantRoutes applicantRoutes = new ApplicantRoutes(mockSettingsManifest);
+  private static ApplicantRoutes applicantRoutes = new ApplicantRoutes();
 
   private static ApplicantProgramBlockEditView EMPTY_VIEW =
       new ApplicantProgramBlockEditView(
           Mockito.mock(ApplicantLayout.class),
           Mockito.mock(ApplicantFileUploadRenderer.class),
           Mockito.mock(ApplicantQuestionRendererFactory.class),
-          applicantRoutes);
-
-  @BeforeClass
-  public static void setupMock() {
-    when(mockSettingsManifest.getNewApplicantUrlSchemaEnabled()).thenReturn(true);
-  }
+          applicantRoutes,
+          new EditOrDiscardAnswersModalCreator(),
+          Mockito.mock(SettingsManifest.class));
 
   @Test
   public void
@@ -60,6 +54,19 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
                 /* ordinalErrorCount= */ 1,
                 /* applicantSelectedQuestionName= */ Optional.empty()))
         .isEqualTo(NONE);
+  }
+
+  @Test
+  public void
+      calculateAutoFocusTarget_formHasErrors_displayWithModalReview_shouldAutofocusFirstError() {
+    assertThat(
+            EMPTY_VIEW.calculateAutoFocusTarget(
+                ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW,
+                ADDRESS_QD,
+                /* formHasErrors */ true,
+                /* ordinalErrorCount= */ 1,
+                /* applicantSelectedQuestionName= */ Optional.empty()))
+        .isEqualTo(FIRST_ERROR);
   }
 
   @Test

@@ -217,7 +217,7 @@ public final class AdminApplicationController extends CiviFormController {
 
   /**
    * Parses a date from a raw query string (e.g. 2022-01-02) and returns an instant representing the
-   * start of that date in the time zone configured for the server deployment.
+   * start of that date in the UTC time zone.
    */
   private Optional<Instant> parseDateFromQuery(
       DateConverter dateConverter, Optional<String> maybeQueryParam) {
@@ -226,7 +226,7 @@ public final class AdminApplicationController extends CiviFormController {
         .map(
             s -> {
               try {
-                return dateConverter.parseIso8601DateToStartOfDateInstant(s);
+                return dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
               } catch (DateTimeParseException e) {
                 throw new BadRequestException("Malformed query param");
               }
@@ -270,7 +270,8 @@ public final class AdminApplicationController extends CiviFormController {
     }
     ApplicationModel application = applicationMaybe.get();
     PdfExporter.InMemoryPdf pdf =
-        pdfExporterService.generatePdf(application, /* showEligibilityText= */ true);
+        pdfExporterService.generatePdf(
+            application, /* showEligibilityText= */ true, /* includeHiddenBlocks= */ true);
     return ok(pdf.getByteArray())
         .as("application/pdf")
         .withHeader(

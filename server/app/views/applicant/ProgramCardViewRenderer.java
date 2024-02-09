@@ -299,7 +299,7 @@ public final class ProgramCardViewRenderer {
                 // The visual bar at the top of each program card.
                 div()
                     .withClasses(
-                        "block", "shrink-0", BaseStyles.BG_SEATTLE_BLUE, "rounded-t-xl", "h-3"));
+                        "block", "shrink-0", BaseStyles.BG_CIVIFORM_BLUE, "rounded-t-xl", "h-3"));
     programImage.ifPresent(cardListItem::with);
 
     return cardListItem.with(programData).with(actionDiv);
@@ -332,12 +332,12 @@ public final class ProgramCardViewRenderer {
         .with(
             Icons.svg(Icons.INFO)
                 // 4.5 is 18px as defined in tailwind.config.js
-                .withClasses("inline-block", "h-4.5", "w-4.5", BaseStyles.TEXT_SEATTLE_BLUE),
+                .withClasses("inline-block", "h-4.5", "w-4.5", BaseStyles.TEXT_CIVIFORM_BLUE),
             span(String.format(
                     "%s: %s",
                     messages.at(MessageKey.TITLE_STATUS.getKeyName()),
                     status.localizedStatusText().getOrDefault(preferredLocale)))
-                .withClasses("p-2", "text-xs", "font-medium", BaseStyles.TEXT_SEATTLE_BLUE));
+                .withClasses("p-2", "text-xs", "font-medium", BaseStyles.TEXT_CIVIFORM_BLUE));
   }
 
   private PTag eligibilityTag(

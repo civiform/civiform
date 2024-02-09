@@ -9,6 +9,7 @@ import static j2html.TagCreator.p;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import j2html.TagCreator;
 import j2html.tags.specialized.ButtonTag;
@@ -85,7 +86,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                     // can render the translated text if it gets added
                     .attr(
                         "data-upload-text",
-                        params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName())));
+                        params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName()))
+                    .attr("aria-live", "polite"));
     result.with(
         fileUploadViewStrategy.additionalFileUploadFormInputs(params.signedFileUploadRequest()));
     result.with(createFileInputFormElement(fileInputId, ariaDescribedByIds, hasErrors));
@@ -238,7 +240,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                 params.applicantId(),
                 params.programId(),
                 params.block().getId(),
-                params.inReview())
+                params.inReview(),
+                ApplicantRequestedAction.NEXT_BLOCK)
             .url();
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder()
@@ -307,9 +310,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     DivTag ret =
         div()
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-            // An empty div to take up the space to the left of the buttons.
-            .with(div().withClasses("flex-grow"))
-            .with(renderReviewButton(params))
+            // TODO(#6450): Use the new review button here.
+            .with(renderOldReviewButton(params))
             .with(renderPreviousButton(params));
     if (maybeSkipOrDeleteButton.isPresent()) {
       ret.with(maybeSkipOrDeleteButton.get());

@@ -90,7 +90,7 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
             .withClasses(
                 ReferenceClasses.RADIO_OPTION,
                 BaseStyles.CHECKBOX_LABEL,
-                isSelected ? BaseStyles.BORDER_SEATTLE_BLUE : "")
+                isSelected ? BaseStyles.BORDER_CIVIFORM_BLUE : "")
             .with(
                 input()
                     .withId(id)

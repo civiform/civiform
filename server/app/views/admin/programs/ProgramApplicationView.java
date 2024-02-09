@@ -117,27 +117,24 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .with(
                 h2("Program: " + programName).withClasses("my-4"),
                 div()
-                    .withClasses("flex", "items-center")
+                    .withClasses(
+                        "flex", "flex-wrap", "items-center", "my-4", "gap-2", "justify-between")
                     .with(
                         p(applicantNameWithApplicationId)
                             .withClasses(
-                                "my-4",
-                                "text-black",
-                                "text-2xl",
-                                "mb-2",
-                                ReferenceClasses.BT_APPLICATION_ID),
-                        // Spread out the items, so the following are right
-                        // aligned.
-                        p().withClasses("flex-grow"))
-                    // Status options if configured on the program.
-                    .condWith(
-                        !statusDefinitions.getStatuses().isEmpty(),
+                                "text-black", "text-2xl", ReferenceClasses.BT_APPLICATION_ID))
+                    .with(
                         div()
-                            .withClasses("flex", "mr-4", "space-x-2")
-                            .with(
-                                renderStatusOptionsSelector(application, statusDefinitions),
-                                updateNoteModal.getButton()))
-                    .with(renderDownloadButton(programId, application.id)))
+                            .withClasses("flex", "flex-wrap", "gap-2")
+                            // Status options if configured on the program.
+                            .condWith(
+                                !statusDefinitions.getStatuses().isEmpty(),
+                                div()
+                                    .withClasses("flex", "mr-4", "gap-2")
+                                    .with(
+                                        renderStatusOptionsSelector(application, statusDefinitions),
+                                        updateNoteModal.getButton()))
+                            .with(renderDownloadButton(programId, application.id))))
             .with(
                 p(renderSubmitTime(application))
                     .withClasses("text-xs", "text-gray-700", "mb-2", ReferenceClasses.BT_DATE))
@@ -270,15 +267,14 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withClasses(
                 "outline-none",
                 "px-3",
-                "py-1",
+                "py-2",
                 "ml-3",
-                "my-4",
                 "border",
                 "border-gray-500",
-                "rounded-full",
+                "rounded-lg",
                 "bg-white",
-                "text-xs",
-                StyleUtils.focus(BaseStyles.BORDER_SEATTLE_BLUE));
+                "text-lg",
+                StyleUtils.focus(BaseStyles.BORDER_CIVIFORM_BLUE));
 
     // Add the options available to the admin.
     // When no status is currently applied to the application, add a placeholder option that is

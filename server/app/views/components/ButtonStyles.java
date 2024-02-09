@@ -22,7 +22,7 @@ public final class ButtonStyles {
   private static final String BUTTON_BASE_SOLID_BLUE_SEMIBOLD =
       StyleUtils.joinStyles(
           BUTTON_BASE,
-          BaseStyles.BG_SEATTLE_BLUE,
+          BaseStyles.BG_CIVIFORM_BLUE,
           "border-transparent",
           "text-white",
           "rounded-full",
@@ -37,8 +37,8 @@ public final class ButtonStyles {
           "px-8",
           BUTTON_BASE,
           "bg-transparent",
-          BaseStyles.TEXT_SEATTLE_BLUE,
-          BaseStyles.BORDER_SEATTLE_BLUE,
+          BaseStyles.TEXT_CIVIFORM_BLUE,
+          BaseStyles.BORDER_CIVIFORM_BLUE,
           StyleUtils.hover("bg-blue-100"));
 
   // ---------------- CLIENT-FACING STYLES BELOW ----------------
@@ -86,7 +86,7 @@ public final class ButtonStyles {
           "border-none",
           "rounded-full",
           "bg-transparent",
-          BaseStyles.TEXT_SEATTLE_BLUE,
+          BaseStyles.TEXT_CIVIFORM_BLUE,
           StyleUtils.hover("bg-gray-200"));
 
   // Just like CLEAR_WITH_ICON, but in dropdowns we want to remove the rounded corners.

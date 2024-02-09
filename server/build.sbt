@@ -23,7 +23,7 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // JSON libraries
-      "com.jayway.jsonpath" % "json-path" % "2.8.0",
+      "com.jayway.jsonpath" % "json-path" % "2.9.0",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.16.1",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.16.1",
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.16.1",
@@ -36,11 +36,11 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20180219.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.22.11",
-      "software.amazon.awssdk" % "ses" % "2.22.12",
+      "software.amazon.awssdk" % "s3" % "2.23.19",
+      "software.amazon.awssdk" % "ses" % "2.23.19",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.11.1",
+      "com.azure" % "azure-identity" % "1.11.2",
       "com.azure" % "azure-storage-blob" % "12.25.1",
 
       // Database and database testing libraries
@@ -54,12 +54,12 @@ lazy val root = (project in file("."))
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
-      "org.assertj" % "assertj-core" % "3.25.1" % Test,
+      "org.assertj" % "assertj-core" % "3.25.3" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
-      "org.assertj" % "assertj-core" % "3.25.1" % Test,
+      "org.assertj" % "assertj-core" % "3.25.3" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "32.1.3-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.0.0-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
@@ -94,7 +94,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.27",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.29",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.6",

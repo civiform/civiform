@@ -4,16 +4,22 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
+import static j2html.TagCreator.legend;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.link;
+import static j2html.TagCreator.option;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.script;
+import static j2html.TagCreator.select;
 import static j2html.TagCreator.span;
+import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
 
 import com.google.common.base.Joiner;
@@ -24,6 +30,7 @@ import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.PTag;
@@ -54,7 +61,7 @@ public final class ViewUtils {
 
   /**
    * Generates an HTML script tag for loading the Azure Blob Storage client library from the
-   * jsdelivr.net CDN. TOOD(https://github.com/seattle-uat/civiform/issues/2349): Stop using this.
+   * jsdelivr.net CDN. TODO(#2349): Stop using this.
    */
   public ScriptTag makeAzureBlobStoreScriptTag() {
     return script()
@@ -469,5 +476,143 @@ public final class ViewUtils {
             .with(modalContent);
 
     return linkDiv;
+  }
+
+  /**
+   * Creates a USWDS Memorable Date component. This is to be used in place of a date picker anytime
+   * that the date is well-defined, such as a date of birth.
+   * https://designsystem.digital.gov/components/memorable-date/
+   *
+   * @param dayValue The default value which should appear in the "Day" input field
+   * @param monthValue The default option which should be selected in the "Month" dropdown
+   * @param yearValue The default value which should appear in the "Year" input field
+   * @param legend The label string for the date fields
+   * @param showError Whether an error message should appear
+   * @return ContainerTag
+   */
+  public static FieldsetTag makeMemorableDate(
+      String dayValue, String monthValue, String yearValue, String legend, boolean showError) {
+    FieldsetTag dateFieldset =
+        fieldset()
+            .withClass("usa-fieldset")
+            .with(
+                legend(legend).withClass("usa-legend"),
+                span("For example: January 28 1986").withClass("usa-hint").withId("mdHint"),
+                div()
+                    .condWith(showError, span("Error: Please enter month, day and year."))
+                    .withClasses("text-red-600 text-xs")
+                    .withId("memorable_date_error"),
+                div()
+                    .withClass("usa-memorable-date")
+                    .with(
+                        getSelectFormGroup(monthValue, showError && monthValue.isEmpty()),
+                        getDayFormGroup(dayValue, showError && dayValue.isEmpty()),
+                        getYearFormGroup(yearValue, showError && yearValue.isEmpty())));
+
+    return dateFieldset;
+  }
+
+  /* Helper function for the Memorable Date */
+  private static DivTag getDayFormGroup(String value, boolean hasError) {
+    return div()
+        .withClass("usa-form-group usa-form-group--day")
+        .with(
+            label("Day").withClass("usa-label").withFor("date_of_birth_day"),
+            input()
+                .withClass("usa-input")
+                .withCondClass(hasError, "usa-input--error mt-2.5")
+                .withId("date_of_birth_day")
+                .withName("dayQuery")
+                .attr("aria-describedby", "mdHint")
+                .attr("inputmode", "numeric")
+                .withMaxlength("2")
+                .withPattern("[0-9]*")
+                .withValue(value));
+  }
+
+  /* Helper function for the Memorable Date */
+  private static DivTag getYearFormGroup(String value, boolean hasError) {
+    return div()
+        .withClass("usa-form-group usa-form-group--year")
+        .with(
+            label("Year").withClass("usa-label").withFor("date_of_birth_year"),
+            input()
+                .withClass("usa-input")
+                .withCondClass(hasError, "usa-input--error mt-2.5")
+                .withId("date_of_birth_year")
+                .withName("yearQuery")
+                .attr("aria-describedby", "mdHint")
+                .attr("minlength", "4")
+                .attr("inputmode", "numeric")
+                .withMaxlength("4")
+                .withPattern("[0-9]*")
+                .withValue(value));
+  }
+
+  /* Helper function for the Memorable Date */
+  private static DivTag getSelectFormGroup(String monthValue, boolean hasError) {
+    return div()
+        .withClass("usa-form-group usa-form-group--month usa-form-group--select")
+        .with(
+            label("Month").withClass("usa-label").withFor("date_of_birth_month"),
+            select()
+                .withClass("usa-select")
+                .withCondClass(hasError, "usa-input--error mt-2.5 py-1")
+                .withId("date_of_birth_month")
+                .withName("monthQuery")
+                .attr("aria-describedby", "mdHint")
+                .with(
+                    option()
+                        .withValue("")
+                        .withText("- Select -")
+                        .withCondSelected(monthValue.equals("")),
+                    option()
+                        .withValue("01")
+                        .withText("01 - January")
+                        .withCondSelected(monthValue.equals("01")),
+                    option()
+                        .withValue("02")
+                        .withText("02 - February")
+                        .withCondSelected(monthValue.equals("02")),
+                    option()
+                        .withValue("03")
+                        .withText("03 - March")
+                        .withCondSelected(monthValue.equals("03")),
+                    option()
+                        .withValue("04")
+                        .withText("04 - April")
+                        .withCondSelected(monthValue.equals("04")),
+                    option()
+                        .withValue("05")
+                        .withText("05 - May")
+                        .withCondSelected(monthValue.equals("05")),
+                    option()
+                        .withValue("06")
+                        .withText("06 - June")
+                        .withCondSelected(monthValue.equals("06")),
+                    option()
+                        .withValue("07")
+                        .withText("07 - July")
+                        .withCondSelected(monthValue.equals("07")),
+                    option()
+                        .withValue("08")
+                        .withText("08 - August")
+                        .withCondSelected(monthValue.equals("08")),
+                    option()
+                        .withValue("09")
+                        .withText("09 - September")
+                        .withCondSelected(monthValue.equals("09")),
+                    option()
+                        .withValue("10")
+                        .withText("10 - October")
+                        .withCondSelected(monthValue.equals("10")),
+                    option()
+                        .withValue("11")
+                        .withText("11 - November")
+                        .withCondSelected(monthValue.equals("11")),
+                    option()
+                        .withValue("12")
+                        .withText("12 - December")
+                        .withCondSelected(monthValue.equals("12"))));
   }
 }

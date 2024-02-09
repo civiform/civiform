@@ -1,6 +1,6 @@
 import {Page} from 'playwright'
 import {readFileSync} from 'fs'
-import {waitForPageJsLoad} from './wait'
+import {waitForAnyModal, waitForPageJsLoad} from './wait'
 import {BASE_URL} from './config'
 
 export class ApplicantQuestions {
@@ -278,7 +278,7 @@ export class ApplicantQuestions {
 
   async expectCommonIntakeForm(commonIntakeFormName: string) {
     const commonIntakeFormSectionNames =
-      await this.programNamesForSection('Find services')
+      await this.programNamesForSection('Get Started')
     expect(commonIntakeFormSectionNames).toEqual([commonIntakeFormName])
   }
 
@@ -419,11 +419,11 @@ export class ApplicantQuestions {
   ) {
     if (wantTrustedIntermediary) {
       expect(await this.page.innerText('h1')).toContain(
-        'Benefits your client may qualify for',
+        'Programs your client may qualify for',
       )
     } else {
       expect(await this.page.innerText('h1')).toContain(
-        'Benefits you may qualify for',
+        'Programs you may qualify for',
       )
     }
 
@@ -495,7 +495,7 @@ export class ApplicantQuestions {
     expect(await this.page.innerText('legend')).toContain('With Correction')
   }
 
-  async expectAddressHasBeenCorrected(
+  async expectQuestionAnsweredOnReviewPage(
     questionText: string,
     answerText: string,
   ) {
@@ -554,5 +554,24 @@ export class ApplicantQuestions {
 
   async seeStaticQuestion(questionText: string) {
     expect(await this.page.textContent('html')).toContain(questionText)
+  }
+
+  async expectErrorOnReviewModal() {
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain(
+      `Questions on this page are not complete`,
+    )
+    expect(await modal.innerText()).toContain(
+      `Go to review page without saving`,
+    )
+    expect(await modal.innerText()).toContain(`Go back and fix`)
+  }
+
+  async clickReviewWithoutSaving() {
+    await this.page.click('button:has-text("Go to review page without saving")')
+  }
+
+  async clickGoBackAndEdit() {
+    await this.page.click('button:has-text("Go back and fix")')
   }
 }

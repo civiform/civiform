@@ -323,13 +323,22 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         requestBuilderWithSettings(
                 routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    badApplicantId, program.id, /* blockId= */ "1", /* inReview= */ false))
+                    badApplicantId,
+                    program.id,
+                    /* blockId= */ "1",
+                    /* inReview= */ false,
+                    new ApplicantRequestedActionWrapper()))
             .build();
 
     Result result =
         subject
             .updateWithApplicantId(
-                request, badApplicantId, program.id, /* blockId= */ "1", /* inReview= */ false)
+                request,
+                badApplicantId,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -348,7 +357,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                        applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)))
+                        applicant.id,
+                        program.id,
+                        /* blockId= */ "1",
+                        /* inReview= */ false,
+                        new ApplicantRequestedActionWrapper())))
             .build();
     Result result =
         subject
@@ -374,7 +387,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                        applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)))
+                        applicant.id,
+                        program.id,
+                        /* blockId= */ "1",
+                        /* inReview= */ false,
+                        new ApplicantRequestedActionWrapper())))
             .build();
     Result result =
         subject
@@ -394,7 +411,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                        applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)))
+                        applicant.id,
+                        program.id,
+                        /* blockId= */ "1",
+                        /* inReview= */ false,
+                        new ApplicantRequestedActionWrapper())))
             .build();
     Result result =
         subject
@@ -416,13 +437,22 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         requestBuilderWithSettings(
                 routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id, badProgramId, /* blockId= */ "1", /* inReview= */ false))
+                    applicant.id,
+                    badProgramId,
+                    /* blockId= */ "1",
+                    /* inReview= */ false,
+                    new ApplicantRequestedActionWrapper()))
             .build();
 
     Result result =
         subject
             .updateWithApplicantId(
-                request, applicant.id, badProgramId, /* blockId= */ "1", /* inReview= */ false)
+                request,
+                applicant.id,
+                badProgramId,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -435,13 +465,22 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         requestBuilderWithSettings(
                 routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id, program.id, badBlockId, /* inReview= */ false))
+                    applicant.id,
+                    program.id,
+                    badBlockId,
+                    /* inReview= */ false,
+                    new ApplicantRequestedActionWrapper()))
             .build();
 
     Result result =
         subject
             .updateWithApplicantId(
-                request, applicant.id, program.id, badBlockId, /* inReview= */ false)
+                request,
+                applicant.id,
+                program.id,
+                badBlockId,
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -453,14 +492,23 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         requestBuilderWithSettings(
                 routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false))
+                    applicant.id,
+                    program.id,
+                    /* blockId= */ "1",
+                    /* inReview= */ false,
+                    new ApplicantRequestedActionWrapper()))
             .bodyForm(ImmutableMap.of("fake.path", "value"))
             .build();
 
     Result result =
         subject
             .updateWithApplicantId(
-                request, applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -473,14 +521,23 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         requestBuilderWithSettings(
                 routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false))
+                    applicant.id,
+                    program.id,
+                    /* blockId= */ "1",
+                    /* inReview= */ false,
+                    new ApplicantRequestedActionWrapper()))
             .bodyForm(ImmutableMap.of(reservedPath, "value"))
             .build();
 
     Result result =
         subject
             .updateWithApplicantId(
-                request, applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -493,7 +550,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                         routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                            applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false))
+                            applicant.id,
+                            program.id,
+                            /* blockId= */ "1",
+                            /* inReview= */ false,
+                            new ApplicantRequestedActionWrapper()))
                     .bodyForm(
                         ImmutableMap.of(
                             Path.create("applicant.applicant_name")
@@ -509,7 +570,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Result result =
         subject
             .updateWithApplicantId(
-                request, applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -519,7 +585,48 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void update_withNextBlock_redirectsToEdit() {
+  public void update_withValidationErrors_requestedActionReview_staysOnBlockAndShowsErrors() {
+    Request request =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                            applicant.id,
+                            program.id,
+                            /* blockId= */ "1",
+                            /* inReview= */ false,
+                            new ApplicantRequestedActionWrapper(
+                                ApplicantRequestedAction.REVIEW_PAGE)))
+                    .bodyForm(
+                        ImmutableMap.of(
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.FIRST_NAME)
+                                .toString(),
+                            "FirstName",
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.LAST_NAME)
+                                .toString(),
+                            "")))
+            .build();
+
+    Result result =
+        subject
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE))
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("FirstName");
+    assertThat(contentAsString(result)).contains("Please enter your last name.");
+  }
+
+  @Test
+  public void update_withNextBlock_requestedActionNext_redirectsToEditNextBlock() {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
@@ -530,7 +637,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         requestBuilderWithSettings(
                 routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false))
+                    applicant.id,
+                    program.id,
+                    /* blockId= */ "1",
+                    /* inReview= */ false,
+                    new ApplicantRequestedActionWrapper(ApplicantRequestedAction.NEXT_BLOCK)))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -542,7 +653,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Result result =
         subject
             .updateWithApplicantId(
-                request, applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper(ApplicantRequestedAction.NEXT_BLOCK))
             .toCompletableFuture()
             .join();
 
@@ -552,6 +668,87 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 program.id, /* blockId= */ "2", /* questionName= */ Optional.empty())
             .url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
+  }
+
+  @Test
+  public void update_withNextBlock_requestedActionReview_redirectsToReview() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withBlock("block 2")
+            .withRequiredQuestion(testQuestionBank().applicantAddress())
+            .build();
+    Request request =
+        requestBuilderWithSettings(
+                routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                    applicant.id,
+                    program.id,
+                    /* blockId= */ "1",
+                    /* inReview= */ false,
+                    new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE)))
+            .bodyForm(
+                ImmutableMap.of(
+                    Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
+                    "FirstName",
+                    Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
+                    "LastName"))
+            .build();
+
+    Result result =
+        subject
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE))
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    String reviewRoute = routes.ApplicantProgramReviewController.review(program.id).url();
+    assertThat(result.redirectLocation()).hasValue(reviewRoute);
+  }
+
+  @Test
+  public void update_requestedActionReview_answersSaved() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+    Request request =
+        requestBuilderWithSettings(
+                routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                    applicant.id,
+                    program.id,
+                    /* blockId= */ "1",
+                    /* inReview= */ false,
+                    new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE)))
+            .bodyForm(
+                ImmutableMap.of(
+                    Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
+                    "FakeFirstNameHere",
+                    Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
+                    "FakeLastNameHere"))
+            .build();
+
+    subject
+        .updateWithApplicantId(
+            request,
+            applicant.id,
+            program.id,
+            /* blockId= */ "1",
+            /* inReview= */ false,
+            new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE))
+        .toCompletableFuture()
+        .join();
+
+    applicant.refresh();
+    assertThat(applicant.getApplicantData().asJsonString()).contains("FakeFirstNameHere");
+    assertThat(applicant.getApplicantData().asJsonString()).contains("FakeLastNameHere");
   }
 
   @Test
@@ -565,7 +762,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                         routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                            applicant.id, program.id, "1", false))
+                            applicant.id,
+                            program.id,
+                            "1",
+                            false,
+                            new ApplicantRequestedActionWrapper()))
                     .session("ESRI_ADDRESS_CORRECTION_ENABLED", "true")
                     .bodyForm(
                         ImmutableMap.of(
@@ -589,7 +790,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Result result =
         subject
             .updateWithApplicantId(
-                request, applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -615,7 +821,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         requestBuilderWithSettings(
                 routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false))
+                    applicant.id,
+                    program.id,
+                    /* blockId= */ "1",
+                    /* inReview= */ false,
+                    new ApplicantRequestedActionWrapper()))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -627,7 +837,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Result result =
         subject
             .updateWithApplicantId(
-                request, applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 

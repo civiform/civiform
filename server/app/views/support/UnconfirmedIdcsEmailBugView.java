@@ -6,6 +6,8 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
 
 import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
@@ -14,6 +16,7 @@ import views.applicant.ApplicantLayout;
 import views.style.BaseStyles;
 
 public class UnconfirmedIdcsEmailBugView extends BaseHtmlView {
+  private static final Logger logger = LoggerFactory.getLogger(UnconfirmedIdcsEmailBugView.class);
 
   private final ApplicantLayout applicantLayout;
 
@@ -23,6 +26,8 @@ public class UnconfirmedIdcsEmailBugView extends BaseHtmlView {
   }
 
   public Content render(Http.Request request) {
+    logger.warn("Call make to UnconfirmedIdcsEmailBugView, a Seattle specific error page.");
+
     HtmlBundle bundle = applicantLayout.getBundle(request);
 
     bundle.setTitle("Please contact support");

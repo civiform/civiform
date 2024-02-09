@@ -203,9 +203,9 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     ProgramModel programOne = createDraftProgram("first");
     ProgramModel programTwo = createDraftProgram("second");
 
-    Instant yesterday = dateConverter.parseIso8601DateToStartOfDateInstant("2022-01-02");
-    Instant today = dateConverter.parseIso8601DateToStartOfDateInstant("2022-01-03");
-    Instant tomorrow = dateConverter.parseIso8601DateToStartOfDateInstant("2022-01-04");
+    Instant yesterday = dateConverter.parseIso8601DateToStartOfLocalDateInstant("2022-01-02");
+    Instant today = dateConverter.parseIso8601DateToStartOfLocalDateInstant("2022-01-03");
+    Instant tomorrow = dateConverter.parseIso8601DateToStartOfLocalDateInstant("2022-01-04");
 
     // Create applications at each instant in each program.
     ApplicationModel programOneYesterday = createSubmittedAppAtInstant(programOne, yesterday);

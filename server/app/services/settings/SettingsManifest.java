@@ -853,13 +853,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables populating more fields in OIDC logout requests to admin identity provider. */
-  public boolean getAdminOidcEnhancedLogoutEnabled(RequestHeader request) {
-    return getBool("ADMIN_OIDC_ENHANCED_LOGOUT_ENABLED", request);
+  public boolean getAdminOidcEnhancedLogoutEnabled() {
+    return getBool("ADMIN_OIDC_ENHANCED_LOGOUT_ENABLED");
   }
 
   /** Enables populating more fields in OIDC logout requests to applicant identity provider. */
-  public boolean getApplicantOidcEnhancedLogoutEnabled(RequestHeader request) {
-    return getBool("APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED", request);
+  public boolean getApplicantOidcEnhancedLogoutEnabled() {
+    return getBool("APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED");
   }
 
   /**
@@ -895,9 +895,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE", request);
   }
 
-  /** Enables new URL schema that removes applicant ID from applicant actions. */
-  public boolean getNewApplicantUrlSchemaEnabled() {
-    return getBool("NEW_APPLICANT_URL_SCHEMA_ENABLED");
+  /**
+   * (NOT FOR PRODUCTION USE) Save an applicant's answers when they take any action
+   * ('Review'/'Previous'/'Save and next') instead of only saving on 'Save and next'.
+   */
+  public boolean getSaveOnAllActions(RequestHeader request) {
+    return getBool("SAVE_ON_ALL_ACTIONS", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -1825,14 +1828,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " provider.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED",
                       "Enables populating more fields in OIDC logout requests to applicant identity"
                           + " provider.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "APPLICANT_INFO_QUESTIONS",
                       "Enables setting and displaying whether the answer to a universal question"
@@ -1864,11 +1867,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "NEW_APPLICANT_URL_SCHEMA_ENABLED",
-                      "Enables new URL schema that removes applicant ID from applicant actions.",
+                      "SAVE_ON_ALL_ACTIONS",
+                      "(NOT FOR PRODUCTION USE) Save an applicant's answers when they take any"
+                          + " action ('Review'/'Previous'/'Save and next') instead of only saving"
+                          + " on 'Save and next'.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.HIDDEN))),
+                      SettingMode.ADMIN_WRITEABLE))),
           "Miscellaneous",
           SettingsSection.create(
               "Miscellaneous",

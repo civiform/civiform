@@ -71,7 +71,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       Optional<ToastMessage> bannerMessage,
       CiviFormProfile profile) {
     HtmlBundle bundle = layout.getBundle(request);
-    bundle.setTitle(messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()));
+    bundle.setTitle(messages.at(MessageKey.CONTENT_FIND_PROGRAMS.getKeyName()));
     bannerMessage.ifPresent(bundle::addToastMessages);
 
     String sessionEndedMessage = messages.at(MessageKey.TOAST_SESSION_ENDED.getKeyName());
@@ -102,14 +102,14 @@ public final class ProgramIndexView extends BaseHtmlView {
     String h1Text, infoDivText, widthClass;
 
     if (personalInfo.getType() == GUEST) {
-      // "Save time when applying for benefits"
+      // "Save time finding and applying for programs and services"
       h1Text = messages.at(MessageKey.CONTENT_SAVE_TIME.getKeyName());
       infoDivText =
           messages.at(MessageKey.CONTENT_GUEST_DESCRIPTION.getKeyName(), authProviderName);
       widthClass = "w-8/12";
     } else { // Logged in.
-      // "Get benefits"
-      h1Text = messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName());
+      // "Find programs"
+      h1Text = messages.at(MessageKey.CONTENT_FIND_PROGRAMS.getKeyName());
       infoDivText =
           messages.at(
               MessageKey.CONTENT_CIVIFORM_DESCRIPTION.getKeyName(),
