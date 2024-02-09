@@ -1712,17 +1712,16 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                             Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(),
                             "02111")))
             .build();
-    Result result =
-        subject
-            .updateWithApplicantId(
-                answerAddressQuestionRequest,
-                applicant.id,
-                program.id,
-                /* blockId= */ "1",
-                /* inReview= */ false,
-                new ApplicantRequestedActionWrapper())
-            .toCompletableFuture()
-            .join();
+    subject
+        .updateWithApplicantId(
+            answerAddressQuestionRequest,
+            applicant.id,
+            program.id,
+            /* blockId= */ "1",
+            /* inReview= */ false,
+            new ApplicantRequestedActionWrapper())
+        .toCompletableFuture()
+        .join();
 
     // Then, choose the original address during address correction
     Request confirmAddressRequest =
