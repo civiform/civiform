@@ -29,8 +29,8 @@ public class StaticContentQuestionRenderer implements ApplicantQuestionRenderer 
             .with(
                 TextFormatter.formatText(
                     question.getQuestionText(),
-                    /*preserveEmptyLines= */ true,
-                    /*addRequiredIndicator= */ false));
+                    /* preserveEmptyLines= */ true,
+                    /* addRequiredIndicator= */ false));
     return div()
         .withId(question.getContextualizedPath().toString())
         .withClasses("mx-auto", "mb-8", this.getReferenceClass())

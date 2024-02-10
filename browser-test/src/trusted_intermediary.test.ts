@@ -147,18 +147,21 @@ describe('Trusted intermediaries', () => {
       lastName: 'last',
       dobDate: '2021-06-10',
     }
+    const phoneNumber: string = '4256007121'
+    const notes: string = 'Housing Assistance'
     await tiDashboard.createClient(client)
     await waitForPageJsLoad(page)
-    await tiDashboard.updateClientTiNoteAndPhone(
-      client,
-      'Housing Assistance',
-      '4256007121',
-    )
+    await tiDashboard.updateClientTiNoteAndPhone(client, notes, phoneNumber)
     await waitForPageJsLoad(page)
-    await tiDashboard.expectClientContainsTiNoteAndPhone(
+    await tiDashboard.expectDashboardClientContainsTiNoteAndFormattedPhone(
       client,
-      'Housing Assistance',
-      '4256007121',
+      notes,
+      '(425) 600-7121',
+    )
+    await tiDashboard.expectEditFormContainsTiNoteAndPhone(
+      client,
+      notes,
+      phoneNumber,
     )
     await validateScreenshot(page, 'edit-client-information-with-all-fields')
   })
@@ -180,12 +183,12 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.updateClientEmailAddress(client, '')
     await waitForPageJsLoad(page)
 
-    const row = page.locator(
-      `.cf-admin-question-table-row:has-text("${client.lastName}, ${client.firstName}")`,
+    const card = page.locator(
+      `.usa-card__container:has-text("${client.lastName}, ${client.firstName}")`,
     )
-    const rowText = await row.innerText()
-    expect(rowText).toContain('(no email address)')
-    expect(rowText).toContain(client.dobDate)
+    const cardText = await card.innerText()
+    expect(cardText).not.toContain('test@sample.com')
+    expect(cardText).toContain(client.dobDate)
   })
 
   it('expect back button to land in dashboard in the edit client page', async () => {
@@ -203,7 +206,7 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.createClient(client)
     await waitForPageJsLoad(page)
     await page
-      .getByRole('row')
+      .getByRole('listitem')
       .filter({hasText: client.emailAddress})
       .getByText('Edit')
       .click()
@@ -230,7 +233,7 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.createClient(client)
     await waitForPageJsLoad(page)
     await page
-      .getByRole('row')
+      .getByRole('listitem')
       .filter({hasText: client.emailAddress})
       .getByText('Edit')
       .click()
@@ -262,7 +265,7 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.createClient(client)
     await waitForPageJsLoad(page)
     await page
-      .getByRole('row')
+      .getByRole('listitem')
       .filter({hasText: client.emailAddress})
       .getByText('Edit')
       .click()
