@@ -244,7 +244,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         inReview,
         selectedAddress,
         suggestions,
-        applicantRequestedActionWrapper.getAction());
+        applicantRequestedActionWrapper.getAction(),
+        // The #confirmAddress route is only triggered from the address correction page.
+        /* onAddressCorrectionPage= */ true);
   }
 
   /** Handles the applicant's selection from the address correction options. */
@@ -279,7 +281,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       Optional<String> selectedAddress,
       ImmutableList<AddressSuggestion> suggestions,
-      ApplicantRequestedAction applicantRequestedAction) {
+      ApplicantRequestedAction applicantRequestedAction,
+      boolean onAddressCorrectionPage) {
     CompletableFuture<ApplicantPersonalInfo> applicantStage =
         applicantService.getPersonalInfo(applicantId).toCompletableFuture();
 
@@ -313,7 +316,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicantStage.join(),
                   inReview,
                   applicantRequestedAction,
-                  /* onAddressCorrectionPage= */ true,
+                  onAddressCorrectionPage,
                   roApplicantProgramService);
             },
             httpExecutionContext.current())
@@ -831,6 +834,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK) {
+      System.out.println(
+          "requested action previous, on address correction=" + onAddressCorrectionPage);
       int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
       if (onAddressCorrectionPage) {
         // The address correction view is a bit tricky. The address correction view appears after a
@@ -923,7 +928,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           inReview,
           Optional.of(suggestionMatch[0].getSingleLineAddress()),
           suggestions,
-          applicantRequestedAction);
+          applicantRequestedAction,
+          // At this point, the applicant is on the block page *not* the address correction page.
+          // And, we've found a perfect suggestion match so the applicant won't even see the
+          // address correction page.
+          /* onAddressCorrectionPage= */ false);
     } else {
       String json = addressSuggestionJsonSerializer.serialize(suggestions);
 

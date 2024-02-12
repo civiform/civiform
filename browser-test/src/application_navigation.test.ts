@@ -1928,6 +1928,35 @@ describe('Applicant navigation flow', () => {
           )
           await logout(page)
         })
+
+        it('clicking previous saves address and goes to previous block if the user enters an address that exactly matches suggestions', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await enableFeatureFlag(page, 'save_on_all_actions')
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+          // Fill out application with address that is contained in findAddressCandidates.json
+          // (the list of suggestions returned from FakeEsriClient.fetchAddressSuggestions())
+          await applicantQuestions.answerAddressQuestion(
+            'Address In Area',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+
+          await applicantQuestions.clickPrevious()
+
+          // Because the address block is the first block in the program,
+          // clicking previous should take the applicant to the review page
+          await applicantQuestions.expectReviewPage()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            addressWithCorrectionText,
+            'Address In Area',
+          )
+
+          await logout(page)
+        })
       })
 
       describe('review button', () => {
