@@ -39,7 +39,7 @@ public enum PrimaryApplicantInfoTag {
       QuestionType.PHONE,
       "primaryApplicantPhone",
       "Set answer as applicant phone number",
-      "If this is turned on, admins can search for an application by this collected phone number.");
+      "If this is turned on, admins can search for an application by this phone number.");
 
   private final QuestionTag tag;
   private final QuestionType type;
