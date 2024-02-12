@@ -519,7 +519,7 @@ public final class QuestionEditView extends BaseHtmlView {
                                 initialAlertText,
                                 /* hidden= */ false,
                                 /* classes...= */ "cf-primary-applicant-info-alert",
-                                "usa-alert-primary-applicant-info"))
+                                "usa-alert-remove-top-margin"))
                         .withData("already-set-alert", alreadySetAlertText)
                         .withData(
                             "non-universal-already-set-alert", nonUniversalAlreadySetAlertText);
@@ -548,8 +548,7 @@ public final class QuestionEditView extends BaseHtmlView {
                                     + " question.",
                                 /* hidden= */ questionForm.isUniversal(),
                                 /* classes...= */ "cf-primary-applicant-info-alert",
-                                // This removes the top 1rem margin built in to the USWDS component
-                                "usa-alert-primary-applicant-info"));
+                                "usa-alert-remove-top-margin"));
               }
               result.with(tagSubsection);
             });
