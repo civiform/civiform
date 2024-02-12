@@ -291,20 +291,20 @@ public abstract class QuestionDefinition {
 
       var existingAdminNames =
           previousDefinition
-              .map(qd -> (MultiOptionQuestionDefinition) qd)
               .map(
-                  result -> {
+                  qd -> {
                     ImmutableList<String> optionList =
-                        multiOptionQuestionDefinition.getOptionAdminNames();
+                        ((MultiOptionQuestionDefinition) qd).getOptionAdminNames();
                     return optionList.stream()
                         .map(e -> e.toLowerCase(Locale.ROOT))
                         .collect(Collectors.toUnmodifiableList());
                   })
               .orElse(ImmutableList.of());
+
       if (multiOptionQuestionDefinition.getOptionAdminNames().stream()
           // This is O(n^2) but the list is small and it's simpler than creating a Set
           .filter(n -> !existingAdminNames.contains(n.toLowerCase(Locale.ROOT)))
-          .anyMatch(s -> !s.matches("[0-9a-z_-]+"))) {
+          .anyMatch(s -> !s.matches("[0-9a-zA-Z_-]+"))) {
         errors.add(
             CiviFormError.of(
                 "Multi-option admin names can only contain letters, numbers, underscores, and"
@@ -319,7 +319,7 @@ public abstract class QuestionDefinition {
       long numUniqueOptionDefaultValues =
           multiOptionQuestionDefinition.getOptions().stream()
               .map(QuestionOption::optionText)
-              .map(LocalizedStrings::getDefault)
+              .map(e -> e.getDefault().toLowerCase(Locale.ROOT))
               .distinct()
               .count();
       if (numUniqueOptionDefaultValues != numOptions) {
@@ -329,6 +329,7 @@ public abstract class QuestionDefinition {
       long numUniqueOptionAdminNames =
           multiOptionQuestionDefinition.getOptions().stream()
               .map(QuestionOption::adminName)
+              .map(e -> e.toLowerCase(Locale.ROOT))
               .distinct()
               .count();
       if (numUniqueOptionAdminNames != numOptions) {

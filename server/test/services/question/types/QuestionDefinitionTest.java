@@ -449,14 +449,14 @@ public class QuestionDefinitionTest {
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
             QuestionOption.create(
-                1L, "Parks_and_Recreation", LocalizedStrings.withDefaultValue("a")),
+                1L, "Parks_and_Recreation", LocalizedStrings.withDefaultValue("a1")),
             QuestionOption.create(
-                2L, "Parks_and_recreation", LocalizedStrings.withDefaultValue("a")));
+                2L, "Parks_and_recreation", LocalizedStrings.withDefaultValue("a2")));
     QuestionDefinition question =
         new MultiOptionQuestionDefinition(
             config, questionOptions, MultiOptionQuestionType.CHECKBOX);
     assertThat(question.validate())
-        .containsOnly(CiviFormError.of("Multi-option question options must be unique"));
+        .contains(CiviFormError.of("Multi-option question admin names must be unique"));
   }
 
   @Test
@@ -541,7 +541,7 @@ public class QuestionDefinitionTest {
 
   @Test
   public void
-      validate_multiOptionQuestion_withValidOptionInPreviousDraftSameOptionWithDifferentCaseInNewOption_ReturnsError() {
+      validate_multiOptionQuestion_withValidOptionAdminNameInPreviousAndDuplicateNameInUpdate_returnsError() {
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()
             .setName("test")
@@ -551,8 +551,8 @@ public class QuestionDefinitionTest {
             .build();
     ImmutableList<QuestionOption> previousQuestionOptions =
         ImmutableList.of(
-            QuestionOption.create(1L, "OptionA", LocalizedStrings.withDefaultValue("a")),
-            QuestionOption.create(2L, "OptionB", LocalizedStrings.withDefaultValue("b")));
+            QuestionOption.create(1L, "a_valid", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "b_valid", LocalizedStrings.withDefaultValue("b")));
     QuestionDefinition previousQuestion =
         new MultiOptionQuestionDefinition(
             config, previousQuestionOptions, MultiOptionQuestionType.CHECKBOX);
@@ -560,7 +560,7 @@ public class QuestionDefinitionTest {
     ImmutableList<QuestionOption> updatedQuestionOptions =
         ImmutableList.<QuestionOption>builder()
             .addAll(previousQuestionOptions)
-            .add(QuestionOption.create(2L, "optionA", LocalizedStrings.withDefaultValue("optiona")))
+            .add(QuestionOption.create(2L, "A_valid", LocalizedStrings.withDefaultValue("c")))
             .build();
     QuestionDefinition updatedQuestion =
         new MultiOptionQuestionDefinition(
@@ -596,6 +596,7 @@ public class QuestionDefinitionTest {
     QuestionDefinition updatedQuestion =
         new MultiOptionQuestionDefinition(
             config, updatedQuestionOptions, MultiOptionQuestionType.CHECKBOX);
+
     assertThat(updatedQuestion.validate(Optional.of(previousQuestion)))
         .containsOnly(
             CiviFormError.of(
