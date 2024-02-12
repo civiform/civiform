@@ -3320,7 +3320,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
         program.id, blockDefinition.id(), questionDefinition.getId(), true);
 
-    programDefinition = programService.getProgramDefinition(program.id);
+    programDefinition = programService.getFullProgramDefinition(program.id);
     blockDefinition = programDefinition.getBlockDefinition(blockDefinition.id());
 
     Block block =
@@ -3392,7 +3392,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
         program.id, blockDefinition.id(), questionDefinition.getId(), true);
 
-    programDefinition = programService.getProgramDefinition(program.id);
+    programDefinition = programService.getFullProgramDefinition(program.id);
     blockDefinition = programDefinition.getBlockDefinition(blockDefinition.id());
 
     Block block =

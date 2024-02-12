@@ -174,7 +174,7 @@ public final class ApplicantService {
     CompletableFuture<Optional<ApplicantModel>> applicantCompletableFuture =
         accountRepository.lookupApplicant(applicantId).toCompletableFuture();
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
-        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
+        programService.getFullProgramDefinitionAsync(programId).toCompletableFuture();
 
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
         .thenApplyAsync(
@@ -199,7 +199,7 @@ public final class ApplicantService {
           new ReadOnlyApplicantProgramServiceImpl(
               jsonPathPredicateGeneratorFactory,
               application.getApplicantData(),
-              programService.getProgramDefinition(application.getProgram().id),
+              programService.getFullProgramDefinition(application.getProgram().id),
               baseUrl));
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException("Cannot find a program that has applications for it.", e);
@@ -284,7 +284,7 @@ public final class ApplicantService {
         accountRepository.lookupApplicant(applicantId).toCompletableFuture();
 
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
-        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
+        programService.getFullProgramDefinitionAsync(programId).toCompletableFuture();
 
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
         .thenComposeAsync(
@@ -544,7 +544,7 @@ public final class ApplicantService {
     }
 
     try {
-      if (!programService.getProgramDefinition(programId).eligibilityIsGating()) {
+      if (!programService.getFullProgramDefinition(programId).eligibilityIsGating()) {
         return CompletableFuture.completedFuture(null);
       }
     } catch (ProgramNotFoundException e) {
@@ -564,7 +564,7 @@ public final class ApplicantService {
    */
   private CompletionStage<Void> updateStoredFileAclsForSubmit(long applicantId, long programId) {
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
-        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
+        programService.getFullProgramDefinitionAsync(programId).toCompletableFuture();
 
     CompletableFuture<List<StoredFileModel>> storedFilesFuture =
         getReadOnlyApplicantProgramService(applicantId, programId)
