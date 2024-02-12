@@ -45,6 +45,7 @@ import play.libs.concurrent.HttpExecutionContext;
 import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
+import repository.ProgramRepository;
 import repository.StoredFileRepository;
 import repository.TimeFilter;
 import repository.VersionRepository;
@@ -97,6 +98,7 @@ public final class ApplicantService {
   private final StoredFileRepository storedFileRepository;
   private final JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory;
   private final VersionRepository versionRepository;
+  private final ProgramRepository programRepository;
   private final ProgramService programService;
   private final SimpleEmail amazonSESClient;
   private final Clock clock;
@@ -116,6 +118,7 @@ public final class ApplicantService {
       ApplicationRepository applicationRepository,
       AccountRepository accountRepository,
       VersionRepository versionRepository,
+      ProgramRepository programRepository,
       StoredFileRepository storedFileRepository,
       JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
       ProgramService programService,
@@ -131,6 +134,7 @@ public final class ApplicantService {
     this.applicationRepository = checkNotNull(applicationRepository);
     this.accountRepository = checkNotNull(accountRepository);
     this.versionRepository = checkNotNull(versionRepository);
+    this.programRepository = checkNotNull(programRepository);
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.jsonPathPredicateGeneratorFactory = checkNotNull(jsonPathPredicateGeneratorFactory);
     this.programService = checkNotNull(programService);
@@ -170,7 +174,7 @@ public final class ApplicantService {
     CompletableFuture<Optional<ApplicantModel>> applicantCompletableFuture =
         accountRepository.lookupApplicant(applicantId).toCompletableFuture();
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
-        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
+        programService.getFullProgramDefinitionAsync(programId).toCompletableFuture();
 
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
         .thenApplyAsync(
@@ -195,7 +199,7 @@ public final class ApplicantService {
           new ReadOnlyApplicantProgramServiceImpl(
               jsonPathPredicateGeneratorFactory,
               application.getApplicantData(),
-              programService.getProgramDefinition(application.getProgram().id),
+              programService.getFullProgramDefinition(application.getProgram().id),
               baseUrl));
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException("Cannot find a program that has applications for it.", e);
@@ -280,7 +284,7 @@ public final class ApplicantService {
         accountRepository.lookupApplicant(applicantId).toCompletableFuture();
 
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
-        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
+        programService.getFullProgramDefinitionAsync(programId).toCompletableFuture();
 
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
         .thenComposeAsync(
@@ -463,7 +467,8 @@ public final class ApplicantService {
 
               ApplicationModel application = applicationMaybe.get();
               ProgramModel applicationProgram = application.getProgram();
-              ProgramDefinition programDefinition = applicationProgram.getProgramDefinition();
+              ProgramDefinition programDefinition =
+                  programRepository.getProgramDefinition(applicationProgram);
               String programName = programDefinition.adminName();
               Optional<StatusDefinitions.Status> maybeDefaultStatus =
                   applicationProgram.getDefaultStatus();
@@ -539,7 +544,7 @@ public final class ApplicantService {
     }
 
     try {
-      if (!programService.getProgramDefinition(programId).eligibilityIsGating()) {
+      if (!programService.getFullProgramDefinition(programId).eligibilityIsGating()) {
         return CompletableFuture.completedFuture(null);
       }
     } catch (ProgramNotFoundException e) {
@@ -559,7 +564,7 @@ public final class ApplicantService {
    */
   private CompletionStage<Void> updateStoredFileAclsForSubmit(long applicantId, long programId) {
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
-        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
+        programService.getFullProgramDefinitionAsync(programId).toCompletableFuture();
 
     CompletableFuture<List<StoredFileModel>> storedFilesFuture =
         getReadOnlyApplicantProgramService(applicantId, programId)
@@ -838,7 +843,7 @@ public final class ApplicantService {
             .toCompletableFuture();
     ImmutableList<ProgramDefinition> activeProgramDefinitions =
         versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()).stream()
-            .map(ProgramModel::getProgramDefinition)
+            .map(p -> programRepository.getProgramDefinition(p))
             .filter(
                 pdef ->
                     pdef.displayMode().equals(DisplayMode.PUBLIC)
@@ -857,7 +862,9 @@ public final class ApplicantService {
               }
               List<ProgramDefinition> programDefinitionsList =
                   applications.stream()
-                      .map(application -> application.getProgram().getProgramDefinition())
+                      .map(
+                          application ->
+                              programRepository.getProgramDefinition(application.getProgram()))
                       .collect(Collectors.toList());
               programDefinitionsList.addAll(activeProgramDefinitions);
               return programService.syncQuestionsToProgramDefinitions(
@@ -953,7 +960,7 @@ public final class ApplicantService {
             .collect(
                 Collectors.groupingBy(
                     a -> {
-                      return a.getProgram().getProgramDefinition().adminName();
+                      return programRepository.getProgramDefinition(a.getProgram()).adminName();
                     },
                     Collectors.groupingBy(
                         ApplicationModel::getLifecycleStage,
@@ -1007,7 +1014,7 @@ public final class ApplicantService {
             // version at the time of submission are used. However, when clicking "reapply", we use
             // the latest program version below.
             ProgramDefinition applicationProgramVersion =
-                maybeSubmittedApp.get().getProgram().getProgramDefinition();
+                programRepository.getProgramDefinition(maybeSubmittedApp.get().getProgram());
             Optional<String> maybeLatestStatus = maybeSubmittedApp.get().getLatestStatus();
             Optional<StatusDefinitions.Status> maybeCurrentStatus =
                 maybeLatestStatus.isPresent()
@@ -1089,7 +1096,7 @@ public final class ApplicantService {
             .collect(
                 Collectors.groupingBy(
                     a -> {
-                      return a.getProgram().getProgramDefinition().adminName();
+                      return programRepository.getProgramDefinition(a.getProgram()).adminName();
                     },
                     Collectors.groupingBy(ApplicationModel::getLifecycleStage)))
             .values();
@@ -1101,14 +1108,19 @@ public final class ApplicantService {
             String.join(
                 ", ",
                 draftApplications.stream()
-                    .map(a -> String.format("%d", a.getProgram().getProgramDefinition().id()))
+                    .map(
+                        a ->
+                            String.format(
+                                "%d", programRepository.getProgramDefinition(a.getProgram()).id()))
                     .collect(ImmutableList.toImmutableList()));
         logger.debug(
             String.format(
                 "DEBUG LOG ID: 98afa07855eb8e69338b5af13236a6b7. Program"
                     + " Admin Name: %1$s, Duplicate Program Definition"
                     + " ids: %2$s.",
-                draftApplications.get(0).getProgram().getProgramDefinition().adminName(),
+                programRepository
+                    .getProgramDefinition(draftApplications.get(0).getProgram())
+                    .adminName(),
                 joinedProgramIds));
       }
     }

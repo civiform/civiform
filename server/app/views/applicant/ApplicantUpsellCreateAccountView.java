@@ -110,10 +110,13 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                     .withClasses(ReferenceClasses.BT_APPLICATION_ID, "mb-4"),
                 div()
                     .with(
-                        TextFormatter.formatText(
+                        TextFormatter.formatTextWithAriaLabel(
                             customConfirmationMessage.getOrDefault(locale),
                             /* preserveEmptyLines= */ true,
-                            /* addRequiredIndicator= */ false))
+                            /* addRequiredIndicator= */ false,
+                            messages
+                                .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                                .toLowerCase(Locale.ROOT)))
                     .withClasses("mb-4")),
             shouldUpsell,
             messages,

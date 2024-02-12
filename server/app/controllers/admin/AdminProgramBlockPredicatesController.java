@@ -76,7 +76,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
-      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       return ok(
@@ -104,7 +104,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
-      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       return ok(
@@ -122,6 +122,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
     }
   }
+
   /** POST endpoint for updating show-hide configurations. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result updateVisibility(Request request, long programId, long blockDefinitionId) {
@@ -133,7 +134,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     try {
       PredicateDefinition predicateDefinition =
           predicateGenerator.generatePredicateDefinition(
-              programService.getProgramDefinition(programId),
+              programService.getFullProgramDefinition(programId),
               formFactory.form().bindFromRequest(request),
               roQuestionService);
 
@@ -167,7 +168,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     DynamicForm form = formFactory.form().bindFromRequest(request);
 
     try {
-      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       return ok(
@@ -187,7 +188,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
-      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       ImmutableList<Long> visibilityQuestionIds =
@@ -223,7 +224,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     DynamicForm form = formFactory.form().bindFromRequest(request);
 
     try {
-      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       return ok(
@@ -243,7 +244,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
-      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       ImmutableList<Long> eligibilityQuestionIds =
@@ -310,7 +311,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           EligibilityDefinition.builder()
               .setPredicate(
                   predicateGenerator.generatePredicateDefinition(
-                      programService.getProgramDefinition(programId),
+                      programService.getFullProgramDefinition(programId),
                       formFactory.form().bindFromRequest(request),
                       roQuestionService))
               .build();

@@ -256,7 +256,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private boolean shouldShowNotEligibleBanner(
       ReadOnlyApplicantProgramService roApplicantProgramService, long programId)
       throws ProgramNotFoundException {
-    if (!programService.getProgramDefinition(programId).eligibilityIsGating()) {
+    if (!programService.getFullProgramDefinition(programId).eligibilityIsGating()) {
       return false;
     }
     return roApplicantProgramService.isApplicationNotEligible();
@@ -331,7 +331,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
                   try {
                     ProgramDefinition programDefinition =
-                        programService.getProgramDefinition(programId);
+                        programService.getFullProgramDefinition(programId);
 
                     return ok(
                         ineligibleBlockView.render(

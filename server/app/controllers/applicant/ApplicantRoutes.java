@@ -189,16 +189,31 @@ public final class ApplicantRoutes {
   }
 
   /**
-   * Returns the route corresponding to the applicant previous block action.
+   * Returns the route corresponding to the applicant previous block action, or the route
+   * corresponding to the review page if there's no valid previous block.
    *
    * @param profile - Profile corresponding to the logged-in user (applicant or TI).
    * @param applicantId - ID of applicant for whom the action should be performed.
    * @param programId - ID of program to review
-   * @param previousBlockIndex - index of the previous block
+   * @param currentBlockIndex - index of the current block
    * @param inReview - true if executing the review action (as opposed to edit)
    * @return Route for the applicant previous block action
    */
-  public Call blockPrevious(
+  public Call blockPreviousOrReview(
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      int currentBlockIndex,
+      boolean inReview) {
+    int previousBlockIndex = currentBlockIndex - 1;
+    if (previousBlockIndex >= 0) {
+      return blockPrevious(profile, applicantId, programId, previousBlockIndex, inReview);
+    } else {
+      return review(profile, applicantId, programId);
+    }
+  }
+
+  private Call blockPrevious(
       CiviFormProfile profile,
       long applicantId,
       long programId,
@@ -241,15 +256,30 @@ public final class ApplicantRoutes {
    * @param programId - ID of program to review
    * @param blockId - ID of the block to be updated
    * @param inReview - true if executing the review action (as opposed to edit)
+   * @param applicantRequestedAction - the page the applicant would like to see after the updates
+   *     are made
    * @return Route for the applicant update block action
    */
   public Call updateBlock(
-      CiviFormProfile profile, long applicantId, long programId, String blockId, boolean inReview) {
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String blockId,
+      boolean inReview,
+      ApplicantRequestedAction applicantRequestedAction) {
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.updateWithApplicantId(
-          applicantId, programId, blockId, inReview);
+          applicantId,
+          programId,
+          blockId,
+          inReview,
+          new ApplicantRequestedActionWrapper(applicantRequestedAction));
     } else {
-      return routes.ApplicantProgramBlocksController.update(programId, blockId, inReview);
+      return routes.ApplicantProgramBlocksController.update(
+          programId,
+          blockId,
+          inReview,
+          new ApplicantRequestedActionWrapper(applicantRequestedAction));
     }
   }
 }

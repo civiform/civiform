@@ -107,7 +107,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     bundle.addFooterStyles("mt-24");
 
-    bundle.addModals(DEBUG_CONTENT_MODAL);
+    if (isDevOrStaging && !disableDemoModeLogins) {
+      bundle.addModals(DEBUG_CONTENT_MODAL);
+    }
 
     Content rendered = super.render(bundle);
     if (!rendered.body().contains("<h1")) {

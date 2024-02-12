@@ -9,6 +9,7 @@ import static j2html.TagCreator.p;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import j2html.TagCreator;
 import j2html.tags.specialized.ButtonTag;
@@ -144,7 +145,9 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
         each(
             params.block().getQuestions(),
             question ->
-                applicantQuestionRendererFactory.getRenderer(question).render(rendererParams)));
+                applicantQuestionRendererFactory
+                    .getRenderer(question, Optional.of(params.messages()))
+                    .render(rendererParams)));
 
     DivTag skipForms = renderDeleteAndContinueFileUploadForms(params);
     DivTag buttons = renderFileUploadBottomNavButtons(params);
@@ -239,7 +242,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                 params.applicantId(),
                 params.programId(),
                 params.block().getId(),
-                params.inReview())
+                params.inReview(),
+                ApplicantRequestedAction.NEXT_BLOCK)
             .url();
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder()
@@ -308,7 +312,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     DivTag ret =
         div()
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-            .with(renderReviewButton(params))
+            // TODO(#6450): Use the new review button here.
+            .with(renderOldReviewButton(params))
             .with(renderPreviousButton(params));
     if (maybeSkipOrDeleteButton.isPresent()) {
       ret.with(maybeSkipOrDeleteButton.get());

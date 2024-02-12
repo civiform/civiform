@@ -83,7 +83,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result readOnlyIndex(long programId) {
-    return index(programId, /* readOnly=*/ true);
+    return index(programId, /* readOnly= */ true);
   }
 
   /**
@@ -95,7 +95,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
    */
   private Result index(long programId, boolean readOnly) {
     try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
       long blockId = program.getLastBlockDefinition().id();
 
       String redirectUrl =
@@ -155,7 +155,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
       BlockDefinition block = program.getBlockDefinition(blockId);
 
       Optional<ToastMessage> maybeToastMessage =
@@ -175,7 +175,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
     requestChecker.throwIfProgramNotActive(programId);
 
     try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
       BlockDefinition block = program.getBlockDefinition(blockId);
       return renderReadOnlyViewWithMessage(request, program, block);
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {

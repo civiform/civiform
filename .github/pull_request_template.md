@@ -18,6 +18,14 @@ Read the full guidelines for PRs [here](https://github.com/civiform/civiform/wik
 - [ ] Performed manual testing (Chrome and Firefox if it includes front-end changes)
 - [ ] Extended the README / documentation, if necessary
 
+#### Database evolutions
+
+Read the guidelines [here](https://github.com/civiform/civiform/wiki/Database#writing-database-evolutions)
+
+- [ ] Assigned two reviewers
+- [ ] Guarded against already existing resources using `IF NOT EXISTS` and `IF EXISTS`
+- [ ] Downs created to undo changes in Ups
+
 #### User visible changes
 
 - [ ] Followed steps to [internationalize new strings](https://github.com/civiform/civiform/wiki/Internationalization-%28i18n%29#internationalization-for-application-strings)

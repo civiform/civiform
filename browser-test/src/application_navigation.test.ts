@@ -22,13 +22,21 @@ describe('Applicant navigation flow', () => {
 
   describe('navigation with five blocks', () => {
     const programName = 'Test program for navigation flows'
+    const dateQuestionText = 'date question text'
+    const emailQuestionText = 'email question text'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
-      await adminQuestions.addDateQuestion({questionName: 'nav-date-q'})
-      await adminQuestions.addEmailQuestion({questionName: 'nav-email-q'})
+      await adminQuestions.addDateQuestion({
+        questionName: 'nav-date-q',
+        questionText: dateQuestionText,
+      })
+      await adminQuestions.addEmailQuestion({
+        questionName: 'nav-email-q',
+        questionText: emailQuestionText,
+      })
       await adminQuestions.addAddressQuestion({
         questionName: 'nav-address-q',
       })
@@ -117,9 +125,139 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.checkDateQuestionValue('2021-11-01')
       await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
 
-      // Assert that we're on the preview page.
+      // Assert that we're on the review page.
       await applicantQuestions.clickPrevious()
       await applicantQuestions.expectReviewPage()
+    })
+
+    describe('review button', () => {
+      it('clicking review does not save when flag off', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await disableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
+        await applicantQuestions.clickReview()
+
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          dateQuestionText,
+        )
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          emailQuestionText,
+        )
+      })
+
+      it('clicking review with correct form shows review page with saved answers', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
+        await applicantQuestions.clickReview()
+
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          dateQuestionText,
+          '11/01/2021',
+        )
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          emailQuestionText,
+          'test1@gmail.com',
+        )
+      })
+
+      it('clicking review with missing answers shows modal', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
+        await applicantQuestions.clickReview()
+
+        // The date question is required, so we should see the error modal.
+        await applicantQuestions.expectErrorOnReviewModal()
+        await validateScreenshot(page, 'error-on-review-modal')
+      })
+
+      it('error on review modal > click go back and edit > shows block', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectErrorOnReviewModal()
+
+        await applicantQuestions.clickGoBackAndEdit()
+
+        // Verify the previously filled in answers are present
+        await applicantQuestions.checkDateQuestionValue('')
+        await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
+
+        // Answer the date question correctly and try clicking "Review" again
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+
+        await applicantQuestions.clickReview()
+
+        // Verify we're taken to the review page and the answers were saved
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          dateQuestionText,
+          '11/01/2021',
+        )
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          emailQuestionText,
+          'test1@gmail.com',
+        )
+      })
+
+      it('error on review modal > click review without saving > shows review page without saved answers', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('')
+
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectErrorOnReviewModal()
+
+        // Proceed to the Review page, acknowledging that answers won't be saved
+        await applicantQuestions.clickReviewWithoutSaving()
+
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          dateQuestionText,
+        )
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          emailQuestionText,
+        )
+      })
+
+      afterAll(async () => {
+        const {page} = ctx
+        await loginAsAdmin(page)
+        await disableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+      })
     })
 
     it('verify program details page', async () => {
@@ -175,7 +313,7 @@ describe('Applicant navigation flow', () => {
       )
       // text links are formatted correctly with an icon
       expect(cardHtml).toContain(
-        '<a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" rel="nofollow noopener noreferrer">website<svg',
+        '<a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" aria-label="opens in a new tab" rel="nofollow noopener noreferrer">website<svg',
       )
 
       // there shouldn't be any external Links
@@ -1236,7 +1374,7 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.clickNext()
         await applicantQuestions.answerTextQuestion('Some text')
         await applicantQuestions.clickNext()
-        await applicantQuestions.expectAddressHasBeenCorrected(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'With Correction',
           'Address In Area',
         )
@@ -1269,7 +1407,7 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.clickNext()
         await applicantQuestions.expectVerifyAddressPage(true)
         await applicantQuestions.clickNext()
-        await applicantQuestions.expectAddressHasBeenCorrected(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'With Correction',
           'Address In Area',
         )
@@ -1304,7 +1442,7 @@ describe('Applicant navigation flow', () => {
         )
 
         await applicantQuestions.clickNext()
-        await applicantQuestions.expectAddressHasBeenCorrected(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'With Correction',
           'Address In Area',
         )
@@ -1429,7 +1567,7 @@ describe('Applicant navigation flow', () => {
         '98109',
       )
       await applicantQuestions.clickNext()
-      await applicantQuestions.expectAddressHasBeenCorrected(
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
         'With Correction',
         '305 Harrison',
       )
@@ -1437,6 +1575,171 @@ describe('Applicant navigation flow', () => {
       await logout(page)
     })
   })
+
+  if (isLocalDevEnvironment()) {
+    describe('using address as visibility condition', () => {
+      const programName = 'Test program for address as visibility condition'
+      const questionAddress = 'address-test-q'
+      const questionText1 = 'text-test-q-one'
+      const questionText2 = 'text-test-q-two'
+      const screen1 = 'Screen 1'
+      const screen2 = 'Screen 2'
+      const screen3 = 'Screen 3'
+
+      beforeAll(async () => {
+        const {page, adminQuestions, adminPrograms, adminPredicates} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'esri_address_correction_enabled')
+        await enableFeatureFlag(
+          page,
+          'esri_address_service_area_validation_enabled',
+        )
+
+        // Create Questions
+        await adminQuestions.addAddressQuestion({
+          questionName: questionAddress,
+          questionText: questionAddress,
+        })
+
+        await adminQuestions.addTextQuestion({
+          questionName: questionText1,
+          questionText: questionText1,
+        })
+
+        await adminQuestions.addTextQuestion({
+          questionName: questionText2,
+          questionText: questionText2,
+        })
+
+        // Create Program
+        await adminPrograms.addProgram(programName)
+
+        // Attach questions to program
+        await adminPrograms.editProgramBlock(programName, screen1, [
+          questionAddress,
+        ])
+
+        await adminPrograms.addProgramBlock(programName, screen2, [
+          questionText1,
+        ])
+
+        await adminPrograms.addProgramBlock(programName, screen3, [
+          questionText2,
+        ])
+
+        await adminPrograms.goToBlockInProgram(programName, screen1)
+
+        await adminPrograms.clickAddressCorrectionToggleByName(questionAddress)
+
+        const addressCorrectionInput =
+          adminPrograms.getAddressCorrectionToggleByName(questionAddress)
+
+        expect(await addressCorrectionInput.inputValue()).toBe('true')
+
+        // Set thing to soft eligibilty
+        await adminPrograms.toggleEligibilityGating()
+
+        // Add address eligibility predicate
+        await adminPrograms.goToEditBlockEligibilityPredicatePage(
+          programName,
+          screen1,
+        )
+
+        await adminPredicates.addPredicates([
+          {
+            questionName: questionAddress,
+            scalar: 'service_area',
+            operator: 'in service area',
+            values: ['Seattle'],
+          },
+        ])
+
+        // Add the address visibility predicate
+        await adminPrograms.goToBlockInProgram(programName, screen2)
+
+        await adminPrograms.goToEditBlockVisibilityPredicatePage(
+          programName,
+          screen2,
+        )
+
+        await adminPredicates.addPredicates([
+          {
+            questionName: questionAddress,
+            action: 'shown if',
+            scalar: 'service_area',
+            operator: 'in service area',
+            values: ['Seattle'],
+          },
+        ])
+
+        // Publish Program
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.publishProgram(programName)
+
+        await logout(page)
+      })
+
+      it('when address is eligible show hidden screen', async () => {
+        const {page, applicantQuestions} = ctx
+        await applicantQuestions.applyProgram(programName)
+
+        // Fill out application and submit.
+        await applicantQuestions.answerAddressQuestion(
+          'Legit Address',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+          0,
+        )
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectVerifyAddressPage(true)
+        await applicantQuestions.clickNext()
+        // Screen 1 will only be visible when the address is validated as being eligible. This test case uses an valid address.
+        await applicantQuestions.answerTextQuestion('answer 1')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.answerTextQuestion('answer 2')
+        await applicantQuestions.clickNext()
+
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          questionAddress,
+          'Address In Area',
+        )
+
+        await applicantQuestions.clickSubmit()
+        await logout(page)
+      })
+
+      it('when address is not eligible do not show hidden screen', async () => {
+        const {page, applicantQuestions} = ctx
+        await applicantQuestions.applyProgram(programName)
+
+        // Fill out application and submit.
+        await applicantQuestions.answerAddressQuestion(
+          'Nonlegit Address',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+          0,
+        )
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectVerifyAddressPage(false)
+        await applicantQuestions.clickNext()
+        // Screen 1 will only be visible when the address is validated as being eligible. This test case uses an invalid address.
+        await applicantQuestions.answerTextQuestion('answer 2')
+        await applicantQuestions.clickNext()
+
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          questionAddress,
+          'Nonlegit Address',
+        )
+
+        await applicantQuestions.clickSubmit()
+        await logout(page)
+      })
+    })
+  }
 
   // TODO: Add tests for "next" navigation
 })

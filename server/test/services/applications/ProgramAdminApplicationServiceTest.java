@@ -31,6 +31,7 @@ import play.i18n.MessagesApi;
 import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
+import repository.ProgramRepository;
 import repository.ResetPostgres;
 import services.DeploymentType;
 import services.LocalizedStrings;
@@ -184,6 +185,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(ApplicantService.class),
             instanceOf(ApplicationEventRepository.class),
             instanceOf(AccountRepository.class),
+            instanceOf(ProgramRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
@@ -244,6 +246,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(ApplicantService.class),
             instanceOf(ApplicationEventRepository.class),
             instanceOf(AccountRepository.class),
+            instanceOf(ProgramRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
@@ -296,6 +299,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(ApplicantService.class),
             instanceOf(ApplicationEventRepository.class),
             instanceOf(AccountRepository.class),
+            instanceOf(ProgramRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
@@ -356,6 +360,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(ApplicantService.class),
             instanceOf(ApplicationEventRepository.class),
             instanceOf(AccountRepository.class),
+            instanceOf(ProgramRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
@@ -493,6 +498,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(ApplicantService.class),
             instanceOf(ApplicationEventRepository.class),
             instanceOf(AccountRepository.class),
+            instanceOf(ProgramRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
