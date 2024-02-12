@@ -543,7 +543,7 @@ describe('normal question lifecycle', () => {
 
   it('shows primary applicant info toggles/alerts correctly when creating a new question, and tag is persisted', async () => {
     const {page, adminQuestions} = ctx
-    await enableFeatureFlag(page, 'primary_applicant_info_questions')
+    await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
 
     await loginAsAdmin(page)
 
@@ -610,7 +610,7 @@ describe('normal question lifecycle', () => {
 
   it('shows primary applicant info toggles/alerts correctly when editing an existing question, and tag is persisted', async () => {
     const {page, adminQuestions} = ctx
-    await enableFeatureFlag(page, 'primary_applicant_info_questions')
+    await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
 
     await loginAsAdmin(page)
 
@@ -718,7 +718,7 @@ describe('normal question lifecycle', () => {
 
   it('shows the alert when a different question has the primary applicant info tag', async () => {
     const {page, adminQuestions} = ctx
-    await enableFeatureFlag(page, 'primary_applicant_info_questions')
+    await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
 
     await loginAsAdmin(page)
 

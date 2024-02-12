@@ -866,8 +866,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * Enables setting a universal question as a question representing information about the
    * applicant. The system can then take certain actions based on the answer to this question.
    */
-  public boolean getPrimaryApplicantInfoQuestions(RequestHeader request) {
-    return getBool("PRIMARY_APPLICANT_INFO_QUESTIONS", request);
+  public boolean getPrimaryApplicantInfoQuestionsEnabled(RequestHeader request) {
+    return getBool("PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED", request);
   }
 
   /**
@@ -1837,7 +1837,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
-                      "PRIMARY_APPLICANT_INFO_QUESTIONS",
+                      "PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED",
                       "Enables setting a universal question as a question representing information"
                           + " about the applicant. The system can then take certain actions based"
                           + " on the answer to this question.",
