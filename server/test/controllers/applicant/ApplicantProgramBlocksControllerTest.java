@@ -882,7 +882,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void update_requestedActionPrevious_answersSaved() {
+  public void update_onFirstBlock_requestedActionPrevious_answersSaved() {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
@@ -918,6 +918,46 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     applicant.refresh();
     assertThat(applicant.getApplicantData().asJsonString()).contains("FakeFirstNameHere");
     assertThat(applicant.getApplicantData().asJsonString()).contains("FakeLastNameHere");
+  }
+
+  @Test
+  public void update_onLaterBlock_requestedActionPrevious_answersSaved() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantIceCream())
+            .withBlock("block 2")
+            .withRequiredQuestion(testQuestionBank().applicantFavoriteColor())
+            .withBlock("block 3")
+            .withRequiredQuestion(testQuestionBank().applicantEmail())
+            .build();
+    Request request =
+        requestBuilderWithSettings(
+                routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                    applicant.id,
+                    program.id,
+                    /* blockId= */ "3",
+                    /* inReview= */ false,
+                    new ApplicantRequestedActionWrapper(ApplicantRequestedAction.PREVIOUS_BLOCK)))
+            .bodyForm(
+                ImmutableMap.of(
+                    Path.create("applicant.applicant_email_address.email").toString(),
+                    "test@gmail.com"))
+            .build();
+
+    subject
+        .updateWithApplicantId(
+            request,
+            applicant.id,
+            program.id,
+            /* blockId= */ "3",
+            /* inReview= */ false,
+            new ApplicantRequestedActionWrapper(ApplicantRequestedAction.PREVIOUS_BLOCK))
+        .toCompletableFuture()
+        .join();
+
+    applicant.refresh();
+    assertThat(applicant.getApplicantData().asJsonString()).contains("test@gmail.com");
   }
 
   @Test

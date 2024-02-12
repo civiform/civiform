@@ -50,7 +50,7 @@ public abstract class ApplicantQuestionRendererParams {
     }
 
     /**
-     * Returns ture if the given mode indicates that validation errors *and* a modal should be
+     * Returns true if the given mode indicates that validation errors *and* a modal should be
      * rendered when displaying the form and false otherwise.
      */
     public static boolean shouldShowErrorsWithModal(ErrorDisplayMode mode) {

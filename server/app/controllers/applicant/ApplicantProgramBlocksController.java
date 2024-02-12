@@ -776,8 +776,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return supplyAsync(() -> redirect(applicantRoutes.review(profile, applicantId, programId)));
     }
     if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK) {
-      // TODO(#6450): If the user is coming from the address correction view, the index won't be
-      // quite right -- see AddressCorrectionBlockView#renderCustomPreviousButton.
+      // TODO(#6450): There's an off-by-one error here if the user is coming from the address
+      // correction view.
+      // When on the address correction view, currentBlockIndex will be for the block containing the
+      // address question. If a user clicks "Previous" on the address correction view, then they'd
+      // be taken to the block *before* the block containing the address question, when they should
+      // instead be taken to the block that does contain the address question.
+      // See AddressCorrectionBlockView#renderCustomPreviousButton.
       int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
       return supplyAsync(
           () ->

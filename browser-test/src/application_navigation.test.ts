@@ -154,7 +154,7 @@ describe('Applicant navigation flow', () => {
         )
       })
 
-      it('clicking previous with correct form shows previous page with saved answers', async () => {
+      it('clicking previous with correct form shows previous page and saves answers', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
@@ -176,11 +176,12 @@ describe('Applicant navigation flow', () => {
           'WA',
           '54321',
         )
+
         // Click previous then go to the review page and verify the address question
         // answer was saved
         await applicantQuestions.clickPrevious()
-        await applicantQuestions.clickReview()
 
+        await applicantQuestions.clickReview()
         await applicantQuestions.expectReviewPage()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           addressQuestionText,
