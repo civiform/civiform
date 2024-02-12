@@ -2,7 +2,7 @@
 import {addEventListenerToElements} from './util'
 
 class ToggleController {
-  static toggleClass = '.cf-toggle'
+  static toggleButtonClass = '.cf-toggle-button'
   static toggleBackgroundClass = '.cf-toggle-background'
   static toggleNubClass = '.cf-toggle-nub'
   static toggleInputClass = '.cf-toggle-hidden-input'
@@ -18,12 +18,12 @@ class ToggleController {
   /** Add listeners to toggle buttons to change style on selection. */
   addToggleListeners() {
     addEventListenerToElements(
-      ToggleController.toggleClass,
+      ToggleController.toggleButtonClass,
       'click',
       (event: Event) => {
         const target = event.target as HTMLElement
         const toggle = target.closest(
-          ToggleController.toggleClass,
+          ToggleController.toggleButtonClass,
         ) as HTMLButtonElement
         const inputElement = toggle.querySelector(
           ToggleController.toggleInputClass,

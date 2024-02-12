@@ -272,7 +272,9 @@ public final class ViewUtils {
     boolean idPresent = idPrefix.isPresent();
     ButtonTag button =
         TagCreator.button()
+            .withCondId(idPresent, buttonId)
             .withClasses(
+                "cf-toggle-button",
                 "flex",
                 "px-0",
                 "gap-2",
@@ -318,11 +320,7 @@ public final class ViewUtils {
                                 "cf-toggle-nub")
                             .withCondId(idPresent, nubId)));
     text.ifPresent(button::withText);
-    return div()
-        .withClass("cf-toggle")
-        .withCondId(idPresent, buttonId)
-        .withCondHidden(hidden)
-        .with(button);
+    return div().withClass("cf-toggle-div").withCondHidden(hidden).with(button);
   }
 
   /**

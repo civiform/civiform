@@ -50,20 +50,23 @@ class AdminQuestionEdit {
           'data-already-set-alert',
         ) // May be null
         if (alreadySetAlertText === null) {
-          const toggle = assertNotNull(
-            subsection.querySelector('.cf-toggle'),
+          const togglediv = assertNotNull(
+            subsection.querySelector('.cf-toggle-div'),
           ) as HTMLDivElement
+          const togglebutton = assertNotNull(
+            togglediv.querySelector('.cf-toggle-button'),
+          ) as HTMLButtonElement
           const input = assertNotNull(
-            toggle.querySelector('.cf-toggle-hidden-input'),
+            togglediv.querySelector('.cf-toggle-hidden-input'),
           ) as HTMLInputElement
 
           // Unset the PAI toggle when we unset universal.
           // Because the universal input doesn't change until after the click event,
           // we're checking for true here.
           if (input.value === 'true' && universalInput.value === 'true') {
-            toggle.click()
+            togglebutton.click()
           }
-          toggle.toggleAttribute('hidden')
+          togglediv.toggleAttribute('hidden')
           alert.toggleAttribute('hidden')
         } else {
           const nonUniversalAlreadySetAlertText = assertNotNull(
