@@ -1756,26 +1756,178 @@ describe('Applicant navigation flow', () => {
         await logout(page)
       })
 
-      it('clicking previous on address correction page takes you back to address entry page', async () => {
-        const {page, applicantQuestions} = ctx
-        await enableFeatureFlag(page, 'esri_address_correction_enabled')
-        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+      describe('previous button', () => {
+        it('clicking previous on address correction page takes you back to address entry page (save flag off)', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await disableFeatureFlag(page, 'save_on_all_actions')
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
-        // Fill out application and submit.
-        await applicantQuestions.answerAddressQuestion(
-          'Legit Address',
-          '',
-          'Seattle',
-          'WA',
-          '98109',
-        )
-        await applicantQuestions.clickNext()
-        await applicantQuestions.expectVerifyAddressPage(true)
+          // Fill out application and submit.
+          await applicantQuestions.answerAddressQuestion(
+            'Legit Address',
+            '',
+            'Seattle',
+            'WA',
+            '98109',
+          )
+          await applicantQuestions.clickNext()
+          await applicantQuestions.expectVerifyAddressPage(true)
 
-        await applicantQuestions.clickPrevious()
-        await applicantQuestions.expectAddressPage()
+          await applicantQuestions.clickPrevious()
 
-        await logout(page)
+          await applicantQuestions.expectAddressPage()
+
+          await logout(page)
+        })
+
+        it('clicking previous on address correction page takes you back to address entry page (save flag on)', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await enableFeatureFlag(page, 'save_on_all_actions')
+
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+          await applicantQuestions.answerAddressQuestion(
+            'Legit Address',
+            '',
+            'Seattle',
+            'WA',
+            '98109',
+          )
+          await applicantQuestions.clickNext()
+          await applicantQuestions.expectVerifyAddressPage(true)
+
+          await applicantQuestions.clickPrevious()
+
+          await applicantQuestions.expectAddressPage()
+
+          await logout(page)
+        })
+
+        it('clicking previous on address correction page saves original address when selected', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await enableFeatureFlag(page, 'save_on_all_actions')
+
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+          await applicantQuestions.answerAddressQuestion(
+            'Legit Address',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+          await applicantQuestions.clickNext()
+          await applicantQuestions.expectVerifyAddressPage(true)
+
+          // Opt to keep the original address entered
+          await applicantQuestions.selectAddressSuggestion('Legit Address')
+
+          await applicantQuestions.clickPrevious()
+
+          await applicantQuestions.clickReview()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            addressWithCorrectionText,
+            'Legit Address',
+          )
+
+          await logout(page)
+        })
+
+        it('clicking previous on address correction page saves suggested address when selected', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await enableFeatureFlag(page, 'save_on_all_actions')
+
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+          await applicantQuestions.answerAddressQuestion(
+            'Legit Address',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+          await applicantQuestions.clickNext()
+          await applicantQuestions.expectVerifyAddressPage(true)
+
+          // Opt for one of the suggested addresses
+          await applicantQuestions.selectAddressSuggestion(
+            'Address With No Service Area Features',
+          )
+
+          await applicantQuestions.clickPrevious()
+
+          await applicantQuestions.clickReview()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            addressWithCorrectionText,
+            'Address With No Service Area Features',
+          )
+          await logout(page)
+        })
+
+        it('clicking previous on address correction page saves original address when no suggestions offered', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await enableFeatureFlag(page, 'save_on_all_actions')
+
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+          await applicantQuestions.answerAddressQuestion(
+            'Bogus Address',
+            '',
+            'Seattle',
+            'WA',
+            '98109',
+          )
+          await applicantQuestions.clickNext()
+          await applicantQuestions.expectVerifyAddressPage(false)
+
+          await applicantQuestions.clickPrevious()
+
+          await applicantQuestions.clickReview()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            addressWithCorrectionText,
+            'Bogus Address',
+          )
+
+          await logout(page)
+        })
+
+        it('clicking previous on address correction page does not save selection when flag off', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await disableFeatureFlag(page, 'save_on_all_actions')
+
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+          await applicantQuestions.answerAddressQuestion(
+            'Legit Address',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+          await applicantQuestions.clickNext()
+          await applicantQuestions.expectVerifyAddressPage(true)
+
+          // Opt for one of the suggested addresses
+          await applicantQuestions.selectAddressSuggestion(
+            'Address With No Service Area Features',
+          )
+
+          await applicantQuestions.clickPrevious()
+
+          // When the Previous button doesn't save answers, the original address should be
+          // the answer because the suggested address selection wasn't saved
+          await applicantQuestions.clickReview()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            addressWithCorrectionText,
+            'Legit Address',
+          )
+          await logout(page)
+        })
       })
 
       describe('review button', () => {
