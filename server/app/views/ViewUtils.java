@@ -37,6 +37,7 @@ import j2html.tags.specialized.PTag;
 import j2html.tags.specialized.ScriptTag;
 import j2html.tags.specialized.SpanTag;
 import java.time.Instant;
+import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import services.DateConverter;
@@ -360,7 +361,9 @@ public final class ViewUtils {
 
     return makeBadgeWithIcon(
         Icons.STAR,
-        String.format("Universal %s Question", questionDefinition.getQuestionType().getLabel()),
+        String.format(
+            "Universal %s question",
+            questionDefinition.getQuestionType().getLabel().toLowerCase(Locale.getDefault())),
         Lists.asList("cf-universal-badge", classes).toArray(new String[0]));
   }
 

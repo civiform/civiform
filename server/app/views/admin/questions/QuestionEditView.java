@@ -477,7 +477,7 @@ public final class QuestionEditView extends BaseHtmlView {
     FieldsetTag result =
         fieldset()
             .withId("primary-applicant-info")
-            .with(legend("Primary Applicant Information").withClass(BaseStyles.INPUT_LABEL));
+            .with(legend("Primary applicant information").withClass(BaseStyles.INPUT_LABEL));
     PrimaryApplicantInfoTag.getAllTagsForQuestionType(questionForm.getQuestionType())
         .forEach(
             primaryApplicantInfoTag -> {
@@ -499,14 +499,16 @@ public final class QuestionEditView extends BaseHtmlView {
                     currentQuestionForTag.map(QuestionDefinition::getName).orElseThrow();
                 String alreadySetAlertText =
                     String.format(
-                        "You cannot edit this setting since this property is already set on a"
-                            + " question named %s.",
+                        "You cannot make this question a Primary applicant information question"
+                            + " because the question named \"%s\" is already set as a primary"
+                            + " applicant information question.",
                         otherQuestionName);
                 String nonUniversalAlreadySetAlertText =
                     String.format(
-                        "You cannot edit this setting since the question is not a universal"
-                            + " question and because this property is already set on a question"
-                            + " named %s.",
+                        "You cannot make this question a Primary applicant information question"
+                            + " because the question is not a Universal question and because the"
+                            + " question named \"%s\" is already set as a Primary applicant"
+                            + " information question.",
                         otherQuestionName);
                 String initialAlertText =
                     questionForm.isUniversal()
