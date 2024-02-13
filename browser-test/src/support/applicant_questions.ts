@@ -567,7 +567,9 @@ export class ApplicantQuestions {
     expect(await modal.innerText()).toContain(`Stay and fix your answers`)
   }
   async clickReviewWithoutSaving() {
-    await this.page.click('button:has-text("Continue to review page without saving")')
+    await this.page.click(
+      'button:has-text("Continue to review page without saving")',
+    )
   }
 
   async expectErrorOnPreviousModal() {
