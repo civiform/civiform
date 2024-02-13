@@ -182,15 +182,12 @@ public final class ProgramIndexView extends BaseHtmlView {
       HtmlBundle bundle,
       CiviFormProfile profile) {
     DivTag content =
-        div()
-            .withId("main-content")
-            .withClasses("mx-auto", "my-4", StyleUtils.responsiveSmall("m-10"));
+        div().withId("main-content").withClasses(ApplicantStyles.PROGRAM_CARDS_PARENT_CONTAINER);
 
     // The different program card containers should have the same styling, by using the program
     // count of the larger set of programs
     String cardContainerStyles =
         programCardViewRenderer.programCardsContainerStyles(
-            ProgramCardViewRenderer.ContainerWidth.FULL,
             Math.max(
                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
                 relevantPrograms.inProgress().size()));
@@ -268,7 +265,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               profile));
     }
 
-    return div().withClasses("flex", "flex-col", "place-items-center").with(content);
+    return div().withClasses(ApplicantStyles.PROGRAM_CARDS_GRANDPARENT_CONTAINER).with(content);
   }
 
   private DivTag findServicesSection(

@@ -47,7 +47,8 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
       String authProviderName,
       ImmutableList<DomContent> actionButtons) {
     return div()
-        .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
+        .withClasses(
+            ApplicantStyles.PROGRAM_INFORMATION_BOX, ApplicantStyles.MAIN_PROGRAM_APPLICATION)
         .with(
             h1(title).withClasses("text-3xl", "text-black", "font-bold", "mb-4"),
             confirmationSection,
@@ -64,10 +65,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
       DivTag mainContent) {
     HtmlBundle bundle = layout.getBundle(request).setTitle(title);
     bannerMessage.ifPresent(bundle::addToastMessages);
-    bundle
-        .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION)
-        .addMainContent(mainContent)
-        .addModals(loginPromptModal);
+    bundle.addMainContent(mainContent).addModals(loginPromptModal);
     return bundle;
   }
 

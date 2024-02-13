@@ -32,6 +32,7 @@ import views.components.ButtonStyles;
 import views.components.Modal;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
+import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 
 /** Renders a confirmation page after application submission. */
@@ -140,24 +141,27 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
     if (relevantPrograms.size() > 0) {
       htmlBundle.addMainContent(
           div()
-              .withClasses("p-4 sm:p-6 my-6 bg-slate-100")
+              .withClasses(ApplicantStyles.PROGRAM_CARDS_GRANDPARENT_CONTAINER)
               .with(
-                  h2(messages.at(CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR.getKeyName()))
-                      .withClasses("mb-4 font-bold"),
-                  programCardViewRenderer.programCardsSection(
-                      request,
-                      messages,
-                      personalInfo,
-                      /* sectionTitle= */ Optional.empty(),
-                      ProgramCardViewRenderer.programCardsContainerStyles(
-                          ProgramCardViewRenderer.ContainerWidth.MEDIUM, relevantPrograms.size()),
-                      applicantId,
-                      locale,
-                      relevantPrograms,
-                      MessageKey.BUTTON_APPLY,
-                      MessageKey.BUTTON_APPLY_SR,
-                      htmlBundle,
-                      profile)));
+                  div()
+                      .withClasses(ApplicantStyles.PROGRAM_CARDS_PARENT_CONTAINER)
+                      .with(
+                          h2(messages.at(CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR.getKeyName()))
+                              .withClasses("mb-4 font-bold"),
+                          programCardViewRenderer.programCardsSection(
+                              request,
+                              messages,
+                              personalInfo,
+                              /* sectionTitle= */ Optional.empty(),
+                              ProgramCardViewRenderer.programCardsContainerStyles(
+                                  relevantPrograms.size()),
+                              applicantId,
+                              locale,
+                              relevantPrograms,
+                              MessageKey.BUTTON_APPLY,
+                              MessageKey.BUTTON_APPLY_SR,
+                              htmlBundle,
+                              profile))));
     }
 
     return layout.renderWithNav(request, personalInfo, messages, htmlBundle, applicantId);
