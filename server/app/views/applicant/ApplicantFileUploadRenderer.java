@@ -25,6 +25,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.StorageUploadRequest;
+import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
 import views.components.ButtonStyles;
 import views.fileupload.FileUploadViewStrategy;
@@ -49,12 +50,16 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
 
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final ApplicantRoutes applicantRoutes;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantFileUploadRenderer(
-      FileUploadViewStrategy fileUploadViewStrategy, ApplicantRoutes applicantRoutes) {
+      FileUploadViewStrategy fileUploadViewStrategy,
+      ApplicantRoutes applicantRoutes,
+      SettingsManifest settingsManifest) {
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -119,7 +124,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                     params.applicantId(),
                     params.programId(),
                     params.block().getId(),
-                    params.inReview())
+                    params.inReview(),
+                    ApplicantRequestedAction.NEXT_BLOCK)
                 .url();
 
     String key =
@@ -303,6 +309,9 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
   }
 
   private boolean hasAtLeastOneRequiredQuestion(Params params) {
+    if (settingsManifest.getAdminOidcEnhancedLogoutEnabled()) {
+      System.out.println("thing");
+    }
     return params.block().getQuestions().stream().anyMatch(question -> !question.isOptional());
   }
 
@@ -312,8 +321,28 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     DivTag ret =
         div()
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-            // TODO(#6450): Use the new review button here.
-            .with(renderOldReviewButton(params))
+            .with(
+                submitButton(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
+                    .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "file-upload-action-button")
+                    .withData(
+                        "redirect-with-file",
+                        params.baseUrl()
+                            + applicantRoutes
+                                .updateFile(
+                                    params.profile(),
+                                    params.applicantId(),
+                                    params.programId(),
+                                    params.block().getId(),
+                                    params.inReview(),
+                                    ApplicantRequestedAction.REVIEW_PAGE)
+                                .url())
+                    .withData(
+                        "redirect-without-file",
+                        applicantRoutes
+                            .review(params.profile(), params.applicantId(), params.programId())
+                            .url())
+                    .withForm(BLOCK_FORM_ID)
+                    .withId("review-button-id"))
             // TODO(#6450): Use the new previous button here.
             .with(renderOldPreviousButton(params));
     if (maybeSkipOrDeleteButton.isPresent()) {

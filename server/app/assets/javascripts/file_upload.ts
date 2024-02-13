@@ -1,4 +1,4 @@
-import {assertNotNull} from './util'
+import {addEventListenerToElements, assertNotNull} from './util'
 
 const UPLOAD_ATTR = 'data-upload-text'
 
@@ -26,17 +26,91 @@ export function init() {
     return true
   })
 
-  const uploadedDivs = blockForm.querySelectorAll(`[${UPLOAD_ATTR}]`)
-  if (uploadedDivs.length) {
-    const uploadedDiv = uploadedDivs[0]
-    const uploadText = assertNotNull(uploadedDiv.getAttribute(UPLOAD_ATTR))
+    addEventListenerToElements(
+      '.file-upload-action-button',
+      'click',
+      (e: Event) => {
+        console.log('click')
+        // TODO: Flag guard stuff (don't apply attributes if flag off?)
+        const redirectWithFile = assertNotNull((e.currentTarget as HTMLElement).dataset
+          .redirectWithFile)
+        const redirectWithoutFile = assertNotNull((e.currentTarget as HTMLElement).dataset
+          .redirectWithoutFile)
+        console.log('redirectWith=' + redirectWithFile)
+        console.log('redirectWi/o=' + redirectWithoutFile)
 
-    blockForm.addEventListener('change', (event) => {
-      const files = (event.target! as HTMLInputElement).files
-      const file = assertNotNull(files)[0]
-      uploadedDiv.innerHTML = uploadText.replace('{0}', file.name)
-      validateFileUploadQuestion(blockForm)
+        const fileInput = assertNotNull(
+          blockForm.querySelector<HTMLInputElement>('input[type=file]'),
+        )
+
+        if (fileInput.value != '') {
+          console.log('has file so changing redirect')
+          assertNotNull(
+            blockForm.querySelector<HTMLInputElement>(
+              'input[name="success_action_redirect"]',
+            )
+          ).value = redirectWithFile
+          // We want the submit to fire so don't call #stopPropagation?
+          return true
+        } else {
+          window.location.href = redirectWithoutFile
+          e.stopPropagation()
+        }
+      },
+    )
+
+      // Prevent submission of a file upload form if no file has been
+      // selected. Note: For optional file uploads, a distinct skip button
+      // is shown.
+    blockForm.addEventListener('submit', (event) => {
+      console.log('submit. id=' + (event.target! as Element).id)
+      console.log(
+        'submitter=' + ((event as SubmitEvent).submitter as Element).id,
+      )
+
+      const successActionRedirect = assertNotNull(
+        blockForm.querySelector<HTMLInputElement>(
+          'input[name="success_action_redirect"]',
+        ),
+      ).value
+      console.log('redirect input = ' + successActionRedirect)
+      if (
+        ((event as SubmitEvent).submitter as Element).id === 'review-button-id'
+      ) {
+        const applicantRequestedAction = 'REVIEW_PAGE'
+        const newSuccessActionRedirect =
+          successActionRedirect.substring(
+            0,
+            successActionRedirect.lastIndexOf('/') + 1,
+          ) + applicantRequestedAction
+        console.log('new redirect=' + newSuccessActionRedirect)
+        assertNotNull(
+          blockForm.querySelector<HTMLInputElement>(
+            'input[name="success_action_redirect"]',
+          ),
+        ).value = newSuccessActionRedirect
+        //return true
+      }
+
+      if (!validateFileUploadQuestions(blockForm)) {
+        event.preventDefault()
+        return false
+      }
+      return true
     })
+
+      const uploadedDivs = blockForm.querySelectorAll(`[${UPLOAD_ATTR}]`)
+      if (uploadedDivs.length) {
+        const uploadedDiv = uploadedDivs[0]
+        const uploadText = assertNotNull(uploadedDiv.getAttribute(UPLOAD_ATTR))
+
+        blockForm.addEventListener('change', (event) => {
+          const files = (event.target! as HTMLInputElement).files
+          const file = assertNotNull(files)[0]
+          uploadedDiv.innerHTML = uploadText.replace('{0}', file.name)
+          validateFileUploadQuestion(blockForm)
+          })
+          }
   }
 }
 
