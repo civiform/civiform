@@ -40,25 +40,25 @@ class AdminQuestionEdit {
     ) as HTMLInputElement
     addEventListenerToElements('#universal-toggle', 'click', () => {
       primaryApplicantInfoSubsections.forEach((subsection) => {
-        // If the property is already set on another question, only
-        // the alert exists and we swap the text. Otherwise, we show/hide
-        // the alert and the toggle.
-        const alert = assertNotNull(
-          subsection.querySelector('.cf-primary-applicant-info-alert'),
+        const notUniversalAlert = subsection.querySelector(
+          '.cf-pai-not-universal-alert',
+        )
+        const tagSetAlert = subsection.querySelector('.cf-pai-tag-set-alert')
+        const tagSetNotUniversalAlert = subsection.querySelector(
+          '.cf-pai-tag-set-not-universal-alert',
+        )
+        const togglediv = assertNotNull(
+          subsection.querySelector('.cf-toggle-div'),
         ) as HTMLDivElement
-        const alreadySetAlertText = subsection.getAttribute(
-          'data-already-set-alert',
-        ) // May be null
-        if (alreadySetAlertText === null) {
-          const togglediv = assertNotNull(
-            subsection.querySelector('.cf-toggle-div'),
-          ) as HTMLDivElement
-          const togglebutton = assertNotNull(
-            togglediv.querySelector('.cf-toggle-button'),
-          ) as HTMLButtonElement
-          const input = assertNotNull(
-            togglediv.querySelector('.cf-toggle-hidden-input'),
-          ) as HTMLInputElement
+        const togglebutton = assertNotNull(
+          togglediv.querySelector('.cf-toggle-button'),
+        ) as HTMLButtonElement
+        const input = assertNotNull(
+          togglediv.querySelector('.cf-toggle-hidden-input'),
+        ) as HTMLInputElement
+        if (notUniversalAlert !== null) {
+          // Tag is not already set on another question, so we are
+          // showing/hiding the toggle and alert.
 
           // Unset the PAI toggle when we unset universal.
           // Because the universal input doesn't change until after the click event,
@@ -67,19 +67,12 @@ class AdminQuestionEdit {
             togglebutton.click()
           }
           togglediv.toggleAttribute('hidden')
-          alert.toggleAttribute('hidden')
+          notUniversalAlert.toggleAttribute('hidden')
         } else {
-          const nonUniversalAlreadySetAlertText = assertNotNull(
-            subsection.getAttribute('data-non-universal-already-set-alert'),
-          )
-          const text = alert.querySelector(
-            '.usa-alert__text',
-          ) as HTMLParagraphElement
-          if (text.innerText === alreadySetAlertText) {
-            text.innerText = assertNotNull(nonUniversalAlreadySetAlertText)
-          } else {
-            text.innerText = assertNotNull(alreadySetAlertText)
-          }
+          // Tag is set on another question, so we're just deciding which
+          // alert to show, and the toggle will remain hidden.
+          assertNotNull(tagSetAlert).toggleAttribute('hidden')
+          assertNotNull(tagSetNotUniversalAlert).toggleAttribute('hidden')
         }
       })
     })

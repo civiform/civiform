@@ -490,68 +490,63 @@ public final class QuestionEditView extends BaseHtmlView {
                   currentQuestionForTag
                       .map(question -> !question.getName().equals(questionForm.getQuestionName()))
                       .orElse(false);
-              DivTag tagSubsection = div().withClass("cf-primary-applicant-info-subsection");
-
-              if (differentQuestionHasTag) {
-                // Only include the alert. We'll swap the text based on the state of the
-                // universal toggle in admin_question_edit.ts.
-                String otherQuestionName =
-                    currentQuestionForTag.map(QuestionDefinition::getName).orElseThrow();
-                String alreadySetAlertText =
-                    String.format(
-                        "You cannot make this question a Primary applicant information question"
-                            + " because the question named \"%s\" is already set as a primary"
-                            + " applicant information question.",
-                        otherQuestionName);
-                String nonUniversalAlreadySetAlertText =
-                    String.format(
-                        "You cannot make this question a Primary applicant information question"
-                            + " because the question is not a Universal question and because the"
-                            + " question named \"%s\" is already set as a Primary applicant"
-                            + " information question.",
-                        otherQuestionName);
-                String initialAlertText =
-                    questionForm.isUniversal()
-                        ? alreadySetAlertText
-                        : nonUniversalAlreadySetAlertText;
-                tagSubsection =
-                    tagSubsection
-                        .with(
-                            ViewUtils.makeAlertInfoSlim(
-                                initialAlertText,
-                                /* hidden= */ false,
-                                /* classes...= */ "cf-primary-applicant-info-alert",
-                                "usa-alert-remove-top-margin"))
-                        .withData("already-set-alert", alreadySetAlertText)
-                        .withData(
-                            "non-universal-already-set-alert", nonUniversalAlreadySetAlertText);
-              } else {
-                // Include both the toggle and the alert. We'll show/hide each based on the state
-                // of the universal toggle in admin_question_edit.ts.
-                tagSubsection =
-                    tagSubsection
-                        .with(
-                            p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
-                                .with(
-                                    span(primaryApplicantInfoTag.getDescription()),
-                                    ViewUtils.makeToggleButton(
-                                        /* fieldName= */ primaryApplicantInfoTag.getFieldName(),
-                                        /* enabled= */ questionForm
-                                            .primaryApplicantInfoTags()
-                                            .contains(primaryApplicantInfoTag),
-                                        /* hidden= */ !questionForm.isUniversal(),
-                                        /* idPrefix= */ Optional.of(
-                                            primaryApplicantInfoTag.getFieldName()),
-                                        /* text= */ Optional.of(
-                                            primaryApplicantInfoTag.getDisplayName()))))
-                        .with(
-                            ViewUtils.makeAlertInfoSlim(
-                                "You cannot edit this setting since the question is not a universal"
-                                    + " question.",
-                                /* hidden= */ questionForm.isUniversal(),
-                                /* classes...= */ "cf-primary-applicant-info-alert",
-                                "usa-alert-remove-top-margin"));
-              }
+              String otherQuestionName =
+                  currentQuestionForTag.map(QuestionDefinition::getName).orElse("");
+              String nonUniversalAlertText =
+                  "You cannot make this question a Primary applicant information question because"
+                      + " the question is not a Universal question.";
+              String alreadySetAlertText =
+                  String.format(
+                      "You cannot make this question a Primary applicant information question"
+                          + " because the question named \"%s\" is already set as a Primary"
+                          + " applicant information question.",
+                      otherQuestionName);
+              String nonUniversalAlreadySetAlertText =
+                  String.format(
+                      "You cannot make this question a Primary applicant information question"
+                          + " because the question is not a Universal question and because the"
+                          + " question named \"%s\" is already set as a Primary applicant"
+                          + " information question.",
+                      otherQuestionName);
+              DivTag tagSubsection =
+                  div()
+                      .withClass("cf-primary-applicant-info-subsection")
+                      .with(
+                          p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
+                              .with(
+                                  span(primaryApplicantInfoTag.getDescription()),
+                                  ViewUtils.makeToggleButton(
+                                      /* fieldName= */ primaryApplicantInfoTag.getFieldName(),
+                                      /* enabled= */ questionForm
+                                          .primaryApplicantInfoTags()
+                                          .contains(primaryApplicantInfoTag),
+                                      /* hidden= */ !questionForm.isUniversal()
+                                          || differentQuestionHasTag,
+                                      /* idPrefix= */ Optional.of(
+                                          primaryApplicantInfoTag.getFieldName()),
+                                      /* text= */ Optional.of(
+                                          primaryApplicantInfoTag.getDisplayName()))))
+                      .condWith(
+                          !differentQuestionHasTag,
+                          ViewUtils.makeAlertInfoSlim(
+                              nonUniversalAlertText,
+                              /* hidden= */ questionForm.isUniversal(),
+                              /* classes...= */ "cf-pai-not-universal-alert",
+                              "usa-alert-remove-top-margin"))
+                      .condWith(
+                          differentQuestionHasTag,
+                          ViewUtils.makeAlertInfoSlim(
+                              alreadySetAlertText,
+                              /* hidden= */ !questionForm.isUniversal(),
+                              /* classes...= */ "cf-pai-tag-set-alert",
+                              "usa-alert-remove-top-margin"))
+                      .condWith(
+                          differentQuestionHasTag,
+                          ViewUtils.makeAlertInfoSlim(
+                              nonUniversalAlreadySetAlertText,
+                              /* hidden= */ questionForm.isUniversal(),
+                              /* classes...= */ "cf-pai-tag-set-not-universal-alert",
+                              "usa-alert-remove-top-margin"));
               result.with(tagSubsection);
             });
     return result;

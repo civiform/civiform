@@ -43,7 +43,7 @@ describe('primary applicant info questions', () => {
 
     // Verify alert shown when universal isn't set, and hidden when it is
     await adminQuestions.expectPrimaryApplicantInfoAlert(
-      PrimaryApplicantInfoAlertType.NON_UNIVERAL,
+      PrimaryApplicantInfoAlertType.NOT_UNIVERSAL,
       true,
     )
     await adminQuestions.expectPrimaryApplicantInfoToggleVisible(
@@ -53,7 +53,7 @@ describe('primary applicant info questions', () => {
     await validateScreenshot(page, 'primary-applicant-info-universal-not-set')
     await adminQuestions.clickUniversalToggle()
     await adminQuestions.expectPrimaryApplicantInfoAlert(
-      PrimaryApplicantInfoAlertType.NON_UNIVERAL,
+      PrimaryApplicantInfoAlertType.NOT_UNIVERSAL,
       false,
     )
     await adminQuestions.expectPrimaryApplicantInfoToggleVisible(
@@ -104,7 +104,7 @@ describe('primary applicant info questions', () => {
     // Edit question, verify alert/toggle shown/hidden correctly
     await adminQuestions.gotoQuestionEditPage(nameQuestion)
     await adminQuestions.expectPrimaryApplicantInfoAlert(
-      PrimaryApplicantInfoAlertType.NON_UNIVERAL,
+      PrimaryApplicantInfoAlertType.NOT_UNIVERSAL,
       true,
     )
     await adminQuestions.expectPrimaryApplicantInfoToggleVisible(
@@ -113,7 +113,7 @@ describe('primary applicant info questions', () => {
     )
     await adminQuestions.clickUniversalToggle()
     await adminQuestions.expectPrimaryApplicantInfoAlert(
-      PrimaryApplicantInfoAlertType.NON_UNIVERAL,
+      PrimaryApplicantInfoAlertType.NOT_UNIVERSAL,
       false,
     )
     await adminQuestions.expectPrimaryApplicantInfoToggleVisible(
@@ -172,7 +172,7 @@ describe('primary applicant info questions', () => {
     await adminQuestions.gotoQuestionEditPage(nameQuestion)
     await adminQuestions.clickUniversalToggle()
     await adminQuestions.expectPrimaryApplicantInfoAlert(
-      PrimaryApplicantInfoAlertType.NON_UNIVERAL,
+      PrimaryApplicantInfoAlertType.NOT_UNIVERSAL,
       true,
     )
     await adminQuestions.expectPrimaryApplicantInfoToggleVisible(
@@ -210,7 +210,7 @@ describe('primary applicant info questions', () => {
     })
     await adminQuestions.gotoQuestionEditPage(nonPaiNameQuestion)
     await adminQuestions.expectPrimaryApplicantInfoAlert(
-      PrimaryApplicantInfoAlertType.ALREADY_SET,
+      PrimaryApplicantInfoAlertType.TAG_SET,
       true,
     )
     await validateScreenshot(page, 'primary-applicant-info-already-set')
@@ -218,7 +218,7 @@ describe('primary applicant info questions', () => {
     // Unset universal, make sure the alert shows the appropriate text
     await adminQuestions.clickUniversalToggle()
     await adminQuestions.expectPrimaryApplicantInfoAlert(
-      PrimaryApplicantInfoAlertType.NON_UNIVERSAL_AND_ALREADY_SET,
+      PrimaryApplicantInfoAlertType.TAG_SET_NOT_UNIVERSAL,
       true,
     )
     await validateScreenshot(
