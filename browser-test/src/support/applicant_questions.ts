@@ -562,16 +562,18 @@ export class ApplicantQuestions {
       `Questions on this page are not complete`,
     )
     expect(await modal.innerText()).toContain(
-      `Go to review page without saving`,
+      `Continue to review page without saving`,
     )
-    expect(await modal.innerText()).toContain(`Go back and fix`)
+    expect(await modal.innerText()).toContain(`Stay and fix your answers`)
   }
 
   async clickReviewWithoutSaving() {
-    await this.page.click('button:has-text("Go to review page without saving")')
+    await this.page.click(
+      'button:has-text("Continue to review page without saving")',
+    )
   }
 
   async clickGoBackAndEdit() {
-    await this.page.click('button:has-text("Go back and fix")')
+    await this.page.click('button:has-text("Stay and fix your answers")')
   }
 }

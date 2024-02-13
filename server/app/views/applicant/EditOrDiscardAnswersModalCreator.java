@@ -50,9 +50,7 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
                         "justify-end",
                         "my-8",
                         "gap-4")
-                    .with(
-                        renderReviewWithoutSavingButton(params),
-                        renderGoBackAndEditButton(params)));
+                    .with(renderReviewWithoutSavingButton(params), renderStayAndFixButton(params)));
     return Modal.builder()
         .setModalId(Modal.randomModalId())
         .setLocation(Modal.Location.APPLICANT_FACING)
@@ -65,9 +63,9 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
         .build();
   }
 
-  private ButtonTag renderGoBackAndEditButton(ApplicationBaseView.Params params) {
+  private ButtonTag renderStayAndFixButton(ApplicationBaseView.Params params) {
     return button(
-            params.messages().at(MessageKey.MODAL_ERROR_SAVING_GO_BACK_AND_FIX_BUTTON.getKeyName()))
+            params.messages().at(MessageKey.MODAL_ERROR_SAVING_STAY_AND_FIX_BUTTON.getKeyName()))
         // Adding the MODAL_CLOSE class means that clicking the button will close the modal.
         .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.SOLID_BLUE);
   }
