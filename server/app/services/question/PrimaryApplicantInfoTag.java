@@ -92,14 +92,14 @@ public enum PrimaryApplicantInfoTag {
     return this.description;
   }
 
-  public static ImmutableSet<PrimaryApplicantInfoTag> getAllTagsForQuestionType(
+  public static ImmutableSet<PrimaryApplicantInfoTag> getAllPaiTagsForQuestionType(
       QuestionType questionType) {
     return ImmutableList.copyOf(PrimaryApplicantInfoTag.values()).stream()
         .filter(t -> t.getQuestionType().equals(questionType))
         .collect(ImmutableSet.toImmutableSet());
   }
 
-  public static ImmutableSet<QuestionType> getAllQuestionTypes() {
+  public static ImmutableSet<QuestionType> getAllPaiEnabledQuestionTypes() {
     return ImmutableList.copyOf(PrimaryApplicantInfoTag.values()).stream()
         .map(t -> t.getQuestionType())
         .collect(ImmutableSet.toImmutableSet());

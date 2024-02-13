@@ -439,7 +439,7 @@ public final class QuestionEditView extends BaseHtmlView {
     }
     if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)
         && questionForm.getEnumeratorId().isEmpty()
-        && PrimaryApplicantInfoTag.getAllQuestionTypes().contains(questionType)) {
+        && PrimaryApplicantInfoTag.getAllPaiEnabledQuestionTypes().contains(questionType)) {
       questionSettingsContentBuilder.add(buildPrimaryApplicantInfoSection(questionForm));
     }
     if (!CsvExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
@@ -478,7 +478,7 @@ public final class QuestionEditView extends BaseHtmlView {
         fieldset()
             .withId("primary-applicant-info")
             .with(legend("Primary applicant information").withClass(BaseStyles.INPUT_LABEL));
-    PrimaryApplicantInfoTag.getAllTagsForQuestionType(questionForm.getQuestionType())
+    PrimaryApplicantInfoTag.getAllPaiTagsForQuestionType(questionForm.getQuestionType())
         .forEach(
             primaryApplicantInfoTag -> {
               Optional<QuestionDefinition> currentQuestionForTag =
