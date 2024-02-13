@@ -382,6 +382,9 @@ public final class ViewUtils {
     return div()
         .withCondHidden(hidden)
         .withClasses("usa-alert", String.join(" ", classes))
+        // Notify screen readers to read the new text when the element changes
+        .attr("aria-live", "polite")
+        .attr("role", "alert")
         .with(
             div()
                 .withClasses("usa-alert__body")
