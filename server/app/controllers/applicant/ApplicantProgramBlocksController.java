@@ -834,26 +834,24 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK) {
-      int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
       if (onAddressCorrectionPage) {
-        // The address correction view is a bit tricky. The address correction view appears after a
-        // block that contained an address question (and had address correction enabled). However,
-        // the address correction view isn't a defined block in the program definition, so
-        // `currentBlockIndex` still represents the block with the address question.
-        //
         // When an applicant is on the address correction view and clicks "Previous", we want them
-        // to go back to the block with the address question, which has index `currentBlockIndex`.
-        // The index we pass to ApplicantRoutes#blockPreviousOrReview should actually 1 index higher
-        // so that subtracting 1 to find the previous block will give us `currentBlockIndex` back.
-        currentBlockIndex += 1;
+        // to go back to the block with the address question. Address correction isn't a defined
+        // block in the program definition, so `blockId` represents the block with the address
+        // question and we just need to go back to that block.
+        return getEditOrReviewResult(
+            profile, applicantId, programId, blockId, inReview, flashingMap);
       }
-      final int currentBlockIndexFinal = currentBlockIndex;
       return supplyAsync(
           () ->
               redirect(
                   applicantRoutes
                       .blockPreviousOrReview(
-                          profile, applicantId, programId, currentBlockIndexFinal, inReview)
+                          profile,
+                          applicantId,
+                          programId,
+                          /* currentBlockIndex= */ roApplicantProgramService.getBlockIndex(blockId),
+                          inReview)
                       .url()));
     }
 
@@ -861,11 +859,22 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         inReview
             ? roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().map(Block::getId)
             : roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
-    // No next block so go to the program review page.
-    if (nextBlockIdMaybe.isEmpty()) {
-      return supplyAsync(() -> redirect(applicantRoutes.review(profile, applicantId, programId)));
-    }
+    return nextBlockIdMaybe
+        .map(s -> getEditOrReviewResult(profile, applicantId, programId, s, inReview, flashingMap))
+        .orElseGet(
+            () ->
+                supplyAsync(
+                        // No next block so go to the program review page.
+                        () -> redirect(applicantRoutes.review(profile, applicantId, programId))));
+  }
 
+  private CompletionStage<Result> getEditOrReviewResult(
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String blockId,
+      boolean inReview,
+      Map<String, String> flashingMap) {
     if (inReview) {
       return supplyAsync(
           () ->
@@ -874,7 +883,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           profile,
                           applicantId,
                           programId,
-                          nextBlockIdMaybe.get(),
+                          blockId,
                           /* questionName= */ Optional.empty()))
                   .flashing(flashingMap));
     }
@@ -886,7 +895,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         profile,
                         applicantId,
                         programId,
-                        nextBlockIdMaybe.get(),
+                        blockId,
                         /* questionName= */ Optional.empty()))
                 .flashing(flashingMap));
   }
