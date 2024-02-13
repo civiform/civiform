@@ -290,8 +290,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                     div()
                         .withClasses("usa-card__body", "flex")
                         .with(
-                            renderCardContactInfo(account).withClasses("w-1/5"),
-                            renderCardApplications(account).withClasses("ml-36 w-2/5"),
+                            renderCardContactInfo(account).withClasses("w-2/5"),
+                            renderCardApplications(account).withClasses("ml-10 w-2/5"),
                             renderCardNotes(account.getTiNote()).withClasses("ml-10 w-3/5"))));
   }
 
