@@ -107,7 +107,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     }
     await tiDashboard.createClient(client)
     await tiDashboard.expectDashboardContainClient(client)
-    await tiDashboard.clickOnApplicantDashboard()
+    await tiDashboard.clickOnViewApplications()
     await applicantQuestions.expectProgramPublic(
       programName,
       programDescription,
@@ -168,7 +168,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     await tiDashboard.createClient(client)
 
     await tiDashboard.expectDashboardContainClient(client)
-    await tiDashboard.clickOnApplicantDashboard()
+    await tiDashboard.clickOnViewApplications()
     await applicantQuestions.expectProgramHidden(programName)
     await validateScreenshot(page, 'program-visibility-hidden-from-other-tis')
     await logout(page)
@@ -183,7 +183,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     }
     await tiDashboard.createClient(clientTwo)
     await tiDashboard.expectDashboardContainClient(clientTwo)
-    await tiDashboard.clickOnApplicantDashboard()
+    await tiDashboard.clickOnViewApplications()
     await applicantQuestions.expectProgramPublic(
       programName,
       programDescription,
@@ -242,7 +242,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     }
     await tiDashboard.createClient(client)
     await tiDashboard.expectDashboardContainClient(client)
-    await tiDashboard.clickOnApplicantDashboard()
+    await tiDashboard.clickOnViewApplications()
     await applicantQuestions.expectProgramHidden(programName)
     await validateScreenshot(
       page,
@@ -261,7 +261,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     await waitForPageJsLoad(page)
 
     await tiDashboard.expectDashboardContainClient(client)
-    await tiDashboard.clickOnApplicantDashboard()
+    await tiDashboard.clickOnViewApplications()
     await applicantQuestions.expectProgramPublic(
       programName,
       programDescription,

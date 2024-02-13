@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import repository.ProgramRepository;
 import repository.SearchParameters;
 import services.DateConverter;
 import services.applicant.ApplicantData;
@@ -62,12 +63,15 @@ import views.style.StyleUtils;
 public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final DateConverter dateConverter;
+  private final ProgramRepository programRepository;
   public static final String OPTIONAL_INDICATOR = " (optional)";
 
   @Inject
-  public TrustedIntermediaryDashboardView(ApplicantLayout layout, DateConverter dateConverter) {
+  public TrustedIntermediaryDashboardView(
+      ApplicantLayout layout, DateConverter dateConverter, ProgramRepository programRepository) {
     this.layout = checkNotNull(layout);
     this.dateConverter = checkNotNull(dateConverter);
+    this.programRepository = checkNotNull(programRepository);
   }
 
   public Content render(
@@ -330,7 +334,9 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
 
     String programs =
         newestApplicant.get().getApplications().stream()
-            .map(application -> application.getProgramName())
+            .map(
+                application ->
+                    programRepository.getProgramDefinition(application.getProgram()).adminName())
             .collect(Collectors.joining(", "));
 
     return div(

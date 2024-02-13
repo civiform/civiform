@@ -122,6 +122,20 @@ export class TIDashboard {
     expect(tableInnerText).not.toContain(client.lastName)
   }
 
+  async expectClientContainsNumberOfApplications(num: string) {
+    const cardContainer = this.page.locator('.usa-card__body')
+    const cardText = await cardContainer.innerText()
+    expect(cardText).toContain(
+      `${num} application${num == '1' ? '' : 's'} submitted`,
+    )
+  }
+
+  async expectClientContainsProgramNames(programs: string[]) {
+    const cardContainer = this.page.locator('#card_applications')
+    const programsText = await cardContainer.innerText()
+    expect(programsText).toBe(programs.join(', '))
+  }
+
   async searchByDateOfBirth(dobDay: string, dobMonth: string, dobYear: string) {
     await this.page.fill('label:has-text("Day")', dobDay)
     await this.page.selectOption('#date_of_birth_month', dobMonth)
@@ -142,7 +156,7 @@ export class TIDashboard {
     await this.page.click('button:text("Search")')
   }
 
-  async clickOnApplicantDashboard() {
+  async clickOnViewApplications() {
     await this.page
       .locator('.usa-card__container a:text("View applications")')
       .click()
