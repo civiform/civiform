@@ -245,7 +245,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         selectedAddress,
         suggestions,
         applicantRequestedActionWrapper.getAction(),
-        // The #confirmAddress route is only triggered from the address correction page.
+        // The #confirmAddress route is triggered from the address correction page.
         /* onAddressCorrectionPage= */ true);
   }
 
@@ -834,18 +834,17 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK) {
-      System.out.println(
-          "requested action previous, on address correction=" + onAddressCorrectionPage);
       int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
       if (onAddressCorrectionPage) {
         // The address correction view is a bit tricky. The address correction view appears after a
         // block that contained an address question (and had address correction enabled). However,
-        // the address correction view isn't considered a block in the program definition, so
-        // "thisBlock" still represents the block with the address question.
+        // the address correction view isn't a defined block in the program definition, so
+        // `currentBlockIndex` still represents the block with the address question.
         //
         // When an applicant is on the address correction view and clicks "Previous", we want them
-        // to go back to the block with the address question, which is "thisBlock". So,
-        // "currentBlock" should actually be the block **after** "thisBlock".
+        // to go back to the block with the address question, which has index `currentBlockIndex`.
+        // The index we pass to ApplicantRoutes#blockPreviousOrReview should actually 1 index higher
+        // so that subtracting 1 to find the previous block will give us `currentBlockIndex` back.
         currentBlockIndex += 1;
       }
       final int currentBlockIndexFinal = currentBlockIndex;

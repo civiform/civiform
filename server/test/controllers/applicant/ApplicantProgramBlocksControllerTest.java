@@ -1829,7 +1829,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    // Address confirmation is special because it's not part of any block. If a user is on the
+    // Address correction is special because it's not part of any block. If a user is on the
     // address correction screen and requests to go to the previous page, they should be
     // redirected to the block that contained the address question, which is block 2 (index 1)
     // for this program.
