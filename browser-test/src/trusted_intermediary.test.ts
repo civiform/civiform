@@ -147,18 +147,21 @@ describe('Trusted intermediaries', () => {
       lastName: 'last',
       dobDate: '2021-06-10',
     }
+    const phoneNumber: string = '4256007121'
+    const notes: string = 'Housing Assistance'
     await tiDashboard.createClient(client)
     await waitForPageJsLoad(page)
-    await tiDashboard.updateClientTiNoteAndPhone(
-      client,
-      'Housing Assistance',
-      '4256007121',
-    )
+    await tiDashboard.updateClientTiNoteAndPhone(client, notes, phoneNumber)
     await waitForPageJsLoad(page)
-    await tiDashboard.expectClientContainsTiNoteAndPhone(
+    await tiDashboard.expectDashboardClientContainsTiNoteAndFormattedPhone(
       client,
-      'Housing Assistance',
-      '4256007121',
+      notes,
+      '(425) 600-7121',
+    )
+    await tiDashboard.expectEditFormContainsTiNoteAndPhone(
+      client,
+      notes,
+      phoneNumber,
     )
     await validateScreenshot(page, 'edit-client-information-with-all-fields')
   })
@@ -180,12 +183,12 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.updateClientEmailAddress(client, '')
     await waitForPageJsLoad(page)
 
-    const row = page.locator(
-      `.cf-admin-question-table-row:has-text("${client.lastName}, ${client.firstName}")`,
+    const card = page.locator(
+      `.usa-card__container:has-text("${client.lastName}, ${client.firstName}")`,
     )
-    const rowText = await row.innerText()
-    expect(rowText).toContain('(no email address)')
-    expect(rowText).toContain(client.dobDate)
+    const cardText = await card.innerText()
+    expect(cardText).not.toContain('test@sample.com')
+    expect(cardText).toContain(client.dobDate)
   })
 
   it('expect back button to land in dashboard in the edit client page', async () => {
@@ -203,7 +206,7 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.createClient(client)
     await waitForPageJsLoad(page)
     await page
-      .getByRole('row')
+      .getByRole('listitem')
       .filter({hasText: client.emailAddress})
       .getByText('Edit')
       .click()
@@ -230,7 +233,7 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.createClient(client)
     await waitForPageJsLoad(page)
     await page
-      .getByRole('row')
+      .getByRole('listitem')
       .filter({hasText: client.emailAddress})
       .getByText('Edit')
       .click()
@@ -262,7 +265,7 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.createClient(client)
     await waitForPageJsLoad(page)
     await page
-      .getByRole('row')
+      .getByRole('listitem')
       .filter({hasText: client.emailAddress})
       .getByText('Edit')
       .click()
@@ -353,7 +356,7 @@ describe('Trusted intermediaries', () => {
       dobDate: '2021-07-10',
     }
     await tiDashboard.createClient(client)
-    await tiDashboard.clickOnApplicantDashboard()
+    await tiDashboard.clickOnViewApplications()
 
     await applicantQuestions.applyProgram(programName)
     await selectApplicantLanguage(page, 'Español')
@@ -533,7 +536,7 @@ describe('Trusted intermediaries', () => {
       dobDate: '2021-07-10',
     }
     await tiDashboard.createClient(client)
-    await tiDashboard.clickOnApplicantDashboard()
+    await tiDashboard.clickOnViewApplications()
     expect(await page.innerText('#ti-clients-link')).toContain(
       'Select a new client',
     )
@@ -555,7 +558,7 @@ describe('Trusted intermediaries', () => {
       dobDate: '2021-07-10',
     }
     await tiDashboard.createClient(client)
-    await tiDashboard.clickOnApplicantDashboard()
+    await tiDashboard.clickOnViewApplications()
     await page.click('#ti-clients-link')
 
     expect(await page.innerText('#add-client')).toContain('Add Client')
@@ -632,7 +635,7 @@ describe('Trusted intermediaries', () => {
       const {page, tiDashboard, applicantQuestions} = ctx
       await loginAsTrustedIntermediary(page)
       await tiDashboard.gotoTIDashboardPage(page)
-      await tiDashboard.clickOnApplicantDashboard()
+      await tiDashboard.clickOnViewApplications()
 
       // Verify TI gets navigated to the ineligible page with TI text.
       await applicantQuestions.applyProgram(fullProgramName)
@@ -643,7 +646,7 @@ describe('Trusted intermediaries', () => {
 
       // Verify the 'may not qualify' tag shows on the program page
       await tiDashboard.gotoTIDashboardPage(page)
-      await tiDashboard.clickOnApplicantDashboard()
+      await tiDashboard.clickOnViewApplications()
       await applicantQuestions.seeEligibilityTag(fullProgramName, false)
       await validateScreenshot(page, 'program-page-not-eligible-ti')
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
@@ -663,9 +666,91 @@ describe('Trusted intermediaries', () => {
       await validateScreenshot(page, 'eligible-toast')
       await dismissToast(page)
       await tiDashboard.gotoTIDashboardPage(page)
-      await tiDashboard.clickOnApplicantDashboard()
+      await tiDashboard.clickOnViewApplications()
       await applicantQuestions.seeEligibilityTag(fullProgramName, true)
       await validateScreenshot(page, 'program-page-eligible-ti')
+    })
+  })
+
+  describe('application flow', () => {
+    // Create a program with 1 question.
+    const program1 = 'Test program 1'
+    const program2 = 'Test program 2'
+    const emailQuestionId = 'ti-email-question'
+
+    beforeAll(async () => {
+      const {page, adminQuestions, adminPrograms, tiDashboard} = ctx
+      await loginAsAdmin(page)
+
+      await adminQuestions.addEmailQuestion({
+        questionName: emailQuestionId,
+      })
+
+      // Create program 1
+      await adminPrograms.addProgram(program1)
+      await adminPrograms.editProgramBlock(program1, 'first description', [
+        emailQuestionId,
+      ])
+
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(program1)
+
+      // Create program 2
+      await adminPrograms.addProgram(program2)
+      await adminPrograms.editProgramBlock(program2, 'first description', [
+        emailQuestionId,
+      ])
+
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(program2)
+
+      await logout(page)
+
+      await loginAsTrustedIntermediary(page)
+
+      await tiDashboard.gotoTIDashboardPage(page)
+      await waitForPageJsLoad(page)
+      const client: ClientInformation = {
+        emailAddress: 'fake@sample.com',
+        firstName: 'first',
+        middleName: 'middle',
+        lastName: 'last',
+        dobDate: '2021-05-10',
+      }
+      await tiDashboard.createClient(client)
+      await tiDashboard.expectDashboardContainClient(client)
+    })
+
+    it('shows correct number of submitted applications in the client list', async () => {
+      const {page, tiDashboard, applicantQuestions} = ctx
+      await loginAsTrustedIntermediary(page)
+      await tiDashboard.gotoTIDashboardPage(page)
+      await tiDashboard.expectClientContainsNumberOfApplications('0')
+
+      // Apply to first program
+      await tiDashboard.clickOnViewApplications()
+
+      await applicantQuestions.applyProgram(program1)
+      await applicantQuestions.answerEmailQuestion('fake@sample.com')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.clickSubmit()
+
+      await tiDashboard.gotoTIDashboardPage(page)
+      await tiDashboard.expectClientContainsNumberOfApplications('1')
+      await tiDashboard.expectClientContainsProgramNames(['Test program 1'])
+
+      // Apply to second program
+      await tiDashboard.clickOnViewApplications()
+
+      await applicantQuestions.clickApplyProgramButton(program2)
+      await applicantQuestions.clickSubmit()
+
+      await tiDashboard.gotoTIDashboardPage(page)
+      await tiDashboard.expectClientContainsNumberOfApplications('2')
+      await tiDashboard.expectClientContainsProgramNames([
+        'Test program 1',
+        'Test program 2',
+      ])
     })
   })
 })

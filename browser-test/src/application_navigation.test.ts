@@ -841,7 +841,7 @@ describe('Applicant navigation flow', () => {
       }
       await tiDashboard.createClient(client)
       await tiDashboard.expectDashboardContainClient(client)
-      await tiDashboard.clickOnApplicantDashboard()
+      await tiDashboard.clickOnViewApplications()
 
       // Fill out common intake form, with non-eligible response
       await applicantQuestions.applyProgram(commonIntakeProgramName)
@@ -881,7 +881,7 @@ describe('Applicant navigation flow', () => {
       }
       await tiDashboard.createClient(client)
       await tiDashboard.expectDashboardContainClient(client)
-      await tiDashboard.clickOnApplicantDashboard()
+      await tiDashboard.clickOnViewApplications()
 
       // Fill out common intake form, with eligible response
       await applicantQuestions.applyProgram(commonIntakeProgramName)

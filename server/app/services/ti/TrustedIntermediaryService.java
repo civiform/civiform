@@ -46,7 +46,7 @@ public final class TrustedIntermediaryService {
   public static final String FORM_FIELD_NAME_PHONE = "phoneNumber";
   public static final String FORM_FIELD_NAME_MIDDLE_NAME = "middleName";
   public static final String FORM_FIELD_NAME_TI_NOTES = "tiNote";
-  private static final String COUNTRY_CODE_FOR_US_REGION = "US";
+  public static final String COUNTRY_CODE_FOR_US_REGION = "US";
 
   @Inject
   public TrustedIntermediaryService(

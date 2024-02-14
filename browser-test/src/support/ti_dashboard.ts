@@ -34,7 +34,7 @@ export class TIDashboard {
 
   async updateClientEmailAddress(client: ClientInformation, newEmail: string) {
     await this.page
-      .getByRole('row')
+      .getByRole('listitem')
       .filter({hasText: client.emailAddress})
       .getByText('Edit')
       .click()
@@ -51,7 +51,7 @@ export class TIDashboard {
     phone: string,
   ) {
     await this.page
-      .getByRole('row')
+      .getByRole('listitem')
       .filter({hasText: client.emailAddress})
       .getByText('Edit')
       .click()
@@ -65,7 +65,7 @@ export class TIDashboard {
 
   async updateClientDateOfBirth(client: ClientInformation, newDobDate: string) {
     await this.page
-      .getByRole('row')
+      .getByRole('listitem')
       .filter({hasText: client.emailAddress})
       .getByText('Edit')
       .click()
@@ -76,13 +76,13 @@ export class TIDashboard {
     await waitForPageJsLoad(this.page)
   }
 
-  async expectClientContainsTiNoteAndPhone(
+  async expectEditFormContainsTiNoteAndPhone(
     client: ClientInformation,
     tiNote: string,
     phone: string,
   ) {
     await this.page
-      .getByRole('row')
+      .getByRole('listitem')
       .filter({hasText: client.emailAddress})
       .getByText('Edit')
       .click()
@@ -93,20 +93,47 @@ export class TIDashboard {
     expect(text).toContain(tiNote)
   }
 
-  async expectDashboardContainClient(client: ClientInformation) {
-    const row = this.page.locator(
-      `.cf-admin-question-table-row:has-text("${client.lastName}, ${client.firstName}")`,
+  async expectDashboardClientContainsTiNoteAndFormattedPhone(
+    client: ClientInformation,
+    tiNote: string,
+    phone: string,
+  ) {
+    const cardContainer = this.page.locator(
+      `.usa-card__container:has-text("${client.lastName}, ${client.firstName}")`,
     )
-    const rowText = await row.innerText()
-    expect(rowText).toContain(client.emailAddress)
-    expect(rowText).toContain(client.dobDate)
+    const cardText = await cardContainer.innerText()
+    expect(cardText).toContain(tiNote)
+    expect(cardText).toContain(phone) // This should be in (xxx) xxx-xxxx format.
+  }
+
+  async expectDashboardContainClient(client: ClientInformation) {
+    const cardContainer = this.page.locator(
+      `.usa-card__container:has-text("${client.lastName}, ${client.firstName}")`,
+    )
+    const cardText = await cardContainer.innerText()
+    expect(cardText).toContain(client.emailAddress)
+    expect(cardText).toContain(client.dobDate)
   }
 
   async expectDashboardNotContainClient(client: ClientInformation) {
-    const tableInnerText = await this.page.innerText('table')
+    const tableInnerText = await this.page.innerText('.usa-card-group')
     expect(tableInnerText).not.toContain(client.emailAddress)
     expect(tableInnerText).not.toContain(client.firstName)
     expect(tableInnerText).not.toContain(client.lastName)
+  }
+
+  async expectClientContainsNumberOfApplications(num: string) {
+    const cardContainer = this.page.locator('.usa-card__body')
+    const cardText = await cardContainer.innerText()
+    expect(cardText).toContain(
+      `${num} application${num == '1' ? '' : 's'} submitted`,
+    )
+  }
+
+  async expectClientContainsProgramNames(programs: string[]) {
+    const cardContainer = this.page.locator('#card_applications')
+    const programsText = await cardContainer.innerText()
+    expect(programsText).toBe(programs.join(', '))
   }
 
   async searchByDateOfBirth(dobDay: string, dobMonth: string, dobYear: string) {
@@ -129,9 +156,9 @@ export class TIDashboard {
     await this.page.click('button:text("Search")')
   }
 
-  async clickOnApplicantDashboard() {
+  async clickOnViewApplications() {
     await this.page
-      .locator('.cf-admin-question-table-row a:text("Applicant Dashboard")')
+      .locator('.usa-card__container a:text("View applications")')
       .click()
     await waitForPageJsLoad(this.page)
   }
@@ -187,4 +214,6 @@ export interface ClientInformation {
   middleName: string
   lastName: string
   dobDate: string
+  phoneNumber?: string
+  notes?: string
 }
