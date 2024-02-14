@@ -48,7 +48,7 @@ services:
     image: civiform-mock-web-services
 
   db:
-    image: postgres:12.17
+    image: postgres:12.18
     stdin_open: true
     tty: true
     volumes:
