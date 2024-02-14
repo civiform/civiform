@@ -15,7 +15,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Random;
-import java.util.stream.Collectors;
 import services.CiviFormError;
 import services.LocalizedStrings;
 import services.Path;
@@ -291,24 +290,24 @@ public abstract class QuestionDefinition {
 
       var existingAdminNames =
           previousDefinition
-              .map(
-                  qd -> {
-                    ImmutableList<String> optionList =
-                        ((MultiOptionQuestionDefinition) qd).getOptionAdminNames();
-                    return optionList.stream()
-                        .map(e -> e.toLowerCase(Locale.ROOT))
-                        .collect(Collectors.toUnmodifiableList());
-                  })
-              .orElse(ImmutableList.of());
+              .map(qd -> (MultiOptionQuestionDefinition) qd)
+              .map(MultiOptionQuestionDefinition::getOptionAdminNames)
+              .orElse(ImmutableList.of())
+              // New option admin names can only be lowercase, but existing option
+              // admin names may have capital letters. We lowercase them before
+              // comparing to avoid collisions.
+              .stream()
+              .map(o -> o.toLowerCase(Locale.ROOT))
+              .collect(ImmutableList.toImmutableList());
 
       if (multiOptionQuestionDefinition.getOptionAdminNames().stream()
           // This is O(n^2) but the list is small and it's simpler than creating a Set
           .filter(n -> !existingAdminNames.contains(n.toLowerCase(Locale.ROOT)))
-          .anyMatch(s -> !s.matches("[0-9a-zA-Z_-]+"))) {
+          .anyMatch(s -> !s.matches("[0-9a-z_-]+"))) {
         errors.add(
             CiviFormError.of(
-                "Multi-option admin names can only contain letters, numbers, underscores, and"
-                    + " dashes"));
+                "Multi-option admin names can only contain lowercase letters, numbers, underscores,"
+                    + " and dashes"));
       }
       if (multiOptionQuestionDefinition.getOptions().stream()
           .anyMatch(option -> option.optionText().hasEmptyTranslation())) {

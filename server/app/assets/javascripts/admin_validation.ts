@@ -90,8 +90,8 @@ class AdminValidationController {
     let multiOptionIsValid = true
     for (const inputElement of inputElements) {
       // Assert that the admin name is not blank, and that it only
-      // contains 0-9, a-z, A-Z, _, and -
-      const inputIsValid = /^[0-9a-zA-Z_-]+$/.test(inputElement.value)
+      // contains 0-9, a-z, _, and -
+      const inputIsValid = /^[0-9a-z_-]+$/.test(inputElement.value)
       this.updateFieldErrorState(inputElement, errorClass, inputIsValid)
       if (!inputIsValid) {
         multiOptionIsValid = inputIsValid
