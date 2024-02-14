@@ -327,7 +327,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
 
   private String formatPhone(String phone) {
     try {
-      Phonenumber.PhoneNumber phoneNumber = PHONE_NUMBER_UTIL.parse(phone, "US");
+      Phonenumber.PhoneNumber phoneNumber =
+          PHONE_NUMBER_UTIL.parse(phone, TrustedIntermediaryService.COUNTRY_CODE_FOR_US_REGION);
       return PHONE_NUMBER_UTIL.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.NATIONAL);
     } catch (NumberParseException e) {
       return "-";
