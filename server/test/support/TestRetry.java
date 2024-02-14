@@ -35,7 +35,8 @@ public final class TestRetry implements TestRule {
                     + (i + 1)
                     + "/"
                     + retryCount
-                    + " failed.");
+                    + " failed due to: "
+                    + failureCause);
           }
         }
 
