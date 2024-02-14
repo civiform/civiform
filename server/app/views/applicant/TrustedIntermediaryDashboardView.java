@@ -22,6 +22,9 @@ import static j2html.TagCreator.ul;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 import com.google.inject.Inject;
 import controllers.ti.routes;
 import j2html.tags.specialized.ATag;
@@ -65,6 +68,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   private final DateConverter dateConverter;
   private final ProgramRepository programRepository;
   public static final String OPTIONAL_INDICATOR = " (optional)";
+  private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
   @Inject
   public TrustedIntermediaryDashboardView(
@@ -282,9 +286,9 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                                     div(
                                             renderSubHeader(account.getApplicantName())
                                                 .withClass("usa-card__heading"),
-                                            u(renderUpdateClientLink(account.id)).withClass("ml-2"))
+                                            u(renderEditClientLink(account.id)).withClass("ml-2"))
                                         .withClass("flex"),
-                                    renderCardDateOfBirth(account))
+                                    renderClientDateOfBirth(account))
                                 .withClass("flex-col"),
                             renderIndexPageLink(account)),
                     div()
@@ -322,7 +326,12 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   private String formatPhone(String phone) {
-    return phone.replaceFirst("(\\d{3})(\\d{3})(\\d+)", "($1) $2-$3");
+    try {
+      Phonenumber.PhoneNumber phoneNumber = PHONE_NUMBER_UTIL.parse(phone, "US");
+      return PHONE_NUMBER_UTIL.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.NATIONAL);
+    } catch (NumberParseException e) {
+      return "-";
+    }
   }
 
   private DivTag renderCardApplications(AccountModel account) {
@@ -336,7 +345,10 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         newestApplicant.get().getApplications().stream()
             .map(
                 application ->
-                    programRepository.getProgramDefinition(application.getProgram()).adminName())
+                    programRepository
+                        .getProgramDefinition(application.getProgram())
+                        .localizedName()
+                        .getDefault())
             .collect(Collectors.joining(", "));
 
     return div(
@@ -354,7 +366,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         label("Notes").withFor("card_notes"), p(notes).withClass("text-xs").withId("card_notes"));
   }
 
-  private ATag renderUpdateClientLink(Long accountId) {
+  private ATag renderEditClientLink(Long accountId) {
     return new LinkElement()
         .setId("edit-client")
         .setText("Edit")
@@ -362,7 +374,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .asAnchorText();
   }
 
-  private DivTag renderCardDateOfBirth(AccountModel account) {
+  private DivTag renderClientDateOfBirth(AccountModel account) {
     Optional<ApplicantModel> newestApplicant = account.newestApplicant();
     if (newestApplicant.isEmpty()) {
       return div();
