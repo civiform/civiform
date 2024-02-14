@@ -60,9 +60,10 @@ public class ViewUtilsTest {
             "some text", false, Optional.of("title"), BaseStyles.ALERT_INFO, BaseStyles.ALERT_SLIM);
     assertThat(alertComponent.render())
         .isEqualTo(
-            "<div class=\"usa-alert usa-alert--info usa-alert--slim\"><div"
-                + " class=\"usa-alert__body\"><h4 class=\"usa-alert__heading\">title</h4><p"
-                + " class=\"usa-alert__text\">some text</p></div></div>");
+            "<div class=\"usa-alert usa-alert--info usa-alert--slim\" aria-live=\"polite\""
+                + " role=\"alert\"><div class=\"usa-alert__body\"><h4"
+                + " class=\"usa-alert__heading\">title</h4><p class=\"usa-alert__text\">some"
+                + " text</p></div></div>");
   }
 
   @Test
@@ -71,8 +72,9 @@ public class ViewUtilsTest {
         ViewUtils.makeAlert("some text", false, Optional.empty(), BaseStyles.ALERT_WARNING);
     assertThat(alertComponent.render())
         .isEqualTo(
-            "<div class=\"usa-alert usa-alert--warning\"><div class=\"usa-alert__body\"><p"
-                + " class=\"usa-alert__text\">some text</p></div></div>");
+            "<div class=\"usa-alert usa-alert--warning\" aria-live=\"polite\" role=\"alert\"><div"
+                + " class=\"usa-alert__body\"><p class=\"usa-alert__text\">some"
+                + " text</p></div></div>");
   }
 
   @Test
