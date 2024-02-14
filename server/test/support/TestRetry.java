@@ -30,12 +30,12 @@ public final class TestRetry implements TestRule {
           } catch (Throwable throwable) {
             failureCause = throwable;
             System.err.println(
-                    description.getDisplayName()
-                            + ": attempt "
-                            + (i + 1)
-                            + "/"
-                            + retryCount
-                            + " failed.");
+                description.getDisplayName()
+                    + ": attempt "
+                    + (i + 1)
+                    + "/"
+                    + retryCount
+                    + " failed.");
           }
         }
 

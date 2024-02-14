@@ -35,47 +35,47 @@ public class DurableJobRunnerTest extends ResetPostgres {
     simpleEmailMock = Mockito.mock(SimpleEmail.class);
 
     Config config =
-            ConfigFactory.parseMap(
-                    ImmutableMap.of(
-                            "it_email_address",
-                            "test@example.com",
-                            "base_url",
-                            "https://civiform-test.dev",
-                            "durable_jobs.job_timeout_minutes",
-                            0,
-                            "durable_jobs.poll_interval_seconds",
-                            0));
+        ConfigFactory.parseMap(
+            ImmutableMap.of(
+                "it_email_address",
+                "test@example.com",
+                "base_url",
+                "https://civiform-test.dev",
+                "durable_jobs.job_timeout_minutes",
+                0,
+                "durable_jobs.poll_interval_seconds",
+                0));
 
     durableJobRegistry = new DurableJobRegistry();
 
     durableJobRunner =
-            new DurableJobRunner(
-                    config,
-                    instanceOf(DurableJobExecutionContext.class),
-                    durableJobRegistry,
-                    instanceOf(PersistedDurableJobRepository.class),
-                    () ->
-                            instanceOf(
-                                    new BindingKey<>(LocalDateTime.class)
-                                            .qualifiedWith(BindingAnnotations.Now.class)),
-                    simpleEmailMock,
-                    instanceOf(ZoneId.class));
+        new DurableJobRunner(
+            config,
+            instanceOf(DurableJobExecutionContext.class),
+            durableJobRegistry,
+            instanceOf(PersistedDurableJobRepository.class),
+            () ->
+                instanceOf(
+                    new BindingKey<>(LocalDateTime.class)
+                        .qualifiedWith(BindingAnnotations.Now.class)),
+            simpleEmailMock,
+            instanceOf(ZoneId.class));
   }
 
   @Test
   public void runJobs_timesOut() {
     durableJobRegistry.register(
-            DurableJobName.TEST,
-            (persistedDurableJob) ->
-                    makeTestJob(
-                            persistedDurableJob,
-                            () -> {
-                              try {
-                                Thread.sleep(/* millis= */ 3000L);
-                              } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                              }
-                            }));
+        DurableJobName.TEST,
+        (persistedDurableJob) ->
+            makeTestJob(
+                persistedDurableJob,
+                () -> {
+                  try {
+                    Thread.sleep(/* millis= */ 3000L);
+                  } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                  }
+                }));
 
     PersistedDurableJobModel job = createPersistedJobToExecute();
 
@@ -88,13 +88,13 @@ public class DurableJobRunnerTest extends ResetPostgres {
   @Test
   public void rubJobs_executionException() {
     durableJobRegistry.register(
-            DurableJobName.TEST,
-            (persistedDurableJob) ->
-                    makeTestJob(
-                            persistedDurableJob,
-                            () -> {
-                              throw new RuntimeException("test-execution-exception");
-                            }));
+        DurableJobName.TEST,
+        (persistedDurableJob) ->
+            makeTestJob(
+                persistedDurableJob,
+                () -> {
+                  throw new RuntimeException("test-execution-exception");
+                }));
 
     PersistedDurableJobModel job = createPersistedJobToExecute();
 
@@ -110,9 +110,9 @@ public class DurableJobRunnerTest extends ResetPostgres {
   public void runJobs_runsJobsThatAreReady() {
     AtomicInteger runCount = new AtomicInteger(0);
     durableJobRegistry.register(
-            DurableJobName.TEST,
-            (persistedDurableJob) ->
-                    makeTestJob(persistedDurableJob, () -> runCount.getAndIncrement()));
+        DurableJobName.TEST,
+        (persistedDurableJob) ->
+            makeTestJob(persistedDurableJob, () -> runCount.getAndIncrement()));
 
     PersistedDurableJobModel jobA = createPersistedJobToExecute();
     PersistedDurableJobModel jobB = createPersistedJobToExecute();
@@ -149,18 +149,18 @@ public class DurableJobRunnerTest extends ResetPostgres {
     assertThat(job.getErrorMessage().get()).contains("JobRunner_JobFailed JobNotFound");
     assertThat(job.getRemainingAttempts()).isEqualTo(0);
     Mockito.verify(simpleEmailMock, Mockito.times(1))
-            .send(
-                    Mockito.eq("test@example.com"),
-                    Mockito.eq("ERROR: CiviForm Durable job failure on civiform-test.dev"),
-                    Mockito.contains(
-                            String.format(
-                                    "Error report for: job_name=\"%s\", job_ID=%d", job.getJobName(), job.id)));
+        .send(
+            Mockito.eq("test@example.com"),
+            Mockito.eq("ERROR: CiviForm Durable job failure on civiform-test.dev"),
+            Mockito.contains(
+                String.format(
+                    "Error report for: job_name=\"%s\", job_ID=%d", job.getJobName(), job.id)));
   }
 
   private PersistedDurableJobModel createPersistedJobScheduledInFuture() {
     var persistedJob =
-            new PersistedDurableJobModel(
-                    DurableJobName.TEST.getJobNameString(), Instant.now().plus(10, ChronoUnit.DAYS));
+        new PersistedDurableJobModel(
+            DurableJobName.TEST.getJobNameString(), Instant.now().plus(10, ChronoUnit.DAYS));
 
     persistedJob.save();
 
@@ -169,8 +169,8 @@ public class DurableJobRunnerTest extends ResetPostgres {
 
   private PersistedDurableJobModel createPersistedJobToExecute() {
     var persistedJob =
-            new PersistedDurableJobModel(
-                    DurableJobName.TEST.getJobNameString(), Instant.now().minus(1, ChronoUnit.DAYS));
+        new PersistedDurableJobModel(
+            DurableJobName.TEST.getJobNameString(), Instant.now().minus(1, ChronoUnit.DAYS));
 
     persistedJob.save();
 
@@ -178,7 +178,7 @@ public class DurableJobRunnerTest extends ResetPostgres {
   }
 
   private static DurableJob makeTestJob(
-          PersistedDurableJobModel persistedDurableJob, Runnable runnable) {
+      PersistedDurableJobModel persistedDurableJob, Runnable runnable) {
     return new DurableJob() {
       @Override
       public PersistedDurableJobModel getPersistedDurableJob() {
