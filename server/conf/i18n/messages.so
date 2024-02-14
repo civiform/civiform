@@ -402,7 +402,7 @@ validation.textTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Su''aalaha xulashada badan ma yeelan karaan ikhtiyaaro madhan.
-adminValidation.multiOptionAdminError=Magacyada maamulka keliya waxay ka kooban yihiin xarfo, lambaro, calaamada andhar iskoorka, iyo dhibco jiidan.
+adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
 
 #----------------------------------#
 # ERRORS - various error messages  #

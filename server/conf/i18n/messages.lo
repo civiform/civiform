@@ -402,7 +402,7 @@ validation.textTooShort=ຕ້ອງມີຢ່າງໜ້ອຍ {0} ຕົວ
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=ຄຳຖາມແບບຫຼາຍຕົວເລືອກບໍ່ສາມາດມີເລືອກຫວ່າງເປົ່າໄດ້.
-adminValidation.multiOptionAdminError=ຊື່ຂອງຜູ້ເບິ່ງແຍງສາມາດມີໄດ້ສະເພາະຕົວອັກສອນ, ຕົວເລກ, ຂີດກ້ອງ ແລະ ຂີດກາງ.
+adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
 
 #----------------------------------#
 # ERRORS - various error messages  #

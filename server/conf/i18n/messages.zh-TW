@@ -402,7 +402,7 @@ validation.textTooShort=長度不可少於 {0} 個字元。
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=多選題不得留空。
-adminValidation.multiOptionAdminError=管理員名稱只能使用英文字母、數字、底線和破折號。
+adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
 
 #----------------------------------#
 # ERRORS - various error messages  #
