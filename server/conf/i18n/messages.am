@@ -402,7 +402,7 @@ validation.textTooShort=ቢያንስ {0} ቁምፊዎችን መያዝ አለበ�
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=ባለብዙ አማራጭ ጥያቄዎች ባዶ አማራጮች ሊኖሯቸው አይችሉም።
-adminValidation.multiOptionAdminError=የአስተዳዳሪ ስሞች ፊደሎችን፣ ቁጥሮችን፣ የሥር መስመሮችን እና ዳሾችንን ብቻ ሊይዙ ይችላሉ።
+adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
 
 #----------------------------------#
 # ERRORS - various error messages  #
