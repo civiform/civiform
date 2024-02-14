@@ -402,7 +402,7 @@ validation.textTooShort=Phải có ít nhất {0} ký tự.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Không được để lựa chọn trống trong câu hỏi có nhiều lựa chọn.
-adminValidation.multiOptionAdminError=Tên của quản trị viên chỉ có thể chứa chữ cái, số, dấu gạch dưới và dấu gạch ngang.
+adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
 
 #----------------------------------#
 # ERRORS - various error messages  #
