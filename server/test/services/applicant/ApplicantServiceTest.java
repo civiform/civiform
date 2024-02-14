@@ -1845,11 +1845,91 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.unapplied().stream().map(ApplicantProgramData::isProgramMaybeEligible))
         .containsExactlyInAnyOrder(Optional.of(true), Optional.empty());
     assertThat(
-            result.unappliedAndPotentiallyEligible().stream().map(ApplicantProgramData::programId))
-        .containsExactlyInAnyOrder(programForUnapplied.id, programDefinition.id());
-    assertThat(
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty(), Optional.empty());
+  }
+
+  @Test
+  public void unappliedAndPotentiallyEligible_returnsProgramsTheApplicantCanApplyTo() {
+    ApplicantModel applicant = createTestApplicant();
+    EligibilityDefinition eligibilityDef = createEligibilityDefinition(questionDefinition);
+    ProgramModel programForSubmitted =
+        ProgramBuilder.newDraftProgram("program_for_submitted")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .build();
+    ProgramModel programForEligible =
+        ProgramBuilder.newDraftProgram("program_for_eligible")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .build();
+    ProgramModel programForIneligible =
+        ProgramBuilder.newDraftProgram("program_for_ineligible")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .withEligibilityDefinition(eligibilityDef)
+            .build();
+
+    versionRepository.publishNewSynchronizedVersion();
+
+    ProgramBuilder.newDraftProgram("program_for_draft")
+        .withBlock()
+        .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+        .build();
+
+    // Applicant's answer is ineligible.
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Ineligible answer")
+            .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programForSubmitted.id, "1", updates, false)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+    ApplicantService.ApplicationPrograms result =
+        subject
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
+
+    // Only the eligible program is returned. Draft program, submitted program and ineligible
+    // program are not included.
+    assertThat(
+            result.unappliedAndPotentiallyEligible().stream().map(ApplicantProgramData::programId))
+        .containsExactlyInAnyOrder(programForEligible.id, programDefinition.id());
+
+    // Applicant's answer gets changed to an eligible answer.
+    updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "eligible name")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programForSubmitted.id, "1", updates, false)
+        .toCompletableFuture()
+        .join();
+
+    applicationRepository
+        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+    ApplicantService.ApplicationPrograms secondResult =
+        subject
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
+    // The previously inelgible program is now included.
+    assertThat(
+            secondResult.unappliedAndPotentiallyEligible().stream()
+                .map(ApplicantProgramData::programId))
+        .containsExactlyInAnyOrder(
+            programForEligible.id, programForIneligible.id, programDefinition.id());
   }
 
   @Test
