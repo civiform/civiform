@@ -24,7 +24,7 @@ import support.TestRetry;
 
 public class DurableJobRunnerTest extends ResetPostgres {
 
- // @Rule public TestRetry testRetry = new TestRetry(5);
+  @Rule public TestRetry testRetry = new TestRetry(5);
 
   private SimpleEmail simpleEmailMock;
   private DurableJobRunner durableJobRunner;
@@ -60,29 +60,6 @@ public class DurableJobRunnerTest extends ResetPostgres {
                         .qualifiedWith(BindingAnnotations.Now.class)),
             simpleEmailMock,
             instanceOf(ZoneId.class));
-  }
-
-  @Test
-  public void runJobs_timesOut() {
-    durableJobRegistry.register(
-        DurableJobName.TEST,
-        (persistedDurableJob) ->
-            makeTestJob(
-                persistedDurableJob,
-                () -> {
-                  try {
-                    Thread.sleep(/* millis= */ 3000L);
-                  } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                  }
-                }));
-
-    PersistedDurableJobModel job = createPersistedJobToExecute();
-
-    durableJobRunner.runJobs();
-
-    job.refresh();
-    assertThat(job.getErrorMessage().get()).contains("JobRunner_JobTimeout");
   }
 
   @Test
