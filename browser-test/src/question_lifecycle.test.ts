@@ -377,18 +377,30 @@ describe('normal question lifecycle', () => {
     // Edit the newly created question
     await adminQuestions.gotoQuestionEditPage(questionName)
 
-    // Add an option with an invalid adminName
+    // Add options with an invalid adminNames
     await page.click('#add-new-option')
-    const newOption = {adminName: 'invalid name', text: 'option3'}
-    await adminQuestions.fillMultiOptionAnswer(2, newOption)
-    // Add the invalid option to the options array
-    options.push(newOption)
+    const invalidOptionSpace = {adminName: 'invalid name', text: 'option3'}
+    await adminQuestions.fillMultiOptionAnswer(2, invalidOptionSpace)
+
+    await page.click('#add-new-option')
+    const invalidOptionCapitalLetter = {
+      adminName: 'invalid_Name',
+      text: 'option4',
+    }
+    await adminQuestions.fillMultiOptionAnswer(3, invalidOptionCapitalLetter)
+
+    // Add the invalid options to the options array
+    options.push(invalidOptionSpace)
+    options.push(invalidOptionCapitalLetter)
 
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
 
     await validateScreenshot(page, 'question-with-invalid-admin-names-error')
     await adminQuestions.expectMultiOptionBlankOptionError(options, [])
-    await adminQuestions.expectMultiOptionInvalidOptionAdminError(options, [2])
+    await adminQuestions.expectMultiOptionInvalidOptionAdminError(
+      options,
+      [2, 3],
+    )
   })
 
   it('persists export state', async () => {

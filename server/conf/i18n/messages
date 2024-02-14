@@ -402,7 +402,7 @@ validation.textTooShort=Must contain at least {0} characters.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Multi option questions cannot have blank options.
-adminValidation.multiOptionAdminError=Admin names can only contain letters, numbers, underscores, and dashes.
+adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
 
 #----------------------------------#
 # ERRORS - various error messages  #
