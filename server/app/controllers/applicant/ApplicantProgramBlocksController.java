@@ -839,19 +839,15 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         // to go back to the block with the address question. Address correction isn't a defined
         // block in the program definition, so `blockId` represents the block with the address
         // question and we just need to go back to that block.
-        return getEditOrReviewResult(
-            profile, applicantId, programId, blockId, inReview, flashingMap);
+        return getBlockPage(profile, applicantId, programId, blockId, inReview, flashingMap);
       }
+      int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
       return supplyAsync(
           () ->
               redirect(
                   applicantRoutes
                       .blockPreviousOrReview(
-                          profile,
-                          applicantId,
-                          programId,
-                          /* currentBlockIndex= */ roApplicantProgramService.getBlockIndex(blockId),
-                          inReview)
+                          profile, applicantId, programId, currentBlockIndex, inReview)
                       .url()));
     }
 
@@ -860,15 +856,24 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             ? roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().map(Block::getId)
             : roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
     return nextBlockIdMaybe
-        .map(s -> getEditOrReviewResult(profile, applicantId, programId, s, inReview, flashingMap))
+        .map(
+            nextBlockId ->
+                getBlockPage(profile, applicantId, programId, nextBlockId, inReview, flashingMap))
+        // No next block so go to the program review page.
         .orElseGet(
             () ->
                 supplyAsync(
-                    // No next block so go to the program review page.
                     () -> redirect(applicantRoutes.review(profile, applicantId, programId))));
   }
 
-  private CompletionStage<Result> getEditOrReviewResult(
+  /**
+   * Returns a redirect to the block specified by {@code blockId}.
+   *
+   * @param inReview true if the applicant is reviewing their application answers and false if
+   *     they're filling out the application step-by-step. See {@link #edit} and {@link #review} for
+   *     more details.
+   */
+  private CompletionStage<Result> getBlockPage(
       CiviFormProfile profile,
       long applicantId,
       long programId,
