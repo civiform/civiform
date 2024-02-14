@@ -21,8 +21,6 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 import models.PersistedDurableJobModel;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import repository.PersistedDurableJobRepository;
 import services.cloud.aws.SimpleEmail;
 
@@ -35,7 +33,7 @@ import services.cloud.aws.SimpleEmail;
 @Singleton
 public final class DurableJobRunner {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DurableJobRunner.class);
+  // private static final Logger LOGGER = LoggerFactory.getLogger(DurableJobRunner.class);
 
   private final String hostName;
   private final Database database = DB.getDefault();
@@ -84,7 +82,7 @@ public final class DurableJobRunner {
    * <p>{@code synchronized} to avoid overlapping executions within the same server.
    */
   public synchronized void runJobs() {
-    LOGGER.info("JobRunner_Start thread ID={}", Thread.currentThread().getId());
+    System.err.println("JobRunner_Start thread ID=" + Thread.currentThread().getId());
 
     LocalDateTime stopTime = resolveStopTime();
     Transaction transaction = database.beginTransaction();
@@ -92,6 +90,13 @@ public final class DurableJobRunner {
         persistedDurableJobRepository.getJobForExecution();
 
     while (maybeJobToRun.isPresent() && nowProvider.get().isBefore(stopTime)) {
+      System.err.println(
+          "jobToRun="
+              + maybeJobToRun.get().id
+              + "  nowTime="
+              + nowProvider.get()
+              + "  stopTime="
+              + stopTime);
       PersistedDurableJobModel jobToRun = maybeJobToRun.get();
       runJob(jobToRun);
       notifyUponFinalFailure(jobToRun);
@@ -102,7 +107,7 @@ public final class DurableJobRunner {
     }
     transaction.close();
 
-    LOGGER.info("JobRunner_Stop thread_ID={}", Thread.currentThread().getId());
+    System.err.println("JobRunner_Stop thread ID=" + Thread.currentThread().getId());
   }
 
   private void notifyUponFinalFailure(PersistedDurableJobModel job) {
@@ -127,11 +132,12 @@ public final class DurableJobRunner {
 
   private void runJob(PersistedDurableJobModel persistedDurableJob) {
     LocalDateTime startTime = nowProvider.get();
-    LOGGER.info(
-        "JobRunner_ExecutingJob thread_ID={}, job_name=\"{}\", job_ID={}",
-        Thread.currentThread().getId(),
-        persistedDurableJob.getJobName(),
-        persistedDurableJob.id);
+    System.err.println(
+        String.format(
+            "JobRunner_ExecutingJob thread_ID={%s}, job_name=\"{%s}\", job_ID={%s}",
+            Thread.currentThread().getId(),
+            persistedDurableJob.getJobName(),
+            persistedDurableJob.id));
 
     try {
       persistedDurableJob.decrementRemainingAttempts().save();
@@ -145,11 +151,12 @@ public final class DurableJobRunner {
 
       persistedDurableJob.setSuccessTime(nowProvider.get().toInstant(zoneOffset)).save();
 
-      LOGGER.info(
-          "JobRunner_JobSucceeded job_name=\"{}\", job_ID={}, duration_s={}",
-          persistedDurableJob.getJobName(),
-          persistedDurableJob.id,
-          getJobDurationInSeconds(startTime));
+      System.err.println(
+          String.format(
+              "JobRunner_JobSucceeded job_name=\"{%s}\", job_ID={%s}, duration_s={%s}",
+              persistedDurableJob.getJobName(),
+              persistedDurableJob.id,
+              getJobDurationInSeconds(startTime)));
     } catch (JobNotFoundException
         | IllegalArgumentException
         | CancellationException
@@ -163,7 +170,7 @@ public final class DurableJobRunner {
               persistedDurableJob.id,
               persistedDurableJob.getRemainingAttempts(),
               getJobDurationInSeconds(startTime));
-      LOGGER.error(msg);
+      System.err.println(msg);
       persistedDurableJob.appendErrorMessage(msg).save();
     } catch (TimeoutException e) {
       String msg =
@@ -174,7 +181,7 @@ public final class DurableJobRunner {
               persistedDurableJob.id,
               persistedDurableJob.getRemainingAttempts(),
               getJobDurationInSeconds(startTime));
-      LOGGER.error(msg);
+      System.err.println(msg);
       persistedDurableJob.appendErrorMessage(msg).save();
     } catch (ExecutionException e) {
       String msg =
@@ -187,7 +194,7 @@ public final class DurableJobRunner {
               getJobDurationInSeconds(startTime),
               e.getMessage(),
               ExceptionUtils.getStackTrace(e));
-      LOGGER.error(msg);
+      System.err.println(msg);
       persistedDurableJob.appendErrorMessage(msg).save();
     }
   }

@@ -26,6 +26,8 @@ public final class TestRetry implements TestRule {
         for (int i = 0; i < retryCount; i++) {
           try {
             statement.evaluate();
+            System.err.println(
+                description.getDisplayName() + ": attempt " + (i + 1) + " succeeded");
             return;
           } catch (Throwable throwable) {
             failureCause = throwable;
@@ -35,7 +37,8 @@ public final class TestRetry implements TestRule {
                     + (i + 1)
                     + "/"
                     + retryCount
-                    + " failed.");
+                    + " failed due to: "
+                    + failureCause);
           }
         }
 
