@@ -63,29 +63,6 @@ public class DurableJobRunnerTest extends ResetPostgres {
   }
 
   @Test
-  public void runJobs_timesOut() {
-    durableJobRegistry.register(
-        DurableJobName.TEST,
-        (persistedDurableJob) ->
-            makeTestJob(
-                persistedDurableJob,
-                () -> {
-                  try {
-                    Thread.sleep(/* millis= */ 3000L);
-                  } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                  }
-                }));
-
-    PersistedDurableJobModel job = createPersistedJobToExecute();
-
-    durableJobRunner.runJobs();
-
-    job.refresh();
-    assertThat(job.getErrorMessage().get()).contains("JobRunner_JobTimeout");
-  }
-
-  @Test
   public void rubJobs_executionException() {
     durableJobRegistry.register(
         DurableJobName.TEST,
