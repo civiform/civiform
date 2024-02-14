@@ -864,8 +864,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .orElseGet(
             () ->
                 supplyAsync(
-                        // No next block so go to the program review page.
-                        () -> redirect(applicantRoutes.review(profile, applicantId, programId))));
+                    // No next block so go to the program review page.
+                    () -> redirect(applicantRoutes.review(profile, applicantId, programId))));
   }
 
   private CompletionStage<Result> getEditOrReviewResult(
