@@ -56,6 +56,7 @@ public final class ThymeleafModule extends AbstractModule {
     FileTemplateResolver fileTemplateResolver = new FileTemplateResolver();
 
     fileTemplateResolver.setTemplateMode(TemplateMode.HTML);
+    // Template file paths are all relative to server/app/views/
     fileTemplateResolver.setPrefix(application.path().getAbsolutePath() + "/app/views/");
     fileTemplateResolver.setSuffix(".html");
     fileTemplateResolver.setCacheable(environment.isProd());
@@ -63,6 +64,8 @@ public final class ThymeleafModule extends AbstractModule {
     return fileTemplateResolver;
   }
 
+  // Allow using Message Keys in Thymeleaf HTML and resolving them into the appropriate Strings
+  // so they can be rendered in the user's locale.
   static class PlayMessageResolver implements IMessageResolver {
 
     private final MessagesApi messagesApi;
@@ -107,7 +110,7 @@ public final class ThymeleafModule extends AbstractModule {
     }
   }
 
-  public static class PlayThymeleafContextFactory {
+  public static final class PlayThymeleafContextFactory {
 
     private final MessagesApi messagesApi;
 
@@ -122,7 +125,7 @@ public final class ThymeleafModule extends AbstractModule {
     }
   }
 
-  public static class PlayThymeleafContext extends AbstractContext {
+  public static final class PlayThymeleafContext extends AbstractContext {
 
     public PlayThymeleafContext() {
       super();
@@ -137,7 +140,7 @@ public final class ThymeleafModule extends AbstractModule {
     }
   }
 
-  public static class HtmxDialect extends AbstractProcessorDialect {
+  public static final class HtmxDialect extends AbstractProcessorDialect {
 
     private final ObjectMapper mapper;
 
