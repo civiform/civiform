@@ -63,6 +63,29 @@ public class DurableJobRunnerTest extends ResetPostgres {
   }
 
   @Test
+  public void runJobs_timesOut() {
+    durableJobRegistry.register(
+        DurableJobName.TEST,
+        (persistedDurableJob) ->
+            makeTestJob(
+                persistedDurableJob,
+                () -> {
+                  try {
+                    Thread.sleep(/* millis= */ 3000L);
+                  } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                  }
+                }));
+
+    PersistedDurableJobModel job = createPersistedJobToExecute();
+
+    durableJobRunner.runJobs();
+
+    job.refresh();
+    assertThat(job.getErrorMessage().get()).contains("JobRunner_JobTimeout");
+  }
+
+  @Test
   public void rubJobs_executionException() {
     durableJobRegistry.register(
         DurableJobName.TEST,
@@ -85,11 +108,6 @@ public class DurableJobRunnerTest extends ResetPostgres {
 
   @Test
   public void runJobs_runsJobsThatAreReady() {
-    System.err.println(
-        "#runJobs_runsJobsThatAreReady starting, Thread ID = "
-            + Thread.currentThread().getId()
-            + " durableJobRunner instance="
-            + durableJobRunner.hashCode());
     AtomicInteger runCount = new AtomicInteger(0);
     durableJobRegistry.register(
         DurableJobName.TEST,
@@ -99,13 +117,8 @@ public class DurableJobRunnerTest extends ResetPostgres {
     PersistedDurableJobModel jobA = createPersistedJobToExecute();
     PersistedDurableJobModel jobB = createPersistedJobToExecute();
     PersistedDurableJobModel jobC = createPersistedJobScheduledInFuture();
-    System.err.println("jobA=" + jobA.id);
-    System.err.println("jobB=" + jobB.id);
-    System.err.println("jobC=" + jobC.id);
 
-    System.err.println("#runJobs_runsJobsThatAreReady -> before #runJobs");
     durableJobRunner.runJobs();
-    System.err.println("#runJobs_runsJobsThatAreReady -> after #runJobs");
 
     jobA.refresh();
     jobB.refresh();
@@ -113,9 +126,7 @@ public class DurableJobRunnerTest extends ResetPostgres {
 
     // This assertion fails occasionally. I've been unable to figure out why
     // so added RetryTest rule - bionj@google.com 5/18/2023.
-    System.err.println("runCountActual=" + runCount.get());
     assertThat(runCount).hasValue(2);
-    System.err.println("#runJobs_runsJobsThatAreReady -> after problematic assert");
 
     assertThat(jobA.getRemainingAttempts()).isEqualTo(2);
     assertThat(jobB.getRemainingAttempts()).isEqualTo(2);
