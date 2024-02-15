@@ -29,6 +29,10 @@ describe('Applicant navigation flow', () => {
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
+      await enableFeatureFlag(
+        page,
+        'suggest_programs_on_application_confirmation_page',
+      )
 
       await adminQuestions.addDateQuestion({
         questionName: 'nav-date-q',
@@ -685,6 +689,52 @@ describe('Applicant navigation flow', () => {
       await validateScreenshot(
         page,
         'program-submission-logged-in',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
+    })
+
+    it('verify program submission page for guest multiple programs', async () => {
+      const {page, applicantQuestions, adminPrograms} = ctx
+
+      // Login as an admin and add a bunch of programs
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram('program 1')
+      await adminPrograms.addProgram('program 2')
+      await adminPrograms.addProgram('program 3')
+      await adminPrograms.addProgram('program 4')
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+
+      // Fill out application as a guest and submit.
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerDateQuestion('2021-11-01')
+      await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerAddressQuestion(
+        '1234 St',
+        'Unit B',
+        'Sim',
+        'WA',
+        '54321',
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerRadioButtonQuestion('one')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '4256373270',
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.submitFromReviewPage()
+
+      // Verify we are on program submission page.
+      expect(await page.innerText('h1')).toContain('Application confirmation')
+      await validateAccessibility(page)
+      await validateScreenshot(
+        page,
+        'program-submission-guest-multiple-programs',
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,
       )
@@ -1519,6 +1569,7 @@ describe('Applicant navigation flow', () => {
       // Log out admin
       await logout(page)
     })
+
     if (isLocalDevEnvironment()) {
       it('can correct address multi-block, multi-address program', async () => {
         const {page, applicantQuestions} = ctx

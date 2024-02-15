@@ -1850,6 +1850,89 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void unappliedAndPotentiallyEligible_returnsProgramsTheApplicantCanApplyTo() {
+    ApplicantModel applicant = createTestApplicant();
+    EligibilityDefinition eligibilityDef = createEligibilityDefinition(questionDefinition);
+    ProgramModel programForSubmitted =
+        ProgramBuilder.newDraftProgram("program_for_submitted")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .build();
+    ProgramModel programForEligible =
+        ProgramBuilder.newDraftProgram("program_for_eligible")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .build();
+    ProgramModel programForIneligible =
+        ProgramBuilder.newDraftProgram("program_for_ineligible")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .withEligibilityDefinition(eligibilityDef)
+            .build();
+
+    versionRepository.publishNewSynchronizedVersion();
+
+    ProgramBuilder.newDraftProgram("program_for_draft")
+        .withBlock()
+        .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+        .build();
+
+    // Applicant's answer is ineligible.
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Ineligible answer")
+            .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programForSubmitted.id, "1", updates, false)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+    ApplicantService.ApplicationPrograms result =
+        subject
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
+
+    // Only the eligible program is returned. Draft program, submitted program and ineligible
+    // program are not included.
+    assertThat(
+            result.unappliedAndPotentiallyEligible().stream().map(ApplicantProgramData::programId))
+        .containsExactlyInAnyOrder(programForEligible.id, programDefinition.id());
+
+    // Applicant's answer gets changed to an eligible answer.
+    updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "eligible name")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programForSubmitted.id, "1", updates, false)
+        .toCompletableFuture()
+        .join();
+
+    applicationRepository
+        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+    ApplicantService.ApplicationPrograms secondResult =
+        subject
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
+    // The previously inelgible program is now included.
+    assertThat(
+            secondResult.unappliedAndPotentiallyEligible().stream()
+                .map(ApplicantProgramData::programId))
+        .containsExactlyInAnyOrder(
+            programForEligible.id, programForIneligible.id, programDefinition.id());
+  }
+
+  @Test
   public void relevantProgramsForApplicant_otherApplicant() {
     ApplicantModel primaryApplicant = createTestApplicant();
     ApplicantModel otherApplicant = createTestApplicant();
@@ -2896,7 +2979,7 @@ public class ApplicantServiceTest extends ResetPostgres {
    * @param question Question to use for eligibility definition
    * @param eligibleFirstName Value to use as the eligible answer
    * @return An eligibility definition with a {@link NameQuestionDefinition} and an eligibility
-   *     condition requiring the question's {@link Scalar.FIRST_NAME} be the provided value.
+   *     condition requiring the question's {@code Scalar.FIRST_NAME} be the provided value.
    */
   private EligibilityDefinition createEligibilityDefinition(
       NameQuestionDefinition question, String eligibleFirstName) {
@@ -2916,7 +2999,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   /**
    * @param question Question to use for the eligibility definition
    * @return An eligibility definition with a {@link NameQuestionDefinition} and an eligibility
-   *     condition requiring the question's {@link Scalar.FIRST_NAME} be "eligible name".
+   *     condition requiring the question's {@code Scalar.FIRST_NAME} be "eligible name".
    */
   private EligibilityDefinition createEligibilityDefinition(NameQuestionDefinition question) {
     return createEligibilityDefinition(question, "eligible name");
@@ -2924,7 +3007,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   /**
    * Makes a program with a {@link NameQuestionDefinition} and an eligibility condition that the
-   * question's {@link Scalar.FIRST_NAME} be "eligible name"
+   * question's {@code Scalar.FIRST_NAME} be "eligible name"
    */
   private void createProgramWithEligibility(NameQuestionDefinition question) {
     EligibilityDefinition eligibilityDef =

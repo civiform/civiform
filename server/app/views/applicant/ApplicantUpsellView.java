@@ -47,12 +47,15 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
       String authProviderName,
       ImmutableList<DomContent> actionButtons) {
     return div()
-        .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
+        .withClasses("w-5/6", StyleUtils.responsiveSmall("w-2/3"), "mx-auto")
         .with(
-            h1(title).withClasses("text-3xl", "text-black", "font-bold", "mb-4"),
-            confirmationSection,
-            createAccountManagementSection(
-                shouldUpsell, messages, authProviderName, actionButtons));
+            div()
+                .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
+                .with(
+                    h1(title).withClasses("text-3xl", "text-black", "font-bold", "mb-4"),
+                    confirmationSection,
+                    createAccountManagementSection(
+                        shouldUpsell, messages, authProviderName, actionButtons)));
   }
 
   protected static HtmlBundle createHtmlBundle(
@@ -65,7 +68,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
     HtmlBundle bundle = layout.getBundle(request).setTitle(title);
     bannerMessage.ifPresent(bundle::addToastMessages);
     bundle
-        .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION)
+        .addMainStyles("my-8", StyleUtils.responsiveSmall("my-12"))
         .addMainContent(mainContent)
         .addModals(loginPromptModal);
     return bundle;
