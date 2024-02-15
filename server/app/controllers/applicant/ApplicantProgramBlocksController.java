@@ -244,7 +244,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         inReview,
         selectedAddress,
         suggestions,
-        applicantRequestedActionWrapper.getAction());
+        applicantRequestedActionWrapper.getAction(),
+        // The #confirmAddress route is triggered from the address correction page.
+        /* onAddressCorrectionPage= */ true);
   }
 
   /** Handles the applicant's selection from the address correction options. */
@@ -279,7 +281,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       Optional<String> selectedAddress,
       ImmutableList<AddressSuggestion> suggestions,
-      ApplicantRequestedAction applicantRequestedAction) {
+      ApplicantRequestedAction applicantRequestedAction,
+      boolean onAddressCorrectionPage) {
     CompletableFuture<ApplicantPersonalInfo> applicantStage =
         applicantService.getPersonalInfo(applicantId).toCompletableFuture();
 
@@ -304,7 +307,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             roApplicantProgramService -> {
               removeAddressJsonFromSession(request);
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
-              return renderErrorOrRedirectToNextBlock(
+              return renderErrorOrRedirectToRequestedPage(
                   request,
                   profile,
                   applicantId,
@@ -313,6 +316,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicantStage.join(),
                   inReview,
                   applicantRequestedAction,
+                  onAddressCorrectionPage,
                   roApplicantProgramService);
             },
             httpExecutionContext.current())
@@ -556,7 +560,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenComposeAsync(
             (roApplicantProgramService) -> {
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
-              return renderErrorOrRedirectToNextBlock(
+              return renderErrorOrRedirectToRequestedPage(
                   request,
                   profile,
                   applicantId,
@@ -566,6 +570,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   inReview,
                   // TODO(#6450): Pass in the applicant-requested action to direct them correctly.
                   ApplicantRequestedAction.NEXT_BLOCK,
+                  /* onAddressCorrectionPage= */ false,
                   roApplicantProgramService);
             },
             httpExecutionContext.current())
@@ -647,7 +652,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenComposeAsync(
             roApplicantProgramService -> {
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
-              return renderErrorOrRedirectToNextBlock(
+              return renderErrorOrRedirectToRequestedPage(
                   request,
                   profile,
                   applicantId,
@@ -656,6 +661,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicantStage.toCompletableFuture().join(),
                   inReview,
                   applicantRequestedActionWrapper.getAction(),
+                  /* onAddressCorrectionPage= */ false,
                   roApplicantProgramService);
             },
             httpExecutionContext.current())
@@ -685,7 +691,17 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         applicantRequestedActionWrapper);
   }
 
-  private CompletionStage<Result> renderErrorOrRedirectToNextBlock(
+  /**
+   * Checks if the block specified by {@code blockId} is valid or has errors. If it has errors, then
+   * the same block is re-rendered with the errors displayed. Otherwise, the applicant is redirected
+   * to the page specified by {@code applicantRequestedAction}.
+   *
+   * @param applicantRequestedAction the page the applicant would like to see next if there are no
+   *     errors with this block.
+   * @param onAddressCorrectionPage true if the applicant is currently on the address correction
+   *     page and false otherwise.
+   */
+  private CompletionStage<Result> renderErrorOrRedirectToRequestedPage(
       Request request,
       CiviFormProfile profile,
       long applicantId,
@@ -694,6 +710,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ApplicantPersonalInfo personalInfo,
       boolean inReview,
       ApplicantRequestedAction applicantRequestedAction,
+      boolean onAddressCorrectionPage,
       ReadOnlyApplicantProgramService roApplicantProgramService) {
     Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getActiveBlock(blockId);
     if (thisBlockUpdatedMaybe.isEmpty()) {
@@ -799,13 +816,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return supplyAsync(() -> redirect(applicantRoutes.review(profile, applicantId, programId)));
     }
     if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK) {
-      // TODO(#6450): There's an off-by-one error here if the user is coming from the address
-      // correction view.
-      // When on the address correction view, currentBlockIndex will be for the block containing the
-      // address question. If a user clicks "Previous" on the address correction view, then they'd
-      // be taken to the block *before* the block containing the address question, when they should
-      // instead be taken to the block that does contain the address question.
-      // See AddressCorrectionBlockView#renderCustomPreviousButton.
+      if (onAddressCorrectionPage) {
+        // When an applicant is on the address correction view and clicks "Previous", we want them
+        // to go back to the block with the address question. Address correction isn't a defined
+        // block in the program definition, so `blockId` represents the block with the address
+        // question and we just need to go back to that block.
+        return getBlockPage(profile, applicantId, programId, blockId, inReview, flashingMap);
+      }
+
       int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
       return supplyAsync(
           () ->
@@ -820,11 +838,31 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         inReview
             ? roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().map(Block::getId)
             : roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
-    // No next block so go to the program review page.
-    if (nextBlockIdMaybe.isEmpty()) {
-      return supplyAsync(() -> redirect(applicantRoutes.review(profile, applicantId, programId)));
-    }
+    return nextBlockIdMaybe
+        .map(
+            nextBlockId ->
+                getBlockPage(profile, applicantId, programId, nextBlockId, inReview, flashingMap))
+        // No next block so go to the program review page.
+        .orElseGet(
+            () ->
+                supplyAsync(
+                    () -> redirect(applicantRoutes.review(profile, applicantId, programId))));
+  }
 
+  /**
+   * Returns a redirect to the block specified by {@code blockId}.
+   *
+   * @param inReview true if the applicant is reviewing their application answers and false if
+   *     they're filling out the application step-by-step. See {@link #edit} and {@link #review} for
+   *     more details.
+   */
+  private CompletionStage<Result> getBlockPage(
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String blockId,
+      boolean inReview,
+      Map<String, String> flashingMap) {
     if (inReview) {
       return supplyAsync(
           () ->
@@ -833,7 +871,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           profile,
                           applicantId,
                           programId,
-                          nextBlockIdMaybe.get(),
+                          blockId,
                           /* questionName= */ Optional.empty()))
                   .flashing(flashingMap));
     }
@@ -845,7 +883,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         profile,
                         applicantId,
                         programId,
-                        nextBlockIdMaybe.get(),
+                        blockId,
                         /* questionName= */ Optional.empty()))
                 .flashing(flashingMap));
   }
@@ -886,7 +924,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           inReview,
           Optional.of(suggestionMatch[0].getSingleLineAddress()),
           suggestions,
-          applicantRequestedAction);
+          applicantRequestedAction,
+          // At this point, the applicant is on the block page *not* the address correction page.
+          // And, we've found a perfect suggestion match so the applicant won't even see the
+          // address correction page.
+          /* onAddressCorrectionPage= */ false);
     } else {
       String json = addressSuggestionJsonSerializer.serialize(suggestions);
 

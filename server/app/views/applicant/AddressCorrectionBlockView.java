@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import j2html.TagCreator;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -259,12 +260,18 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
         .withId("cf-block-submit");
   }
 
-  private ATag renderAddressCorrectionSpecificPreviousButton(Params params) {
-    // Set the block index to the next block, so that the renderPreviousButton
-    // method will render the correct block.
-    Params newParams = params.toBuilder().setBlockIndex(params.blockIndex() + 1).build();
-    // TODO(#6450): Use the new previous button here.
-    return renderOldPreviousButton(newParams);
+  private DomContent renderAddressCorrectionSpecificPreviousButton(Params params) {
+    if (!settingsManifest.getSaveOnAllActions(params.request())) {
+      // Set the block index to the next block, so that the renderPreviousButton
+      // method will render the correct block.
+      Params newParams = params.toBuilder().setBlockIndex(params.blockIndex() + 1).build();
+      return renderOldPreviousButton(newParams);
+    }
+    // In the new previous button, ApplicantProgramBlocksController will handle adjusting the block
+    // index so that the Previous button correctly takes the applicant back to the block with the
+    // address question.
+    return renderPreviousButton(
+        settingsManifest, params, getFormAction(params, ApplicantRequestedAction.PREVIOUS_BLOCK));
   }
 
   private String getFormAction(Params params, ApplicantRequestedAction applicantRequestedAction) {
