@@ -1,31 +1,6 @@
 package views.applicant;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static play.test.Helpers.fakeApplication;
-import static play.test.Helpers.fakeRequest;
-import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS;
-import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
-import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW;
-import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS;
 
-import auth.CiviFormProfile;
-import auth.CiviFormProfileData;
-import controllers.applicant.ApplicantRoutes;
-import java.util.Set;
-import org.junit.Test;
-import play.i18n.Lang;
-import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
-import repository.AccountRepository;
-import repository.DatabaseExecutionContext;
-import repository.ResetPostgres;
-import services.applicant.ApplicantPersonalInfo;
-import services.applicant.Block;
-import services.cloud.ApplicantStorageClient;
-import services.settings.SettingsManifest;
-import views.ApplicationBaseView;
-import views.questiontypes.ApplicantQuestionRendererParams;
 
 /*
 public class EditOrDiscardAnswersModalCreatorTest extends ResetPostgres {

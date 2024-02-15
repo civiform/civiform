@@ -85,7 +85,11 @@ public class DurableJobRunnerTest extends ResetPostgres {
 
   @Test
   public void runJobs_runsJobsThatAreReady() {
-    System.err.println("#runJobs_runsJobsThatAreReady starting");
+    System.err.println(
+        "#runJobs_runsJobsThatAreReady starting, Thread ID = "
+            + Thread.currentThread().getId()
+            + " durableJobRunner instance="
+            + durableJobRunner.hashCode());
     AtomicInteger runCount = new AtomicInteger(0);
     durableJobRegistry.register(
         DurableJobName.TEST,

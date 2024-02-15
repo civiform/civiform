@@ -84,10 +84,11 @@ public final class DurableJobRunner {
    */
   public synchronized void runJobs() {
     System.err.println(
-        "JobRunner_Start thread ID="
-            + Thread.currentThread().getId()
-            + "  from "
-            + Arrays.toString(Thread.currentThread().getStackTrace()));
+        String.format(
+            "JobRunner_Start. thread ID=%s, instance=%s, stack=%s",
+            Thread.currentThread().getId(),
+            this.hashCode(),
+            Arrays.toString(Thread.currentThread().getStackTrace())));
 
     LocalDateTime stopTime = resolveStopTime();
     Transaction transaction = database.beginTransaction();
@@ -98,10 +99,14 @@ public final class DurableJobRunner {
       System.err.println(
           "jobToRun="
               + maybeJobToRun.get().id
+              + "jobName="
+              + maybeJobToRun.get().getJobName()
               + "  nowTime="
               + nowProvider.get()
               + "  stopTime="
-              + stopTime);
+              + stopTime
+              + "  instance="
+              + this.hashCode());
       PersistedDurableJobModel jobToRun = maybeJobToRun.get();
       runJob(jobToRun);
       notifyUponFinalFailure(jobToRun);
@@ -112,7 +117,11 @@ public final class DurableJobRunner {
     }
     transaction.close();
 
-    System.err.println("JobRunner_Stop thread ID=" + Thread.currentThread().getId());
+    System.err.println(
+        "JobRunner_Stop thread ID="
+            + Thread.currentThread().getId()
+            + "  instance="
+            + this.hashCode());
   }
 
   private void notifyUponFinalFailure(PersistedDurableJobModel job) {
@@ -139,9 +148,10 @@ public final class DurableJobRunner {
     LocalDateTime startTime = nowProvider.get();
     System.err.println(
         String.format(
-            "JobRunner_ExecutingJob thread_ID={%s}, job_name=\"{%s}\", job_ID={%s},"
+            "JobRunner_ExecutingJob thread_ID={%s}, instance={%s}, job_name=\"{%s}\", job_ID={%s},"
                 + " start_time={%s}",
             Thread.currentThread().getId(),
+            this.hashCode(),
             persistedDurableJob.getJobName(),
             persistedDurableJob.id,
             startTime));
