@@ -24,18 +24,22 @@ public final class TestRetry implements TestRule {
         Throwable failureCause = null;
 
         for (int i = 0; i < retryCount; i++) {
+          System.err.println(description.getDisplayName() + ": Starting attempt " + (i + 1));
           try {
             statement.evaluate();
+            System.err.println(
+                    description.getDisplayName() + ": attempt " + (i + 1) + " succeeded");
             return;
           } catch (Throwable throwable) {
             failureCause = throwable;
             System.err.println(
-                description.getDisplayName()
-                    + ": attempt "
-                    + (i + 1)
-                    + "/"
-                    + retryCount
-                    + " failed.");
+                    description.getDisplayName()
+                            + ": attempt "
+                            + (i + 1)
+                            + "/"
+                            + retryCount
+                            + " failed due to: "
+                            + failureCause);
           }
         }
 
