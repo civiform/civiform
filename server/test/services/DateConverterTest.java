@@ -58,15 +58,15 @@ public class DateConverterTest {
 
   @Test
   public void renderDateTime_isCorrect() {
-    Instant instant = Instant.parse("2022-04-09T10:07:05.00Z");
-    assertThat(dateConverter.renderDateTime(instant)).isEqualTo("2022/04/09 at 10:07 AM UTC");
+    Instant instant = Instant.parse("2022-04-09T03:07:05.00Z");
+    assertThat(dateConverter.renderDateTime(instant)).isEqualTo("2022/04/09 at 03:07 AM UTC");
   }
 
   @Test
   public void renderDateTimeDataOnly_isCorrect() {
-    Instant instant = Instant.parse("2022-04-09T10:07:03.00Z");
+    Instant instant = Instant.parse("2022-04-09T03:07:03.00Z");
     assertThat(dateConverter.renderDateTimeDataOnly(instant))
-        .isEqualTo("2022/04/09 10:07:03 AM UTC");
+        .isEqualTo("2022/04/09 03:07:03 AM UTC");
   }
 
   @Test
