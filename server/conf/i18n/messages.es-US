@@ -266,6 +266,7 @@ content.commonIntakeConfirmationTi=Puedes inscribir a tu cliente en estos progra
 content.commonIntakeNoMatchingPrograms=El proceso de evaluación no pudo encontrar programas para los que cumplas los requisitos en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
 content.commonIntakeNoMatchingProgramsTi=El proceso de evaluación no pudo encontrar programas para los que tu cliente cumpla los requisitos en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
 content.commonIntakeNoMatchingProgramsNextStep=También puedes volver a la página anterior para editar tus respuestas.
+content.otherProgramsToApplyFor=Other programs you might be interested in
 button.downloadPdf=Descargar PDF
 button.applyToPrograms=Postularse a programas
 

@@ -266,6 +266,7 @@ content.commonIntakeConfirmationTi=관리자가 '프로그램 신청'을 클릭�
 content.commonIntakeNoMatchingPrograms=이번에는 사전 선별 과정에서 자격 요건에 해당될 수 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 프로그램을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 다른 프로그램을 확인해 보세요.
 content.commonIntakeNoMatchingProgramsTi=이번에는 사전 선별 과정에서 고객이 자격 요건에 해당될 수 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 프로그램을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 다른 프로그램을 확인해 보세요.
 content.commonIntakeNoMatchingProgramsNextStep=이전 페이지로 돌아가 응답을 수정할 수도 있습니다.
+content.otherProgramsToApplyFor=Other programs you might be interested in
 button.downloadPdf=PDF 다운로드
 button.applyToPrograms=프로그램 신청
 
