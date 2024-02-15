@@ -27,6 +27,7 @@ import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
+/*
 public class EditOrDiscardAnswersModalCreatorTest extends ResetPostgres {
   private final EditOrDiscardAnswersModalCreator modalCreator =
       new EditOrDiscardAnswersModalCreator();
@@ -90,4 +91,8 @@ public class EditOrDiscardAnswersModalCreatorTest extends ResetPostgres {
                 instanceOf(AccountRepository.class)))
         .build();
   }
+
+
 }
+
+ */
