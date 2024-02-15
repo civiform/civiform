@@ -5,6 +5,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS;
+import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW;
 
 import auth.CiviFormProfile;
@@ -578,6 +579,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *   <li>If {@code applicantRequestedActionWrapper#getAction} is the {@link
    *       ApplicantRequestedAction#REVIEW_PAGE}, then renders the review page.
    *   <li>If {@code applicantRequestedActionWrapper#getAction} is the {@link
+   *       ApplicantRequestedAction#PREVIOUS_BLOCK}, then renders the previous block (or the review
+   *       page if the applicant is currently on the first block).
+   *   <li>If {@code applicantRequestedActionWrapper#getAction} is the {@link
    *       ApplicantRequestedAction#NEXT_BLOCK}, then we use {@code inReview} to determine what
    *       block to show next:
    *       <ul>
@@ -682,6 +686,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode;
       if (applicantRequestedAction == ApplicantRequestedAction.REVIEW_PAGE) {
         errorDisplayMode = DISPLAY_ERRORS_WITH_MODAL_REVIEW;
+      } else if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK) {
+        errorDisplayMode = DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
       } else {
         errorDisplayMode = DISPLAY_ERRORS;
       }
@@ -703,6 +709,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           submittingProfile))));
     }
 
+    // TODO(#6450): With the SAVE_ON_ALL_ACTIONS flag enabled, when you enter an address that
+    // requires correction but but then click "Previous", you're still taken forward to the
+    // address correction screen which is unexpected.
     if (settingsManifest.getEsriAddressCorrectionEnabled(request)
         && thisBlockUpdated.hasAddressWithCorrectionEnabled()) {
 
@@ -765,6 +774,23 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     if (applicantRequestedAction == ApplicantRequestedAction.REVIEW_PAGE) {
       return supplyAsync(() -> redirect(applicantRoutes.review(profile, applicantId, programId)));
+    }
+    if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK) {
+      // TODO(#6450): There's an off-by-one error here if the user is coming from the address
+      // correction view.
+      // When on the address correction view, currentBlockIndex will be for the block containing the
+      // address question. If a user clicks "Previous" on the address correction view, then they'd
+      // be taken to the block *before* the block containing the address question, when they should
+      // instead be taken to the block that does contain the address question.
+      // See AddressCorrectionBlockView#renderCustomPreviousButton.
+      int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
+      return supplyAsync(
+          () ->
+              redirect(
+                  applicantRoutes
+                      .blockPreviousOrReview(
+                          profile, applicantId, programId, currentBlockIndex, inReview)
+                      .url()));
     }
 
     Optional<String> nextBlockIdMaybe =

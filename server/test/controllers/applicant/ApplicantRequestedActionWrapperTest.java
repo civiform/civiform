@@ -15,6 +15,14 @@ public class ApplicantRequestedActionWrapperTest {
   }
 
   @Test
+  public void getAction_constructedWithPreviousBlock_returnsPreviousBlock() {
+    ApplicantRequestedActionWrapper wrapper =
+        new ApplicantRequestedActionWrapper(ApplicantRequestedAction.PREVIOUS_BLOCK);
+
+    assertThat(wrapper.getAction()).isEqualTo(ApplicantRequestedAction.PREVIOUS_BLOCK);
+  }
+
+  @Test
   public void getAction_constructedWithNextBlock_returnsNextBlock() {
     ApplicantRequestedActionWrapper wrapper =
         new ApplicantRequestedActionWrapper(ApplicantRequestedAction.NEXT_BLOCK);
@@ -40,6 +48,10 @@ public class ApplicantRequestedActionWrapperTest {
     wrapper.setAction(ApplicantRequestedAction.NEXT_BLOCK);
 
     assertThat(wrapper.getAction()).isEqualTo(ApplicantRequestedAction.NEXT_BLOCK);
+
+    wrapper.setAction(ApplicantRequestedAction.PREVIOUS_BLOCK);
+
+    assertThat(wrapper.getAction()).isEqualTo(ApplicantRequestedAction.PREVIOUS_BLOCK);
   }
 
   @Test
@@ -61,6 +73,15 @@ public class ApplicantRequestedActionWrapperTest {
   }
 
   @Test
+  public void bind_previousBlock_actionIsPreviousBlock() {
+    ApplicantRequestedActionWrapper wrapper = new ApplicantRequestedActionWrapper();
+
+    wrapper.bind("key", ApplicantRequestedAction.PREVIOUS_BLOCK.name());
+
+    assertThat(wrapper.getAction()).isEqualTo(ApplicantRequestedAction.PREVIOUS_BLOCK);
+  }
+
+  @Test
   public void bind_unknownValue_actionResetToDefault() {
     ApplicantRequestedActionWrapper wrapper = new ApplicantRequestedActionWrapper();
     wrapper.setAction(ApplicantRequestedAction.REVIEW_PAGE);
@@ -77,6 +98,16 @@ public class ApplicantRequestedActionWrapperTest {
 
     assertThat(wrapper.unbind("key")).isEqualTo(ApplicantRequestedAction.NEXT_BLOCK.name());
     assertThat(wrapper.javascriptUnbind()).isEqualTo(ApplicantRequestedAction.NEXT_BLOCK.name());
+  }
+
+  @Test
+  public void unbind_previousBlock_returnsPreviousBlockName() {
+    ApplicantRequestedActionWrapper wrapper =
+        new ApplicantRequestedActionWrapper(ApplicantRequestedAction.PREVIOUS_BLOCK);
+
+    assertThat(wrapper.unbind("key")).isEqualTo(ApplicantRequestedAction.PREVIOUS_BLOCK.name());
+    assertThat(wrapper.javascriptUnbind())
+        .isEqualTo(ApplicantRequestedAction.PREVIOUS_BLOCK.name());
   }
 
   @Test

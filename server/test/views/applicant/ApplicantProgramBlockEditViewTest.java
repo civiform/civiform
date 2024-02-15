@@ -71,6 +71,19 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
 
   @Test
   public void
+      calculateAutoFocusTarget_formHasErrors_displayWithModalPrevious_shouldAutofocusFirstError() {
+    assertThat(
+            EMPTY_VIEW.calculateAutoFocusTarget(
+                ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_PREVIOUS,
+                ADDRESS_QD,
+                /* formHasErrors */ true,
+                /* ordinalErrorCount= */ 1,
+                /* applicantSelectedQuestionName= */ Optional.empty()))
+        .isEqualTo(FIRST_ERROR);
+  }
+
+  @Test
+  public void
       calculateAutoFocusTarget_formHasErrors_displayErrors_isSecondQuestionWithErrors_shouldNotAutofocus() {
     assertThat(
             EMPTY_VIEW.calculateAutoFocusTarget(

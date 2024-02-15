@@ -77,7 +77,45 @@ public class ApplicationBaseView extends BaseHtmlView {
         .withClasses(ButtonStyles.OUTLINED_TRANSPARENT);
   }
 
-  protected ATag renderPreviousButton(ApplicationBaseView.Params params) {
+  /**
+   * Renders a "Previous" button that will also save the applicant's data before redirecting to the
+   * previous block (if the SAVE_ON_ALL_ACTIONS feature flag is on).
+   */
+  protected DomContent renderPreviousButton(
+      SettingsManifest settingsManifest, ApplicationBaseView.Params params) {
+    String formAction =
+        params
+            .applicantRoutes()
+            .updateBlock(
+                params.profile(),
+                params.applicantId(),
+                params.programId(),
+                params.block().getId(),
+                params.inReview(),
+                ApplicantRequestedAction.PREVIOUS_BLOCK)
+            .url();
+    return renderPreviousButton(settingsManifest, params, formAction);
+  }
+
+  /**
+   * Renders a "Previous" button with a custom action (if the SAVE_ON_ALL_ACTIONS feature flag is
+   * on).
+   */
+  protected DomContent renderPreviousButton(
+      SettingsManifest settingsManifest, ApplicationBaseView.Params params, String formAction) {
+    if (settingsManifest.getSaveOnAllActions(params.request())) {
+      return submitButton(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
+          .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
+          .withFormaction(formAction);
+    }
+    return renderOldPreviousButton(params);
+  }
+
+  /**
+   * Returns a "Previous" button that will redirect the applicant to the previous block *without*
+   * saving the applicant's data.
+   */
+  protected ATag renderOldPreviousButton(ApplicationBaseView.Params params) {
     String redirectUrl =
         params
             .applicantRoutes()
