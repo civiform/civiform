@@ -28,18 +28,18 @@ public final class TestRetry implements TestRule {
           try {
             statement.evaluate();
             System.err.println(
-                    description.getDisplayName() + ": attempt " + (i + 1) + " succeeded");
+                description.getDisplayName() + ": attempt " + (i + 1) + " succeeded");
             return;
           } catch (Throwable throwable) {
             failureCause = throwable;
             System.err.println(
-                    description.getDisplayName()
-                            + ": attempt "
-                            + (i + 1)
-                            + "/"
-                            + retryCount
-                            + " failed due to: "
-                            + failureCause);
+                description.getDisplayName()
+                    + ": attempt "
+                    + (i + 1)
+                    + "/"
+                    + retryCount
+                    + " failed due to: "
+                    + failureCause);
           }
         }
 
