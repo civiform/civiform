@@ -9,25 +9,20 @@ import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMo
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS;
 
-import auth.CiviFormProfile;
-import auth.CiviFormProfileData;
+import auth.ProfileFactory;
+import controllers.WithMockedProfiles;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Set;
 import org.junit.Test;
 import play.i18n.Lang;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
-import repository.AccountRepository;
-import repository.DatabaseExecutionContext;
-import repository.ResetPostgres;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
 import services.cloud.ApplicantStorageClient;
-import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
-public class EditOrDiscardAnswersModalCreatorTest extends ResetPostgres {
+public class EditOrDiscardAnswersModalCreatorTest extends WithMockedProfiles {
   private final EditOrDiscardAnswersModalCreator modalCreator =
       new EditOrDiscardAnswersModalCreator();
 
@@ -81,13 +76,7 @@ public class EditOrDiscardAnswersModalCreatorTest extends ResetPostgres {
         .setApplicantStorageClient(mock(ApplicantStorageClient.class))
         .setBaseUrl("baseUrl.com")
         .setApplicantRoutes(new ApplicantRoutes())
-        .setProfile(
-            new CiviFormProfile(
-                instanceOf(DatabaseExecutionContext.class),
-                instanceOf(HttpExecutionContext.class),
-                instanceOf(CiviFormProfileData.class),
-                instanceOf(SettingsManifest.class),
-                instanceOf(AccountRepository.class)))
+        .setProfile(instanceOf(ProfileFactory.class).wrap(createApplicant()))
         .build();
   }
 }
