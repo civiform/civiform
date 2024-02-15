@@ -39,6 +39,8 @@ import support.ProgramBuilder;
 import views.applicant.AddressCorrectionBlockView;
 
 public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
+  private static final String SUGGESTED_ADDRESS = "456 Suggested Ave, Seattle, Washington, 99999";
+  private static final String SUGGESTED_ADDRESS_STREET = "456 Suggested Ave";
   private ApplicantProgramBlocksController subject;
   private AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private ProgramModel program;
@@ -1364,14 +1366,23 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         requestBuilderWithSettings(
                 routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                    badApplicantId, program.id, /* blockId= */ "1", /* inReview= */ false))
+                    badApplicantId,
+                    program.id,
+                    /* blockId= */ "1",
+                    /* inReview= */ false,
+                    new ApplicantRequestedActionWrapper()))
             .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .build();
 
     Result result =
         subject
             .confirmAddressWithApplicantId(
-                request, badApplicantId, program.id, /* blockId= */ "1", /* inReview= */ false)
+                request,
+                badApplicantId,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -1390,13 +1401,22 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                        applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)))
+                        applicant.id,
+                        program.id,
+                        /* blockId= */ "1",
+                        /* inReview= */ false,
+                        new ApplicantRequestedActionWrapper())))
             .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .build();
     Result result =
         subject
             .confirmAddressWithApplicantId(
-                request, applicant.id, draftProgram.id, /* blockId= */ "1", /* inReview= */ false)
+                request,
+                applicant.id,
+                draftProgram.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -1417,13 +1437,22 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                        applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)))
+                        applicant.id,
+                        program.id,
+                        /* blockId= */ "1",
+                        /* inReview= */ false,
+                        new ApplicantRequestedActionWrapper())))
             .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .build();
     Result result =
         subject
             .confirmAddressWithApplicantId(
-                request, applicant.id, draftProgram.id, /* blockId= */ "1", /* inReview= */ false)
+                request,
+                applicant.id,
+                draftProgram.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -1442,7 +1471,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                        applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)))
+                        applicant.id,
+                        program.id,
+                        /* blockId= */ "1",
+                        /* inReview= */ false,
+                        new ApplicantRequestedActionWrapper())))
             .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .build();
     Result result =
@@ -1452,7 +1485,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 obsoleteProgram.id,
                 /* blockId= */ "1",
-                /* inReview= */ false)
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -1467,14 +1501,23 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                        applicant.id, badProgramId, /* blockId= */ "1", /* inReview= */ false)))
+                        applicant.id,
+                        badProgramId,
+                        /* blockId= */ "1",
+                        /* inReview= */ false,
+                        new ApplicantRequestedActionWrapper())))
             .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .build();
 
     Result result =
         subject
             .confirmAddressWithApplicantId(
-                request, applicant.id, badProgramId, /* blockId= */ "1", /* inReview= */ false)
+                request,
+                applicant.id,
+                badProgramId,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -1487,7 +1530,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                         routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                            applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false))
+                            applicant.id,
+                            program.id,
+                            /* blockId= */ "1",
+                            /* inReview= */ false,
+                            new ApplicantRequestedActionWrapper()))
                     // Don't set the ADDRESS_JSON_SESSION_KEY on the session
                     .bodyForm(
                         ImmutableMap.of(
@@ -1503,7 +1550,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         applicant.id,
                         program.id,
                         /* blockId= */ "1",
-                        /* inReview= */ false)
+                        /* inReview= */ false,
+                        new ApplicantRequestedActionWrapper())
                     .toCompletableFuture()
                     .join())
         .isInstanceOf(RuntimeException.class);
@@ -1569,14 +1617,23 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                         routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                            applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false))
+                            applicant.id,
+                            program.id,
+                            /* blockId= */ "1",
+                            /* inReview= */ false,
+                            new ApplicantRequestedActionWrapper()))
                     .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson()))
             .build();
 
     Result confirmAddressResult =
         subject
             .confirmAddressWithApplicantId(
-                request, applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 
@@ -1601,7 +1658,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void confirmAddress_suggestionChosen_savesSuggestion() {
+  public void
+      confirmAddress_suggestionChosen_requestedActionNext_savesSuggestionAndRedirectsToNext() {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
@@ -1640,7 +1698,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                         routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                            applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false))
+                            applicant.id,
+                            program.id,
+                            /* blockId= */ "1",
+                            /* inReview= */ false,
+                            new ApplicantRequestedActionWrapper(
+                                ApplicantRequestedAction.NEXT_BLOCK)))
                     .session(ADDRESS_JSON_SESSION_KEY, addressSuggestionString)
                     .bodyForm(
                         ImmutableMap.of(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME, address)))
@@ -1648,7 +1711,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Result result =
         subject
             .confirmAddressWithApplicantId(
-                request, applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper(ApplicantRequestedAction.NEXT_BLOCK))
             .toCompletableFuture()
             .join();
 
@@ -1670,6 +1738,109 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     // Check that the address suggestions are cleared from the session
     assertThat(result.session()).isNull();
+  }
+
+  @Test
+  public void confirmAddress_requestedActionReview_addressSavedAndRedirectedToReview() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
+            .withBlock("block 2")
+            .withRequiredQuestion(testQuestionBank().applicantIceCream())
+            .build();
+
+    Request request =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
+                            applicant.id,
+                            program.id,
+                            /* blockId= */ "1",
+                            /* inReview= */ false,
+                            new ApplicantRequestedActionWrapper(
+                                ApplicantRequestedAction.REVIEW_PAGE)))
+                    .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
+                    .bodyForm(
+                        ImmutableMap.of(
+                            AddressCorrectionBlockView.SELECTED_ADDRESS_NAME, SUGGESTED_ADDRESS)))
+            .build();
+    Result result =
+        subject
+            .confirmAddressWithApplicantId(
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE))
+            .toCompletableFuture()
+            .join();
+
+    // Check that the user is redirected to the review page
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    String reviewRoute = routes.ApplicantProgramReviewController.review(program.id).url();
+    assertThat(result.redirectLocation()).hasValue(reviewRoute);
+
+    // Check that the selected suggested address is saved
+    applicant.refresh();
+    String applicantData = applicant.getApplicantData().asJsonString();
+    assertThat(applicantData).contains(SUGGESTED_ADDRESS_STREET);
+    assertThat(applicantData).contains("Corrected");
+  }
+
+  @Test
+  public void confirmAddress_requestedActionPrevious_addressSavedAndRedirectedToPrevious() {
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantEmail())
+            .withBlock("block 2")
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
+            .withBlock("block 3")
+            .withRequiredQuestion(testQuestionBank().applicantIceCream())
+            .build();
+
+    Request request =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
+                            applicant.id,
+                            program.id,
+                            /* blockId= */ "2",
+                            /* inReview= */ false,
+                            new ApplicantRequestedActionWrapper(
+                                ApplicantRequestedAction.PREVIOUS_BLOCK)))
+                    .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
+                    .bodyForm(
+                        ImmutableMap.of(
+                            AddressCorrectionBlockView.SELECTED_ADDRESS_NAME, SUGGESTED_ADDRESS)))
+            .build();
+    Result result =
+        subject
+            .confirmAddressWithApplicantId(
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "2",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper(ApplicantRequestedAction.PREVIOUS_BLOCK))
+            .toCompletableFuture()
+            .join();
+
+    // Check that the user is redirected to the previous block
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    String previousBlockEditRoute =
+        routes.ApplicantProgramBlocksController.previous(
+                program.id, /* previousBlockIndex= */ 0, /* inReview= */ false)
+            .url();
+    assertThat(result.redirectLocation()).hasValue(previousBlockEditRoute);
+
+    // Check that the selected suggested address is saved
+    applicant.refresh();
+    String applicantData = applicant.getApplicantData().asJsonString();
+    assertThat(applicantData).contains(SUGGESTED_ADDRESS_STREET);
+    assertThat(applicantData).contains("Corrected");
   }
 
   @Test
@@ -1728,7 +1899,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                         routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                            applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false))
+                            applicant.id,
+                            program.id,
+                            /* blockId= */ "1",
+                            /* inReview= */ false,
+                            new ApplicantRequestedActionWrapper()))
                     .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
                     .bodyForm(
                         ImmutableMap.of(
@@ -1743,7 +1918,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 program.id,
                 /* blockId= */ "1",
-                /* inReview= */ false)
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
             .toCompletableFuture()
             .join();
 

@@ -222,8 +222,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   /** Handles the applicant's selection from the address correction options. */
   @Secure
   public CompletionStage<Result> confirmAddressWithApplicantId(
-      Request request, long applicantId, long programId, String blockId, boolean inReview) {
-
+      Request request,
+      long applicantId,
+      long programId,
+      String blockId,
+      boolean inReview,
+      ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
     DynamicForm form = formFactory.form().bindFromRequest(request);
     Optional<String> selectedAddress =
         Optional.ofNullable(form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME));
@@ -233,13 +237,24 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         addressSuggestionJsonSerializer.deserialize(
             maybeAddressJson.orElseThrow(() -> new RuntimeException("Address JSON missing")));
     return confirmAddressWithSuggestions(
-        request, applicantId, programId, blockId, inReview, selectedAddress, suggestions);
+        request,
+        applicantId,
+        programId,
+        blockId,
+        inReview,
+        selectedAddress,
+        suggestions,
+        applicantRequestedActionWrapper.getAction());
   }
 
   /** Handles the applicant's selection from the address correction options. */
   @Secure
   public CompletionStage<Result> confirmAddress(
-      Request request, long programId, String blockId, boolean inReview) {
+      Request request,
+      long programId,
+      String blockId,
+      boolean inReview,
+      ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
@@ -247,7 +262,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
     return confirmAddressWithApplicantId(
-        request, applicantId.orElseThrow(), programId, blockId, inReview);
+        request,
+        applicantId.orElseThrow(),
+        programId,
+        blockId,
+        inReview,
+        applicantRequestedActionWrapper);
   }
 
   /** Saves the selected corrected address to the db and redirects the user to the next screen */
@@ -258,7 +278,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       String blockId,
       boolean inReview,
       Optional<String> selectedAddress,
-      ImmutableList<AddressSuggestion> suggestions) {
+      ImmutableList<AddressSuggestion> suggestions,
+      ApplicantRequestedAction applicantRequestedAction) {
     CompletableFuture<ApplicantPersonalInfo> applicantStage =
         applicantService.getPersonalInfo(applicantId).toCompletableFuture();
 
@@ -291,8 +312,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   blockId,
                   applicantStage.join(),
                   inReview,
-                  // TODO(#6450): Pass in the applicant-requested action to direct them correctly.
-                  ApplicantRequestedAction.NEXT_BLOCK,
+                  applicantRequestedAction,
                   roApplicantProgramService);
             },
             httpExecutionContext.current())
@@ -738,7 +758,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         inReview,
                         roApplicantProgramService,
                         thisBlockUpdated,
-                        personalInfo));
+                        personalInfo,
+                        applicantRequestedAction));
       }
     }
 
@@ -847,7 +868,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Block thisBlockUpdated,
-      ApplicantPersonalInfo personalInfo) {
+      ApplicantPersonalInfo personalInfo,
+      ApplicantRequestedAction applicantRequestedAction) {
     ImmutableList<AddressSuggestion> suggestions = addressSuggestionGroup.getAddressSuggestions();
 
     AddressSuggestion[] suggestionMatch =
@@ -863,7 +885,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           blockId,
           inReview,
           Optional.of(suggestionMatch[0].getSingleLineAddress()),
-          suggestions);
+          suggestions,
+          applicantRequestedAction);
     } else {
       String json = addressSuggestionJsonSerializer.serialize(suggestions);
 
