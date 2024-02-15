@@ -166,7 +166,6 @@ describe('normal question lifecycle', () => {
     await adminQuestions.clickSubmitButtonAndNavigate('Create')
     await adminQuestions.gotoQuestionEditPage(questionName)
 
-    await page.pause()
     // Validate that the options are in the correct order after saving.
     const optionText = await page
       .getByRole('textbox', {name: 'Option Text'})

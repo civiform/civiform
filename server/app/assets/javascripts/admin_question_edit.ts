@@ -1,4 +1,4 @@
-import {assertNotNull} from './util'
+import {addEventListenerToElements, assertNotNull} from './util'
 import {ModalController} from './modal'
 
 class AdminQuestionEdit {
@@ -8,6 +8,74 @@ class AdminQuestionEdit {
     if (modal !== null) {
       this.addCustomModalClickHandler(modal)
     }
+
+    const primaryApplicantInfoSection = document.getElementById(
+      'primary-applicant-info',
+    )
+    if (primaryApplicantInfoSection !== null) {
+      this.addUniversalToggleHandler(primaryApplicantInfoSection)
+      this.addEnumeratorDropdownHandler(primaryApplicantInfoSection)
+    }
+  }
+
+  addEnumeratorDropdownHandler(primaryApplicantInfoSection: HTMLElement) {
+    addEventListenerToElements(
+      '#question-enumerator-select',
+      'input',
+      (event: Event) => {
+        const target = event.target as HTMLInputElement
+        const setHidden = target.value !== ''
+        primaryApplicantInfoSection.toggleAttribute('hidden', setHidden)
+      },
+    )
+  }
+
+  addUniversalToggleHandler(primaryApplicantInfoSection: HTMLElement) {
+    const primaryApplicantInfoSubsections =
+      primaryApplicantInfoSection.querySelectorAll(
+        '.cf-primary-applicant-info-subsection',
+      )
+    const universalInput = document.getElementById(
+      'universal-toggle-input',
+    ) as HTMLInputElement
+    addEventListenerToElements('#universal-toggle', 'click', () => {
+      primaryApplicantInfoSubsections.forEach((subsection) => {
+        const notUniversalAlert = subsection.querySelector(
+          '.cf-pai-not-universal-alert',
+        )
+        const tagSetAlert = subsection.querySelector('.cf-pai-tag-set-alert')
+        const tagSetNotUniversalAlert = subsection.querySelector(
+          '.cf-pai-tag-set-not-universal-alert',
+        )
+        const togglediv = assertNotNull(
+          subsection.querySelector('.cf-toggle-div'),
+        ) as HTMLDivElement
+        const togglebutton = assertNotNull(
+          togglediv.querySelector('.cf-toggle-button'),
+        ) as HTMLButtonElement
+        const input = assertNotNull(
+          togglediv.querySelector('.cf-toggle-hidden-input'),
+        ) as HTMLInputElement
+        if (notUniversalAlert !== null) {
+          // Tag is not already set on another question, so we are
+          // showing/hiding the toggle and alert.
+
+          // Unset the PAI toggle when we unset universal.
+          // Because the universal input doesn't change until after the click event,
+          // we're checking for true here.
+          if (input.value === 'true' && universalInput.value === 'true') {
+            togglebutton.click()
+          }
+          togglediv.toggleAttribute('hidden')
+          notUniversalAlert.toggleAttribute('hidden')
+        } else {
+          // Tag is set on another question, so we're just deciding which
+          // alert to show, and the toggle will remain hidden.
+          assertNotNull(tagSetAlert).toggleAttribute('hidden')
+          assertNotNull(tagSetNotUniversalAlert).toggleAttribute('hidden')
+        }
+      })
+    })
   }
 
   addCustomModalClickHandler(modal: HTMLElement) {

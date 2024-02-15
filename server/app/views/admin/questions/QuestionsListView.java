@@ -210,8 +210,9 @@ public final class QuestionsListView extends BaseHtmlView {
               .with(h2("Universal questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
               .with(
                   ViewUtils.makeAlertInfoSlim(
-                      "We recommend using all universal questions in your program for personal and"
-                          + " contact information questions."))
+                      "We recommend using Universal questions in your program for all personal and"
+                          + " contact information questions.",
+                      /* hidden= */ false))
               .with(universalQuestionContent));
     }
     questionContent.with(
