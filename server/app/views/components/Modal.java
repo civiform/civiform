@@ -20,7 +20,9 @@ import views.style.StyleUtils;
 /**
  * Utility class for rendering a modal box.
  *
- * @deprecated Use {@link views.ViewUtils#makeUSWDSModal} instead.
+ * @deprecated Use {@link views.ViewUtils#makeUSWDSModal} instead. We're migrating existing modals
+ *     to use the USWDS modal component, so new modals should use the USWDS modal from the
+ *     beginning. See https://github.com/civiform/civiform/issues/6264.
  */
 @AutoValue
 @Deprecated
