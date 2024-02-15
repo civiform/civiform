@@ -10,6 +10,7 @@ import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMo
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -70,7 +71,7 @@ import views.questiontypes.ApplicantQuestionRendererParams;
  */
 public final class ApplicantProgramBlocksController extends CiviFormController {
   private static final ImmutableSet<String> STRIPPED_FORM_FIELDS = ImmutableSet.of("csrfToken");
-  private static final String ADDRESS_JSON_SESSION_KEY = "addressJson";
+  @VisibleForTesting static final String ADDRESS_JSON_SESSION_KEY = "addressJson";
 
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
@@ -263,6 +264,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     return CompletableFuture.allOf(
             checkApplicantAuthorization(request, applicantId), applicantStage)
+        .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
             v ->
                 applicantService.getCorrectedAddress(
