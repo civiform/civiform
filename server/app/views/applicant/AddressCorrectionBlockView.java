@@ -259,7 +259,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
         .withClasses(ButtonStyles.SOLID_BLUE)
         .withId("cf-block-submit");
   }
-  
+
   private DomContent renderAddressCorrectionSpecificPreviousButton(Params params) {
     if (!settingsManifest.getSaveOnAllActions(params.request())) {
       // Set the block index to the next block, so that the renderPreviousButton
