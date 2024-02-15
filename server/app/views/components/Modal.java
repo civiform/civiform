@@ -17,8 +17,13 @@ import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-/** Utility class for rendering a modal box. */
+/**
+ * Utility class for rendering a modal box.
+ *
+ * @deprecated Use {@link views.ViewUtils#makeUSWDSModal} instead.
+ */
 @AutoValue
+@Deprecated
 public abstract class Modal {
 
   public abstract String modalId();
