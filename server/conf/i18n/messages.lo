@@ -266,6 +266,7 @@ content.commonIntakeConfirmationTi=ລູກຄ້າຂອງທ່ານອາ
 content.commonIntakeNoMatchingPrograms=ຕົວກວດສອບລ່ວງໜ້າບໍ່ພົບໂຄງການທີ່ທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມໃນເວລານີ້. ແນວໃດກໍຕາມ, ທ່ານອາດສະໝັກໂຄງການໄດ້ທຸກເວລາ, ໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''. ຫຼື ເພື່ອເບິ່ງໂຄງການເພີ່ມເຕີມ ທ່ານສາມາດເຂົ້າໄປ {0} ໄດ້
 content.commonIntakeNoMatchingProgramsTi=ຕົວກວດສອບລ່ວງໜ້າບໍ່ພົບໂຄງການທີ່ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມໃນເວລານີ້. ແນວໃດກໍຕາມ, ທ່ານອາດສະໝັກໂຄງການໄດ້ທຸກເວລາ, ໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''. ຫຼື ເພື່ອເບິ່ງໂຄງການເພີ່ມເຕີມ ທ່ານສາມາດເຂົ້າໄປ {0} ໄດ້
 content.commonIntakeNoMatchingProgramsNextStep=ນອກຈາກນັ້ນ, ທ່ານຍັງສາມາດກັບຄືນໄປຫາໜ້າກ່ອນໜ້ານີ້ເພື່ອແກ້ໄຂຄຳຕອບຂອງທ່ານໄດ້ນຳ.
+content.otherProgramsToApplyFor=Other programs you might be interested in
 button.downloadPdf=ດາວໂຫຼດ PDF
 button.applyToPrograms=ສະໝັກເຂົ້າຮ່ວມໂຄງການ
 
