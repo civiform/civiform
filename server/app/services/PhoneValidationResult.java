@@ -53,9 +53,7 @@ public abstract class PhoneValidationResult {
         .build();
   }
 
-  /**
-   * Returns true if there are no validation errors and a country code exists
-   */
+  /** Returns true if there are no validation errors and a country code exists */
   public boolean isValid() {
     return getMessageKey().isEmpty() && getCountryCode().isPresent();
   }
