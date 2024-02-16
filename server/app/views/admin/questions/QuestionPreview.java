@@ -38,7 +38,7 @@ public final class QuestionPreview {
         div()
             .withId("sample-render")
             .withClasses("text-gray-800", "font-thin", "text-xl", "mx-auto", "w-max", "my-4")
-            .withText("Sample Question of type: ")
+            .withText("Sample question of type: ")
             .with(
                 span()
                     .withText(type.getLabel())

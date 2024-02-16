@@ -43,7 +43,7 @@ import views.style.StyleUtils;
 /** Renders a form for adding and removing program admins via email for a given program. */
 public class ManageProgramAdminsView extends BaseHtmlView {
 
-  private static final String PAGE_TITLE = "Manage Admins for Program: ";
+  private static final String PAGE_TITLE = "Manage admins for program: ";
   private static final String EMAIL_FIELD_NAME = "adminEmail";
 
   private final AdminLayout layout;
@@ -72,9 +72,9 @@ public class ManageProgramAdminsView extends BaseHtmlView {
             .addMainContent(
                 renderBackButton(),
                 renderHeader(fullTitle),
-                h2("Add New Admin"),
+                h2("Add new admin"),
                 renderAddNewAdminForm(request, program.id()),
-                h2("Existing Admins"),
+                h2("Existing admins"),
                 renderExistingAdmins(request, program.id(), existingAdminEmails));
 
     message.map(m -> m.setDuration(6000)).ifPresent(htmlBundle::addToastMessages);

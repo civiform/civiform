@@ -180,7 +180,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                 fieldWithDefaultLocaleTextHint(
                     FieldWithLabel.input()
                         .setFieldName(ProgramTranslationForm.CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME)
-                        .setLabelText("Custom Confirmation Screen Message")
+                        .setLabelText("Custom confirmation screen message")
                         .setValue(updateData.localizedConfirmationMessage())
                         .getInputTag(),
                     program.localizedConfirmationMessage()));

@@ -178,7 +178,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private Modal renderDemographicsCsvModal() {
     String modalId = "download-demographics-csv-modal";
-    String downloadActionText = "Download Demographic Data (CSV)";
+    String downloadActionText = "Download demographic data (CSV)";
     DivTag downloadDemographicCsvModalContent =
         div()
             .withClasses("px-8")
@@ -648,7 +648,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private ButtonTag renderManageProgramAdminsLink(ProgramDefinition program) {
     String adminLink = routes.ProgramAdminManagementController.edit(program.id()).url();
     ButtonTag button =
-        makeSvgTextButton("Manage Program Admins", Icons.GROUP)
+        makeSvgTextButton("Manage program admins", Icons.GROUP)
             .withId("manage-program-admin-link-" + program.id())
             .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
     return asRedirectElement(button, adminLink);
