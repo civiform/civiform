@@ -8,10 +8,7 @@ import com.google.common.hash.Hashing;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import models.ApplicationModel;
 import models.TrustedIntermediaryGroupModel;
 import org.apache.commons.csv.CSVFormat;
@@ -23,6 +20,7 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.export.enums.MultiOptionSelectionExportType;
 import services.export.enums.SubmitterType;
 import services.program.Column;
+import services.question.LocalizedQuestionOption;
 import services.question.types.QuestionType;
 
 /**
@@ -40,20 +38,14 @@ public final class CsvExporter implements AutoCloseable {
   private final String secret;
   private final CSVPrinter printer;
   private final DateConverter dateConverter;
-  private final ImmutableMap<String, ImmutableList<String>> checkboxQuestionNameToOptionsMap;
 
   /** Provide a secret if you will need to use OPAQUE_ID type columns. */
   public CsvExporter(
-      ImmutableList<Column> columns,
-      String secret,
-      Writer writer,
-      DateConverter dateConverter,
-      ImmutableMap<String, ImmutableList<String>> checkboxQuestionNameToOptionsMap)
+      ImmutableList<Column> columns, String secret, Writer writer, DateConverter dateConverter)
       throws IOException {
     this.columns = checkNotNull(columns);
     this.secret = checkNotNull(secret);
     this.dateConverter = dateConverter;
-    this.checkboxQuestionNameToOptionsMap = checkNotNull(checkboxQuestionNameToOptionsMap);
 
     CSVFormat format =
         CSVFormat.DEFAULT
@@ -69,53 +61,14 @@ public final class CsvExporter implements AutoCloseable {
       ReadOnlyApplicantProgramService roApplicantService,
       Optional<Boolean> optionalEligibilityStatus)
       throws IOException {
-    ImmutableMap.Builder<Path, String> answerMapBuilder = new ImmutableMap.Builder<>();
+    ImmutableMap.Builder<Path, AnswerData> answerMapBuilder = new ImmutableMap.Builder<>();
     for (AnswerData answerData : roApplicantService.getSummaryDataOnlyActive()) {
-      if (answerData.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX)) {
-        String questionName = answerData.questionDefinition().getName();
-        // If the question isn't present in the scalar map, it means, its demographic export and
-        // this question was flagged not to be included in demographic export
-        if (!checkboxQuestionNameToOptionsMap.containsKey(questionName)) {
-          continue;
-        }
-        List<String> optionHeaders = checkboxQuestionNameToOptionsMap.get(questionName);
-
-        List<String> selectedList =
-            answerData
-                .applicantQuestion()
-                .createMultiSelectQuestion()
-                .getSelectedOptionAdminNames()
-                .map(selectedOptions -> selectedOptions.stream().collect(Collectors.toList()))
-                .orElse(Collections.emptyList());
-        List<String> allOptionsShownInQuestion =
-            answerData.applicantQuestion().createMultiSelectQuestion().getOptions().stream()
-                .map(o -> o.adminName())
-                .collect(Collectors.toList());
-
-        optionHeaders.forEach(
-            option -> {
-              String valueToWrite = MultiOptionSelectionExportType.NOT_ANSWERED.toString();
-              if (answerData.isAnswered()) {
-                valueToWrite =
-                    MultiOptionSelectionExportType.NOT_AN_OPTION_AT_PROGRAM_VERSION.toString();
-              }
-              if (allOptionsShownInQuestion.contains(option)) {
-                valueToWrite = MultiOptionSelectionExportType.NOT_SELECTED.toString();
-              }
-              if (selectedList.contains(option)) {
-                valueToWrite = MultiOptionSelectionExportType.SELECTED.toString();
-              }
-              answerMapBuilder.put(
-                  answerData.contextualizedPath().join(String.valueOf(option)), valueToWrite);
-            });
-
-      } else {
-        for (Path p : answerData.scalarAnswersInDefaultLocale().keySet()) {
-          answerMapBuilder.put(p, answerData.scalarAnswersInDefaultLocale().get(p));
-        }
+      for (Path p : answerData.createQuestion().getAllPaths()) {
+        answerMapBuilder.put(p, answerData);
       }
     }
-    ImmutableMap<Path, String> answerMap = answerMapBuilder.build();
+    ImmutableMap<Path, AnswerData> answerMap = answerMapBuilder.build();
+
     for (Column column : columns) {
       switch (column.columnType()) {
         case APPLICANT_ANSWER:
@@ -208,15 +161,52 @@ public final class CsvExporter implements AutoCloseable {
 
   /**
    * Returns the answer retrieved by {@link ReadOnlyApplicantProgramService}. The value is derived
-   * from the raw value in applicant data, such as translating enum number to human readable text in
+   * from the raw value in applicant data, such as translating enum number to human-readable text in
    * default locale or mapping file key to download url.
    */
-  private String getValueFromAnswerMap(Column column, ImmutableMap<Path, String> answerMap) {
+  private String getValueFromAnswerMap(Column column, ImmutableMap<Path, AnswerData> answerMap) {
     Path path = column.jsonPath().orElseThrow();
     if (!answerMap.containsKey(path)) {
       return EMPTY_VALUE;
     }
-    return answerMap.get(path);
+
+    var answerData = answerMap.get(path);
+    // if it's not a checkbox question, get the answer out of AnswerData
+    if (!answerData.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX)) {
+      return answerData.scalarAnswersInDefaultLocale().get(path);
+    }
+
+    // if it is a checkbox question, use the optionAdminName in the Column to fill the column.
+    if (column.optionAdminName().isEmpty()) {
+      throw new IllegalStateException(
+          "CSV Column represents a checkbox question, but no option admin name is specified.");
+    }
+
+    if (!answerData.isAnswered()) {
+      return MultiOptionSelectionExportType.NOT_ANSWERED.toString();
+    }
+
+    ImmutableList<String> selectedList =
+        answerData
+            .applicantQuestion()
+            .createMultiSelectQuestion()
+            .getSelectedOptionAdminNames()
+            .orElse(ImmutableList.of());
+
+    ImmutableList<String> allOptionsShownInQuestionVersion =
+        answerData.applicantQuestion().createMultiSelectQuestion().getOptions().stream()
+            .map(LocalizedQuestionOption::adminName)
+            .collect(ImmutableList.toImmutableList());
+
+    if (!allOptionsShownInQuestionVersion.contains(column.optionAdminName().get())) {
+      return MultiOptionSelectionExportType.NOT_AN_OPTION_AT_PROGRAM_VERSION.toString();
+    }
+
+    if (selectedList.contains(column.optionAdminName().get())) {
+      return MultiOptionSelectionExportType.SELECTED.toString();
+    }
+
+    return MultiOptionSelectionExportType.NOT_SELECTED.toString();
   }
 
   /** Returns an opaque identifier - the ID hashed with the application secret key. */
