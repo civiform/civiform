@@ -90,6 +90,12 @@ public class PhoneValidationUtilsTest {
         PHONE_NUMBER_GOOD_US,
         COUNTRY_CODE_CA,
         Optional.of(MessageKey.PHONE_VALIDATION_NUMBER_NOT_IN_COUNTRY)
+      },
+      // Mismatch phone number and country code
+      new Object[] {
+        PHONE_NUMBER_GOOD_CA,
+        COUNTRY_CODE_US,
+        Optional.of(MessageKey.PHONE_VALIDATION_NUMBER_NOT_IN_COUNTRY)
       }
     };
   }
@@ -105,7 +111,7 @@ public class PhoneValidationUtilsTest {
     assertThat(validationResults).isEqualTo(expectedResult);
   }
 
-  private Object[] calculateCountryCode_findsExpectedCountryCode() {
+  private Object[] determineCountryCode_findsExpectedCountryCode() {
     return new Object[] {
       // Correct country code for US phone number
       new Object[] {PHONE_NUMBER_GOOD_US, COUNTRY_CODE_US},
@@ -121,10 +127,13 @@ public class PhoneValidationUtilsTest {
   }
 
   @Test
-  @Parameters(method = "calculateCountryCode_findsExpectedCountryCode")
-  public void calculateCountryCode_phoneNumberHasExpectedCountryCode(
-      Optional<String> phoneNumber, Optional<String> countryCode) {
-    Optional<String> actualCountryCode = PhoneValidationUtils.determineCountryCode(phoneNumber);
-    assertThat(actualCountryCode).isEqualTo(countryCode);
+  @Parameters(method = "determineCountryCode_findsExpectedCountryCode")
+  public void determineCountryCode_phoneNumberHasExpectedCountryCode(
+      Optional<String> phoneNumber, Optional<String> expectedCountryCode) {
+    PhoneValidationResult phoneValidationResult =
+        PhoneValidationUtils.determineCountryCode(phoneNumber);
+
+    assertThat(phoneValidationResult.getPhoneNumber()).isEqualTo(phoneNumber);
+    assertThat(phoneValidationResult.getCountryCode()).isEqualTo(expectedCountryCode);
   }
 }
