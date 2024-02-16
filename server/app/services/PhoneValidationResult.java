@@ -4,7 +4,7 @@ import com.google.auto.value.AutoValue;
 import java.util.Optional;
 
 /**
- * {@link PhoneValidationResult} contains the phone number, country code if match found, and,
+ * {@link PhoneValidationResult} contains the phone number, country code if match found, and
  * validation message in the event validation fails
  */
 @AutoValue
