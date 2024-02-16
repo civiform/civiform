@@ -14,7 +14,7 @@ public final class PhoneValidationUtils {
   // Just a small container object to return multiple values *within* this class. Can be
   // replaced with Tuple when we get to Java 17+. If we need to expose this outside of
   // the class convert it to be an @AutoValue-based class.
-  private static class PhoneValidationResult {
+  private static final class PhoneValidationResult {
     public Optional<String> countryCode;
     public Optional<MessageKey> messageKey;
 
