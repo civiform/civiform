@@ -279,14 +279,28 @@ public final class TrustedIntermediaryService {
     return allAccounts.stream()
         .filter(
             account ->
-                ((account.newestApplicant().get().getDateOfBirth().isPresent()
+                // TODO (#5503): Remove checking at WKP when removing feature flag
+                (((account.newestApplicant().get().getDateOfBirth().isPresent()
+                            || account
+                                .newestApplicant()
+                                .get()
+                                .getApplicantData()
+                                .getDateOfBirthAtWellKnownPath()
+                                .isPresent())
                         && maybeDOB.isPresent()
-                        && account
-                            .newestApplicant()
-                            .get()
-                            .getDateOfBirth()
-                            .get()
-                            .equals(maybeDOB.get()))
+                        && (account
+                                .newestApplicant()
+                                .get()
+                                .getDateOfBirth()
+                                .get()
+                                .equals(maybeDOB.get())
+                            || account
+                                .newestApplicant()
+                                .get()
+                                .getApplicantData()
+                                .getDateOfBirthAtWellKnownPath()
+                                .get()
+                                .equals(maybeDOB.get())))
                     || (!missingParams.contains(SearchParameters.ParamTypes.NAME)
                         && account
                             .getApplicantName()

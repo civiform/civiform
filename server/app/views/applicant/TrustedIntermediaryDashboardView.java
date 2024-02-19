@@ -34,6 +34,7 @@ import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -384,12 +385,15 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     if (newestApplicant.isEmpty()) {
       return div();
     }
+    // TODO (#5503): Remove checking at WKP when removing feature flag
+    Optional<LocalDate> currentDobAtWKP =
+        newestApplicant.get().getApplicantData().getDateOfBirthAtWellKnownPath();
+    Optional<LocalDate> currentDobAtPIA = newestApplicant.get().getDateOfBirth();
+
     String currentDob =
-        newestApplicant
-            .get()
-            .getDateOfBirth()
+        currentDobAtPIA
             .map(this.dateConverter::formatIso8601Date)
-            .orElse("");
+            .orElse(currentDobAtWKP.map(this.dateConverter::formatIso8601Date).orElse(""));
     return div()
         .withClasses("flex", "text-xs")
         .with(

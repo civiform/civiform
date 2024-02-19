@@ -30,6 +30,7 @@ import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
 import org.pac4j.oidc.profile.OidcProfile;
 import services.CiviFormError;
+import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
 import services.ti.EmailAddressExistsException;
 import services.ti.NoSuchTrustedIntermediaryError;
@@ -186,6 +187,12 @@ public final class AccountRepository {
         applicant.setEmailAddress(email);
       }
       account.setTiNote(tiNote);
+
+      // TODO (#5503): Remove these when we remove the feature flag
+      applicant.getApplicantData().setPhoneNumberAtWellKnownPath(phoneNumber);
+      applicant.getApplicantData().updateUserNameAtWellKnownPath(firstName, middleName, lastName);
+      applicant.getApplicantData().setDateOfBirthAtWellKnownPath(newDob);
+
       applicant.setPhoneNumber(phoneNumber);
       applicant.setFirstName(firstName);
       applicant.setMiddleName(middleName);
@@ -345,6 +352,13 @@ public final class AccountRepository {
     newAccount.save();
     ApplicantModel applicant = new ApplicantModel();
     applicant.setAccount(newAccount);
+
+    // TODO (#5503): Remove these when we remove the feature flag
+    ApplicantData applicantData = applicant.getApplicantData();
+    applicantData.setUserNameAtWellKnownPath(
+        form.getFirstName(), form.getMiddleName(), form.getLastName());
+    applicantData.setDateOfBirthAtWellKnownPath(form.getDob());
+
     applicant.setFirstName(form.getFirstName());
     applicant.setMiddleName(form.getMiddleName());
     applicant.setLastName(form.getLastName());
