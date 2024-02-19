@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
 import play.libs.F;
+import play.mvc.Http;
 import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
@@ -342,7 +343,8 @@ public final class ProgramRepository {
       long programId,
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
-      SubmittedApplicationFilter filters) {
+      SubmittedApplicationFilter filters,
+      Http.Request request) {
     ExpressionList<ApplicationModel> query =
         database
             .find(ApplicationModel.class)
@@ -368,21 +370,10 @@ public final class ProgramRepository {
 
     if (filters.searchNameFragment().isPresent() && !filters.searchNameFragment().get().isBlank()) {
       String search = filters.searchNameFragment().get().trim();
-
-      if (search.matches("^\\d+$")) {
-        query = query.eq("id", Integer.parseInt(search));
+      if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
+        query = searchUsingPrimaryApplicantInfo(search, query);
       } else {
-        String firstNamePath = getApplicationObjectPath(WellKnownPaths.APPLICANT_FIRST_NAME);
-        String lastNamePath = getApplicationObjectPath(WellKnownPaths.APPLICANT_LAST_NAME);
-        query =
-            query
-                .or()
-                .raw("applicant.account.emailAddress ILIKE ?", "%" + search + "%")
-                .raw("submitter_email ILIKE ?", "%" + search + "%")
-                .raw(firstNamePath + " || ' ' || " + lastNamePath + " ILIKE ?", "%" + search + "%")
-                .raw(lastNamePath + " || ' ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
-                .raw(lastNamePath + " || ', ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
-                .endOr();
+        query = searchUsingWellKnownPaths(search, query);
       }
     }
 
@@ -441,6 +432,47 @@ public final class ProgramRepository {
         .where()
         .in("name", programNameQuery)
         .query();
+  }
+
+  private ExpressionList<ApplicationModel> searchUsingPrimaryApplicantInfo(
+      String search, ExpressionList<ApplicationModel> query) {
+    String maybeDigits = search.replaceAll("[^a-zA-Z0-9 ]", "");
+    if (maybeDigits.matches("^\\d+$")) {
+      return query
+          .or()
+          .eq("id", Long.parseLong(maybeDigits))
+          .ilike("applicant.phoneNumber", "%" + maybeDigits + "%")
+          .endOr();
+    } else {
+      String firstNamePath = "applicant.firstName";
+      String lastNamePath = "applicant.lastName";
+      return query
+          .or()
+          .ilike("applicant.emailAddress", "%" + search + "%")
+          .ilike("submitter_email", "%" + search + "%")
+          .ilike(firstNamePath + " || ' ' || " + lastNamePath, "%" + search + "%")
+          .ilike(lastNamePath + " || ' ' || " + firstNamePath, "%" + search + "%")
+          .ilike(lastNamePath + " || ', ' || " + firstNamePath, "%" + search + "%")
+          .endOr();
+    }
+  }
+
+  private ExpressionList<ApplicationModel> searchUsingWellKnownPaths(
+      String search, ExpressionList<ApplicationModel> query) {
+    if (search.matches("^\\d+$")) {
+      return query.eq("id", Integer.parseInt(search));
+    } else {
+      String firstNamePath = getApplicationObjectPath(WellKnownPaths.APPLICANT_FIRST_NAME);
+      String lastNamePath = getApplicationObjectPath(WellKnownPaths.APPLICANT_LAST_NAME);
+      return query
+          .or()
+          .raw("applicant.account.emailAddress ILIKE ?", "%" + search + "%")
+          .raw("submitter_email ILIKE ?", "%" + search + "%")
+          .raw(firstNamePath + " || ' ' || " + lastNamePath + " ILIKE ?", "%" + search + "%")
+          .raw(lastNamePath + " || ' ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
+          .raw(lastNamePath + " || ', ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
+          .endOr();
+    }
   }
 
   private String getApplicationObjectPath(Path path) {

@@ -2,6 +2,7 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static play.api.test.CSRFTokenHelper.addCSRFToken;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
@@ -30,6 +31,7 @@ import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
 import play.inject.BindingKey;
 import play.libs.F;
+import play.test.Helpers;
 import services.IdentifierBasedPaginationSpec;
 import services.LocalizedStrings;
 import services.PageNumberBasedPaginationSpec;
@@ -340,7 +342,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of(bobApp.id.toString()))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
-                .build());
+                .build(),
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(
             paginationResult.getPageContents().stream()
@@ -417,7 +420,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of(searchFragment))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
-                .build());
+                .build(),
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(
             paginationResult.getPageContents().stream()
@@ -569,7 +573,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getApplicationsForAllProgramVersions(
             program.id,
             F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
-            filter);
+            filter,
+            addCSRFToken(Helpers.fakeRequest()).build());
     assertThat(result.hasMorePages()).isEqualTo(false);
     return result.getPageContents().stream()
         .map(app -> app.id)
@@ -647,7 +652,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
                         .setFromTime(Optional.of(Instant.parse("2022-01-25T00:00:00Z")))
                         .setUntilTime(Optional.of(Instant.parse("2022-02-10T00:00:00Z")))
                         .build())
-                .build());
+                .build(),
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(paginationResult.hasMorePages()).isFalse();
     assertThat(
@@ -679,7 +685,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
             F.Either.Right(new PageNumberBasedPaginationSpec(/* pageSize= */ 2)),
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
@@ -692,7 +699,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             nextVersion.id,
             F.Either.Right(
                 new PageNumberBasedPaginationSpec(/* pageSize= */ 2, /* currentPage= */ 2)),
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
@@ -722,7 +730,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
             F.Either.Left(new IdentifierBasedPaginationSpec<>(2, Long.MAX_VALUE)),
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
@@ -736,7 +745,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             F.Either.Left(
                 new IdentifierBasedPaginationSpec<>(
                     2, paginationResult.getPageContents().get(1).id)),
-            SubmittedApplicationFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY,
+            addCSRFToken(Helpers.fakeRequest()).build());
 
     assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
     assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantOne);

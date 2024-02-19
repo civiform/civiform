@@ -105,7 +105,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
             programDefinition -> {
               PaginationResult<ApplicationModel> paginationResult =
                   programService.getSubmittedProgramApplicationsAllVersions(
-                      programDefinition.id(), F.Either.Left(paginationSpec), filters);
+                      programDefinition.id(), F.Either.Left(paginationSpec), filters, request);
 
               String applicationsJson =
                   jsonExporter.exportPage(programDefinition, paginationResult);

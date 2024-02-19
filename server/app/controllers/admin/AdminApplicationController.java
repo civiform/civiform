@@ -148,7 +148,7 @@ public final class AdminApplicationController extends CiviFormController {
     String filename = String.format("%s-%s.json", program.adminName(), nowProvider.get());
     String json =
         jsonExporter.export(
-            program, IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG, filters);
+            program, IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG, filters, request);
 
     return ok(json)
         .as(Http.MimeTypes.JSON)
@@ -184,7 +184,7 @@ public final class AdminApplicationController extends CiviFormController {
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
-      String csv = exporterService.getProgramAllVersionsCsv(programId, filters);
+      String csv = exporterService.getProgramAllVersionsCsv(programId, filters, request);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(
@@ -500,7 +500,7 @@ public final class AdminApplicationController extends CiviFormController {
     var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
     PaginationResult<ApplicationModel> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
-            programId, F.Either.Right(paginationSpec), filters);
+            programId, F.Either.Right(paginationSpec), filters, request);
 
     CiviFormProfile profile = getCiviFormProfile(request);
     return ok(
