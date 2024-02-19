@@ -57,11 +57,11 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
       ImmutableList.of(
           FEATURE_FLAG_SETTING_SECTION_NAME,
           "Branding",
-          "Custom text",
-          "Email addresses",
-          "Data export API",
+          "Custom Text",
+          "Email Addresses",
+          "Data Export API",
           "Observability",
-          "External services",
+          "External Services",
           "Miscellaneous");
 
   @Inject
