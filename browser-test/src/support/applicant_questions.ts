@@ -353,7 +353,7 @@ export class ApplicantQuestions {
     this.page.once('dialog', (dialog) => {
       void dialog.accept()
     })
-    await this.page.click(`:nth-match(:text("Remove Entity"), ${entityIndex})`)
+    await this.page.click(`:nth-match(:text("Remove entity"), ${entityIndex})`)
   }
 
   async downloadSingleQuestionFromReviewPage() {

@@ -36,8 +36,8 @@ export interface DownloadedApplication {
 export enum ProgramVisibility {
   HIDDEN = 'Hide from applicants.',
   PUBLIC = 'Publicly visible',
-  TI_ONLY = 'Trusted Intermediaries ONLY',
-  SELECT_TI = 'Visible to Selected Trusted Intermediaries ONLY',
+  TI_ONLY = 'Trusted intermediaries only',
+  SELECT_TI = 'Visible to selected trusted intermediaries only',
 }
 
 function slugify(value: string): string {
@@ -323,7 +323,7 @@ export class AdminPrograms {
       this.withinProgramCardSelector(
         programName,
         'Draft',
-        ':text("Manage Program Admins")',
+        ':text("Manage program admins")',
       ),
     )
     await waitForPageJsLoad(this.page)
@@ -466,7 +466,7 @@ export class AdminPrograms {
 
   async expectManageProgramAdminsPage() {
     expect(await this.page.innerText('h1')).toContain(
-      'Manage Admins for Program',
+      'Manage admins for program',
     )
   }
 
@@ -1103,7 +1103,7 @@ export class AdminPrograms {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.page.click(
-        '#download-demographics-csv-modal button:has-text("Download Demographic Data (CSV)")',
+        '#download-demographics-csv-modal button:has-text("Download demographic data (CSV)")',
       ),
     ])
     await dismissModal(this.page)
