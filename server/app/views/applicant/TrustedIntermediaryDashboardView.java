@@ -47,6 +47,8 @@ import play.twirl.api.Content;
 import repository.ProgramRepository;
 import repository.SearchParameters;
 import services.DateConverter;
+import services.PhoneValidationResult;
+import services.PhoneValidationUtils;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
 import services.ti.TrustedIntermediaryService;
@@ -327,8 +329,11 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
 
   private String formatPhone(String phone) {
     try {
+      PhoneValidationResult phoneValidationResults =
+          PhoneValidationUtils.determineCountryCode(Optional.ofNullable(phone));
+
       Phonenumber.PhoneNumber phoneNumber =
-          PHONE_NUMBER_UTIL.parse(phone, TrustedIntermediaryService.COUNTRY_CODE_FOR_US_REGION);
+          PHONE_NUMBER_UTIL.parse(phone, phoneValidationResults.getCountryCode().orElse(""));
       return PHONE_NUMBER_UTIL.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.NATIONAL);
     } catch (NumberParseException e) {
       return "-";
