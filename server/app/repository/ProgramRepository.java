@@ -436,12 +436,13 @@ public final class ProgramRepository {
 
   private ExpressionList<ApplicationModel> searchUsingPrimaryApplicantInfo(
       String search, ExpressionList<ApplicationModel> query) {
-    String maybeDigits = search.replaceAll("[^a-zA-Z0-9 ]", "");
-    if (maybeDigits.matches("^\\d+$")) {
+    String onlyDigits = search.replaceAll("[^a-zA-Z0-9]", ""); // try searching with a space, // try searching for partial phone number
+    // what is the best way to search disparate types of data in one box
+    if (onlyDigits.matches("^\\d+$")) {
       return query
           .or()
-          .eq("id", Long.parseLong(maybeDigits))
-          .ilike("applicant.phoneNumber", "%" + maybeDigits + "%")
+          .eq("id", Long.parseLong(onlyDigits))
+          .ilike("applicant.phoneNumber", "%" + onlyDigits + "%")
           .endOr();
     } else {
       String firstNamePath = "applicant.firstName";
