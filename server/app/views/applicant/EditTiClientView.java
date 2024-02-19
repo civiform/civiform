@@ -60,11 +60,11 @@ public class EditTiClientView extends BaseHtmlView {
     HtmlBundle bundle =
         layout
             .getBundle(request)
-            .setTitle("Edit Client Info")
+            .setTitle("Edit client info")
             .addMainContent(
                 renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
                 hr(),
-                renderSubHeader("Edit Client").withId("edit-client").withClass("my-4"),
+                renderSubHeader("Edit client").withId("edit-client").withClass("my-4"),
                 renderBackLink(),
                 requiredFieldsExplanationContent(),
                 renderEditClientForm(
@@ -106,7 +106,7 @@ public class EditTiClientView extends BaseHtmlView {
             FieldWithLabel.input()
                 .setId("edit-first-name-input")
                 .setFieldName("firstName")
-                .setLabelText("First Name")
+                .setLabelText("First name")
                 .setRequired(true)
                 .setValue(applicantData.getApplicantFirstName()),
             form,
@@ -118,7 +118,7 @@ public class EditTiClientView extends BaseHtmlView {
             FieldWithLabel.input()
                 .setId("edit-middle-name-input")
                 .setFieldName("middleName")
-                .setLabelText("Middle Name")
+                .setLabelText("Middle name")
                 .setValue(applicantData.getApplicantMiddleName()),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_MIDDLE_NAME,
@@ -128,7 +128,7 @@ public class EditTiClientView extends BaseHtmlView {
             FieldWithLabel.input()
                 .setId("edit-last-name-input")
                 .setFieldName("lastName")
-                .setLabelText("Last Name")
+                .setLabelText("Last name")
                 .setRequired(true)
                 .setValue(applicantData.getApplicantLastName()),
             form,
@@ -141,7 +141,7 @@ public class EditTiClientView extends BaseHtmlView {
                 .setPlaceholderText("(xxx) xxx-xxxx")
                 .setAttribute("inputmode", "tel")
                 .setFieldName("phoneNumber")
-                .setLabelText("Phone Number")
+                .setLabelText("Phone number")
                 .setValue(applicantData.getPhoneNumber().orElse("")),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_PHONE,
@@ -152,7 +152,7 @@ public class EditTiClientView extends BaseHtmlView {
             FieldWithLabel.input()
                 .setId("edit-email-input")
                 .setFieldName("emailAddress")
-                .setLabelText("Email Address")
+                .setLabelText("Email address")
                 .setToolTipIcon(Icons.INFO)
                 .setToolTipText(
                     "Add an email address for your client to receive status updates about their"
@@ -168,7 +168,7 @@ public class EditTiClientView extends BaseHtmlView {
             FieldWithLabel.date()
                 .setId("edit-date-of-birth-input")
                 .setFieldName("dob")
-                .setLabelText("Date Of Birth")
+                .setLabelText("Date of birth")
                 .setRequired(true)
                 .setValue(
                     applicantData

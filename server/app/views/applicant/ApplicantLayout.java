@@ -69,7 +69,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
           .setModalId("debug-content-modal")
           .setLocation(Modal.Location.DEBUG)
           .setContent(DebugContent.devTools())
-          .setModalTitle("Debug Tools")
+          .setModalTitle("Debug tools")
           .setWidth(Width.THIRD)
           .build();
 
@@ -306,7 +306,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
         div()
             .withClasses("flex", "flex-col", "justify-center", "items-center", "grow-0", "md:grow");
     if (profile.isPresent() && profile.get().isTrustedIntermediary()) {
-      String tiDashboardText = "View and Add Clients";
+      String tiDashboardText = "View and add clients";
       div.with(
           a(tiDashboardText)
               .withId("ti-dashboard-link")

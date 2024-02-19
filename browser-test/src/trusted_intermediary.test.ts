@@ -308,7 +308,7 @@ describe('Trusted intermediaries', () => {
   it('dashboard contains required indicator note and optional marker', async () => {
     const {page} = ctx
     await loginAsTrustedIntermediary(page)
-    expect(await page.textContent('html')).toContain('Email Address (optional)')
+    expect(await page.textContent('html')).toContain('Email address (optional)')
     expect(await page.textContent('html')).toContain(
       'Fields marked with a * are required.',
     )
@@ -519,7 +519,7 @@ describe('Trusted intermediaries', () => {
     const {page} = ctx
     await loginAsTrustedIntermediary(page)
     expect(await page.innerText('#ti-dashboard-link')).toContain(
-      'View and Add Clients',
+      'View and add clients',
     )
   })
 

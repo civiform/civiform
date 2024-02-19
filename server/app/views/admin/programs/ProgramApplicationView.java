@@ -86,7 +86,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       Optional<String> noteMaybe,
       Boolean hasEligibilityEnabled,
       Http.Request request) {
-    String title = "Program Application View";
+    String title = "Program application view";
     ListMultimap<Block, AnswerData> blockToAnswers = ArrayListMultimap.create();
     for (AnswerData answer : answers) {
       Block answerBlock =
