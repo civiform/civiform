@@ -210,7 +210,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit name question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
-    assertThat(contentAsString(result)).contains("Sample Question of type:");
+    assertThat(contentAsString(result)).contains("Sample question of type:");
   }
 
   @Test
@@ -222,7 +222,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains("Edit name question");
     assertThat(contentAsString(result)).contains("applicant household members");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
-    assertThat(contentAsString(result)).contains("Sample Question of type:");
+    assertThat(contentAsString(result)).contains("Sample question of type:");
   }
 
   @Test
@@ -241,8 +241,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(result.charset()).hasValue("utf-8");
     // We include the trailing "<" to ensure we don't partially match
     // 200 rather than 2.
-    assertThat(contentAsString(result)).contains("Total Questions: 2<");
-    assertThat(contentAsString(result)).contains("All Questions");
+    assertThat(contentAsString(result)).contains("Total questions: 2<");
+    assertThat(contentAsString(result)).contains("All questions");
 
     // Now add a new draft question and ensure that it is included in the total.
     QuestionDefinition newDraftQuestion =
@@ -258,8 +258,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(result.charset()).hasValue("utf-8");
     // We include the trailing "<" to ensure we don't partially match
     // 300 rather than 3.
-    assertThat(contentAsString(result)).contains("Total Questions: 3<");
-    assertThat(contentAsString(result)).contains("All Questions");
+    assertThat(contentAsString(result)).contains("Total questions: 3<");
+    assertThat(contentAsString(result)).contains("All questions");
   }
 
   @Test
@@ -269,8 +269,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
-    assertThat(contentAsString(result)).contains("Total Questions: 0");
-    assertThat(contentAsString(result)).contains("All Questions");
+    assertThat(contentAsString(result)).contains("Total questions: 0");
+    assertThat(contentAsString(result)).contains("All questions");
   }
 
   @Test
@@ -292,7 +292,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("New text question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
-    assertThat(contentAsString(result)).contains("Sample Question of type:");
+    assertThat(contentAsString(result)).contains("Sample question of type:");
     assertThat(contentAsString(result)).contains("/some/redirect/url");
   }
 

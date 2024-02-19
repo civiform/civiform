@@ -79,7 +79,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
     assertThat(contentAsString(result))
         .contains(
             String.format(
-                "Manage Question Translations: %s", question.getQuestionDefinition().getName()),
+                "Manage question translations: %s", question.getQuestionDefinition().getName()),
             "Spanish",
             SPANISH_QUESTION_TEXT,
             SPANISH_QUESTION_HELP_TEXT);
@@ -191,7 +191,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
     assertThat(contentAsString(result))
         .contains(
             String.format(
-                "Manage Question Translations: %s", question.getQuestionDefinition().getName()),
+                "Manage question translations: %s", question.getQuestionDefinition().getName()),
             "Question text cannot be blank");
   }
 
