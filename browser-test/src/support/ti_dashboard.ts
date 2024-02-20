@@ -189,16 +189,16 @@ export class TIDashboard {
     )
   }
 
-  async expectPageNumberButtonOrNot(pageNum: string, isPresent: boolean) {
-    if (isPresent) {
-      expect(await this.page.innerHTML('.usa-pagination__list')).toContain(
-        `aria-label="Page${pageNum}"`,
-      )
-    } else {
-      expect(await this.page.innerHTML('.usa-pagination__list')).not.toContain(
-        `aria-label="Page${pageNum}"`,
-      )
-    }
+  async expectPageNumberButton(pageNum: string) {
+    expect(await this.page.innerHTML('.usa-pagination__list')).toContain(
+      `aria-label="Page${pageNum}"`,
+    )
+  }
+
+  async expectPageNumberButtonNotPresent(pageNum: string) {
+    expect(await this.page.innerHTML('.usa-pagination__list')).not.toContain(
+      `aria-label="Page${pageNum}"`,
+    )
   }
 
   async expectDateSearchError() {

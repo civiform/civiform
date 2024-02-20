@@ -135,7 +135,15 @@ public abstract class BaseHtmlView {
   }
 
   /**
-   * Creates a USWDS pagination component. https://designsystem.digital.gov/components/pagination/
+   * Creates a USWDS pagination component. <a
+   * href="https://designsystem.digital.gov/components/pagination/">USWDS pagination</a>
+   *
+   * <ul>
+   *   <li>The component features a maximum of seven slots.
+   *   <li>Each slot can contain a navigation item or an overflow indicator (ellipses).
+   *   <li>If there are fewer than seven pages in the set, show only that number of slots.
+   *   <li>The pages to the left and right of the current page must be shown if available.
+   * </ul>
    *
    * @param page The current page number
    * @param pageCount The total number of pages
@@ -145,6 +153,9 @@ public abstract class BaseHtmlView {
   protected NavTag renderPagination(int page, int pageCount, Function<Integer, Call> linkForPage) {
     List<Integer> pageRange =
         IntStream.range(2, pageCount + 1).boxed().collect(Collectors.toList());
+
+    boolean isCurrentPageInMiddle = page > 4 && page < (pageCount - 3);
+    boolean isCurrentPageInLastFour = page >= (pageCount - 3);
 
     return nav()
         .withClass("usa-pagination")
@@ -165,9 +176,10 @@ public abstract class BaseHtmlView {
                             renderPaginationPageButton(pageNum, page == pageNum, linkForPage)))
 
                 /* If the page count is > 7 and there is a sufficient gap between the edges,
-                ellipses will be in slots 2 and 6, with current page and adjacent pages in the middle */
+                ellipses will be in slots 2 and 6, with current page and adjacent pages in the middle.
+                For example: [1] [...] [4] [!5!] [6] [...] [8] (Current page is 5) */
                 .condWith(
-                    pageCount > 7 && page > 4 && page < pageCount - 3,
+                    pageCount > 7 && isCurrentPageInMiddle,
                     renderPaginationEllipses(),
                     renderPaginationPageButton(page - 1, false, linkForPage),
                     renderPaginationPageButton(page, true, linkForPage),
@@ -175,8 +187,9 @@ public abstract class BaseHtmlView {
                     renderPaginationEllipses(),
                     renderPaginationPageButton(pageCount, false, linkForPage))
 
-                /* If the page count is > 7 and the current page is <= 4,
-                only show the ellipses on the right */
+                /* If the page count is > 7 and the current page is one of the first 4 pages,
+                only show the ellipses on the right.
+                For example: [1] [!2!] [3] [4] [5] [...] [8] (Current page is 2) */
                 .condWith(
                     pageCount > 7 && page <= 4,
                     each(
@@ -187,9 +200,10 @@ public abstract class BaseHtmlView {
                     renderPaginationPageButton(pageCount, false, linkForPage))
 
                 /* If the page count is > 7 and the current page is one of the last 4 pages,
-                only show the ellipses on the left */
+                only show the ellipses on the left.
+                For example: [1] [...] [4] [!5!] [6] [7] [8] (Current page is 5) */
                 .condWith(
-                    pageCount > 7 && page >= pageCount - 3,
+                    pageCount > 7 && isCurrentPageInLastFour,
                     renderPaginationEllipses(),
                     each(
                         Arrays.asList(

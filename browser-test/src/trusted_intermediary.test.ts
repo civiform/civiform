@@ -776,10 +776,10 @@ describe('Trusted intermediaries', () => {
       )
 
       // There should be a page 1 button
-      await tiDashboard.expectPageNumberButtonOrNot('1', true)
+      await tiDashboard.expectPageNumberButton('1')
 
       // There should be no page 2 button
-      await tiDashboard.expectPageNumberButtonOrNot('2', false)
+      await tiDashboard.expectPageNumberButtonNotPresent('2')
 
       // The page 1 button should be the current page
       expect(await page.innerHTML('.usa-current')).toContain('1')
@@ -790,7 +790,7 @@ describe('Trusted intermediaries', () => {
       )
     })
 
-    it('shows 2 pages when there are 12 clients', async () => {
+    it('shows 2 pages when there are 11 clients', async () => {
       const {page, tiDashboard} = ctx
       await loginAsTrustedIntermediary(page)
       await tiDashboard.gotoTIDashboardPage(page)
@@ -802,19 +802,22 @@ describe('Trusted intermediaries', () => {
       const cardCount = await page.locator('.usa-card__container').count()
       expect(cardCount).toBe(10)
 
+      // No 'Previous' button because we're on the 1st page
       expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
         'usa-pagination__previous-page',
       )
 
+      // There should be a 'Next' button
       expect(await page.innerHTML('.usa-pagination__list')).toContain(
         'usa-pagination__next-page',
       )
 
-      await tiDashboard.expectPageNumberButtonOrNot('1', true)
-      await tiDashboard.expectPageNumberButtonOrNot('2', true)
+      await tiDashboard.expectPageNumberButton('1')
+      await tiDashboard.expectPageNumberButton('2')
 
       expect(await page.innerHTML('.usa-current')).toContain('1')
 
+      // There should be no ellipses
       expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
         'usa-pagination__overflow',
       )
@@ -834,8 +837,8 @@ describe('Trusted intermediaries', () => {
         'usa-pagination__next-page',
       )
 
-      await tiDashboard.expectPageNumberButtonOrNot('1', true)
-      await tiDashboard.expectPageNumberButtonOrNot('2', true)
+      await tiDashboard.expectPageNumberButton('1')
+      await tiDashboard.expectPageNumberButton('2')
 
       expect(await page.innerHTML('.usa-current')).toContain('2')
     })
@@ -848,19 +851,20 @@ describe('Trusted intermediaries', () => {
 
       await tiDashboard.createMultipleClients('myname', 65)
 
-      await tiDashboard.expectPageNumberButtonOrNot('1', true)
-      await tiDashboard.expectPageNumberButtonOrNot('2', true)
-      await tiDashboard.expectPageNumberButtonOrNot('3', true)
-      await tiDashboard.expectPageNumberButtonOrNot('4', true)
-      await tiDashboard.expectPageNumberButtonOrNot('5', true)
-      await tiDashboard.expectPageNumberButtonOrNot('6', true)
-      await tiDashboard.expectPageNumberButtonOrNot('7', true)
-      await tiDashboard.expectPageNumberButtonOrNot('8', false)
+      await tiDashboard.expectPageNumberButton('1')
+      await tiDashboard.expectPageNumberButton('2')
+      await tiDashboard.expectPageNumberButton('3')
+      await tiDashboard.expectPageNumberButton('4')
+      await tiDashboard.expectPageNumberButton('5')
+      await tiDashboard.expectPageNumberButton('6')
+      await tiDashboard.expectPageNumberButton('7')
+      await tiDashboard.expectPageNumberButtonNotPresent('8')
 
       // Going to page 7
       await page.click('[aria-label=Page7]')
       expect(await page.innerHTML('.usa-current')).toContain('7')
 
+      // There should be no ellipses
       expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
         'usa-pagination__overflow',
       )
@@ -883,16 +887,17 @@ describe('Trusted intermediaries', () => {
 
       await tiDashboard.createMultipleClients('myname', 75)
 
-      await tiDashboard.expectPageNumberButtonOrNot('1', true)
-      await tiDashboard.expectPageNumberButtonOrNot('2', true)
-      await tiDashboard.expectPageNumberButtonOrNot('3', true)
-      await tiDashboard.expectPageNumberButtonOrNot('4', true)
-      await tiDashboard.expectPageNumberButtonOrNot('5', true)
+      await tiDashboard.expectPageNumberButton('1')
+      await tiDashboard.expectPageNumberButton('2')
+      await tiDashboard.expectPageNumberButton('3')
+      await tiDashboard.expectPageNumberButton('4')
+      await tiDashboard.expectPageNumberButton('5')
       // The ellipses takes the place of 6 and 7 when current page is < 5
-      await tiDashboard.expectPageNumberButtonOrNot('6', false)
-      await tiDashboard.expectPageNumberButtonOrNot('7', false)
-      await tiDashboard.expectPageNumberButtonOrNot('8', true)
+      await tiDashboard.expectPageNumberButtonNotPresent('6')
+      await tiDashboard.expectPageNumberButtonNotPresent('7')
+      await tiDashboard.expectPageNumberButton('8')
 
+      // There should be an ellipses
       expect(await page.innerHTML('.usa-pagination__list')).toContain(
         'usa-pagination__overflow',
       )
@@ -901,8 +906,8 @@ describe('Trusted intermediaries', () => {
       await page.click('[aria-label=Page4]')
       expect(await page.innerHTML('.usa-current')).toContain('4')
 
-      await tiDashboard.expectPageNumberButtonOrNot('6', false)
-      await tiDashboard.expectPageNumberButtonOrNot('7', false)
+      await tiDashboard.expectPageNumberButtonNotPresent('6')
+      await tiDashboard.expectPageNumberButtonNotPresent('7')
 
       expect(await page.innerHTML('.usa-pagination__list')).toContain(
         'usa-pagination__overflow',
@@ -926,18 +931,19 @@ describe('Trusted intermediaries', () => {
       await page.click('[aria-label=Page5]')
       expect(await page.innerHTML('.usa-current')).toContain('5')
 
-      await tiDashboard.expectPageNumberButtonOrNot('1', true)
+      await tiDashboard.expectPageNumberButton('1')
       // An ellipses takes the place of 2 and 3 when current page is 5
-      await tiDashboard.expectPageNumberButtonOrNot('2', false)
-      await tiDashboard.expectPageNumberButtonOrNot('3', false)
-      await tiDashboard.expectPageNumberButtonOrNot('4', true)
-      await tiDashboard.expectPageNumberButtonOrNot('5', true)
-      await tiDashboard.expectPageNumberButtonOrNot('6', true)
+      await tiDashboard.expectPageNumberButtonNotPresent('2')
+      await tiDashboard.expectPageNumberButtonNotPresent('3')
+      await tiDashboard.expectPageNumberButton('4')
+      await tiDashboard.expectPageNumberButton('5')
+      await tiDashboard.expectPageNumberButton('6')
       // An ellipses takes the place of 7 and 8 when current page is 5
-      await tiDashboard.expectPageNumberButtonOrNot('7', false)
-      await tiDashboard.expectPageNumberButtonOrNot('8', false)
-      await tiDashboard.expectPageNumberButtonOrNot('9', true)
+      await tiDashboard.expectPageNumberButtonNotPresent('7')
+      await tiDashboard.expectPageNumberButtonNotPresent('8')
+      await tiDashboard.expectPageNumberButton('9')
 
+      // There should be an ellipses
       expect(await page.innerHTML('.usa-pagination__list')).toContain(
         'usa-pagination__overflow',
       )
@@ -961,17 +967,18 @@ describe('Trusted intermediaries', () => {
       await page.click('.usa-pagination__next-page')
       expect(await page.innerHTML('.usa-current')).toContain('6')
 
-      await tiDashboard.expectPageNumberButtonOrNot('1', true)
+      await tiDashboard.expectPageNumberButton('1')
       // The ellipses is on the left
-      await tiDashboard.expectPageNumberButtonOrNot('2', false)
-      await tiDashboard.expectPageNumberButtonOrNot('3', false)
-      await tiDashboard.expectPageNumberButtonOrNot('4', false)
-      await tiDashboard.expectPageNumberButtonOrNot('5', true)
-      await tiDashboard.expectPageNumberButtonOrNot('6', true)
-      await tiDashboard.expectPageNumberButtonOrNot('7', true)
-      await tiDashboard.expectPageNumberButtonOrNot('8', true)
-      await tiDashboard.expectPageNumberButtonOrNot('9', true)
+      await tiDashboard.expectPageNumberButtonNotPresent('2')
+      await tiDashboard.expectPageNumberButtonNotPresent('3')
+      await tiDashboard.expectPageNumberButtonNotPresent('4')
+      await tiDashboard.expectPageNumberButton('5')
+      await tiDashboard.expectPageNumberButton('6')
+      await tiDashboard.expectPageNumberButton('7')
+      await tiDashboard.expectPageNumberButton('8')
+      await tiDashboard.expectPageNumberButton('9')
 
+      // There should be an ellipses
       expect(await page.innerHTML('.usa-pagination__list')).toContain(
         'usa-pagination__overflow',
       )
