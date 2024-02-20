@@ -77,7 +77,7 @@ public final class QuestionTranslationView extends TranslationFormView {
         renderTranslationForm(
             request, locale, formAction, inputFieldsBuilder.build(), /* isProgramEdit= */ false);
 
-    String title = String.format("Manage Question Translations: %s", question.getName());
+    String title = String.format("Manage question translations: %s", question.getName());
 
     HtmlBundle htmlBundle =
         layout

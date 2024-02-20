@@ -38,12 +38,12 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
     Result result = controller.edit(addCSRFToken(fakeRequest()).build(), program.id);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Manage Admins for Program: Success");
+    assertThat(contentAsString(result)).contains("Manage admins for program: Success");
   }
 
   @Test
   public void edit_rendersFormWithExistingAdmins() {
-    ProgramDefinition program = ProgramBuilder.newDraftProgram("Existing Admins").buildDefinition();
+    ProgramDefinition program = ProgramBuilder.newDraftProgram("Existing admins").buildDefinition();
     AccountModel existingAdmin = resourceCreator.insertAccount();
     existingAdmin.setEmailAddress("test@test.com");
     existingAdmin.addAdministeredProgram(program);

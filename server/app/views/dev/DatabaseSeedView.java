@@ -75,10 +75,10 @@ public class DatabaseSeedView extends BaseHtmlView {
             .with(
                 div()
                     .withClasses("grid", "grid-cols-2")
-                    .with(div().with(h2("Current Draft Programs:")).with(pre(prettyDraftPrograms)))
+                    .with(div().with(h2("Current draft programs:")).with(pre(prettyDraftPrograms)))
                     .with(
-                        div().with(h2("Current Active Programs:")).with(pre(prettyActivePrograms)))
-                    .with(div().with(h2("Current Questions:")).with(pre(prettyQuestions))))
+                        div().with(h2("Current active programs:")).with(pre(prettyActivePrograms)))
+                    .with(div().with(h2("Current questions:")).with(pre(prettyQuestions))))
             .withClasses("px-6", "py-6");
 
     HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(content);
@@ -87,7 +87,7 @@ public class DatabaseSeedView extends BaseHtmlView {
 
   public Content render(Request request, Optional<String> maybeFlash) {
 
-    String title = "Dev Tools";
+    String title = "Dev tools";
 
     DivTag content =
         div()

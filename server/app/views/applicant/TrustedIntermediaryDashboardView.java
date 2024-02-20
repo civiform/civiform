@@ -47,6 +47,8 @@ import play.twirl.api.Content;
 import repository.ProgramRepository;
 import repository.SearchParameters;
 import services.DateConverter;
+import services.PhoneValidationResult;
+import services.PhoneValidationUtils;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
 import services.ti.TrustedIntermediaryService;
@@ -99,7 +101,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 requiredFieldsExplanationContent(),
                 renderAddNewForm(tiGroup, request),
                 hr().withClasses("mt-6"),
-                renderSubHeader("All Clients").withClass("my-4"),
+                renderSubHeader("All clients").withClass("my-4"),
                 h4("Search"),
                 renderSearchForm(request, searchParameters),
                 renderTIClientsList(managedAccounts, searchParameters, page, totalPageCount),
@@ -177,8 +179,9 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                                 .collect(Collectors.toList()),
                             account -> renderClientCard(account))));
 
-    return clientsList.with(
-        renderPaginationDiv(
+    return clientsList.condWith(
+        managedAccounts.size() > 0,
+        renderPagination(
             page,
             totalPageCount,
             pageNumber ->
@@ -213,20 +216,20 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("first-name-input")
             .setFieldName("firstName")
-            .setLabelText("First Name")
+            .setLabelText("First name")
             .setRequired(true)
             .setValue(request.flash().get("providedFirstName").orElse(""));
     FieldWithLabel middleNameField =
         FieldWithLabel.input()
             .setId("middle-name-input")
             .setFieldName("middleName")
-            .setLabelText("Middle Name" + OPTIONAL_INDICATOR)
+            .setLabelText("Middle name" + OPTIONAL_INDICATOR)
             .setValue(request.flash().get("providedMiddleName").orElse(""));
     FieldWithLabel lastNameField =
         FieldWithLabel.input()
             .setId("last-name-input")
             .setFieldName("lastName")
-            .setLabelText("Last Name")
+            .setLabelText("Last name")
             .setRequired(true)
             .setValue(request.flash().get("providedLastName").orElse(""));
     // TODO: do something with this field.  currently doesn't do anything. Add a Path
@@ -235,14 +238,14 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         FieldWithLabel.date()
             .setId("date-of-birth-input")
             .setFieldName("dob")
-            .setLabelText("Date Of Birth")
+            .setLabelText("Date of birth")
             .setRequired(true)
             .setValue(request.flash().get("providedDob").orElse(""));
     FieldWithLabel emailField =
         FieldWithLabel.email()
             .setId("email-input")
             .setFieldName("emailAddress")
-            .setLabelText("Email Address" + OPTIONAL_INDICATOR)
+            .setLabelText("Email address" + OPTIONAL_INDICATOR)
             .setToolTipIcon(Icons.INFO)
             .setToolTipText(
                 "Add an email address for your client to receive status updates about their"
@@ -327,8 +330,11 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
 
   private String formatPhone(String phone) {
     try {
+      PhoneValidationResult phoneValidationResults =
+          PhoneValidationUtils.determineCountryCode(Optional.ofNullable(phone));
+
       Phonenumber.PhoneNumber phoneNumber =
-          PHONE_NUMBER_UTIL.parse(phone, TrustedIntermediaryService.COUNTRY_CODE_FOR_US_REGION);
+          PHONE_NUMBER_UTIL.parse(phone, phoneValidationResults.getCountryCode().orElse(""));
       return PHONE_NUMBER_UTIL.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.NATIONAL);
     } catch (NumberParseException e) {
       return "-";

@@ -30,16 +30,16 @@ public class ProfileView extends BaseHtmlView {
 
     return layout
         .getBundle(request)
-        .setTitle("Profile View - CiviForm")
+        .setTitle("Profile view - CiviForm")
         .addMainContent(
             h1(profile.getClientName()),
             h1(String.format("Profile ID: %s", profile.getId())).withId("profile-id"),
             h1(text("Applicant ID: "), applicantIdTag),
-            h1("Profile Roles"),
+            h1("Profile roles"),
             span(profile.getRoles().toString()),
-            h1("Applicant Data JSON"),
+            h1("Applicant data JSON"),
             span(applicant.getApplicantData().asJsonString()),
-            h1("Applicant Email Address (if present)"),
+            h1("Applicant email address (if present)"),
             span(applicant.getAccount().getEmailAddress()))
         .render();
   }

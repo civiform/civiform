@@ -71,7 +71,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
       ImmutableSet<String> allProgramNames) {
     String title = "API Keys";
     ButtonTag newKeyButton =
-        ViewUtils.makeSvgTextButton("New API Key", Icons.PLUS)
+        ViewUtils.makeSvgTextButton("New API key", Icons.PLUS)
             .withId("new-api-key-button")
             .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON);
     DivTag headerDiv =

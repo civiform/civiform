@@ -150,7 +150,8 @@ public class BaseHtmlLayout {
     } else {
       bundle.setTitle(String.format("%s — %s", currentTitle, getTitleSuffix()));
     }
-    bundle.addMetadata(meta().withName("thanks").withContent("Thank you Bion ❤️"));
+    // Best practice: add ❤️ every time you touch this file :)
+    bundle.addMetadata(meta().withName("thanks").withContent("Thank you Bion ❤️❤️"));
     return bundle.render();
   }
 
