@@ -1,6 +1,9 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static controllers.applicant.ApplicantRequestedAction.NEXT_BLOCK;
+import static controllers.applicant.ApplicantRequestedAction.PREVIOUS_BLOCK;
+import static controllers.applicant.ApplicantRequestedAction.REVIEW_PAGE;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -12,6 +15,7 @@ import com.google.common.collect.ImmutableList;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import j2html.TagCreator;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -125,7 +129,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                     params.programId(),
                     params.block().getId(),
                     params.inReview(),
-                    ApplicantRequestedAction.NEXT_BLOCK)
+                    NEXT_BLOCK)
                 .url();
 
     String key =
@@ -249,7 +253,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                 params.programId(),
                 params.block().getId(),
                 params.inReview(),
-                ApplicantRequestedAction.NEXT_BLOCK)
+                NEXT_BLOCK)
             .url();
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder()
@@ -280,17 +284,6 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     return div(continueForm, deleteForm).withClasses("hidden");
   }
 
-  private ButtonTag renderNextButton(Params params) {
-    String styles = ButtonStyles.SOLID_BLUE;
-    if (hasUploadedFile(params)) {
-      styles = ButtonStyles.OUTLINED_TRANSPARENT;
-    }
-    return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
-        .withForm(BLOCK_FORM_ID)
-        .withClasses(styles)
-        .withId(FILEUPLOAD_SUBMIT_FORM_ID);
-  }
-
   private DivTag renderFileKeyField(
       ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return FileUploadQuestionRenderer.renderFileKeyField(question, params, false);
@@ -309,9 +302,6 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
   }
 
   private boolean hasAtLeastOneRequiredQuestion(Params params) {
-    if (settingsManifest.getAdminOidcEnhancedLogoutEnabled()) {
-      System.out.println("thing");
-    }
     return params.block().getQuestions().stream().anyMatch(question -> !question.isOptional());
   }
 
@@ -321,37 +311,103 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     DivTag ret =
         div()
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-            .with(
-                submitButton(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
-                    .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "file-upload-action-button")
-                    .withData(
-                        "redirect-with-file",
-                        params.baseUrl()
-                            + applicantRoutes
-                                .updateFile(
-                                    params.profile(),
-                                    params.applicantId(),
-                                    params.programId(),
-                                    params.block().getId(),
-                                    params.inReview(),
-                                    ApplicantRequestedAction.REVIEW_PAGE)
-                                .url())
-                    .withData(
-                        "redirect-without-file",
-                        applicantRoutes
-                            .review(params.profile(), params.applicantId(), params.programId())
-                            .url())
-                    .withForm(BLOCK_FORM_ID)
-                    .withId("review-button-id"))
-            // TODO(#6450): Use the new previous button here.
-            .with(renderOldPreviousButton(params));
+            .with(renderButton(params, REVIEW_PAGE))
+            .with(renderButton(params, PREVIOUS_BLOCK));
     if (maybeSkipOrDeleteButton.isPresent()) {
       ret.with(maybeSkipOrDeleteButton.get());
     }
-    ret.with(renderNextButton(params));
+    ret.with(renderButton(params, NEXT_BLOCK));
     if (maybeContinueButton.isPresent()) {
       ret.with(maybeContinueButton.get());
     }
     return ret;
+  }
+
+  private DomContent renderButton(Params params, ApplicantRequestedAction action) {
+    if (!settingsManifest.getSaveOnAllActions(params.request())) {
+      switch (action) {
+        case NEXT_BLOCK:
+          return renderOldNextButton(params);
+        case PREVIOUS_BLOCK:
+          return renderOldPreviousButton(params);
+        case REVIEW_PAGE:
+          return renderOldReviewButton(params);
+        default:
+          throw new IllegalStateException("Action not handled: " + action.name());
+      }
+    }
+
+    MessageKey buttonMessage;
+    String redirectWithoutFile;
+    String id; // TODO: Needed?
+
+    switch (action) {
+      case NEXT_BLOCK:
+        buttonMessage = MessageKey.BUTTON_NEXT_SCREEN;
+        // Don't allow the user to proceed to the next block without uploading a file
+        redirectWithoutFile = null;
+        id = FILEUPLOAD_SUBMIT_FORM_ID;
+        break;
+      case PREVIOUS_BLOCK:
+        buttonMessage = MessageKey.BUTTON_PREVIOUS_SCREEN;
+        redirectWithoutFile =
+            params.baseUrl()
+                + applicantRoutes
+                    .blockPreviousOrReview(
+                        params.profile(),
+                        params.applicantId(),
+                        params.programId(),
+                        params.blockIndex(),
+                        params.inReview())
+                    .url();
+        id = "previous-block-id";
+        break;
+      case REVIEW_PAGE:
+        buttonMessage = MessageKey.BUTTON_REVIEW;
+        redirectWithoutFile =
+            params.baseUrl()
+                + applicantRoutes
+                    .review(params.profile(), params.applicantId(), params.programId())
+                    .url();
+        id = "review-button-id";
+        break;
+      default:
+        throw new IllegalStateException("Action not handled: " + action.name());
+    }
+
+    String redirectWithFile =
+        params.baseUrl()
+            + applicantRoutes
+                .updateFile(
+                    params.profile(),
+                    params.applicantId(),
+                    params.programId(),
+                    params.block().getId(),
+                    params.inReview(),
+                    action)
+                .url();
+
+    String buttonStyle = ButtonStyles.OUTLINED_TRANSPARENT;
+    if (action == NEXT_BLOCK && !hasUploadedFile(params)) {
+      buttonStyle = ButtonStyles.SOLID_BLUE;
+    }
+
+    return submitButton(params.messages().at(buttonMessage.getKeyName()))
+        .withClasses(buttonStyle, "file-upload-action-button")
+        .withData("redirect-with-file", redirectWithFile)
+        .withData("redirect-without-file", redirectWithoutFile)
+        .withForm(BLOCK_FORM_ID)
+        .withId(id);
+  }
+
+  private ButtonTag renderOldNextButton(Params params) {
+    String styles = ButtonStyles.SOLID_BLUE;
+    if (hasUploadedFile(params)) {
+      styles = ButtonStyles.OUTLINED_TRANSPARENT;
+    }
+    return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
+        .withForm(BLOCK_FORM_ID)
+        .withClasses(styles)
+        .withId(FILEUPLOAD_SUBMIT_FORM_ID);
   }
 }

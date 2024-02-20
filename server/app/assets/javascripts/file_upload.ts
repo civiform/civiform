@@ -26,16 +26,19 @@ export function init() {
     return true
   })
 
+    // This event listener should only trigger if the SAVE_ON_ALL_ACTIONS flag is on
+    // because the file-upload-action-button class is only added if the SAVE_ON_ALL_ACTIONS flag
+    // is enabled (see views.applicant.ApplicantFileUploadRenderer.java).
     addEventListenerToElements(
       '.file-upload-action-button',
       'click',
       (e: Event) => {
         console.log('click')
-        // TODO: Flag guard stuff (don't apply attributes if flag off?)
-        const redirectWithFile = assertNotNull((e.currentTarget as HTMLElement).dataset
-          .redirectWithFile)
-        const redirectWithoutFile = assertNotNull((e.currentTarget as HTMLElement).dataset
-          .redirectWithoutFile)
+        const buttonTarget = e.currentTarget as HTMLElement
+        const redirectWithFile = assertNotNull(
+          buttonTarget.dataset.redirectWithFile,
+        )
+        const redirectWithoutFile = buttonTarget.dataset.redirectWithoutFile
         console.log('redirectWith=' + redirectWithFile)
         console.log('redirectWi/o=' + redirectWithoutFile)
 
@@ -44,18 +47,25 @@ export function init() {
         )
 
         if (fileInput.value != '') {
+          console.log('has file')
+        } else {
+          console.log('no file')
+        }
+
+        if (fileInput.value != '') {
           console.log('has file so changing redirect')
           assertNotNull(
             blockForm.querySelector<HTMLInputElement>(
               'input[name="success_action_redirect"]',
-            )
+            ),
           ).value = redirectWithFile
           // We want the submit to fire so don't call #stopPropagation?
-          return true
-        } else {
+        } else if (redirectWithoutFile) {
           window.location.href = redirectWithoutFile
-          e.stopPropagation()
+          e.preventDefault()
+          //       return false
         }
+        return true
       },
     )
 
@@ -67,29 +77,19 @@ export function init() {
       console.log(
         'submitter=' + ((event as SubmitEvent).submitter as Element).id,
       )
+      const redirectWithoutFile = (
+        (event as SubmitEvent).submitter as HTMLElement
+      ).dataset.redirectWithoutFile
+      const fileRequiredBeforeContinuing = !redirectWithoutFile
 
-      const successActionRedirect = assertNotNull(
-        blockForm.querySelector<HTMLInputElement>(
-          'input[name="success_action_redirect"]',
-        ),
-      ).value
-      console.log('redirect input = ' + successActionRedirect)
-      if (
-        ((event as SubmitEvent).submitter as Element).id === 'review-button-id'
-      ) {
-        const applicantRequestedAction = 'REVIEW_PAGE'
-        const newSuccessActionRedirect =
-          successActionRedirect.substring(
-            0,
-            successActionRedirect.lastIndexOf('/') + 1,
-          ) + applicantRequestedAction
-        console.log('new redirect=' + newSuccessActionRedirect)
-        assertNotNull(
-          blockForm.querySelector<HTMLInputElement>(
-            'input[name="success_action_redirect"]',
-          ),
-        ).value = newSuccessActionRedirect
-        //return true
+      console.log('redirect without=' + redirectWithoutFile)
+      console.log(
+        'fileRequiredBeforeContinuing=' + fileRequiredBeforeContinuing,
+      )
+
+      if (!fileRequiredBeforeContinuing) {
+        // If we don't require a file before continuing, don't do any validation and just proceed
+        return true
       }
 
       if (!validateFileUploadQuestions(blockForm)) {
