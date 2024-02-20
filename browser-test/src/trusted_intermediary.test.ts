@@ -737,7 +737,7 @@ describe('Trusted intermediaries', () => {
 
       await tiDashboard.gotoTIDashboardPage(page)
       await tiDashboard.expectClientContainsNumberOfApplications('1')
-      await tiDashboard.expectClientContainsProgramNames(['test-program-1'])
+      await tiDashboard.expectClientContainsProgramNames(['Test program 1'])
 
       // Apply to second program
       await tiDashboard.clickOnViewApplications()
@@ -748,8 +748,8 @@ describe('Trusted intermediaries', () => {
       await tiDashboard.gotoTIDashboardPage(page)
       await tiDashboard.expectClientContainsNumberOfApplications('2')
       await tiDashboard.expectClientContainsProgramNames([
-        'test-program-1',
-        'test-program-2',
+        'Test program 1',
+        'Test program 2',
       ])
     })
   })
