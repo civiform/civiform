@@ -33,6 +33,7 @@ import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
+import play.mvc.Http;
 import play.mvc.Result;
 import repository.StoredFileRepository;
 import repository.VersionRepository;
@@ -60,6 +61,7 @@ import views.applicant.AddressCorrectionBlockView;
 import views.applicant.ApplicantFileUploadRenderer;
 import views.applicant.ApplicantProgramBlockEditView;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
+import views.applicant.NorthStarApplicantProgramBlockEditView;
 import views.applicant.IneligibleBlockView;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
@@ -77,6 +79,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final HttpExecutionContext httpExecutionContext;
   private final ApplicantProgramBlockEditView editView;
+  private final NorthStarApplicantProgramBlockEditView northStarApplicantProgramBlockEditView;
   private final FormFactory formFactory;
   private final ApplicantStorageClient applicantStorageClient;
   private final StoredFileRepository storedFileRepository;
@@ -96,6 +99,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       MessagesApi messagesApi,
       HttpExecutionContext httpExecutionContext,
       ApplicantProgramBlockEditViewFactory editViewFactory,
+      NorthStarApplicantProgramBlockEditView northStarApplicantProgramBlockEditView,
       FormFactory formFactory,
       ApplicantStorageClient applicantStorageClient,
       StoredFileRepository storedFileRepository,
@@ -124,6 +128,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.editView =
         editViewFactory.create(new ApplicantQuestionRendererFactory(applicantFileUploadRenderer));
+    this.northStarApplicantProgramBlockEditView =
+        checkNotNull(northStarApplicantProgramBlockEditView);
     this.programService = checkNotNull(programService);
   }
 
@@ -367,20 +373,24 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
               if (block.isPresent()) {
                 ApplicantPersonalInfo personalInfo = applicantStage.toCompletableFuture().join();
-                return ok(
-                    editView.render(
-                        buildApplicationBaseViewParams(
-                            request,
-                            applicantId,
-                            programId,
-                            blockId,
-                            inReview,
-                            roApplicantProgramService,
-                            block.get(),
-                            personalInfo,
-                            ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
-                            applicantRoutes,
-                            profile)));
+                if (settingsManifest.getNorthStarApplicantUi(request)) {
+                  return ok(northStarApplicantProgramBlockEditView.render(request)).as(Http.MimeTypes.HTML);
+                } else {
+                  return ok(
+                      editView.render(
+                          buildApplicationBaseViewParams(
+                              request,
+                              applicantId,
+                              programId,
+                              blockId,
+                              inReview,
+                              roApplicantProgramService,
+                              block.get(),
+                              personalInfo,
+                              ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
+                              applicantRoutes,
+                              profile)));
+                }
               } else {
                 return notFound();
               }
@@ -444,23 +454,27 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               if (block.isPresent()) {
                 ApplicantPersonalInfo personalInfo = applicantStage.toCompletableFuture().join();
                 CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
-                return ok(
-                    editView.render(
-                        applicationBaseViewParamsBuilder(
-                                request,
-                                applicantId,
-                                programId,
-                                blockId,
-                                inReview,
-                                roApplicantProgramService,
-                                block.get(),
-                                personalInfo,
-                                ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
-                                questionName,
-                                applicantRoutes,
-                                profile)
-                            .setBannerMessage(flashSuccessBanner)
-                            .build()));
+                if (settingsManifest.getNorthStarApplicantUi(request)) {
+                  return ok(northStarApplicantProgramBlockEditView.render(request)).as(Http.MimeTypes.HTML);
+                } else {
+                  return ok(
+                      editView.render(
+                          applicationBaseViewParamsBuilder(
+                                  request,
+                                  applicantId,
+                                  programId,
+                                  blockId,
+                                  inReview,
+                                  roApplicantProgramService,
+                                  block.get(),
+                                  personalInfo,
+                                  ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
+                                  questionName,
+                                  applicantRoutes,
+                                  profile)
+                              .setBannerMessage(flashSuccessBanner)
+                              .build()));
+                }
               } else {
                 return notFound();
               }
