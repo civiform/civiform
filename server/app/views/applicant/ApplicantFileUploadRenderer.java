@@ -29,6 +29,7 @@ import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.ApplicantFileNameFormatter;
+import services.cloud.ApplicantStorageClient;
 import services.cloud.StorageUploadRequest;
 import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
@@ -77,15 +78,18 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
 
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final ApplicantRoutes applicantRoutes;
+  private final ApplicantStorageClient applicantStorageClient;
   private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantFileUploadRenderer(
       FileUploadViewStrategy fileUploadViewStrategy,
       ApplicantRoutes applicantRoutes,
+      ApplicantStorageClient applicantStorageClient,
       SettingsManifest settingsManifest) {
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.applicantStorageClient = checkNotNull(applicantStorageClient);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
@@ -129,8 +133,15 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
             // file_upload.ts will un-hide this error if needed.
             /* hidden= */ true,
             /* classes...= */ BaseStyles.ALERT_ERROR,
-            ReferenceClasses.FILEUPLOAD_ERROR,
+            ReferenceClasses.FILEUPLOAD_REQUIRED_ERROR_ID,
             "mb-2"));
+    result.with(
+        div("File too large, choose another") // TODO: Translations
+            .withId(fileInputId + "-too-large-error")
+            .withClasses(
+                ReferenceClasses.FILEUPLOAD_TOO_LARGE_ERROR,
+                BaseStyles.FORM_ERROR_TEXT_BASE,
+                "hidden"));
     result.with(
         p(params.messages().at(MessageKey.MOBILE_FILE_UPLOAD_HELP.getKeyName()))
             .withClasses("text-sm", "text-gray-600", "mb-2"));
@@ -215,6 +226,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
         .withType("file")
         .withName("file")
         .withClass("hidden")
+        .attr("data-file-limit-mb", applicantStorageClient.getFileLimitMb())
         .withAccept(MIME_TYPES_IMAGES_AND_PDF);
   }
 

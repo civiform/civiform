@@ -18,6 +18,8 @@ import play.mvc.Http;
  * the files.
  */
 public interface ApplicantStorageClient {
+  /** Returns the maximum file size in megabytes allowed for public files. */
+  public abstract int getFileLimitMb();
 
   /**
    * Returns the string version of a URL that gives users temporary access to file storage. This URL

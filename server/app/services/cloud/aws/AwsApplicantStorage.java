@@ -71,6 +71,11 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
   }
 
   @Override
+  public int getFileLimitMb() {
+    return fileLimitMb;
+  }
+
+  @Override
   public String getPresignedUrlString(String fileKey) {
     // TODO(#1841): support storing and displaying original filenames for AWS uploads
     return getPresignedUrlString(fileKey, /* originalFileName= */ Optional.empty());

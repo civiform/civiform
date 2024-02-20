@@ -69,6 +69,12 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
   }
 
   @Override
+  public int getFileLimitMb() {
+    // We currently don't enforce a file limit for Azure, so just use the max integer value.
+    return Integer.MAX_VALUE;
+  }
+
+  @Override
   public String getPresignedUrlString(String fileKey) {
     return getPresignedUrlString(fileKey, /* prefixedOriginalFileName= */ Optional.empty());
   }
