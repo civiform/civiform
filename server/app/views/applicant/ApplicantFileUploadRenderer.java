@@ -314,7 +314,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
             // TODO(#6450): Use the new review button here.
             .with(renderOldReviewButton(params))
-            .with(renderPreviousButton(params));
+            // TODO(#6450): Use the new previous button here.
+            .with(renderOldPreviousButton(params));
     if (maybeSkipOrDeleteButton.isPresent()) {
       ret.with(maybeSkipOrDeleteButton.get());
     }

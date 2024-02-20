@@ -292,17 +292,23 @@ public abstract class QuestionDefinition {
           previousDefinition
               .map(qd -> (MultiOptionQuestionDefinition) qd)
               .map(MultiOptionQuestionDefinition::getOptionAdminNames)
-              .orElse(ImmutableList.of());
+              .orElse(ImmutableList.of())
+              // New option admin names can only be lowercase, but existing option
+              // admin names may have capital letters. We lowercase them before
+              // comparing to avoid collisions.
+              .stream()
+              .map(o -> o.toLowerCase(Locale.ROOT))
+              .collect(ImmutableList.toImmutableList());
+
       if (multiOptionQuestionDefinition.getOptionAdminNames().stream()
           // This is O(n^2) but the list is small and it's simpler than creating a Set
-          .filter(n -> !existingAdminNames.contains(n))
-          .anyMatch(s -> !s.matches("[0-9a-zA-Z_-]+"))) {
+          .filter(n -> !existingAdminNames.contains(n.toLowerCase(Locale.ROOT)))
+          .anyMatch(s -> !s.matches("[0-9a-z_-]+"))) {
         errors.add(
             CiviFormError.of(
-                "Multi-option admin names can only contain letters, numbers, underscores, and"
-                    + " dashes"));
+                "Multi-option admin names can only contain lowercase letters, numbers, underscores,"
+                    + " and dashes"));
       }
-
       if (multiOptionQuestionDefinition.getOptions().stream()
           .anyMatch(option -> option.optionText().hasEmptyTranslation())) {
         errors.add(CiviFormError.of("Multi-option questions cannot have blank options"));
@@ -312,7 +318,7 @@ public abstract class QuestionDefinition {
       long numUniqueOptionDefaultValues =
           multiOptionQuestionDefinition.getOptions().stream()
               .map(QuestionOption::optionText)
-              .map(LocalizedStrings::getDefault)
+              .map(e -> e.getDefault().toLowerCase(Locale.ROOT))
               .distinct()
               .count();
       if (numUniqueOptionDefaultValues != numOptions) {
@@ -322,6 +328,7 @@ public abstract class QuestionDefinition {
       long numUniqueOptionAdminNames =
           multiOptionQuestionDefinition.getOptions().stream()
               .map(QuestionOption::adminName)
+              .map(e -> e.toLowerCase(Locale.ROOT))
               .distinct()
               .count();
       if (numUniqueOptionAdminNames != numOptions) {

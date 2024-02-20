@@ -22,6 +22,9 @@ import static j2html.TagCreator.ul;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 import com.google.inject.Inject;
 import controllers.ti.routes;
 import j2html.tags.specialized.ATag;
@@ -44,6 +47,8 @@ import play.twirl.api.Content;
 import repository.ProgramRepository;
 import repository.SearchParameters;
 import services.DateConverter;
+import services.PhoneValidationResult;
+import services.PhoneValidationUtils;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
 import services.ti.TrustedIntermediaryService;
@@ -65,6 +70,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   private final DateConverter dateConverter;
   private final ProgramRepository programRepository;
   public static final String OPTIONAL_INDICATOR = " (optional)";
+  private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
   @Inject
   public TrustedIntermediaryDashboardView(
@@ -95,7 +101,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 requiredFieldsExplanationContent(),
                 renderAddNewForm(tiGroup, request),
                 hr().withClasses("mt-6"),
-                renderSubHeader("All Clients").withClass("my-4"),
+                renderSubHeader("All clients").withClass("my-4"),
                 h4("Search"),
                 renderSearchForm(request, searchParameters),
                 renderTIClientsList(managedAccounts, searchParameters, page, totalPageCount),
@@ -174,7 +180,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                             account -> renderClientCard(account))));
 
     return clientsList.with(
-        renderPagination(
+        renderPaginationDiv(
             page,
             totalPageCount,
             pageNumber ->
@@ -209,20 +215,20 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("first-name-input")
             .setFieldName("firstName")
-            .setLabelText("First Name")
+            .setLabelText("First name")
             .setRequired(true)
             .setValue(request.flash().get("providedFirstName").orElse(""));
     FieldWithLabel middleNameField =
         FieldWithLabel.input()
             .setId("middle-name-input")
             .setFieldName("middleName")
-            .setLabelText("Middle Name" + OPTIONAL_INDICATOR)
+            .setLabelText("Middle name" + OPTIONAL_INDICATOR)
             .setValue(request.flash().get("providedMiddleName").orElse(""));
     FieldWithLabel lastNameField =
         FieldWithLabel.input()
             .setId("last-name-input")
             .setFieldName("lastName")
-            .setLabelText("Last Name")
+            .setLabelText("Last name")
             .setRequired(true)
             .setValue(request.flash().get("providedLastName").orElse(""));
     // TODO: do something with this field.  currently doesn't do anything. Add a Path
@@ -231,14 +237,14 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         FieldWithLabel.date()
             .setId("date-of-birth-input")
             .setFieldName("dob")
-            .setLabelText("Date Of Birth")
+            .setLabelText("Date of birth")
             .setRequired(true)
             .setValue(request.flash().get("providedDob").orElse(""));
     FieldWithLabel emailField =
         FieldWithLabel.email()
             .setId("email-input")
             .setFieldName("emailAddress")
-            .setLabelText("Email Address" + OPTIONAL_INDICATOR)
+            .setLabelText("Email address" + OPTIONAL_INDICATOR)
             .setToolTipIcon(Icons.INFO)
             .setToolTipText(
                 "Add an email address for your client to receive status updates about their"
@@ -282,9 +288,9 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                                     div(
                                             renderSubHeader(account.getApplicantName())
                                                 .withClass("usa-card__heading"),
-                                            u(renderUpdateClientLink(account.id)).withClass("ml-2"))
+                                            u(renderEditClientLink(account.id)).withClass("ml-2"))
                                         .withClass("flex"),
-                                    renderCardDateOfBirth(account))
+                                    renderClientDateOfBirth(account))
                                 .withClass("flex-col"),
                             renderIndexPageLink(account)),
                     div()
@@ -322,7 +328,16 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   private String formatPhone(String phone) {
-    return phone.replaceFirst("(\\d{3})(\\d{3})(\\d+)", "($1) $2-$3");
+    try {
+      PhoneValidationResult phoneValidationResults =
+          PhoneValidationUtils.determineCountryCode(Optional.ofNullable(phone));
+
+      Phonenumber.PhoneNumber phoneNumber =
+          PHONE_NUMBER_UTIL.parse(phone, phoneValidationResults.getCountryCode().orElse(""));
+      return PHONE_NUMBER_UTIL.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.NATIONAL);
+    } catch (NumberParseException e) {
+      return "-";
+    }
   }
 
   private DivTag renderCardApplications(AccountModel account) {
@@ -336,7 +351,10 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         newestApplicant.get().getApplications().stream()
             .map(
                 application ->
-                    programRepository.getProgramDefinition(application.getProgram()).adminName())
+                    programRepository
+                        .getProgramDefinition(application.getProgram())
+                        .localizedName()
+                        .getDefault())
             .collect(Collectors.joining(", "));
 
     return div(
@@ -354,7 +372,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         label("Notes").withFor("card_notes"), p(notes).withClass("text-xs").withId("card_notes"));
   }
 
-  private ATag renderUpdateClientLink(Long accountId) {
+  private ATag renderEditClientLink(Long accountId) {
     return new LinkElement()
         .setId("edit-client")
         .setText("Edit")
@@ -362,7 +380,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .asAnchorText();
   }
 
-  private DivTag renderCardDateOfBirth(AccountModel account) {
+  private DivTag renderClientDateOfBirth(AccountModel account) {
     Optional<ApplicantModel> newestApplicant = account.newestApplicant();
     if (newestApplicant.isEmpty()) {
       return div();

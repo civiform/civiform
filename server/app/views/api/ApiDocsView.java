@@ -89,7 +89,7 @@ public class ApiDocsView extends BaseHtmlView {
     HtmlBundle bundle =
         layout
             .getBundle(request)
-            .setTitle("API Docs")
+            .setTitle("API docs")
             .addMainContent(
                 contentDiv(selectedProgramSlug, programDefinition, allProgramSlugs, request))
             .addMainStyles("overflow-hidden");
@@ -135,7 +135,7 @@ public class ApiDocsView extends BaseHtmlView {
             .with(
                 div()
                     .withClasses("items-center", "mx-6", "my-8")
-                    .with(h1("API Documentation"))
+                    .with(h1("API documentation"))
                     .with(div().withClasses("flex", "flex-col").with(getNotes(request))))
             .with(
                 div()
@@ -157,7 +157,7 @@ public class ApiDocsView extends BaseHtmlView {
       leftSide.with(programDocsDiv(programDefinition.get()));
 
       DivTag rightSide = div().withClasses("w-full flex-grow");
-      rightSide.with(h1("API Response Preview").withClasses("pl-4"));
+      rightSide.with(h1("API response preview").withClasses("pl-4"));
       rightSide.with(apiResponseSampleDiv(programDefinition.get()));
 
       fullProgramDiv.with(leftSide);
@@ -296,7 +296,7 @@ public class ApiDocsView extends BaseHtmlView {
 
     notesTag.with(
         text(
-            "The API Response Preview is a sample of what the API response might look like for a"
+            "The API response preview is a sample of what the API response might look like for a"
                 + " given program. All data is fake. Single-select and multi-select questions have"
                 + " sample answers that are selected from the available responses. General"
                 + " information about using the API is located at "));
@@ -321,7 +321,7 @@ public class ApiDocsView extends BaseHtmlView {
     notesTag.with(
         text(
             "Note that API docs do not currently support enumerated nor enumerator questions."
-                + " Static content questions are not shown on the API Response Preview because"
+                + " Static content questions are not shown on the API response preview because"
                 + " they do not include answers to questions."));
 
     return AccordionFactory.buildAccordion(

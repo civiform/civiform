@@ -3,6 +3,7 @@ import {
   createTestContext,
   disableFeatureFlag,
   enableFeatureFlag,
+  isLocalDevEnvironment,
   loginAsAdmin,
   validateScreenshot,
 } from './support'
@@ -317,32 +318,36 @@ describe('Program list page.', () => {
     await validateScreenshot(page, 'program-list-with-new-draft-image')
   })
 
-  it('program list with different active and draft image', async () => {
-    const {page, adminPrograms, adminProgramImage} = ctx
-    await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_card_images')
+  // This test is flaky in staging prober tests, so only run it locally and on
+  // GitHub actions. See issue #6624 for more details.
+  if (isLocalDevEnvironment()) {
+    it('program list with different active and draft image', async () => {
+      const {page, adminPrograms, adminProgramImage} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_card_images')
 
-    const programName = 'Different Images Program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.goToProgramImagePage(programName)
-    await adminProgramImage.setImageFileAndSubmit(
-      'src/assets/program-summary-image-wide.png',
-    )
-    await adminPrograms.publishAllDrafts()
+      const programName = 'Different Images Program'
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.goToProgramImagePage(programName)
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+      )
+      await adminPrograms.publishAllDrafts()
 
-    // Set a new image on the new draft program
-    await adminPrograms.createNewVersion(programName)
-    await adminPrograms.goToProgramImagePage(programName)
-    await adminProgramImage.setImageFileAndSubmit(
-      'src/assets/program-summary-image-tall.png',
-    )
-    await adminPrograms.gotoAdminProgramsPage()
+      // Set a new image on the new draft program
+      await adminPrograms.createNewVersion(programName)
+      await adminPrograms.goToProgramImagePage(programName)
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-tall.png',
+      )
+      await adminPrograms.gotoAdminProgramsPage()
 
-    await validateScreenshot(
-      page,
-      'program-list-with-different-active-and-draft-images',
-    )
-  })
+      await validateScreenshot(
+        page,
+        'program-list-with-different-active-and-draft-images',
+      )
+    })
+  }
 
   it('program list with same active and draft image', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx

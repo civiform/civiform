@@ -36,8 +36,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20180219.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.23.19",
-      "software.amazon.awssdk" % "ses" % "2.23.19",
+      "software.amazon.awssdk" % "s3" % "2.24.2",
+      "software.amazon.awssdk" % "ses" % "2.24.2",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.11.2",
@@ -94,7 +94,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.29",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.30",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.6",

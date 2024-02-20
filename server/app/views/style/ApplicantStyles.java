@@ -41,6 +41,10 @@ public final class ApplicantStyles {
   public static final String PROGRAM_TITLE =
       StyleUtils.joinStyles(BaseStyles.TEXT_CIVIFORM_BLUE, "text-lg", "font-bold");
 
+  public static final String PROGRAM_CARDS_PARENT_CONTAINER =
+      StyleUtils.joinStyles("mx-auto", "my-4", StyleUtils.responsiveSmall("m-10"));
+  public static final String PROGRAM_CARDS_GRANDPARENT_CONTAINER =
+      StyleUtils.joinStyles("flex", "flex-col", "place-items-center");
   public static final String PROGRAM_CARDS_SUBTITLE =
       StyleUtils.joinStyles("my-4", "text-lg", "px-4");
   public static final String PROGRAM_CARDS_CONTAINER_BASE =
@@ -48,8 +52,9 @@ public final class ApplicantStyles {
           "grid",
           "grid-cols-1",
           "gap-4",
-          "items-start",
+          "justify-between",
           "place-items-center",
+          "items-start",
           StyleUtils.responsiveSmall("grid-cols-1"),
           StyleUtils.responsiveLarge("gap-8"));
   public static final String PROGRAM_CARD =

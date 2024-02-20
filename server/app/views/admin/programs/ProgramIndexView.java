@@ -178,7 +178,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private Modal renderDemographicsCsvModal() {
     String modalId = "download-demographics-csv-modal";
-    String downloadActionText = "Download Demographic Data (CSV)";
+    String downloadActionText = "Download demographic data (CSV)";
     DivTag downloadDemographicCsvModalContent =
         div()
             .withClasses("px-8")
@@ -242,7 +242,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                           ViewUtils.makeAlert(
                               "Warning: This program does not use all recommended"
                                   + " universal questions.",
-                              Optional.empty(),
+                              /* hidden= */ false,
+                              /* title= */ Optional.empty(),
                               BaseStyles.ALERT_WARNING))
                       .with(
                           p("We recommend using all universal questions when possible"
@@ -323,7 +324,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                 ViewUtils.makeAlert(
                     "Due to the nature of shared questions and versioning, all questions and"
                         + " programs will need to be published together.",
-                    Optional.of("All draft questions in programs will be published."),
+                    /* hidden= */ false,
+                    /* title= */ Optional.of("All draft questions in programs will be published."),
                     BaseStyles.ALERT_WARNING),
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_PROGRAM)
@@ -646,7 +648,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private ButtonTag renderManageProgramAdminsLink(ProgramDefinition program) {
     String adminLink = routes.ProgramAdminManagementController.edit(program.id()).url();
     ButtonTag button =
-        makeSvgTextButton("Manage Program Admins", Icons.GROUP)
+        makeSvgTextButton("Manage program admins", Icons.GROUP)
             .withId("manage-program-admin-link-" + program.id())
             .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
     return asRedirectElement(button, adminLink);

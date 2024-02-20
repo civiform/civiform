@@ -13,6 +13,8 @@ public enum ApplicantRequestedAction {
    * ApplicantProgramBlocksController#updateWithApplicantId} for more details.
    */
   NEXT_BLOCK,
+  /** The applicant wants to see the previous block in the form. */
+  PREVIOUS_BLOCK,
   /** The applicant wants to see the review page with all the questions. */
   REVIEW_PAGE;
 

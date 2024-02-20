@@ -20,7 +20,6 @@ import play.i18n.Messages;
 import repository.AccountRepository;
 import repository.SearchParameters;
 import services.DateConverter;
-import services.MessageKey;
 import services.PhoneValidationUtils;
 import services.applicant.exception.ApplicantNotFoundException;
 
@@ -46,7 +45,6 @@ public final class TrustedIntermediaryService {
   public static final String FORM_FIELD_NAME_PHONE = "phoneNumber";
   public static final String FORM_FIELD_NAME_MIDDLE_NAME = "middleName";
   public static final String FORM_FIELD_NAME_TI_NOTES = "tiNote";
-  private static final String COUNTRY_CODE_FOR_US_REGION = "US";
 
   @Inject
   public TrustedIntermediaryService(
@@ -143,15 +141,19 @@ public final class TrustedIntermediaryService {
   private Form<EditTiClientInfoForm> validatePhoneNumber(
       Form<EditTiClientInfoForm> form, Messages preferredLanguage) {
     String phoneNumber = form.value().get().getPhoneNumber();
+
     if (Strings.isNullOrEmpty(phoneNumber)) {
       return form;
     }
-    Optional<MessageKey> error =
-        PhoneValidationUtils.validatePhoneNumber(
-            Optional.of(phoneNumber), Optional.of(COUNTRY_CODE_FOR_US_REGION));
-    if (error.isPresent()) {
-      return form.withError(FORM_FIELD_NAME_PHONE, preferredLanguage.at(error.get().getKeyName()));
+
+    var phoneValidationResult = PhoneValidationUtils.determineCountryCode(Optional.of(phoneNumber));
+
+    if (!phoneValidationResult.isValid()) {
+      return form.withError(
+          FORM_FIELD_NAME_PHONE,
+          preferredLanguage.at(phoneValidationResult.getMessageKey().get().getKeyName()));
     }
+
     return form;
   }
 

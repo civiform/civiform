@@ -422,7 +422,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
     QuestionDefinition definition = question.getQuestionDefinition();
     return new QuestionDefinitionBuilder(definition)
         .setPrimaryApplicantInfoTags(
-            PrimaryApplicantInfoTag.getAllTagsForQuestionType(definition.getQuestionType()))
+            PrimaryApplicantInfoTag.getAllPaiTagsForQuestionType(definition.getQuestionType()))
         .build();
   }
 

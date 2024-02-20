@@ -112,7 +112,13 @@ public final class UpsellController extends CiviFormController {
             .getReadOnlyApplicantProgramService(applicantId, programId)
             .toCompletableFuture();
 
-    return CompletableFuture.allOf(isCommonIntake, account, roApplicantProgramService)
+    CompletableFuture<ApplicantService.ApplicationPrograms> relevantProgramsFuture =
+        applicantService
+            .relevantProgramsForApplicant(applicantId, profile.get())
+            .toCompletableFuture();
+
+    return CompletableFuture.allOf(
+            isCommonIntake, account, roApplicantProgramService, relevantProgramsFuture)
         .thenComposeAsync(
             ignored -> {
               if (!isCommonIntake.join()) {
@@ -156,6 +162,7 @@ public final class UpsellController extends CiviFormController {
               return ok(
                   upsellView.render(
                       request,
+                      relevantProgramsFuture.join(),
                       redirectTo,
                       account.join(),
                       roApplicantProgramService.join().getApplicantData().preferredLocale(),

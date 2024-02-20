@@ -2,11 +2,8 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
-import static j2html.TagCreator.h3;
-import static j2html.TagCreator.ol;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import annotations.BindingAnnotations;
@@ -16,7 +13,6 @@ import controllers.routes;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.H2Tag;
-import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -31,7 +27,6 @@ import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
-import views.components.Modal;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
@@ -44,20 +39,17 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final SettingsManifest settingsManifest;
   private final String authProviderName;
   private final ProgramCardViewRenderer programCardViewRenderer;
-  private final ZoneId zoneId;
 
   @Inject
   public ProgramIndexView(
       ApplicantLayout layout,
-      ZoneId zoneId,
+      ProgramCardViewRenderer programCardViewRenderer,
       SettingsManifest settingsManifest,
-      @BindingAnnotations.ApplicantAuthProviderName String authProviderName,
-      ProgramCardViewRenderer programCardViewRenderer) {
+      @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
     this.layout = checkNotNull(layout);
+    this.programCardViewRenderer = checkNotNull(programCardViewRenderer);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.authProviderName = checkNotNull(authProviderName);
-    this.programCardViewRenderer = checkNotNull(programCardViewRenderer);
-    this.zoneId = checkNotNull(zoneId);
   }
 
   /**
@@ -190,14 +182,12 @@ public final class ProgramIndexView extends BaseHtmlView {
       HtmlBundle bundle,
       CiviFormProfile profile) {
     DivTag content =
-        div()
-            .withId("main-content")
-            .withClasses("mx-auto", "my-4", StyleUtils.responsiveSmall("m-10"));
+        div().withId("main-content").withClasses(ApplicantStyles.PROGRAM_CARDS_PARENT_CONTAINER);
 
     // The different program card containers should have the same styling, by using the program
     // count of the larger set of programs
     String cardContainerStyles =
-        programCardsContainerStyles(
+        programCardViewRenderer.programCardsContainerStyles(
             Math.max(
                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
                 relevantPrograms.inProgress().size()));
@@ -228,7 +218,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     if (!relevantPrograms.inProgress().isEmpty()) {
       content.with(
-          programCardsSection(
+          programCardViewRenderer.programCardsSection(
               request,
               messages,
               personalInfo,
@@ -244,7 +234,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
     if (!relevantPrograms.submitted().isEmpty()) {
       content.with(
-          programCardsSection(
+          programCardViewRenderer.programCardsSection(
               request,
               messages,
               personalInfo,
@@ -260,7 +250,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
     if (!relevantPrograms.unapplied().isEmpty()) {
       content.with(
-          programCardsSection(
+          programCardViewRenderer.programCardsSection(
               request,
               messages,
               personalInfo,
@@ -275,7 +265,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               profile));
     }
 
-    return div().withClasses("flex", "flex-col", "place-items-center").with(content);
+    return div().withClasses(ApplicantStyles.PROGRAM_CARDS_GRANDPARENT_CONTAINER).with(content);
   }
 
   private DivTag findServicesSection(
@@ -310,7 +300,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         .withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION)
         .with(programSectionTitle(messages.at(MessageKey.TITLE_FIND_SERVICES_SECTION.getKeyName())))
         .with(
-            programCardsSection(
+            programCardViewRenderer.programCardsSection(
                 request,
                 messages,
                 personalInfo,
@@ -323,62 +313,5 @@ public final class ProgramIndexView extends BaseHtmlView {
                 buttonScreenReaderText,
                 bundle,
                 profile));
-  }
-
-  /**
-   * This method generates a list of style classes with responsive column counts. The number of
-   * columns should not exceed the number of programs, or the program card container will not be
-   * centered.
-   */
-  private String programCardsContainerStyles(int numPrograms) {
-    return StyleUtils.joinStyles(
-        ApplicantStyles.PROGRAM_CARDS_CONTAINER_BASE,
-        numPrograms >= 2 ? StyleUtils.responsiveMedium("grid-cols-2") : "",
-        numPrograms >= 3 ? StyleUtils.responsiveLarge("grid-cols-3") : "",
-        numPrograms >= 4 ? StyleUtils.responsiveXLarge("grid-cols-4") : "",
-        numPrograms >= 5 ? StyleUtils.responsive2XLarge("grid-cols-5") : "");
-  }
-
-  private DivTag programCardsSection(
-      Http.Request request,
-      Messages messages,
-      ApplicantPersonalInfo personalInfo,
-      Optional<MessageKey> sectionTitle,
-      String cardContainerStyles,
-      long applicantId,
-      Locale preferredLocale,
-      ImmutableList<ApplicantService.ApplicantProgramData> cards,
-      MessageKey buttonTitle,
-      MessageKey buttonSrText,
-      HtmlBundle bundle,
-      CiviFormProfile profile) {
-    String sectionHeaderId = Modal.randomModalId();
-    DivTag div = div().withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION);
-    if (sectionTitle.isPresent()) {
-      div.with(
-          h3().withId(sectionHeaderId)
-              .withText(messages.at(sectionTitle.get().getKeyName()))
-              .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE));
-    }
-    return div.with(
-        ol().attr("aria-labelledby", sectionHeaderId)
-            .withClasses(cardContainerStyles)
-            .with(
-                each(
-                    cards,
-                    (card) ->
-                        programCardViewRenderer.createProgramCard(
-                            request,
-                            messages,
-                            personalInfo.getType(),
-                            card,
-                            applicantId,
-                            preferredLocale,
-                            buttonTitle,
-                            buttonSrText,
-                            /* nestedUnderSubheading= */ sectionTitle.isPresent(),
-                            bundle,
-                            profile,
-                            zoneId))));
   }
 }

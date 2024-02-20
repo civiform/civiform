@@ -169,7 +169,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setId("program-display-mode-ti-only")
                     .setFieldName("displayMode")
                     .setAriaRequired(true)
-                    .setLabelText("Trusted Intermediaries ONLY")
+                    .setLabelText("Trusted intermediaries only")
                     .setValue(DisplayMode.TI_ONLY.getValue())
                     .setChecked(displayMode.equals(DisplayMode.TI_ONLY.getValue()))
                     .getRadioTag()),
@@ -177,7 +177,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setId("program-display-mode-select-ti-only")
             .setFieldName("displayMode")
             .setAriaRequired(true)
-            .setLabelText("Visible to Selected Trusted Intermediaries ONLY")
+            .setLabelText("Visible to selected trusted intermediaries only")
             .setValue(DisplayMode.SELECT_TI.getValue())
             .setChecked(displayMode.equals(DisplayMode.SELECT_TI.getValue()))
             .getRadioTag(),

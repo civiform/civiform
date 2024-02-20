@@ -19,6 +19,21 @@ type QuestionParams = {
   enumeratorName?: string
   exportOption?: string
   universal?: boolean
+  primaryApplicantInfo?: boolean // Ignored if there isn't one for the question type
+}
+
+// Should match the fieldName set in PrimaryApplicantInfoTag.java
+export enum PrimaryApplicantInfoField {
+  APPLICANT_DOB = 'primaryApplicantDob',
+  APPLICANT_EMAIL = 'primaryApplicantEmail',
+  APPLICANT_NAME = 'primaryApplicantName',
+  APPLICANT_PHONE = 'primaryApplicantPhone',
+}
+
+export enum PrimaryApplicantInfoAlertType {
+  NOT_UNIVERSAL = '.cf-pai-not-universal-alert',
+  TAG_SET = '.cf-pai-tag-set-alert',
+  TAG_SET_NOT_UNIVERSAL = '.cf-pai-tag-set-not-universal-alert',
 }
 
 export enum QuestionType {
@@ -79,12 +94,12 @@ export class AdminQuestions {
   }
 
   async clickSubmitButtonAndNavigate(buttonText: string) {
-    await this.page.click(`button:has-text("${buttonText}")`)
+    await this.page.click(`button:text-is("${buttonText}")`)
     await waitForPageJsLoad(this.page)
   }
 
   async expectAdminQuestionsPage() {
-    expect(await this.page.innerText('h1')).toEqual('All Questions')
+    expect(await this.page.innerText('h1')).toEqual('All questions')
   }
 
   selectorForExportOption(exportOption: string) {
@@ -153,7 +168,7 @@ export class AdminQuestions {
     universal = false,
   }: QuestionParams) {
     // This function should only be called on question create/edit page.
-    await this.page.fill('label:has-text("Question Text")', questionText ?? '')
+    await this.page.fill('label:has-text("Question text")', questionText ?? '')
     await this.page.fill('label:has-text("Question help text")', helpText ?? '')
     await this.page.fill(
       'label:has-text("Administrative identifier")',
@@ -186,7 +201,7 @@ export class AdminQuestions {
     const questionText = await this.page.textContent('#question-text-textarea')
     const updatedText = questionText! + updateText
 
-    await this.page.fill('text=Question Text', updatedText)
+    await this.page.fill('text=Question text', updatedText)
     return updatedText
   }
 
@@ -365,7 +380,7 @@ export class AdminQuestions {
     await this.page.click(
       this.selectWithinQuestionTableRow(
         questionName,
-        ':text("Restore Archived")',
+        ':text("Restore archived")',
       ),
     )
     await waitForPageJsLoad(this.page)
@@ -376,7 +391,7 @@ export class AdminQuestions {
     await this.gotoAdminQuestionsPage()
     await this.openDropdownMenu(questionName)
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("Discard Draft")'),
+      this.selectWithinQuestionTableRow(questionName, ':text("Discard draft")'),
     )
     await this.page.click('#discard-button')
     await waitForPageJsLoad(this.page)
@@ -410,7 +425,7 @@ export class AdminQuestions {
       const restoreArchiveIsVisible = await this.page.isVisible(
         this.selectWithinQuestionTableRow(
           questionName,
-          ':text("Restore Archived")',
+          ':text("Restore archived")',
         ),
       )
       expect(restoreArchiveIsVisible).toBe(true)
@@ -423,7 +438,7 @@ export class AdminQuestions {
     await this.page.click(
       this.selectWithinQuestionTableRow(
         questionName,
-        ':text("Manage Translations")',
+        ':text("Manage translations")',
       ),
     )
     await waitForPageJsLoad(this.page)
@@ -445,7 +460,7 @@ export class AdminQuestions {
 
   async expectQuestionTranslationPage(questionName: string) {
     expect(await this.page.innerText('h1')).toContain(
-      `Manage Question Translations: ${questionName}`,
+      `Manage question translations: ${questionName}`,
     )
   }
 
@@ -460,7 +475,7 @@ export class AdminQuestions {
 
   async changeQuestionHelpText(questionName: string, questionHelpText: string) {
     await this.gotoQuestionEditPage(questionName)
-    await this.page.fill('text=Question Help Text', questionHelpText)
+    await this.page.fill('text=Question help text', questionHelpText)
     await this.clickSubmitButtonAndNavigate('Update')
     await this.expectAdminQuestionsPageWithUpdateSuccessToast()
     await this.expectDraftQuestionExist(questionName)
@@ -627,6 +642,7 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
+    primaryApplicantInfo = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -644,6 +660,12 @@ export class AdminQuestions {
       universal,
     })
 
+    if (universal && primaryApplicantInfo) {
+      await this.clickPrimaryApplicantInfoToggle(
+        PrimaryApplicantInfoField.APPLICANT_PHONE,
+      )
+    }
+
     await this.clickSubmitButtonAndNavigate('Create')
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
@@ -659,6 +681,7 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
+    primaryApplicantInfo = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -675,6 +698,12 @@ export class AdminQuestions {
       exportOption,
       universal,
     })
+
+    if (universal && primaryApplicantInfo) {
+      await this.clickPrimaryApplicantInfoToggle(
+        PrimaryApplicantInfoField.APPLICANT_DOB,
+      )
+    }
 
     await this.clickSubmitButtonAndNavigate('Create')
 
@@ -999,7 +1028,7 @@ export class AdminQuestions {
     await waitForPageJsLoad(this.page)
 
     await this.page.fill(
-      'label:has-text("Question Text")',
+      'label:has-text("Question text")',
       questionText + markdownText,
     )
     await this.page.fill(
@@ -1023,6 +1052,7 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
+    primaryApplicantInfo = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -1039,6 +1069,12 @@ export class AdminQuestions {
       exportOption,
       universal,
     })
+
+    if (universal && primaryApplicantInfo) {
+      await this.clickPrimaryApplicantInfoToggle(
+        PrimaryApplicantInfoField.APPLICANT_NAME,
+      )
+    }
 
     await this.clickSubmitButtonAndNavigate('Create')
 
@@ -1192,6 +1228,46 @@ export class AdminQuestions {
     return this.page.inputValue('#universal-toggle-input')
   }
 
+  async clickPrimaryApplicantInfoToggle(field: PrimaryApplicantInfoField) {
+    await this.page.click(`#${field}-toggle`)
+  }
+
+  async getPrimaryApplicantInfoToggleValue(fieldName: string) {
+    return this.page.inputValue(`#${fieldName}-toggle-input`)
+  }
+
+  async expectPrimaryApplicantInfoAlert(
+    type: PrimaryApplicantInfoAlertType,
+    visible: boolean,
+  ) {
+    const alert = this.page.locator(type.valueOf())
+    expect(await alert.isVisible()).toEqual(visible)
+  }
+
+  async expectPrimaryApplicantInfoSectionVisible(visible: boolean) {
+    expect(
+      await this.page.locator('#primary-applicant-info').isVisible(),
+    ).toEqual(visible)
+  }
+
+  async expectPrimaryApplicantInfoToggleVisible(
+    fieldName: string,
+    visible: boolean,
+  ) {
+    expect(await this.page.locator(`#${fieldName}-toggle`).isVisible()).toEqual(
+      visible,
+    )
+  }
+
+  async expectPrimaryApplicantInfoToggleValue(
+    fieldName: string,
+    value: boolean,
+  ) {
+    expect(await this.getPrimaryApplicantInfoToggleValue(fieldName)).toEqual(
+      value.toString(),
+    )
+  }
+
   async addIdQuestion({
     questionName,
     description = 'id description',
@@ -1241,6 +1317,7 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
+    primaryApplicantInfo = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -1257,6 +1334,12 @@ export class AdminQuestions {
       exportOption,
       universal,
     })
+
+    if (universal && primaryApplicantInfo) {
+      await this.clickPrimaryApplicantInfoToggle(
+        PrimaryApplicantInfoField.APPLICANT_EMAIL,
+      )
+    }
 
     await this.clickSubmitButtonAndNavigate('Create')
 
@@ -1340,7 +1423,7 @@ export class AdminQuestions {
       universal,
     })
 
-    await this.page.fill('text=Repeated Entity Type', 'Entity')
+    await this.page.fill('text=Repeated entity type', 'Entity')
 
     await this.clickSubmitButtonAndNavigate('Create')
 

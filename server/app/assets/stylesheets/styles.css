@@ -58,6 +58,11 @@
     margin-left: 0;
   }
 
+  /* USWDS defaults to 1rem, which ends up looking weird and unbalanced on some pages. */
+  .usa-alert-remove-top-margin {
+    margin-top: 0
+  }
+
   /**
    * For explanation of why we need two different hidden classes see
    * initToggleQuestionBankButtons() in questionBank.ts

@@ -425,8 +425,8 @@ public class QuestionDefinitionTest {
         .containsExactlyInAnyOrder(
             CiviFormError.of("Multi-option questions cannot have blank admin names"),
             CiviFormError.of(
-                "Multi-option admin names can only contain letters, numbers, underscores, and"
-                    + " dashes"));
+                "Multi-option admin names can only contain lowercase letters, numbers, underscores,"
+                    + " and dashes"));
   }
 
   @Test
@@ -441,6 +441,22 @@ public class QuestionDefinitionTest {
             config, questionOptions, MultiOptionQuestionType.CHECKBOX);
     assertThat(question.validate())
         .containsOnly(CiviFormError.of("Multi-option question options must be unique"));
+  }
+
+  @Test
+  public void validate_multiOptionQuestion_withDuplicateOptionsWithDifferentCase_returnsError() {
+    QuestionDefinitionConfig config = configBuilder.build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(
+                1L, "Parks_and_Recreation", LocalizedStrings.withDefaultValue("a1")),
+            QuestionOption.create(
+                2L, "Parks_and_recreation", LocalizedStrings.withDefaultValue("a2")));
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.CHECKBOX);
+    assertThat(question.validate())
+        .contains(CiviFormError.of("Multi-option question admin names must be unique"));
   }
 
   @Test
@@ -489,8 +505,31 @@ public class QuestionDefinitionTest {
     assertThat(question.validate())
         .containsOnly(
             CiviFormError.of(
-                "Multi-option admin names can only contain letters, numbers, underscores, and"
-                    + " dashes"));
+                "Multi-option admin names can only contain lowercase letters, numbers, underscores,"
+                    + " and dashes"));
+  }
+
+  @Test
+  public void validate_multiOptionQuestion_withCapitalLetterInOptionAdminNames_returnsError() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("test")
+            .setDescription("test")
+            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "A_invalid", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "b_valid", LocalizedStrings.withDefaultValue("b")));
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.CHECKBOX);
+    assertThat(question.validate())
+        .containsOnly(
+            CiviFormError.of(
+                "Multi-option admin names can only contain lowercase letters, numbers, underscores,"
+                    + " and dashes"));
   }
 
   @Test
@@ -525,6 +564,37 @@ public class QuestionDefinitionTest {
 
   @Test
   public void
+      validate_multiOptionQuestion_withValidOptionAdminNameInPreviousAndDuplicateNameInUpdate_returnsError() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("test")
+            .setDescription("test")
+            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    ImmutableList<QuestionOption> previousQuestionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "a_valid", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "b_valid", LocalizedStrings.withDefaultValue("b")));
+    QuestionDefinition previousQuestion =
+        new MultiOptionQuestionDefinition(
+            config, previousQuestionOptions, MultiOptionQuestionType.CHECKBOX);
+
+    ImmutableList<QuestionOption> updatedQuestionOptions =
+        ImmutableList.<QuestionOption>builder()
+            .addAll(previousQuestionOptions)
+            .add(QuestionOption.create(2L, "A_valid", LocalizedStrings.withDefaultValue("c")))
+            .build();
+    QuestionDefinition updatedQuestion =
+        new MultiOptionQuestionDefinition(
+            config, updatedQuestionOptions, MultiOptionQuestionType.CHECKBOX);
+
+    assertThat(updatedQuestion.validate(Optional.of(previousQuestion)))
+        .containsOnly(CiviFormError.of("Multi-option question admin names must be unique"));
+  }
+
+  @Test
+  public void
       validate_multiOptionQuestion_withInvalidOptionAdminNameInPreviousAndUpdatedDefinition_returnsError() {
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()
@@ -553,8 +623,8 @@ public class QuestionDefinitionTest {
     assertThat(updatedQuestion.validate(Optional.of(previousQuestion)))
         .containsOnly(
             CiviFormError.of(
-                "Multi-option admin names can only contain letters, numbers, underscores, and"
-                    + " dashes"));
+                "Multi-option admin names can only contain lowercase letters, numbers, underscores,"
+                    + " and dashes"));
   }
 
   @Test

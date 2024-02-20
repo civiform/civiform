@@ -246,7 +246,7 @@ public final class QuestionConfig {
     Preconditions.checkState(
         multiOptionQuestionForm.getOptionIds().size()
             == multiOptionQuestionForm.getOptions().size(),
-        "Options and Option Indexes need to be the same size.");
+        "Options and Option indexes need to be the same size.");
     ImmutableList.Builder<DivTag> optionsBuilder = ImmutableList.builder();
     int optionIndex = 0;
     for (int i = 0; i < multiOptionQuestionForm.getOptions().size(); i++) {

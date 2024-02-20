@@ -24,10 +24,15 @@ describe('Applicant navigation flow', () => {
     const programName = 'Test program for navigation flows'
     const dateQuestionText = 'date question text'
     const emailQuestionText = 'email question text'
+    const addressQuestionText = 'address question text'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
+      await enableFeatureFlag(
+        page,
+        'suggest_programs_on_application_confirmation_page',
+      )
 
       await adminQuestions.addDateQuestion({
         questionName: 'nav-date-q',
@@ -39,6 +44,7 @@ describe('Applicant navigation flow', () => {
       })
       await adminQuestions.addAddressQuestion({
         questionName: 'nav-address-q',
+        questionText: addressQuestionText,
       })
       await adminQuestions.addRadioButtonQuestion({
         questionName: 'nav-radio-q',
@@ -75,59 +81,230 @@ describe('Applicant navigation flow', () => {
       await adminPrograms.publishProgram(programName)
     })
 
-    it('clicking previous on first block goes to summary page', async () => {
-      const {applicantQuestions} = ctx
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickPrevious()
+    describe('previous button', () => {
+      it('clicking previous on first block goes to summary page', async () => {
+        const {applicantQuestions} = ctx
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.clickPrevious()
 
-      // Assert that we're on the preview page.
-      await applicantQuestions.expectReviewPage()
-    })
+        // Assert that we're on the preview page.
+        await applicantQuestions.expectReviewPage()
+      })
 
-    it('clicking previous on later blocks goes to previous blocks', async () => {
-      const {applicantQuestions} = ctx
-      await applicantQuestions.applyProgram(programName)
+      it('clicking previous on later blocks goes to previous blocks', async () => {
+        const {applicantQuestions} = ctx
+        await applicantQuestions.applyProgram(programName)
 
-      // Fill out the first block and click next
-      await applicantQuestions.answerDateQuestion('2021-11-01')
-      await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-      await applicantQuestions.clickNext()
+        // Fill out the first block and click next
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+        await applicantQuestions.clickNext()
 
-      // Nothing to fill in since this is the static question block
-      await applicantQuestions.clickNext()
+        // Nothing to fill in since this is the static question block
+        await applicantQuestions.clickNext()
 
-      // Fill out address question and click next
-      await applicantQuestions.answerAddressQuestion(
-        '1234 St',
-        'Unit B',
-        'Sim',
-        'WA',
-        '54321',
-      )
-      await applicantQuestions.clickNext()
+        // Fill out address question and click next
+        await applicantQuestions.answerAddressQuestion(
+          '1234 St',
+          'Unit B',
+          'Sim',
+          'WA',
+          '54321',
+        )
+        await applicantQuestions.clickNext()
 
-      // Click previous and see file upload page with address
-      await applicantQuestions.clickPrevious()
-      await applicantQuestions.checkAddressQuestionValue(
-        '1234 St',
-        'Unit B',
-        'Sim',
-        'WA',
-        '54321',
-      )
+        // Click previous and see previous page with address
+        await applicantQuestions.clickPrevious()
+        await applicantQuestions.checkAddressQuestionValue(
+          '1234 St',
+          'Unit B',
+          'Sim',
+          'WA',
+          '54321',
+        )
 
-      // Click previous and see static question page
-      await applicantQuestions.clickPrevious()
-      await applicantQuestions.seeStaticQuestion('static question text')
+        // Click previous and see static question page
+        await applicantQuestions.clickPrevious()
+        await applicantQuestions.seeStaticQuestion('static question text')
 
-      // Click previous and see date and name questions
-      await applicantQuestions.clickPrevious()
-      await applicantQuestions.checkDateQuestionValue('2021-11-01')
-      await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
+        // Click previous and see date and name questions
+        await applicantQuestions.clickPrevious()
+        await applicantQuestions.checkDateQuestionValue('2021-11-01')
+        await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
 
-      // Assert that we're on the review page.
-      await applicantQuestions.clickPrevious()
-      await applicantQuestions.expectReviewPage()
+        // Assert that we're on the review page.
+        await applicantQuestions.clickPrevious()
+        await applicantQuestions.expectReviewPage()
+      })
+
+      it('clicking previous does not save when flag off', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await disableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
+        await applicantQuestions.clickPrevious()
+
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          dateQuestionText,
+        )
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          emailQuestionText,
+        )
+      })
+
+      it('clicking previous with correct form shows previous page and saves answers', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
+        await applicantQuestions.clickNext()
+        // Nothing to fill in since this is the static question block
+        await applicantQuestions.clickNext()
+
+        // Fill out address question
+        await applicantQuestions.answerAddressQuestion(
+          '1234 St',
+          'Unit B',
+          'Sim',
+          'WA',
+          '54321',
+        )
+
+        // Click previous then go to the review page and verify the address question
+        // answer was saved
+        await applicantQuestions.clickPrevious()
+
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          addressQuestionText,
+          '1234 St',
+        )
+      })
+
+      it('clicking previous with missing answers shows modal', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
+        await applicantQuestions.clickPrevious()
+
+        // The date question is required, so we should see the error modal.
+        await applicantQuestions.expectErrorOnPreviousModal()
+        await validateScreenshot(page, 'error-on-previous-modal')
+      })
+
+      it('error on previous modal > click go back and edit > shows block', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
+        await applicantQuestions.clickPrevious()
+        await applicantQuestions.expectErrorOnPreviousModal()
+
+        await applicantQuestions.clickGoBackAndEdit()
+
+        // Verify the previously filled in answers are present
+        await applicantQuestions.checkDateQuestionValue('')
+        await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
+
+        // Answer the date question correctly and try clicking "Review" again
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+
+        await applicantQuestions.clickPrevious()
+
+        // Verify we're taken to the previous page (which is the review page
+        // since this was the first block) page and the answers were saved
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          dateQuestionText,
+          '11/01/2021',
+        )
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          emailQuestionText,
+          'test1@gmail.com',
+        )
+      })
+
+      it('error on previous modal > click previous without saving > answers not saved', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('')
+
+        await applicantQuestions.clickPrevious()
+        await applicantQuestions.expectErrorOnPreviousModal()
+
+        // Proceed to the previous page (which will be the review page,
+        // since this is the first block), acknowledging that answers won't be saved
+        await applicantQuestions.clickPreviousWithoutSaving()
+
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          dateQuestionText,
+        )
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          emailQuestionText,
+        )
+      })
+
+      it('error on previous modal > click previous without saving > shows previous block', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+        await applicantQuestions.clickNext()
+        // Nothing to fill in since this is the static question block
+        await applicantQuestions.clickNext()
+
+        // Don't fill in the address question, and try going to previous block
+        await applicantQuestions.clickPrevious()
+        await applicantQuestions.expectErrorOnPreviousModal()
+
+        // Proceed to the previous page and verify the first block answers are present
+        await applicantQuestions.clickPreviousWithoutSaving()
+        // This is the static question block, so continue to the previous block
+        await applicantQuestions.clickPrevious()
+
+        await applicantQuestions.checkDateQuestionValue('2021-11-01')
+        await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
+      })
+
+      afterAll(async () => {
+        const {page} = ctx
+        await loginAsAdmin(page)
+        await disableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+      })
     })
 
     describe('review button', () => {
@@ -512,6 +689,52 @@ describe('Applicant navigation flow', () => {
       await validateScreenshot(
         page,
         'program-submission-logged-in',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
+    })
+
+    it('verify program submission page for guest multiple programs', async () => {
+      const {page, applicantQuestions, adminPrograms} = ctx
+
+      // Login as an admin and add a bunch of programs
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram('program 1')
+      await adminPrograms.addProgram('program 2')
+      await adminPrograms.addProgram('program 3')
+      await adminPrograms.addProgram('program 4')
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+
+      // Fill out application as a guest and submit.
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerDateQuestion('2021-11-01')
+      await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerAddressQuestion(
+        '1234 St',
+        'Unit B',
+        'Sim',
+        'WA',
+        '54321',
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerRadioButtonQuestion('one')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '4256373270',
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.submitFromReviewPage()
+
+      // Verify we are on program submission page.
+      expect(await page.innerText('h1')).toContain('Application confirmation')
+      await validateAccessibility(page)
+      await validateScreenshot(
+        page,
+        'program-submission-guest-multiple-programs',
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,
       )
@@ -1254,6 +1477,8 @@ describe('Applicant navigation flow', () => {
     const addressWithoutCorrectionQuestionId = 'address-without-correction-q'
     const textQuestionId = 'text-q'
 
+    const addressWithCorrectionText = 'With Correction'
+
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
@@ -1262,7 +1487,7 @@ describe('Applicant navigation flow', () => {
       // Create all questions
       await adminQuestions.addAddressQuestion({
         questionName: addressWithCorrectionQuestionId,
-        questionText: 'With Correction',
+        questionText: addressWithCorrectionText,
       })
 
       await adminQuestions.addAddressQuestion({
@@ -1346,6 +1571,7 @@ describe('Applicant navigation flow', () => {
       // Log out admin
       await logout(page)
     })
+
     if (isLocalDevEnvironment()) {
       it('can correct address multi-block, multi-address program', async () => {
         const {page, applicantQuestions} = ctx
@@ -1375,7 +1601,7 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.answerTextQuestion('Some text')
         await applicantQuestions.clickNext()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          'With Correction',
+          addressWithCorrectionText,
           'Address In Area',
         )
         await applicantQuestions.clickSubmit()
@@ -1408,7 +1634,7 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.expectVerifyAddressPage(true)
         await applicantQuestions.clickNext()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          'With Correction',
+          addressWithCorrectionText,
           'Address In Area',
         )
         await applicantQuestions.clickSubmit()
@@ -1443,7 +1669,7 @@ describe('Applicant navigation flow', () => {
 
         await applicantQuestions.clickNext()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          'With Correction',
+          addressWithCorrectionText,
           'Address In Area',
         )
         await applicantQuestions.clickSubmit()
@@ -1530,26 +1756,396 @@ describe('Applicant navigation flow', () => {
         await logout(page)
       })
 
-      it('clicking previous on address correction page takes you back to address entry page', async () => {
-        const {page, applicantQuestions} = ctx
-        await enableFeatureFlag(page, 'esri_address_correction_enabled')
-        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+      describe('previous button', () => {
+        it('clicking previous on address correction page takes you back to address entry page (save flag off)', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await disableFeatureFlag(page, 'save_on_all_actions')
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
-        // Fill out application and submit.
-        await applicantQuestions.answerAddressQuestion(
-          'Legit Address',
-          '',
-          'Seattle',
-          'WA',
-          '98109',
-        )
-        await applicantQuestions.clickNext()
-        await applicantQuestions.expectVerifyAddressPage(true)
+          // Fill out application and submit.
+          await applicantQuestions.answerAddressQuestion(
+            'Legit Address',
+            '',
+            'Seattle',
+            'WA',
+            '98109',
+          )
+          await applicantQuestions.clickNext()
+          await applicantQuestions.expectVerifyAddressPage(true)
 
-        await applicantQuestions.clickPrevious()
-        await applicantQuestions.expectAddressPage()
+          await applicantQuestions.clickPrevious()
 
-        await logout(page)
+          await applicantQuestions.expectAddressPage()
+
+          await logout(page)
+        })
+
+        it('clicking previous on address correction page takes you back to address entry page (save flag on)', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await enableFeatureFlag(page, 'save_on_all_actions')
+
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+          await applicantQuestions.answerAddressQuestion(
+            'Legit Address',
+            '',
+            'Seattle',
+            'WA',
+            '98109',
+          )
+          await applicantQuestions.clickNext()
+          await applicantQuestions.expectVerifyAddressPage(true)
+
+          await applicantQuestions.clickPrevious()
+
+          await applicantQuestions.expectAddressPage()
+
+          await logout(page)
+        })
+
+        it('clicking previous on address correction page saves original address when selected', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await enableFeatureFlag(page, 'save_on_all_actions')
+
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+          await applicantQuestions.answerAddressQuestion(
+            'Legit Address',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+          await applicantQuestions.clickNext()
+          await applicantQuestions.expectVerifyAddressPage(true)
+
+          // Opt to keep the original address entered
+          await applicantQuestions.selectAddressSuggestion('Legit Address')
+
+          await applicantQuestions.clickPrevious()
+
+          await applicantQuestions.clickReview()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            addressWithCorrectionText,
+            'Legit Address',
+          )
+
+          await logout(page)
+        })
+
+        it('clicking previous on address correction page saves suggested address when selected', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await enableFeatureFlag(page, 'save_on_all_actions')
+
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+          await applicantQuestions.answerAddressQuestion(
+            'Legit Address',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+          await applicantQuestions.clickNext()
+          await applicantQuestions.expectVerifyAddressPage(true)
+
+          // Opt for one of the suggested addresses
+          await applicantQuestions.selectAddressSuggestion(
+            'Address With No Service Area Features',
+          )
+
+          await applicantQuestions.clickPrevious()
+
+          await applicantQuestions.clickReview()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            addressWithCorrectionText,
+            'Address With No Service Area Features',
+          )
+          await logout(page)
+        })
+
+        it('clicking previous on address correction page saves original address when no suggestions offered', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await enableFeatureFlag(page, 'save_on_all_actions')
+
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+          await applicantQuestions.answerAddressQuestion(
+            'Bogus Address',
+            '',
+            'Seattle',
+            'WA',
+            '98109',
+          )
+          await applicantQuestions.clickNext()
+          await applicantQuestions.expectVerifyAddressPage(false)
+
+          await applicantQuestions.clickPrevious()
+
+          await applicantQuestions.clickReview()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            addressWithCorrectionText,
+            'Bogus Address',
+          )
+
+          await logout(page)
+        })
+
+        it('clicking previous on address correction page does not save selection when flag off', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await disableFeatureFlag(page, 'save_on_all_actions')
+
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+          await applicantQuestions.answerAddressQuestion(
+            'Legit Address',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+          await applicantQuestions.clickNext()
+          await applicantQuestions.expectVerifyAddressPage(true)
+
+          // Opt for one of the suggested addresses
+          await applicantQuestions.selectAddressSuggestion(
+            'Address With No Service Area Features',
+          )
+
+          await applicantQuestions.clickPrevious()
+
+          // When the Previous button doesn't save answers, the original address should be
+          // the answer because the suggested address selection wasn't saved
+          await applicantQuestions.clickReview()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            addressWithCorrectionText,
+            'Legit Address',
+          )
+          await logout(page)
+        })
+
+        it('clicking previous saves address and goes to previous block if the user enters an address that exactly matches suggestions', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await enableFeatureFlag(page, 'save_on_all_actions')
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+          // Fill out application with address that is contained in findAddressCandidates.json
+          // (the list of suggestions returned from FakeEsriClient.fetchAddressSuggestions())
+          await applicantQuestions.answerAddressQuestion(
+            'Address In Area',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+
+          await applicantQuestions.clickPrevious()
+
+          // Because the address block is the first block in the program,
+          // clicking previous should take the applicant to the review page
+          await applicantQuestions.expectReviewPage()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            addressWithCorrectionText,
+            'Address In Area',
+          )
+
+          await logout(page)
+        })
+      })
+
+      describe('review button', () => {
+        it('clicking review on block with address navigates to address correction page (no suggestions)', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await enableFeatureFlag(page, 'save_on_all_actions')
+
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+          await applicantQuestions.answerAddressQuestion(
+            'Bogus Address',
+            '',
+            'Seattle',
+            'WA',
+            '98109',
+          )
+
+          await applicantQuestions.clickReview()
+
+          await applicantQuestions.expectVerifyAddressPage(false)
+        })
+
+        it('clicking review on block with address navigates to address correction page (has suggestions)', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await enableFeatureFlag(page, 'save_on_all_actions')
+
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+          await applicantQuestions.answerAddressQuestion(
+            'Legit Address',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+
+          await applicantQuestions.clickReview()
+
+          await applicantQuestions.expectVerifyAddressPage(true)
+        })
+
+        it('clicking review on block with address skips address correction screen if the user enters exact match of suggestion', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await enableFeatureFlag(page, 'save_on_all_actions')
+
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+          // Fill out application with address that is contained in findAddressCandidates.json
+          // (the list of suggestions returned from FakeEsriClient.fetchAddressSuggestions())
+          await applicantQuestions.answerAddressQuestion(
+            'Address In Area',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+
+          await applicantQuestions.clickReview()
+
+          await applicantQuestions.expectReviewPage()
+          // Verify the applicant's answer is saved
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            addressWithCorrectionText,
+            'Address In Area',
+          )
+
+          await logout(page)
+        })
+
+        it('clicking review on address correction page saves original address when selected', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await enableFeatureFlag(page, 'save_on_all_actions')
+
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+          await applicantQuestions.answerAddressQuestion(
+            'Legit Address',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+          await applicantQuestions.clickNext()
+          await applicantQuestions.expectVerifyAddressPage(true)
+
+          // Opt to keep the original address entered
+          await applicantQuestions.selectAddressSuggestion('Legit Address')
+
+          await applicantQuestions.clickReview()
+
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            addressWithCorrectionText,
+            'Legit Address',
+          )
+
+          await logout(page)
+        })
+
+        it('clicking review on address correction page saves suggested address when selected', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await enableFeatureFlag(page, 'save_on_all_actions')
+
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+          await applicantQuestions.answerAddressQuestion(
+            'Legit Address',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+          await applicantQuestions.clickNext()
+          await applicantQuestions.expectVerifyAddressPage(true)
+
+          // Opt for one of the suggested addresses
+          await applicantQuestions.selectAddressSuggestion(
+            'Address With No Service Area Features',
+          )
+
+          await applicantQuestions.clickReview()
+
+          // Verify that suggestion was saved after clicking "Review"
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            addressWithCorrectionText,
+            'Address With No Service Area Features',
+          )
+          await logout(page)
+        })
+
+        it('clicking review on address correction page saves original address when no suggestions offered', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await enableFeatureFlag(page, 'save_on_all_actions')
+
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+          await applicantQuestions.answerAddressQuestion(
+            'Bogus Address',
+            '',
+            'Seattle',
+            'WA',
+            '98109',
+          )
+          await applicantQuestions.clickNext()
+          await applicantQuestions.expectVerifyAddressPage(false)
+
+          await applicantQuestions.clickReview()
+
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            addressWithCorrectionText,
+            'Bogus Address',
+          )
+
+          await logout(page)
+        })
+
+        it('clicking review on address correction page does not save selection when flag off', async () => {
+          const {page, applicantQuestions} = ctx
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await disableFeatureFlag(page, 'save_on_all_actions')
+
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+          await applicantQuestions.answerAddressQuestion(
+            'Legit Address',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+          await applicantQuestions.clickNext()
+          await applicantQuestions.expectVerifyAddressPage(true)
+
+          // Opt for one of the suggested addresses
+          await applicantQuestions.selectAddressSuggestion(
+            'Address With No Service Area Features',
+          )
+
+          await applicantQuestions.clickReview()
+
+          // When the Review button doesn't save answers, the original address should be
+          // the answer because the suggested address selection wasn't saved
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            addressWithCorrectionText,
+            'Legit Address',
+          )
+          await logout(page)
+        })
       })
     }
 
@@ -1568,7 +2164,7 @@ describe('Applicant navigation flow', () => {
       )
       await applicantQuestions.clickNext()
       await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-        'With Correction',
+        addressWithCorrectionText,
         '305 Harrison',
       )
       await applicantQuestions.clickSubmit()

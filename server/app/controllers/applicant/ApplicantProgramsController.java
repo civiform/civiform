@@ -75,9 +75,9 @@ public final class ApplicantProgramsController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    Optional<ToastMessage> banner = request.flash().get("banner").map(m -> ToastMessage.alert(m));
+    Optional<ToastMessage> banner = request.flash().get("banner").map(ToastMessage::alert);
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId);
+        applicantService.getPersonalInfo(applicantId);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
@@ -85,21 +85,20 @@ public final class ApplicantProgramsController extends CiviFormController {
             v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile.get()),
             httpContext.current())
         .thenApplyAsync(
-            applicationPrograms -> {
-              return ok(programIndexView.render(
-                      messagesApi.preferred(request),
-                      request,
-                      applicantId,
-                      applicantStage.toCompletableFuture().join(),
-                      applicationPrograms,
-                      banner,
-                      requesterProfile.orElseThrow(
-                          () -> new MissingOptionalException(CiviFormProfile.class))))
-                  // If the user has been to the index page, any existing redirects should be
-                  // cleared to avoid an experience where they're unexpectedly redirected after
-                  // logging in.
-                  .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
-            },
+            applicationPrograms ->
+                ok(programIndexView.render(
+                        messagesApi.preferred(request),
+                        request,
+                        applicantId,
+                        applicantStage.toCompletableFuture().join(),
+                        applicationPrograms,
+                        banner,
+                        requesterProfile.orElseThrow(
+                            () -> new MissingOptionalException(CiviFormProfile.class))))
+                    // If the user has been to the index page, any existing redirects should be
+                    // cleared to avoid an experience where they're unexpectedly redirected after
+                    // logging in.
+                    .removingFromSession(request, REDIRECT_TO_SESSION_KEY),
             httpContext.current())
         .exceptionally(
             ex -> {

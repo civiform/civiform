@@ -97,6 +97,7 @@ public enum MessageKey {
   CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_TI("content.commonIntakeNoMatchingProgramsTi"),
   CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_NEXT_STEP(
       "content.commonIntakeNoMatchingProgramsNextStep"),
+  CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR("content.otherProgramsToApplyFor"),
   CONTENT_ELIGIBILITY_CRITERIA("content.eligibilityCriteria"),
   CONTENT_FIND_PROGRAMS("content.findPrograms"),
   CONTENT_GUEST_DESCRIPTION("content.guestDescription"),
@@ -165,7 +166,7 @@ public enum MessageKey {
   LINK_PROGRAM_DETAILS("link.programDetails"),
   LINK_PROGRAM_DETAILS_SR("link.programDetailsSr"),
   MOBILE_FILE_UPLOAD_HELP("content.mobileFileUploadHelp"),
-  MODAL_ERROR_SAVING_GO_BACK_AND_FIX_BUTTON("modal.errorSaving.goBackAndFixButton"),
+  MODAL_ERROR_SAVING_STAY_AND_FIX_BUTTON("modal.errorSaving.stayAndFixButton"),
   MODAL_ERROR_SAVING_PREVIOUS_CONTENT("modal.errorSaving.previous.content"),
   MODAL_ERROR_SAVING_PREVIOUS_NO_SAVE_BUTTON("modal.errorSaving.previous.noSaveButton"),
   MODAL_ERROR_SAVING_PREVIOUS_TITLE("modal.errorSaving.previous.title"),

@@ -79,7 +79,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
   /** Renders a page with a list view of all questions. */
   public Content render(ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
-    String title = "All Questions";
+    String title = "All questions";
 
     Pair<DivTag, ImmutableList<Modal>> questionRowsAndModals =
         renderAllQuestionRows(activeAndDraftQuestions, request);
@@ -126,7 +126,7 @@ public final class QuestionsListView extends BaseHtmlView {
     // The total question count should be equivalent to the number of rows in the displayed table,
     // where we have a single entry for a question that is active and has a draft.
     return div(String.format(
-            "Total Questions: %d", activeAndDraftQuestions.getQuestionNames().size()))
+            "Total questions: %d", activeAndDraftQuestions.getQuestionNames().size()))
         .withClasses("float-right", "text-base", "px-4", "my-2");
   }
 
@@ -210,8 +210,9 @@ public final class QuestionsListView extends BaseHtmlView {
               .with(h2("Universal questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
               .with(
                   ViewUtils.makeAlertInfoSlim(
-                      "We recommend using all universal questions in your program for personal and"
-                          + " contact information questions."))
+                      "We recommend using Universal questions in your program for all personal and"
+                          + " contact information questions.",
+                      /* hidden= */ false))
               .with(universalQuestionContent));
     }
     questionContent.with(
@@ -617,7 +618,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
     ButtonTag button =
         asRedirectElement(
-            makeSvgTextButton("Manage Translations", Icons.TRANSLATE)
+            makeSvgTextButton("Manage translations", Icons.TRANSLATE)
                 .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
             link);
     return Optional.of(button);
@@ -739,7 +740,7 @@ public final class QuestionsListView extends BaseHtmlView {
             controllers.admin.routes.AdminQuestionController.restore(definition.getId()).url();
         ButtonTag unarchiveButton =
             toLinkButtonForPost(
-                makeSvgTextButton("Restore Archived", Icons.UNARCHIVE)
+                makeSvgTextButton("Restore archived", Icons.UNARCHIVE)
                     .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
                 restoreLink,
                 request);

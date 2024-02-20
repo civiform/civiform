@@ -117,7 +117,7 @@ public final class QuestionRepository {
 
         // Similar to the UNIVERSAL question tag above, we have to remove any QuestionTags for
         // PrimaryApplicantInfoTags that are not present.
-        PrimaryApplicantInfoTag.getAllTagsForQuestionType(definition.getQuestionType())
+        PrimaryApplicantInfoTag.getAllPaiTagsForQuestionType(definition.getQuestionType())
             .forEach(
                 primaryApplicantInfoTag -> {
                   if (!definition.containsPrimaryApplicantInfoTag(primaryApplicantInfoTag)) {

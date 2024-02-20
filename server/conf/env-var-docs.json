@@ -733,9 +733,9 @@
         "description": "Enables populating more fields in OIDC logout requests to applicant identity provider.",
         "type": "bool"
       },
-      "APPLICANT_INFO_QUESTIONS": {
+      "PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "Enables setting and displaying whether the answer to a universal question can be acted upon by the system.",
+        "description": "Enables setting a universal question as a question representing information about the applicant. The system can then take certain actions based on the answer to this question.",
         "type": "bool"
       },
       "UNIVERSAL_QUESTIONS": {

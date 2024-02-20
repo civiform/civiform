@@ -127,7 +127,7 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
     return new LinkElement()
         .setId("manage-questions-link")
         .setHref(manageQuestionLink)
-        .setText("Manage Questions →")
+        .setText("Manage questions →")
         .setStyles("mx-4", "float-right")
         .asAnchorText();
   }

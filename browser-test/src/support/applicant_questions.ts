@@ -353,7 +353,7 @@ export class ApplicantQuestions {
     this.page.once('dialog', (dialog) => {
       void dialog.accept()
     })
-    await this.page.click(`:nth-match(:text("Remove Entity"), ${entityIndex})`)
+    await this.page.click(`:nth-match(:text("Remove entity"), ${entityIndex})`)
   }
 
   async downloadSingleQuestionFromReviewPage() {
@@ -495,6 +495,10 @@ export class ApplicantQuestions {
     expect(await this.page.innerText('legend')).toContain('With Correction')
   }
 
+  async selectAddressSuggestion(addressName: string) {
+    await this.page.check(`label:has-text("${addressName}")`)
+  }
+
   async expectQuestionAnsweredOnReviewPage(
     questionText: string,
     answerText: string,
@@ -562,16 +566,34 @@ export class ApplicantQuestions {
       `Questions on this page are not complete`,
     )
     expect(await modal.innerText()).toContain(
-      `Go to review page without saving`,
+      `Continue to review page without saving`,
     )
-    expect(await modal.innerText()).toContain(`Go back and fix`)
+    expect(await modal.innerText()).toContain(`Stay and fix your answers`)
+  }
+  async clickReviewWithoutSaving() {
+    await this.page.click(
+      'button:has-text("Continue to review page without saving")',
+    )
   }
 
-  async clickReviewWithoutSaving() {
-    await this.page.click('button:has-text("Go to review page without saving")')
+  async expectErrorOnPreviousModal() {
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain(
+      `Questions on this page are not complete`,
+    )
+    expect(await modal.innerText()).toContain(
+      `Continue to previous questions without saving`,
+    )
+    expect(await modal.innerText()).toContain(`Stay and fix your answers`)
+  }
+
+  async clickPreviousWithoutSaving() {
+    await this.page.click(
+      'button:has-text("Continue to previous questions without saving")',
+    )
   }
 
   async clickGoBackAndEdit() {
-    await this.page.click('button:has-text("Go back and fix")')
+    await this.page.click('button:has-text("Stay and fix your answers")')
   }
 }
