@@ -757,6 +757,11 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Save an applicant's answers when they take any action ('Review'/'Previous'/'Save and next') instead of only saving on 'Save and next'.",
         "type": "bool"
+      },
+      "NORTH_STAR_APPLICANT_UI": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables showing new pages with the UX North Star for Applicant flows",
+        "type": "bool"
       }
     }
   }

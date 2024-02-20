@@ -903,6 +903,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SAVE_ON_ALL_ACTIONS", request);
   }
 
+  /** Enables showing new pages with the UX North Star for Applicant flows */
+  public boolean getNorthStarApplicantUi(RequestHeader request) {
+    return getBool("NORTH_STAR_APPLICANT_UI", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.of(
           "Branding",
@@ -1872,6 +1877,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "(NOT FOR PRODUCTION USE) Save an applicant's answers when they take any"
                           + " action ('Review'/'Previous'/'Save and next') instead of only saving"
                           + " on 'Save and next'.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "NORTH_STAR_APPLICANT_UI",
+                      "Enables showing new pages with the UX North Star for Applicant flows",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),
