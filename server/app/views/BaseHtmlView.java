@@ -135,8 +135,7 @@ public abstract class BaseHtmlView {
   }
 
   /**
-   * Creates a USWDS pagination component.
-   * https://designsystem.digital.gov/components/pagination/
+   * Creates a USWDS pagination component. https://designsystem.digital.gov/components/pagination/
    *
    * @param page The current page number
    * @param pageCount The total number of pages
@@ -206,8 +205,8 @@ public abstract class BaseHtmlView {
   /**
    * DEPRECATED
    *
-   * Note that this is deprecated in favor of the USWDS pagination component.
-   * Prefer using {@link views.BaseHtmlView#renderPagination} instead of this method.
+   * <p>Note that this is deprecated in favor of the USWDS pagination component. Prefer using {@link
+   * views.BaseHtmlView#renderPagination} instead of this method.
    */
   protected DivTag renderPaginationDivOldWay(
       int page, int pageCount, Function<Integer, Call> linkForPage) {
