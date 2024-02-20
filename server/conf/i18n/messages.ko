@@ -70,13 +70,13 @@ modal.errorSaving.review.title=이 페이지의 질문이 완료되지 않았습
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
 modal.errorSaving.previous.title=이 페이지의 질문이 완료되지 않았습니다. 그래도 페이지에서 나가 이전 페이지로 이동하시겠습니까?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=입력하신 정보에 일부 오류가 있습니다. 돌아가서 오류를 수정하시겠습니까, 아니면 답변을 저장하지 않고 검토 페이지로 이동하시겠습니까?
+modal.errorSaving.review.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=입력하신 정보에 일부 오류가 있습니다. 돌아가서 오류를 수정하시겠습니까, 아니면 답변을 저장하지 않고 이전의 질문 페이지로 이동하시겠습니까?
+modal.errorSaving.previous.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the previous question page without saving your answers?
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=저장하지 않고 검토 페이지로 이동
+modal.errorSaving.review.noSaveButton=Continue to review page without saving
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=저장하지 않고 이전 페이지로 이동
+modal.errorSaving.previous.noSaveButton=Continue to previous questions without saving
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
 modal.errorSaving.stayAndFixButton=Stay and fix your answers
 
