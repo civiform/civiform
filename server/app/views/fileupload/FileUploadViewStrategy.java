@@ -6,6 +6,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
+import static views.style.BaseStyles.FORM_ERROR_TEXT_BASE;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
@@ -60,7 +61,11 @@ public abstract class FileUploadViewStrategy {
    * @param disabled true if the file input should be shown as disabled.
    */
   public static DivTag createUswdsFileInputFormElement(
-      String id, String acceptedMimeTypes, ImmutableList<String> hints, boolean disabled) {
+      String id,
+      String acceptedMimeTypes,
+      ImmutableList<String> hints,
+      boolean disabled,
+      int fileLimitMb) {
     StringBuilder ariaDescribedByIds = new StringBuilder();
     for (int i = 0; i < hints.size(); i++) {
       ariaDescribedByIds.append(FILE_INPUT_HINT_ID_PREFIX);
@@ -78,11 +83,17 @@ public abstract class FileUploadViewStrategy {
                         .withId(FILE_INPUT_HINT_ID_PREFIX + index)
                         .withClasses("usa-hint", "mb-2")))
         .with(
+            p("Error: The file you uploaded is too large. Please choose a smaller file.")
+                .withId("file-too-large")
+                // TypeScript will be responsible for showing/hiding the file-too-large error.
+                .withClasses(FORM_ERROR_TEXT_BASE, "hidden"))
+        .with(
             input()
                 .withType("file")
                 .withName("file")
                 .withClasses("usa-file-input")
                 .attr("aria-describedby", ariaDescribedByIds.toString())
+                .attr("data-file-limit-mb", fileLimitMb)
                 .withAccept(acceptedMimeTypes)
                 .withCondDisabled(disabled));
   }

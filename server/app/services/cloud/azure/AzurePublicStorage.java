@@ -12,6 +12,11 @@ public class AzurePublicStorage extends PublicStorageClient {
   }
 
   @Override
+  public int getFileLimitMb() {
+    throw new UnsupportedOperationException("not implemented");
+  }
+
+  @Override
   public StorageUploadRequest getSignedUploadRequest(
       String fileKey, String successRedirectActionLink) {
     throw new UnsupportedOperationException("not implemented");

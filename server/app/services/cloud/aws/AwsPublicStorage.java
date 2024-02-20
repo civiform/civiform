@@ -66,6 +66,11 @@ public final class AwsPublicStorage extends PublicStorageClient {
   }
 
   @Override
+  public int getFileLimitMb() {
+    return fileLimitMb;
+  }
+
+  @Override
   public SignedS3UploadRequest getSignedUploadRequest(
       String fileKey, String successRedirectActionLink) {
     return awsStorageUtils.getSignedUploadRequest(
