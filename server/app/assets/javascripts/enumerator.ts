@@ -248,7 +248,7 @@ function repaintAllLabelsAndButtons() {
 /**
  * When enumerator entities are added or removed from the page we need to repaint
  * the label and button text to update the index
- * @param {Element} field The element comtaining the button and label to be relabled
+ * @param {Element} field The element containing the button and label to be relabeled
  * @param {number} index The index to add to the button and label
  */
 function addIndexToLabelAndButton(field: Element, index: number) {
@@ -263,5 +263,5 @@ function addIndexToLabelAndButton(field: Element, index: number) {
     document.querySelector('div[data-button-text]'),
   ).getAttribute('data-button-text')
   const buttonElement = assertNotNull(field.querySelector('button'))
-  buttonElement.innerHTML = buttonBaseText ? buttonBaseText + indexString : ''
+  buttonElement.innerText = buttonBaseText ? buttonBaseText + indexString : ''
 }
