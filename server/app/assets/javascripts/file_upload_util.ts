@@ -1,9 +1,10 @@
 import {assertNotNull} from './util'
 
-/** @fileoverview Collection of utility functions for working with file upload,
- * both on the admin side and applicant side.
+/** @fileoverview Collection of utility functions for working with file upload.
+ * Can be used for both the admin UI and applicant UI.
  */
 
+// This should be kept in sync with views/fileupload/FileUploadViewStrategy.FILE_LIMIT_ATTR.
 const MAX_FILE_SIZE_MB_ATTR = 'data-file-limit-mb'
 
 /**
@@ -18,7 +19,7 @@ const MAX_FILE_SIZE_MB_ATTR = 'data-file-limit-mb'
  *     input element.
  *
  * Note that this will only check the first file uploaded to the input element
- * because all file uploads currently only allow a single file to be uploaded.
+ * because CiviForm currently only supports uploading a single file at a time.
  */
 export function isFileTooLarge(inputElement: HTMLInputElement): boolean {
   if (inputElement.value == '') {

@@ -416,11 +416,10 @@ describe('Admin can manage program image', () => {
     })
 
     it('disables submit button when too large image', async () => {
-      const {page, adminProgramImage} = ctx
+      const {adminProgramImage} = ctx
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
-      await dismissToast(page)
 
       await adminProgramImage.setImageFile(
         'src/assets/program-summary-image-too-large.png',
@@ -473,11 +472,10 @@ describe('Admin can manage program image', () => {
     })
 
     it('hides error when too large image replaced with smaller image', async () => {
-      const {page, adminProgramImage} = ctx
+      const {adminProgramImage} = ctx
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
-      await dismissToast(page)
 
       await adminProgramImage.setImageFile(
         'src/assets/program-summary-image-too-large.png',

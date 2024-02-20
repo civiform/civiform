@@ -30,6 +30,8 @@ import views.applicant.ApplicantFileUploadRenderer;
  */
 public abstract class FileUploadViewStrategy {
   @VisibleForTesting static final String FILE_INPUT_HINT_ID_PREFIX = "file-input-hint-";
+  private static final String FILE_TOO_LARGE_ERROR_ID = "file-too-large-error";
+  private static final String FILE_LIMIT_ATTR = "data-file-limit-mb";
 
   /** Returns a top-level <form> element to use for file upload. */
   public FormTag renderFileUploadFormElement(StorageUploadRequest request) {
@@ -60,7 +62,7 @@ public abstract class FileUploadViewStrategy {
    * @param hints a list of hints that should be displayed above the file input UI.
    * @param disabled true if the file input should be shown as disabled.
    * @param fileLimitMb the maximum file size in megabytes allowed for this file input element. Used
-   *     to show an error client-side if the user uploads a file that's too big.
+   *     to show an error client-side if the user uploads a file that's too large.
    */
   public static DivTag createUswdsFileInputFormElement(
       String id,
@@ -86,8 +88,8 @@ public abstract class FileUploadViewStrategy {
                         .withClasses("usa-hint", "mb-2")))
         .with(
             p("Error: The file you uploaded is too large. Please choose a smaller file.")
-                .withId("file-too-large")
-                // TypeScript will be responsible for showing/hiding the file-too-large error.
+                .withId(FILE_TOO_LARGE_ERROR_ID)
+                // TypeScript will be responsible for showing/hiding this file-too-large error.
                 .withClasses(FORM_ERROR_TEXT_BASE, "hidden"))
         .with(
             input()
@@ -95,7 +97,7 @@ public abstract class FileUploadViewStrategy {
                 .withName("file")
                 .withClasses("usa-file-input")
                 .attr("aria-describedby", ariaDescribedByIds.toString())
-                .attr("data-file-limit-mb", fileLimitMb)
+                .attr(FILE_LIMIT_ATTR, fileLimitMb)
                 .withAccept(acceptedMimeTypes)
                 .withCondDisabled(disabled));
   }

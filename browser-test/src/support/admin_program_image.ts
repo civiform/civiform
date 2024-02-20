@@ -3,6 +3,7 @@ import {waitForPageJsLoad} from './wait'
 import {dismissToast, expectDisabled, expectEnabled} from '.'
 
 export class AdminProgramImage {
+  // These values should be kept in sync with views/admin/programs/ProgramImageView.java.
   private imageUploadLocator = 'input[type=file]'
   private imageDescriptionLocator = 'input[name="summaryImageDescription"]'
   private imageUploadSubmitButtonLocator =
@@ -11,7 +12,8 @@ export class AdminProgramImage {
     'button[form=image-description-form][type="submit"]'
   private translationsButtonLocator = 'button:has-text("Manage translations")'
   private continueButtonLocator = '#continue-button'
-  private tooLargeErrorLocator = '#file-too-large'
+  // This should be kept in sync with views/fileupload/FileUploadViewStrategy.FILE_TOO_LARGE_ERROR_ID.
+  private tooLargeErrorLocator = '#file-too-large-error'
 
   private page!: Page
 

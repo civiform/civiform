@@ -3,10 +3,11 @@ import {isFileTooLarge} from './file_upload_util'
 
 /** Scripts for controlling the admin program image upload page. */
 class AdminProgramImage {
-  // These values should be kept in-sync with views/admin/programs/ProgramImageView.java.
+  // These values should be kept in sync with views/admin/programs/ProgramImageView.java.
   private static IMAGE_DESCRIPTION_FORM_ID = 'image-description-form'
   private static IMAGE_FILE_UPLOAD_FORM_ID = 'image-file-upload-form'
-  private static FILE_TOO_LARGE_DIV_ID = 'file-too-large'
+  // This should be kept in sync with views/fileupload/FileUploadViewStrategy.FILE_TOO_LARGE_ERROR_ID.
+  private static FILE_TOO_LARGE_DIV_ID = 'file-too-large-error'
 
   static attachEventListenersToDescriptionForm() {
     const descriptionForm = document.getElementById(
@@ -67,26 +68,26 @@ class AdminProgramImage {
           '][type="submit"]',
       ),
     )
-    const fileTooLargeWarningDiv = assertNotNull(
+    const fileTooLargeErrorDiv = assertNotNull(
       document.getElementById(AdminProgramImage.FILE_TOO_LARGE_DIV_ID),
     )
 
     if (imageInput.value == '') {
-      // Prevent submission and hide the too-large warning if no file is uploaded
+      // Prevent submission and hide the too-large error if no file is uploaded
       submitButton.setAttribute('disabled', '')
-      fileTooLargeWarningDiv.classList.add('hidden')
+      fileTooLargeErrorDiv.classList.add('hidden')
       return
     }
 
     const fileTooLarge = isFileTooLarge(imageInput)
     if (fileTooLarge) {
-      // Prevent submission and show the too-large warning if the file was too large
+      // Prevent submission and show the too-large error if the file was too large
       submitButton.setAttribute('disabled', '')
-      fileTooLargeWarningDiv.classList.remove('hidden')
+      fileTooLargeErrorDiv.classList.remove('hidden')
     } else {
-      // Allow submission and hide the too-large warning if the file is small enough
+      // Allow submission and hide the too-large error if the file is small enough
       submitButton.removeAttribute('disabled')
-      fileTooLargeWarningDiv.classList.add('hidden')
+      fileTooLargeErrorDiv.classList.add('hidden')
     }
   }
 }

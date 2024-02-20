@@ -8,6 +8,7 @@ import j2html.tags.specialized.DivTag;
 import org.junit.Test;
 
 public class FileUploadViewStrategyTest {
+  private static final int FILE_LIMIT_MB = 4;
 
   @Test
   public void createUswdsFileInputFormElement_hasAriaDescribedByLabels() {
@@ -17,7 +18,7 @@ public class FileUploadViewStrategyTest {
             /* acceptedMimeTypes= */ "image/*",
             /* hints= */ ImmutableList.of("hint0", "hint1", "hint2"),
             /* disabled= */ false,
-            /* fileLimitMb= */ 5);
+            FILE_LIMIT_MB);
 
     String expectedAriaDescribedBy =
         FILE_INPUT_HINT_ID_PREFIX
@@ -38,9 +39,9 @@ public class FileUploadViewStrategyTest {
             /* acceptedMimeTypes= */ "image/*",
             /* hints= */ ImmutableList.of("hint0", "hint1", "hint2"),
             /* disabled= */ false,
-            /* fileLimitMb= */ 5);
+            FILE_LIMIT_MB);
 
-    assertThat(uswdsForm.render()).contains("<p id=\"file-too-large\"");
+    assertThat(uswdsForm.render()).contains("<p id=\"file-too-large-error\"");
   }
 
   @Test
