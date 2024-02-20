@@ -59,6 +59,8 @@ public abstract class FileUploadViewStrategy {
    * @param id the ID to apply to the outermost div.
    * @param hints a list of hints that should be displayed above the file input UI.
    * @param disabled true if the file input should be shown as disabled.
+   * @param fileLimitMb the maximum file size in megabytes allowed for this file input element. Used
+   *     to show an error client-side if the user uploads a file that's too big.
    */
   public static DivTag createUswdsFileInputFormElement(
       String id,

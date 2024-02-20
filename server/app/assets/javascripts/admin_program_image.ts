@@ -3,6 +3,7 @@ import {isFileTooLarge} from './file_upload_util'
 
 /** Scripts for controlling the admin program image upload page. */
 class AdminProgramImage {
+  // These values should be kept in-sync with views/admin/programs/ProgramImageView.java.
   private static IMAGE_DESCRIPTION_FORM_ID = 'image-description-form'
   private static IMAGE_FILE_UPLOAD_FORM_ID = 'image-file-upload-form'
   private static FILE_TOO_LARGE_DIV_ID = 'file-too-large'

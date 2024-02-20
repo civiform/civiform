@@ -11,6 +11,7 @@ export class AdminProgramImage {
     'button[form=image-description-form][type="submit"]'
   private translationsButtonLocator = 'button:has-text("Manage translations")'
   private continueButtonLocator = '#continue-button'
+  private tooLargeErrorLocator = '#file-too-large'
 
   private page!: Page
 
@@ -134,6 +135,14 @@ export class AdminProgramImage {
 
   async expectEnabledImageFileUpload() {
     await expectEnabled(this.page, this.imageUploadLocator)
+  }
+
+  async expectTooLargeErrorShown() {
+    expect(await this.page.isHidden(this.tooLargeErrorLocator)).toEqual(false)
+  }
+
+  async expectTooLargeErrorHidden() {
+    expect(await this.page.isHidden(this.tooLargeErrorLocator)).toEqual(true)
   }
 
   /** Expects that the program card preview does not contain an image. */

@@ -415,7 +415,21 @@ describe('Admin can manage program image', () => {
       await adminProgramImage.expectDisabledImageFileUploadSubmit()
     })
 
-    it('enables submit button when image', async () => {
+    it('disables submit button when too large image', async () => {
+      const {page, adminProgramImage} = ctx
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+      await dismissToast(page)
+
+      await adminProgramImage.setImageFile(
+        'src/assets/program-summary-image-too-large.png',
+      )
+
+      await adminProgramImage.expectDisabledImageFileUploadSubmit()
+    })
+
+    it('enables submit button when small enough image', async () => {
       const {adminProgramImage} = ctx
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
@@ -441,6 +455,40 @@ describe('Admin can manage program image', () => {
       await adminProgramImage.setImageFile('')
 
       await adminProgramImage.expectDisabledImageFileUploadSubmit()
+    })
+
+    it('shows error when too large image', async () => {
+      const {page, adminProgramImage} = ctx
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+      await dismissToast(page)
+
+      await adminProgramImage.setImageFile(
+        'src/assets/program-summary-image-too-large.png',
+      )
+
+      await adminProgramImage.expectTooLargeErrorShown()
+      await validateScreenshot(page, 'program-image-with-too-large-error')
+    })
+
+    it('hides error when too large image replaced with smaller image', async () => {
+      const {page, adminProgramImage} = ctx
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+      await dismissToast(page)
+
+      await adminProgramImage.setImageFile(
+        'src/assets/program-summary-image-too-large.png',
+      )
+      await adminProgramImage.expectTooLargeErrorShown()
+
+      await adminProgramImage.setImageFile(
+        'src/assets/program-summary-image-tall.png',
+      )
+
+      await adminProgramImage.expectTooLargeErrorHidden()
     })
 
     it('adds new image', async () => {

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static services.cloud.aws.AwsPublicStorage.AWS_PUBLIC_S3_BUCKET_CONF_PATH;
+import static services.cloud.aws.AwsPublicStorage.AWS_PUBLIC_S3_FILE_LIMIT_CONF_PATH;
 import static support.cloud.FakeAwsS3Client.DELETION_ERROR_FILE_KEY;
 import static support.cloud.FakeAwsS3Client.LIST_ERROR_FILE_KEY;
 
@@ -34,6 +35,16 @@ public class AwsPublicStorageTest extends ResetPostgres {
 
     assertThat(awsPublicStorage.getBucketName())
         .isEqualTo(instanceOf(Config.class).getString(AWS_PUBLIC_S3_BUCKET_CONF_PATH));
+  }
+
+  @Test
+  public void getFileLimitMb_returnsSizeFromConfig() {
+    AwsPublicStorage awsPublicStorage = instanceOf(AwsPublicStorage.class);
+
+    assertThat(awsPublicStorage.getFileLimitMb())
+        .isEqualTo(
+            Integer.parseInt(
+                instanceOf(Config.class).getString(AWS_PUBLIC_S3_FILE_LIMIT_CONF_PATH)));
   }
 
   @Test
