@@ -179,8 +179,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                                 .collect(Collectors.toList()),
                             account -> renderClientCard(account))));
 
-    return clientsList.with(
-        renderPaginationDiv(
+    return clientsList.condWith(managedAccounts.size() > 0,
+        renderPagination(
             page,
             totalPageCount,
             pageNumber ->
