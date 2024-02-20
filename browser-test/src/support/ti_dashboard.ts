@@ -32,6 +32,19 @@ export class TIDashboard {
     await this.page.click('text="Add"')
   }
 
+  async createMultipleClients(nameBase: string, copies: number) {
+    for (let i = 1; i <= copies; i++) {
+      await this.page.fill(
+        'label:has-text("Email Address")',
+        nameBase + i + '@test.com',
+      )
+      await this.page.fill('label:has-text("First Name")', nameBase + i)
+      await this.page.fill('label:has-text("Last Name")', 'last')
+      await this.page.fill('label:has-text("Date Of Birth")', '2021-05-10')
+      await this.page.click('text="Add"')
+    }
+  }
+
   async updateClientEmailAddress(client: ClientInformation, newEmail: string) {
     await this.page
       .getByRole('listitem')
@@ -174,6 +187,18 @@ export class TIDashboard {
     expect(await this.page.innerText('h2')).toContain(
       'your client may not qualify',
     )
+  }
+
+  async expectPageNumberButtonOrNot(pageNum: string, isPresent: boolean) {
+    if (isPresent) {
+      expect(await this.page.innerHTML('.usa-pagination__list')).toContain(
+        `aria-label="Page${pageNum}"`,
+      )
+    } else {
+      expect(await this.page.innerHTML('.usa-pagination__list')).not.toContain(
+        `aria-label="Page${pageNum}"`,
+      )
+    }
   }
 
   async expectDateSearchError() {

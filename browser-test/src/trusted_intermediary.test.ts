@@ -753,4 +753,233 @@ describe('Trusted intermediaries', () => {
       ])
     })
   })
+
+  describe('client list pagination', () => {
+    it('shows 1 page and no previous or next buttons when there are 10 clients', async () => {
+      const {page, tiDashboard} = ctx
+      await loginAsTrustedIntermediary(page)
+      await tiDashboard.gotoTIDashboardPage(page)
+      await waitForPageJsLoad(page)
+
+      await tiDashboard.createMultipleClients('myname', 10)
+      const cardCount = await page.locator('.usa-card__container').count()
+      expect(cardCount).toBe(10)
+
+      // No 'Previous' button
+      expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
+        'usa-pagination__previous-page',
+      )
+
+      // No 'Next' button
+      expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
+        'usa-pagination__next-page',
+      )
+
+      // There should be a page 1 button
+      await tiDashboard.expectPageNumberButtonOrNot('1', true)
+
+      // There should be no page 2 button
+      await tiDashboard.expectPageNumberButtonOrNot('2', false)
+
+      // The page 1 button should be the current page
+      expect(await page.innerHTML('.usa-current')).toContain('1')
+
+      // There should be no ellipses
+      expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
+        'usa-pagination__overflow',
+      )
+    })
+
+    it('shows 2 pages when there are 12 clients', async () => {
+      const {page, tiDashboard} = ctx
+      await loginAsTrustedIntermediary(page)
+      await tiDashboard.gotoTIDashboardPage(page)
+      await waitForPageJsLoad(page)
+
+      await tiDashboard.createMultipleClients('myname', 11)
+
+      // Page 1 should still only show 10 clients
+      const cardCount = await page.locator('.usa-card__container').count()
+      expect(cardCount).toBe(10)
+
+      expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
+        'usa-pagination__previous-page',
+      )
+
+      expect(await page.innerHTML('.usa-pagination__list')).toContain(
+        'usa-pagination__next-page',
+      )
+
+      await tiDashboard.expectPageNumberButtonOrNot('1', true)
+      await tiDashboard.expectPageNumberButtonOrNot('2', true)
+
+      expect(await page.innerHTML('.usa-current')).toContain('1')
+
+      expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
+        'usa-pagination__overflow',
+      )
+
+      // Going to page 2
+      await page.click('[aria-label=Page2]')
+
+      const page2CardCount = await page.locator('.usa-card__container').count()
+      expect(page2CardCount).toBe(1)
+
+      // Now there should be a 'Previous' button
+      expect(await page.innerHTML('.usa-pagination__list')).toContain(
+        'usa-pagination__previous-page',
+      )
+
+      expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
+        'usa-pagination__next-page',
+      )
+
+      await tiDashboard.expectPageNumberButtonOrNot('1', true)
+      await tiDashboard.expectPageNumberButtonOrNot('2', true)
+
+      expect(await page.innerHTML('.usa-current')).toContain('2')
+    })
+
+    it('shows 7 pages and no ellipses when there are 65 clients ', async () => {
+      const {page, tiDashboard} = ctx
+      await loginAsTrustedIntermediary(page)
+      await tiDashboard.gotoTIDashboardPage(page)
+      await waitForPageJsLoad(page)
+
+      await tiDashboard.createMultipleClients('myname', 65)
+
+      await tiDashboard.expectPageNumberButtonOrNot('1', true)
+      await tiDashboard.expectPageNumberButtonOrNot('2', true)
+      await tiDashboard.expectPageNumberButtonOrNot('3', true)
+      await tiDashboard.expectPageNumberButtonOrNot('4', true)
+      await tiDashboard.expectPageNumberButtonOrNot('5', true)
+      await tiDashboard.expectPageNumberButtonOrNot('6', true)
+      await tiDashboard.expectPageNumberButtonOrNot('7', true)
+      await tiDashboard.expectPageNumberButtonOrNot('8', false)
+
+      // Going to page 7
+      await page.click('[aria-label=Page7]')
+      expect(await page.innerHTML('.usa-current')).toContain('7')
+
+      expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
+        'usa-pagination__overflow',
+      )
+
+      expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
+        'usa-pagination__next-page',
+      )
+
+      await validateScreenshot(
+        page.locator('.usa-pagination'),
+        'ti-pagination-no-ellipses',
+      )
+    })
+
+    it('shows one ellipses on the right when more than 7 pages and current page is < 5', async () => {
+      const {page, tiDashboard} = ctx
+      await loginAsTrustedIntermediary(page)
+      await tiDashboard.gotoTIDashboardPage(page)
+      await waitForPageJsLoad(page)
+
+      await tiDashboard.createMultipleClients('myname', 75)
+
+      await tiDashboard.expectPageNumberButtonOrNot('1', true)
+      await tiDashboard.expectPageNumberButtonOrNot('2', true)
+      await tiDashboard.expectPageNumberButtonOrNot('3', true)
+      await tiDashboard.expectPageNumberButtonOrNot('4', true)
+      await tiDashboard.expectPageNumberButtonOrNot('5', true)
+      // The ellipses takes the place of 6 and 7 when current page is < 5
+      await tiDashboard.expectPageNumberButtonOrNot('6', false)
+      await tiDashboard.expectPageNumberButtonOrNot('7', false)
+      await tiDashboard.expectPageNumberButtonOrNot('8', true)
+
+      expect(await page.innerHTML('.usa-pagination__list')).toContain(
+        'usa-pagination__overflow',
+      )
+
+      // Going to page 4
+      await page.click('[aria-label=Page4]')
+      expect(await page.innerHTML('.usa-current')).toContain('4')
+
+      await tiDashboard.expectPageNumberButtonOrNot('6', false)
+      await tiDashboard.expectPageNumberButtonOrNot('7', false)
+
+      expect(await page.innerHTML('.usa-pagination__list')).toContain(
+        'usa-pagination__overflow',
+      )
+
+      await validateScreenshot(
+        page.locator('.usa-pagination'),
+        'ti-pagination-ellipses-right',
+      )
+    })
+
+    it('shows two ellipses when there are 9 pages and there is overflow on both sides', async () => {
+      const {page, tiDashboard} = ctx
+      await loginAsTrustedIntermediary(page)
+      await tiDashboard.gotoTIDashboardPage(page)
+      await waitForPageJsLoad(page)
+
+      await tiDashboard.createMultipleClients('myname', 85)
+
+      // Going to page 5
+      await page.click('[aria-label=Page5]')
+      expect(await page.innerHTML('.usa-current')).toContain('5')
+
+      await tiDashboard.expectPageNumberButtonOrNot('1', true)
+      // An ellipses takes the place of 2 and 3 when current page is 5
+      await tiDashboard.expectPageNumberButtonOrNot('2', false)
+      await tiDashboard.expectPageNumberButtonOrNot('3', false)
+      await tiDashboard.expectPageNumberButtonOrNot('4', true)
+      await tiDashboard.expectPageNumberButtonOrNot('5', true)
+      await tiDashboard.expectPageNumberButtonOrNot('6', true)
+      // An ellipses takes the place of 7 and 8 when current page is 5
+      await tiDashboard.expectPageNumberButtonOrNot('7', false)
+      await tiDashboard.expectPageNumberButtonOrNot('8', false)
+      await tiDashboard.expectPageNumberButtonOrNot('9', true)
+
+      expect(await page.innerHTML('.usa-pagination__list')).toContain(
+        'usa-pagination__overflow',
+      )
+
+      await validateScreenshot(
+        page.locator('.usa-pagination'),
+        'ti-pagination-two-ellipses',
+      )
+    })
+
+    it('shows one ellipses on the left when more than 7 pages and current page is one of the last 4 pages', async () => {
+      const {page, tiDashboard} = ctx
+      await loginAsTrustedIntermediary(page)
+      await tiDashboard.gotoTIDashboardPage(page)
+      await waitForPageJsLoad(page)
+
+      await tiDashboard.createMultipleClients('myname', 85)
+
+      // Going to page 6 via page 5
+      await page.click('[aria-label=Page5]')
+      await page.click('.usa-pagination__next-page')
+      expect(await page.innerHTML('.usa-current')).toContain('6')
+
+      await tiDashboard.expectPageNumberButtonOrNot('1', true)
+      // The ellipses is on the left
+      await tiDashboard.expectPageNumberButtonOrNot('2', false)
+      await tiDashboard.expectPageNumberButtonOrNot('3', false)
+      await tiDashboard.expectPageNumberButtonOrNot('4', false)
+      await tiDashboard.expectPageNumberButtonOrNot('5', true)
+      await tiDashboard.expectPageNumberButtonOrNot('6', true)
+      await tiDashboard.expectPageNumberButtonOrNot('7', true)
+      await tiDashboard.expectPageNumberButtonOrNot('8', true)
+      await tiDashboard.expectPageNumberButtonOrNot('9', true)
+
+      expect(await page.innerHTML('.usa-pagination__list')).toContain(
+        'usa-pagination__overflow',
+      )
+
+      await validateScreenshot(
+        page.locator('.usa-pagination'),
+        'ti-pagination-ellipses-left',
+      )
+    })
+  })
 })
