@@ -55,7 +55,7 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
                 validationErrors.getOrDefault(
                     phoneQuestion.getPhoneNumberPath(), ImmutableSet.of()))
             .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader())
-            .addReferenceClass(getReferenceClass())
+            .addReferenceClass(ReferenceClasses.PHONE_NUMBER)
             .setId(phoneFieldId);
 
     if (params.autofocusFirstField() || params.autofocusFirstError()) {

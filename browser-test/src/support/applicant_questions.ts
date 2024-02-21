@@ -110,8 +110,8 @@ export class ApplicantQuestions {
     )
   }
 
-  async answerPhoneQuestion(country: string, phone: string, index = 0) {
-    await this.page.fill(`.cf-phone-number input >> nth=${index}`, phone)
+  async answerPhoneQuestion(phone: string, index = 0) {
+    await this.page.fill(`.cf-question-phone input >> nth=${index}`, phone)
   }
 
   async answerNumberQuestion(number: string, index = 0) {
