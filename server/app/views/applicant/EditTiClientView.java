@@ -105,11 +105,26 @@ public class EditTiClientView extends BaseHtmlView {
             .withMethod("POST")
             .withAction(routes.TrustedIntermediaryController.updateClientInfo(account.id).url());
     // TODO (#5503): Remove using WKP functions when removing feature flag
-    Optional<String> firstName = applicant.getFirstName().isPresent() ? applicant.getFirstName() : applicantData.getApplicantFirstNameAtWellKnownPath();
-    Optional<String> middleName = applicant.getMiddleName().isPresent() ? applicant.getMiddleName() : applicantData.getApplicantMiddleNameAtWellKnownPath();
-    Optional<String> lastName = applicant.getLastName().isPresent() ? applicant.getLastName() : applicantData.getApplicantLastNameAtWellKnownPath();
-    Optional<String> phoneNumber = applicant.getPhoneNumber().isPresent() ? applicant.getPhoneNumber() : applicantData.getPhoneNumberAtWellKnownPath();
-    Optional<LocalDate> dob = applicant.getDateOfBirth().isPresent() ? applicant.getDateOfBirth() : applicantData.getDateOfBirthAtWellKnownPath();
+    Optional<String> firstName =
+        applicant.getFirstName().isPresent()
+            ? applicant.getFirstName()
+            : applicantData.getApplicantFirstNameAtWellKnownPath();
+    Optional<String> middleName =
+        applicant.getMiddleName().isPresent()
+            ? applicant.getMiddleName()
+            : applicantData.getApplicantMiddleNameAtWellKnownPath();
+    Optional<String> lastName =
+        applicant.getLastName().isPresent()
+            ? applicant.getLastName()
+            : applicantData.getApplicantLastNameAtWellKnownPath();
+    Optional<String> phoneNumber =
+        applicant.getPhoneNumber().isPresent()
+            ? applicant.getPhoneNumber()
+            : applicantData.getPhoneNumberAtWellKnownPath();
+    Optional<LocalDate> dob =
+        applicant.getDateOfBirth().isPresent()
+            ? applicant.getDateOfBirth()
+            : applicantData.getDateOfBirthAtWellKnownPath();
 
     FieldWithLabel firstNameField =
         setStateIfPresent(
