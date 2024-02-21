@@ -392,7 +392,9 @@ validation.phoneMustBeLocalToCountry=The phone you have provided does not belong
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
 
+validation.dayRequired=Day is required
 validation.invalidDateFormat=Please enter a date in the correct format
+<<<<<<< HEAD
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=January
 # A month option when selecting a specific date from a dropdown menu.
@@ -425,6 +427,10 @@ error.incompleteDate=Error: Please enter month, day and year.
 validation.dobNotInPast=Date of Birth should be in the past
 # An error message that appears when the user tries to enter a date of birth that is too far in the past.
 validation.impossibleDob=Date of Birth should be less than 150 years ago
+=======
+validation.monthRequired=Month is required
+validation.yearRequired=Year is required
+>>>>>>> f1586ae11 (Render date question with Thymeleaf)
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #

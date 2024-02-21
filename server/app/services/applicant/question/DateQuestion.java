@@ -36,16 +36,65 @@ public final class DateQuestion extends Question {
           ImmutableSet.of(
               ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT)));
     }
-    return ImmutableMap.of();
+    return ImmutableMap.of(
+      getYearPath(), validateYear(),
+      getMonthPath(), validateMonth(),
+      getDayPath(), validateDay()
+    );
   }
 
+  private ImmutableSet<ValidationErrorMessage> validateMonth() {
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+
+    if (applicantData.readString(getMonthPath()).isEmpty()) {
+      return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_MONTH_REQUIRED));
+    }
+
+    return ImmutableSet.of();
+  }
+
+  private ImmutableSet<ValidationErrorMessage> validateYear() {
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+
+    if (applicantData.readString(getYearPath()).isEmpty()) {
+            return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_YEAR_REQUIRED));
+    }
+
+    return ImmutableSet.of();
+  }
+
+
+  private ImmutableSet<ValidationErrorMessage> validateDay() {
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+
+    if (applicantData.readString(getDayPath()).isEmpty()) {
+            return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_DAY_REQUIRED));
+    }
+
+    return ImmutableSet.of();
+  }
   @Override
   public ImmutableList<Path> getAllPaths() {
-    return ImmutableList.of(getDatePath());
+    return ImmutableList.of(getDatePath(), getMonthPath(), getDayPath(), getYearPath());
   }
 
   public Path getDatePath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.DATE);
+  }
+
+  public Path getMonthPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.MONTH);
+  }
+
+  public Path getYearPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.YEAR);
+  }
+
+  public Path getDayPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.DAY);
   }
 
   @Override
@@ -60,8 +109,24 @@ public final class DateQuestion extends Question {
       return dateValue;
     }
 
+    // TODO (After North Star launch): Clean up this
     ApplicantData applicantData = applicantQuestion.getApplicantData();
     dateValue = applicantData.readDate(getDatePath());
+
+    // In the North Star UI
+    if (dateValue.isEmpty()) {
+      Optional<Long> yearValue = applicantData.readLong(getYearPath());
+      Optional<Long> monthValue = applicantData.readLong(getMonthPath());
+      Optional<Long> dayValue = applicantData.readLong(getDayPath());
+      if (yearValue.isPresent() && monthValue.isPresent() && dayValue.isPresent()) {
+        dateValue =
+            Optional.of(
+                LocalDate.of(
+                    yearValue.get().intValue(),
+                    monthValue.get().intValue(),
+                    dayValue.get().intValue()));
+      }
+    }
 
     if (dateValue.isEmpty() && isPaiQuestion()) {
       dateValue = applicantData.getDateOfBirth();

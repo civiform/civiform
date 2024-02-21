@@ -21,6 +21,7 @@ public enum Scalar {
   CORRECTED("corrected", ScalarType.STRING),
   CURRENCY_CENTS("currency", ScalarType.CURRENCY_CENTS),
   DATE("date", ScalarType.DATE),
+  DAY("day", ScalarType.LONG),
   EMAIL("email", ScalarType.STRING),
   FILE_KEY("file key", ScalarType.STRING),
   FIRST_NAME("first name", ScalarType.STRING),
@@ -30,6 +31,7 @@ public enum Scalar {
   LINE2("address line 2", ScalarType.STRING),
   LONGITUDE("longitude", ScalarType.DOUBLE),
   MIDDLE_NAME("middle name", ScalarType.STRING),
+  MONTH("month", ScalarType.LONG),
   NUMBER("number", ScalarType.LONG),
   ORIGINAL_FILE_NAME("original file name", ScalarType.STRING),
   SELECTION("selection", ScalarType.STRING),
@@ -38,6 +40,7 @@ public enum Scalar {
   STREET("street", ScalarType.STRING),
   TEXT("text", ScalarType.STRING),
   WELL_KNOWN_ID("well_known_id", ScalarType.LONG),
+  YEAR("year", ScalarType.LONG),
   ZIP("ZIP code", ScalarType.STRING),
 
   // Special scalars for Enumerator updates
@@ -87,7 +90,7 @@ public enum Scalar {
 
   private static final ImmutableSet<Scalar> CURRENCY_SCALARS = ImmutableSet.of(CURRENCY_CENTS);
 
-  private static final ImmutableSet<Scalar> DATE_SCALARS = ImmutableSet.of(DATE);
+  private static final ImmutableSet<Scalar> DATE_SCALARS = ImmutableSet.of(DATE, YEAR, MONTH, DAY);
 
   private static final ImmutableSet<Scalar> EMAIL_SCALARS = ImmutableSet.of(EMAIL);
 
