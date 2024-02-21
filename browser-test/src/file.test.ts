@@ -28,6 +28,7 @@ describe('file upload applicant flow', () => {
 
       await adminQuestions.addFileUploadQuestion({
         questionName: 'file-upload-test-q',
+        questionText: 'fileupload question text',
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['file-upload-test-q'],
@@ -41,7 +42,7 @@ describe('file upload applicant flow', () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(page, 'file')
+      await validateScreenshot(page, 'file-required')
     })
 
     it('validate screenshot with errors', async () => {
@@ -69,20 +70,30 @@ describe('file upload applicant flow', () => {
     })
 
     it('does not show errors initially', async () => {
-      const {page, applicantQuestions} = ctx
+      const {applicantQuestions, file} = ctx
+
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerFileUploadQuestion('file key')
-      const error = await page.$('.cf-fileupload-error')
-      expect(await error?.isHidden()).toEqual(true)
+
+      await file.expectFileSelectionErrorHidden()
     })
 
     it('does not show skip button for required question', async () => {
       const {page, applicantQuestions} = ctx
+
       await applicantQuestions.applyProgram(programName)
+
       expect(await page.$('#fileupload-skip-button')).toBeNull()
     })
 
-    it('with valid file does submit', async () => {
+    it('can upload file', async () => {
+      const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestion('some file')
+
+      await validateScreenshot(page, 'file-uploaded')
+    })
+
+    it('can download file content', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       const fileContent = 'some sample text'
@@ -92,16 +103,54 @@ describe('file upload applicant flow', () => {
       const downloadedFileContent =
         await applicantQuestions.downloadSingleQuestionFromReviewPage()
       expect(downloadedFileContent).toEqual(fileContent)
+    })
+
+    it('with valid file can proceed and submit', async () => {
+      const {applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+      const fileContent = 'some sample text'
+      await applicantQuestions.answerFileUploadQuestion(fileContent)
+
+      await applicantQuestions.clickNext()
+
+      await applicantQuestions.expectReviewPage()
+
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with no file does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    it('with no file shows error and does not proceed', async () => {
+      const {page, applicantQuestions, file} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
-      const error = await page.$('.cf-fileupload-error')
-      expect(await error?.isHidden()).toEqual(false)
+      await file.expectFileSelectionErrorShown()
+      // Verify we're still on the file upload question block
+      expect(await page.innerText('.cf-applicant-question-text')).toContain(
+        'fileupload question text',
+      )
+    })
+
+    it('missing file error disappears when file uploaded', async () => {
+      const {applicantQuestions, file} = ctx
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.clickNext()
+      await file.expectFileSelectionErrorShown()
+
+      await applicantQuestions.answerFileUploadQuestion('some text')
+
+      await file.expectFileSelectionErrorHidden()
+    })
+
+    it('re-answering question shows previous file', async () => {
+      // Answer the file upload question
+            const {applicantQuestions, file} = ctx
+            await applicantQuestions.applyProgram(programName)
+            await applicantQuestions.answerFileUploadQuestion('some text')
+
+      // Re-open the file upload question
+      await applicantQuestions.clickNext()
+
+      // Verify the previously uploaded file is shown
     })
 
     it('has no accessibility violations', async () => {
@@ -135,24 +184,71 @@ describe('file upload applicant flow', () => {
       await logout(page)
     })
 
-    it('with missing file can be skipped', async () => {
+    it('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
-      // Initially clicking upload with no file provided generates
-      // an error. Then we click skip to ensure that the question
-      // is optional.
-      await applicantQuestions.clickNext()
-      const error = await page.$('.cf-fileupload-error')
-      expect(await error?.isHidden()).toEqual(false)
-      await applicantQuestions.clickSkip()
 
-      await applicantQuestions.submitFromReviewPage()
+      await validateScreenshot(page, 'file-optional')
+    })
+
+    it('with missing file shows error and does not proceed if Save&next', async () => {
+      const {page, applicantQuestions, file} = ctx
+      await applicantQuestions.applyProgram(programName)
+
+      // When the applicant clicks "Save & next"
+      await applicantQuestions.clickNext()
+
+      // Then we should still show the error, even for an optional question
+      await file.expectFileSelectionErrorShown()
+      // Verify we're still on the file upload question block
+      expect(await page.innerText('.cf-applicant-question-text')).toContain(
+        'fileupload question text',
+      )
+    })
+
+    it('missing file error disappears when file uploaded', async () => {
+      const {applicantQuestions, file} = ctx
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.clickNext()
+      await file.expectFileSelectionErrorShown()
+
+      await applicantQuestions.answerFileUploadQuestion('some text')
+
+      await file.expectFileSelectionErrorHidden()
     })
 
     it('can be skipped', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
+      // When the applicant clicks "Skip"
       await applicantQuestions.clickSkip()
+
+      // Then the question is skipped because file upload is optional
+      await applicantQuestions.submitFromReviewPage()
+    })
+
+    it('can download file content', async () => {
+      const {applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+      const fileContent = 'some sample text'
+      await applicantQuestions.answerFileUploadQuestion(fileContent)
+      await applicantQuestions.clickNext()
+
+      const downloadedFileContent =
+        await applicantQuestions.downloadSingleQuestionFromReviewPage()
+      expect(downloadedFileContent).toEqual(fileContent)
+    })
+
+    it('with valid file can proceed and submit', async () => {
+      const {applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+      const fileContent = 'some sample text'
+      await applicantQuestions.answerFileUploadQuestion(fileContent)
+
+      await applicantQuestions.clickNext()
+
+      await applicantQuestions.expectReviewPage()
+
       await applicantQuestions.submitFromReviewPage()
     })
   })

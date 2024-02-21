@@ -171,6 +171,14 @@ export class ApplicantQuestions {
     )
   }
 
+/*
+  async answerQuestionFromReviewPage(questionText: string) {
+        await this.page.click(
+          `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Answer")`,
+        )
+  }
+  */
+
   async validateInputTypePresent(type: string) {
     await this.page.waitForSelector(`input[type="${type}"]`)
   }
