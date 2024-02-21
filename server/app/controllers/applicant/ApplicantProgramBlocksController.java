@@ -642,6 +642,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             httpExecutionContext.current())
         .thenComposeAsync(
             formData ->
+                applicantService.setPhoneCountryCode(applicantId, programId, blockId, formData),
+            httpExecutionContext.current())
+        .thenComposeAsync(
+            formData ->
                 applicantService.stageAndUpdateIfValid(
                     applicantId,
                     programId,

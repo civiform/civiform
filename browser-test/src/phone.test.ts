@@ -75,22 +75,7 @@ describe('phone question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const textId = '.cf-question-phone'
-      expect(await page.innerText(textId)).toContain(
-        'This question is required.',
-      )
-    })
-
-    it('with empty country code does not submit', async () => {
-      const {page, applicantQuestions} = ctx
-      await applicantQuestions.applyProgram(programName)
-
-      // Click next without inputting anything
-      await applicantQuestions.clickNext()
-
-      const countryCodeId = '.cf-phone-country-code'
-      expect(await page.innerText(countryCodeId)).toContain(
-        'Country must be selected',
-      )
+      expect(await page.innerText(textId)).toContain('Phone number is required')
     })
 
     it('invalid phone numbers', async () => {
@@ -283,8 +268,10 @@ describe('phone question for applicant flow', () => {
       )
       await applicantQuestions.clickNext()
 
-      const textId = '.cf-question-phone'
-      expect(await page.innerText(textId)).toContain(
+      const locatorId = '[name="applicant.first-phone-q.phone_number"]'
+      const parentElement = page.locator(locatorId).locator('..')
+
+      expect(await parentElement.innerText()).toContain(
         'This phone number is invalid',
       )
     })
