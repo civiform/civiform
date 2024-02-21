@@ -51,6 +51,15 @@ public final class AdminStyles {
           "text-gray-500",
           StyleUtils.hover("bg-gray-200", "text-gray-900"));
 
+  public static final String DELETE_BUTTON =
+      StyleUtils.joinStyles(
+          "bg-transparent",
+          "p-0",
+          "w-6",
+          "text-center",
+          "text-blue-900",
+          StyleUtils.hover("bg-gray-200", "text-gray-900"));
+
   public static final String BODY =
       StyleUtils.joinStyles(BODY_GRADIENT_STYLE, "box-border", "flex", "min-h-screen", "mt-5");
 

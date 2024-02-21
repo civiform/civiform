@@ -167,19 +167,6 @@ public final class QuestionConfig {
    */
   private static DivTag multiOptionQuestionField(
       Optional<LocalizedQuestionOption> existingOption, Messages messages, boolean isForNewOption) {
-    DivTag optionInput =
-        FieldWithLabel.input()
-            .setFieldName(isForNewOption ? "newOptions[]" : "options[]")
-            .setLabelText("Option Text")
-            .setRequired(true)
-            .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
-            .setValue(existingOption.map(LocalizedQuestionOption::optionText))
-            .setFieldErrors(
-                messages,
-                ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
-            .showFieldErrors(false)
-            .getInputTag()
-            .withClasses(ReferenceClasses.MULTI_OPTION_INPUT);
     DivTag optionAdminName =
         FieldWithLabel.input()
             .setFieldName(isForNewOption ? "newOptionAdminNames[]" : "optionAdminNames[]")
@@ -194,7 +181,34 @@ public final class QuestionConfig {
             .showFieldErrors(false)
             .setReadOnly(!isForNewOption)
             .getInputTag()
-            .withClasses(ReferenceClasses.MULTI_OPTION_ADMIN_INPUT, "ml-2");
+            .withClasses(
+                ReferenceClasses.MULTI_OPTION_ADMIN_INPUT,
+                "col-start-1",
+                "col-span-5",
+                "mb-2",
+                "ml-2",
+                "row-start-1",
+                "row-span-2");
+    DivTag optionInput =
+        FieldWithLabel.input()
+            .setFieldName(isForNewOption ? "newOptions[]" : "options[]")
+            .setLabelText("Option Text")
+            .setRequired(true)
+            .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
+            .setValue(existingOption.map(LocalizedQuestionOption::optionText))
+            .setFieldErrors(
+                messages,
+                ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
+            .showFieldErrors(false)
+            .getInputTag()
+            .withClasses(
+                ReferenceClasses.MULTI_OPTION_INPUT,
+                "col-start-1",
+                "col-span-5",
+                "mb-2",
+                "ml-2",
+                "row-start-3",
+                "row-span-2");
     DivTag optionIndexInput =
         isForNewOption
             ? div()
@@ -208,36 +222,44 @@ public final class QuestionConfig {
         button()
             .with(Icons.svg(Icons.KEYBOARD_ARROW_UP).withClasses("w-6", "h-6"))
             .withClasses(
-                AdminStyles.MOVE_BLOCK_BUTTON, "multi-option-question-field-move-up-button", "ml-2")
+                AdminStyles.MOVE_BLOCK_BUTTON,
+                "col-start-8",
+                "multi-option-question-field-move-up-button",
+                "row-start-1")
             .attr("aria-label", "move up");
     ButtonTag moveDownButton =
         button()
             .with(Icons.svg(Icons.KEYBOARD_ARROW_DOWN).withClasses("w-6", "h-6"))
             .withClasses(
-                AdminStyles.MOVE_BLOCK_BUTTON, "multi-option-question-field-move-down-button")
+                AdminStyles.MOVE_BLOCK_BUTTON,
+                "col-start-8",
+                "multi-option-question-field-move-down-button",
+                "row-start-2")
             .attr("aria-label", "move down");
     ButtonTag removeOptionButton =
-        ViewUtils.makeSvgTextButton("Delete", Icons.DELETE)
-            .withType("button")
+        button()
+            .with(Icons.svg(Icons.DELETE).withClasses("w-6", "h-6"))
             .withClasses(
-                ButtonStyles.OUTLINED_WHITE_WITH_ICON,
-                "ml-2",
-                "multi-option-question-field-remove-button");
+                AdminStyles.DELETE_BUTTON,
+                "col-start-8",
+                "multi-option-question-field-remove-button",
+                "row-span-2");
 
     return div()
         .withClasses(
             ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
             ReferenceClasses.MULTI_OPTION_QUESTION_OPTION_EDITABLE,
-            "flex",
-            "flex-row",
-            "mb-4",
-            "items-center")
+            "grid",
+            "grid-cols-8",
+            "grid-rows-4",
+            "items-center",
+            "mb-4")
         .with(
             optionIndexInput,
-            optionInput,
             optionAdminName,
             moveUpButton,
             moveDownButton,
+            optionInput,
             removeOptionButton);
   }
 
