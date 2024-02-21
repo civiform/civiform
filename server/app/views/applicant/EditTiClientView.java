@@ -25,7 +25,6 @@ import repository.AccountRepository;
 import services.DateConverter;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
-import services.settings.SettingsManifest;
 import services.ti.TrustedIntermediaryService;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -39,15 +38,13 @@ public class EditTiClientView extends BaseHtmlView {
   private final DateConverter dateConverter;
   private final String baseUrl;
   private AccountRepository accountRepository;
-  private SettingsManifest settingsManifest;
 
   @Inject
   public EditTiClientView(
       ApplicantLayout layout,
       DateConverter dateConverter,
       Config configuration,
-      AccountRepository accountRepository,
-      SettingsManifest settingsManifest) {
+      AccountRepository accountRepository) {
     this.layout = checkNotNull(layout);
     this.dateConverter = checkNotNull(dateConverter);
     this.accountRepository = checkNotNull(accountRepository);
@@ -108,26 +105,11 @@ public class EditTiClientView extends BaseHtmlView {
             .withMethod("POST")
             .withAction(routes.TrustedIntermediaryController.updateClientInfo(account.id).url());
     // TODO (#5503): Remove using WKP functions when removing feature flag
-    Optional<String> firstName =
-        settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)
-            ? applicant.getFirstName()
-            : applicantData.getApplicantFirstNameAtWellKnownPath();
-    Optional<String> middleName =
-        settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)
-            ? applicant.getMiddleName()
-            : applicantData.getApplicantMiddleNameAtWellKnownPath();
-    Optional<String> lastName =
-        settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)
-            ? applicant.getLastName()
-            : applicantData.getApplicantLastNameAtWellKnownPath();
-    Optional<String> phoneNumber =
-        settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)
-            ? applicant.getPhoneNumber()
-            : applicantData.getPhoneNumberAtWellKnownPath();
-    Optional<LocalDate> dob =
-        settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)
-            ? applicant.getDateOfBirth()
-            : applicantData.getDateOfBirthAtWellKnownPath();
+    Optional<String> firstName = applicant.getFirstName().isPresent() ? applicant.getFirstName() : applicantData.getApplicantFirstNameAtWellKnownPath();
+    Optional<String> middleName = applicant.getMiddleName().isPresent() ? applicant.getMiddleName() : applicantData.getApplicantMiddleNameAtWellKnownPath();
+    Optional<String> lastName = applicant.getLastName().isPresent() ? applicant.getLastName() : applicantData.getApplicantLastNameAtWellKnownPath();
+    Optional<String> phoneNumber = applicant.getPhoneNumber().isPresent() ? applicant.getPhoneNumber() : applicantData.getPhoneNumberAtWellKnownPath();
+    Optional<LocalDate> dob = applicant.getDateOfBirth().isPresent() ? applicant.getDateOfBirth() : applicantData.getDateOfBirthAtWellKnownPath();
 
     FieldWithLabel firstNameField =
         setStateIfPresent(
