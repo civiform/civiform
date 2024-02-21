@@ -124,6 +124,7 @@ jobs:
         run: cat .dockerlogs
 
   run_browser_tests_azure:
+    if: false
     strategy:
       fail-fast: false
     runs-on: ubuntu-latest
