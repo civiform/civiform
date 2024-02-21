@@ -127,7 +127,8 @@ public class AccountRepositoryTest extends ResetPostgres {
         account, applicantUpdateTest, "Dow", "James", "John", "", "", "", "2023-12-12");
 
     // TODO (#5503): Remove when we remove the feature flag
-    assertThat(applicantUpdateTest.getApplicantData().getDateOfBirthAtWellKnownPath().get()).isEqualTo("2023-12-12");
+    assertThat(applicantUpdateTest.getApplicantData().getDateOfBirthAtWellKnownPath().get())
+        .isEqualTo("2023-12-12");
 
     assertThat(applicantUpdateTest.getDateOfBirth().get()).isEqualTo("2023-12-12");
   }
@@ -138,9 +139,10 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = setupAccountForUpdateTest();
     repo.updateTiClient(
         account, applicantUpdateTest, "Dow", "James", "John", "4259746144", "", "", "2023-12-12");
-    
+
     // TODO (#5503): Remove when we remove the feature flag
-    assertThat(applicantUpdateTest.getApplicantData().getPhoneNumberAtWellKnownPath().get()).isEqualTo("4259746144");
+    assertThat(applicantUpdateTest.getApplicantData().getPhoneNumberAtWellKnownPath().get())
+        .isEqualTo("4259746144");
 
     assertThat(applicantUpdateTest.getPhoneNumber().get()).isEqualTo("4259746144");
   }
