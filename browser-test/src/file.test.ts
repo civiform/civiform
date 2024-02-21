@@ -155,7 +155,7 @@ describe('file upload applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with no file shows error and does not proceed', async () => {
+    it('with missing file shows error and does not proceed', async () => {
       const {page, applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
 
