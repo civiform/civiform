@@ -118,8 +118,6 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     // Since this is a draft application, it shouldn't have a submit time set.
     assertThat(appDraft2.getSubmitTime()).isNull();
     // Applicant data is not saved in the application until it is submitted.
-    // Though we are not saving the applicant name to a well known path anymore,
-    // submitting the application would create an "applicant" key in the data.
     assertThat(appDraft1.getApplicantData().asJsonString()).isEqualTo("{}");
     assertThat(appDraft2.getApplicantData().asJsonString()).isEqualTo("{}");
   }

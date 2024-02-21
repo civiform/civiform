@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.pac4j.oidc.profile.OidcProfile;
 import services.CiviFormError;
 import services.WellKnownPaths;
+import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
 import services.ti.EmailAddressExistsException;
 import support.ProgramBuilder;
@@ -82,6 +83,15 @@ public class AccountRepositoryTest extends ResetPostgres {
         "note",
         "email@address.com",
         "2020-10-10");
+
+    // TODO (#5503): Remove when we remove the feature flag
+    ApplicantData data = applicantUpdateTest.getApplicantData();
+    assertThat(data.getApplicantFirstNameAtWellKnownPath().get()).isEqualTo("Dow");
+    assertThat(data.getApplicantMiddleNameAtWellKnownPath().get()).isEqualTo("James");
+    assertThat(data.getApplicantLastNameAtWellKnownPath().get()).isEqualTo("John");
+    assertThat(data.getDateOfBirthAtWellKnownPath().get()).isEqualTo("2020-10-10");
+    assertThat(data.getPhoneNumberAtWellKnownPath().get()).isEqualTo("1234567890");
+
     assertThat(applicantUpdateTest.getFirstName().get()).isEqualTo("Dow");
     assertThat(applicantUpdateTest.getMiddleName().get()).isEqualTo("James");
     assertThat(applicantUpdateTest.getLastName().get()).isEqualTo("John");
@@ -97,6 +107,13 @@ public class AccountRepositoryTest extends ResetPostgres {
     ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
     AccountModel account = setupAccountForUpdateTest();
     repo.updateTiClient(account, applicantUpdateTest, "John", "", "", "", "", "", "2020-10-10");
+
+    // TODO (#5503): Remove when we remove the feature flag
+    ApplicantData data = applicantUpdateTest.getApplicantData();
+    assertThat(data.getApplicantFirstNameAtWellKnownPath().get()).isEqualTo("John");
+    assertThat(data.getApplicantMiddleNameAtWellKnownPath()).isEmpty();
+    assertThat(data.getApplicantLastNameAtWellKnownPath()).isEmpty();
+
     assertThat(applicantUpdateTest.getFirstName().get()).isEqualTo("John");
     assertThat(applicantUpdateTest.getMiddleName()).isEmpty();
     assertThat(applicantUpdateTest.getLastName()).isEmpty();
@@ -108,6 +125,10 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = setupAccountForUpdateTest();
     repo.updateTiClient(
         account, applicantUpdateTest, "Dow", "James", "John", "", "", "", "2023-12-12");
+
+    // TODO (#5503): Remove when we remove the feature flag
+    assertThat(applicantUpdateTest.getApplicantData().getDateOfBirthAtWellKnownPath().get()).isEqualTo("2023-12-12");
+
     assertThat(applicantUpdateTest.getDateOfBirth().get()).isEqualTo("2023-12-12");
   }
 
@@ -117,6 +138,10 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = setupAccountForUpdateTest();
     repo.updateTiClient(
         account, applicantUpdateTest, "Dow", "James", "John", "4259746144", "", "", "2023-12-12");
+    
+    // TODO (#5503): Remove when we remove the feature flag
+    assertThat(applicantUpdateTest.getApplicantData().getPhoneNumberAtWellKnownPath().get()).isEqualTo("4259746144");
+
     assertThat(applicantUpdateTest.getPhoneNumber().get()).isEqualTo("4259746144");
   }
 

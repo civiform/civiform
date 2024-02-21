@@ -308,6 +308,11 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       return div();
     }
     Optional<String> maybePhoneNumber = newestApplicant.get().getPhoneNumber();
+    // TODO (#5503): Remove when we remove the feature flag
+    maybePhoneNumber =
+        maybePhoneNumber.isPresent()
+            ? maybePhoneNumber
+            : newestApplicant.get().getApplicantData().getPhoneNumberAtWellKnownPath();
     String email = account.getEmailAddress();
 
     return div(

@@ -271,9 +271,14 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             .filter(acct -> acct.getApplicantName().equals("Email, No"))
             .findFirst()
             .get();
-    assertThat(account.getApplicants().get(0).getDateOfBirth().get().toString())
+    ApplicantModel applicant = account.getApplicants().get(0);
+    assertThat(applicant.getDateOfBirth().get().toString())
         .isEqualTo("2011-11-11");
     assertThat(account.getEmailAddress()).isNull();
+    assertThat(applicant.getEmailAddress()).isEmpty();
+
+    // TODO (#5503): Remove when we remove the feature flag
+    assertThat(applicant.getApplicantData().getDateOfBirthAtWellKnownPath().get()).isEqualTo("2011-11-11");
   }
 
   @Test
@@ -302,8 +307,12 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     assertThat(returnedForm).isEqualTo(form);
     AccountModel account = repo.lookupAccountByEmail("add1@fake.com").get();
 
-    assertThat(account.getApplicants().get(0).getDateOfBirth().get().toString())
+    ApplicantModel applicant = account.getApplicants().get(0);
+    assertThat(applicant.getDateOfBirth().get().toString())
         .isEqualTo("2022-07-07");
+
+    // TODO (#5503): Remove when we remove the feature flag
+    assertThat(applicant.getApplicantData().getDateOfBirthAtWellKnownPath().get()).isEqualTo("2022-07-07");
   }
 
   @Test
@@ -459,6 +468,15 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     assertThat(applicantFinal.getApplicantData().getApplicantName().get())
         .isEqualTo("ClientLast, clientFirst");
     assertThat(accountFinal.getEmailAddress()).isEqualTo("emailAllPassEditClient");
+    assertThat(applicantFinal.getEmailAddress().get()).isEqualTo("emailAllPassEditClient");
+
+    // TODO (#5503): Remove when we remove the feature flag
+    assertThat(applicantFinal.getApplicantData().getApplicantFirstNameAtWellKnownPath().get()).isEqualTo("clientFirst");
+    assertThat(applicantFinal.getApplicantData().getApplicantMiddleNameAtWellKnownPath().get()).isEqualTo("middle");
+    assertThat(applicantFinal.getApplicantData().getApplicantLastNameAtWellKnownPath().get()).isEqualTo("ClientLast");
+    assertThat(applicantFinal.getApplicantData().getApplicantNameAtWellKnownPath().get()).isEqualTo("ClientLast, clientFirst");
+    assertThat(applicantFinal.getApplicantData().getDateOfBirthAtWellKnownPath().get()).isEqualTo("2022-07-07");
+    assertThat(applicantFinal.getApplicantData().getPhoneNumberAtWellKnownPath().get()).isEqualTo("4259879090");
   }
 
   @Test
