@@ -168,6 +168,18 @@ describe('file upload applicant flow', () => {
       )
     })
 
+    /** Regression test for https://github.com/civiform/civiform/issues/6516. */
+    it('missing file error disappears when file uploaded', async () => {
+      const {applicantQuestions, applicantFileQuestion} = ctx
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.clickNext()
+      await applicantFileQuestion.expectFileSelectionErrorShown()
+
+      await applicantQuestions.answerFileUploadQuestion('some text')
+
+      await applicantFileQuestion.expectFileSelectionErrorHidden()
+    })
+
     it('has no accessibility violations', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
@@ -324,6 +336,18 @@ describe('file upload applicant flow', () => {
       // since this program only has one block)
       await applicantQuestions.expectReviewPage()
       await applicantQuestions.submitFromReviewPage()
+    })
+
+    /** Regression test for https://github.com/civiform/civiform/issues/6516. */
+    it('missing file error disappears when file uploaded', async () => {
+      const {applicantQuestions, applicantFileQuestion} = ctx
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.clickNext()
+      await applicantFileQuestion.expectFileSelectionErrorShown()
+
+      await applicantQuestions.answerFileUploadQuestion('some text')
+
+      await applicantFileQuestion.expectFileSelectionErrorHidden()
     })
 
     it('can upload file', async () => {

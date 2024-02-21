@@ -41,26 +41,30 @@ export function init() {
 function validateFileUploadQuestion(formEl: Element): boolean {
   // Note: Currently, a file upload question must be on a screen by itself with no
   // other questions (file upload or otherwise). This method implementation assumes
-  // that there is a single file upload question. If we later allow file upload
+  // that there is a single question on the page. If we later allow file upload
   // questions to be with other questions, we'll need to update this method.
   const fileInput = assertNotNull(
     formEl.querySelector<HTMLInputElement>('input[type=file]'),
   )
-  const isValid = fileInput.value != ''
+  const isFileUploaded = fileInput.value != ''
 
   const errorDiv = formEl.querySelector('.cf-fileupload-error')
   if (!errorDiv) {
-    return isValid
+    return isFileUploaded
   }
 
-  if (isValid) {
+  if (isFileUploaded) {
     hideFileSelectionError(errorDiv, fileInput)
   } else {
     showFileSelectionError(errorDiv, fileInput)
   }
-  return isValid
+  return isFileUploaded
 }
 
+/**
+ * Shows a "Please select a file" error. Used when no file was uploaded
+ * but the user wants to continue to the next page.
+ */
 function showFileSelectionError(
   errorDiv: Element,
   fileInput: HTMLInputElement,
@@ -81,6 +85,7 @@ function showFileSelectionError(
   }
 }
 
+/** Hides the "Please select a file" error. */
 function hideFileSelectionError(
   errorDiv: Element,
   fileInput: HTMLInputElement,
