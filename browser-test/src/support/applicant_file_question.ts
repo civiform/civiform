@@ -1,7 +1,7 @@
 import {Page} from 'playwright'
 
-/** Class for working with the file upload question. */
-export class File {
+/** Class for working with the file upload question that applicants see. */
+export class ApplicantFileQuestion {
   private fileSelectionErrorLocator = '.cf-fileupload-error'
   private continueButtonLocator = '#fileupload-continue-button'
   private skipButtonLocator = '#fileupload-skip-button'

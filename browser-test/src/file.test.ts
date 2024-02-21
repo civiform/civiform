@@ -71,55 +71,55 @@ describe('file upload applicant flow', () => {
     })
 
     it('does not show errors initially', async () => {
-      const {applicantQuestions, file} = ctx
+      const {applicantQuestions, applicantFileQuestion} = ctx
 
       await applicantQuestions.applyProgram(programName)
 
-      await file.expectFileSelectionErrorHidden()
+      await applicantFileQuestion.expectFileSelectionErrorHidden()
     })
 
     it('no continue button initially', async () => {
-      const {applicantQuestions, file} = ctx
+      const {applicantQuestions, applicantFileQuestion} = ctx
 
       await applicantQuestions.applyProgram(programName)
 
-      await file.expectNoContinueButton()
+      await applicantFileQuestion.expectNoContinueButton()
     })
 
     it('does not show skip button for required question', async () => {
-      const {applicantQuestions, file} = ctx
+      const {applicantQuestions, applicantFileQuestion} = ctx
 
       await applicantQuestions.applyProgram(programName)
 
-      await file.expectNoSkipButton()
+      await applicantFileQuestion.expectNoSkipButton()
     })
 
     it('can upload file', async () => {
-      const {page, applicantQuestions, file} = ctx
+      const {page, applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
 
-      await file.expectFileNameDisplayed('file.txt')
+      await applicantFileQuestion.expectFileNameDisplayed('file.txt')
       await validateScreenshot(page, 'file-uploaded')
     })
 
     /** Regression test for https://github.com/civiform/civiform/issues/6221. */
     it('can replace file', async () => {
-      const {applicantQuestions, file} = ctx
+      const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerFileUploadQuestion(
         'some file',
         'file1.txt',
       )
-      await file.expectFileNameDisplayed('file1.txt')
+      await applicantFileQuestion.expectFileNameDisplayed('file1.txt')
 
       await applicantQuestions.answerFileUploadQuestion(
         'some file',
         'file2.txt',
       )
-      await file.expectFileNameDisplayed('file2.txt')
+      await applicantFileQuestion.expectFileNameDisplayed('file2.txt')
 
       await applicantQuestions.clickNext()
 
@@ -156,12 +156,12 @@ describe('file upload applicant flow', () => {
     })
 
     it('with no file shows error and does not proceed', async () => {
-      const {page, applicantQuestions, file} = ctx
+      const {page, applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.clickNext()
 
-      await file.expectFileSelectionErrorShown()
+      await applicantFileQuestion.expectFileSelectionErrorShown()
       // Verify we're still on the file upload question block
       expect(await page.innerText('.cf-applicant-question-text')).toContain(
         fileUploadQuestionText,
@@ -177,7 +177,7 @@ describe('file upload applicant flow', () => {
 
     it('re-answering question shows previously uploaded file name on review and block pages', async () => {
       // Answer the file upload question
-      const {page, applicantQuestions, file} = ctx
+      const {page, applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
         'some text',
@@ -198,13 +198,13 @@ describe('file upload applicant flow', () => {
       )
 
       // Verify the previously uploaded file name is shown on the block page
-      await file.expectFileNameDisplayed('testFileName.txt')
+      await applicantFileQuestion.expectFileNameDisplayed('testFileName.txt')
       await validateScreenshot(page, 'file-required-re-answered')
     })
 
     it('re-answering question shows continue button but no delete button', async () => {
       // Answer the file upload question
-      const {applicantQuestions, file} = ctx
+      const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
         'some text',
@@ -218,14 +218,14 @@ describe('file upload applicant flow', () => {
         fileUploadQuestionText,
       )
 
-      await file.expectHasContinueButton()
+      await applicantFileQuestion.expectHasContinueButton()
       // A required file upload question should never show a Delete button
-      await file.expectNoDeleteButton()
+      await applicantFileQuestion.expectNoDeleteButton()
     })
 
     it('continue button does not save new file', async () => {
       // Answer the file upload question
-      const {applicantQuestions, file} = ctx
+      const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
         'some old text',
@@ -248,7 +248,7 @@ describe('file upload applicant flow', () => {
       // Click "Continue", which does *not* save any new file upload
       // (we may want to change this behavior in the future, but we
       // should still test the existing behavior)
-      await file.clickContinue()
+      await applicantFileQuestion.clickContinue()
 
       // Verify we're taken to the next page (which is the review page
       // since this program only has one block)
@@ -297,14 +297,14 @@ describe('file upload applicant flow', () => {
     })
 
     it('with missing file shows error and does not proceed if Save&next', async () => {
-      const {page, applicantQuestions, file} = ctx
+      const {page, applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
 
       // When the applicant clicks "Save & next"
       await applicantQuestions.clickNext()
 
       // Then we should still show the error, even for an optional question
-      await file.expectFileSelectionErrorShown()
+      await applicantFileQuestion.expectFileSelectionErrorShown()
       // Verify we're still on the file upload question block
       expect(await page.innerText('.cf-applicant-question-text')).toContain(
         fileUploadQuestionText,
@@ -312,9 +312,9 @@ describe('file upload applicant flow', () => {
     })
 
     it('with missing file can be skipped', async () => {
-      const {applicantQuestions, file} = ctx
+      const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
-      await file.expectHasSkipButton()
+      await applicantFileQuestion.expectHasSkipButton()
 
       // When the applicant clicks "Skip"
       await applicantQuestions.clickSkip()
@@ -327,30 +327,30 @@ describe('file upload applicant flow', () => {
     })
 
     it('can upload file', async () => {
-      const {applicantQuestions, file} = ctx
+      const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
 
-      await file.expectFileNameDisplayed('file.txt')
+      await applicantFileQuestion.expectFileNameDisplayed('file.txt')
     })
 
     /** Regression test for https://github.com/civiform/civiform/issues/6221. */
     it('can replace file', async () => {
-      const {applicantQuestions, file} = ctx
+      const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerFileUploadQuestion(
         'some file',
         'file1.txt',
       )
-      await file.expectFileNameDisplayed('file1.txt')
+      await applicantFileQuestion.expectFileNameDisplayed('file1.txt')
 
       await applicantQuestions.answerFileUploadQuestion(
         'some file',
         'file2.txt',
       )
-      await file.expectFileNameDisplayed('file2.txt')
+      await applicantFileQuestion.expectFileNameDisplayed('file2.txt')
 
       await applicantQuestions.clickNext()
 
@@ -396,7 +396,7 @@ describe('file upload applicant flow', () => {
 
     it('re-answering question shows previously uploaded file name on review and block pages', async () => {
       // Answer the file upload question
-      const {page, applicantQuestions, file} = ctx
+      const {page, applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
         'some text',
@@ -417,13 +417,13 @@ describe('file upload applicant flow', () => {
       )
 
       // Verify the previously uploaded file name is shown on the block page
-      await file.expectFileNameDisplayed('testFileName.txt')
+      await applicantFileQuestion.expectFileNameDisplayed('testFileName.txt')
       await validateScreenshot(page, 'file-optional-re-answered')
     })
 
     it('re-answering question shows continue and delete buttons', async () => {
       // Answer the file upload question
-      const {applicantQuestions, file} = ctx
+      const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
         'some text',
@@ -437,13 +437,13 @@ describe('file upload applicant flow', () => {
         fileUploadQuestionText,
       )
 
-      await file.expectHasContinueButton()
-      await file.expectHasDeleteButton()
+      await applicantFileQuestion.expectHasContinueButton()
+      await applicantFileQuestion.expectHasDeleteButton()
     })
 
     it('delete button removes file and redirects to next block', async () => {
       // Answer the file upload question
-      const {applicantQuestions, file} = ctx
+      const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
         'some text',
@@ -457,7 +457,7 @@ describe('file upload applicant flow', () => {
         fileUploadQuestionText,
       )
 
-      await file.clickDelete()
+      await applicantFileQuestion.clickDelete()
 
       // Verify we're taken to the next page (which is the review page
       // since this program only has one block)
@@ -471,7 +471,7 @@ describe('file upload applicant flow', () => {
 
     it('continue button does not save new file', async () => {
       // Answer the file upload question
-      const {applicantQuestions, file} = ctx
+      const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
         'some old text',
@@ -494,7 +494,7 @@ describe('file upload applicant flow', () => {
       // Click "Continue", which does *not* save any new file upload
       // (we may want to change this behavior in the future, but we
       // should still test the existing behavior)
-      await file.clickContinue()
+      await applicantFileQuestion.clickContinue()
 
       // Verify we're taken to the next page (which is the review page
       // since this program only has one block)
