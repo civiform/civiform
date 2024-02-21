@@ -99,6 +99,7 @@ public class DatabaseSeedView extends BaseHtmlView {
                     .withClasses("flex", "flex-col", "gap-4")
                     .with(createSeedSection(request))
                     .with(createCachingSection(request))
+                    .with(createIconsSection())
                     .with(createHomeSection()));
 
     HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(content);
@@ -143,6 +144,14 @@ public class DatabaseSeedView extends BaseHtmlView {
                 "clear-cache",
                 "Clear cache",
                 routes.DevDatabaseSeedController.clearCache().url()));
+  }
+
+  private SectionTag createIconsSection() {
+    return section()
+        .with(h2("Icons").withClass("text-2xl"))
+        .withClasses("flex", "flex-col", "gap-4", "border", "border-black", "p-4")
+        .with(
+            createLink("View All SVG Icons", controllers.dev.routes.IconsController.index().url()));
   }
 
   private SectionTag createHomeSection() {
