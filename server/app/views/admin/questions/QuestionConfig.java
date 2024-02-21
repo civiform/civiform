@@ -206,13 +206,13 @@ public final class QuestionConfig {
                 .withClasses("hidden");
     ButtonTag moveUpButton =
         button()
-            .with(Icons.svg(Icons.ARROW_UPWARD).withClasses("w-6", "h-6"))
+            .with(Icons.svg(Icons.KEYBOARD_ARROW_UP).withClasses("w-6", "h-6"))
             .withClasses(
                 AdminStyles.MOVE_BLOCK_BUTTON, "multi-option-question-field-move-up-button", "ml-2")
             .attr("aria-label", "move up");
     ButtonTag moveDownButton =
         button()
-            .with(Icons.svg(Icons.ARROW_DOWNWARD).withClasses("w-6", "h-6"))
+            .with(Icons.svg(Icons.KEYBOARD_ARROW_DOWN).withClasses("w-6", "h-6"))
             .withClasses(
                 AdminStyles.MOVE_BLOCK_BUTTON, "multi-option-question-field-move-down-button")
             .attr("aria-label", "move down");
