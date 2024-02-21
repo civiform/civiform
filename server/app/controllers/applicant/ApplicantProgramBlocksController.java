@@ -373,23 +373,22 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
               if (block.isPresent()) {
                 ApplicantPersonalInfo personalInfo = applicantStage.toCompletableFuture().join();
+                ApplicationBaseView.Params applicationParams = buildApplicationBaseViewParams(
+                  request,
+                  applicantId,
+                  programId,
+                  blockId,
+                  inReview,
+                  roApplicantProgramService,
+                  block.get(),
+                  personalInfo,
+                  ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
+                  applicantRoutes,
+                  profile);
                 if (settingsManifest.getNorthStarApplicantUi(request)) {
-                  return ok(northStarApplicantProgramBlockEditView.render(request)).as(Http.MimeTypes.HTML);
+                  return ok(northStarApplicantProgramBlockEditView.render(request, applicationParams)).as(Http.MimeTypes.HTML);
                 } else {
-                  return ok(
-                      editView.render(
-                          buildApplicationBaseViewParams(
-                              request,
-                              applicantId,
-                              programId,
-                              blockId,
-                              inReview,
-                              roApplicantProgramService,
-                              block.get(),
-                              personalInfo,
-                              ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
-                              applicantRoutes,
-                              profile)));
+                  return ok(editView.render(applicationParams));
                 }
               } else {
                 return notFound();
@@ -454,26 +453,23 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               if (block.isPresent()) {
                 ApplicantPersonalInfo personalInfo = applicantStage.toCompletableFuture().join();
                 CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+                ApplicationBaseView.Params applicationParams = applicationBaseViewParamsBuilder(
+                  request,
+                  applicantId,
+                  programId,
+                  blockId,
+                  inReview,
+                  roApplicantProgramService,
+                  block.get(),
+                  personalInfo,
+                  ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
+                  questionName,
+                  applicantRoutes,
+                  profile).setBannerMessage(flashSuccessBanner).build();
                 if (settingsManifest.getNorthStarApplicantUi(request)) {
-                  return ok(northStarApplicantProgramBlockEditView.render(request)).as(Http.MimeTypes.HTML);
+                  return ok(northStarApplicantProgramBlockEditView.render(request, applicationParams)).as(Http.MimeTypes.HTML);
                 } else {
-                  return ok(
-                      editView.render(
-                          applicationBaseViewParamsBuilder(
-                                  request,
-                                  applicantId,
-                                  programId,
-                                  blockId,
-                                  inReview,
-                                  roApplicantProgramService,
-                                  block.get(),
-                                  personalInfo,
-                                  ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
-                                  questionName,
-                                  applicantRoutes,
-                                  profile)
-                              .setBannerMessage(flashSuccessBanner)
-                              .build()));
+                  return ok(editView.render(applicationParams));
                 }
               } else {
                 return notFound();
