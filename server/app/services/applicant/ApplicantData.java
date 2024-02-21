@@ -192,6 +192,11 @@ public class ApplicantData extends CfJsonDocumentContext {
     return Optional.of(firstName);
   }
 
+  public Optional<String> getApplicantNameWithWellKnownPathFallback() {
+    Optional<String> name = getApplicantName();
+    return name.isPresent() ? name : getApplicantNameAtWellKnownPath();
+  }
+
   public Optional<String> getApplicantFirstNameAtWellKnownPath() {
     return readString(WellKnownPaths.APPLICANT_FIRST_NAME);
   }
@@ -267,6 +272,11 @@ public class ApplicantData extends CfJsonDocumentContext {
       return getDeprecatedDateOfBirth();
     }
     return readDate(dobPath);
+  }
+
+  public Optional<LocalDate> getDateOfBirthWithWellKnownPathFallback() {
+    Optional<LocalDate> dobPIA = applicant.getDateOfBirth();
+    return dobPIA.isPresent() ? dobPIA : getDateOfBirthAtWellKnownPath();
   }
 
   /* These can be removed once FixApplicantDobDataPathJob is removed. */

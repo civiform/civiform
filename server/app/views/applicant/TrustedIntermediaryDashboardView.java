@@ -388,10 +388,11 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     // TODO (#5503): Remove checking at WKP when removing feature flag
     Optional<LocalDate> currentDobAtWKP =
         newestApplicant.get().getApplicantData().getDateOfBirthAtWellKnownPath();
-    Optional<LocalDate> currentDobAtPIA = newestApplicant.get().getDateOfBirth();
 
     String currentDob =
-        currentDobAtPIA
+        newestApplicant
+            .get()
+            .getDateOfBirth()
             .map(this.dateConverter::formatIso8601Date)
             .orElse(currentDobAtWKP.map(this.dateConverter::formatIso8601Date).orElse(""));
     return div()
