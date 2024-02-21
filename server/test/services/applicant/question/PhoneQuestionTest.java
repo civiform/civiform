@@ -13,6 +13,7 @@ import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.Path;
@@ -24,7 +25,7 @@ import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 
 @RunWith(JUnitParamsRunner.class)
-public class PhoneQuestionTest {
+public class PhoneQuestionTest extends ResetPostgres {
   private static final PhoneQuestionDefinition phoneQuestionDefinition =
       new PhoneQuestionDefinition(
           QuestionDefinitionConfig.builder()

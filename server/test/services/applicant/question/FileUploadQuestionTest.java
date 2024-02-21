@@ -10,6 +10,7 @@ import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.question.QuestionAnswerer;
@@ -17,7 +18,7 @@ import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 
 @RunWith(JUnitParamsRunner.class)
-public class FileUploadQuestionTest {
+public class FileUploadQuestionTest extends ResetPostgres {
   private static final FileUploadQuestionDefinition fileUploadQuestionDefinition =
       new FileUploadQuestionDefinition(
           QuestionDefinitionConfig.builder()
