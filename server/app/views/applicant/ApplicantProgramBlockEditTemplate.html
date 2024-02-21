@@ -6,6 +6,11 @@
             <form id="cf-block-form" th:action="${formAction}" method="POST">
                 <input hidden th:value="${csrfToken}" name="csrfToken">
                 <div th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"></div>
+
+                <!-- TODO: Implement the rest of the page surrounding the questions -->
+                <div th:each="question: ${applicantQuestions}">
+                    <div th:replace="~{applicant/ApplicantQuestionFragment :: applicant-question(${question})}"></div>
+                </div>
             </form>
         </div>
         <footer th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"></footer>

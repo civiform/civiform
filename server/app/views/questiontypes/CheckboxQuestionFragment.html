@@ -1,0 +1,14 @@
+<div th:fragment="checkbox (question)">
+    <fieldset class="usa-fieldset">
+        <legend class="usa-legend" th:text="${question.getQuestionText()}"></legend>
+        <div class="usa-checkbox" th:each="option: ${question.createMultiSelectQuestion().getOptions()}">
+          <input
+            class="usa-checkbox__input usa-checkbox__input--tile"
+            th:id="${option.id()}"
+            type="checkbox"
+          />
+          <label class="usa-checkbox__label" th:for="${option.id()}" th:text="${option.optionText()}"></label
+          >
+        </div>
+    </fieldset>
+</div>

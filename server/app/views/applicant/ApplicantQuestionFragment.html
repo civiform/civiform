@@ -1,0 +1,9 @@
+<div th:fragment="applicant-question (question)">
+    <th:block th:switch="${question.getType().getLabel()}">
+        <!-- TODO: Implement other question types -->
+        <th:block th:case="'Checkbox'">
+            <div th:replace="~{applicant/ApplicantQuestionFragment :: checkbox(${question})}"></div>
+        </th:block>
+
+    </th:block>
+</div>
