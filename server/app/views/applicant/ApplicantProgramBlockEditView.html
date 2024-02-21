@@ -9,6 +9,10 @@
         <script th:src="${adminJsBundle}" type="text/javascript"></script>
       </head>
     <body>
-        <div>Hello world</div>
+        <div>
+            <form id="cf-block-form" th:action="${formAction}" method="POST">
+                <input hidden th:value="${csrfToken}" name="csrfToken">
+            </form>
+        </div>
     </body>
 </html>
