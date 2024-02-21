@@ -1,5 +1,6 @@
 import {Page} from 'playwright'
 
+/** Class for working with the file upload question. */
 export class File {
   private fileSelectionErrorLocator = '.cf-fileupload-error'
   private continueButtonLocator = '#fileupload-continue-button'
@@ -54,7 +55,7 @@ export class File {
     await this.page.locator(this.continueButtonLocator).click()
   }
 
-  async expectDeleteButton() {
+  async expectHasDeleteButton() {
     expect(await this.page.locator(this.deleteButtonLocator).count()).toEqual(1)
   }
 

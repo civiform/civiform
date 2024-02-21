@@ -522,7 +522,7 @@ describe('Applicant navigation flow', () => {
       )
     })
 
-    fit('can answer third question directly', async () => {
+    it('can answer third question directly', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.clickApplyProgramButton(programName)
       await applicantQuestions.answerQuestionFromReviewPage(
@@ -532,7 +532,6 @@ describe('Applicant navigation flow', () => {
       expect(await page.innerText('.cf-applicant-question-text')).toContain(
         'address question text',
       )
-
       // Should focus on the question the applicant clicked on when answering for the first time
       expect(await page.innerHTML('.cf-address-street-1')).toContain(
         'autofocus',
