@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import org.junit.Before;
 import org.junit.Test;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.Path;
@@ -23,7 +24,7 @@ import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestion
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
 import services.question.types.QuestionDefinitionConfig;
 
-public class MultiSelectQuestionTest {
+public class MultiSelectQuestionTest extends ResetPostgres {
 
   private static final QuestionDefinitionConfig CONFIG =
       QuestionDefinitionConfig.builder()

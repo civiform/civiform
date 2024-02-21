@@ -66,9 +66,9 @@ link.allDone=Ako ay tapos na
 link.applyToAnotherProgram=Mag-aplay sa ibang programa
 link.createAccountOrSignIn=Gumawa ng account o magsign-in
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
-modal.errorSaving.review.title=Questions on this page are not complete. Would you still like to leave and begin reviewing?
+modal.errorSaving.review.title=Hindi kumpleto ang mga tanong sa page na ito. Gusto mo pa rin bang umalis at simulan ang pagsusuri?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
-modal.errorSaving.previous.title=Questions on this page are not complete. Would you still like to leave and go to the previous page?
+modal.errorSaving.previous.title=Hindi kumpleto ang mga tanong sa page na ito. Gusto mo pa rin bang umalis at pumunta sa nakaraang page?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
 modal.errorSaving.review.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
@@ -116,98 +116,98 @@ toast.programCompleted=Nakumpleto na ang aplikasyon.
 #------------------------------------------------------------------------------------------------------#
 
 # Message that appears when a user attempts to delete an account and it fails.
-banner.acctDeleteError=This account cannot be deleted.
+banner.acctDeleteError=Hindi made-delete ang account na ito.
 # Reason included with the account delete error, which explains the account can't be deleted due to applications the client has open
-banner.acctDeleteErrorReason=This account cannot be deleted since it has open applications.
+banner.acctDeleteErrorReason=Hindi made-delete ang account na ito dahil mayroon itong mga nakabukas na application.
 # Message when information about a client, like their name or contact information is updated.
-banner.clientInfoUpdated=Client info has been successfully updated.
+banner.clientInfoUpdated=Matagumpay na na-update ang impormasyon ng kliyente.
 # Message when a client account for a user is successfully deleted, with the name of the client substituted in
-banner.clientAcctDeleted=The client account for "{0}" has been successfully deleted.
+banner.clientAcctDeleted=Matagumpay na na-delete ang account ng kliyente para sa "{0}."
 # Message when a user successfully creates a client account.
-banner.newClientCreated=New client successfully created.
+banner.newClientCreated=Matagumpay na nakagawa ng bagong kliyente.
 
 # Button that allows a user to add a client to the CiviForm system.
-button.addNewClient=Add new client
+button.addNewClient=Magdagdag ng bagong kliyente
 # Button that brings the user back to the list of their clients.
-button.backToClientList=Back to client list
+button.backToClientList=Bumalik sa listahan ng kliyente
 # Button that allows the user to navigate back to the edit page after they click to delete a client and get an error.
-button.backToEditing=Back to editing
+button.backToEditing=Bumalik sa pag-edit
 # Button that allows the user to cancel the progress they make on adding or editing a client.
-button.cancel=Cancel
+button.cancel=Kanselahin
 # Button that allows the user to clear any search parameters they have already entered.
-button.clearSearch=Clear search
+button.clearSearch=I-clear ang paghahanap
 # Button for a user to delete their client's account
-button.deleteAcct=Delete account
+button.deleteAcct=I-delete ang account
 # Button option when asked if the user is sure they want to delete an account.
-button.keepAcct=Keep account
+button.keepAcct=Panatilihin ang account
 # Button to navigate to the next page.
-button.nextPage=Next
+button.nextPage=Susunod
 # Button to save information that has been entered.
-button.save=Save
+button.save=I-save
 # Button to execute a search to filter a client list.
-button.search=Search
+button.search=Maghanap
 # Button to select a client.
-button.select=Select
+button.select=Piliin
 # Button to start an application on behalf of a client.
-button.startApp=Start an application
+button.startApp=Magsimula ng application
 # Button to view the applications belonging to an applicant.
-button.viewApplications=View applications
+button.viewApplications=Tingnan ang mga application
 
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
-content.clientCreated=Your new client {0} has been added to your client list. You can now begin submitting applications for this client.
+content.clientCreated=Naidagdag na sa listahan ng kliyente mo ang iyong bagong kliyenteng si {0}. Puwede ka nang magsimulang magsumite ng mga application para sa kliyenteng ito.
 # For each client on the client list, shows the number of applications that have been submitted for them.
-content.numberOfAppSubmitted={0} applications submitted
+content.numberOfAppSubmitted={0} (na) application ang naisumite
 # Some explanation text on the confirmation modal when deleting a client.
-content.warning=There are no applications submitted for this client, so no applications will be lost.
+content.warning=Walang application na naisumite para sa kliyenteng ito, kaya walang mawawalang application.
 # Confirmation modal text when the user tries to delete a client account.
-dialog.deleteConfirmation=Are you sure you want to delete this client''s account?
+dialog.deleteConfirmation=Sigurado ka bang gusto mong i-delete ang account ng kliyenteng ito?
 
 # Header for the page with the Organization Members table.
-header.acctSettings=Account settings
+header.acctSettings=Mga setting ng account
 # Tab label for getting to the client list page
-header.clientList=Client list
+header.clientList=Listahan ng kliyente
 
 # A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last login XX-XX-XXXX".
-label.acctStatus=Account Status
+label.acctStatus=Status ng Account
 # Label above the phone number for each client on the client list.
-label.contactInfo=Contact Information
+label.contactInfo=Impormasyon sa Pakikipag-ugnayan
 # The label above the input field for the day of the client birth date. i.e. 12 for November 12
-label.day=Day
+label.day=Araw
 # Label above the birth date input field when creating or editing a client
-label.dob=Date of birth
+label.dob=Petsa ng kapanganakan
 # Example above the 3 birth date input fields (Month, Day, Year).
-label.dobExample=For example: January 28 1986
+label.dobExample=Halimbawa: Enero 28, 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=Email
 # The label above the dropdown select field for the month of the client birth date.
-label.month=Month
+label.month=Buwan
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
-label.name=Name
+label.name=Pangalan
 # Example above the name input field for the client search.
-label.nameExample=For example: Gu or Darren or Darren Gu
+label.nameExample=Halimbawa: Gu o Darren o Darren Gu
 # Label above the text input field for notes about a client.
-label.notes=Notes
+label.notes=Mga Tala
 # Label above the phone number input field when creating or editing a client.
-label.phoneNum=Phone Number
+label.phoneNum=Numero ng Telepono
 # The label above the Date of Birth search input for the client search.
-label.searchByDob=Search by Date of Birth
+label.searchByDob=Maghanap ayon sa Petsa ng Kapanganakan
 # The label above the name search field of the client search.
-label.searchByName=Search by name(s)
+label.searchByName=Maghanap ayon sa (mga) pangalan
 # The label above the input field for the year of the client birth date.
-label.year=Year
+label.year=Taon
 
 link.edit=I-edit
 
 # This is the header above the list of clients and the client search.
-title.allClients=All Clients
+title.allClients=Lahat ng Kliyente
 # This is the heading above a new client creation form.
-title.createClient=Create a new client
+title.createClient=Gumawa ng bagong kliyente
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
-title.displayingMultiClients=Displaying {0} clients
+title.displayingMultiClients=Nagpapakita ng {0} (na) kliyente
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
-title.displayingOneClient=Displaying 1 client
+title.displayingOneClient=Nagpapakita ng 1 kliyente
 # This is the heading above a table that contains the members of the current community-based organization.
-title.orgMembers=Organization members
+title.orgMembers=Mga miyembro ng organisasyon
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #

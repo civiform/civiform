@@ -9,7 +9,7 @@
   "devDependencies": {
     "@types/jest": "29.5.12",
     "@types/jest-image-snapshot": "6.4.0",
-    "@types/node": "20.11.16",
+    "@types/node": "20.11.19",
     "@typescript-eslint/eslint-plugin": "7.0.1",
     "@typescript-eslint/parser": "7.0.1",
     "axe-core": "4.8.4",
