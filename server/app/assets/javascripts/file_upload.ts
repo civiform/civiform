@@ -6,6 +6,14 @@ export function init() {
   const blockForm = document.getElementById('cf-block-form')
 
   if (blockForm) {
+    const fileUploadQuestion = blockForm.querySelector(
+      '.cf-question-fileupload',
+    )
+    if (!fileUploadQuestion) {
+      // If there's no file upload question on the page, don't add extra logic.
+      return
+    }
+
     blockForm.addEventListener('submit', (event) => {
       // Prevent submission of a file upload form if no file has been
       // selected. Note: For optional file uploads, a distinct skip button
@@ -38,17 +46,17 @@ export function init() {
  *
  * @returns true if a file was uploaded and false otherwise.
  */
-function validateFileUploadQuestion(formEl: Element): boolean {
+function validateFileUploadQuestion(blockForm: Element): boolean {
   // Note: Currently, a file upload question must be on a screen by itself with no
   // other questions (file upload or otherwise). This method implementation assumes
   // that there is a single question on the page. If we later allow file upload
   // questions to be with other questions, we'll need to update this method.
   const fileInput = assertNotNull(
-    formEl.querySelector<HTMLInputElement>('input[type=file]'),
+    blockForm.querySelector<HTMLInputElement>('input[type=file]'),
   )
   const isFileUploaded = fileInput.value != ''
 
-  const errorDiv = formEl.querySelector('.cf-fileupload-error')
+  const errorDiv = blockForm.querySelector('.cf-fileupload-error')
   if (!errorDiv) {
     return isFileUploaded
   }
