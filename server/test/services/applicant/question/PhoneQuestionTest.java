@@ -83,10 +83,6 @@ public class PhoneQuestionTest extends ResetPostgres {
     assertThat(phoneQuestion.getValidationErrors())
         .isEqualTo(
             ImmutableMap.of(
-                phoneQuestion.getCountryCodePath(),
-                ImmutableSet.of(
-                    ValidationErrorMessage.create(
-                        MessageKey.PHONE_VALIDATION_COUNTRY_CODE_REQUIRED)),
                 phoneQuestion.getPhoneNumberPath(),
                 ImmutableSet.of(
                     ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_NUMBER_REQUIRED))));

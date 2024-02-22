@@ -585,10 +585,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.answerRadioButtonQuestion('one')
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.answerPhoneQuestion(
-        'United States',
-        '4256373270',
-      )
+      await applicantQuestions.answerPhoneQuestion('4256373270')
       await applicantQuestions.clickNext()
       // Verify we are on program review page.
       await applicantQuestions.expectReviewPage()
@@ -620,10 +617,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.answerRadioButtonQuestion('one')
       await applicantQuestions.clickNext()
-      await applicantQuestions.answerPhoneQuestion(
-        'United States',
-        '4256373270',
-      )
+      await applicantQuestions.answerPhoneQuestion('4256373270')
       await applicantQuestions.clickNext()
       await applicantQuestions.submitFromReviewPage()
 
@@ -673,10 +667,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.answerRadioButtonQuestion('one')
       await applicantQuestions.clickNext()
-      await applicantQuestions.answerPhoneQuestion(
-        'United States',
-        '4256373270',
-      )
+      await applicantQuestions.answerPhoneQuestion('4256373270')
       await applicantQuestions.clickNext()
       await applicantQuestions.submitFromReviewPage()
 
@@ -722,10 +713,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.answerRadioButtonQuestion('one')
       await applicantQuestions.clickNext()
-      await applicantQuestions.answerPhoneQuestion(
-        'United States',
-        '4256373270',
-      )
+      await applicantQuestions.answerPhoneQuestion('4256373270')
       await applicantQuestions.clickNext()
       await applicantQuestions.submitFromReviewPage()
 
@@ -789,10 +777,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.answerRadioButtonQuestion('one')
       await applicantQuestions.clickNext()
-      await applicantQuestions.answerPhoneQuestion(
-        'United States',
-        '4256373270',
-      )
+      await applicantQuestions.answerPhoneQuestion('4256373270')
       await applicantQuestions.clickNext()
       await applicantQuestions.submitFromReviewPage()
 

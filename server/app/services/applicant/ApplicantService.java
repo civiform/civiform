@@ -54,6 +54,8 @@ import services.DeploymentType;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.Path;
+import services.PhoneValidationResult;
+import services.PhoneValidationUtils;
 import services.applicant.ApplicantPersonalInfo.ApplicantType;
 import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.exception.ApplicantNotFoundException;
@@ -64,6 +66,7 @@ import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.predicate.JsonPathPredicateGeneratorFactory;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.PhoneQuestion;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails;
 import services.cloud.aws.SimpleEmail;
@@ -79,6 +82,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.StatusDefinitions;
 import services.question.exceptions.UnsupportedScalarTypeException;
+import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 import views.applicant.AddressCorrectionBlockView;
 
@@ -1647,6 +1651,50 @@ public final class ApplicantService {
               }
 
               return CompletableFuture.completedFuture(formData);
+            });
+  }
+
+  /**
+   * Checks the block for any {@link PhoneQuestion}. If any are found grab the phone number from the
+   * formData and call the {@link PhoneValidationUtils#validatePhoneNumberWithCountryCode} to
+   * calculate the country code.
+   */
+  public CompletionStage<ImmutableMap<String, String>> setPhoneCountryCode(
+      long applicantId, long programId, String blockId, ImmutableMap<String, String> formData) {
+    return getReadOnlyApplicantProgramService(applicantId, programId)
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockId);
+
+              if (blockMaybe.isEmpty()) {
+                return CompletableFuture.failedFuture(
+                    new ProgramBlockNotFoundException(programId, blockId));
+              }
+
+              // Get a writeable map so the existing paths can be replaced
+              Map<String, String> newFormData = new java.util.HashMap<>(formData);
+
+              for (ApplicantQuestion applicantQuestion : blockMaybe.get().getQuestions()) {
+                if (applicantQuestion.getType() != QuestionType.PHONE) {
+                  continue;
+                }
+
+                PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
+
+                Optional<String> phoneNumber =
+                    Optional.of(newFormData.get(phoneQuestion.getPhoneNumberPath().toString()));
+
+                PhoneValidationResult result =
+                    PhoneValidationUtils.determineCountryCode(phoneNumber);
+
+                if (result.isValid()) {
+                  newFormData.put(
+                      phoneQuestion.getCountryCodePath().toString(),
+                      result.getCountryCode().orElse(""));
+                }
+              }
+
+              return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));
             });
   }
 }
