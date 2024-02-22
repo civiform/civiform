@@ -106,11 +106,6 @@ function addNewInput(
   if (deleteButton != null) {
     deleteButton.addEventListener('click', removeInput)
   }
-  /*
-  newField
-    .querySelector('[type=button]')!
-    .addEventListener('click', removeInput)
-*/
   const upButton = newField.querySelector(
     '.multi-option-question-field-move-up-button',
   )
