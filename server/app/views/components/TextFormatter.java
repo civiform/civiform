@@ -40,7 +40,7 @@ public final class TextFormatter {
 
   public static String formatTextToSanitizedHTMLWithAriaLabel(String text, boolean preserveEmptyLines, boolean addRequiredIndicator, String ariaLabel) {
     CIVIFORM_MARKDOWN.setAriaLabel(ariaLabel);
-    formatTextToSanitizedHTML(text, preserveEmptyLines, addRequiredIndicator);
+    return formatTextToSanitizedHTML(text, preserveEmptyLines, addRequiredIndicator);
   }
   /** Passes provided text through Markdown formatter, generating an HTML String */
   public static String formatTextToSanitizedHTML(
