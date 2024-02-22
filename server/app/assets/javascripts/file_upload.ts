@@ -69,9 +69,9 @@ export function init() {
       },
     )
 
-      // Prevent submission of a file upload form if no file has been
-      // selected. Note: For optional file uploads, a distinct skip button
-      // is shown.
+    // Prevent submission of a file upload form if no file has been
+    // selected. Note: For optional file uploads, a distinct skip button
+    // is shown.
     blockForm.addEventListener('submit', (event) => {
       console.log('submit. id=' + (event.target! as Element).id)
       console.log(

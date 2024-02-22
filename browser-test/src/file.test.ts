@@ -521,4 +521,61 @@ describe('file upload applicant flow', () => {
       expect(downloadedFileContent).toEqual('some old text')
     })
   })
+
+  /**
+   * Tests for buttons on the file upload question.
+   *
+   * https://github.com/civiform/civiform/issues/6450 changes the behavior of
+   * the buttons, so for each button we test these behaviors:
+   *   1) SAVE_ON_ALL_ACTIONS flag off, don't upload a file, click button
+   *   2) SAVE_ON_ALL_ACTIONS flag on, don't upload a file, click button
+   *   3) SAVE_ON_ALL_ACTIONS flag off, upload a file, click button
+   *   4) SAVE_ON_ALL_ACTIONS flag on, upload a file, click button
+   *
+   * Some buttons are different between the required file upload question and
+   * the optional file upload questions.
+   *   - Tests for buttons that the have the same functionality for both
+   *     required and optional questions are here.
+   *   - Tests for buttons that have different functionality between required
+   *     and optional questions are already included above.
+   */
+  describe('file upload question buttons', () => {
+    const programName = 'Test program for single file upload'
+
+    beforeAll(async () => {
+      const {page, adminQuestions, adminPrograms} = ctx
+      await loginAsAdmin(page)
+
+      await adminQuestions.addFileUploadQuestion({
+        questionName: 'file-upload-test-q',
+        questionText: fileUploadQuestionText,
+      })
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        ['file-upload-test-q'],
+        programName,
+      )
+
+      await logout(page)
+    })
+
+    describe('review button', () => {
+      it('clicking review without file redirects to review page (flag off)', async () => {})
+
+      it('clicking review without file redirects to review page (flag on)', async () => {})
+
+      it('clicking review with file discards file and redirects to review page (flag off)', async () => {})
+
+      it('clicking review with file saves file and redirects to review page (flag on)', async () => {})
+    })
+
+    describe('previous button', () => {
+      it('clicking previous without file redirects to previous page (flag off)', async () => {})
+
+      it('clicking previous without file redirects to previous page (flag on)', async () => {})
+
+      it('clicking previous with file discards file and redirects to previous page (flag off)', async () => {})
+
+      it('clicking previous with file saves file and redirects to previous page (flag on)', async () => {})
+    })
+  })
 })
