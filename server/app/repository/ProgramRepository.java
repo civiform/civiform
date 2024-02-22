@@ -436,13 +436,13 @@ public final class ProgramRepository {
 
   private ExpressionList<ApplicationModel> searchUsingPrimaryApplicantInfo(
       String search, ExpressionList<ApplicationModel> query) {
-    String onlyDigits = search.replaceAll("[^a-zA-Z0-9]", "");
+    String maybeOnlyDigits = search.replaceAll("[^a-zA-Z0-9]", "");
 
-    if (onlyDigits.matches("^\\d+$")) {
+    if (maybeOnlyDigits.matches("^\\d+$")) {
       return query
           .or()
-          .eq("id", Long.parseLong(onlyDigits))
-          .ilike("applicant.phoneNumber", "%" + onlyDigits + "%")
+          .eq("id", Long.parseLong(maybeOnlyDigits))
+          .ilike("applicant.phoneNumber", "%" + maybeOnlyDigits + "%")
           .endOr();
     } else {
       String firstNamePath = "applicant.firstName";
@@ -461,7 +461,6 @@ public final class ProgramRepository {
   // TODO (#5503): Remove this when we remove the feature flag
   private ExpressionList<ApplicationModel> searchUsingWellKnownPaths(
       String search, ExpressionList<ApplicationModel> query) {
-    System.out.println("searching in WKP");
 
     if (search.matches("^\\d+$")) {
       return query.eq("id", Integer.parseInt(search));
