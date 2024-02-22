@@ -3,40 +3,40 @@ import {assertNotNull} from './util'
 const UPLOAD_ATTR = 'data-upload-text'
 
 export function init() {
+  // Don't add extra logic if we don't have a block form with a
+  // file upload question.
   const blockForm = document.getElementById('cf-block-form')
+  if (!blockForm) {
+    return
+  }
+  const fileUploadQuestion = blockForm.querySelector('.cf-question-fileupload')
+  if (!fileUploadQuestion) {
+    // If there's no file upload question on the page, don't add extra logic.
+    return
+  }
 
-  if (blockForm) {
-    const fileUploadQuestion = blockForm.querySelector(
-      '.cf-question-fileupload',
-    )
-    if (!fileUploadQuestion) {
-      // If there's no file upload question on the page, don't add extra logic.
-      return
+  blockForm.addEventListener('submit', (event) => {
+    // Prevent submission of a file upload form if no file has been
+    // selected. Note: For optional file uploads, a distinct skip button
+    // is shown.
+    if (!validateFileUploadQuestion(blockForm)) {
+      event.preventDefault()
+      return false
     }
+    return true
+  })
 
-    blockForm.addEventListener('submit', (event) => {
-      // Prevent submission of a file upload form if no file has been
-      // selected. Note: For optional file uploads, a distinct skip button
-      // is shown.
-      if (!validateFileUploadQuestion(blockForm)) {
-        event.preventDefault()
-        return false
-      }
-      return true
+  const uploadedDivs = blockForm.querySelectorAll(`[${UPLOAD_ATTR}]`)
+  if (uploadedDivs.length) {
+    const uploadedDiv = uploadedDivs[0]
+    const uploadText = assertNotNull(uploadedDiv.getAttribute(UPLOAD_ATTR))
+
+    blockForm.addEventListener('change', (event) => {
+      const files = (event.target! as HTMLInputElement).files
+      const file = assertNotNull(files)[0]
+      uploadedDiv.innerHTML = uploadText.replace('{0}', file.name)
+      validateFileUploadQuestion(blockForm)
     })
-
-    const uploadedDivs = blockForm.querySelectorAll(`[${UPLOAD_ATTR}]`)
-    if (uploadedDivs.length) {
-      const uploadedDiv = uploadedDivs[0]
-      const uploadText = assertNotNull(uploadedDiv.getAttribute(UPLOAD_ATTR))
-
-      blockForm.addEventListener('change', (event) => {
-        const files = (event.target! as HTMLInputElement).files
-        const file = assertNotNull(files)[0]
-        uploadedDiv.innerHTML = uploadText.replace('{0}', file.name)
-        validateFileUploadQuestion(blockForm)
-      })
-    }
   }
 }
 
