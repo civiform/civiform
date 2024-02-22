@@ -15,105 +15,89 @@ export function init() {
     return
   }
 
+  // This event listener should only trigger if the SAVE_ON_ALL_ACTIONS flag is on
+  // because the file-upload-action-button class is only added if the SAVE_ON_ALL_ACTIONS flag
+  // is enabled (see views.applicant.ApplicantFileUploadRenderer.java).
+  addEventListenerToElements(
+    '.file-upload-action-button',
+    'click',
+    (e: Event) => {
+      console.log('click')
+      const buttonTarget = e.currentTarget as HTMLElement
+      const redirectWithFile = assertNotNull(
+        buttonTarget.dataset.redirectWithFile,
+        'redirectWithFile',
+      )
+      const redirectWithoutFile = buttonTarget.dataset.redirectWithoutFile
+      console.log('redirectWith=' + redirectWithFile)
+      console.log('redirectWi/o=' + redirectWithoutFile)
+
+      const fileInput = assertNotNull(
+        blockForm.querySelector<HTMLInputElement>('input[type=file]'),
+        'fileInput',
+      )
+
+      if (fileInput.value != '') {
+        console.log('has file')
+      } else {
+        console.log('no file')
+      }
+
+      if (fileInput.value != '') {
+        console.log('has file so changing redirect')
+        assertNotNull(
+          blockForm.querySelector<HTMLInputElement>(
+            'input[name="success_action_redirect"]',
+          ),
+          'success_action_redirect',
+        ).value = redirectWithFile
+        // We want the submit to fire so don't call #stopPropagation?
+      } else if (redirectWithoutFile) {
+        window.location.href = redirectWithoutFile
+        e.preventDefault()
+        //       return false
+      }
+      return true
+    },
+  )
+
+  // Prevent submission of a file upload form if no file has been
+  // selected. Note: For optional file uploads, a distinct skip button
+  // is shown.
   blockForm.addEventListener('submit', (event) => {
-    // Prevent submission of a file upload form if no file has been
-    // selected. Note: For optional file uploads, a distinct skip button
-    // is shown.
-    if (!validateFileUploadQuestion(blockForm)) {
+    console.log('submit. id=' + (event.target! as Element).id)
+    console.log('submitter=' + ((event as SubmitEvent).submitter as Element).id)
+    const redirectWithoutFile = (
+      (event as SubmitEvent).submitter as HTMLElement
+    ).dataset.redirectWithoutFile
+    const fileRequiredBeforeContinuing = !redirectWithoutFile
+
+    console.log('redirect without=' + redirectWithoutFile)
+    console.log('fileRequiredBeforeContinuing=' + fileRequiredBeforeContinuing)
+
+    if (!fileRequiredBeforeContinuing) {
+      // If we don't require a file before continuing, don't do any validation and just proceed
+      return true
+    }
+
+    if (!validateFileUploadQuestion(blockForm, 'from submit')) {
       event.preventDefault()
       return false
     }
     return true
   })
 
-    // This event listener should only trigger if the SAVE_ON_ALL_ACTIONS flag is on
-    // because the file-upload-action-button class is only added if the SAVE_ON_ALL_ACTIONS flag
-    // is enabled (see views.applicant.ApplicantFileUploadRenderer.java).
-    addEventListenerToElements(
-      '.file-upload-action-button',
-      'click',
-      (e: Event) => {
-        console.log('click')
-        const buttonTarget = e.currentTarget as HTMLElement
-        const redirectWithFile = assertNotNull(
-          buttonTarget.dataset.redirectWithFile,
-          'redirectWithFile',
-        )
-        const redirectWithoutFile = buttonTarget.dataset.redirectWithoutFile
-        console.log('redirectWith=' + redirectWithFile)
-        console.log('redirectWi/o=' + redirectWithoutFile)
+  const uploadedDivs = blockForm.querySelectorAll(`[${UPLOAD_ATTR}]`)
+  if (uploadedDivs.length) {
+    const uploadedDiv = uploadedDivs[0]
+    const uploadText = assertNotNull(uploadedDiv.getAttribute(UPLOAD_ATTR))
 
-        const fileInput = assertNotNull(
-          blockForm.querySelector<HTMLInputElement>('input[type=file]'),
-          'fileInput',
-        )
-
-        if (fileInput.value != '') {
-          console.log('has file')
-        } else {
-          console.log('no file')
-        }
-
-        if (fileInput.value != '') {
-          console.log('has file so changing redirect')
-          assertNotNull(
-            blockForm.querySelector<HTMLInputElement>(
-              'input[name="success_action_redirect"]',
-            ),
-            'success_action_redirect',
-          ).value = redirectWithFile
-          // We want the submit to fire so don't call #stopPropagation?
-        } else if (redirectWithoutFile) {
-          window.location.href = redirectWithoutFile
-          e.preventDefault()
-          //       return false
-        }
-        return true
-      },
-    )
-
-    // Prevent submission of a file upload form if no file has been
-    // selected. Note: For optional file uploads, a distinct skip button
-    // is shown.
-    blockForm.addEventListener('submit', (event) => {
-      console.log('submit. id=' + (event.target! as Element).id)
-      console.log(
-        'submitter=' + ((event as SubmitEvent).submitter as Element).id,
-      )
-      const redirectWithoutFile = (
-        (event as SubmitEvent).submitter as HTMLElement
-      ).dataset.redirectWithoutFile
-      const fileRequiredBeforeContinuing = !redirectWithoutFile
-
-      console.log('redirect without=' + redirectWithoutFile)
-      console.log(
-        'fileRequiredBeforeContinuing=' + fileRequiredBeforeContinuing,
-      )
-
-      if (!fileRequiredBeforeContinuing) {
-        // If we don't require a file before continuing, don't do any validation and just proceed
-        return true
-      }
-
-      if (!validateFileUploadQuestion(blockForm, 'from submit')) {
-        event.preventDefault()
-        return false
-      }
-      return true
+    blockForm.addEventListener('change', (event) => {
+      const files = (event.target! as HTMLInputElement).files
+      const file = assertNotNull(files)[0]
+      uploadedDiv.innerHTML = uploadText.replace('{0}', file.name)
+      validateFileUploadQuestion(blockForm)
     })
-
-      const uploadedDivs = blockForm.querySelectorAll(`[${UPLOAD_ATTR}]`)
-      if (uploadedDivs.length) {
-        const uploadedDiv = uploadedDivs[0]
-        const uploadText = assertNotNull(uploadedDiv.getAttribute(UPLOAD_ATTR))
-
-        blockForm.addEventListener('change', (event) => {
-          const files = (event.target! as HTMLInputElement).files
-          const file = assertNotNull(files)[0]
-          uploadedDiv.innerHTML = uploadText.replace('{0}', file.name)
-          validateFileUploadQuestion(blockForm)
-          })
-          }
   }
 }
 
