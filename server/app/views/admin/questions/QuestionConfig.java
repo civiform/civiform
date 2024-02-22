@@ -239,11 +239,12 @@ public final class QuestionConfig {
     ButtonTag removeOptionButton =
         button()
             .with(Icons.svg(Icons.DELETE).withClasses("w-6", "h-6"))
+            .withId("multi-option-question-field-remove-button")
             .withClasses(
                 AdminStyles.DELETE_BUTTON,
                 ReferenceClasses.MULTI_OPTION_DELETE_BUTTON,
-                "col-start-8",
                 "multi-option-question-field-remove-button",
+                "col-start-8",
                 "row-span-2")
             .attr("aria-label", "delete");
     return div()
