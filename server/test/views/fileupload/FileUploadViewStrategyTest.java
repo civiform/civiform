@@ -32,7 +32,7 @@ public class FileUploadViewStrategyTest {
   }
 
   @Test
-  public void createUswdsFileInputFormElement_hasFileTooLargeErrorDiv() {
+  public void createUswdsFileInputFormElement_hasFileTooLargeError() {
     DivTag uswdsForm =
         FileUploadViewStrategy.createUswdsFileInputFormElement(
             /* id= */ "fakeId",

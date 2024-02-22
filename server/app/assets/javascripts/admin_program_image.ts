@@ -7,7 +7,7 @@ class AdminProgramImage {
   private static IMAGE_DESCRIPTION_FORM_ID = 'image-description-form'
   private static IMAGE_FILE_UPLOAD_FORM_ID = 'image-file-upload-form'
   // This should be kept in sync with views/fileupload/FileUploadViewStrategy.FILE_TOO_LARGE_ERROR_ID.
-  private static FILE_TOO_LARGE_DIV_ID = 'file-too-large-error'
+  private static FILE_TOO_LARGE_ID = 'file-too-large-error'
 
   static attachEventListenersToDescriptionForm() {
     const descriptionForm = document.getElementById(
@@ -68,14 +68,14 @@ class AdminProgramImage {
           '][type="submit"]',
       ),
     )
-    const fileTooLargeErrorDiv = assertNotNull(
-      document.getElementById(AdminProgramImage.FILE_TOO_LARGE_DIV_ID),
+    const fileTooLargeError = assertNotNull(
+      document.getElementById(AdminProgramImage.FILE_TOO_LARGE_ID),
     )
 
     if (imageInput.value == '') {
       // Prevent submission and hide the too-large error if no file is uploaded
       submitButton.setAttribute('disabled', '')
-      fileTooLargeErrorDiv.classList.add('hidden')
+      fileTooLargeError.classList.add('hidden')
       return
     }
 
@@ -83,11 +83,11 @@ class AdminProgramImage {
     if (fileTooLarge) {
       // Prevent submission and show the too-large error if the file was too large
       submitButton.setAttribute('disabled', '')
-      fileTooLargeErrorDiv.classList.remove('hidden')
+      fileTooLargeError.classList.remove('hidden')
     } else {
       // Allow submission and hide the too-large error if the file is small enough
       submitButton.removeAttribute('disabled')
-      fileTooLargeErrorDiv.classList.add('hidden')
+      fileTooLargeError.classList.add('hidden')
     }
   }
 }
