@@ -525,8 +525,8 @@ describe('Applicant navigation flow', () => {
     it('can answer third question directly', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.clickApplyProgramButton(programName)
-      await page.click(
-        '.cf-applicant-summary-row:has(div:has-text("address question text")) a:has-text("Answer")',
+      await applicantQuestions.answerQuestionFromReviewPage(
+        'address question text',
       )
       await waitForPageJsLoad(page)
       expect(await page.innerText('.cf-applicant-question-text')).toContain(

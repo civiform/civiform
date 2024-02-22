@@ -25,6 +25,7 @@ import {AdminQuestions} from './admin_questions'
 import {AdminPrograms} from './admin_programs'
 import {AdminApiKeys} from './admin_api_keys'
 import {AdminProgramStatuses} from './admin_program_statuses'
+import {ApplicantFileQuestion} from './applicant_file_question'
 import {ApplicantQuestions} from './applicant_questions'
 import {AdminPredicates} from './admin_predicates'
 import {AdminTranslations} from './admin_translations'
@@ -42,8 +43,9 @@ export {AdminSettings} from './admin_settings'
 export {AdminTranslations} from './admin_translations'
 export {AdminProgramImage} from './admin_program_image'
 export {AdminTIGroups} from './admin_ti_groups'
-export {ClientInformation, TIDashboard} from './ti_dashboard'
+export {ApplicantFileQuestion} from './applicant_file_question'
 export {ApplicantQuestions} from './applicant_questions'
+export {ClientInformation, TIDashboard} from './ti_dashboard'
 export {NotFoundPage} from './error_pages'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
 
@@ -149,6 +151,7 @@ export interface TestContext {
   adminPrograms: AdminPrograms
   adminApiKeys: AdminApiKeys
   adminProgramStatuses: AdminProgramStatuses
+  applicantFileQuestion: ApplicantFileQuestion
   applicantQuestions: ApplicantQuestions
   adminPredicates: AdminPredicates
   adminTranslations: AdminTranslations
@@ -255,6 +258,7 @@ export async function resetContext(ctx: TestContext) {
   ctx.adminPredicates = new AdminPredicates(ctx.page)
   ctx.adminTranslations = new AdminTranslations(ctx.page)
   ctx.adminProgramImage = new AdminProgramImage(ctx.page)
+  ctx.applicantFileQuestion = new ApplicantFileQuestion(ctx.page)
   ctx.tiDashboard = new TIDashboard(ctx.page)
   ctx.adminTiGroups = new AdminTIGroups(ctx.page)
   await ctx.page.goto(BASE_URL)
