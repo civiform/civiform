@@ -855,7 +855,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         inReview
             ? roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().map(Block::getId)
             : roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
-    System.out.println("nextBlockMaybe. inReview=" + inReview + "  id=" + nextBlockIdMaybe);
     return nextBlockIdMaybe
         .map(
             nextBlockId ->

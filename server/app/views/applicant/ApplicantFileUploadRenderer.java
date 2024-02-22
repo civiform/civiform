@@ -21,6 +21,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import play.mvc.Http.HttpVerbs;
@@ -51,6 +52,25 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
   private static final String FILEUPLOAD_DELETE_BUTTON_ID = "fileupload-delete-button";
   private static final String FILEUPLOAD_SKIP_BUTTON_ID = "fileupload-skip-button";
   private static final String FILEUPLOAD_CONTINUE_BUTTON_ID = "fileupload-continue-button";
+
+  /**
+   * A data key that points to a redirect URL that should be used if the user has uploaded a file.
+   * Should be set on each action button if the SAVE_ON_ALL_ACTIONS flag is enabled. Should be kept
+   * in sync with file_upload.ts.
+   */
+  private static final String REDIRECT_WITH_FILE_KEY = "redirect-with-file";
+
+  /**
+   * A data key that points to a redirect URL that should be used if the user has *not* uploaded a
+   * file. If the SAVE_ON_ALL_ACTIONS flag is enabled, this should be set on any button whose action
+   * should be permitted, even if the user hasn't uploaded a file. Right now, we allow users to
+   * navigate to the review page and previous page if they haven't uploaded a file, but we *don't*
+   * allow them to navigate to the next page until they've uploaded a file. (Note that optional file
+   * upload questions have a separate Skip button -- see {@link #maybeRenderSkipOrDeleteButton}.)
+   *
+   * <p>Should be kept in sync with file_upload.ts.
+   */
+  private static final String REDIRECT_WITHOUT_FILE_KEY = "redirect-without-file";
 
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final ApplicantRoutes applicantRoutes;
@@ -284,6 +304,17 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     return div(continueForm, deleteForm).withClasses("hidden");
   }
 
+  private ButtonTag renderOldNextButton(Params params) {
+    String styles = ButtonStyles.SOLID_BLUE;
+    if (hasUploadedFile(params)) {
+      styles = ButtonStyles.OUTLINED_TRANSPARENT;
+    }
+    return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
+        .withForm(BLOCK_FORM_ID)
+        .withClasses(styles)
+        .withId(FILEUPLOAD_SUBMIT_FORM_ID);
+  }
+
   private DivTag renderFileKeyField(
       ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return FileUploadQuestionRenderer.renderFileKeyField(question, params, false);
@@ -338,15 +369,13 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     }
 
     MessageKey buttonMessage;
-    String redirectWithoutFile;
-    String id; // TODO: Needed?
+    @Nullable String redirectWithoutFile;
 
     switch (action) {
       case NEXT_BLOCK:
         buttonMessage = MessageKey.BUTTON_NEXT_SCREEN;
         // Don't allow the user to proceed to the next block without uploading a file
         redirectWithoutFile = null;
-        id = FILEUPLOAD_SUBMIT_FORM_ID;
         break;
       case PREVIOUS_BLOCK:
         buttonMessage = MessageKey.BUTTON_PREVIOUS_SCREEN;
@@ -360,7 +389,6 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                         params.blockIndex(),
                         params.inReview())
                     .url();
-        id = "previous-block-id";
         break;
       case REVIEW_PAGE:
         buttonMessage = MessageKey.BUTTON_REVIEW;
@@ -369,7 +397,6 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                 + applicantRoutes
                     .review(params.profile(), params.applicantId(), params.programId())
                     .url();
-        id = "review-button-id";
         break;
       default:
         throw new IllegalStateException("Action not handled: " + action.name());
@@ -394,20 +421,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
 
     return submitButton(params.messages().at(buttonMessage.getKeyName()))
         .withClasses(buttonStyle, "file-upload-action-button")
-        .withData("redirect-with-file", redirectWithFile)
-        .withData("redirect-without-file", redirectWithoutFile)
-        .withForm(BLOCK_FORM_ID)
-        .withId(id);
-  }
-
-  private ButtonTag renderOldNextButton(Params params) {
-    String styles = ButtonStyles.SOLID_BLUE;
-    if (hasUploadedFile(params)) {
-      styles = ButtonStyles.OUTLINED_TRANSPARENT;
-    }
-    return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
-        .withForm(BLOCK_FORM_ID)
-        .withClasses(styles)
-        .withId(FILEUPLOAD_SUBMIT_FORM_ID);
+        .withData(REDIRECT_WITH_FILE_KEY, redirectWithFile)
+        .withData(REDIRECT_WITHOUT_FILE_KEY, redirectWithoutFile)
+        .withForm(BLOCK_FORM_ID);
   }
 }

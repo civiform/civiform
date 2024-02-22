@@ -410,19 +410,16 @@ describe('file upload applicant flow', () => {
   /**
    * Tests for buttons on the file upload question.
    *
-   * https://github.com/civiform/civiform/issues/6450 changes the behavior of
-   * the buttons, so for each button we test these behaviors:
+   * Fixing https://github.com/civiform/civiform/issues/6450 changes the behavior
+   * of the buttons, so for each button we test these behaviors:
    *   1) SAVE_ON_ALL_ACTIONS flag off, don't upload a file, click button
    *   2) SAVE_ON_ALL_ACTIONS flag on, don't upload a file, click button
    *   3) SAVE_ON_ALL_ACTIONS flag off, upload a file, click button
    *   4) SAVE_ON_ALL_ACTIONS flag on, upload a file, click button
    *
-   * Some buttons are different between the required file upload question and
-   * the optional file upload questions.
-   *   - Tests for buttons that the have the same functionality for both
-   *     required and optional questions are here.
-   *   - Tests for buttons that have different functionality between required
-   *     and optional questions are already included above.
+   * Note that the optional file upload question has two additional buttons,
+   * Skip and Delete. Tests for those buttons are in the
+   * 'optional file upload question' describe section.
    */
   describe('buttons', () => {
     const programName = 'Test program for file upload buttons'
@@ -440,9 +437,9 @@ describe('file upload applicant flow', () => {
       // - Block 3: Optional number question
       // Having blocks before and after the file upload question lets us verify
       // the previous and next buttons work correctly.
-      // Making the questions optional lets us click "Review" without seeing the
-      // "error saving answers" modal (since that modal will trigger if there
-      // are validation errors like missing required questions).
+      // Making the questions optional lets us click "Review" and "Previous"
+      // without seeing the "error saving answers" modal, since that modal will
+      // trigger if there are validation errors (like missing required questions).
       await adminQuestions.addEmailQuestion({
         questionName: 'email-test-q',
         questionText: emailQuestionText,
@@ -478,7 +475,6 @@ describe('file upload applicant flow', () => {
       )
 
       await adminPrograms.publishAllDrafts()
-
       await logout(page)
     })
 
@@ -530,7 +526,7 @@ describe('file upload applicant flow', () => {
         // Verify we're taken to the review page
         await applicantQuestions.expectReviewPage()
 
-        // Verify the file was *not* saved
+        // Verify the file was *not* saved (because the flag is off)
         await applicantQuestions.validateNoPreviouslyAnsweredText(
           fileUploadQuestionText,
         )
@@ -555,7 +551,7 @@ describe('file upload applicant flow', () => {
         // Verify we're taken to the review page
         await applicantQuestions.expectReviewPage()
 
-        // Verify the file *was* saved
+        // Verify the file *was* saved (because the flag is on)
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           fileUploadQuestionText,
           'sample.txt',
@@ -619,7 +615,7 @@ describe('file upload applicant flow', () => {
           emailQuestionText,
         )
 
-        // Verify the file was *not* saved
+        // Verify the file was *not* saved (because the flag is off)
         await applicantQuestions.clickReview()
         await applicantQuestions.expectReviewPage()
         await applicantQuestions.validateNoPreviouslyAnsweredText(
@@ -648,7 +644,7 @@ describe('file upload applicant flow', () => {
           emailQuestionText,
         )
 
-        // Verify the file *was* saved
+        // Verify the file *was* saved (because the flag is on)
         await applicantQuestions.clickReview()
         await applicantQuestions.expectReviewPage()
 
@@ -672,11 +668,11 @@ describe('file upload applicant flow', () => {
         // Don't upload a file, and click Save & next
         await applicantQuestions.clickNext()
 
-        await applicantFileQuestion.expectFileSelectionErrorShown()
-        // Verify we're still on the file upload question block
+        // Verify we're still on the file upload question block and an error is shown
         expect(await page.innerText('.cf-applicant-question-text')).toContain(
           fileUploadQuestionText,
         )
+        await applicantFileQuestion.expectFileSelectionErrorShown()
         await validateScreenshot(page, 'file-errors')
       })
 
@@ -692,11 +688,11 @@ describe('file upload applicant flow', () => {
         // Don't upload a file, and click Save & next
         await applicantQuestions.clickNext()
 
-        await applicantFileQuestion.expectFileSelectionErrorShown()
-        // Verify we're still on the file upload question block
+        // Verify we're still on the file upload question block and an error is shown
         expect(await page.innerText('.cf-applicant-question-text')).toContain(
           fileUploadQuestionText,
         )
+        await applicantFileQuestion.expectFileSelectionErrorShown()
       })
 
       it('clicking save&next with file saves file and redirects to next page (flag off)', async () => {
@@ -761,7 +757,7 @@ describe('file upload applicant flow', () => {
     })
 
     describe('continue button', () => {
-      it('clicking continue button redirects to first not-seen block', async () => {
+      it('clicking continue button redirects to first unseen block', async () => {
         const {page, applicantQuestions, applicantFileQuestion} = ctx
 
         // Answer the file upload question
@@ -787,7 +783,7 @@ describe('file upload applicant flow', () => {
 
         // When this test re-opens the file upload question from the review page,
         // that puts the application into "review" mode, which means that the next
-        // block an applicant will see is the first block that hasn't been looked at.
+        // block an applicant should see is the first block that hasn't ever been seen.
         // In this case, because we never opened the very first block with the email
         // question, clicking "Continue" should take us back to that email question.
         expect(await page.innerText('.cf-applicant-question-text')).toContain(
@@ -807,10 +803,10 @@ describe('file upload applicant flow', () => {
         const {page, applicantQuestions, applicantFileQuestion} = ctx
         await disableFeatureFlag(page, 'save_on_all_actions')
 
-        // First, answer the email question so that the first block is considered answered
-        // (see test case 'clicking continue button redirects to first not-seen block').
+        // First, open the email block so that the email block is considered answered
+        // and we're not taken back to it when we click "Continue".
+        // (see test case 'clicking continue button redirects to first unseen block').
         await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerEmailQuestion('test@test.com')
         await applicantQuestions.clickNext()
 
         // Answer the file upload question
@@ -848,10 +844,10 @@ describe('file upload applicant flow', () => {
         const {page, applicantQuestions, applicantFileQuestion} = ctx
         await enableFeatureFlag(page, 'save_on_all_actions')
 
-        // First, answer the email question so that the first block is considered answered
-        // (see test case 'clicking continue button redirects to first not-seen block').
+        // First, open the email block so that the email block is considered answered
+        // and we're not taken back to it when we click "Continue".
+        // (see test case 'clicking continue button redirects to first unseen block').
         await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerEmailQuestion('test@test.com')
         await applicantQuestions.clickNext()
 
         // Answer the file upload question
@@ -896,10 +892,10 @@ describe('file upload applicant flow', () => {
         const {page, applicantQuestions, applicantFileQuestion} = ctx
         await disableFeatureFlag(page, 'save_on_all_actions')
 
-        // First, answer the email question so that the first block is considered answered
-        // (see test case 'clicking continue button redirects to first not-seen block').
+        // First, open the email block so that the email block is considered answered
+        // and we're not taken back to it when we click "Continue".
+        // (see test case 'clicking continue button redirects to first unseen block').
         await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerEmailQuestion('test@test.com')
         await applicantQuestions.clickNext()
 
         // Answer the file upload question
@@ -948,10 +944,10 @@ describe('file upload applicant flow', () => {
         const {page, applicantQuestions, applicantFileQuestion} = ctx
         await enableFeatureFlag(page, 'save_on_all_actions')
 
-        // First, answer the email question so that the first block is considered answered
-        // (see test case 'clicking continue button redirects to first not-seen block').
+        // First, open the email block so that the email block is considered answered
+        // and we're not taken back to it when we click "Continue".
+        // (see test case 'clicking continue button redirects to first unseen block').
         await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerEmailQuestion('test@test.com')
         await applicantQuestions.clickNext()
 
         // Answer the file upload question
