@@ -63,7 +63,7 @@ public final class ProgramRepository {
       Provider<VersionRepository> versionRepository,
       SettingsManifest settingsManifest,
       @NamedCache("program") SyncCacheApi programCache,
-      @NamedCache("program-definition") SyncCacheApi programDefCache,
+      @NamedCache("full-program-definition") SyncCacheApi programDefCache,
       @NamedCache("program-versions") SyncCacheApi versionsByProgramCache) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
