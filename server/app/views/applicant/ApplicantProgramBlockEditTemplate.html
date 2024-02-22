@@ -6,11 +6,16 @@
         <div>
             <form id="cf-block-form" th:action="${formAction}" method="POST">
                 <input hidden th:value="${csrfToken}" name="csrfToken">
+                <a th:href="${previousUrl}" id="cf-block-previous" class="usa-button usa-button--outline" th:text="#{button.previousScreen}"></a>
+
                 <div th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"></div>
 
                 <div th:each="question: ${applicantQuestions}">
                     <div th:replace="~{applicant/ApplicantQuestionFragment :: applicant-question(${question})}"></div>
                 </div>
+
+                <button type="submit" id="cf-block-submit" class="usa-button" th:text="#{button.continue}"></button>
+                <a th:href="${reviewUrl}" id="review-application-button" class="usa-button usa-button--outline" th:text="#{button.review}"></a>
             </form>
         </div>
         <div id="modal-container"></div>
