@@ -12,8 +12,20 @@
         <div>
             Hello World
         </div>
-        <div th:each="block: ${blocks}">
-            <div>a block</div>
-        </div>
+        <ul class="usa-card-group">
+            <li class="usa-card tablet-lg:grid-col-6 widescreen:grid-col-4" th:each="block: ${blocks}">
+              <div class="usa-card__container">
+                <div class="usa-card__header">
+                  <h2 class="usa-card__heading" th:text="${block.getName()}"></h2>
+                </div>
+                <div class="usa-card__body">
+                  <p th:text="${block.getDescription()}">
+                  </p>
+                </div>
+                <div class="usa-card__footer">
+                  <a href="#" class="usa-button">Visit Florida Keys</a>
+                </div>
+              </div>
+            </li>
     </body>
 </html>
