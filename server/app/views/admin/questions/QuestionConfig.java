@@ -189,26 +189,6 @@ public final class QuestionConfig {
                 "ml-2",
                 "row-start-1",
                 "row-span-2");
-    DivTag optionInput =
-        FieldWithLabel.input()
-            .setFieldName(isForNewOption ? "newOptions[]" : "options[]")
-            .setLabelText("Option Text")
-            .setRequired(true)
-            .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
-            .setValue(existingOption.map(LocalizedQuestionOption::optionText))
-            .setFieldErrors(
-                messages,
-                ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
-            .showFieldErrors(false)
-            .getInputTag()
-            .withClasses(
-                ReferenceClasses.MULTI_OPTION_INPUT,
-                "col-start-1",
-                "col-span-5",
-                "mb-2",
-                "ml-2",
-                "row-start-3",
-                "row-span-2");
     DivTag optionIndexInput =
         isForNewOption
             ? div()
@@ -236,6 +216,26 @@ public final class QuestionConfig {
                 "multi-option-question-field-move-down-button",
                 "row-start-2")
             .attr("aria-label", "move down");
+    DivTag optionInput =
+        FieldWithLabel.input()
+            .setFieldName(isForNewOption ? "newOptions[]" : "options[]")
+            .setLabelText("Option Text")
+            .setRequired(true)
+            .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
+            .setValue(existingOption.map(LocalizedQuestionOption::optionText))
+            .setFieldErrors(
+                messages,
+                ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
+            .showFieldErrors(false)
+            .getInputTag()
+            .withClasses(
+                ReferenceClasses.MULTI_OPTION_INPUT,
+                "col-start-1",
+                "col-span-5",
+                "mb-2",
+                "ml-2",
+                "row-start-3",
+                "row-span-2");
     ButtonTag removeOptionButton =
         button()
             .with(Icons.svg(Icons.DELETE).withClasses("w-6", "h-6"))
@@ -243,8 +243,8 @@ public final class QuestionConfig {
                 AdminStyles.DELETE_BUTTON,
                 "col-start-8",
                 "multi-option-question-field-remove-button",
-                "row-span-2");
-
+                "row-span-2")
+            .attr("aria-label", "delete");
     return div()
         .withClasses(
             ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,

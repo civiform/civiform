@@ -269,11 +269,11 @@ public final class QuestionEditView extends BaseHtmlView {
                 .withClasses(
                     ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
                     ReferenceClasses.MULTI_OPTION_QUESTION_OPTION_EDITABLE,
-                    "hidden",
-                    "flex",
-                    "flex-row",
-                    "mb-4",
-                    "items-center"));
+                    "grid",
+                    "grid-cols-8",
+                    "grid-rows-4",
+                    "items-center",
+                    "mb-4"));
   }
 
   private FormTag buildNewQuestionForm(
