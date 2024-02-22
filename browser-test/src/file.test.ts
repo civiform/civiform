@@ -627,7 +627,7 @@ describe('file upload applicant flow', () => {
         )
       })
 
-      fit('clicking previous with file saves file and redirects to previous page (flag on)', async () => {
+      it('clicking previous with file saves file and redirects to previous page (flag on)', async () => {
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'save_on_all_actions')
 
@@ -859,10 +859,17 @@ describe('file upload applicant flow', () => {
           'some old text',
           'old.txt',
         )
-        await applicantQuestions.clickNext()
+        // Note: When the 'save_on_all_actions' flag is on, clicking "Save & next" here
+        // will take us to the third block. Clicking *any* button on that third block
+        // will save our data (because the flag is on), which guarantees that the third
+        // block will be marked as seen.
+        // Since this test is actually about verifying that clicking "Continue" will
+        // take us to the next unseen block, we want the third block to remain unseen.
+        // So, we instead click "Review" here to save the file and go to the review page
+        // without seeing the third block.
+        await applicantQuestions.clickReview()
 
         // Re-open the file upload question
-        await applicantQuestions.clickReview()
         await applicantQuestions.expectReviewPage()
         await applicantQuestions.editQuestionFromReviewPage(
           fileUploadQuestionText,
@@ -887,7 +894,7 @@ describe('file upload applicant flow', () => {
 
       it('clicking continue with new file does *not* save new file and redirects to next page (flag off)', async () => {
         const {page, applicantQuestions, applicantFileQuestion} = ctx
-        await enableFeatureFlag(page, 'save_on_all_actions')
+        await disableFeatureFlag(page, 'save_on_all_actions')
 
         // First, answer the email question so that the first block is considered answered
         // (see test case 'clicking continue button redirects to first not-seen block').
@@ -939,7 +946,7 @@ describe('file upload applicant flow', () => {
 
       it('clicking continue with new file does *not* save new file and redirects to next page (flag on)', async () => {
         const {page, applicantQuestions, applicantFileQuestion} = ctx
-        await disableFeatureFlag(page, 'save_on_all_actions')
+        await enableFeatureFlag(page, 'save_on_all_actions')
 
         // First, answer the email question so that the first block is considered answered
         // (see test case 'clicking continue button redirects to first not-seen block').
@@ -952,10 +959,17 @@ describe('file upload applicant flow', () => {
           'some old text',
           'old.txt',
         )
-        await applicantQuestions.clickNext()
+        // Note: When the 'save_on_all_actions' flag is on, clicking "Save & next" here
+        // will take us to the third block. Clicking *any* button on that third block
+        // will save our data (because the flag is on), which guarantees that the third
+        // block will be marked as seen.
+        // Since this test is actually about verifying that clicking "Continue" will
+        // take us to the next unseen block, we want the third block to remain unseen.
+        // So, we instead click "Review" here to save the file and go to the review page
+        // without seeing the third block.
+        await applicantQuestions.clickReview()
 
         // Re-open the file upload question
-        await applicantQuestions.clickReview()
         await applicantQuestions.expectReviewPage()
         await applicantQuestions.editQuestionFromReviewPage(
           fileUploadQuestionText,

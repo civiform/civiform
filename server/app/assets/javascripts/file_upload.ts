@@ -22,15 +22,12 @@ export function init() {
     '.file-upload-action-button',
     'click',
     (e: Event) => {
-      console.log('click')
       const buttonTarget = e.currentTarget as HTMLElement
       const redirectWithFile = assertNotNull(
         buttonTarget.dataset.redirectWithFile,
         'redirectWithFile',
       )
       const redirectWithoutFile = buttonTarget.dataset.redirectWithoutFile
-      console.log('redirectWith=' + redirectWithFile)
-      console.log('redirectWi/o=' + redirectWithoutFile)
 
       const fileInput = assertNotNull(
         blockForm.querySelector<HTMLInputElement>('input[type=file]'),
@@ -38,13 +35,6 @@ export function init() {
       )
 
       if (fileInput.value != '') {
-        console.log('has file')
-      } else {
-        console.log('no file')
-      }
-
-      if (fileInput.value != '') {
-        console.log('has file so changing redirect')
         assertNotNull(
           blockForm.querySelector<HTMLInputElement>(
             'input[name="success_action_redirect"]',
@@ -65,22 +55,17 @@ export function init() {
   // selected. Note: For optional file uploads, a distinct skip button
   // is shown.
   blockForm.addEventListener('submit', (event) => {
-    console.log('submit. id=' + (event.target! as Element).id)
-    console.log('submitter=' + ((event as SubmitEvent).submitter as Element).id)
     const redirectWithoutFile = (
       (event as SubmitEvent).submitter as HTMLElement
     ).dataset.redirectWithoutFile
     const fileRequiredBeforeContinuing = !redirectWithoutFile
-
-    console.log('redirect without=' + redirectWithoutFile)
-    console.log('fileRequiredBeforeContinuing=' + fileRequiredBeforeContinuing)
 
     if (!fileRequiredBeforeContinuing) {
       // If we don't require a file before continuing, don't do any validation and just proceed
       return true
     }
 
-    if (!validateFileUploadQuestion(blockForm, 'from submit')) {
+    if (!validateFileUploadQuestion(blockForm)) {
       event.preventDefault()
       return false
     }
