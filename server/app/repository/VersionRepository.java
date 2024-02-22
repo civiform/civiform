@@ -124,7 +124,7 @@ public final class VersionRepository {
       Predicate<ProgramModel> programIsDeletedInDraft =
           program ->
               draft.programIsTombstoned(
-                  programRepository.getProgramDefinition(program).adminName());
+                  programRepository.getShallowProgramDefinition(program).adminName());
       // Is a question being deleted in the draft version?
       Predicate<QuestionModel> questionIsDeletedInDraft =
           question ->
@@ -139,7 +139,7 @@ public final class VersionRepository {
           .filter(
               activeProgram ->
                   !draftProgramsNames.contains(
-                      programRepository.getProgramDefinition(activeProgram).adminName()))
+                      programRepository.getShallowProgramDefinition(activeProgram).adminName()))
           // For each active program not associated with the draft, associate it with the draft.
           // The relationship between Programs and Versions is many-to-may. When updating the
           // relationship, one of the EBean models needs to be saved. We update the Version
@@ -240,7 +240,7 @@ public final class VersionRepository {
 
       ImmutableSet<String> questionsToPublishNames =
           getProgramQuestionNamesInVersion(
-              programRepository.getProgramDefinition(programToPublish), existingDraft);
+              programRepository.getShallowProgramDefinition(programToPublish), existingDraft);
 
       // Check if any draft questions referenced by programToPublish are also referenced by other
       // programs. If so, publishing the program is disallowed.
@@ -255,7 +255,7 @@ public final class VersionRepository {
           .filter(
               program ->
                   !programRepository
-                      .getProgramDefinition(program)
+                      .getShallowProgramDefinition(program)
                       .adminName()
                       .equals(programToPublishAdminName))
           .forEach(
@@ -280,7 +280,7 @@ public final class VersionRepository {
           .filter(
               activeProgram ->
                   !programToPublishAdminName.equals(
-                      programRepository.getProgramDefinition(activeProgram).adminName()))
+                      programRepository.getShallowProgramDefinition(activeProgram).adminName()))
           .forEach(
               program -> {
                 existingDraft.addProgram(program);
@@ -500,21 +500,21 @@ public final class VersionRepository {
    */
   public Optional<ProgramModel> getProgramByNameForVersion(String name, VersionModel version) {
     return getProgramsForVersion(version).stream()
-        .filter(p -> programRepository.getProgramDefinition(p).adminName().equals(name))
+        .filter(p -> programRepository.getShallowProgramDefinition(p).adminName().equals(name))
         .findAny();
   }
 
   public Optional<ProgramModel> getProgramByNameForVersion(
       String name, Optional<VersionModel> maybeVersion) {
     return getProgramsForVersion(maybeVersion).stream()
-        .filter(p -> programRepository.getProgramDefinition(p).adminName().equals(name))
+        .filter(p -> programRepository.getShallowProgramDefinition(p).adminName().equals(name))
         .findAny();
   }
 
   /** Returns the names of all the programs. */
   public ImmutableSet<String> getProgramNamesForVersion(VersionModel version) {
     return getProgramsForVersion(version).stream()
-        .map(p -> programRepository.getProgramDefinition(p))
+        .map(p -> programRepository.getShallowProgramDefinition(p))
         .map(ProgramDefinition::adminName)
         .collect(ImmutableSet.toImmutableSet());
   }
@@ -587,10 +587,10 @@ public final class VersionRepository {
     Preconditions.checkArgument(
         isDraft(draftProgram), "input program must be in the current draft version.");
     ProgramDefinition.Builder updatedDefinition =
-        programRepository.getProgramDefinition(draftProgram).toBuilder()
+        programRepository.getShallowProgramDefinition(draftProgram).toBuilder()
             .setBlockDefinitions(ImmutableList.of());
     for (BlockDefinition block :
-        programRepository.getProgramDefinition(draftProgram).blockDefinitions()) {
+        programRepository.getShallowProgramDefinition(draftProgram).blockDefinitions()) {
       logger.trace("Updating screen (block) {}.", block.id());
       updatedDefinition.addBlockDefinition(updateQuestionVersions(draftProgram.id, block));
     }
@@ -650,7 +650,9 @@ public final class VersionRepository {
         getProgramsForVersionWithoutCache(activeVersion).stream()
             .map(
                 program ->
-                    programRepository.getProgramDefinition(program).getQuestionIdsInProgram())
+                    programRepository
+                        .getShallowProgramDefinition(program)
+                        .getQuestionIdsInProgram())
             .flatMap(Collection::stream)
             .filter(
                 questionId ->
@@ -665,11 +667,11 @@ public final class VersionRepository {
               .filter(
                   program ->
                       programRepository
-                          .getProgramDefinition(program)
+                          .getShallowProgramDefinition(program)
                           .getQuestionIdsInProgram()
                           .stream()
                           .anyMatch(id -> missingQuestionIds.contains(id)))
-              .map(program -> programRepository.getProgramDefinition(program).id())
+              .map(program -> programRepository.getShallowProgramDefinition(program).id())
               .collect(ImmutableSet.toImmutableSet());
       throw new IllegalStateException(
           String.format(
@@ -783,18 +785,20 @@ public final class VersionRepository {
     // Update all DRAFT program revisions that reference the question.
     getProgramsForVersion(getDraftVersion()).stream()
         .filter(
-            program -> programRepository.getProgramDefinition(program).hasQuestion(oldQuestionId))
+            program ->
+                programRepository.getShallowProgramDefinition(program).hasQuestion(oldQuestionId))
         .forEach(this::updateQuestionVersions);
 
     // Update any ACTIVE program without a DRAFT that references the question, a new DRAFT is
     // created.
     getProgramsForVersion(getActiveVersion()).stream()
         .filter(
-            program -> programRepository.getProgramDefinition(program).hasQuestion(oldQuestionId))
+            program ->
+                programRepository.getShallowProgramDefinition(program).hasQuestion(oldQuestionId))
         .filter(
             program ->
                 getProgramByNameForVersion(
-                        programRepository.getProgramDefinition(program).adminName(),
+                        programRepository.getShallowProgramDefinition(program).adminName(),
                         getDraftVersion())
                     .isEmpty())
         .forEach(programRepository::createOrUpdateDraft);
@@ -811,12 +815,12 @@ public final class VersionRepository {
     for (ProgramModel program : getProgramsForVersion(version)) {
       ImmutableSet<String> programQuestionNames =
           getProgramQuestionNames(
-              programRepository.getProgramDefinition(program), questionIdToNameLookup);
+              programRepository.getShallowProgramDefinition(program), questionIdToNameLookup);
       for (String questionName : programQuestionNames) {
         if (!result.containsKey(questionName)) {
           result.put(questionName, Sets.newHashSet());
         }
-        result.get(questionName).add(programRepository.getProgramDefinition(program));
+        result.get(questionName).add(programRepository.getShallowProgramDefinition(program));
       }
     }
     return result.entrySet().stream()

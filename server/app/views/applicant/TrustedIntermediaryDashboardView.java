@@ -353,7 +353,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .map(
                 application ->
                     programRepository
-                        .getProgramDefinition(application.getProgram())
+                        .getShallowProgramDefinition(application.getProgram())
                         .localizedName()
                         .getDefault())
             .collect(Collectors.joining(", "));

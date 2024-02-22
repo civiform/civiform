@@ -472,7 +472,7 @@ public final class ApplicantService {
               ApplicationModel application = applicationMaybe.get();
               ProgramModel applicationProgram = application.getProgram();
               ProgramDefinition programDefinition =
-                  programRepository.getProgramDefinition(applicationProgram);
+                  programRepository.getShallowProgramDefinition(applicationProgram);
               String programName = programDefinition.adminName();
               Optional<StatusDefinitions.Status> maybeDefaultStatus =
                   applicationProgram.getDefaultStatus();
@@ -847,7 +847,7 @@ public final class ApplicantService {
             .toCompletableFuture();
     ImmutableList<ProgramDefinition> activeProgramDefinitions =
         versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()).stream()
-            .map(p -> programRepository.getProgramDefinition(p))
+            .map(p -> programRepository.getShallowProgramDefinition(p))
             .filter(
                 pdef ->
                     pdef.displayMode().equals(DisplayMode.PUBLIC)
@@ -868,7 +868,8 @@ public final class ApplicantService {
                   applications.stream()
                       .map(
                           application ->
-                              programRepository.getProgramDefinition(application.getProgram()))
+                              programRepository.getShallowProgramDefinition(
+                                  application.getProgram()))
                       .collect(Collectors.toList());
               programDefinitionsList.addAll(activeProgramDefinitions);
               return programService.syncQuestionsToProgramDefinitions(
@@ -964,7 +965,9 @@ public final class ApplicantService {
             .collect(
                 Collectors.groupingBy(
                     a -> {
-                      return programRepository.getProgramDefinition(a.getProgram()).adminName();
+                      return programRepository
+                          .getShallowProgramDefinition(a.getProgram())
+                          .adminName();
                     },
                     Collectors.groupingBy(
                         ApplicationModel::getLifecycleStage,
@@ -1018,7 +1021,7 @@ public final class ApplicantService {
             // version at the time of submission are used. However, when clicking "reapply", we use
             // the latest program version below.
             ProgramDefinition applicationProgramVersion =
-                programRepository.getProgramDefinition(maybeSubmittedApp.get().getProgram());
+                programRepository.getShallowProgramDefinition(maybeSubmittedApp.get().getProgram());
             Optional<String> maybeLatestStatus = maybeSubmittedApp.get().getLatestStatus();
             Optional<StatusDefinitions.Status> maybeCurrentStatus =
                 maybeLatestStatus.isPresent()
@@ -1100,7 +1103,9 @@ public final class ApplicantService {
             .collect(
                 Collectors.groupingBy(
                     a -> {
-                      return programRepository.getProgramDefinition(a.getProgram()).adminName();
+                      return programRepository
+                          .getShallowProgramDefinition(a.getProgram())
+                          .adminName();
                     },
                     Collectors.groupingBy(ApplicationModel::getLifecycleStage)))
             .values();
@@ -1115,7 +1120,8 @@ public final class ApplicantService {
                     .map(
                         a ->
                             String.format(
-                                "%d", programRepository.getProgramDefinition(a.getProgram()).id()))
+                                "%d",
+                                programRepository.getShallowProgramDefinition(a.getProgram()).id()))
                     .collect(ImmutableList.toImmutableList()));
         logger.debug(
             String.format(
@@ -1123,7 +1129,7 @@ public final class ApplicantService {
                     + " Admin Name: %1$s, Duplicate Program Definition"
                     + " ids: %2$s.",
                 programRepository
-                    .getProgramDefinition(draftApplications.get(0).getProgram())
+                    .getShallowProgramDefinition(draftApplications.get(0).getProgram())
                     .adminName(),
                 joinedProgramIds));
       }
