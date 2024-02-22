@@ -21,6 +21,7 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
 import play.mvc.Http.Request;
+import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
 import services.MessageKey;
@@ -39,6 +40,7 @@ import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.IneligibleBlockView;
+import views.applicant.NorthStarApplicantProgramSummaryView;
 import views.applicant.PreventDuplicateSubmissionView;
 import views.components.Modal;
 import views.components.Modal.RepeatOpenBehavior;
@@ -56,6 +58,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final HttpExecutionContext classLoaderExecutionContext;
   private final MessagesApi messagesApi;
   private final ApplicantProgramSummaryView summaryView;
+  private final NorthStarApplicantProgramSummaryView northStarSummaryView;
   private final IneligibleBlockView ineligibleBlockView;
   private final PreventDuplicateSubmissionView preventDuplicateSubmissionView;
   private final SettingsManifest settingsManifest;
@@ -68,6 +71,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
       HttpExecutionContext classLoaderExecutionContext,
       MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
+      NorthStarApplicantProgramSummaryView northStarSummaryView,
       IneligibleBlockView ineligibleBlockView,
       PreventDuplicateSubmissionView preventDuplicateSubmissionView,
       ProfileUtils profileUtils,
@@ -80,6 +84,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
     this.summaryView = checkNotNull(summaryView);
+    this.northStarSummaryView = checkNotNull(northStarSummaryView);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.preventDuplicateSubmissionView = checkNotNull(preventDuplicateSubmissionView);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -164,8 +169,13 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         .build();
                 params.setLoginPromptModal(loginPromptModal);
               }
-
-              return ok(summaryView.render(params.build()));
+              if (settingsManifest.getNorthStarApplicantUi(request)) {
+                NorthStarApplicantProgramSummaryView.Params northStarParams = NorthStarApplicantProgramSummaryView.Params.builder()
+                .setBlocks(roApplicantProgramService.getAllActiveBlocks()).build();
+                return ok(northStarSummaryView.render(request, northStarParams)).as(Http.MimeTypes.HTML);
+              } else {
+                return ok(summaryView.render(params.build()));
+              }
             },
             classLoaderExecutionContext.current())
         .exceptionally(
