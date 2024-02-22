@@ -1,6 +1,7 @@
+import {test} from '@playwright/test'
 import {createTestContext, loginAsAdmin, validateScreenshot} from './support'
 
-describe('view program references from question view', () => {
+test.describe('view program references from question view', () => {
   const ctx = createTestContext()
 
   test('shows no results for an unreferenced question', async () => {

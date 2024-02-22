@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   AdminPrograms,
   AdminQuestions,
@@ -6,7 +7,7 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
-describe('Admin question list', () => {
+test.describe('Admin question list', () => {
   const ctx = createTestContext()
   test('sorts by last updated, preferring draft over active', async () => {
     const {page, adminPrograms, adminQuestions} = ctx

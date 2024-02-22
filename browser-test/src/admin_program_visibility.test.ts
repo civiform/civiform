@@ -1,3 +1,4 @@
+import {test} from '@playwright/test'
 import {
   ApplicantQuestions,
   ClientInformation,
@@ -12,7 +13,7 @@ import {
 import {TEST_USER_DISPLAY_NAME} from './support/config'
 import {ProgramVisibility} from './support/admin_programs'
 
-describe('Validate program visibility is correct for applicants and TIs', () => {
+test.describe('Validate program visibility is correct for applicants and TIs', () => {
   const ctx = createTestContext()
   test('Create a new hidden program, verify applicants cannot see it on the home page', async () => {
     const {page, adminPrograms} = ctx

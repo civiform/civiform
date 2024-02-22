@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -6,16 +7,16 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('currency applicant flow', () => {
+test.describe('currency applicant flow', () => {
   const validCurrency = '1000'
   // Not enough decimals.
   const invalidCurrency = '1.0'
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('single currency question', () => {
+  test.describe('single currency question', () => {
     const programName = 'Test program for single currency'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -68,10 +69,10 @@ describe('currency applicant flow', () => {
     })
   })
 
-  describe('multiple currency questions', () => {
+  test.describe('multiple currency questions', () => {
     const programName = 'Test program for multiple currencies'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 

@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   AdminPrograms,
   AdminQuestions,
@@ -12,7 +13,7 @@ import {
 import {Page} from 'playwright'
 import {ProgramVisibility} from './support/admin_programs'
 
-describe('publishing all draft questions and programs', () => {
+test.describe('publishing all draft questions and programs', () => {
   const ctx = createTestContext()
   let pageObject: Page
   let adminPrograms: AdminPrograms
@@ -25,7 +26,7 @@ describe('publishing all draft questions and programs', () => {
   // CreateNewVersion implicitly updates the question text to be suffixed with " new version".
   const draftQuestionText = `${questionText} new version`
 
-  beforeAll(async () => {
+  test.beforeAll(async () => {
     const session = await startSession()
     pageObject = session.page
 

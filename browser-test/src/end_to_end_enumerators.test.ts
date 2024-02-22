@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   AdminPrograms,
   AdminQuestions,
@@ -9,7 +10,7 @@ import {
   waitForPageJsLoad,
 } from './support'
 
-describe('End to end enumerator test', () => {
+test.describe('End to end enumerator test', () => {
   const programName = 'Ete enumerator program'
   const ctx = createTestContext(/* clearDb= */ false)
 

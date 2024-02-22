@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -6,13 +7,13 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('address applicant flow', () => {
+test.describe('address applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('single required address question', () => {
+  test.describe('single required address question', () => {
     const programName = 'Test program for single address'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -110,10 +111,10 @@ describe('address applicant flow', () => {
     })
   })
 
-  describe('multiple address questions', () => {
+  test.describe('multiple address questions', () => {
     const programName = 'Test program for multiple addresses'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminPrograms, adminQuestions} = ctx
       await loginAsAdmin(page)
 
@@ -234,10 +235,10 @@ describe('address applicant flow', () => {
   })
 
   // One optional address followed by one required address.
-  describe('optional address question', () => {
+  test.describe('optional address question', () => {
     const programName = 'Test program for optional address'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminPrograms, adminQuestions} = ctx
       await loginAsAdmin(page)
 
@@ -305,8 +306,8 @@ describe('address applicant flow', () => {
       expect(await error.isHidden()).toEqual(false)
     })
 
-    describe('with invalid required address', () => {
-      beforeEach(async () => {
+    test.describe('with invalid required address', () => {
+      test.beforeEach(async () => {
         const {applicantQuestions} = ctx
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerAddressQuestion('', '', '', '', '', 1)

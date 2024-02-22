@@ -1,3 +1,4 @@
+import {test} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -5,7 +6,7 @@ import {
   waitForPageJsLoad,
 } from './support'
 
-describe('admin program preview', () => {
+test.describe('admin program preview', () => {
   const ctx = createTestContext()
 
   test('preview draft program and submit', async () => {

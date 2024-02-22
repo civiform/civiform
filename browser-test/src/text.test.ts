@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -6,13 +7,13 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('Text question for applicant flow', () => {
+test.describe('Text question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('single text question', () => {
+  test.describe('single text question', () => {
     const programName = 'Test program for single text q'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       // As admin, create program with a free form text question.
       await loginAsAdmin(page)
@@ -118,10 +119,10 @@ describe('Text question for applicant flow', () => {
     })
   })
 
-  describe('no max text question', () => {
+  test.describe('no max text question', () => {
     const programName = 'test-program-for-no-max-text-q'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       // As admin, create program with a free form text question.
       await loginAsAdmin(page)
@@ -163,10 +164,10 @@ describe('Text question for applicant flow', () => {
     })
   })
 
-  describe('multiple text questions', () => {
+  test.describe('multiple text questions', () => {
     const programName = 'Test program for multiple text qs'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 

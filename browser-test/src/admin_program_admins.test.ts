@@ -1,6 +1,7 @@
+import {test} from '@playwright/test'
 import {createTestContext, loginAsAdmin, validateScreenshot} from './support'
 
-describe('manage program admins', () => {
+test.describe('manage program admins', () => {
   const ctx = createTestContext()
 
   test('does not add a program admin that does not exist', async () => {

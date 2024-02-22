@@ -1,3 +1,4 @@
+import {test} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -9,13 +10,13 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('with program statuses', () => {
+test.describe('with program statuses', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
   const programName = 'Applicant with statuses program'
   const approvedStatusName = 'Approved'
 
-  beforeAll(async () => {
+  test.beforeAll(async () => {
     const {page, adminPrograms, adminProgramStatuses, applicantQuestions} = ctx
     await loginAsAdmin(page)
 

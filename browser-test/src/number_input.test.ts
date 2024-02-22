@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -6,14 +7,14 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('Number question for applicant flow', () => {
+test.describe('Number question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
   const numberInputError = 'div.cf-question-number-error'
 
-  describe('single number question', () => {
+  test.describe('single number question', () => {
     const programName = 'Test program for single number'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       // As admin, create program with single number question.
       await loginAsAdmin(page)
@@ -79,10 +80,10 @@ describe('Number question for applicant flow', () => {
     })
   })
 
-  describe('multiple number questions', () => {
+  test.describe('multiple number questions', () => {
     const programName = 'Test program for multiple numbers'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 

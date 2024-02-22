@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   AdminPrograms,
   createTestContext,
@@ -12,12 +13,12 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('view program statuses', () => {
+test.describe('view program statuses', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('without program statuses', () => {
+  test.describe('without program statuses', () => {
     const programWithoutStatusesName = 'Test program without statuses'
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminPrograms, applicantQuestions} = ctx
       await loginAsAdmin(page)
 
@@ -34,7 +35,7 @@ describe('view program statuses', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    beforeEach(async () => {
+    test.beforeEach(async () => {
       const {page, adminPrograms} = ctx
       // Navigate to the submitted application as the program admin.
       await loginAsProgramAdmin(page)
@@ -59,13 +60,13 @@ describe('view program statuses', () => {
     })
   })
 
-  describe('with program statuses', () => {
+  test.describe('with program statuses', () => {
     const programWithStatusesName = 'Test program with statuses'
     const noEmailStatusName = 'No email status'
     const emailStatusName = 'Email status'
     const emailBody = 'Some email content'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminPrograms, applicantQuestions, adminProgramStatuses} =
         ctx
       await loginAsAdmin(page)
@@ -95,7 +96,7 @@ describe('view program statuses', () => {
       await logout(page)
     })
 
-    beforeEach(async () => {
+    test.beforeEach(async () => {
       const {page, adminPrograms} = ctx
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programWithStatusesName)
@@ -122,7 +123,7 @@ describe('view program statuses', () => {
       await adminPrograms.expectApplicationHasStatusString('Guest', 'None')
     })
 
-    describe('when a status is changed, a confirmation dialog is shown', () => {
+    test.describe('when a status is changed, a confirmation dialog is shown', () => {
       test('renders', async () => {
         const {page, adminPrograms} = ctx
         await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
@@ -197,8 +198,8 @@ describe('view program statuses', () => {
         )
       })
 
-      describe('when email is configured for the status and applicant, a checkbox is shown to notify the applicant', () => {
-        beforeEach(async () => {
+      test.describe('when email is configured for the status and applicant, a checkbox is shown to notify the applicant', () => {
+        test.beforeEach(async () => {
           const {adminPrograms} = ctx
           await adminPrograms.viewApplications(programWithStatusesName)
           await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
@@ -327,13 +328,13 @@ describe('view program statuses', () => {
     })
   })
 
-  describe('with program statuses including a default status', () => {
+  test.describe('with program statuses including a default status', () => {
     const programWithDefaultStatusName = 'Test program with a default status'
     const waitingStatus = 'Waiting'
     const approvedStatus = 'Approved'
     const emailBody = 'Some email content'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminPrograms, applicantQuestions, adminProgramStatuses} =
         ctx
       await loginAsAdmin(page)
@@ -372,7 +373,7 @@ describe('view program statuses', () => {
       await logout(page)
     })
 
-    beforeEach(async () => {
+    test.beforeEach(async () => {
       const {page, adminPrograms} = ctx
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programWithDefaultStatusName)
@@ -413,14 +414,14 @@ describe('view program statuses', () => {
     })
   })
 
-  describe('filtering list with program statuses', () => {
+  test.describe('filtering list with program statuses', () => {
     const programForFilteringName = 'Test program for filtering statuses'
     const approvedStatusName = 'Approved'
     const rejectedStatusName = 'Rejected'
 
     const favoriteColorAnswer = 'orange'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {
         page,
         adminPrograms,
@@ -456,7 +457,7 @@ describe('view program statuses', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    beforeEach(async () => {
+    test.beforeEach(async () => {
       const {page} = ctx
       await loginAsProgramAdmin(page)
     })
@@ -587,11 +588,11 @@ describe('view program statuses', () => {
     })
   })
 
-  describe('correctly shows eligibility', () => {
+  test.describe('correctly shows eligibility', () => {
     const eligibilityProgramName = 'Test program for eligibility status'
     const eligibilityQuestionId = 'eligibility-number-q'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {
         page,
         adminQuestions,

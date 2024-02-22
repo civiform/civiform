@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -6,13 +7,13 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('Checkbox question for applicant flow', () => {
+test.describe('Checkbox question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('single checkbox question', () => {
+  test.describe('single checkbox question', () => {
     const programName = 'Test program for single checkbox'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       // As admin, create program with single checkbox question.
       await loginAsAdmin(page)
@@ -143,10 +144,10 @@ describe('Checkbox question for applicant flow', () => {
     })
   })
 
-  describe('multiple checkbox questions', () => {
+  test.describe('multiple checkbox questions', () => {
     const programName = 'Test program for multiple checkboxes'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 

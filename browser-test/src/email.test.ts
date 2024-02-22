@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -6,13 +7,13 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('Email question for applicant flow', () => {
+test.describe('Email question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('single email question', () => {
+  test.describe('single email question', () => {
     const programName = 'Test program for single email'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       // As admin, create program with single email question.
       await loginAsAdmin(page)
@@ -64,10 +65,10 @@ describe('Email question for applicant flow', () => {
     })
   })
 
-  describe('multiple email questions', () => {
+  test.describe('multiple email questions', () => {
     const programName = 'Test program for multiple emails'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 

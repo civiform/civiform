@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsTestUser,
@@ -5,7 +6,7 @@ import {
   validateAccessibility,
 } from './support'
 
-describe('Header', () => {
+test.describe('Header', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
   test('Not logged in, guest mode enabled', async () => {

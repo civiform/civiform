@@ -1,3 +1,4 @@
+import {expect} from '@playwright/test'
 import {Page} from 'playwright'
 
 /** Class for working with the file upload question that applicants see. */

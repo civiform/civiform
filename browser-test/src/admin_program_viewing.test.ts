@@ -1,3 +1,4 @@
+import {test} from '@playwright/test'
 import {
   createTestContext,
   enableFeatureFlag,
@@ -6,7 +7,7 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('admin program view page', () => {
+test.describe('admin program view page', () => {
   const ctx = createTestContext()
 
   test('view active program shows read only view', async () => {

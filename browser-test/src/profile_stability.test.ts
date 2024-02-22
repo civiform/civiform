@@ -1,7 +1,8 @@
+import {test, expect} from '@playwright/test'
 import {createTestContext, isHermeticTestEnvironment} from './support'
 import {BASE_URL, FROZEN_PLAY_SESSION_COOKIE_VALUE} from './support/config'
 
-describe('user HTTP sessions', () => {
+test.describe('user HTTP sessions', () => {
   const ctx = createTestContext()
 
   interface Profile {

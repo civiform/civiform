@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   enableFeatureFlag,
@@ -12,7 +13,7 @@ import {
   validateToastMessage,
 } from './support'
 
-describe('create and edit predicates', () => {
+test.describe('create and edit predicates', () => {
   const ctx = createTestContext()
   test('add a hide predicate', async () => {
     const {
@@ -404,8 +405,8 @@ describe('create and edit predicates', () => {
     })
   }
 
-  describe('test predicates', () => {
-    beforeEach(async () => {
+  test.describe('test predicates', () => {
+    test.beforeEach(async () => {
       const {page, adminQuestions} = ctx
 
       await loginAsAdmin(page)

@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   dismissToast,
@@ -7,7 +8,7 @@ import {
   validateToastMessage,
 } from './support'
 
-describe('Admin can manage program image', () => {
+test.describe('Admin can manage program image', () => {
   const ctx = createTestContext()
 
   test('views a program without an image', async () => {
@@ -23,7 +24,7 @@ describe('Admin can manage program image', () => {
     await validateScreenshot(page, 'program-image-none')
   })
 
-  describe('back button', () => {
+  test.describe('back button', () => {
     test('back button redirects to block page if came from block page', async () => {
       const {page, adminPrograms, adminProgramImage} = ctx
       await loginAsAdmin(page)
@@ -80,7 +81,7 @@ describe('Admin can manage program image', () => {
     })
   })
 
-  describe('continue button', () => {
+  test.describe('continue button', () => {
     test('continue button shows if from program creation page', async () => {
       const {page, adminPrograms, adminProgramImage} = ctx
       await loginAsAdmin(page)
@@ -124,10 +125,10 @@ describe('Admin can manage program image', () => {
     })
   })
 
-  describe('description', () => {
+  test.describe('description', () => {
     const programName = 'Test program'
 
-    beforeEach(async () => {
+    test.beforeEach(async () => {
       const {page, adminPrograms} = ctx
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'program_card_images')
@@ -359,10 +360,10 @@ describe('Admin can manage program image', () => {
     })
   })
 
-  describe('image file upload', () => {
+  test.describe('image file upload', () => {
     const programName = 'Test program'
 
-    beforeEach(async () => {
+    test.beforeEach(async () => {
       const {page, adminPrograms} = ctx
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'program_card_images')

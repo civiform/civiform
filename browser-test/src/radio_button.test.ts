@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -6,13 +7,13 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('Radio button question for applicant flow', () => {
+test.describe('Radio button question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('single radio button question', () => {
+  test.describe('single radio button question', () => {
     const programName = 'Test program for single radio button'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       // As admin, create program with radio button question.
       await loginAsAdmin(page)
@@ -116,10 +117,10 @@ describe('Radio button question for applicant flow', () => {
     })
   })
 
-  describe('multiple radio button questions', () => {
+  test.describe('multiple radio button questions', () => {
     const programName = 'Test program for multiple radio button qs'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 

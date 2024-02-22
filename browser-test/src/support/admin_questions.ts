@@ -1,6 +1,6 @@
+import {expect} from '@playwright/test'
 import {ElementHandle, Page} from 'playwright'
 import {dismissModal, waitForAnyModal, waitForPageJsLoad} from './wait'
-import * as assert from 'assert'
 
 type QuestionOption = {
   adminName: string
@@ -789,10 +789,11 @@ export class AdminQuestions {
       )
     }
 
-    assert(options)
-    for (let index = 0; index < options.length; index++) {
+    expect(options).toBeTruthy()
+
+    for (let index = 0; index < options!.length; index++) {
       await this.page.click('#add-new-option')
-      await this.fillMultiOptionAnswer(index, options[index])
+      await this.fillMultiOptionAnswer(index, options![index])
     }
 
     if (clickSubmit) {
@@ -830,10 +831,11 @@ export class AdminQuestions {
       universal,
     })
 
-    assert(options)
-    for (let index = 0; index < options.length; index++) {
+    expect(options).toBeTruthy()
+
+    for (let index = 0; index < options!.length; index++) {
       await this.page.click('#add-new-option')
-      await this.fillMultiOptionAnswer(index, options[index])
+      await this.fillMultiOptionAnswer(index, options![index])
     }
 
     if (clickSubmit) {
@@ -1169,10 +1171,11 @@ export class AdminQuestions {
       universal,
     })
 
-    assert(options)
-    for (let index = 0; index < options.length; index++) {
+    expect(options).toBeTruthy()
+
+    for (let index = 0; index < options!.length; index++) {
       await this.page.click('#add-new-option')
-      await this.fillMultiOptionAnswer(index, options[index])
+      await this.fillMultiOptionAnswer(index, options![index])
     }
 
     if (clickSubmit) {

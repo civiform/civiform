@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -9,13 +10,13 @@ import {
 const NAME_FIRST = '.cf-name-first'
 const NAME_LAST = '.cf-name-last'
 
-describe('name applicant flow', () => {
+test.describe('name applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('single required name question', () => {
+  test.describe('single required name question', () => {
     const programName = 'Test program for single name'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -76,10 +77,10 @@ describe('name applicant flow', () => {
     })
   })
 
-  describe('multiple name questions', () => {
+  test.describe('multiple name questions', () => {
     const programName = 'Test program for multiple names'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -156,10 +157,10 @@ describe('name applicant flow', () => {
   })
 
   // One optional name followed by one required name.
-  describe('optional name question', () => {
+  test.describe('optional name question', () => {
     const programName = 'Test program for optional name'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -202,8 +203,8 @@ describe('name applicant flow', () => {
       expect(await error?.isHidden()).toEqual(false)
     })
 
-    describe('with invalid required name', () => {
-      beforeEach(async () => {
+    test.describe('with invalid required name', () => {
+      test.beforeEach(async () => {
         const {applicantQuestions} = ctx
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerNameQuestion('', '', '', 1)

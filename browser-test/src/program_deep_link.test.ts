@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   gotoEndpoint,
@@ -10,12 +11,12 @@ import {
   TestContext,
 } from './support'
 
-describe('navigating to a deep link', () => {
+test.describe('navigating to a deep link', () => {
   const ctx: TestContext = createTestContext()
 
   const questionText = 'What is your address?'
 
-  beforeEach(async () => {
+  test.beforeEach(async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     // Arrange

@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   AdminPrograms,
   createTestContext,
@@ -9,7 +10,7 @@ import {
 } from './support'
 import {ProgramVisibility} from './support/admin_programs'
 
-describe('Program list page.', () => {
+test.describe('Program list page.', () => {
   const ctx = createTestContext()
 
   test('view draft program', async () => {

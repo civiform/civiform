@@ -1,7 +1,8 @@
+import {test} from '@playwright/test'
 import {createTestContext, loginAsAdmin} from './support'
 import {QuestionType} from './support/admin_questions'
 
-describe('deleting question lifecycle', () => {
+test.describe('deleting question lifecycle', () => {
   const ctx = createTestContext()
 
   test('create, publish, delete unused questions', async () => {

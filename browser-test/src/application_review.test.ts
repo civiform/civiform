@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   isHermeticTestEnvironment,
@@ -11,7 +12,7 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('Program admin review of submitted applications', () => {
+test.describe('Program admin review of submitted applications', () => {
   const ctx = createTestContext()
 
   test('all major steps', async () => {

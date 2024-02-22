@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   disableFeatureFlag,
@@ -10,7 +11,7 @@ import {ProgramVisibility} from './support/admin_programs'
 import {dismissModal, waitForAnyModal} from './support/wait'
 import {Page} from 'playwright'
 
-describe('program creation', () => {
+test.describe('program creation', () => {
   const ctx = createTestContext()
 
   test('create program page with images flag off', async () => {

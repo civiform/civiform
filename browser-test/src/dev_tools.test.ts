@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   validateAccessibility,
@@ -5,7 +6,7 @@ import {
 } from './support'
 import {Locator} from 'playwright'
 
-describe('developer tools', () => {
+test.describe('developer tools', () => {
   const ctx = createTestContext()
 
   test('link shown in the header', async () => {

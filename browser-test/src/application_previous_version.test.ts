@@ -1,3 +1,4 @@
+import {test} from '@playwright/test'
 import {
   ApplicantQuestions,
   createTestContext,
@@ -8,7 +9,7 @@ import {
   testUserDisplayName,
 } from './support'
 
-describe('view an application in an older version', () => {
+test.describe('view an application in an older version', () => {
   const ctx = createTestContext()
 
   test('create an application, and create a new version of the program, and view the application in the old version of the program', async () => {
