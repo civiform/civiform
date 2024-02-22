@@ -168,6 +168,7 @@ export class AdminQuestions {
     universal = false,
   }: QuestionParams) {
     // This function should only be called on question create/edit page.
+    console.log("questionText in fillInQuestionBasics", questionText)
     await this.page.fill('label:has-text("Question text")', questionText ?? '')
     await this.page.fill('label:has-text("Question help text")', helpText ?? '')
     await this.page.fill(
@@ -1195,6 +1196,8 @@ export class AdminQuestions {
     await this.page.click('#create-question-button')
     await this.page.click('#create-text-question')
     await waitForPageJsLoad(this.page)
+
+    console.log("questionText in addTextQuestion", questionText)
 
     await this.fillInQuestionBasics({
       questionName,

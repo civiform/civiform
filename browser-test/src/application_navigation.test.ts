@@ -1377,7 +1377,7 @@ describe('Applicant navigation flow', () => {
       await adminQuestions.addTextQuestion({
         questionName: questionName,
         questionText:
-          'This is a _question_ with some [markdown](https://www.example.com)',
+          'This is a _question_ with some [markdown](https://www.example.com) and \n line \n breaks',
       })
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlock(programName, 'first description', [
