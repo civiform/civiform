@@ -436,8 +436,8 @@ public final class ProgramRepository {
 
   private ExpressionList<ApplicationModel> searchUsingPrimaryApplicantInfo(
       String search, ExpressionList<ApplicationModel> query) {
-    String onlyDigits = search.replaceAll("[^a-zA-Z0-9]", ""); // try searching with a space, // try searching for partial phone number
-    // what is the best way to search disparate types of data in one box
+    String onlyDigits = search.replaceAll("[^a-zA-Z0-9]", "");
+
     if (onlyDigits.matches("^\\d+$")) {
       return query
           .or()
@@ -458,8 +458,11 @@ public final class ProgramRepository {
     }
   }
 
+  // TODO (#5503): Remove this when we remove the feature flag
   private ExpressionList<ApplicationModel> searchUsingWellKnownPaths(
       String search, ExpressionList<ApplicationModel> query) {
+    System.out.println("searching in WKP");
+
     if (search.matches("^\\d+$")) {
       return query.eq("id", Integer.parseInt(search));
     } else {
