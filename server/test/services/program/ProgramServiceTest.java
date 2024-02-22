@@ -72,7 +72,7 @@ public class ProgramServiceTest extends ResetPostgres {
   public void setProgramServiceImpl() {
     BindingKey<SyncCacheApi> programDefKey =
         new BindingKey<>(SyncCacheApi.class)
-            .qualifiedWith(new NamedCacheImpl("program-definition"));
+            .qualifiedWith(new NamedCacheImpl("full-program-definition"));
     programDefCache = instanceOf(programDefKey.asScala());
     ps = instanceOf(ProgramService.class);
   }
