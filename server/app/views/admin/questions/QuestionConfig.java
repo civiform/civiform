@@ -239,7 +239,6 @@ public final class QuestionConfig {
     ButtonTag removeOptionButton =
         button()
             .with(Icons.svg(Icons.DELETE).withClasses("w-6", "h-6"))
-            .withId("multi-option-question-field-remove-button")
             .withClasses(
                 AdminStyles.DELETE_BUTTON,
                 ReferenceClasses.MULTI_OPTION_DELETE_BUTTON,
