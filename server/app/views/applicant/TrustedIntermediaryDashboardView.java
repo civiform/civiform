@@ -101,6 +101,13 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 requiredFieldsExplanationContent(),
                 renderAddNewForm(tiGroup, request),
                 hr().withClasses("mt-6"),
+                div()
+                    .withId("tabs")
+                    .attr(
+                        "hx-get", controllers.ti.routes.TrustedIntermediaryController.tab1().url())
+                    .attr("hx-trigger", "load delay:100ms")
+                    .attr("hx-target", "#tabs")
+                    .attr("hx-swap", "innerHTML"),
                 renderSubHeader("All clients").withClass("my-4"),
                 h4("Search"),
                 renderSearchForm(request, searchParameters),
@@ -120,6 +127,34 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       bundle.addToastMessages(ToastMessage.success(flash.get("success").get()).setDuration(-1));
     }
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
+  }
+
+  public DivTag renderTab1(Http.Request request) {
+
+    DivTag div =
+        div()
+            .with(
+                div()
+                    .withClasses("tab-list")
+                    .attr("role", "tablist")
+                    .with(
+                        button("Tab 1")
+                            .attr("hx-get", "/tab1")
+                            .withClasses("selected")
+                            .attr("role", "tab")
+                            .attr("aria-selected", "false")
+                            .attr("aria-controls", "tab-content"),
+                        button("Tab 2")
+                            .attr("hx-get", "/tab2")
+                            .attr("role", "tab")
+                            .attr("aria-selected", "false")
+                            .attr("aria-controls", "tab-content")),
+                div("Oh what lovely tab content for tab 1")
+                    .withId("tab-content")
+                    .attr("role", "tabpanel")
+                    .withClasses("tab-content"));
+
+    return div;
   }
 
   private FormTag renderSearchForm(Http.Request request, SearchParameters searchParameters) {

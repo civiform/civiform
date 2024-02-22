@@ -110,6 +110,8 @@ GET     /admin/tiDash                                         controllers.ti.Tru
 POST    /admin/tiGroups/:id/addApplicant                      controllers.ti.TrustedIntermediaryController.addApplicant(id: Long, request: Request)
 GET     /admin/tiGroups/editClient/:accountId                 controllers.ti.TrustedIntermediaryController.editClient(accountId: Long, request: Request)
 POST    /admin/tiGroups/updateClientInfo/:id                  controllers.ti.TrustedIntermediaryController.updateClientInfo(id: Long, request: Request)
+GET     /admin/tiDash/tab1                                    controllers.ti.TrustedIntermediaryController.tab1(request: Request)
+GET     /admin/tiDash/tab2                                    controllers.ti.TrustedIntermediaryController.tab2(request: Request)
 
 # Controller for admins only, related to applications
 GET     /admin/programs/:programId/applications                             controllers.admin.AdminApplicationController.index(request: Request, programId: Long, search: java.util.Optional[String], page: java.util.Optional[Integer], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], applicationStatus: java.util.Optional[String], selectedApplicationUri: java.util.Optional[String])

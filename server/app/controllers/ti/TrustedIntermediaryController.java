@@ -32,6 +32,7 @@ import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.ti.TrustedIntermediarySearchResult;
 import services.ti.TrustedIntermediaryService;
+import views.admin.ti.TrustedIntermediaryTab2View;
 import views.applicant.EditTiClientView;
 import views.applicant.TrustedIntermediaryDashboardView;
 
@@ -43,6 +44,7 @@ public final class TrustedIntermediaryController {
 
   private static final int PAGE_SIZE = 10;
   private final TrustedIntermediaryDashboardView tiDashboardView;
+  private final TrustedIntermediaryTab2View tab2View;
   private final ProfileUtils profileUtils;
   private final AccountRepository accountRepository;
   private final MessagesApi messagesApi;
@@ -57,10 +59,12 @@ public final class TrustedIntermediaryController {
       FormFactory formFactory,
       MessagesApi messagesApi,
       TrustedIntermediaryDashboardView trustedIntermediaryDashboardView,
+      TrustedIntermediaryTab2View tab2View,
       TrustedIntermediaryService tiService,
       EditTiClientView editTiClientView) {
     this.profileUtils = Preconditions.checkNotNull(profileUtils);
     this.tiDashboardView = Preconditions.checkNotNull(trustedIntermediaryDashboardView);
+    this.tab2View = tab2View;
     this.accountRepository = Preconditions.checkNotNull(accountRepository);
     this.formFactory = Preconditions.checkNotNull(formFactory);
     this.messagesApi = Preconditions.checkNotNull(messagesApi);
@@ -121,6 +125,18 @@ public final class TrustedIntermediaryController {
             request,
             messagesApi.preferred(request),
             civiformProfile.get().getApplicant().toCompletableFuture().join().id));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.TI)
+  public Result tab1(Http.Request request) {
+
+    return ok(tiDashboardView.renderTab1(request).render());
+  }
+
+  @Secure(authorizers = Authorizers.Labels.TI)
+  public Result tab2(Http.Request request) {
+
+    return ok(tab2View.render(request));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
