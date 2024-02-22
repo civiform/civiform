@@ -55,17 +55,18 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
 
   /**
    * A data key that points to a redirect URL that should be used if the user has uploaded a file.
-   * Should be set on each action button if the SAVE_ON_ALL_ACTIONS flag is enabled. Should be kept
-   * in sync with file_upload.ts.
+   * Should be set on each action button if the SAVE_ON_ALL_ACTIONS flag is enabled.
+   *
+   * <p>Should be kept in sync with file_upload.ts.
    */
   private static final String REDIRECT_WITH_FILE_KEY = "redirect-with-file";
 
   /**
    * A data key that points to a redirect URL that should be used if the user has *not* uploaded a
    * file. If the SAVE_ON_ALL_ACTIONS flag is enabled, this should be set on any button whose action
-   * should be permitted, even if the user hasn't uploaded a file. Right now, we allow users to
+   * should be permitted even if the user hasn't uploaded a file. Right now, we allow users to
    * navigate to the review page and previous page if they haven't uploaded a file, but we *don't*
-   * allow them to navigate to the next page until they've uploaded a file. (Note that optional file
+   * allow them to navigate to the next page without uploading a file. (Note that optional file
    * upload questions have a separate Skip button -- see {@link #maybeRenderSkipOrDeleteButton}.)
    *
    * <p>Should be kept in sync with file_upload.ts.
@@ -368,13 +369,15 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
       }
     }
 
+    // If the SAVE_ON_ALL_ACTIONS flag is on, all buttons should submit the form but
+    // should have different text and different redirects.
+
     MessageKey buttonMessage;
     @Nullable String redirectWithoutFile;
-
     switch (action) {
       case NEXT_BLOCK:
         buttonMessage = MessageKey.BUTTON_NEXT_SCREEN;
-        // Don't allow the user to proceed to the next block without uploading a file
+        // Don't allow the user to proceed to the next block without uploading a file.
         redirectWithoutFile = null;
         break;
       case PREVIOUS_BLOCK:
