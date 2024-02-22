@@ -29,6 +29,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
     context.setVariable("reviewUrl", getReviewUrl(applicationParams));
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicantQuestions", applicationParams.block().getQuestions());
+    context.setVariable("messages", applicationParams.messages());
+    context.setVariable("applicationParams", applicationParams);
     return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
   }
 

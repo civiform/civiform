@@ -8,9 +8,10 @@
                 <input hidden th:value="${csrfToken}" name="csrfToken">
                 <a th:href="${previousUrl}" id="cf-block-previous" class="usa-button usa-button--outline" th:text="#{button.previousScreen}"></a>
 
+                <div th:text="#{content.blockProgress(${applicationParams.blockIndex() + 1}, ${applicationParams.totalBlockCount()})}"></div>
                 <div th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"></div>
 
-                <div th:each="question: ${applicantQuestions}">
+                <div th:each="question: ${applicationParams.block().getQuestions()}">
                     <div th:replace="~{applicant/ApplicantQuestionFragment :: applicant-question(${question})}"></div>
                 </div>
 
