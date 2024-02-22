@@ -75,7 +75,7 @@ export class AdminQuestions {
   public static readonly multiOptionDeleteButtonSelector = (index: number) =>
     `:nth-match(#question-settings div.cf-multi-option-question-option, ${
       index + 1
-    }) button:has-text("Delete")`
+    }) .cf-multi-option-delete-button button`
 
   constructor(page: Page) {
     this.page = page
