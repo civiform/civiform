@@ -254,7 +254,8 @@ public final class ProgramImageView extends BaseHtmlView {
                 "The maximum size for image upload is 1MB.",
                 "The image will be automatically cropped to 16x9. The program card preview on the"
                     + " right will show the cropping once the image is saved."),
-            /* disabled= */ hasNoDescription);
+            /* disabled= */ hasNoDescription,
+            /* fileLimitMb= */ publicStorageClient.getFileLimitMb());
     FormTag fullForm =
         form.with(additionalFileUploadFormInputs)
             // It's critical that the "file" field be the last input element for the form since S3

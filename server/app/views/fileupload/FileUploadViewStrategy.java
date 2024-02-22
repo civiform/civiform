@@ -6,6 +6,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
+import static views.style.BaseStyles.FORM_ERROR_TEXT_BASE;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
@@ -29,6 +30,8 @@ import views.applicant.ApplicantFileUploadRenderer;
  */
 public abstract class FileUploadViewStrategy {
   @VisibleForTesting static final String FILE_INPUT_HINT_ID_PREFIX = "file-input-hint-";
+  private static final String FILE_TOO_LARGE_ERROR_ID = "file-too-large-error";
+  private static final String FILE_LIMIT_ATTR = "data-file-limit-mb";
 
   /** Returns a top-level <form> element to use for file upload. */
   public FormTag renderFileUploadFormElement(StorageUploadRequest request) {
@@ -58,9 +61,15 @@ public abstract class FileUploadViewStrategy {
    * @param id the ID to apply to the outermost div.
    * @param hints a list of hints that should be displayed above the file input UI.
    * @param disabled true if the file input should be shown as disabled.
+   * @param fileLimitMb the maximum file size in megabytes allowed for this file input element. Used
+   *     to show an error client-side if the user uploads a file that's too large.
    */
   public static DivTag createUswdsFileInputFormElement(
-      String id, String acceptedMimeTypes, ImmutableList<String> hints, boolean disabled) {
+      String id,
+      String acceptedMimeTypes,
+      ImmutableList<String> hints,
+      boolean disabled,
+      int fileLimitMb) {
     StringBuilder ariaDescribedByIds = new StringBuilder();
     for (int i = 0; i < hints.size(); i++) {
       ariaDescribedByIds.append(FILE_INPUT_HINT_ID_PREFIX);
@@ -78,11 +87,17 @@ public abstract class FileUploadViewStrategy {
                         .withId(FILE_INPUT_HINT_ID_PREFIX + index)
                         .withClasses("usa-hint", "mb-2")))
         .with(
+            p("Error: The file you uploaded is too large. Please choose a smaller file.")
+                .withId(FILE_TOO_LARGE_ERROR_ID)
+                // TypeScript will be responsible for showing/hiding this file-too-large error.
+                .withClasses(FORM_ERROR_TEXT_BASE, "hidden"))
+        .with(
             input()
                 .withType("file")
                 .withName("file")
                 .withClasses("usa-file-input")
                 .attr("aria-describedby", ariaDescribedByIds.toString())
+                .attr(FILE_LIMIT_ATTR, fileLimitMb)
                 .withAccept(acceptedMimeTypes)
                 .withCondDisabled(disabled));
   }

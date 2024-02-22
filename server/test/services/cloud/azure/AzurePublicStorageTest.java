@@ -23,6 +23,12 @@ public class AzurePublicStorageTest extends ResetPostgres {
   }
 
   @Test
+  public void getFileLimitMb_throwsUnsupported() {
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> azurePublicStorage.getFileLimitMb());
+  }
+
+  @Test
   public void getSignedUploadRequest_throwsUnsupported() {
     assertThatExceptionOfType(UnsupportedOperationException.class)
         .isThrownBy(() -> azurePublicStorage.getSignedUploadRequest("fileKey", "successRedirect"));
