@@ -1,6 +1,8 @@
 import {
   createTestContext,
+  disableFeatureFlag,
   dropTables,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   seedQuestions,
@@ -11,7 +13,6 @@ import {BASE_URL} from './support/config'
 
 describe('file upload applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
-  const fileUploadQuestionText = 'Required file upload question'
 
   beforeAll(async () => {
     const {page} = ctx
@@ -20,8 +21,9 @@ describe('file upload applicant flow', () => {
     await page.goto(BASE_URL)
   })
 
-  describe('single file upload question', () => {
+  describe('required file upload question', () => {
     const programName = 'Test program for single file upload'
+    const fileUploadQuestionText = 'Required file upload question'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -44,14 +46,6 @@ describe('file upload applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'file-required')
-    })
-
-    it('validate screenshot with errors', async () => {
-      const {page, applicantQuestions} = ctx
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickNext()
-
-      await validateScreenshot(page, 'file-errors')
     })
 
     it('form is correctly formatted', async () => {
@@ -142,32 +136,6 @@ describe('file upload applicant flow', () => {
       expect(downloadedFileContent).toEqual(fileContent)
     })
 
-    it('with valid file can proceed and submit', async () => {
-      const {applicantQuestions} = ctx
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerFileUploadQuestion('some sample text')
-
-      await applicantQuestions.clickNext()
-
-      // Verify we're taken to the next page (which is the review page since
-      // this program only has one block) and can submit the application.
-      await applicantQuestions.expectReviewPage()
-      await applicantQuestions.submitFromReviewPage()
-    })
-
-    it('with missing file shows error and does not proceed', async () => {
-      const {page, applicantQuestions, applicantFileQuestion} = ctx
-      await applicantQuestions.applyProgram(programName)
-
-      await applicantQuestions.clickNext()
-
-      await applicantFileQuestion.expectFileSelectionErrorShown()
-      // Verify we're still on the file upload question block
-      expect(await page.innerText('.cf-applicant-question-text')).toContain(
-        fileUploadQuestionText,
-      )
-    })
-
     /** Regression test for https://github.com/civiform/civiform/issues/6516. */
     it('missing file error disappears when file uploaded', async () => {
       const {applicantQuestions, applicantFileQuestion} = ctx
@@ -233,46 +201,6 @@ describe('file upload applicant flow', () => {
       await applicantFileQuestion.expectHasContinueButton()
       // A required file upload question should never show a Delete button
       await applicantFileQuestion.expectNoDeleteButton()
-    })
-
-    it('continue button does not save new file', async () => {
-      // Answer the file upload question
-      const {applicantQuestions, applicantFileQuestion} = ctx
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerFileUploadQuestion(
-        'some old text',
-        'old.txt',
-      )
-      await applicantQuestions.clickNext()
-
-      // Re-open the file upload question
-      await applicantQuestions.expectReviewPage()
-      await applicantQuestions.editQuestionFromReviewPage(
-        fileUploadQuestionText,
-      )
-
-      // Upload a new file
-      await applicantQuestions.answerFileUploadQuestion(
-        'some new text',
-        'new.txt',
-      )
-
-      // Click "Continue", which does *not* save any new file upload
-      // (we may want to change this behavior in the future, but we
-      // should still test the existing behavior)
-      await applicantFileQuestion.clickContinue()
-
-      // Verify we're taken to the next page (which is the review page
-      // since this program only has one block)
-      await applicantQuestions.expectReviewPage()
-      // Verify the old file is still used
-      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-        fileUploadQuestionText,
-        'old.txt',
-      )
-      const downloadedFileContent =
-        await applicantQuestions.downloadSingleQuestionFromReviewPage()
-      expect(downloadedFileContent).toEqual('some old text')
     })
   })
 
@@ -385,16 +313,13 @@ describe('file upload applicant flow', () => {
       expect(downloadedFileContent).toEqual(fileContent)
     })
 
-    it('with valid file can proceed and submit', async () => {
+    it('can submit application', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
-      const fileContent = 'some sample text'
-      await applicantQuestions.answerFileUploadQuestion(fileContent)
-
+      await applicantQuestions.answerFileUploadQuestion('some sample text')
       await applicantQuestions.clickNext()
 
-      // Verify we're taken to the next page (which is the review page since
-      // this program only has one block) and can submit the application.
+      // Verify we can submit the application
       await applicantQuestions.expectReviewPage()
       await applicantQuestions.submitFromReviewPage()
     })
@@ -480,46 +405,6 @@ describe('file upload applicant flow', () => {
         fileUploadQuestionText,
       )
     })
-
-    it('continue button does not save new file', async () => {
-      // Answer the file upload question
-      const {applicantQuestions, applicantFileQuestion} = ctx
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerFileUploadQuestion(
-        'some old text',
-        'old.txt',
-      )
-      await applicantQuestions.clickNext()
-
-      // Re-open the file upload question
-      await applicantQuestions.expectReviewPage()
-      await applicantQuestions.editQuestionFromReviewPage(
-        fileUploadQuestionText,
-      )
-
-      // Upload a new file
-      await applicantQuestions.answerFileUploadQuestion(
-        'some new text',
-        'new.txt',
-      )
-
-      // Click "Continue", which does *not* save any new file upload
-      // (we may want to change this behavior in the future, but we
-      // should still test the existing behavior)
-      await applicantFileQuestion.clickContinue()
-
-      // Verify we're taken to the next page (which is the review page
-      // since this program only has one block)
-      await applicantQuestions.expectReviewPage()
-      // Verify the old file is still used
-      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-        fileUploadQuestionText,
-        'old.txt',
-      )
-      const downloadedFileContent =
-        await applicantQuestions.downloadSingleQuestionFromReviewPage()
-      expect(downloadedFileContent).toEqual('some old text')
-    })
   })
 
   /**
@@ -539,43 +424,570 @@ describe('file upload applicant flow', () => {
    *   - Tests for buttons that have different functionality between required
    *     and optional questions are already included above.
    */
-  describe('file upload question buttons', () => {
-    const programName = 'Test program for single file upload'
+  describe('buttons', () => {
+    const programName = 'Test program for file upload buttons'
+    const emailQuestionText = 'Test email question'
+    const fileUploadQuestionText = 'Test file upload question'
+    const numberQuestionText = 'Test number question'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
+      // Create a program with 3 blocks:
+      // - Block 1: Optional email question
+      // - Block 2: Required file upload question
+      // - Block 3: Optional number question
+      // Having blocks before and after the file upload question lets us verify
+      // the previous and next buttons work correctly.
+      // Making the questions optional lets us click "Review" without seeing the
+      // "error saving answers" modal (since that modal will trigger if there
+      // are validation errors like missing required questions).
+      await adminQuestions.addEmailQuestion({
+        questionName: 'email-test-q',
+        questionText: emailQuestionText,
+      })
       await adminQuestions.addFileUploadQuestion({
-        questionName: 'file-upload-test-q',
+        questionName: 'file-upload-buttons-test-q',
         questionText: fileUploadQuestionText,
       })
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['file-upload-test-q'],
+      await adminQuestions.addNumberQuestion({
+        questionName: 'number-test-q',
+        questionText: numberQuestionText,
+      })
+
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockWithOptional(
         programName,
+        'Email block',
+        [],
+        'email-test-q',
       )
+
+      await adminPrograms.addProgramBlock(programName, 'File upload block', [
+        'file-upload-buttons-test-q',
+      ])
+
+      await adminPrograms.addProgramBlock(programName)
+      await adminPrograms.goToBlockInProgram(programName, 'Screen 3')
+      await adminPrograms.editProgramBlockWithOptional(
+        programName,
+        'Number block',
+        [],
+        'number-test-q',
+      )
+
+      await adminPrograms.publishAllDrafts()
 
       await logout(page)
     })
 
     describe('review button', () => {
-      it('clicking review without file redirects to review page (flag off)', async () => {})
+      it('clicking review without file redirects to review page (flag off)', async () => {
+        const {page, applicantQuestions} = ctx
+        await disableFeatureFlag(page, 'save_on_all_actions')
 
-      it('clicking review without file redirects to review page (flag on)', async () => {})
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.answerQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
 
-      it('clicking review with file discards file and redirects to review page (flag off)', async () => {})
+        await applicantQuestions.clickReview()
 
-      it('clicking review with file saves file and redirects to review page (flag on)', async () => {})
+        await applicantQuestions.expectReviewPage()
+      })
+
+      it('clicking review without file redirects to review page (flag on)', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'save_on_all_actions')
+
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.answerQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
+
+        await applicantQuestions.clickReview()
+
+        await applicantQuestions.expectReviewPage()
+      })
+
+      it('clicking review with file discards file and redirects to review page (flag off)', async () => {
+        const {page, applicantQuestions} = ctx
+        await disableFeatureFlag(page, 'save_on_all_actions')
+
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.answerQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
+
+        await applicantQuestions.answerFileUploadQuestion(
+          'some sample text',
+          'sample.txt',
+        )
+
+        await applicantQuestions.clickReview()
+
+        // Verify we're taken to the review page
+        await applicantQuestions.expectReviewPage()
+
+        // Verify the file was *not* saved
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          fileUploadQuestionText,
+        )
+      })
+
+      it('clicking review with file saves file and redirects to review page (flag on)', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'save_on_all_actions')
+
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.answerQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
+
+        await applicantQuestions.answerFileUploadQuestion(
+          'some sample text',
+          'sample.txt',
+        )
+
+        await applicantQuestions.clickReview()
+
+        // Verify we're taken to the review page
+        await applicantQuestions.expectReviewPage()
+
+        // Verify the file *was* saved
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          fileUploadQuestionText,
+          'sample.txt',
+        )
+      })
     })
 
     describe('previous button', () => {
-      it('clicking previous without file redirects to previous page (flag off)', async () => {})
+      it('clicking previous without file redirects to previous page (flag off)', async () => {
+        const {page, applicantQuestions} = ctx
+        await disableFeatureFlag(page, 'save_on_all_actions')
 
-      it('clicking previous without file redirects to previous page (flag on)', async () => {})
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.answerQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
 
-      it('clicking previous with file discards file and redirects to previous page (flag off)', async () => {})
+        await applicantQuestions.clickPrevious()
 
-      it('clicking previous with file saves file and redirects to previous page (flag on)', async () => {})
+        // Verify we're taken to the previous page, which has the email question
+        expect(await page.innerText('.cf-applicant-question-text')).toContain(
+          emailQuestionText,
+        )
+      })
+
+      it('clicking previous without file redirects to previous page (flag on)', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'save_on_all_actions')
+
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.answerQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
+
+        await applicantQuestions.clickPrevious()
+
+        // Verify we're taken to the previous page, which has the email question
+        expect(await page.innerText('.cf-applicant-question-text')).toContain(
+          emailQuestionText,
+        )
+      })
+
+      it('clicking previous with file discards file and redirects to previous page (flag off)', async () => {
+        const {page, applicantQuestions} = ctx
+        await disableFeatureFlag(page, 'save_on_all_actions')
+
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.answerQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
+
+        await applicantQuestions.answerFileUploadQuestion(
+          'some sample text',
+          'sample.txt',
+        )
+
+        await applicantQuestions.clickPrevious()
+
+        // Verify we're taken to the previous page, which has the email question
+        expect(await page.innerText('.cf-applicant-question-text')).toContain(
+          emailQuestionText,
+        )
+
+        // Verify the file was *not* saved
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.validateNoPreviouslyAnsweredText(
+          fileUploadQuestionText,
+        )
+      })
+
+      fit('clicking previous with file saves file and redirects to previous page (flag on)', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'save_on_all_actions')
+
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.answerQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
+
+        await applicantQuestions.answerFileUploadQuestion(
+          'some sample text',
+          'sample.txt',
+        )
+
+        await applicantQuestions.clickPrevious()
+
+        // Verify we're taken to the previous page, which has the email question
+        expect(await page.innerText('.cf-applicant-question-text')).toContain(
+          emailQuestionText,
+        )
+
+        // Verify the file *was* saved
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
+
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          fileUploadQuestionText,
+          'sample.txt',
+        )
+      })
+    })
+
+    describe('save & next button', () => {
+      it('clicking save&next without file shows error on same page (flag off)', async () => {
+        const {page, applicantQuestions, applicantFileQuestion} = ctx
+        await disableFeatureFlag(page, 'save_on_all_actions')
+
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.answerQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
+
+        // Don't upload a file, and click Save & next
+        await applicantQuestions.clickNext()
+
+        await applicantFileQuestion.expectFileSelectionErrorShown()
+        // Verify we're still on the file upload question block
+        expect(await page.innerText('.cf-applicant-question-text')).toContain(
+          fileUploadQuestionText,
+        )
+        await validateScreenshot(page, 'file-errors')
+      })
+
+      it('clicking save&next without file shows error on same page (flag on)', async () => {
+        const {page, applicantQuestions, applicantFileQuestion} = ctx
+        await enableFeatureFlag(page, 'save_on_all_actions')
+
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.answerQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
+
+        // Don't upload a file, and click Save & next
+        await applicantQuestions.clickNext()
+
+        await applicantFileQuestion.expectFileSelectionErrorShown()
+        // Verify we're still on the file upload question block
+        expect(await page.innerText('.cf-applicant-question-text')).toContain(
+          fileUploadQuestionText,
+        )
+      })
+
+      it('clicking save&next with file saves file and redirects to next page (flag off)', async () => {
+        const {page, applicantQuestions} = ctx
+        await disableFeatureFlag(page, 'save_on_all_actions')
+
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.answerQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
+
+        await applicantQuestions.answerFileUploadQuestion(
+          'some sample text',
+          'sample.txt',
+        )
+
+        await applicantQuestions.clickNext()
+
+        // Verify we're taken to the next page
+        expect(await page.innerText('.cf-applicant-question-text')).toContain(
+          numberQuestionText,
+        )
+
+        // Verify the file was saved
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          fileUploadQuestionText,
+          'sample.txt',
+        )
+      })
+
+      it('clicking save&next with file saves file and redirects to next page (flag on)', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'save_on_all_actions')
+
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.answerQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
+
+        await applicantQuestions.answerFileUploadQuestion(
+          'some sample text',
+          'sample.txt',
+        )
+
+        await applicantQuestions.clickNext()
+
+        // Verify we're taken to the next page
+        expect(await page.innerText('.cf-applicant-question-text')).toContain(
+          numberQuestionText,
+        )
+
+        // Verify the file was saved
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          fileUploadQuestionText,
+          'sample.txt',
+        )
+      })
+    })
+
+    describe('continue button', () => {
+      it('clicking continue button redirects to first not-seen block', async () => {
+        const {page, applicantQuestions, applicantFileQuestion} = ctx
+
+        // Answer the file upload question
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.answerQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
+        await applicantQuestions.answerFileUploadQuestion(
+          'some old text',
+          'old.txt',
+        )
+        await applicantQuestions.clickNext()
+
+        // Re-open the file upload question
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.editQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
+
+        // Click "Continue"
+        await applicantFileQuestion.clickContinue()
+
+        // When this test re-opens the file upload question from the review page,
+        // that puts the application into "review" mode, which means that the next
+        // block an applicant will see is the first block that hasn't been looked at.
+        // In this case, because we never opened the very first block with the email
+        // question, clicking "Continue" should take us back to that email question.
+        expect(await page.innerText('.cf-applicant-question-text')).toContain(
+          emailQuestionText,
+        )
+
+        // Verify the old file is still present
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          fileUploadQuestionText,
+          'old.txt',
+        )
+      })
+
+      it('clicking continue without new file redirects to next page (flag off)', async () => {
+        const {page, applicantQuestions, applicantFileQuestion} = ctx
+        await disableFeatureFlag(page, 'save_on_all_actions')
+
+        // First, answer the email question so that the first block is considered answered
+        // (see test case 'clicking continue button redirects to first not-seen block').
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerEmailQuestion('test@test.com')
+        await applicantQuestions.clickNext()
+
+        // Answer the file upload question
+        await applicantQuestions.answerFileUploadQuestion(
+          'some old text',
+          'old.txt',
+        )
+        await applicantQuestions.clickNext()
+
+        // Re-open the file upload question
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.editQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
+
+        // Click "Continue"
+        await applicantFileQuestion.clickContinue()
+
+        // Verify we're taken to the next page
+        expect(await page.innerText('.cf-applicant-question-text')).toContain(
+          numberQuestionText,
+        )
+
+        // Verify the old file is still present
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          fileUploadQuestionText,
+          'old.txt',
+        )
+      })
+
+      it('clicking continue without new file redirects to next page (flag on)', async () => {
+        const {page, applicantQuestions, applicantFileQuestion} = ctx
+        await enableFeatureFlag(page, 'save_on_all_actions')
+
+        // First, answer the email question so that the first block is considered answered
+        // (see test case 'clicking continue button redirects to first not-seen block').
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerEmailQuestion('test@test.com')
+        await applicantQuestions.clickNext()
+
+        // Answer the file upload question
+        await applicantQuestions.answerFileUploadQuestion(
+          'some old text',
+          'old.txt',
+        )
+        await applicantQuestions.clickNext()
+
+        // Re-open the file upload question
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.editQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
+
+        // Click "Continue"
+        await applicantFileQuestion.clickContinue()
+
+        // Verify we're taken to the next page
+        expect(await page.innerText('.cf-applicant-question-text')).toContain(
+          numberQuestionText,
+        )
+
+        // Verify the old file is still present
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          fileUploadQuestionText,
+          'old.txt',
+        )
+      })
+
+      it('clicking continue with new file does *not* save new file and redirects to next page (flag off)', async () => {
+        const {page, applicantQuestions, applicantFileQuestion} = ctx
+        await enableFeatureFlag(page, 'save_on_all_actions')
+
+        // First, answer the email question so that the first block is considered answered
+        // (see test case 'clicking continue button redirects to first not-seen block').
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerEmailQuestion('test@test.com')
+        await applicantQuestions.clickNext()
+
+        // Answer the file upload question
+        await applicantQuestions.answerFileUploadQuestion(
+          'some old text',
+          'old.txt',
+        )
+        await applicantQuestions.clickNext()
+
+        // Re-open the file upload question
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.editQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
+
+        // Upload a new file
+        await applicantQuestions.answerFileUploadQuestion(
+          'some new text',
+          'new.txt',
+        )
+
+        // Click "Continue", which does *not* save any new file upload
+        // (we may want to change this behavior in the future, but we
+        // should still test the existing behavior)
+        await applicantFileQuestion.clickContinue()
+
+        // Verify we're taken to the next page
+        expect(await page.innerText('.cf-applicant-question-text')).toContain(
+          numberQuestionText,
+        )
+
+        // Verify the old file is still used
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          fileUploadQuestionText,
+          'old.txt',
+        )
+        const downloadedFileContent =
+          await applicantQuestions.downloadSingleQuestionFromReviewPage()
+        expect(downloadedFileContent).toEqual('some old text')
+      })
+
+      it('clicking continue with new file does *not* save new file and redirects to next page (flag on)', async () => {
+        const {page, applicantQuestions, applicantFileQuestion} = ctx
+        await disableFeatureFlag(page, 'save_on_all_actions')
+
+        // First, answer the email question so that the first block is considered answered
+        // (see test case 'clicking continue button redirects to first not-seen block').
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerEmailQuestion('test@test.com')
+        await applicantQuestions.clickNext()
+
+        // Answer the file upload question
+        await applicantQuestions.answerFileUploadQuestion(
+          'some old text',
+          'old.txt',
+        )
+        await applicantQuestions.clickNext()
+
+        // Re-open the file upload question
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.editQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
+
+        // Upload a new file
+        await applicantQuestions.answerFileUploadQuestion(
+          'some new text',
+          'new.txt',
+        )
+
+        // Click "Continue", which does *not* save any new file upload
+        // (we may want to change this behavior in the future, but we
+        // should still test the existing behavior)
+        await applicantFileQuestion.clickContinue()
+
+        // Verify we're taken to the next page
+        expect(await page.innerText('.cf-applicant-question-text')).toContain(
+          numberQuestionText,
+        )
+
+        // Verify the old file is still used
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          fileUploadQuestionText,
+          'old.txt',
+        )
+        const downloadedFileContent =
+          await applicantQuestions.downloadSingleQuestionFromReviewPage()
+        expect(downloadedFileContent).toEqual('some old text')
+      })
     })
   })
 })

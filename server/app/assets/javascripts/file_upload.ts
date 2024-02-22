@@ -37,6 +37,7 @@ export function init() {
         const buttonTarget = e.currentTarget as HTMLElement
         const redirectWithFile = assertNotNull(
           buttonTarget.dataset.redirectWithFile,
+          'redirectWithFile',
         )
         const redirectWithoutFile = buttonTarget.dataset.redirectWithoutFile
         console.log('redirectWith=' + redirectWithFile)
@@ -44,6 +45,7 @@ export function init() {
 
         const fileInput = assertNotNull(
           blockForm.querySelector<HTMLInputElement>('input[type=file]'),
+          'fileInput',
         )
 
         if (fileInput.value != '') {
@@ -58,6 +60,7 @@ export function init() {
             blockForm.querySelector<HTMLInputElement>(
               'input[name="success_action_redirect"]',
             ),
+            'success_action_redirect',
           ).value = redirectWithFile
           // We want the submit to fire so don't call #stopPropagation?
         } else if (redirectWithoutFile) {
@@ -92,7 +95,7 @@ export function init() {
         return true
       }
 
-      if (!validateFileUploadQuestions(blockForm)) {
+      if (!validateFileUploadQuestion(blockForm, 'from submit')) {
         event.preventDefault()
         return false
       }
