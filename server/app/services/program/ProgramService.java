@@ -231,7 +231,7 @@ public final class ProgramService {
    * @return the draft {@link ProgramDefinition} for the given slug if it exists, or a {@link
    *     ProgramDraftNotFoundException} is thrown if a draft is not available.
    */
-  public ProgramDefinition getDraftProgramDefinition(String programSlug)
+  public ProgramDefinition getDraftFullProgramDefinition(String programSlug)
       throws ProgramDraftNotFoundException {
     ProgramModel draftProgram = programRepository.getDraftProgramFromSlug(programSlug);
     return syncProgramAssociations(draftProgram).toCompletableFuture().join();
