@@ -398,7 +398,6 @@ public final class QuestionsListView extends BaseHtmlView {
                 div(definition.getQuestionText().getDefault())
                     .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, "pl-4", "text-xl"));
     DivTag questionDescription =
-        // TODO do we format help text as well?
         div(
             div(definition.getQuestionHelpText().isEmpty()
                     ? ""
