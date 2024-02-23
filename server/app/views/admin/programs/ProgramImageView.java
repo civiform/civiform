@@ -222,7 +222,9 @@ public final class ProgramImageView extends BaseHtmlView {
                         .setPlaceholderText("Colorful fruits and vegetables in bins")
                         .setValue(form.value().get().getSummaryImageDescription())
                         .getInputTag()))
-        .with(p("Note: Image description is required before uploading an image.").withClass("mt-1"))
+        .with(
+            p("Note: Image description is required before uploading an image.")
+                .withClasses("mb-1", "mt-1"))
         .with(buttonsDiv);
   }
 
