@@ -13,7 +13,7 @@ import {
 describe('primary applicant info questions', () => {
   const ctx = createTestContext()
 
-  it('shows primary applicant info toggles/alerts correctly when creating a new question, and tag is persisted', async () => {
+  test('shows primary applicant info toggles/alerts correctly when creating a new question, and tag is persisted', async () => {
     const {page, adminQuestions} = ctx
     await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
 
@@ -80,7 +80,7 @@ describe('primary applicant info questions', () => {
     await adminQuestions.expectPrimaryApplicantInfoToggleValue(nameField, true)
   })
 
-  it('shows primary applicant info toggles/alerts correctly when editing an existing question, and tag is persisted', async () => {
+  test('shows primary applicant info toggles/alerts correctly when editing an existing question, and tag is persisted', async () => {
     const {page, adminQuestions} = ctx
     await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
 
@@ -188,7 +188,7 @@ describe('primary applicant info questions', () => {
     await adminQuestions.expectPrimaryApplicantInfoToggleValue(nameField, false)
   })
 
-  it('shows the alert when a different question has the primary applicant info tag', async () => {
+  test('shows the alert when a different question has the primary applicant info tag', async () => {
     const {page, adminQuestions} = ctx
     await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
 

@@ -9,12 +9,12 @@ import {
 import {Locator} from 'playwright'
 
 function sharedTests(ctx: TestContext, screenshotName: string) {
-  it('matches the expected screenshot', async () => {
+  test('matches the expected screenshot', async () => {
     const footer: Locator = ctx.page.locator('footer')
     await validateScreenshot(footer, screenshotName)
   })
 
-  it('has no accessibility violations', async () => {
+  test('has no accessibility violations', async () => {
     await validateAccessibility(ctx.page)
   })
 }
@@ -32,7 +32,7 @@ describe('the footer', () => {
 
     sharedTests(ctx, 'footer-no-version')
 
-    it('does not have civiform version', async () => {
+    test('does not have civiform version', async () => {
       expect(await ctx.page.textContent('html')).not.toContain(
         'CiviForm version:',
       )
@@ -49,7 +49,7 @@ describe('the footer', () => {
 
     sharedTests(ctx, 'footer-with-version')
 
-    it('has civiform version', async () => {
+    test('has civiform version', async () => {
       expect(await ctx.page.textContent('html')).toContain('CiviForm version:')
     })
   })

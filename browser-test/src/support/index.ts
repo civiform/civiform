@@ -170,7 +170,7 @@ export interface TestContext {
  * describe('some test', () => {
  *   const ctx = createTestContext()
  *
- *   it('should do foo', async () => {
+ *   test('should do foo', async () => {
  *     await ctx.page.click('#some-button')
  *   })
  * })

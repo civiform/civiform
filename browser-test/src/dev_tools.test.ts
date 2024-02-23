@@ -8,7 +8,7 @@ import {Locator} from 'playwright'
 describe('developer tools', () => {
   const ctx = createTestContext()
 
-  it('link shown in the header', async () => {
+  test('link shown in the header', async () => {
     const header: Locator = ctx.page.locator('nav')
     await validateScreenshot(header, 'dev-tools-in-header')
 
@@ -17,7 +17,7 @@ describe('developer tools', () => {
     await validateAccessibility(ctx.page)
   })
 
-  it('modal appears on click', async () => {
+  test('modal appears on click', async () => {
     await ctx.page.click('#debug-content-modal-button')
     await validateScreenshot(ctx.page, 'dev-tools-modal')
   })

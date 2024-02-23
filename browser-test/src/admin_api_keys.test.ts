@@ -3,7 +3,7 @@ import {createTestContext, loginAsAdmin, validateScreenshot} from './support'
 describe('Managing API keys', () => {
   const ctx = createTestContext()
 
-  it('Creates, views and retires new API key', async () => {
+  test('Creates, views and retires new API key', async () => {
     const {page, adminApiKeys, adminPrograms} = ctx
     await loginAsAdmin(page)
 

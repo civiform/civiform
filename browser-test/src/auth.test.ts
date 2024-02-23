@@ -13,7 +13,7 @@ import {TEST_USER_AUTH_STRATEGY} from './support/config'
 describe('applicant auth', () => {
   const ctx = createTestContext()
 
-  it('applicant can login', async () => {
+  test('applicant can login', async () => {
     const {page} = ctx
     await loginAsTestUser(page)
     await validateScreenshot(page, 'logged-in')
@@ -24,7 +24,7 @@ describe('applicant auth', () => {
     expect(await ctx.page.textContent('html')).toContain('Logout')
   })
 
-  it('applicant can login as guest', async () => {
+  test('applicant can login as guest', async () => {
     const {page} = ctx
     await validateScreenshot(page, 'logged-in-guest')
     expect(await ctx.page.textContent('html')).toContain("You're a guest user.")
@@ -35,7 +35,7 @@ describe('applicant auth', () => {
   // logout. AWS staging uses Auth0 which doesn't. And Seattle staging uses
   // IDCS which at the moment doesn't have central logout enabled.
   if (TEST_USER_AUTH_STRATEGY === AuthStrategy.FAKE_OIDC) {
-    it('applicant can confirm central provider logout', async () => {
+    test('applicant can confirm central provider logout', async () => {
       const {page} = ctx
       await loginAsTestUser(page)
       expect(await ctx.page.textContent('html')).toContain(
@@ -51,7 +51,7 @@ describe('applicant auth', () => {
     })
   }
 
-  it('applicant can logout', async () => {
+  test('applicant can logout', async () => {
     const {page} = ctx
     await loginAsTestUser(page)
     expect(await ctx.page.textContent('html')).toContain(
@@ -70,7 +70,7 @@ describe('applicant auth', () => {
     )
   })
 
-  it('applicant can logout (end session) from guest', async () => {
+  test('applicant can logout (end session) from guest', async () => {
     const {page} = ctx
     expect(await ctx.page.textContent('html')).toContain("You're a guest user.")
 
@@ -78,7 +78,7 @@ describe('applicant auth', () => {
     expect(await ctx.page.textContent('html')).toContain('Find programs')
   })
 
-  it('toast is shown when either guest or logged-in user end their session', async () => {
+  test('toast is shown when either guest or logged-in user end their session', async () => {
     const {page} = ctx
     await logout(page, /* closeToast=*/ false)
     await validateScreenshot(page, 'guest-just-ended-session')
@@ -90,7 +90,7 @@ describe('applicant auth', () => {
     await validateAccessibility(page)
   })
 
-  it('guest login followed by auth login stores submitted applications', async () => {
+  test('guest login followed by auth login stores submitted applications', async () => {
     const {page, adminPrograms, applicantQuestions} = ctx
     await loginAsAdmin(page)
     const programName = 'Test program'

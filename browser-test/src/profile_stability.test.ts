@@ -14,7 +14,7 @@ describe('user HTTP sessions', () => {
   // is recognized and properly deserialized by the server.
   //
   // This guards against changes that unexpectedly affect serialization.
-  it('recognizes the profile from a frozen cookie', async () => {
+  test('recognizes the profile from a frozen cookie', async () => {
     // Play encrypts cookies with the server secret:
     // https://www.playframework.com/documentation/2.8.x/ApplicationSecret
     //

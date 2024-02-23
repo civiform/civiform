@@ -16,7 +16,7 @@ describe('modify program statuses', () => {
   })
 
   describe('statuses list', () => {
-    it('creates a new program and has no statuses', async () => {
+    test('creates a new program and has no statuses', async () => {
       const {page, adminPrograms, adminProgramStatuses} = ctx
       // Add a draft program, no questions are needed.
       const programName = 'Test program without statuses'
@@ -41,7 +41,7 @@ describe('modify program statuses', () => {
       await ctx.adminPrograms.gotoDraftProgramManageStatusesPage(programName)
     })
 
-    it('renders create new status modal', async () => {
+    test('renders create new status modal', async () => {
       const {page} = ctx
       await page.click('button:has-text("Create a new status")')
 
@@ -50,7 +50,7 @@ describe('modify program statuses', () => {
       await validateScreenshot(page, 'create-new-status-modal')
     })
 
-    it('creates a new status with no email', async () => {
+    test('creates a new status with no email', async () => {
       const {adminProgramStatuses} = ctx
       await adminProgramStatuses.createStatus('Status with no email')
       await adminProgramStatuses.expectProgramManageStatusesPage(programName)
@@ -60,7 +60,7 @@ describe('modify program statuses', () => {
       })
     })
 
-    it('creates a new status with email', async () => {
+    test('creates a new status with email', async () => {
       const {adminProgramStatuses} = ctx
       await adminProgramStatuses.createStatus('Status with email', {
         emailBody: 'An email',
@@ -72,7 +72,7 @@ describe('modify program statuses', () => {
       })
     })
 
-    it('fails to create status with an empty name', async () => {
+    test('fails to create status with an empty name', async () => {
       const {page, adminProgramStatuses} = ctx
       await adminProgramStatuses.createStatus('')
       await adminProgramStatuses.expectProgramManageStatusesPage(programName)
@@ -82,7 +82,7 @@ describe('modify program statuses', () => {
       await dismissModal(page)
     })
 
-    it('fails to create status with an existing name', async () => {
+    test('fails to create status with an existing name', async () => {
       const {page, adminProgramStatuses} = ctx
       await adminProgramStatuses.createStatus('Existing status')
       await adminProgramStatuses.expectProgramManageStatusesPage(programName)
@@ -125,12 +125,12 @@ describe('modify program statuses', () => {
       await ctx.adminPrograms.gotoDraftProgramManageStatusesPage(programName)
     })
 
-    it('renders existing statuses', async () => {
+    test('renders existing statuses', async () => {
       const {page} = ctx
       await validateScreenshot(page, 'status-list-with-statuses')
     })
 
-    it('fails to edit status when providing an existing status name', async () => {
+    test('fails to edit status when providing an existing status name', async () => {
       const {page, adminProgramStatuses} = ctx
       await adminProgramStatuses.editStatus(firstStatusName, {
         editedStatusName: secondStatusName,
@@ -142,7 +142,7 @@ describe('modify program statuses', () => {
       await dismissModal(page)
     })
 
-    it('fails to edit status with an empty name', async () => {
+    test('fails to edit status with an empty name', async () => {
       const {page, adminProgramStatuses} = ctx
       await adminProgramStatuses.editStatus(firstStatusName, {
         editedStatusName: '',
@@ -154,7 +154,7 @@ describe('modify program statuses', () => {
       await dismissModal(page)
     })
 
-    it('edits an existing status name', async () => {
+    test('edits an existing status name', async () => {
       const {adminProgramStatuses} = ctx
       await adminProgramStatuses.editStatus(secondStatusName, {
         editedStatusName: 'Updated status name',
@@ -172,7 +172,7 @@ describe('modify program statuses', () => {
       expect(emailWarningVisible).toBe(false)
     })
 
-    it('edits an existing status, configures email, and deletes the configured email', async () => {
+    test('edits an existing status, configures email, and deletes the configured email', async () => {
       const {adminProgramStatuses} = ctx
       await adminProgramStatuses.editStatus(firstStatusName, {
         editedStatusName: firstStatusName,
@@ -251,7 +251,7 @@ describe('modify program statuses', () => {
       })
     })
 
-    it('deletes an existing status', async () => {
+    test('deletes an existing status', async () => {
       const {adminPrograms, adminProgramStatuses} = ctx
       await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
       await adminProgramStatuses.deleteStatus(firstStatusName)
@@ -278,7 +278,7 @@ describe('modify program statuses', () => {
       await ctx.adminPrograms.gotoDraftProgramManageStatusesPage(programName)
     })
 
-    it('creates a new status as default', async () => {
+    test('creates a new status as default', async () => {
       const {page, adminProgramStatuses} = ctx
       const statusName = 'Test Status 1'
 
@@ -301,7 +301,7 @@ describe('modify program statuses', () => {
       await validateScreenshot(page, 'status-list-with-default-status')
     })
 
-    it('dismissing the confirmation dialog does not create the new status', async () => {
+    test('dismissing the confirmation dialog does not create the new status', async () => {
       const {page, adminProgramStatuses} = ctx
       const oldDefault = 'Test Status 1'
       const statusName = 'Test Status 2'
@@ -321,7 +321,7 @@ describe('modify program statuses', () => {
       await validateScreenshot(page, 'status-list-test-1-remains-default')
     })
 
-    it('creating a new status as default changes default to the new status', async () => {
+    test('creating a new status as default changes default to the new status', async () => {
       const {page, adminProgramStatuses} = ctx
       const oldDefault = 'Test Status 1'
       const statusName = 'Test Status 2'
@@ -345,7 +345,7 @@ describe('modify program statuses', () => {
       await validateScreenshot(page, 'status-list-test-2-default')
     })
 
-    it('changes the default status', async () => {
+    test('changes the default status', async () => {
       const {page, adminProgramStatuses} = ctx
       const oldDefault = 'Test Status 2'
       const newDefault = 'Test Status 1'
@@ -366,7 +366,7 @@ describe('modify program statuses', () => {
       await validateScreenshot(page, 'status-list-test-1-as-default-again')
     })
 
-    it('unsets the default status', async () => {
+    test('unsets the default status', async () => {
       const {page, adminProgramStatuses} = ctx
       const statusName = 'Test Status 1'
 

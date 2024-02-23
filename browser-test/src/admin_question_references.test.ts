@@ -3,7 +3,7 @@ import {createTestContext, loginAsAdmin, validateScreenshot} from './support'
 describe('view program references from question view', () => {
   const ctx = createTestContext()
 
-  it('shows no results for an unreferenced question', async () => {
+  test('shows no results for an unreferenced question', async () => {
     const {page, adminQuestions} = ctx
     await loginAsAdmin(page)
     const questionName = 'unreferenced-q'
@@ -15,7 +15,7 @@ describe('view program references from question view', () => {
     })
   })
 
-  it('shows results for referencing programs', async () => {
+  test('shows results for referencing programs', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
     const questionName = 'question-references-q'
     await loginAsAdmin(page)

@@ -4,7 +4,7 @@ import {QuestionType} from './support/admin_questions'
 describe('deleting question lifecycle', () => {
   const ctx = createTestContext()
 
-  it('create, publish, delete unused questions', async () => {
+  test('create, publish, delete unused questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)

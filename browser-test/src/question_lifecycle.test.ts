@@ -13,7 +13,7 @@ import {BASE_URL} from './support/config'
 describe('normal question lifecycle', () => {
   const ctx = createTestContext()
 
-  it('sample question seeding works', async () => {
+  test('sample question seeding works', async () => {
     const {page, adminQuestions} = ctx
     await dropTables(page)
     await seedQuestions(page)
@@ -103,7 +103,7 @@ describe('normal question lifecycle', () => {
     })
   }
 
-  it('allows re-ordering options in dropdown question', async () => {
+  test('allows re-ordering options in dropdown question', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -185,7 +185,7 @@ describe('normal question lifecycle', () => {
     expect(await adminNames[4].inputValue()).toContain('option4_admin')
   })
 
-  it('shows markdown format correctly in the preview when creating a new question', async () => {
+  test('shows markdown format correctly in the preview when creating a new question', async () => {
     const {page, adminQuestions} = ctx
     const questionName = 'markdown formatted question'
 
@@ -213,7 +213,7 @@ describe('normal question lifecycle', () => {
     await validateScreenshot(page, 'question-with-markdown-formatted-preview')
   })
 
-  it('shows error when creating a dropdown question and admin left an option field blank', async () => {
+  test('shows error when creating a dropdown question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -244,7 +244,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast()
   })
 
-  it('shows error when creating a radio question and admin left an option field blank', async () => {
+  test('shows error when creating a radio question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -274,7 +274,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast()
   })
 
-  it('shows error when updating a dropdown question and admin left an option field blank', async () => {
+  test('shows error when updating a dropdown question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -300,7 +300,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.expectMultiOptionInvalidOptionAdminError(options, [2])
   })
 
-  it('shows error when updating a radio question and admin left an option field blank', async () => {
+  test('shows error when updating a radio question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -328,7 +328,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.expectMultiOptionInvalidOptionAdminError(options, [2])
   })
 
-  it('shows error when updating a radio question and admin left an adminName field blank', async () => {
+  test('shows error when updating a radio question and admin left an adminName field blank', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -359,7 +359,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.expectMultiOptionInvalidOptionAdminError(options, [2])
   })
 
-  it('shows error when updating a radio question and admin used invalid characters in the admin name', async () => {
+  test('shows error when updating a radio question and admin used invalid characters in the admin name', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -402,7 +402,7 @@ describe('normal question lifecycle', () => {
     )
   })
 
-  it('persists export state', async () => {
+  test('persists export state', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -449,7 +449,7 @@ describe('normal question lifecycle', () => {
     ).toBeTruthy()
   })
 
-  it('shows the "Remove from universal questions" confirmation modal in the right circumstances and navigation works', async () => {
+  test('shows the "Remove from universal questions" confirmation modal in the right circumstances and navigation works', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -484,7 +484,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
   })
 
-  it('redirects to draft question when trying to edit original question', async () => {
+  test('redirects to draft question when trying to edit original question', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
     await loginAsAdmin(page)
 
@@ -512,7 +512,7 @@ describe('normal question lifecycle', () => {
     )
   })
 
-  it('shows preview of formatted question name when creating a new question', async () => {
+  test('shows preview of formatted question name when creating a new question', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)

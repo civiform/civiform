@@ -18,7 +18,7 @@ describe('Viewing API docs', () => {
     await seedPrograms(page)
   })
 
-  it('Views active API docs', async () => {
+  test('Views active API docs', async () => {
     // TODO: fix the problem with these test on probers
     // https://github.com/civiform/civiform/issues/6158
     if (isHermeticTestEnvironment()) {
@@ -55,7 +55,7 @@ describe('Viewing API docs', () => {
     }
   })
 
-  it('Views active API docs without logging in', async () => {
+  test('Views active API docs without logging in', async () => {
     const {page, adminPrograms, browserContext} = ctx
 
     await page.goto(BASE_URL)
@@ -91,7 +91,7 @@ describe('Viewing API docs', () => {
     )
   })
 
-  it('Views draft API docs when available', async () => {
+  test('Views draft API docs when available', async () => {
     if (isHermeticTestEnvironment()) {
       const {page} = ctx
 
@@ -108,7 +108,7 @@ describe('Viewing API docs', () => {
     }
   })
 
-  it('Shows error on draft API docs when no draft available', async () => {
+  test('Shows error on draft API docs when no draft available', async () => {
     if (isHermeticTestEnvironment()) {
       const {page, adminPrograms} = ctx
 
@@ -126,7 +126,7 @@ describe('Viewing API docs', () => {
     }
   })
 
-  it('Opens help accordion with a click', async () => {
+  test('Opens help accordion with a click', async () => {
     const {page, adminPrograms} = ctx
 
     await page.goto(BASE_URL)

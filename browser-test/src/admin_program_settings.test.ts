@@ -10,7 +10,7 @@ import {ProgramVisibility} from './support/admin_programs'
 describe('program settings', () => {
   const ctx = createTestContext()
 
-  it('program settings page', async () => {
+  test('program settings page', async () => {
     const {page, adminPrograms} = ctx
 
     await enableFeatureFlag(page, 'intake_form_enabled')
@@ -35,7 +35,7 @@ describe('program settings', () => {
     await validateScreenshot(page, 'nongating-eligibility')
   })
 
-  it('program index shows settings in dropdown', async () => {
+  test('program index shows settings in dropdown', async () => {
     const {page, adminPrograms} = ctx
 
     await enableFeatureFlag(page, 'intake_form_enabled')
@@ -71,7 +71,7 @@ describe('program settings', () => {
     ).toBe(true)
   })
 
-  it('back button on program settings page navigates correctly', async () => {
+  test('back button on program settings page navigates correctly', async () => {
     const {page, adminPrograms} = ctx
 
     await enableFeatureFlag(page, 'intake_form_enabled')
@@ -99,7 +99,7 @@ describe('program settings', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  it('program index hides settings in dropdown for common intake form', async () => {
+  test('program index hides settings in dropdown for common intake form', async () => {
     const {page, adminPrograms} = ctx
 
     await enableFeatureFlag(page, 'intake_form_enabled')

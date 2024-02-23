@@ -39,21 +39,21 @@ describe('Static text question for applicant flow', () => {
     )
   })
 
-  it('displays static text', async () => {
+  test('displays static text', async () => {
     const {applicantQuestions} = ctx
     await applicantQuestions.applyProgram(programName)
 
     await applicantQuestions.seeStaticQuestion(staticText)
   })
 
-  it('has no accessiblity violations', async () => {
+  test('has no accessiblity violations', async () => {
     const {page, applicantQuestions} = ctx
     await applicantQuestions.applyProgram(programName)
 
     await validateAccessibility(page)
   })
 
-  it('parses markdown', async () => {
+  test('parses markdown', async () => {
     const {page, applicantQuestions} = ctx
     await applicantQuestions.applyProgram(programName)
     await validateScreenshot(page, 'markdown-text')

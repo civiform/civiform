@@ -33,7 +33,7 @@ describe('Radio button question for applicant flow', () => {
       await logout(page)
     })
 
-    it('Updates options in preview', async () => {
+    test('Updates options in preview', async () => {
       const {page, adminQuestions} = ctx
       await loginAsAdmin(page)
 
@@ -77,14 +77,14 @@ describe('Radio button question for applicant flow', () => {
       await adminQuestions.expectPreviewOptions(['Sample question option'])
     })
 
-    it('validate screenshot', async () => {
+    test('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'radio-button')
     })
 
-    it('validate screenshot with errors', async () => {
+    test('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
@@ -92,7 +92,7 @@ describe('Radio button question for applicant flow', () => {
       await validateScreenshot(page, 'radio-button-errors')
     })
 
-    it('with selection submits successfully', async () => {
+    test('with selection submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerRadioButtonQuestion('matcha')
@@ -101,7 +101,7 @@ describe('Radio button question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with empty selection does not submit', async () => {
+    test('with empty selection does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
@@ -154,7 +154,7 @@ describe('Radio button question for applicant flow', () => {
       await logout(page)
     })
 
-    it('with both selections submits successfully', async () => {
+    test('with both selections submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerRadioButtonQuestion('matcha')
@@ -164,7 +164,7 @@ describe('Radio button question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with unanswered optional question submits successfully', async () => {
+    test('with unanswered optional question submits successfully', async () => {
       const {applicantQuestions} = ctx
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
@@ -174,7 +174,7 @@ describe('Radio button question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('has no accessiblity violations', async () => {
+    test('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 

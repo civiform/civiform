@@ -4,7 +4,7 @@ import {BASE_URL} from './support/config'
 describe('applicant security', () => {
   const ctx = createTestContext()
 
-  it('applicant cannot access admin pages', async () => {
+  test('applicant cannot access admin pages', async () => {
     const {page} = ctx
     // this test visits page that returns 401 which triggers BrowserErrorWatcher.
     // Silencing error on that page.
@@ -13,7 +13,7 @@ describe('applicant security', () => {
     expect(response!.status()).toBe(403)
   })
 
-  it('redirects to program index page when not logged in (guest)', async () => {
+  test('redirects to program index page when not logged in (guest)', async () => {
     const {page} = ctx
     await page.goto(BASE_URL)
     expect(await page.innerHTML('body')).toMatch(
@@ -21,7 +21,7 @@ describe('applicant security', () => {
     )
   })
 
-  it('redirects to program dashboard when logged in as admin', async () => {
+  test('redirects to program dashboard when logged in as admin', async () => {
     const {page} = ctx
     await loginAsAdmin(page)
     await page.goto(BASE_URL)

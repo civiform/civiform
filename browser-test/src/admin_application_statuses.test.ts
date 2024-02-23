@@ -42,11 +42,11 @@ describe('view program statuses', () => {
       await adminPrograms.viewApplicationForApplicant('Guest')
     })
 
-    it('does not show status options', async () => {
+    test('does not show status options', async () => {
       expect(await ctx.adminPrograms.isStatusSelectorVisible()).toBe(false)
     })
 
-    it('does not show application status in list', async () => {
+    test('does not show application status in list', async () => {
       const {adminPrograms} = ctx
       await adminPrograms.expectApplicationStatusDoesntContain(
         'Guest',
@@ -54,7 +54,7 @@ describe('view program statuses', () => {
       )
     })
 
-    it('does not show edit note', async () => {
+    test('does not show edit note', async () => {
       expect(await ctx.adminPrograms.isEditNoteVisible()).toBe(false)
     })
   })
@@ -102,41 +102,41 @@ describe('view program statuses', () => {
       await adminPrograms.viewApplicationForApplicant('Guest')
     })
 
-    it('shows status selector', async () => {
+    test('shows status selector', async () => {
       expect(await ctx.adminPrograms.isStatusSelectorVisible()).toBe(true)
     })
 
-    it('shows placeholder option', async () => {
+    test('shows placeholder option', async () => {
       expect(await ctx.adminPrograms.getStatusOption()).toBe(
         'Choose an option:',
       )
     })
 
-    it('renders', async () => {
+    test('renders', async () => {
       await validateScreenshot(ctx.page, 'application-view-with-statuses')
     })
 
-    it('shows "None" value in application list if no status is set', async () => {
+    test('shows "None" value in application list if no status is set', async () => {
       const {adminPrograms} = ctx
       await adminPrograms.viewApplications(programWithStatusesName)
       await adminPrograms.expectApplicationHasStatusString('Guest', 'None')
     })
 
     describe('when a status is changed, a confirmation dialog is shown', () => {
-      it('renders', async () => {
+      test('renders', async () => {
         const {page, adminPrograms} = ctx
         await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
         await validateScreenshot(page, 'change-status-modal')
       })
 
-      it('when rejecting, the selected status is not changed', async () => {
+      test('when rejecting, the selected status is not changed', async () => {
         const {adminPrograms} = ctx
         await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
         await dismissModal(adminPrograms.applicationFrame())
         expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
       })
 
-      it('when confirmed, the page is redirected with a success toast and preserves the selected application', async () => {
+      test('when confirmed, the page is redirected with a success toast and preserves the selected application', async () => {
         const {adminPrograms} = ctx
         const modal =
           await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
@@ -155,13 +155,13 @@ describe('view program statuses', () => {
         expect(applicationText).toContain('Guest')
       })
 
-      it('when no email is configured for the status, a warning is shown', async () => {
+      test('when no email is configured for the status, a warning is shown', async () => {
         const {adminPrograms} = ctx
         await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
         await dismissModal(adminPrograms.applicationFrame())
       })
 
-      it('when no email is configured for the applicant, a warning is shown', async () => {
+      test('when no email is configured for the applicant, a warning is shown', async () => {
         const {adminPrograms} = ctx
         const modal =
           await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
@@ -171,7 +171,7 @@ describe('view program statuses', () => {
         await dismissModal(adminPrograms.applicationFrame())
       })
 
-      it('when changing status, the previous status is shown', async () => {
+      test('when changing status, the previous status is shown', async () => {
         const {adminPrograms} = ctx
         expect(await adminPrograms.getStatusOption()).toBe(noEmailStatusName)
         const modal =
@@ -182,7 +182,7 @@ describe('view program statuses', () => {
         await dismissModal(adminPrograms.applicationFrame())
       })
 
-      it('when changing status, the updated application status is reflected in the application list', async () => {
+      test('when changing status, the updated application status is reflected in the application list', async () => {
         const {adminPrograms} = ctx
         await adminPrograms.expectApplicationHasStatusString(
           'Guest',
@@ -204,7 +204,7 @@ describe('view program statuses', () => {
           await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
         })
 
-        it('choosing not to notify applicant changes status and does not send email', async () => {
+        test('choosing not to notify applicant changes status and does not send email', async () => {
           const {page, adminPrograms} = ctx
           const emailsBefore = supportsEmailInspection()
             ? await extractEmailsForRecipient(page, testUserDisplayName())
@@ -230,7 +230,7 @@ describe('view program statuses', () => {
           }
         })
 
-        it('checkbox is checked by default and email is sent', async () => {
+        test('checkbox is checked by default and email is sent', async () => {
           const {page, adminPrograms} = ctx
           const emailsBefore = supportsEmailInspection()
             ? await extractEmailsForRecipient(page, testUserDisplayName())
@@ -263,7 +263,7 @@ describe('view program statuses', () => {
       })
     })
 
-    it('allows editing a note and preserves the selected application', async () => {
+    test('allows editing a note and preserves the selected application', async () => {
       const {adminPrograms} = ctx
       await adminPrograms.editNote('Some note content')
       await adminPrograms.expectNoteUpdatedToast()
@@ -276,7 +276,7 @@ describe('view program statuses', () => {
       expect(applicationText).toContain('Guest')
     })
 
-    it('renders the note dialog', async () => {
+    test('renders the note dialog', async () => {
       const {page, adminPrograms} = ctx
       await adminPrograms.awaitEditNoteModal()
       await page.evaluate(() => {
@@ -285,7 +285,7 @@ describe('view program statuses', () => {
       await validateScreenshot(page, 'edit-note-modal')
     })
 
-    it('shows the current note content', async () => {
+    test('shows the current note content', async () => {
       const {adminPrograms} = ctx
       const noteText = 'Some note content'
       await adminPrograms.editNote(noteText)
@@ -298,7 +298,7 @@ describe('view program statuses', () => {
       expect(await adminPrograms.getNoteContent()).toBe(noteText)
     })
 
-    it('allows updating a note', async () => {
+    test('allows updating a note', async () => {
       const {adminPrograms} = ctx
       const noteText = 'Some note content'
       await adminPrograms.editNote('first note content')
@@ -313,7 +313,7 @@ describe('view program statuses', () => {
       expect(await adminPrograms.getNoteContent()).toBe(noteText)
     })
 
-    it('preserves newlines in notes', async () => {
+    test('preserves newlines in notes', async () => {
       const {adminPrograms} = ctx
       const noteText = 'Some note content\nwithseparatelines'
       await adminPrograms.editNote(noteText)
@@ -378,7 +378,7 @@ describe('view program statuses', () => {
       await adminPrograms.viewApplications(programWithDefaultStatusName)
     })
 
-    it('when a default status is set, applications with that status show (default)', async () => {
+    test('when a default status is set, applications with that status show (default)', async () => {
       const {page, adminPrograms} = ctx
       await adminPrograms.expectApplicationHasStatusString(
         'Guest',
@@ -461,7 +461,7 @@ describe('view program statuses', () => {
       await loginAsProgramAdmin(page)
     })
 
-    it('application without status appears in default filter and without statuses filter', async () => {
+    test('application without status appears in default filter and without statuses filter', async () => {
       const {adminPrograms} = ctx
       await adminPrograms.viewApplications(programForFilteringName)
       // Default page shows all applications.
@@ -492,7 +492,7 @@ describe('view program statuses', () => {
       await adminPrograms.expectApplicationCount(1)
     })
 
-    it('applied application status filter is used when downloading', async () => {
+    test('applied application status filter is used when downloading', async () => {
       const {adminPrograms} = ctx
       const applyFilters = true
       // Ensure that the application is included if the filter includes it.
@@ -526,7 +526,7 @@ describe('view program statuses', () => {
       expect(approvedStatusFilteredJsonContent.length).toEqual(0)
     })
 
-    it('application with status shows in default filter and status-specific filter', async () => {
+    test('application with status shows in default filter and status-specific filter', async () => {
       const {adminPrograms} = ctx
       // Explicitly set a status for the application.
       await adminPrograms.viewApplications(programForFilteringName)
@@ -562,7 +562,7 @@ describe('view program statuses', () => {
       await adminPrograms.expectApplicationCount(1)
     })
 
-    it('shows the application on reload after the status is updated to something no longer in the filter', async () => {
+    test('shows the application on reload after the status is updated to something no longer in the filter', async () => {
       const {adminPrograms} = ctx
 
       await adminPrograms.viewApplications(programForFilteringName)
@@ -657,7 +657,7 @@ describe('view program statuses', () => {
       await logout(page)
     })
 
-    it('application list shows eligibility statuses', async () => {
+    test('application list shows eligibility statuses', async () => {
       const {page, adminPrograms} = ctx
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(eligibilityProgramName)

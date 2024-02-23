@@ -14,7 +14,7 @@ import {
 describe('Program admin review of submitted applications', () => {
   const ctx = createTestContext()
 
-  it('all major steps', async () => {
+  test('all major steps', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -315,7 +315,7 @@ describe('Program admin review of submitted applications', () => {
     }
   })
 
-  it('program applications listed most recent first', async () => {
+  test('program applications listed most recent first', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
     // Create a simple one question program application.
@@ -363,7 +363,7 @@ describe('Program admin review of submitted applications', () => {
     }
   })
 
-  it('program application filters cleared', async () => {
+  test('program application filters cleared', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
     const noApplyFilters = false
