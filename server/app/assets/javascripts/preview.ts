@@ -344,15 +344,14 @@ class PreviewController {
     })
   }
 
+  /**
+   * Parses text with markdown into HTML with some additional styles applied
+   * 
+   * @param {string} text The text to parse into HTML.
+   */
   private static formatText(text: string): Element {
     // Preserve line breaks before parsing the text
-    const textArray = text.split('\n')
-    for (let i = 0; i < textArray.length; i++) {
-      if (!textArray[i]) {
-        textArray[i] = '\n'
-      }
-    }
-    text = textArray.join('\n')
+    text = text.split('\n').join('<br>')
 
     let parsedHtml = PreviewController.md.render(text)
     // Format lists
