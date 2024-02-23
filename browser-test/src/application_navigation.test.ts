@@ -1378,8 +1378,9 @@ describe('Applicant navigation flow', () => {
         questionName: questionName,
         questionText:
           'This is a _question_ with some [markdown](https://www.example.com) and \n line \n\n breaks',
-        // Markdown breaks the comparison, so pass in just the first part of the question text
-        expectedQuestionText: 'This is a question with some markdown',
+        // Newline characters break the comparison, so pass in just the first part of the question text
+        expectedQuestionText:
+          'This is a _question_ with some [markdown](https://www.example.com)',
       })
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlock(programName, 'first description', [

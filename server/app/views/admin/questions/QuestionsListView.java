@@ -51,7 +51,6 @@ import views.components.Modal;
 import views.components.Modal.Width;
 import views.components.QuestionBank;
 import views.components.QuestionSortOption;
-import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
@@ -396,11 +395,7 @@ public final class QuestionsListView extends BaseHtmlView {
                 Icons.questionTypeSvg(definition.getQuestionType())
                     .withClasses("w-6", "h-6", "shrink-0"))
             .with(
-                // TODO add format text here
-                div()
-                    .with(
-                        TextFormatter.formatText(
-                            definition.getQuestionText().getDefault(), true, false))
+                div(definition.getQuestionText().getDefault())
                     .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, "pl-4", "text-xl"));
     DivTag questionDescription =
         // TODO do we format help text as well?
