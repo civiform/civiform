@@ -53,7 +53,7 @@ describe('applicant program index page', () => {
     await logout(page)
   })
 
-  it('shows log in button for guest users', async () => {
+  test('shows log in button for guest users', async () => {
     const {page, applicantQuestions} = ctx
     await validateAccessibility(page)
 
@@ -67,7 +67,7 @@ describe('applicant program index page', () => {
     await logout(page)
   })
 
-  it('shows login prompt for guest users when they click apply', async () => {
+  test('shows login prompt for guest users when they click apply', async () => {
     const {page} = ctx
     await validateAccessibility(page)
 
@@ -103,7 +103,7 @@ describe('applicant program index page', () => {
     )
   })
 
-  it('categorizes programs for draft and applied applications', async () => {
+  test('categorizes programs for draft and applied applications', async () => {
     const {page, applicantQuestions} = ctx
     await loginAsTestUser(page)
     // Navigate to the applicant's program index and validate that both programs appear in the
@@ -147,7 +147,7 @@ describe('applicant program index page', () => {
     })
   })
 
-  it('common intake form enabled but not present', async () => {
+  test('common intake form enabled but not present', async () => {
     const {page} = ctx
     await enableFeatureFlag(page, 'intake_form_enabled')
 
@@ -155,7 +155,7 @@ describe('applicant program index page', () => {
     await validateAccessibility(page)
   })
 
-  it('shows common intake form when enabled and present', async () => {
+  test('shows common intake form when enabled and present', async () => {
     const {page, adminPrograms, applicantQuestions} = ctx
     await enableFeatureFlag(page, 'intake_form_enabled')
 
@@ -187,7 +187,7 @@ describe('applicant program index page', () => {
     await validateAccessibility(page)
   })
 
-  it('shows a different title for the common intake form', async () => {
+  test('shows a different title for the common intake form', async () => {
     const {page, applicantQuestions} = ctx
     await enableFeatureFlag(page, 'intake_form_enabled')
 
@@ -201,7 +201,7 @@ describe('applicant program index page', () => {
     )
   })
 
-  it('shows previously answered on text for questions that had been answered', async () => {
+  test('shows previously answered on text for questions that had been answered', async () => {
     const {page, applicantQuestions} = ctx
 
     // Fill out application with one question and confirm it shows previously answered at the end.
@@ -256,7 +256,7 @@ describe('applicant program index page', () => {
 describe('applicant program index page with images', () => {
   const ctx = createTestContext()
 
-  it('shows program with wide image', async () => {
+  test('shows program with wide image', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     const programName = 'Wide Image Program'
     await loginAsAdmin(page)
@@ -273,7 +273,7 @@ describe('applicant program index page with images', () => {
     await validateAccessibility(page)
   })
 
-  it('shows program with tall image', async () => {
+  test('shows program with tall image', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     const programName = 'Tall Image Program'
     await loginAsAdmin(page)
@@ -289,7 +289,7 @@ describe('applicant program index page with images', () => {
     await validateScreenshot(page, 'program-image-tall')
   })
 
-  it('no program image if flag off', async () => {
+  test('no program image if flag off', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     const programName = 'Image Flag Off Program'
     await loginAsAdmin(page)
@@ -309,7 +309,7 @@ describe('applicant program index page with images', () => {
     await validateScreenshot(page, 'program-image-flag-off')
   })
 
-  it('shows program with image and status', async () => {
+  test('shows program with image and status', async () => {
     const {page, adminPrograms, adminProgramStatuses, adminProgramImage} = ctx
     const programName = 'Image And Status Program'
     await loginAsAdmin(page)
@@ -337,7 +337,7 @@ describe('applicant program index page with images', () => {
 
   // This test puts programs with different specs in the different sections of the homepage
   // to verify that different card formats appear correctly next to each other and across sections.
-  it('shows programs with and without images in all sections', async () => {
+  test('shows programs with and without images in all sections', async () => {
     const {
       page,
       adminPrograms,

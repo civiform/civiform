@@ -8,7 +8,7 @@ import {
 } from './support'
 describe('Admin question list', () => {
   const ctx = createTestContext()
-  it('sorts by last updated, preferring draft over active', async () => {
+  test('sorts by last updated, preferring draft over active', async () => {
     const {page, adminPrograms, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -83,7 +83,7 @@ describe('Admin question list', () => {
     ])
   })
 
-  it('filters question list with search query', async () => {
+  test('filters question list with search query', async () => {
     const {page, adminQuestions} = ctx
     await loginAsAdmin(page)
     await adminQuestions.addTextQuestion({
@@ -110,7 +110,7 @@ describe('Admin question list', () => {
     ])
   })
 
-  it('sorts question list based on selection', async () => {
+  test('sorts question list based on selection', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
     await loginAsAdmin(page)
     // Set the questionText to the same as questionName to make validation easier since questionBankNames()
@@ -158,7 +158,7 @@ describe('Admin question list', () => {
     await validateScreenshot(page, 'questions-list-sort-dropdown-lastmodified')
   })
 
-  it('shows if questions are marked for archival', async () => {
+  test('shows if questions are marked for archival', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
     await loginAsAdmin(page)
 
@@ -190,7 +190,7 @@ describe('Admin question list', () => {
     await validateScreenshot(page, 'questions-list-with-archived-questions')
   })
 
-  it('does not sort archived questions', async () => {
+  test('does not sort archived questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
     await loginAsAdmin(page)
 
@@ -235,7 +235,7 @@ describe('Admin question list', () => {
     ])
   })
 
-  it('persists universal state and orders questions correctly', async () => {
+  test('persists universal state and orders questions correctly', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)

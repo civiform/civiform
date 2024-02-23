@@ -42,7 +42,7 @@ describe('with program statuses', () => {
     await logout(page)
   })
 
-  it('displays status and passes accessibility checks', async () => {
+  test('displays status and passes accessibility checks', async () => {
     const {page} = ctx
     await loginAsTestUser(page)
     await validateAccessibility(page)

@@ -20,7 +20,7 @@ describe('csv export for multioption question', () => {
     await dropTables(page)
     await seedQuestions(page)
   })
-  it('test multioption csv into its own column', async () => {
+  test('test multioption csv into its own column', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
     const noApplyFilters = false
@@ -117,7 +117,7 @@ describe('normal application flow', () => {
     await seedQuestions(page)
   })
 
-  it('all major steps', async () => {
+  test('all major steps', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
     const noApplyFilters = false
@@ -368,7 +368,7 @@ describe('normal application flow', () => {
     }
   })
 
-  it('download finished application', async () => {
+  test('download finished application', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
     await loginAsAdmin(page)

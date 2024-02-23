@@ -13,7 +13,7 @@ describe('End to end enumerator test', () => {
   const programName = 'Ete enumerator program'
   const ctx = createTestContext(/* clearDb= */ false)
 
-  it('Updates enumerator elements in preview', async () => {
+  test('Updates enumerator elements in preview', async () => {
     const {page, adminQuestions} = ctx
     await loginAsAdmin(page)
 
@@ -46,7 +46,7 @@ describe('End to end enumerator test', () => {
     })
   })
 
-  it('Create nested enumerator and repeated questions as admin', async () => {
+  test('Create nested enumerator and repeated questions as admin', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
     await loginAsAdmin(page)
 
@@ -162,7 +162,7 @@ describe('End to end enumerator test', () => {
     await logout(page)
   })
 
-  it('has no accessibility violations', async () => {
+  test('has no accessibility violations', async () => {
     const {page, applicantQuestions} = ctx
     await applicantQuestions.applyProgram(programName)
 
@@ -189,7 +189,7 @@ describe('End to end enumerator test', () => {
     await validateAccessibility(page)
   })
 
-  it('validate screenshot', async () => {
+  test('validate screenshot', async () => {
     const {page, applicantQuestions} = ctx
     await applicantQuestions.applyProgram(programName)
 
@@ -201,7 +201,7 @@ describe('End to end enumerator test', () => {
     await validateScreenshot(page, 'enumerator')
   })
 
-  it('validate screenshot with errors', async () => {
+  test('validate screenshot with errors', async () => {
     const {page, applicantQuestions} = ctx
     await applicantQuestions.applyProgram(programName)
 
@@ -213,7 +213,7 @@ describe('End to end enumerator test', () => {
     await validateScreenshot(page, 'enumerator-errors')
   })
 
-  it('Renders the correct indexes for labels and buttons', async () => {
+  test('Renders the correct indexes for labels and buttons', async () => {
     const {page, applicantQuestions} = ctx
     await applicantQuestions.applyProgram(programName)
 
@@ -232,7 +232,7 @@ describe('End to end enumerator test', () => {
     await validateScreenshot(page, 'enumerator-indexes-after-removing-field')
   })
 
-  it('Applicant can fill in lots of blocks, and then go back and delete some repeated entities', async () => {
+  test('Applicant can fill in lots of blocks, and then go back and delete some repeated entities', async () => {
     const {page, applicantQuestions} = ctx
     await applicantQuestions.applyProgram(programName)
 
@@ -363,7 +363,7 @@ describe('End to end enumerator test', () => {
     await logout(page)
   })
 
-  it('Applicant can navigate to previous blocks', async () => {
+  test('Applicant can navigate to previous blocks', async () => {
     const {page, applicantQuestions} = ctx
     await applicantQuestions.applyProgram(programName)
 
@@ -414,7 +414,7 @@ describe('End to end enumerator test', () => {
     await logout(page)
   })
 
-  it('Create new version of enumerator and update repeated questions and programs', async () => {
+  test('Create new version of enumerator and update repeated questions and programs', async () => {
     const {page} = ctx
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)

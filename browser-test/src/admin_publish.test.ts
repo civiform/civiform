@@ -66,7 +66,7 @@ describe('publishing all draft questions and programs', () => {
     await adminPrograms.gotoAdminProgramsPage()
   })
 
-  it('shows programs and questions that will be published in the modal', async () => {
+  test('shows programs and questions that will be published in the modal', async () => {
     await adminPrograms.expectProgramReferencesModalContains({
       expectedQuestionsContents: [`${draftQuestionText} - Edit`],
       expectedProgramsContents: [
@@ -76,7 +76,7 @@ describe('publishing all draft questions and programs', () => {
     })
   })
 
-  it('validate screenshot', async () => {
+  test('validate screenshot', async () => {
     await adminPrograms.openPublishAllDraftsModal()
     await validateScreenshot(
       adminPrograms.publishAllProgramsModalLocator(),
@@ -85,7 +85,7 @@ describe('publishing all draft questions and programs', () => {
     await dismissModal(pageObject)
   })
 
-  it('publishing all programs with universal questions feature flag on shows a modal with information about universal questions', async () => {
+  test('publishing all programs with universal questions feature flag on shows a modal with information about universal questions', async () => {
     const {page, adminPrograms, adminQuestions} = ctx
     await loginAsAdmin(page)
     // Create programs and questions (including universal questions)

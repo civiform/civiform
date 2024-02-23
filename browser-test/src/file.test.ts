@@ -41,14 +41,14 @@ describe('file upload applicant flow', () => {
       await logout(page)
     })
 
-    it('validate screenshot', async () => {
+    test('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'file-required')
     })
 
-    it('form is correctly formatted', async () => {
+    test('form is correctly formatted', async () => {
       const {page, applicantQuestions} = ctx
 
       await applicantQuestions.applyProgram(programName)
@@ -64,7 +64,7 @@ describe('file upload applicant flow', () => {
       expect(await lastFormInput.getAttribute('type')).toBe('file')
     })
 
-    it('does not show errors initially', async () => {
+    test('does not show errors initially', async () => {
       const {applicantQuestions, applicantFileQuestion} = ctx
 
       await applicantQuestions.applyProgram(programName)
@@ -72,7 +72,7 @@ describe('file upload applicant flow', () => {
       await applicantFileQuestion.expectFileSelectionErrorHidden()
     })
 
-    it('no continue button initially', async () => {
+    test('no continue button initially', async () => {
       const {applicantQuestions, applicantFileQuestion} = ctx
 
       await applicantQuestions.applyProgram(programName)
@@ -80,7 +80,7 @@ describe('file upload applicant flow', () => {
       await applicantFileQuestion.expectNoContinueButton()
     })
 
-    it('does not show skip button for required question', async () => {
+    test('does not show skip button for required question', async () => {
       const {applicantQuestions, applicantFileQuestion} = ctx
 
       await applicantQuestions.applyProgram(programName)
@@ -88,7 +88,7 @@ describe('file upload applicant flow', () => {
       await applicantFileQuestion.expectNoSkipButton()
     })
 
-    it('can upload file', async () => {
+    test('can upload file', async () => {
       const {page, applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
 
@@ -99,7 +99,7 @@ describe('file upload applicant flow', () => {
     })
 
     /** Regression test for https://github.com/civiform/civiform/issues/6221. */
-    it('can replace file', async () => {
+    test('can replace file', async () => {
       const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
 
@@ -124,7 +124,7 @@ describe('file upload applicant flow', () => {
       )
     })
 
-    it('can download file content', async () => {
+    test('can download file content', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       const fileContent = 'some sample text'
@@ -137,7 +137,7 @@ describe('file upload applicant flow', () => {
     })
 
     /** Regression test for https://github.com/civiform/civiform/issues/6516. */
-    it('missing file error disappears when file uploaded', async () => {
+    test('missing file error disappears when file uploaded', async () => {
       const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
@@ -148,14 +148,14 @@ describe('file upload applicant flow', () => {
       await applicantFileQuestion.expectFileSelectionErrorHidden()
     })
 
-    it('has no accessibility violations', async () => {
+    test('has no accessibility violations', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
 
-    it('re-answering question shows previously uploaded file name on review and block pages', async () => {
+    test('re-answering question shows previously uploaded file name on review and block pages', async () => {
       // Answer the file upload question
       const {page, applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
@@ -182,7 +182,7 @@ describe('file upload applicant flow', () => {
       await validateScreenshot(page, 'file-required-re-answered')
     })
 
-    it('re-answering question shows continue button but no delete button', async () => {
+    test('re-answering question shows continue button but no delete button', async () => {
       // Answer the file upload question
       const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
@@ -229,14 +229,14 @@ describe('file upload applicant flow', () => {
       await logout(page)
     })
 
-    it('validate screenshot', async () => {
+    test('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'file-optional')
     })
 
-    it('with missing file shows error and does not proceed if Save&next', async () => {
+    test('with missing file shows error and does not proceed if Save&next', async () => {
       const {page, applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
 
@@ -251,7 +251,7 @@ describe('file upload applicant flow', () => {
       )
     })
 
-    it('with missing file can be skipped', async () => {
+    test('with missing file can be skipped', async () => {
       const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantFileQuestion.expectHasSkipButton()
@@ -266,7 +266,7 @@ describe('file upload applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('can upload file', async () => {
+    test('can upload file', async () => {
       const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
 
@@ -276,7 +276,7 @@ describe('file upload applicant flow', () => {
     })
 
     /** Regression test for https://github.com/civiform/civiform/issues/6221. */
-    it('can replace file', async () => {
+    test('can replace file', async () => {
       const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
 
@@ -301,7 +301,7 @@ describe('file upload applicant flow', () => {
       )
     })
 
-    it('can download file content', async () => {
+    test('can download file content', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       const fileContent = 'some sample text'
@@ -313,7 +313,7 @@ describe('file upload applicant flow', () => {
       expect(downloadedFileContent).toEqual(fileContent)
     })
 
-    it('can submit application', async () => {
+    test('can submit application', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion('some sample text')
@@ -324,14 +324,14 @@ describe('file upload applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('has no accessibility violations', async () => {
+    test('has no accessibility violations', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
 
-    it('re-answering question shows previously uploaded file name on review and block pages', async () => {
+    test('re-answering question shows previously uploaded file name on review and block pages', async () => {
       // Answer the file upload question
       const {page, applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
@@ -358,7 +358,7 @@ describe('file upload applicant flow', () => {
       await validateScreenshot(page, 'file-optional-re-answered')
     })
 
-    it('re-answering question shows continue and delete buttons', async () => {
+    test('re-answering question shows continue and delete buttons', async () => {
       // Answer the file upload question
       const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
@@ -378,7 +378,7 @@ describe('file upload applicant flow', () => {
       await applicantFileQuestion.expectHasDeleteButton()
     })
 
-    it('delete button removes file and redirects to next block', async () => {
+    test('delete button removes file and redirects to next block', async () => {
       // Answer the file upload question
       const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
@@ -479,7 +479,7 @@ describe('file upload applicant flow', () => {
     })
 
     describe('review button', () => {
-      it('clicking review without file redirects to review page (flag off)', async () => {
+      test('clicking review without file redirects to review page (flag off)', async () => {
         const {page, applicantQuestions} = ctx
         await disableFeatureFlag(page, 'save_on_all_actions')
 
@@ -493,7 +493,7 @@ describe('file upload applicant flow', () => {
         await applicantQuestions.expectReviewPage()
       })
 
-      it('clicking review without file redirects to review page (flag on)', async () => {
+      test('clicking review without file redirects to review page (flag on)', async () => {
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'save_on_all_actions')
 
@@ -507,7 +507,7 @@ describe('file upload applicant flow', () => {
         await applicantQuestions.expectReviewPage()
       })
 
-      it('clicking review with file discards file and redirects to review page (flag off)', async () => {
+      test('clicking review with file discards file and redirects to review page (flag off)', async () => {
         const {page, applicantQuestions} = ctx
         await disableFeatureFlag(page, 'save_on_all_actions')
 
@@ -532,7 +532,7 @@ describe('file upload applicant flow', () => {
         )
       })
 
-      it('clicking review with file saves file and redirects to review page (flag on)', async () => {
+      test('clicking review with file saves file and redirects to review page (flag on)', async () => {
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'save_on_all_actions')
 
@@ -560,7 +560,7 @@ describe('file upload applicant flow', () => {
     })
 
     describe('previous button', () => {
-      it('clicking previous without file redirects to previous page (flag off)', async () => {
+      test('clicking previous without file redirects to previous page (flag off)', async () => {
         const {page, applicantQuestions} = ctx
         await disableFeatureFlag(page, 'save_on_all_actions')
 
@@ -577,7 +577,7 @@ describe('file upload applicant flow', () => {
         )
       })
 
-      it('clicking previous without file redirects to previous page (flag on)', async () => {
+      test('clicking previous without file redirects to previous page (flag on)', async () => {
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'save_on_all_actions')
 
@@ -594,7 +594,7 @@ describe('file upload applicant flow', () => {
         )
       })
 
-      it('clicking previous with file discards file and redirects to previous page (flag off)', async () => {
+      test('clicking previous with file discards file and redirects to previous page (flag off)', async () => {
         const {page, applicantQuestions} = ctx
         await disableFeatureFlag(page, 'save_on_all_actions')
 
@@ -623,7 +623,7 @@ describe('file upload applicant flow', () => {
         )
       })
 
-      it('clicking previous with file saves file and redirects to previous page (flag on)', async () => {
+      test('clicking previous with file saves file and redirects to previous page (flag on)', async () => {
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'save_on_all_actions')
 
@@ -656,7 +656,7 @@ describe('file upload applicant flow', () => {
     })
 
     describe('save & next button', () => {
-      it('clicking save&next without file shows error on same page (flag off)', async () => {
+      test('clicking save&next without file shows error on same page (flag off)', async () => {
         const {page, applicantQuestions, applicantFileQuestion} = ctx
         await disableFeatureFlag(page, 'save_on_all_actions')
 
@@ -676,7 +676,7 @@ describe('file upload applicant flow', () => {
         await validateScreenshot(page, 'file-errors')
       })
 
-      it('clicking save&next without file shows error on same page (flag on)', async () => {
+      test('clicking save&next without file shows error on same page (flag on)', async () => {
         const {page, applicantQuestions, applicantFileQuestion} = ctx
         await enableFeatureFlag(page, 'save_on_all_actions')
 
@@ -695,7 +695,7 @@ describe('file upload applicant flow', () => {
         await applicantFileQuestion.expectFileSelectionErrorShown()
       })
 
-      it('clicking save&next with file saves file and redirects to next page (flag off)', async () => {
+      test('clicking save&next with file saves file and redirects to next page (flag off)', async () => {
         const {page, applicantQuestions} = ctx
         await disableFeatureFlag(page, 'save_on_all_actions')
 
@@ -725,7 +725,7 @@ describe('file upload applicant flow', () => {
         )
       })
 
-      it('clicking save&next with file saves file and redirects to next page (flag on)', async () => {
+      test('clicking save&next with file saves file and redirects to next page (flag on)', async () => {
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'save_on_all_actions')
 
@@ -757,7 +757,7 @@ describe('file upload applicant flow', () => {
     })
 
     describe('continue button', () => {
-      it('clicking continue button redirects to first unseen block', async () => {
+      test('clicking continue button redirects to first unseen block', async () => {
         const {page, applicantQuestions, applicantFileQuestion} = ctx
 
         // Answer the file upload question
@@ -799,7 +799,7 @@ describe('file upload applicant flow', () => {
         )
       })
 
-      it('clicking continue without new file redirects to next page (flag off)', async () => {
+      test('clicking continue without new file redirects to next page (flag off)', async () => {
         const {page, applicantQuestions, applicantFileQuestion} = ctx
         await disableFeatureFlag(page, 'save_on_all_actions')
 
@@ -840,7 +840,7 @@ describe('file upload applicant flow', () => {
         )
       })
 
-      it('clicking continue without new file redirects to next page (flag on)', async () => {
+      test('clicking continue without new file redirects to next page (flag on)', async () => {
         const {page, applicantQuestions, applicantFileQuestion} = ctx
         await enableFeatureFlag(page, 'save_on_all_actions')
 
@@ -888,7 +888,7 @@ describe('file upload applicant flow', () => {
         )
       })
 
-      it('clicking continue with new file does *not* save new file and redirects to next page (flag off)', async () => {
+      test('clicking continue with new file does *not* save new file and redirects to next page (flag off)', async () => {
         const {page, applicantQuestions, applicantFileQuestion} = ctx
         await disableFeatureFlag(page, 'save_on_all_actions')
 
@@ -940,7 +940,7 @@ describe('file upload applicant flow', () => {
         expect(downloadedFileContent).toEqual('some old text')
       })
 
-      it('clicking continue with new file does *not* save new file and redirects to next page (flag on)', async () => {
+      test('clicking continue with new file does *not* save new file and redirects to next page (flag on)', async () => {
         const {page, applicantQuestions, applicantFileQuestion} = ctx
         await enableFeatureFlag(page, 'save_on_all_actions')
 

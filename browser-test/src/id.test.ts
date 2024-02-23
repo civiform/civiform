@@ -30,14 +30,14 @@ describe('Id question for applicant flow', () => {
       await logout(page)
     })
 
-    it('validate screenshot', async () => {
+    test('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'id')
     })
 
-    it('validate screenshot with errors', async () => {
+    test('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
@@ -45,7 +45,7 @@ describe('Id question for applicant flow', () => {
       await validateScreenshot(page, 'id-errors')
     })
 
-    it('with id submits successfully', async () => {
+    test('with id submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('12345')
@@ -54,7 +54,7 @@ describe('Id question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with empty id does not submit', async () => {
+    test('with empty id does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
@@ -67,7 +67,7 @@ describe('Id question for applicant flow', () => {
       )
     })
 
-    it('with too short id does not submit', async () => {
+    test('with too short id does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('123')
@@ -79,7 +79,7 @@ describe('Id question for applicant flow', () => {
       )
     })
 
-    it('with too long id does not submit', async () => {
+    test('with too long id does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('123456')
@@ -91,7 +91,7 @@ describe('Id question for applicant flow', () => {
       )
     })
 
-    it('with non-numeric characters does not submit', async () => {
+    test('with non-numeric characters does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('abcde')
@@ -130,7 +130,7 @@ describe('Id question for applicant flow', () => {
       await logout(page)
     })
 
-    it('with both id inputs submits successfully', async () => {
+    test('with both id inputs submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('12345', 0)
@@ -140,7 +140,7 @@ describe('Id question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with unanswered optional question submits successfully', async () => {
+    test('with unanswered optional question submits successfully', async () => {
       const {applicantQuestions} = ctx
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
@@ -150,7 +150,7 @@ describe('Id question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with first invalid does not submit', async () => {
+    test('with first invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('abcde', 0)
@@ -163,7 +163,7 @@ describe('Id question for applicant flow', () => {
       )
     })
 
-    it('with second invalid does not submit', async () => {
+    test('with second invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('67890', 0)
@@ -176,7 +176,7 @@ describe('Id question for applicant flow', () => {
       )
     })
 
-    it('has no accessiblity violations', async () => {
+    test('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 

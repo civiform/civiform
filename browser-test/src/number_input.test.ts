@@ -29,14 +29,14 @@ describe('Number question for applicant flow', () => {
       await logout(page)
     })
 
-    it('validate screenshot', async () => {
+    test('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'number')
     })
 
-    it('validate screenshot with errors', async () => {
+    test('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
@@ -44,7 +44,7 @@ describe('Number question for applicant flow', () => {
       await validateScreenshot(page, 'number-errors')
     })
 
-    it('with valid number submits successfully', async () => {
+    test('with valid number submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('8')
@@ -53,7 +53,7 @@ describe('Number question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with no input does not submit', async () => {
+    test('with no input does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       // Leave field blank.
@@ -65,7 +65,7 @@ describe('Number question for applicant flow', () => {
       )
     })
 
-    it('with non-numeric inputs does not submit', async () => {
+    test('with non-numeric inputs does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       const testValues = ['12e3', '12E3', '-123', '1.23']
@@ -105,7 +105,7 @@ describe('Number question for applicant flow', () => {
       await logout(page)
     })
 
-    it('with valid numbers submits successfully', async () => {
+    test('with valid numbers submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('100', 0)
@@ -115,7 +115,7 @@ describe('Number question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with unanswered optional question submits successfully', async () => {
+    test('with unanswered optional question submits successfully', async () => {
       const {applicantQuestions} = ctx
       // Only answer required question.
       await applicantQuestions.applyProgram(programName)
@@ -125,7 +125,7 @@ describe('Number question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with first invalid does not submit', async () => {
+    test('with first invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('-10', 0)
@@ -135,7 +135,7 @@ describe('Number question for applicant flow', () => {
       expect(await page.isHidden(numberInputError)).toEqual(false)
     })
 
-    it('with second invalid does not submit', async () => {
+    test('with second invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('10', 0)
@@ -145,7 +145,7 @@ describe('Number question for applicant flow', () => {
       expect(await page.isHidden(numberInputError + ' >> nth=1')).toEqual(false)
     })
 
-    it('has no accessiblity violations', async () => {
+    test('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 

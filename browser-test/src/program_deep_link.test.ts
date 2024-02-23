@@ -40,7 +40,7 @@ describe('navigating to a deep link', () => {
     await logout(page)
   })
 
-  it('shows a login prompt for guest users', async () => {
+  test('shows a login prompt for guest users', async () => {
     await resetContext(ctx)
     const {page} = ctx
 
@@ -54,7 +54,7 @@ describe('navigating to a deep link', () => {
     )
   })
 
-  it('does not show login prompt for logged in users', async () => {
+  test('does not show login prompt for logged in users', async () => {
     await resetContext(ctx)
     const {page} = ctx
 
@@ -65,7 +65,7 @@ describe('navigating to a deep link', () => {
     )
   })
 
-  it('takes guests and logged in users through the flow correctly', async () => {
+  test('takes guests and logged in users through the flow correctly', async () => {
     await resetContext(ctx)
     const {page} = ctx
 
@@ -92,7 +92,7 @@ describe('navigating to a deep link', () => {
     )
   })
 
-  it('Non-logged in user should get redirected to the program page and not an error', async () => {
+  test('Non-logged in user should get redirected to the program page and not an error', async () => {
     await resetContext(ctx)
     const {page, browserContext} = ctx
 
@@ -111,7 +111,7 @@ describe('navigating to a deep link', () => {
     await logout(page)
   })
 
-  it('Logging in to an existing account after opening a deep link in a new browser session', async () => {
+  test('Logging in to an existing account after opening a deep link in a new browser session', async () => {
     await resetContext(ctx)
     const {page, browserContext} = ctx
 
@@ -133,7 +133,7 @@ describe('navigating to a deep link', () => {
     await logout(page)
   })
 
-  it('Going to a deep link does not retain redirect in session', async () => {
+  test('Going to a deep link does not retain redirect in session', async () => {
     await resetContext(ctx)
     const {page, browserContext} = ctx
     await browserContext.clearCookies()
