@@ -217,7 +217,8 @@ public final class ProgramService {
    *     RuntimeException} is thrown when the future completes and slug does not correspond to a
    *     real Program
    */
-  public CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(String programSlug) {
+  public CompletionStage<ProgramDefinition> getActiveFullProgramDefinitionAsync(
+      String programSlug) {
     return programRepository
         .getActiveProgramFromSlug(programSlug)
         .thenComposeAsync(this::getFullProgramDefinition, httpExecutionContext.current());

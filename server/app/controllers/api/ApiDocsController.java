@@ -70,7 +70,7 @@ public final class ApiDocsController {
       if (useActiveVersion) {
         ProgramDefinition activeProgramDefinition =
             programService
-                .getActiveProgramDefinitionAsync(programSlug)
+                .getActiveFullProgramDefinitionAsync(programSlug)
                 .toCompletableFuture()
                 .join();
         return Optional.of(activeProgramDefinition);
