@@ -41,9 +41,9 @@ GET     /admin/programs/:programId/statuses        controllers.admin.AdminProgra
 POST    /admin/programs/:programId/statuses/delete controllers.admin.AdminProgramStatusesController.delete(request: Request, programId: Long)
 
 # Routes for managing program localization
-GET     /admin/programs/:programName/translations/edit            controllers.admin.AdminProgramTranslationsController.redirectToFirstLocale(request: Request, programName: String)
-GET     /admin/programs/:programName/translations/:locale/edit    controllers.admin.AdminProgramTranslationsController.edit(request: Request, programName: String, locale: String)
-POST    /admin/programs/:programName/translations/:locale         controllers.admin.AdminProgramTranslationsController.update(request: Request, programName: String, locale: String)
+GET     /admin/programs/:programName/translations/edit/:referer            controllers.admin.AdminProgramTranslationsController.redirectToFirstLocale(request: Request, programName: String, referer: views.admin.programs.ProgramTranslationRefererWrapper)
+GET     /admin/programs/:programName/translations/:locale/edit/:referer    controllers.admin.AdminProgramTranslationsController.edit(request: Request, programName: String, locale: String, referer: views.admin.programs.ProgramTranslationRefererWrapper)
+POST    /admin/programs/:programName/translations/:locale/:referer         controllers.admin.AdminProgramTranslationsController.update(request: Request, programName: String, locale: String, referer: views.admin.programs.ProgramTranslationRefererWrapper)
 
 
 # A controller for pages for an admin to create and maintain blocks for a program

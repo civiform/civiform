@@ -85,11 +85,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
       Locale locale,
       String formAction,
       ImmutableList<DomContent> formFieldContent,
-      boolean isProgramEdit) {
-    String redirectUrl =
-        isProgramEdit
-            ? controllers.admin.routes.AdminProgramController.index().url()
-            : controllers.admin.routes.AdminQuestionController.index().url();
+      String backUrl) {
     FormTag form =
         form()
             .withMethod("POST")
@@ -101,7 +97,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
                     .withClasses("flex", "flex-row", "gap-x-2")
                     .with(
                         a("Back")
-                            .withHref(redirectUrl)
+                            .withHref(backUrl)
                             .withId("back-to-list-button")
                             .withClasses(ButtonStyles.OUTLINED_TRANSPARENT),
                         submitButton(

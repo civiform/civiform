@@ -46,18 +46,39 @@ public final class ProgramTranslationView extends TranslationFormView {
       Locale locale,
       ProgramDefinition program,
       ProgramTranslationForm translationForm,
-      Optional<ToastMessage> message) {
+      Optional<ToastMessage> message,
+      ProgramTranslationReferer referer) {
     String formAction =
         controllers.admin.routes.AdminProgramTranslationsController.update(
-                program.adminName(), locale.toLanguageTag())
+                program.adminName(),
+                locale.toLanguageTag(),
+                new ProgramTranslationRefererWrapper(referer))
             .url();
+
+    String backUrl;
+    switch (referer) {
+      case PROGRAM_EDIT:
+        backUrl = controllers.admin.routes.AdminProgramController.index().url();
+        break;
+      case PROGRAM_IMAGE_UPLOAD:
+        backUrl =
+            controllers.admin.routes.AdminProgramImageController.index(
+                    program.id(), ProgramEditStatus.EDIT.toString())
+                .url();
+        break;
+      case PROGRAM_CREATION_IMAGE_UPLOAD:
+        backUrl =
+            controllers.admin.routes.AdminProgramImageController.index(
+                    program.id(), ProgramEditStatus.CREATION_EDIT.toString())
+                .url();
+        break;
+      default:
+        throw new IllegalStateException("ProgramTranslationReferer not handled: " + referer);
+    }
+
     FormTag form =
         renderTranslationForm(
-            request,
-            locale,
-            formAction,
-            formFields(program, translationForm),
-            /* isProgramEdit= */ true);
+            request, locale, formAction, formFields(program, translationForm), backUrl);
 
     String title =
         String.format("Manage program translations: %s", program.localizedName().getDefault());
@@ -76,7 +97,10 @@ public final class ProgramTranslationView extends TranslationFormView {
 
   @Override
   protected String languageLinkDestination(String programName, Locale locale) {
-    return routes.AdminProgramTranslationsController.edit(programName, locale.toLanguageTag())
+    return routes.AdminProgramTranslationsController.edit(
+            programName,
+            locale.toLanguageTag(),
+            new ProgramTranslationRefererWrapper(ProgramTranslationReferer.PROGRAM_EDIT))
         .url();
   }
 

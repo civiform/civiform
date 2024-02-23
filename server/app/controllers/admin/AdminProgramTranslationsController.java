@@ -22,6 +22,7 @@ import services.program.OutOfDateStatusesException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import views.admin.programs.ProgramTranslationRefererWrapper;
 import views.admin.programs.ProgramTranslationView;
 import views.components.ToastMessage;
 
@@ -57,7 +58,8 @@ public class AdminProgramTranslationsController extends CiviFormController {
    * already has separate UI.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result redirectToFirstLocale(Http.Request request, String programName) {
+  public Result redirectToFirstLocale(
+      Http.Request request, String programName, ProgramTranslationRefererWrapper referer) {
     if (maybeFirstTranslatableLocale.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
           .flashing("error", "Translations are not enabled for this configuration");
@@ -65,7 +67,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
 
     return redirect(
         routes.AdminProgramTranslationsController.edit(
-                programName, maybeFirstTranslatableLocale.get().toLanguageTag())
+                programName, maybeFirstTranslatableLocale.get().toLanguageTag(), referer)
             .url());
   }
 
@@ -78,7 +80,11 @@ public class AdminProgramTranslationsController extends CiviFormController {
    *     for the given locale
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result edit(Http.Request request, String programName, String locale)
+  public Result edit(
+      Http.Request request,
+      String programName,
+      String locale,
+      ProgramTranslationRefererWrapper referer)
       throws ProgramNotFoundException {
     ProgramDefinition program = getDraftProgramDefinition(programName);
     Optional<Locale> maybeLocaleToEdit = translationLocales.fromLanguageTag(locale);
@@ -95,7 +101,8 @@ public class AdminProgramTranslationsController extends CiviFormController {
             localeToEdit,
             program,
             ProgramTranslationForm.fromProgram(program, localeToEdit, formFactory),
-            errorMessage));
+            errorMessage,
+            referer.getReferer()));
   }
 
   private ProgramDefinition getDraftProgramDefinition(String programName) {
@@ -117,7 +124,11 @@ public class AdminProgramTranslationsController extends CiviFormController {
    *     same {@link ProgramTranslationView} with error messages
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result update(Http.Request request, String programName, String locale)
+  public Result update(
+      Http.Request request,
+      String programName,
+      String locale,
+      ProgramTranslationRefererWrapper referer)
       throws ProgramNotFoundException {
     ProgramDefinition program = getDraftProgramDefinition(programName);
     Optional<Locale> maybeLocaleToUpdate = translationLocales.fromLanguageTag(locale);
@@ -139,17 +150,27 @@ public class AdminProgramTranslationsController extends CiviFormController {
       result =
           service.updateLocalization(program.id(), localeToUpdate, translationForm.getUpdateData());
     } catch (OutOfDateStatusesException e) {
-      return redirect(routes.AdminProgramTranslationsController.edit(programName, locale))
+      return redirect(routes.AdminProgramTranslationsController.edit(programName, locale, referer))
           .flashing("error", e.userFacingMessage());
     }
     if (result.isError()) {
       ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       return ok(
           translationView.render(
-              request, localeToUpdate, program, translationForm, Optional.of(errorMessage)));
+              request,
+              localeToUpdate,
+              program,
+              translationForm,
+              Optional.of(errorMessage),
+              referer.getReferer()));
     }
     return ok(
         translationView.render(
-            request, localeToUpdate, program, translationForm, /*message=*/ Optional.empty()));
+            request,
+            localeToUpdate,
+            program,
+            translationForm,
+            /* message= */ Optional.empty(),
+            referer.getReferer()));
   }
 }

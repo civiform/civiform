@@ -26,6 +26,8 @@ import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.JsBundle;
 import views.ViewUtils;
+import views.admin.programs.ProgramTranslationReferer;
+import views.admin.programs.ProgramTranslationRefererWrapper;
 import views.components.Icons;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
@@ -110,12 +112,17 @@ public final class AdminLayout extends BaseHtmlLayout {
    * optional if there are no locales to translate to.
    */
   public Optional<ButtonTag> createManageTranslationsButton(
-      String programAdminName, Optional<String> buttonId, String buttonStyles) {
+      String programAdminName,
+      Optional<String> buttonId,
+      String buttonStyles,
+      ProgramTranslationReferer referer) {
     if (translationLocales.translatableLocales().isEmpty()) {
       return Optional.empty();
     }
     String linkDestination =
-        routes.AdminProgramTranslationsController.redirectToFirstLocale(programAdminName).url();
+        routes.AdminProgramTranslationsController.redirectToFirstLocale(
+                programAdminName, new ProgramTranslationRefererWrapper(referer))
+            .url();
     ButtonTag button =
         makeSvgTextButton("Manage translations", Icons.LANGUAGE).withClass(buttonStyles);
     buttonId.ifPresent(button::withId);

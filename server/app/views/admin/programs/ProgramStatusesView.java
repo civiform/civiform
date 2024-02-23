@@ -139,7 +139,8 @@ public final class ProgramStatusesView extends BaseHtmlView {
     return layout.createManageTranslationsButton(
         program.adminName(),
         /* buttonId= */ Optional.empty(),
-        ButtonStyles.OUTLINED_WHITE_WITH_ICON);
+        ButtonStyles.OUTLINED_WHITE_WITH_ICON,
+        ProgramTranslationReferer.PROGRAM_EDIT);
   }
 
   /**

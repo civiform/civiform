@@ -5,6 +5,9 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
+import static views.admin.programs.ProgramEditStatus.EDIT;
+import static views.admin.programs.ProgramTranslationReferer.PROGRAM_CREATION_IMAGE_UPLOAD;
+import static views.admin.programs.ProgramTranslationReferer.PROGRAM_IMAGE_UPLOAD;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -201,7 +204,10 @@ public final class ProgramImageView extends BaseHtmlView {
             // admin_program_image.ts will enable the submit button when the description changes.
             .isDisabled());
     Optional<ButtonTag> manageTranslationsButton =
-        createManageTranslationsButton(programDefinition, existingDescription);
+        createManageTranslationsButton(
+            programDefinition,
+            existingDescription,
+            ProgramEditStatus.getStatusFromString(editStatus));
     manageTranslationsButton.ifPresent(buttonsDiv::with);
 
     return div()
@@ -226,12 +232,17 @@ public final class ProgramImageView extends BaseHtmlView {
   }
 
   private Optional<ButtonTag> createManageTranslationsButton(
-      ProgramDefinition programDefinition, String existingDescription) {
+      ProgramDefinition programDefinition,
+      String existingDescription,
+      ProgramEditStatus editStatus) {
+    ProgramTranslationReferer referer =
+        editStatus == EDIT ? PROGRAM_IMAGE_UPLOAD : PROGRAM_CREATION_IMAGE_UPLOAD;
     Optional<ButtonTag> button =
         layout.createManageTranslationsButton(
             programDefinition.adminName(),
             /* buttonId= */ Optional.empty(),
-            StyleUtils.joinStyles(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "flex", "ml-2"));
+            StyleUtils.joinStyles(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "flex", "ml-2"),
+            referer);
     // Disable the translations button if there's no description in the first place.
     return button.map(buttonTag -> buttonTag.withCondDisabled(existingDescription.isBlank()));
   }

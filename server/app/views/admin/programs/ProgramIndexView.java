@@ -574,7 +574,8 @@ public final class ProgramIndexView extends BaseHtmlView {
     return layout.createManageTranslationsButton(
         program.adminName(),
         /* buttonId= */ Optional.of("program-translations-link-" + program.id()),
-        ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
+        ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN,
+        ProgramTranslationReferer.PROGRAM_EDIT);
   }
 
   private ButtonTag renderEditStatusesLink(ProgramDefinition program) {
