@@ -1,6 +1,9 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static controllers.applicant.ApplicantRequestedAction.NEXT_BLOCK;
+import static controllers.applicant.ApplicantRequestedAction.PREVIOUS_BLOCK;
+import static controllers.applicant.ApplicantRequestedAction.REVIEW_PAGE;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -12,11 +15,13 @@ import com.google.common.collect.ImmutableList;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import j2html.TagCreator;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import play.mvc.Http.HttpVerbs;
@@ -25,6 +30,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.StorageUploadRequest;
+import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
 import views.components.ButtonStyles;
 import views.fileupload.FileUploadViewStrategy;
@@ -47,14 +53,38 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
   private static final String FILEUPLOAD_SKIP_BUTTON_ID = "fileupload-skip-button";
   private static final String FILEUPLOAD_CONTINUE_BUTTON_ID = "fileupload-continue-button";
 
+  /**
+   * A data key that points to a redirect URL that should be used if the user has uploaded a file.
+   * Should be set on each action button if the SAVE_ON_ALL_ACTIONS flag is enabled.
+   *
+   * <p>Should be kept in sync with {@link assets.javascripts.file_upload.ts}.
+   */
+  private static final String REDIRECT_WITH_FILE_KEY = "redirect-with-file";
+
+  /**
+   * A data key that points to a redirect URL that should be used if the user has *not* uploaded a
+   * file. If the SAVE_ON_ALL_ACTIONS flag is enabled, this should be set on any button whose action
+   * should be permitted even if the user hasn't uploaded a file. Right now, we allow users to
+   * navigate to the review page and previous page if they haven't uploaded a file, but we *don't*
+   * allow them to navigate to the next page without uploading a file. (Note that optional file
+   * upload questions have a separate Skip button -- see {@link #maybeRenderSkipOrDeleteButton}.)
+   *
+   * <p>Should be kept in sync with {@link assets.javascripts.file_upload.ts}.
+   */
+  private static final String REDIRECT_WITHOUT_FILE_KEY = "redirect-without-file";
+
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final ApplicantRoutes applicantRoutes;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantFileUploadRenderer(
-      FileUploadViewStrategy fileUploadViewStrategy, ApplicantRoutes applicantRoutes) {
+      FileUploadViewStrategy fileUploadViewStrategy,
+      ApplicantRoutes applicantRoutes,
+      SettingsManifest settingsManifest) {
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -119,7 +149,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                     params.applicantId(),
                     params.programId(),
                     params.block().getId(),
-                    params.inReview())
+                    params.inReview(),
+                    NEXT_BLOCK)
                 .url();
 
     String key =
@@ -243,7 +274,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                 params.programId(),
                 params.block().getId(),
                 params.inReview(),
-                ApplicantRequestedAction.NEXT_BLOCK)
+                NEXT_BLOCK)
             .url();
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder()
@@ -274,7 +305,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     return div(continueForm, deleteForm).withClasses("hidden");
   }
 
-  private ButtonTag renderNextButton(Params params) {
+  private ButtonTag renderOldNextButton(Params params) {
     String styles = ButtonStyles.SOLID_BLUE;
     if (hasUploadedFile(params)) {
       styles = ButtonStyles.OUTLINED_TRANSPARENT;
@@ -312,17 +343,89 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     DivTag ret =
         div()
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-            // TODO(#6450): Use the new review button here.
-            .with(renderOldReviewButton(params))
-            // TODO(#6450): Use the new previous button here.
-            .with(renderOldPreviousButton(params));
+            .with(renderButton(params, REVIEW_PAGE))
+            .with(renderButton(params, PREVIOUS_BLOCK));
     if (maybeSkipOrDeleteButton.isPresent()) {
       ret.with(maybeSkipOrDeleteButton.get());
     }
-    ret.with(renderNextButton(params));
+    ret.with(renderButton(params, NEXT_BLOCK));
     if (maybeContinueButton.isPresent()) {
       ret.with(maybeContinueButton.get());
     }
     return ret;
+  }
+
+  private DomContent renderButton(Params params, ApplicantRequestedAction action) {
+    if (!settingsManifest.getSaveOnAllActions(params.request())) {
+      switch (action) {
+        case NEXT_BLOCK:
+          return renderOldNextButton(params);
+        case PREVIOUS_BLOCK:
+          return renderOldPreviousButton(params);
+        case REVIEW_PAGE:
+          return renderOldReviewButton(params);
+        default:
+          throw new IllegalStateException("Action not handled: " + action.name());
+      }
+    }
+
+    // If the SAVE_ON_ALL_ACTIONS flag is on, all buttons should submit the form but
+    // should have different text and different redirects.
+
+    MessageKey buttonMessage;
+    @Nullable String redirectWithoutFile;
+    switch (action) {
+      case NEXT_BLOCK:
+        buttonMessage = MessageKey.BUTTON_NEXT_SCREEN;
+        // Don't allow the user to proceed to the next block without uploading a file.
+        redirectWithoutFile = null;
+        break;
+      case PREVIOUS_BLOCK:
+        buttonMessage = MessageKey.BUTTON_PREVIOUS_SCREEN;
+        redirectWithoutFile =
+            params.baseUrl()
+                + applicantRoutes
+                    .blockPreviousOrReview(
+                        params.profile(),
+                        params.applicantId(),
+                        params.programId(),
+                        params.blockIndex(),
+                        params.inReview())
+                    .url();
+        break;
+      case REVIEW_PAGE:
+        buttonMessage = MessageKey.BUTTON_REVIEW;
+        redirectWithoutFile =
+            params.baseUrl()
+                + applicantRoutes
+                    .review(params.profile(), params.applicantId(), params.programId())
+                    .url();
+        break;
+      default:
+        throw new IllegalStateException("Action not handled: " + action.name());
+    }
+
+    String redirectWithFile =
+        params.baseUrl()
+            + applicantRoutes
+                .updateFile(
+                    params.profile(),
+                    params.applicantId(),
+                    params.programId(),
+                    params.block().getId(),
+                    params.inReview(),
+                    action)
+                .url();
+
+    String buttonStyle = ButtonStyles.OUTLINED_TRANSPARENT;
+    if (action == NEXT_BLOCK && !hasUploadedFile(params)) {
+      buttonStyle = ButtonStyles.SOLID_BLUE;
+    }
+
+    return submitButton(params.messages().at(buttonMessage.getKeyName()))
+        .withClasses(buttonStyle, "file-upload-action-button")
+        .withData(REDIRECT_WITH_FILE_KEY, redirectWithFile)
+        .withData(REDIRECT_WITHOUT_FILE_KEY, redirectWithoutFile)
+        .withForm(BLOCK_FORM_ID);
   }
 }

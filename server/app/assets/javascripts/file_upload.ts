@@ -1,4 +1,4 @@
-import {assertNotNull} from './util'
+import {addEventListenerToElements, assertNotNull} from './util'
 
 const UPLOAD_ATTR = 'data-upload-text'
 
@@ -14,6 +14,17 @@ export function init() {
     // If there's no file upload question on the page, don't add extra logic.
     return
   }
+
+  // This event listener should only trigger if the SAVE_ON_ALL_ACTIONS flag is on
+  // because the file-upload-action-button class is only added when that flag is on
+  // (see {@link views.applicant.ApplicantFileUploadRenderer.java}).
+  addEventListenerToElements(
+    '.file-upload-action-button',
+    'click',
+    (e: Event) => {
+      onActionButtonClicked(e, blockForm)
+    },
+  )
 
   blockForm.addEventListener('submit', (event) => {
     // Prevent submission of a file upload form if no file has been
@@ -38,6 +49,60 @@ export function init() {
       validateFileUploadQuestion(blockForm)
     })
   }
+}
+
+function onActionButtonClicked(e: Event, blockForm: Element) {
+  const buttonTarget = e.currentTarget as HTMLElement
+  const fileInput = assertNotNull(
+    blockForm.querySelector<HTMLInputElement>('input[type=file]'),
+  )
+
+  if (fileInput.value != '') {
+    modifySuccessActionRedirect(buttonTarget, blockForm)
+  } else {
+    const redirectWithoutFile = buttonTarget.dataset.redirectWithoutFile
+    if (redirectWithoutFile) {
+      // If there's no file uploaded but the button provides a redirect
+      // that can be used even when there's no file, invoke that redirect.
+      // See {@link views.applicant.ApplicantFileUploadRenderer.java}.
+      window.location.href = redirectWithoutFile
+      // This will prevent form submission, which is important because we
+      // don't want to send an empty file to cloud storage providers or
+      // store an empty file key in our database.
+      e.preventDefault()
+    }
+  }
+}
+
+/**
+ * Modifies the "success_action_redirect"-named <input> to have the correct redirect
+ * location based on the button that was clicked.next
+ *
+ * Context: When a user submits a file upload, the <form> data is first sent to the
+ * cloud storage provider (CSP) to store the file. Once the file is successfully uploaded,
+ * the CSP invokes the URL specified by the "success_action_redirect" input to redirect
+ * the user appropriately. The "Save&next", "Previous", and "Review" buttons should
+ * all upload the file to the CSP, but should redirect to different places after the
+ * upload is successful. Since there's only one "success_action_redirect" input in
+ * the form, we need to manually edit that input to redirect to the right place.
+ *
+ * Each button stores a 'redirectWithFile' key in their data that specifies the correct
+ * redirect, so this function modifies the "success_action_redirect" input to use the
+ * redirect stored in the button. See {@link views.applicant.ApplicantFileUploadRenderer.java}.
+ */
+function modifySuccessActionRedirect(
+  buttonTarget: HTMLElement,
+  blockForm: Element,
+) {
+  const redirectWithFile = assertNotNull(buttonTarget.dataset.redirectWithFile)
+  // Note: success_action_redirect is AWS-specific. We'll need to
+  // handle Azure differently if/when we decide to support it.
+  const successActionRedirectInput = assertNotNull(
+    blockForm.querySelector<HTMLInputElement>(
+      'input[name="success_action_redirect"]',
+    ),
+  )
+  successActionRedirectInput.value = redirectWithFile
 }
 
 /**
