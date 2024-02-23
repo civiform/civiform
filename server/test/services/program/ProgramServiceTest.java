@@ -1123,7 +1123,7 @@ public class ProgramServiceTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("Test Program").buildDefinition();
 
     CompletionStage<ProgramDefinition> found =
-        ps.getActiveProgramDefinitionAsync(programDefinition.slug());
+        ps.getActiveFullProgramDefinitionAsync(programDefinition.slug());
 
     assertThat(found.toCompletableFuture().join().id()).isEqualTo(programDefinition.id());
   }
@@ -1133,7 +1133,7 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramBuilder.newActiveProgram("Test Program").buildDefinition();
 
     CompletionStage<ProgramDefinition> found =
-        ps.getActiveProgramDefinitionAsync("non-existent-program");
+        ps.getActiveFullProgramDefinitionAsync("non-existent-program");
 
     assertThatThrownBy(() -> found.toCompletableFuture().join())
         .isInstanceOf(CompletionException.class)
