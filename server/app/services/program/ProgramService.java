@@ -241,7 +241,7 @@ public final class ProgramService {
    * Get the program matching programId as well as all other versions of the program (i.e. all
    * programs with the same name).
    */
-  public ImmutableList<ProgramDefinition> getAllProgramDefinitionVersions(long programId) {
+  public ImmutableList<ProgramDefinition> getAllVersionsFullProgramDefinition(long programId) {
     return programRepository.getAllProgramVersions(programId).stream()
         .map(p -> getFullProgramDefinition(p).toCompletableFuture().join())
         .collect(ImmutableList.toImmutableList());
