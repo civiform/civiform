@@ -100,10 +100,12 @@ function addNewInput(
   newField.removeAttribute('id')
 
   // Register the click event handler for the buttons.
-  newField
-    .querySelector('[type=button]')!
-    .addEventListener('click', removeInput)
-
+  const deleteButton = newField.querySelector(
+    '.multi-option-question-field-remove-button',
+  )
+  if (deleteButton != null) {
+    deleteButton.addEventListener('click', removeInput)
+  }
   const upButton = newField.querySelector(
     '.multi-option-question-field-move-up-button',
   )

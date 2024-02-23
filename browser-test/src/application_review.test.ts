@@ -251,7 +251,9 @@ describe('Program admin review of submitted applications', () => {
     await loginAsAdmin(page)
     await adminQuestions.createNewVersion('favorite-trees-q')
     await adminQuestions.gotoQuestionEditPage('favorite-trees-q')
-    await page.click('#question-settings button:has-text("Delete"):visible')
+    await page.click(
+      '#question-settings .multi-option-question-field-remove-button',
+    )
     await page.click('text=Update')
     await adminPrograms.publishProgram(programName)
 
