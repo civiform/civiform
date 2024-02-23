@@ -110,7 +110,6 @@ public final class ReferenceClasses {
 
   public static final String PHONE_COUNTRY_CODE = "cf-phone-country-code";
   public static final String PHONE_NUMBER = "cf-phone-number";
-  public static final String MULTI_OPTION_DELETE_BUTTON = "cf-multi-option-delete-button";
   public static final String MULTI_OPTION_VALUE = "cf-multi-option-value";
   public static final String MULTI_OPTION_QUESTION_OPTION = "cf-multi-option-question-option";
   // Editable instance of a question option; not to be used for question previews.

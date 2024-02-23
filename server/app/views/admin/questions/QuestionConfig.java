@@ -241,7 +241,6 @@ public final class QuestionConfig {
             .with(Icons.svg(Icons.DELETE).withClasses("w-6", "h-6"))
             .withClasses(
                 AdminStyles.DELETE_BUTTON,
-                ReferenceClasses.MULTI_OPTION_DELETE_BUTTON,
                 "multi-option-question-field-remove-button",
                 "col-start-8",
                 "row-span-2")
