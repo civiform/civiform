@@ -38,23 +38,6 @@ public class ApplicantRequestedActionWrapperTest {
   }
 
   @Test
-  public void setAction_updatesAction() {
-    ApplicantRequestedActionWrapper wrapper = new ApplicantRequestedActionWrapper();
-
-    wrapper.setAction(ApplicantRequestedAction.REVIEW_PAGE);
-
-    assertThat(wrapper.getAction()).isEqualTo(ApplicantRequestedAction.REVIEW_PAGE);
-
-    wrapper.setAction(ApplicantRequestedAction.NEXT_BLOCK);
-
-    assertThat(wrapper.getAction()).isEqualTo(ApplicantRequestedAction.NEXT_BLOCK);
-
-    wrapper.setAction(ApplicantRequestedAction.PREVIOUS_BLOCK);
-
-    assertThat(wrapper.getAction()).isEqualTo(ApplicantRequestedAction.PREVIOUS_BLOCK);
-  }
-
-  @Test
   public void bind_nextBlock_actionIsNextBlock() {
     ApplicantRequestedActionWrapper wrapper = new ApplicantRequestedActionWrapper();
 
@@ -83,8 +66,8 @@ public class ApplicantRequestedActionWrapperTest {
 
   @Test
   public void bind_unknownValue_actionResetToDefault() {
-    ApplicantRequestedActionWrapper wrapper = new ApplicantRequestedActionWrapper();
-    wrapper.setAction(ApplicantRequestedAction.REVIEW_PAGE);
+    ApplicantRequestedActionWrapper wrapper =
+        new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE);
 
     wrapper.bind("key", "fake-enum-value");
 
