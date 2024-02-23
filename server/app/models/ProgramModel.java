@@ -133,7 +133,7 @@ public class ProgramModel extends BaseModel {
    * Gets the program definition from the database.
    *
    * <p>This should never be called directly, but instead called from {@link
-   * repository.ProgramRepository#getProgramDefinition}.
+   * repository.ProgramRepository#getShallowProgramDefinition}.
    */
   public ProgramDefinition getProgramDefinition() {
     return checkNotNull(this.programDefinition);

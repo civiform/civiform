@@ -147,7 +147,9 @@ public final class ProfileFactory {
                   .forEach(
                       program ->
                           account.addAdministeredProgram(
-                              programRepositoryProvider.get().getProgramDefinition(program)));
+                              programRepositoryProvider
+                                  .get()
+                                  .getShallowProgramDefinition(program)));
               account.setEmailAddress(String.format("fake-local-admin-%d@example.com", account.id));
               account.setAuthorityId(generateFakeAdminAuthorityId());
               account.save();
@@ -174,7 +176,9 @@ public final class ProfileFactory {
                   .forEach(
                       program ->
                           account.addAdministeredProgram(
-                              programRepositoryProvider.get().getProgramDefinition(program)));
+                              programRepositoryProvider
+                                  .get()
+                                  .getShallowProgramDefinition(program)));
               account.setEmailAddress(String.format("fake-local-admin-%d@example.com", account.id));
               account.save();
             })
