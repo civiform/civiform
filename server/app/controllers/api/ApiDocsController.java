@@ -76,7 +76,7 @@ public final class ApiDocsController {
         return Optional.of(activeProgramDefinition);
       } else {
         ProgramDefinition draftProgramDefinition =
-            programService.getDraftProgramDefinition(programSlug);
+            programService.getDraftFullProgramDefinition(programSlug);
         return Optional.of(draftProgramDefinition);
       }
 
