@@ -2,10 +2,8 @@ package controllers.applicant;
 
 import static controllers.applicant.ApplicantRequestedAction.DEFAULT_ACTION;
 
-import java.util.Optional;
-import javax.validation.constraints.NotNull;
-import org.slf4j.LoggerFactory;
 import play.mvc.PathBindable;
+import util.PathBindableHelper;
 
 /**
  * This class allows us to include {@link ApplicantRequestedAction} directly in routes with type
@@ -24,56 +22,32 @@ import play.mvc.PathBindable;
  */
 public final class ApplicantRequestedActionWrapper
     implements PathBindable<ApplicantRequestedActionWrapper> {
-  private Optional<ApplicantRequestedAction> action = Optional.empty();
+  private final PathBindableHelper<ApplicantRequestedAction> pathBindableHelper =
+      new PathBindableHelper<>(DEFAULT_ACTION, ApplicantRequestedAction.class);
 
   public ApplicantRequestedActionWrapper() {}
 
   public ApplicantRequestedActionWrapper(ApplicantRequestedAction action) {
-    this.action = Optional.of(action);
+    pathBindableHelper.setItem(action);
   }
 
-  /** Sets the given action on this wrapper and returns the wrapper. */
-  public ApplicantRequestedActionWrapper setAction(ApplicantRequestedAction action) {
-    this.action = Optional.of(action);
-    return this;
-  }
-
-  @NotNull
   public ApplicantRequestedAction getAction() {
-    if (this.action.isEmpty()) {
-      // A lot of instances of ApplicantRequestedActionWrapper will be created because it's used as
-      // a user is filling out an application, so only create the logger if we have to.
-      LoggerFactory.getLogger(ApplicantRequestedActionWrapper.class)
-          .error(
-              "ApplicantRequestedActionWrapper had empty action in #getAction; returning default");
-      return DEFAULT_ACTION;
-    }
-    return this.action.get();
+    return pathBindableHelper.getItem();
   }
 
   @Override
   public ApplicantRequestedActionWrapper bind(String key, String txt) {
-    try {
-      this.action = Optional.of(ApplicantRequestedAction.valueOf(txt));
-    } catch (IllegalArgumentException e) {
-      // Reset the action if the text we received doesn't match a ApplicantRequestedAction value
-      this.action = Optional.empty();
-    }
+    pathBindableHelper.bind(txt);
     return this;
   }
 
   @Override
   public String unbind(String key) {
-    return javascriptUnbind();
+    return pathBindableHelper.unbind();
   }
 
   @Override
   public String javascriptUnbind() {
-    if (this.action.isEmpty()) {
-      LoggerFactory.getLogger(ApplicantRequestedActionWrapper.class)
-          .error("ApplicantRequestedActionWrapper had empty action in #unbind; returning default");
-      return DEFAULT_ACTION.name();
-    }
-    return this.action.get().name();
+    return pathBindableHelper.unbind();
   }
 }
