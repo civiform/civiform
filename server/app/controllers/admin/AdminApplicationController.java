@@ -521,7 +521,7 @@ public final class AdminApplicationController extends CiviFormController {
   }
 
   private ImmutableList<String> getAllApplicationStatusesForProgram(long programId) {
-    return programService.getAllProgramDefinitionVersions(programId).stream()
+    return programService.getAllVersionsFullProgramDefinition(programId).stream()
         .map(pdef -> pdef.statusDefinitions().getStatuses())
         .flatMap(ImmutableList::stream)
         .map(StatusDefinitions.Status::statusText)
