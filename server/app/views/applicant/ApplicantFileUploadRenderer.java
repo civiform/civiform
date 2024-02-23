@@ -57,7 +57,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
    * A data key that points to a redirect URL that should be used if the user has uploaded a file.
    * Should be set on each action button if the SAVE_ON_ALL_ACTIONS flag is enabled.
    *
-   * <p>Should be kept in sync with file_upload.ts.
+   * <p>Should be kept in sync with {@link assets.javascripts.file_upload.ts}.
    */
   private static final String REDIRECT_WITH_FILE_KEY = "redirect-with-file";
 
@@ -69,7 +69,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
    * allow them to navigate to the next page without uploading a file. (Note that optional file
    * upload questions have a separate Skip button -- see {@link #maybeRenderSkipOrDeleteButton}.)
    *
-   * <p>Should be kept in sync with file_upload.ts.
+   * <p>Should be kept in sync with {@link assets.javascripts.file_upload.ts}.
    */
   private static final String REDIRECT_WITHOUT_FILE_KEY = "redirect-without-file";
 
