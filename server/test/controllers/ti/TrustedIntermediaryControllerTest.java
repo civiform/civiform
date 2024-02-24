@@ -23,7 +23,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.AccountRepository;
-import services.applicant.ApplicantData;
 import services.applicant.exception.ApplicantNotFoundException;
 
 public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
@@ -76,11 +75,8 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     account.setManagedByGroup(tiGroup2);
     account.save();
 
-    // TODO (#5503): Remove when we remove the feature flag
-    assertThat(
-            testApplicant.get().getApplicantData().getDateOfBirthAtWellKnownPath().get().toString())
+    assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2022-07-18");
-    assertThat(testApplicant.get().getDateOfBirth().get().toString()).isEqualTo("2022-07-18");
     Http.RequestBuilder requestBuilder2 =
         addCSRFToken(
             fakeRequest()
@@ -161,21 +157,8 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     AccountModel account = testApplicant.get().getAccount();
     account.setManagedByGroup(trustedIntermediaryGroup);
     account.save();
-
-    ApplicantModel applicant = testApplicant.get();
-    ApplicantData data = applicant.getApplicantData();
-    // TODO (#5503): Remove when we remove the feature flag
-    assertThat(data.getDateOfBirthAtWellKnownPath().get().toString()).isEqualTo("2022-07-18");
-    assertThat(data.getApplicantFirstNameAtWellKnownPath().get()).isEqualTo("first");
-    assertThat(data.getApplicantMiddleNameAtWellKnownPath().get()).isEqualTo("middle");
-    assertThat(data.getApplicantLastNameAtWellKnownPath().get()).isEqualTo("last");
-
-    assertThat(applicant.getFirstName().get()).isEqualTo("first");
-    assertThat(applicant.getMiddleName().get()).isEqualTo("middle");
-    assertThat(applicant.getLastName().get()).isEqualTo("last");
-    assertThat(applicant.getAccount().getEmailAddress()).isEqualTo("testUpdate@fake.com");
-    assertThat(applicant.getEmailAddress().get()).isEqualTo("testUpdate@fake.com");
-    assertThat(applicant.getDateOfBirth().get().toString()).isEqualTo("2022-07-18");
+    assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
+        .isEqualTo("2022-07-18");
     Http.RequestBuilder requestBuilder2 =
         addCSRFToken(
             fakeRequest()
@@ -207,22 +190,17 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     // assert ti notes
     assertThat(accountFinal.getTiNote()).isEqualTo("unitTest");
 
-    applicant = accountFinal.newestApplicant().get();
-    // TODO (#5503): Remove when we remove the feature flag
-    data = applicant.getApplicantData();
-    assertThat(data.getDateOfBirthAtWellKnownPath().get().toString()).isEqualTo("2022-07-07");
-    assertThat(data.getApplicantFirstNameAtWellKnownPath().get()).isEqualTo("clientFirst");
-    assertThat(data.getApplicantMiddleNameAtWellKnownPath().get()).isEqualTo("clientMiddle");
-    assertThat(data.getApplicantLastNameAtWellKnownPath().get()).isEqualTo("clientLast");
-    assertThat(data.getPhoneNumberAtWellKnownPath().get()).isEqualTo("4259879090");
-
-    assertThat(applicant.getFirstName().get()).isEqualTo("clientFirst");
-    assertThat(applicant.getMiddleName().get()).isEqualTo("clientMiddle");
-    assertThat(applicant.getLastName().get()).isEqualTo("clientLast");
-    assertThat(applicant.getPhoneNumber().get()).isEqualTo("4259879090");
-    assertThat(applicant.getAccount().getEmailAddress()).isEqualTo("emailControllerSam");
-    assertThat(applicant.getEmailAddress().get()).isEqualTo("emailControllerSam");
-    assertThat(applicant.getDateOfBirth().get().toString()).isEqualTo("2022-07-07");
+    ApplicantModel applicantModel = accountFinal.newestApplicant().get();
+    // assert dob,name,phone
+    assertThat(applicantModel.getApplicantData().getDateOfBirth().get().toString())
+        .isEqualTo("2022-07-07");
+    assertThat(applicantModel.getApplicantData().getApplicantFirstName().get())
+        .isEqualTo("clientFirst");
+    assertThat(applicantModel.getApplicantData().getApplicantMiddleName().get())
+        .isEqualTo("clientMiddle");
+    assertThat(applicantModel.getApplicantData().getApplicantLastName().get())
+        .isEqualTo("clientLast");
+    assertThat(applicantModel.getApplicantData().getPhoneNumber().get()).isEqualTo("4259879090");
   }
 
   @Test
@@ -282,21 +260,10 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
             .get();
     Result result = tiController.addApplicant(trustedIntermediaryGroup.id, requestBuilder.build());
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    ApplicantModel applicant =
-        repo.lookupApplicantByEmail("sample2@fake.com").toCompletableFuture().join().get();
-    ApplicantData data = applicant.getApplicantData();
-    // TODO (#5503): Remove when we remove the feature flag
-    assertThat(data.getDateOfBirthAtWellKnownPath().get().toString()).isEqualTo("2022-07-18");
-    assertThat(data.getApplicantFirstNameAtWellKnownPath().get()).isEqualTo("first");
-    assertThat(data.getApplicantMiddleNameAtWellKnownPath().get()).isEqualTo("middle");
-    assertThat(data.getApplicantLastNameAtWellKnownPath().get()).isEqualTo("last");
-
-    assertThat(applicant.getFirstName().get()).isEqualTo("first");
-    assertThat(applicant.getMiddleName().get()).isEqualTo("middle");
-    assertThat(applicant.getLastName().get()).isEqualTo("last");
-    assertThat(applicant.getAccount().getEmailAddress()).isEqualTo("sample2@fake.com");
-    assertThat(applicant.getEmailAddress().get()).isEqualTo("sample2@fake.com");
-    assertThat(applicant.getDateOfBirth().get().toString()).isEqualTo("2022-07-18");
+    Optional<ApplicantModel> testApplicant =
+        repo.lookupApplicantByEmail("sample2@fake.com").toCompletableFuture().join();
+    assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
+        .isEqualTo("2022-07-18");
   }
 
   private AccountModel setupForEditUpdateClient(String email) {
@@ -324,7 +291,8 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail(email).toCompletableFuture().join();
-    assertThat(testApplicant.get().getDateOfBirth().get().toString()).isEqualTo("2022-07-18");
+    assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
+        .isEqualTo("2022-07-18");
     AccountModel account = repo.lookupAccountByEmail(email).get();
     return account;
   }

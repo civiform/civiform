@@ -187,17 +187,12 @@ public final class AccountRepository {
         applicant.setEmailAddress(email);
       }
       account.setTiNote(tiNote);
-
-      // TODO (#5503): Remove these when we remove the feature flag
-      applicant.getApplicantData().setPhoneNumberAtWellKnownPath(phoneNumber);
-      applicant.getApplicantData().updateUserNameAtWellKnownPath(firstName, middleName, lastName);
-      applicant.getApplicantData().setDateOfBirthAtWellKnownPath(newDob);
-
-      applicant.setPhoneNumber(phoneNumber);
-      applicant.setFirstName(firstName);
-      applicant.setMiddleName(middleName);
-      applicant.setLastName(lastName);
-      applicant.setDateOfBirth(newDob);
+      applicant.getApplicantData().setPhoneNumber(phoneNumber);
+      applicant
+          .getApplicantData()
+          .updateUserName(
+              firstName, Optional.ofNullable(middleName), Optional.ofNullable(lastName));
+      applicant.getApplicantData().setDateOfBirth(newDob);
       account.save();
       applicant.save();
       database.saveAll(account, applicant);
@@ -352,17 +347,12 @@ public final class AccountRepository {
     newAccount.save();
     ApplicantModel applicant = new ApplicantModel();
     applicant.setAccount(newAccount);
-
-    // TODO (#5503): Remove these when we remove the feature flag
     ApplicantData applicantData = applicant.getApplicantData();
-    applicantData.setUserNameAtWellKnownPath(
-        form.getFirstName(), form.getMiddleName(), form.getLastName());
-    applicantData.setDateOfBirthAtWellKnownPath(form.getDob());
-
-    applicant.setFirstName(form.getFirstName());
-    applicant.setMiddleName(form.getMiddleName());
-    applicant.setLastName(form.getLastName());
-    applicant.setDateOfBirth(form.getDob());
+    applicantData.setUserName(
+        form.getFirstName(),
+        Optional.ofNullable(form.getMiddleName()),
+        Optional.ofNullable(form.getLastName()));
+    applicantData.setDateOfBirth(form.getDob());
     applicant.setEmailAddress(form.getEmailAddress());
     applicant.save();
   }

@@ -278,20 +278,22 @@ public final class TrustedIntermediaryService {
         validateAndConvertSearchParamDOB(searchParameters, missingParams);
     return allAccounts.stream()
         .filter(
-            account -> {
-              // TODO (#5503): Remove checking at WKP when removing feature flag
-              ApplicantModel applicant = account.newestApplicant().get();
-              Optional<LocalDate> currentDOB =
-                  applicant.getApplicantData().getDateOfBirthWithWellKnownPathFallback();
-              String applicantName = account.getApplicantName();
-              return (currentDOB.isPresent()
-                      && maybeDOB.isPresent()
-                      && currentDOB.get().equals(maybeDOB.get()))
-                  || (!missingParams.contains(SearchParameters.ParamTypes.NAME)
-                      && applicantName
-                          .toLowerCase(Locale.ROOT)
-                          .contains(searchParameters.nameQuery().get().toLowerCase(Locale.ROOT)));
-            })
+            account ->
+                ((account.newestApplicant().get().getApplicantData().getDateOfBirth().isPresent()
+                        && maybeDOB.isPresent()
+                        && account
+                            .newestApplicant()
+                            .get()
+                            .getApplicantData()
+                            .getDateOfBirth()
+                            .get()
+                            .equals(maybeDOB.get()))
+                    || (!missingParams.contains(SearchParameters.ParamTypes.NAME)
+                        && account
+                            .getApplicantName()
+                            .toLowerCase(Locale.ROOT)
+                            .contains(
+                                searchParameters.nameQuery().get().toLowerCase(Locale.ROOT)))))
         .collect(ImmutableList.toImmutableList());
   }
 

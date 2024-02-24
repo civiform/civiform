@@ -12,10 +12,8 @@ import forms.EditTiClientInfoForm;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import java.time.LocalDate;
 import java.util.Optional;
 import models.AccountModel;
-import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
 import play.data.Form;
 import play.i18n.Messages;
@@ -97,35 +95,12 @@ public class EditTiClientView extends BaseHtmlView {
       Http.Request request,
       Optional<Form<EditTiClientInfoForm>> form,
       Messages messages) {
-    ApplicantModel applicant = account.newestApplicant().get();
-    ApplicantData applicantData = applicant.getApplicantData();
+    ApplicantData applicantData = account.newestApplicant().get().getApplicantData();
     FormTag formTag =
         form()
             .withId("edit-ti")
             .withMethod("POST")
             .withAction(routes.TrustedIntermediaryController.updateClientInfo(account.id).url());
-    // TODO (#5503): Remove using WKP functions when removing feature flag
-    Optional<String> firstName =
-        applicant.getFirstName().isPresent()
-            ? applicant.getFirstName()
-            : applicantData.getApplicantFirstNameAtWellKnownPath();
-    Optional<String> middleName =
-        applicant.getMiddleName().isPresent()
-            ? applicant.getMiddleName()
-            : applicantData.getApplicantMiddleNameAtWellKnownPath();
-    Optional<String> lastName =
-        applicant.getLastName().isPresent()
-            ? applicant.getLastName()
-            : applicantData.getApplicantLastNameAtWellKnownPath();
-    Optional<String> phoneNumber =
-        applicant.getPhoneNumber().isPresent()
-            ? applicant.getPhoneNumber()
-            : applicantData.getPhoneNumberAtWellKnownPath();
-    Optional<LocalDate> dob =
-        applicant.getDateOfBirth().isPresent()
-            ? applicant.getDateOfBirth()
-            : applicantData.getDateOfBirthAtWellKnownPath();
-
     FieldWithLabel firstNameField =
         setStateIfPresent(
             FieldWithLabel.input()
@@ -133,7 +108,7 @@ public class EditTiClientView extends BaseHtmlView {
                 .setFieldName("firstName")
                 .setLabelText("First name")
                 .setRequired(true)
-                .setValue(firstName),
+                .setValue(applicantData.getApplicantFirstName()),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_FIRST_NAME,
             messages);
@@ -144,7 +119,7 @@ public class EditTiClientView extends BaseHtmlView {
                 .setId("edit-middle-name-input")
                 .setFieldName("middleName")
                 .setLabelText("Middle name")
-                .setValue(middleName),
+                .setValue(applicantData.getApplicantMiddleName()),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_MIDDLE_NAME,
             messages);
@@ -155,7 +130,7 @@ public class EditTiClientView extends BaseHtmlView {
                 .setFieldName("lastName")
                 .setLabelText("Last name")
                 .setRequired(true)
-                .setValue(lastName),
+                .setValue(applicantData.getApplicantLastName()),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_LAST_NAME,
             messages);
@@ -167,7 +142,7 @@ public class EditTiClientView extends BaseHtmlView {
                 .setAttribute("inputmode", "tel")
                 .setFieldName("phoneNumber")
                 .setLabelText("Phone number")
-                .setValue(phoneNumber),
+                .setValue(applicantData.getPhoneNumber().orElse("")),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_PHONE,
             messages);
@@ -195,7 +170,11 @@ public class EditTiClientView extends BaseHtmlView {
                 .setFieldName("dob")
                 .setLabelText("Date of birth")
                 .setRequired(true)
-                .setValue(dob.map(this.dateConverter::formatIso8601Date).orElse("")),
+                .setValue(
+                    applicantData
+                        .getDateOfBirth()
+                        .map(this.dateConverter::formatIso8601Date)
+                        .orElse("")),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_DOB,
             messages);

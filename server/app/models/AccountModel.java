@@ -182,14 +182,9 @@ public class AccountModel extends BaseModel {
    * unnecessary.
    */
   public String getApplicantName() {
-    // TODO (#5503): Don't use the WKP fallback function when we remove the feature flag
     return this.getApplicants().stream()
         .max(Comparator.comparing(ApplicantModel::getWhenCreated))
-        .map(
-            u ->
-                u.getApplicantData()
-                    .getApplicantNameWithWellKnownPathFallback()
-                    .orElse("<Unnamed User>"))
+        .map(u -> u.getApplicantData().getApplicantName().orElse("<Unnamed User>"))
         .orElse("<Unnamed User>");
   }
 }

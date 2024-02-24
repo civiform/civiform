@@ -74,32 +74,13 @@ public class AccountRepositoryTest extends ResetPostgres {
     ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
     AccountModel account = setupAccountForUpdateTest();
     repo.updateTiClient(
-        account,
-        applicantUpdateTest,
-        "Dow",
-        "James",
-        "John",
-        "1234567890",
-        "note",
-        "email@address.com",
-        "2020-10-10");
-
-    // TODO (#5503): Remove when we remove the feature flag
-    ApplicantData data = applicantUpdateTest.getApplicantData();
-    assertThat(data.getApplicantFirstNameAtWellKnownPath().get()).isEqualTo("Dow");
-    assertThat(data.getApplicantMiddleNameAtWellKnownPath().get()).isEqualTo("James");
-    assertThat(data.getApplicantLastNameAtWellKnownPath().get()).isEqualTo("John");
-    assertThat(data.getDateOfBirthAtWellKnownPath().get()).isEqualTo("2020-10-10");
-    assertThat(data.getPhoneNumberAtWellKnownPath().get()).isEqualTo("1234567890");
-
-    assertThat(applicantUpdateTest.getFirstName().get()).isEqualTo("Dow");
-    assertThat(applicantUpdateTest.getMiddleName().get()).isEqualTo("James");
-    assertThat(applicantUpdateTest.getLastName().get()).isEqualTo("John");
-    assertThat(applicantUpdateTest.getPhoneNumber().get()).isEqualTo("1234567890");
-    assertThat(applicantUpdateTest.getEmailAddress().get()).isEqualTo("email@address.com");
-    assertThat(account.getEmailAddress()).isEqualTo("email@address.com");
-    assertThat(applicantUpdateTest.getDateOfBirth().get()).isEqualTo("2020-10-10");
-    assertThat(account.getTiNote()).isEqualTo("note");
+        account, applicantUpdateTest, "Dow", "James", "John", "", "", "", "2020-10-10");
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
+        .isEqualTo("Dow");
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName().get())
+        .isEqualTo("James");
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName().get())
+        .isEqualTo("John");
   }
 
   @Test
@@ -107,16 +88,10 @@ public class AccountRepositoryTest extends ResetPostgres {
     ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
     AccountModel account = setupAccountForUpdateTest();
     repo.updateTiClient(account, applicantUpdateTest, "John", "", "", "", "", "", "2020-10-10");
-
-    // TODO (#5503): Remove when we remove the feature flag
-    ApplicantData data = applicantUpdateTest.getApplicantData();
-    assertThat(data.getApplicantFirstNameAtWellKnownPath().get()).isEqualTo("John");
-    assertThat(data.getApplicantMiddleNameAtWellKnownPath()).isEmpty();
-    assertThat(data.getApplicantLastNameAtWellKnownPath()).isEmpty();
-
-    assertThat(applicantUpdateTest.getFirstName().get()).isEqualTo("John");
-    assertThat(applicantUpdateTest.getMiddleName()).isEmpty();
-    assertThat(applicantUpdateTest.getLastName()).isEmpty();
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
+        .isEqualTo("John");
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName()).isEmpty();
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName()).isEmpty();
   }
 
   @Test
@@ -125,12 +100,8 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = setupAccountForUpdateTest();
     repo.updateTiClient(
         account, applicantUpdateTest, "Dow", "James", "John", "", "", "", "2023-12-12");
-
-    // TODO (#5503): Remove when we remove the feature flag
-    assertThat(applicantUpdateTest.getApplicantData().getDateOfBirthAtWellKnownPath().get())
+    assertThat(applicantUpdateTest.getApplicantData().getDateOfBirth().get())
         .isEqualTo("2023-12-12");
-
-    assertThat(applicantUpdateTest.getDateOfBirth().get()).isEqualTo("2023-12-12");
   }
 
   @Test
@@ -139,12 +110,8 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = setupAccountForUpdateTest();
     repo.updateTiClient(
         account, applicantUpdateTest, "Dow", "James", "John", "4259746144", "", "", "2023-12-12");
-
-    // TODO (#5503): Remove when we remove the feature flag
-    assertThat(applicantUpdateTest.getApplicantData().getPhoneNumberAtWellKnownPath().get())
+    assertThat(applicantUpdateTest.getApplicantData().getPhoneNumber().get())
         .isEqualTo("4259746144");
-
-    assertThat(applicantUpdateTest.getPhoneNumber().get()).isEqualTo("4259746144");
   }
 
   @Test
@@ -223,28 +190,28 @@ public class AccountRepositoryTest extends ResetPostgres {
   @Test
   public void insertApplicant() {
     ApplicantModel applicant = new ApplicantModel();
-    applicant.setDateOfBirth("2021-01-01");
+    applicant.getApplicantData().setDateOfBirth("2021-01-01");
 
     repo.insertApplicant(applicant).toCompletableFuture().join();
 
     long id = applicant.id;
     ApplicantModel a = repo.lookupApplicant(id).toCompletableFuture().join().get();
     assertThat(a.id).isEqualTo(id);
-    assertThat(a.getDateOfBirth().get().toString()).isEqualTo("2021-01-01");
+    assertThat(a.getApplicantData().getDateOfBirth().get().toString()).isEqualTo("2021-01-01");
   }
 
   @Test
   public void updateApplicant() {
     ApplicantModel applicant = new ApplicantModel();
     repo.insertApplicant(applicant).toCompletableFuture().join();
-    applicant.setDateOfBirth("2021-01-01");
+    applicant.getApplicantData().setDateOfBirth("2021-01-01");
 
     repo.updateApplicant(applicant).toCompletableFuture().join();
 
     long id = applicant.id;
     ApplicantModel a = repo.lookupApplicant(id).toCompletableFuture().join().get();
     assertThat(a.id).isEqualTo(id);
-    assertThat(a.getDateOfBirth().get().toString()).isEqualTo("2021-01-01");
+    assertThat(a.getApplicantData().getDateOfBirth().get().toString()).isEqualTo("2021-01-01");
   }
 
   @Test
@@ -262,7 +229,8 @@ public class AccountRepositoryTest extends ResetPostgres {
     Optional<ApplicantModel> found = repo.lookupApplicantSync(two.id);
 
     assertThat(found).hasValue(two);
-    assertThat(found.get().getDateOfBirth().get().toString()).isEqualTo("2022-07-07");
+    assertThat(found.get().getApplicantData().getDateOfBirth().get().toString())
+        .isEqualTo("2022-07-07");
   }
 
   @Test
@@ -436,25 +404,24 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   private ApplicantModel saveApplicantWithDob(String name, String dob) {
     ApplicantModel applicant = new ApplicantModel();
-    applicant.setFirstName(name);
-    applicant.setDateOfBirth(dob);
+    applicant.getApplicantData().setUserName(name, Optional.empty(), Optional.empty());
+    applicant.getApplicantData().setDateOfBirth(dob);
     applicant.save();
     return applicant;
   }
 
   private ApplicantModel saveApplicant(String name) {
     ApplicantModel applicant = new ApplicantModel();
-    applicant.setFirstName(name);
+    applicant.getApplicantData().setUserName(name, Optional.empty(), Optional.empty());
     applicant.save();
     return applicant;
   }
 
   private ApplicantModel setupApplicantForUpdateTest() {
     ApplicantModel applicantUpdateTest = new ApplicantModel();
-    applicantUpdateTest.setFirstName("Jane");
-    applicantUpdateTest.setMiddleName("");
-    applicantUpdateTest.setLastName("Doe");
-    applicantUpdateTest.setDateOfBirth("2022-10-10");
+    ApplicantData applicantDateUpdateTest = applicantUpdateTest.getApplicantData();
+    applicantDateUpdateTest.setUserName("Jane", Optional.empty(), Optional.of("Doe"));
+    applicantDateUpdateTest.setDateOfBirth("2022-10-10");
     applicantUpdateTest.save();
     return applicantUpdateTest;
   }

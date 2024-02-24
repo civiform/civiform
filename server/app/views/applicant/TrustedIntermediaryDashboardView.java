@@ -34,7 +34,6 @@ import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -50,6 +49,7 @@ import repository.SearchParameters;
 import services.DateConverter;
 import services.PhoneValidationResult;
 import services.PhoneValidationUtils;
+import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
 import services.ti.TrustedIntermediaryService;
 import views.BaseHtmlView;
@@ -307,12 +307,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     if (newestApplicant.isEmpty()) {
       return div();
     }
-    Optional<String> maybePhoneNumber = newestApplicant.get().getPhoneNumber();
-    // TODO (#5503): Remove when we remove the feature flag
-    maybePhoneNumber =
-        maybePhoneNumber.isPresent()
-            ? maybePhoneNumber
-            : newestApplicant.get().getApplicantData().getPhoneNumberAtWellKnownPath();
+    ApplicantData applicantData = newestApplicant.get().getApplicantData();
+    Optional<String> maybePhoneNumber = applicantData.getPhoneNumber();
     String email = account.getEmailAddress();
 
     return div(
@@ -390,16 +386,13 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     if (newestApplicant.isEmpty()) {
       return div();
     }
-    // TODO (#5503): Remove checking at WKP when removing feature flag
-    Optional<LocalDate> currentDobAtWKP =
-        newestApplicant.get().getApplicantData().getDateOfBirthAtWellKnownPath();
-
     String currentDob =
         newestApplicant
             .get()
+            .getApplicantData()
             .getDateOfBirth()
             .map(this.dateConverter::formatIso8601Date)
-            .orElse(currentDobAtWKP.map(this.dateConverter::formatIso8601Date).orElse(""));
+            .orElse("");
     return div()
         .withClasses("flex", "text-xs")
         .with(
