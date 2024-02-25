@@ -129,4 +129,5 @@ services:
       - WHITELABEL_CIVIC_ENTITY_SHORT_NAME
       - WHITELABEL_CIVIC_ENTITY_FULL_NAME
       - FAVICON_URL
+      - OPENAI_API_KEY
     entrypoint: /bin/bash

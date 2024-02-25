@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
+import j2html.TagCreator;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -386,7 +387,19 @@ public final class QuestionEditView extends BaseHtmlView {
             .setRequired(true)
             .setDisabled(!submittable)
             .setValue(questionForm.getQuestionText())
-            .getTextareaTag());
+            .getTextareaTag().withId("question-text-container"));
+    String aiAction = controllers.admin.routes.AIResponseController.getResponse().url();
+    ButtonTag aiHelpButton =
+        TagCreator.button()
+        .withType("submit")
+        .attr("hx-include", "#question-text-textarea")
+        .attr("hx-post", aiAction)
+        .attr("hx-target", "#question-text-container")
+        .attr("hx-swap", "outerHTML")
+        .attr("hx-select-oob", "#response")
+        .withText("AI help");
+
+    formTag.with(aiHelpButton);
     if (!questionType.equals(QuestionType.STATIC)) {
       formTag.with(
           FieldWithLabel.textArea()

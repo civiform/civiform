@@ -252,3 +252,6 @@ GET     /dev/profile                   controllers.dev.ProfileController.index(r
 
 ## Prometheus metrics export
 GET     /metrics          controllers.monitoring.MetricsController.getMetrics()
+
+# AI
+POST /getAiResponse controllers.admin.AIResponseController.getResponse(request: Request)

@@ -482,6 +482,26 @@
             "type": "int"
           }
         }
+      },
+      "AI Services": {
+        "group_description": "Configuration options for AI services integrated into CiviForm",
+        "members": {
+          "REWORD_QUESTION_SYSTEM_PROMPT": {
+            "mode": "ADMIN_WRITEABLE",
+            "description": "The system prompt to use when calling the AI service chat completion endpoint. This tells the AI how to respond to the question.",
+            "type": "string"
+          },
+          "OPENAI_API_KEY": {
+            "mode": "HIDDEN",
+            "description": "The API key used when utilizing OpenAI API endpoints.",
+            "type": "string"
+          },
+          "OPENAI_MODEL": {
+            "mode": "ADMIN_WRITEABLE",
+            "description": "The name of the model to use when utilizing OpenAI API endpoints.",
+            "type": "string"
+          }
+        }
       }
     }
   },

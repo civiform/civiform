@@ -578,6 +578,24 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getInt("ESRI_EXTERNAL_CALL_TRIES");
   }
 
+  /**
+   * The system prompt to use when calling the AI service chat completion endpoint. This tells the
+   * AI how to respond to the question.
+   */
+  public Optional<String> getRewordQuestionSystemPrompt(RequestHeader request) {
+    return getString("REWORD_QUESTION_SYSTEM_PROMPT", request);
+  }
+
+  /** The API key used when utilizing OpenAI API endpoints. */
+  public Optional<String> getOpenaiApiKey() {
+    return getString("OPENAI_API_KEY");
+  }
+
+  /** The name of the model to use when utilizing OpenAI API endpoints. */
+  public Optional<String> getOpenaiModel(RequestHeader request) {
+    return getString("OPENAI_MODEL", request);
+  }
+
   /** This email address is listed in the footer for applicants to contact support. */
   public Optional<String> getSupportEmailAddress(RequestHeader request) {
     return getString("SUPPORT_EMAIL_ADDRESS", request);
@@ -1561,7 +1579,31 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   + " services.",
                               /* isRequired= */ false,
                               SettingType.INT,
-                              SettingMode.ADMIN_READABLE)))),
+                              SettingMode.ADMIN_READABLE))),
+                  SettingsSection.create(
+                      "AI Services",
+                      "Configuration options for AI services integrated into CiviForm",
+                      ImmutableList.of(),
+                      ImmutableList.of(
+                          SettingDescription.create(
+                              "REWORD_QUESTION_SYSTEM_PROMPT",
+                              "The system prompt to use when calling the AI service chat completion"
+                                  + " endpoint. This tells the AI how to respond to the question.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.ADMIN_WRITEABLE),
+                          SettingDescription.create(
+                              "OPENAI_API_KEY",
+                              "The API key used when utilizing OpenAI API endpoints.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
+                              "OPENAI_MODEL",
+                              "The name of the model to use when utilizing OpenAI API endpoints.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.ADMIN_WRITEABLE)))),
               ImmutableList.of(
                   SettingDescription.create(
                       "AWS_REGION",
