@@ -9,9 +9,6 @@
         <script th:src="${adminJsBundle}" type="text/javascript"></script>
       </head>
     <body>
-        <div>
-            Hello World
-        </div>
         <ul class="usa-card-group">
             <li class="usa-card tablet-lg:grid-col-6 widescreen:grid-col-4" th:each="block: ${blocks}">
               <div class="usa-card__container">
@@ -23,7 +20,8 @@
                   </p>
                 </div>
                 <div class="usa-card__footer">
-                  <a href="#" class="usa-button">Visit Florida Keys</a>
+                  <a th:href="${blockEditUrlMap.get(block.getId())}" th:if="${block.isAnsweredWithoutErrors()}">Review</a>
+                  <a th:href="${blockEditUrlMap.get(block.getId())}" th:unless="${block.isAnsweredWithoutErrors()}">Start</a>
                 </div>
               </div>
             </li>
