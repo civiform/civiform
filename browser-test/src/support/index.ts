@@ -91,7 +91,6 @@ function makeBrowserContext(
     // will only be used when debugging failures.
     const dirs = ['tmp/videos']
     if ('expect' in global && expect.getState() != null) {
-      // const testPath = expect.getState().testPath
       const testPath = test.info().file
 
       if (testPath == null) {
@@ -104,7 +103,6 @@ function makeBrowserContext(
       // Some test initialize context in beforeAll at which point test name is
       // not set.
 
-      // const testName = expect.getState().currentTestName
       const testName = test.info().title
 
       if (testName) {
