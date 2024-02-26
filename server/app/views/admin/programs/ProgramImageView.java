@@ -5,7 +5,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
-import static views.admin.programs.ProgramEditStatus.EDIT;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;

@@ -57,8 +57,8 @@ public final class ProgramTranslationView extends TranslationFormView {
                 new ProgramTranslationRefererWrapper(referer))
             .url();
 
-    // The referer tells us how the admin got to this translations page, so we need to use it so
-    // that the "Back" button redirects appropriately.
+    // The referer tells us how the admin got to this translations page, and we use it to make sure
+    // the "Back" button redirects appropriately.
     String backUrl;
     switch (referer) {
       case PROGRAM_DASHBOARD:

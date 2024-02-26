@@ -62,7 +62,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
    * Renders a single locale as the English version of the language (ex: es-US would read
    * "Spanish"). The text links to a form to translate the entity into that language.
    */
-  protected final ATag renderLanguageLink(
+  private ATag renderLanguageLink(
       String linkDestination, Locale locale, boolean isCurrentlySelected) {
     LinkElement link =
         new LinkElement()
@@ -81,6 +81,8 @@ public abstract class TranslationFormView extends BaseHtmlView {
   /**
    * Renders a form that allows an admin to enter localized text for an entity's applicant-visible
    * fields.
+   *
+   * @param backUrl where the "Back" button on the page should take the admin.
    */
   protected final FormTag renderTranslationForm(
       Http.Request request,

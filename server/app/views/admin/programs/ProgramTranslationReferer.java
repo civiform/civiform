@@ -5,10 +5,7 @@ package views.admin.programs;
  * button on the translations page goes back to the right place.
  */
 public enum ProgramTranslationReferer {
-  /**
-   * The admin came from the program dashboard page (by clicking "Manage translations" on a specific
-   * program).
-   */
+  /** The admin came from the program dashboard page. */
   PROGRAM_DASHBOARD,
   /** The admin came from the program statuses page. */
   PROGRAM_STATUSES,
@@ -22,6 +19,6 @@ public enum ProgramTranslationReferer {
    */
   PROGRAM_IMAGE_UPLOAD_CREATION;
 
-  /** The referer to use as the default if the provided referer can't be found for some reason. */
+  /** The referer to use as the default if the referer can't be found for some reason. */
   public static final ProgramTranslationReferer DEFAULT_ACTION = PROGRAM_DASHBOARD;
 }
