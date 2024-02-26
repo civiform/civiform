@@ -153,24 +153,13 @@ public class AdminProgramTranslationsController extends CiviFormController {
       return redirect(routes.AdminProgramTranslationsController.edit(programName, locale, referer))
           .flashing("error", e.userFacingMessage());
     }
-    if (result.isError()) {
-      ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
-      return ok(
-          translationView.render(
-              request,
-              localeToUpdate,
-              program,
-              translationForm,
-              Optional.of(errorMessage),
-              referer.getReferer()));
-    }
+
+    Optional<ToastMessage> errorMessage =
+        result.isError()
+            ? Optional.of(ToastMessage.errorNonLocalized(joinErrors(result.getErrors())))
+            : Optional.empty();
     return ok(
         translationView.render(
-            request,
-            localeToUpdate,
-            program,
-            translationForm,
-            /* message= */ Optional.empty(),
-            referer.getReferer()));
+            request, localeToUpdate, program, translationForm, errorMessage, referer.getReferer()));
   }
 }

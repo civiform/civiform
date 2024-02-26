@@ -110,6 +110,8 @@ public final class AdminLayout extends BaseHtmlLayout {
   /**
    * Creates a button that will redirect to the translations management page. Returns an empty
    * optional if there are no locales to translate to.
+   *
+   * @param referer the
    */
   public Optional<ButtonTag> createManageTranslationsButton(
       String programAdminName,

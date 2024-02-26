@@ -140,7 +140,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
         program.adminName(),
         /* buttonId= */ Optional.empty(),
         ButtonStyles.OUTLINED_WHITE_WITH_ICON,
-        ProgramTranslationReferer.PROGRAM_EDIT);
+        ProgramTranslationReferer.PROGRAM_STATUSES);
   }
 
   /**

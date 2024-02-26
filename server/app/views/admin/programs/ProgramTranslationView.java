@@ -10,11 +10,13 @@ import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
 import forms.translation.ProgramTranslationForm;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import javax.inject.Inject;
+import org.apache.commons.lang3.tuple.Pair;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.TranslationLocales;
@@ -55,18 +57,23 @@ public final class ProgramTranslationView extends TranslationFormView {
                 new ProgramTranslationRefererWrapper(referer))
             .url();
 
+    // The referer tells us how the admin got to this translations page, so we need to use it so
+    // that the "Back" button redirects appropriately.
     String backUrl;
     switch (referer) {
-      case PROGRAM_EDIT:
+      case PROGRAM_DASHBOARD:
         backUrl = controllers.admin.routes.AdminProgramController.index().url();
         break;
-      case PROGRAM_IMAGE_UPLOAD:
+      case PROGRAM_STATUSES:
+        backUrl = controllers.admin.routes.AdminProgramStatusesController.index(program.id()).url();
+        break;
+      case PROGRAM_IMAGE_UPLOAD_EDIT:
         backUrl =
             controllers.admin.routes.AdminProgramImageController.index(
                     program.id(), ProgramEditStatus.EDIT.toString())
                 .url();
         break;
-      case PROGRAM_CREATION_IMAGE_UPLOAD:
+      case PROGRAM_IMAGE_UPLOAD_CREATION:
         backUrl =
             controllers.admin.routes.AdminProgramImageController.index(
                     program.id(), ProgramEditStatus.CREATION_EDIT.toString())
@@ -88,19 +95,28 @@ public final class ProgramTranslationView extends TranslationFormView {
             .getBundle(request)
             .setTitle(title)
             .addMainContent(
-                renderHeader(title), renderLanguageLinks(program.adminName(), locale), form);
+                renderHeader(title),
+                renderLanguageLinks(program.adminName(), locale, referer),
+                form);
 
     message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.renderCentered(htmlBundle);
   }
 
-  @Override
-  protected String languageLinkDestination(String programName, Locale locale) {
+  private DivTag renderLanguageLinks(
+      String programName, Locale currentlySelected, ProgramTranslationReferer referer) {
+    ImmutableList<Pair<Locale, String>> localesAndDestinations =
+        translationLocales.translatableLocales().stream()
+            .map(locale -> Pair.of(locale, languageLinkDestination(programName, locale, referer)))
+            .collect(ImmutableList.toImmutableList());
+    return renderLanguageLinks(currentlySelected, localesAndDestinations);
+  }
+
+  private String languageLinkDestination(
+      String programName, Locale locale, ProgramTranslationReferer referer) {
     return routes.AdminProgramTranslationsController.edit(
-            programName,
-            locale.toLanguageTag(),
-            new ProgramTranslationRefererWrapper(ProgramTranslationReferer.PROGRAM_EDIT))
+            programName, locale.toLanguageTag(), new ProgramTranslationRefererWrapper(referer))
         .url();
   }
 

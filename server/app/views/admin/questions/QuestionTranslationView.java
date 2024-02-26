@@ -6,10 +6,12 @@ import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
+import org.apache.commons.lang3.tuple.Pair;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
@@ -90,8 +92,15 @@ public final class QuestionTranslationView extends TranslationFormView {
     return layout.renderCentered(htmlBundle);
   }
 
-  @Override
-  protected String languageLinkDestination(String questionName, Locale locale) {
+  private DivTag renderLanguageLinks(String questionName, Locale currentlySelected) {
+    ImmutableList<Pair<Locale, String>> localesAndDestinations =
+        translationLocales.translatableLocales().stream()
+            .map(locale -> Pair.of(locale, languageLinkDestination(questionName, locale)))
+            .collect(ImmutableList.toImmutableList());
+    return renderLanguageLinks(currentlySelected, localesAndDestinations);
+  }
+
+  private String languageLinkDestination(String questionName, Locale locale) {
     return controllers.admin.routes.AdminQuestionTranslationsController.edit(
             questionName, locale.toLanguageTag())
         .url();

@@ -6,8 +6,6 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 import static views.admin.programs.ProgramEditStatus.EDIT;
-import static views.admin.programs.ProgramTranslationReferer.PROGRAM_CREATION_IMAGE_UPLOAD;
-import static views.admin.programs.ProgramTranslationReferer.PROGRAM_IMAGE_UPLOAD;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -236,7 +234,9 @@ public final class ProgramImageView extends BaseHtmlView {
       String existingDescription,
       ProgramEditStatus editStatus) {
     ProgramTranslationReferer referer =
-        editStatus == EDIT ? PROGRAM_IMAGE_UPLOAD : PROGRAM_CREATION_IMAGE_UPLOAD;
+        editStatus == ProgramEditStatus.EDIT
+            ? ProgramTranslationReferer.PROGRAM_IMAGE_UPLOAD_EDIT
+            : ProgramTranslationReferer.PROGRAM_IMAGE_UPLOAD_CREATION;
     Optional<ButtonTag> button =
         layout.createManageTranslationsButton(
             programDefinition.adminName(),

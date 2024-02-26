@@ -16,6 +16,7 @@ import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LegendTag;
 import java.util.Locale;
+import org.apache.commons.lang3.tuple.Pair;
 import play.mvc.Http;
 import services.LocalizedStrings;
 import services.TranslationLocales;
@@ -30,37 +31,38 @@ import views.style.AdminStyles;
  */
 public abstract class TranslationFormView extends BaseHtmlView {
 
-  private final TranslationLocales translationLocales;
+  protected final TranslationLocales translationLocales;
 
   public TranslationFormView(TranslationLocales translationLocales) {
     this.translationLocales = checkNotNull(translationLocales);
   }
 
-  /** Render a list of languages, with the currently selected language underlined. */
-  protected final DivTag renderLanguageLinks(String entityName, Locale currentlySelected) {
+  /**
+   * Renders a list of languages, with the currently selected language underlined.
+   *
+   * @param localeLinkDestinations a list of locales paired with the destination that the locale
+   *     should link to.
+   */
+  protected final DivTag renderLanguageLinks(
+      Locale currentlySelected, ImmutableList<Pair<Locale, String>> localeLinkDestinations) {
     return div()
         .withClasses("m-2")
         .with(
             each(
-                translationLocales.translatableLocales(),
-                locale -> {
-                  String linkDestination = languageLinkDestination(entityName, locale);
+                localeLinkDestinations,
+                localeAndDestination -> {
+                  Locale locale = localeAndDestination.getKey();
+                  String linkDestination = localeAndDestination.getValue();
                   return renderLanguageLink(
                       linkDestination, locale, locale.equals(currentlySelected));
                 }));
   }
 
   /**
-   * Given the name of the entity to translate and a locale for translation, returns a link
-   * destination URL for the edit form to translate the entity in the given locale.
-   */
-  protected abstract String languageLinkDestination(String entityName, Locale locale);
-
-  /**
    * Renders a single locale as the English version of the language (ex: es-US would read
    * "Spanish"). The text links to a form to translate the entity into that language.
    */
-  private ATag renderLanguageLink(
+  protected final ATag renderLanguageLink(
       String linkDestination, Locale locale, boolean isCurrentlySelected) {
     LinkElement link =
         new LinkElement()
