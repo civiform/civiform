@@ -62,6 +62,7 @@ button.review=Review
 button.skipFileUpload=Skip
 content.blockProgress={0} of {1}
 content.blockProgressFull={0} of {1} completed
+content.fileUploadBlockProgressFull={0} of {1} uploaded
 toast.localeNotSupported=We''re sorry, this program is not fully translated to your preferred language.
 link.allDone=I''m all done
 link.applyToAnotherProgram=Apply to another program
