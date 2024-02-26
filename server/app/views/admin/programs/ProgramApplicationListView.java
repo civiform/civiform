@@ -213,7 +213,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             FieldWithLabel.input()
                 .setFieldName(SEARCH_PARAM)
                 .setValue(filterParams.search().orElse(""))
-                .setLabelText("Search by name, email, or application ID")
+                .setLabelText("Search by name, email, phone number, or application ID")
                 .getInputTag()
                 .withClasses("w-full", "mt-4"))
         .condWith(
