@@ -9,19 +9,25 @@
         <script th:src="${adminJsBundle}" type="text/javascript"></script>
       </head>
     <body>
+        <h1>Let's get started.</h1>
+        <p>Select a step below to start your application. You can save and come back at any time.</p>
         <ul class="usa-card-group">
             <li class="usa-card tablet-lg:grid-col-6 widescreen:grid-col-4" th:each="block: ${blocks}">
               <div class="usa-card__container">
                 <div class="usa-card__header">
+                  <span class="usa-tag" th:if="${block.answeredQuestionsCount() == 0}" th:text="#{title.activeProgramsUpdated}"></span>
+                  <span class="usa-tag" th:if="${block.isCompletedInProgramWithoutErrors()}" th:text="#{title.programSectionCompleted}"></span>
+                  <span class="usa-tag" th:if="${!block.isCompletedInProgramWithoutErrors() && block.answeredQuestionsCount() != 0}" th:text="#{title.inProgressProgramsUpdated}"></span>
                   <h2 class="usa-card__heading" th:text="${block.getName()}"></h2>
                 </div>
                 <div class="usa-card__body">
-                  <p th:text="${block.getDescription()}">
-                  </p>
+                  <p th:text="${block.getDescription()}"></p>
+                  <p th:text="#{content.blockProgressFull(${block.answeredQuestionsCount()}, ${block.getQuestions().size()})}"></p>
                 </div>
                 <div class="usa-card__footer">
-                  <a th:href="${blockEditUrlMap.get(block.getId())}" th:if="${block.isAnsweredWithoutErrors()}">Review</a>
-                  <a th:href="${blockEditUrlMap.get(block.getId())}" th:unless="${block.isAnsweredWithoutErrors()}">Start</a>
+                    <!-- TODO: Is this the right condition? -->
+                  <a class="usa-button" th:href="${blockEditUrlMap.get(block.getId())}" th:if="${block.isCompletedInProgramWithoutErrors()}">Review</a>
+                  <a class="usa-button"  th:href="${blockEditUrlMap.get(block.getId())}" th:unless="${block.isCompletedInProgramWithoutErrors()}">Start</a>
                 </div>
               </div>
             </li>

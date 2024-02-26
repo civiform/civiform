@@ -61,6 +61,7 @@ button.previousScreen=Previous
 button.review=Review
 button.skipFileUpload=Skip
 content.blockProgress={0} of {1}
+content.blockProgressFull={0} of {1} completed
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=We''re sorry, this program is not fully translated to your preferred language.
@@ -109,6 +110,7 @@ title.allProgramsSection=All programs ({0})
 title.status=Status
 title.inProgressProgramsUpdated=In progress
 title.activeProgramsUpdated=Not started
+title.programSectionCompleted=Section completed
 title.submittedPrograms=Submitted
 toast.applicationSaved=Successfully saved application: application ID {0}
 toast.programCompleted=Application was already completed.
