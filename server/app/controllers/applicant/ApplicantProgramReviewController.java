@@ -20,8 +20,8 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
-import play.mvc.Http.Request;
 import play.mvc.Http;
+import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
 import services.MessageKey;
@@ -170,9 +170,17 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 params.setLoginPromptModal(loginPromptModal);
               }
               if (settingsManifest.getNorthStarApplicantUi(request)) {
-                NorthStarApplicantProgramSummaryView.Params northStarParams = NorthStarApplicantProgramSummaryView.Params.builder()
-                .setBlocks(roApplicantProgramService.getAllActiveBlocks()).build();
-                return ok(northStarSummaryView.render(request, northStarParams)).as(Http.MimeTypes.HTML);
+                NorthStarApplicantProgramSummaryView.Params northStarParams =
+                    NorthStarApplicantProgramSummaryView.Params.builder()
+                        .setBlocks(roApplicantProgramService.getAllActiveBlocks())
+                        .setApplicantId(applicantId)
+                        .setProfile(
+                            submittingProfile.orElseThrow(
+                                () -> new MissingOptionalException(CiviFormProfile.class)))
+                        .setProgramId(programId)
+                        .build();
+                return ok(northStarSummaryView.render(request, northStarParams))
+                    .as(Http.MimeTypes.HTML);
               } else {
                 return ok(summaryView.render(params.build()));
               }
