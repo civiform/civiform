@@ -4,6 +4,8 @@ import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 
@@ -64,19 +66,6 @@ public final class RecurringJobExecutionTimeResolvers {
       return LocalDate.now(clock)
           .with(TemporalAdjusters.firstDayOfNextMonth())
           .plusDays(2L)
-          .atStartOfDay(clock.getZone())
-          .plus(2, ChronoUnit.HOURS)
-          .toInstant();
-    }
-  }
-
-  /** Nightly at 2am local time */
-  public static final class Nightly2Am implements RecurringJobExecutionTimeResolver {
-
-    @Override
-    public Instant resolveExecutionTime(Clock clock) {
-      return LocalDate.now(clock)
-          .plusDays(1)
           .atStartOfDay(clock.getZone())
           .plus(2, ChronoUnit.HOURS)
           .toInstant();
