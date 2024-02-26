@@ -14,7 +14,6 @@ import com.google.common.collect.ImmutableSet;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import io.ebean.DB;
 import io.ebean.Database;
-import io.ebean.Query;
 import io.ebean.Transaction;
 import io.ebean.annotation.TxIsolation;
 import java.util.Comparator;
