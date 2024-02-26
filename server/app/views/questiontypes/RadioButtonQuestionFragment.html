@@ -1,0 +1,17 @@
+<div th:fragment="radio (question)" th:class="${question.getContextualizedPath().toString()}">
+    <fieldset class="usa-fieldset">
+        <legend class="usa-legend" th:text="${question.getQuestionText()}"></legend>
+        <div class="usa-radio" th:each="option: ${question.createSingleSelectQuestion().getOptions()}">
+          <input
+            class="usa-radio__input usa-radio__input--tile"
+            th:id="${option.id()}"
+            th:value="${option.id()}"
+            th:name="${question.createSingleSelectQuestion().getSelectionPath().toString()}"
+            th:checked="${question.createSingleSelectQuestion().optionIsSelected(option)}"
+            type="radio"
+          />
+          <label class="usa-radio__label" th:for="${option.id()}" th:text="${option.optionText()}"></label
+          >
+        </div>
+    </fieldset>
+</div>
