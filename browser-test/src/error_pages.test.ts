@@ -1,3 +1,4 @@
+import {test} from '@playwright/test'
 import {
   createTestContext,
   gotoEndpoint,
@@ -5,7 +6,7 @@ import {
   selectApplicantLanguage,
 } from './support'
 
-describe('error pages', () => {
+test.describe('error pages', () => {
   const ctx = createTestContext()
   test('test 404 page', async () => {
     const {page} = ctx

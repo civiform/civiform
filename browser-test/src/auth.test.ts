@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsTestUser,
@@ -10,7 +11,7 @@ import {
 } from './support'
 import {TEST_USER_AUTH_STRATEGY} from './support/config'
 
-describe('applicant auth', () => {
+test.describe('applicant auth', () => {
   const ctx = createTestContext()
 
   test('applicant can login', async () => {

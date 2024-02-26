@@ -1,6 +1,7 @@
+import {test, expect} from '@playwright/test'
 import {createTestContext, loginAsAdmin, waitForPageJsLoad} from './support'
 
-describe('create dropdown question with options', () => {
+test.describe('create dropdown question with options', () => {
   const ctx = createTestContext()
 
   test('add remove buttons work correctly', async () => {

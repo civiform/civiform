@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   disableFeatureFlag,
@@ -11,21 +12,21 @@ import {
 } from './support'
 import {BASE_URL} from './support/config'
 
-describe('file upload applicant flow', () => {
+test.describe('file upload applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  beforeAll(async () => {
+  test.beforeAll(async () => {
     const {page} = ctx
     await dropTables(page)
     await seedQuestions(page)
     await page.goto(BASE_URL)
   })
 
-  describe('required file upload question', () => {
+  test.describe('required file upload question', () => {
     const programName = 'Test program for single file upload'
     const fileUploadQuestionText = 'Required file upload question'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -205,11 +206,11 @@ describe('file upload applicant flow', () => {
   })
 
   // Optional file upload.
-  describe('optional file upload question', () => {
+  test.describe('optional file upload question', () => {
     const programName = 'Test program for optional file upload'
     const fileUploadQuestionText = 'Optional file upload question'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -419,15 +420,15 @@ describe('file upload applicant flow', () => {
    *
    * Note that the optional file upload question has two additional buttons,
    * Skip and Delete. Tests for those buttons are in the
-   * 'optional file upload question' describe section.
+   * 'optional file upload question' test.describe section.
    */
-  describe('buttons', () => {
+  test.describe('buttons', () => {
     const programName = 'Test program for file upload buttons'
     const emailQuestionText = 'Test email question'
     const fileUploadQuestionText = 'Test file upload question'
     const numberQuestionText = 'Test number question'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -478,7 +479,7 @@ describe('file upload applicant flow', () => {
       await logout(page)
     })
 
-    describe('review button', () => {
+    test.describe('review button', () => {
       test('clicking review without file redirects to review page (flag off)', async () => {
         const {page, applicantQuestions} = ctx
         await disableFeatureFlag(page, 'save_on_all_actions')
@@ -559,7 +560,7 @@ describe('file upload applicant flow', () => {
       })
     })
 
-    describe('previous button', () => {
+    test.describe('previous button', () => {
       test('clicking previous without file redirects to previous page (flag off)', async () => {
         const {page, applicantQuestions} = ctx
         await disableFeatureFlag(page, 'save_on_all_actions')
@@ -655,7 +656,7 @@ describe('file upload applicant flow', () => {
       })
     })
 
-    describe('save & next button', () => {
+    test.describe('save & next button', () => {
       test('clicking save&next without file shows error on same page (flag off)', async () => {
         const {page, applicantQuestions, applicantFileQuestion} = ctx
         await disableFeatureFlag(page, 'save_on_all_actions')
@@ -756,7 +757,7 @@ describe('file upload applicant flow', () => {
       })
     })
 
-    describe('continue button', () => {
+    test.describe('continue button', () => {
       test('clicking continue button redirects to first unseen block', async () => {
         const {page, applicantQuestions, applicantFileQuestion} = ctx
 

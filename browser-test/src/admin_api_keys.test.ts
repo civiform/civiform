@@ -1,6 +1,7 @@
+import {test, expect} from '@playwright/test'
 import {createTestContext, loginAsAdmin, validateScreenshot} from './support'
 
-describe('Managing API keys', () => {
+test.describe('Managing API keys', () => {
   const ctx = createTestContext()
 
   test('Creates, views and retires new API key', async () => {

@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   enableFeatureFlag,
@@ -7,7 +8,7 @@ import {
 } from './support'
 import {ProgramVisibility} from './support/admin_programs'
 
-describe('program settings', () => {
+test.describe('program settings', () => {
   const ctx = createTestContext()
 
   test('program settings page', async () => {

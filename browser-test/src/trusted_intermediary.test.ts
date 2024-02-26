@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   ClientInformation,
   createTestContext,
@@ -12,7 +13,7 @@ import {
   selectApplicantLanguage,
 } from './support'
 
-describe('Trusted intermediaries', () => {
+test.describe('Trusted intermediaries', () => {
   const ctx = createTestContext()
 
   test('expect Client Date Of Birth to be Updated', async () => {
@@ -564,12 +565,12 @@ describe('Trusted intermediaries', () => {
     expect(await page.innerText('#add-client')).toContain('Add Client')
   })
 
-  describe('application flow with eligibility conditions', () => {
+  test.describe('application flow with eligibility conditions', () => {
     // Create a program with 2 questions and an eligibility condition.
     const fullProgramName = 'Test program for eligibility navigation flows'
     const eligibilityQuestionId = 'ti-eligibility-number-q'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {
         page,
         adminQuestions,
@@ -672,13 +673,13 @@ describe('Trusted intermediaries', () => {
     })
   })
 
-  describe('application flow', () => {
+  test.describe('application flow', () => {
     // Create a program with 1 question.
     const program1 = 'Test program 1'
     const program2 = 'Test program 2'
     const emailQuestionId = 'ti-email-question'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms, tiDashboard} = ctx
       await loginAsAdmin(page)
 
@@ -754,7 +755,7 @@ describe('Trusted intermediaries', () => {
     })
   })
 
-  describe('client list pagination', () => {
+  test.describe('client list pagination', () => {
     test('shows 1 page and no previous or next buttons when there are 10 clients', async () => {
       const {page, tiDashboard} = ctx
       await loginAsTrustedIntermediary(page)

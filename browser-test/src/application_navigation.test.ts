@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   AdminQuestions,
   ClientInformation,
@@ -17,16 +18,16 @@ import {
 } from './support'
 import {ProgramVisibility} from './support/admin_programs'
 
-describe('Applicant navigation flow', () => {
+test.describe('Applicant navigation flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('navigation with five blocks', () => {
+  test.describe('navigation with five blocks', () => {
     const programName = 'Test program for navigation flows'
     const dateQuestionText = 'date question text'
     const emailQuestionText = 'email question text'
     const addressQuestionText = 'address question text'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
       await enableFeatureFlag(
@@ -81,7 +82,7 @@ describe('Applicant navigation flow', () => {
       await adminPrograms.publishProgram(programName)
     })
 
-    describe('previous button', () => {
+    test.describe('previous button', () => {
       test('clicking previous on first block goes to summary page', async () => {
         const {applicantQuestions} = ctx
         await applicantQuestions.applyProgram(programName)
@@ -299,7 +300,7 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
       })
 
-      afterAll(async () => {
+      test.afterAll(async () => {
         const {page} = ctx
         await loginAsAdmin(page)
         await disableFeatureFlag(page, 'save_on_all_actions')
@@ -307,7 +308,7 @@ describe('Applicant navigation flow', () => {
       })
     })
 
-    describe('review button', () => {
+    test.describe('review button', () => {
       test('clicking review does not save when flag off', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
@@ -429,7 +430,7 @@ describe('Applicant navigation flow', () => {
         )
       })
 
-      afterAll(async () => {
+      test.afterAll(async () => {
         const {page} = ctx
         await loginAsAdmin(page)
         await disableFeatureFlag(page, 'save_on_all_actions')
@@ -816,22 +817,22 @@ describe('Applicant navigation flow', () => {
     })
   })
 
-  describe('navigation with common intake', () => {
+  test.describe('navigation with common intake', () => {
     // Create two programs, one is common intake
     const commonIntakeProgramName = 'Test Common Intake Form Program'
     const secondProgramName = 'Test Regular Program with Eligibility Conditions'
     const eligibilityQuestionId = 'nav-predicate-number-q'
     const secondProgramCorrectAnswer = '5'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page} = ctx
       await dropTables(page)
     })
 
     // TODO(#4509): Once we can create different test users, change this to
-    // beforeAll and use different users for each test, instead of wiping the
+    // test.beforeAll and use different users for each test, instead of wiping the
     // db after each test.
-    beforeEach(async () => {
+    test.beforeEach(async () => {
       const {page, adminQuestions, adminPredicates, adminPrograms} = ctx
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'intake_form_enabled')
@@ -879,12 +880,12 @@ describe('Applicant navigation flow', () => {
       )
 
       await adminPrograms.publishAllDrafts()
-      // TODO(#4509): Once this is a beforeAll(), it'll automatically go back
+      // TODO(#4509): Once this is a test.beforeAll(), it'll automatically go back
       // to the home page when it's done and we can remove this line.
       await logout(page)
     })
 
-    afterEach(async () => {
+    test.afterEach(async () => {
       // TODO(#4509): Once we can create different test users, we don't need to
       // wipe the db after each test
       const {page} = ctx
@@ -1112,12 +1113,12 @@ describe('Applicant navigation flow', () => {
     })
   })
 
-  describe('navigation with eligibility conditions', () => {
+  test.describe('navigation with eligibility conditions', () => {
     // Create a program with 2 questions and an eligibility condition.
     const fullProgramName = 'Test program for eligibility navigation flows'
     const eligibilityQuestionId = 'nav-predicate-number-q'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPredicates, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -1453,7 +1454,7 @@ describe('Applicant navigation flow', () => {
     })
   })
 
-  describe('navigation with address correction enabled', () => {
+  test.describe('navigation with address correction enabled', () => {
     const multiBlockMultiAddressProgram =
       'Address correction multi-block, multi-address program'
     const singleBlockMultiAddressProgram =
@@ -1467,7 +1468,7 @@ describe('Applicant navigation flow', () => {
 
     const addressWithCorrectionText = 'With Correction'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
@@ -1744,7 +1745,7 @@ describe('Applicant navigation flow', () => {
         await logout(page)
       })
 
-      describe('previous button', () => {
+      test.describe('previous button', () => {
         test('clicking previous on address correction page takes you back to address entry page (save flag off)', async () => {
           const {page, applicantQuestions} = ctx
           await enableFeatureFlag(page, 'esri_address_correction_enabled')
@@ -1947,7 +1948,7 @@ describe('Applicant navigation flow', () => {
         })
       })
 
-      describe('review button', () => {
+      test.describe('review button', () => {
         test('clicking review on block with address navigates to address correction page (no suggestions)', async () => {
           const {page, applicantQuestions} = ctx
           await enableFeatureFlag(page, 'esri_address_correction_enabled')
@@ -2161,7 +2162,7 @@ describe('Applicant navigation flow', () => {
   })
 
   if (isLocalDevEnvironment()) {
-    describe('using address as visibility condition', () => {
+    test.describe('using address as visibility condition', () => {
       const programName = 'Test program for address as visibility condition'
       const questionAddress = 'address-test-q'
       const questionText1 = 'text-test-q-one'
@@ -2170,7 +2171,7 @@ describe('Applicant navigation flow', () => {
       const screen2 = 'Screen 2'
       const screen3 = 'Screen 3'
 
-      beforeAll(async () => {
+      test.beforeAll(async () => {
         const {page, adminQuestions, adminPrograms, adminPredicates} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'esri_address_correction_enabled')

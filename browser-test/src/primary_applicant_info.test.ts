@@ -1,3 +1,4 @@
+import {test} from '@playwright/test'
 import {
   createTestContext,
   enableFeatureFlag,
@@ -10,7 +11,7 @@ import {
   PrimaryApplicantInfoField,
 } from './support/admin_questions'
 
-describe('primary applicant info questions', () => {
+test.describe('primary applicant info questions', () => {
   const ctx = createTestContext()
 
   test('shows primary applicant info toggles/alerts correctly when creating a new question, and tag is persisted', async () => {

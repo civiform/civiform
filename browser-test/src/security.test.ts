@@ -1,7 +1,8 @@
+import {test, expect} from '@playwright/test'
 import {createTestContext, gotoEndpoint, loginAsAdmin} from './support'
 import {BASE_URL} from './support/config'
 
-describe('applicant security', () => {
+test.describe('applicant security', () => {
   const ctx = createTestContext()
 
   test('applicant cannot access admin pages', async () => {

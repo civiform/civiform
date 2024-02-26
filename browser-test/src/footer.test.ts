@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   enableFeatureFlag,
@@ -19,11 +20,11 @@ function sharedTests(ctx: TestContext, screenshotName: string) {
   })
 }
 
-describe('the footer', () => {
+test.describe('the footer', () => {
   const ctx = createTestContext()
 
-  describe('without civiform version feature flag', () => {
-    beforeEach(async () => {
+  test.describe('without civiform version feature flag', () => {
+    test.beforeEach(async () => {
       await disableFeatureFlag(
         ctx.page,
         'show_civiform_image_tag_on_landing_page',
@@ -39,8 +40,8 @@ describe('the footer', () => {
     })
   })
 
-  describe('with civiform version feature flag', () => {
-    beforeEach(async () => {
+  test.describe('with civiform version feature flag', () => {
+    test.beforeEach(async () => {
       await enableFeatureFlag(
         ctx.page,
         'show_civiform_image_tag_on_landing_page',

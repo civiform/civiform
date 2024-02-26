@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   dropTables,
@@ -12,10 +13,10 @@ import {
   waitForPageJsLoad,
 } from './support'
 
-describe('csv export for multioption question', () => {
+test.describe('csv export for multioption question', () => {
   const ctx = createTestContext()
 
-  beforeAll(async () => {
+  test.beforeAll(async () => {
     const {page} = ctx
     await dropTables(page)
     await seedQuestions(page)
@@ -108,10 +109,10 @@ describe('csv export for multioption question', () => {
   })
 })
 
-describe('normal application flow', () => {
+test.describe('normal application flow', () => {
   const ctx = createTestContext()
 
-  beforeAll(async () => {
+  test.beforeAll(async () => {
     const {page} = ctx
     await dropTables(page)
     await seedQuestions(page)

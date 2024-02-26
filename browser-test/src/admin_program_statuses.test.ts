@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   dismissModal,
@@ -7,15 +8,15 @@ import {
 } from './support'
 import {waitForAnyModal, waitForPageJsLoad} from './support/wait'
 
-describe('modify program statuses', () => {
+test.describe('modify program statuses', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  beforeEach(async () => {
+  test.beforeEach(async () => {
     const {page} = ctx
     await loginAsAdmin(page)
   })
 
-  describe('statuses list', () => {
+  test.describe('statuses list', () => {
     test('creates a new program and has no statuses', async () => {
       const {page, adminPrograms, adminProgramStatuses} = ctx
       // Add a draft program, no questions are needed.
@@ -27,17 +28,17 @@ describe('modify program statuses', () => {
     })
   })
 
-  describe('new status creation', () => {
+  test.describe('new status creation', () => {
     const programName = 'Test program create statuses'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminPrograms} = ctx
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
       await adminPrograms.gotoAdminProgramsPage()
     })
 
-    beforeEach(async () => {
+    test.beforeEach(async () => {
       await ctx.adminPrograms.gotoDraftProgramManageStatusesPage(programName)
     })
 
@@ -95,12 +96,12 @@ describe('modify program statuses', () => {
     })
   })
 
-  describe('edit existing statuses', () => {
+  test.describe('edit existing statuses', () => {
     const programName = 'Test program edit statuses'
     const firstStatusName = 'First status'
     const secondStatusName = 'Second status'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminPrograms, adminProgramStatuses} = ctx
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
@@ -121,7 +122,7 @@ describe('modify program statuses', () => {
       })
     })
 
-    beforeEach(async () => {
+    test.beforeEach(async () => {
       await ctx.adminPrograms.gotoDraftProgramManageStatusesPage(programName)
     })
 
@@ -225,12 +226,12 @@ describe('modify program statuses', () => {
     })
   })
 
-  describe('delete existing status', () => {
+  test.describe('delete existing status', () => {
     const programName = 'Test program delete status'
     const firstStatusName = 'First status'
     const secondStatusName = 'Second status'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminPrograms, adminProgramStatuses} = ctx
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
@@ -264,17 +265,17 @@ describe('modify program statuses', () => {
     })
   })
 
-  describe('default status', () => {
+  test.describe('default status', () => {
     const programName = 'Test program default statuses'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminPrograms} = ctx
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
       await adminPrograms.gotoAdminProgramsPage()
     })
 
-    beforeEach(async () => {
+    test.beforeEach(async () => {
       await ctx.adminPrograms.gotoDraftProgramManageStatusesPage(programName)
     })
 

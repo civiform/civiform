@@ -1,3 +1,4 @@
+import {test} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -5,7 +6,7 @@ import {
   AdminSettings,
 } from './support'
 
-describe('Managing system-wide settings', () => {
+test.describe('Managing system-wide settings', () => {
   const ctx = createTestContext()
 
   test('Displays the settings page', async () => {

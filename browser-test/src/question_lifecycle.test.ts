@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   AdminQuestions,
   createTestContext,
@@ -10,7 +11,7 @@ import {
 import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
 
-describe('normal question lifecycle', () => {
+test.describe('normal question lifecycle', () => {
   const ctx = createTestContext()
 
   test('sample question seeding works', async () => {
@@ -30,7 +31,7 @@ describe('normal question lifecycle', () => {
   // Run create-update-publish test for each question type individually to keep
   // test duration reasonable.
   for (const type of Object.values(QuestionType)) {
-    it(`${type} question: create, update, publish, create a new version, and update`, async () => {
+    test(`${type} question: create, update, publish, create a new version, and update`, async () => {
       const {page, adminQuestions, adminPrograms} = ctx
 
       await loginAsAdmin(page)

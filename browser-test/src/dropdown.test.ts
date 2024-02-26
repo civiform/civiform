@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -6,13 +7,13 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('Dropdown question for applicant flow', () => {
+test.describe('Dropdown question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('single dropdown question', () => {
+  test.describe('single dropdown question', () => {
     const programName = 'Test program for single dropdown'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       // As admin, create program with single dropdown question.
       await loginAsAdmin(page)
@@ -115,10 +116,10 @@ describe('Dropdown question for applicant flow', () => {
     })
   })
 
-  describe('multiple dropdown questions', () => {
+  test.describe('multiple dropdown questions', () => {
     const programName = 'Test program for multiple dropdowns'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 

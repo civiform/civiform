@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   disableFeatureFlag,
@@ -13,7 +14,7 @@ import {
 import {Page} from 'playwright'
 import {ProgramVisibility} from './support/admin_programs'
 
-describe('applicant program index page', () => {
+test.describe('applicant program index page', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
   const primaryProgramName = 'Application index primary program'
@@ -22,7 +23,7 @@ describe('applicant program index page', () => {
   const firstQuestionText = 'This is the first question'
   const secondQuestionText = 'This is the second question'
 
-  beforeAll(async () => {
+  test.beforeAll(async () => {
     const {page, adminPrograms, adminQuestions} = ctx
     await loginAsAdmin(page)
 
@@ -253,7 +254,7 @@ describe('applicant program index page', () => {
   })
 })
 
-describe('applicant program index page with images', () => {
+test.describe('applicant program index page with images', () => {
   const ctx = createTestContext()
 
   test('shows program with wide image', async () => {

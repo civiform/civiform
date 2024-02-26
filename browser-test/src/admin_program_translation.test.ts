@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   enableFeatureFlag,
@@ -8,7 +9,7 @@ import {
   validateToastMessage,
 } from './support'
 
-describe('Admin can manage translations', () => {
+test.describe('Admin can manage translations', () => {
   const ctx = createTestContext()
 
   test('creates a program without statuses and adds translation', async () => {

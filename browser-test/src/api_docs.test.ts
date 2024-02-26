@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   dropTables,
@@ -9,10 +10,10 @@ import {
 } from './support'
 import {BASE_URL} from './support/config'
 
-describe('Viewing API docs', () => {
+test.describe('Viewing API docs', () => {
   const ctx = createTestContext()
 
-  beforeEach(async () => {
+  test.beforeEach(async () => {
     const {page} = ctx
     await dropTables(page)
     await seedPrograms(page)
