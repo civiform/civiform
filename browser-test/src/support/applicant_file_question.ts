@@ -15,12 +15,12 @@ export class ApplicantFileQuestion {
   }
 
   async expectFileSelectionErrorShown() {
-    const error = await this.page.$('.cf-fileupload-error')
+    const error = await this.page.$('.cf-fileupload-no-file-error')
     expect(await error?.isHidden()).toEqual(false)
   }
 
   async expectFileSelectionErrorHidden() {
-    const error = await this.page.$('.cf-fileupload-error')
+    const error = await this.page.$('.cf-fileupload-no-file-error')
     expect(await error?.isHidden()).toEqual(true)
   }
 

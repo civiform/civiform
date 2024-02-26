@@ -136,7 +136,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
             ReferenceClasses.FILEUPLOAD_REQUIRED_ERROR_ID,
             "mb-2"));
     result.with(
-        div("File too large, choose another") // TODO: Translations
+        div("The file you've chosen is too large. Please choose a file under 100 MB.") // TODO:
+                                                                                       // Translations
             .withId(fileInputId + "-too-large-error")
             .withClasses(
                 ReferenceClasses.FILEUPLOAD_TOO_LARGE_ERROR,

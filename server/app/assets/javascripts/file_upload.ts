@@ -14,6 +14,7 @@ export function init() {
   if (!fileUploadQuestion) {
     // If there's no file upload question on the page, don't add extra logic.
     return
+  }
 
   // This event listener should only trigger if the SAVE_ON_ALL_ACTIONS flag is on
   // because the file-upload-action-button class is only added when that flag is on
@@ -24,6 +25,7 @@ export function init() {
     (e: Event) => {
       onActionButtonClicked(e, blockForm)
     },
+  )
 
   blockForm.addEventListener('submit', (event) => {
     // Prevent submission of a file upload form if no file has been
@@ -118,31 +120,42 @@ function validateFileUploadQuestion(blockForm: Element): boolean {
   const fileInput = assertNotNull(
     blockForm.querySelector<HTMLInputElement>('input[type=file]'),
   )
+
+  /**
+   * Shows a "Please select a file" error. Used when no file was uploaded
+   * but the user wants to continue to the next page.
+   */
   const isFileUploaded = fileInput.value != ''
 
-  const errorDiv = blockForm.querySelector(
-    '.cf-fileupload-error',
+  const fileNotSelectedErrorDiv = blockForm.querySelector(
+    '.cf-fileupload-no-file-error',
   ) as HTMLElement
-  if (!errorDiv) {
-    return isFileUploaded
+  if (isFileUploaded) {
+    hideError(fileNotSelectedErrorDiv, fileInput)
+  } else {
+    showError(fileNotSelectedErrorDiv, fileInput)
   }
 
-  if (isFileUploaded) {
-    hideFileSelectionError(errorDiv, fileInput)
+  const fileTooLarge = isFileTooLarge(fileInput)
+  const fileTooLargeErrorDiv = blockForm.querySelector(
+    '.cf-fileupload-too-large-error',
+  )
+  if (fileTooLarge) {
+    showError(fileTooLargeErrorDiv, fileInput)
   } else {
-    showFileSelectionError(errorDiv, fileInput)
+    hideError(fileTooLargeErrorDiv, fileInput)
   }
-  return isFileUploaded
+
+  // A valid file upload question is one that has an uploaded file that isn't too large.
+  return isFileUploaded && !fileTooLarge
 }
 
-/**
- * Shows a "Please select a file" error. Used when no file was uploaded
- * but the user wants to continue to the next page.
- */
-function showFileSelectionError(
-  errorDiv: HTMLElement,
-  fileInput: HTMLInputElement,
-) {
+/** Shows the error in the specified {@code errorDiv}. */
+function showError(errorDiv: HTMLElement | null, fileInput: HTMLInputElement) {
+  if (errorDiv == null) {
+    return
+  }
+
   errorDiv.hidden = false
   fileInput.setAttribute('aria-invalid', 'true')
 
@@ -157,11 +170,12 @@ function showFileSelectionError(
   }
 }
 
-/** Hides the "Please select a file" error. */
-function hideFileSelectionError(
-  errorDiv: HTMLElement,
-  fileInput: HTMLInputElement,
-) {
+/** Hides the error in the specified {@code errorDiv}. */
+function hideError(errorDiv: HTMLElement | null, fileInput: HTMLInputElement) {
+  if (errorDiv == null) {
+    return
+  }
+
   errorDiv.hidden = true
   fileInput.removeAttribute('aria-invalid')
 
@@ -174,36 +188,5 @@ function hideFileSelectionError(
   if (ariaDescribedBy.includes(errorId)) {
     const ariaDescribedByWithoutError = ariaDescribedBy.replace(errorId, '')
     fileInput.setAttribute('aria-describedby', ariaDescribedByWithoutError)
-}
-
-//     const tooLargeErrorDiv = blockForm.querySelector(
- //        '.cf-fileupload-too-large-error',
- //      )
-function checkFileSize(
-  fileInput: HTMLInputElement,
-  tooLargeErrorDiv: Element | null,
-): boolean {
-  const fileTooLarge = isFileTooLarge(fileInput)
-  if (tooLargeErrorDiv) {
-    tooLargeErrorDiv.classList.toggle('hidden', !fileTooLarge)
-    if (fileTooLarge) {
-      // Add ariaLive label so error is announced to screen reader.
-      tooLargeErrorDiv.ariaLive = 'polite'
-    }
   }
-  if (tooLargeErrorDiv && fileTooLarge && !wasSetTooLarge) {
-    // Add extra aria attributes to input if there is an error.
-    const errorId = tooLargeErrorDiv.getAttribute('id')
-    if (errorId) {
-      // Only allow this to be done once so we don't repeatedly append the error id.
-      wasSetTooLarge = true
-      fileInput.setAttribute('aria-invalid', 'true')
-      const ariaDescribedBy = fileInput.getAttribute('aria-describedby') ?? ''
-      fileInput.setAttribute(
-        'aria-describedby',
-        `${errorId} ${ariaDescribedBy}`,
-      )
-    }
-  }
-  return fileTooLarge
 }
