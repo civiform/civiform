@@ -1,7 +1,6 @@
 import {defineConfig} from '@playwright/test'
 
 export default defineConfig({
-  // globalTimeout: 180000,
   timeout: 180000,
   testDir: './src',
   snapshotPathTemplate: './image_snapshots/{arg}{ext}',
