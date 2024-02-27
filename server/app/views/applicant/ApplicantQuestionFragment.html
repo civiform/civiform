@@ -6,7 +6,7 @@
             <div th:replace="~{questiontypes/CheckboxQuestionFragment :: checkbox(${question})}"></div>
         </th:block>
         <th:block th:case="'Date'">
-            <div th:replace="~{questiontypes/DateQuestionFragment :: date(${question})}"></div>
+            <div th:replace="~{questiontypes/DateQuestionFragment :: date(${question}, ${messages})}"></div>
         </th:block>
     </th:block>
 </div>

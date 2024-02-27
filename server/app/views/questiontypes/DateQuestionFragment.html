@@ -1,7 +1,16 @@
-<div th:fragment="date (question)">
+<div th:fragment="date (question, messages)">
     <div class="usa-form-group">
-        <label class="usa-label" id="appointment-date-label" for="appointment-date" th:text="${question.getQuestionText()}"></label>
+        <label class="usa-label" id="appointment-date-label" for="appointment-date">
+          <span th:text="${question.getQuestionText()}"></span>
+          <!-- Required asterisk -->
+          <th:block th:if="${!question.isOptional()}">
+            <div th:replace="~{applicant/ApplicantBaseFragment :: requiredAsterisk}"></div>
+          </th:block>
+        </label>
         <div class="usa-hint" id="appointment-date-hint">mm/dd/yyyy</div>
+        <!-- Display errors -->
+        <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${question.getQuestion().getValidationErrors().get(question.getContextualizedPath())}, ${messages})}"></div>
+
         <div class="usa-date-picker">
           <input
             class="usa-input"
