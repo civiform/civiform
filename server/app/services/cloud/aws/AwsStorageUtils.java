@@ -53,7 +53,7 @@ public final class AwsStorageUtils {
             .setBucket(bucketName)
             .setActionLink(actionLink)
             .setKey(fileKey)
-            .setSuccessActionRedirect(successRedirectActionLink);
+            .setFullSuccessActionRedirect(successRedirectActionLink);
 
     if (awsCredentials instanceof AwsSessionCredentials) {
       AwsSessionCredentials sessionCredentials = (AwsSessionCredentials) awsCredentials;
