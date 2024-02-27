@@ -81,8 +81,8 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
   /**
    * True if {@link #successActionRedirect()} should be considered just the prefix to the redirect
    * URL, and false if {@link #successActionRedirect()} should be considered an exact match to the
-   * redirect URL (this value is false). This value should be false for most circumstances, and
-   * should only be set to true if the redirect URL can vary depending on user interaction.
+   * redirect URL. This value should be false for most circumstances, and should only be set to true
+   * if the redirect URL can vary depending on user interaction.
    *
    * <p>Context: {@link #successActionRedirect()} is embedded in the file upload question `<form>`
    * in two places:
@@ -104,16 +104,18 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
    * -- "Save&next", "Review", or "Previous" (see https://github.com/civiform/civiform/issues/6450).
    * This means that the redirect URL needs to be different depending on which button the applicant
    * clicked. So, we can't have the `<input name="success_action_redirect">` element exactly match
-   * the redirect URL in the `<input name="Policy">` element. Instead, the Policy should just have a
-   * specific success_action_redirect *prefix* that should match the <input *
-   * name="success_action_redirect">` element URL. Note that this prefix should be **as specific as
-   * possible** to give us the best security verification from AWS.
+   * the redirect URL in the `<input name="Policy">` element. Instead, the Policy should specify
+   * that the `<input name="success_action_redirect">` element URL should match a specific
+   * **prefix**. Note that this prefix should be as specific as possible to give us the best
+   * security verification from AWS.
    *
-   * <p>For example, if the Policy specifies that the "success_action_redirect" starts with
+   * <p>For example, if the Policy specifies that the "success_action_redirect" must start with
    * "https://civiform.dev/programs/4/blocks/1/updateFile/true", then the `<input
    * name="success_action_redirect">` element could use a URL of
    * "https://civiform.dev/programs/4/blocks/1/updateFile/true/REVIEW_PAGE" to redirect the user to
    * the review page and AWS would allow it.
+   *
+   * <p>See also: https://github.com/civiform/civiform/pull/6744.
    */
   public abstract boolean useSuccessActionRedirectAsPrefix();
 
