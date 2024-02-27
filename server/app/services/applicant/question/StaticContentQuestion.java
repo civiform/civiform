@@ -42,12 +42,11 @@ public final class StaticContentQuestion extends Question {
   }
 
   public String getFormattedTextForRendering(String ariaLabel) {
-      return
-          TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
-            applicantQuestion.getQuestionText(),
-              /* preserveEmptyLines= */ true,
-              /* addRequiredIndicator= */ false,
-              ariaLabel);
-                  // TODO: pass the message from thymeleaf instead of through view
+    return TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+        applicantQuestion.getQuestionText(),
+        /* preserveEmptyLines= */ true,
+        /* addRequiredIndicator= */ false,
+        ariaLabel);
+    // TODO: pass the message from thymeleaf instead of through view
   }
 }
