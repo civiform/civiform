@@ -26,7 +26,7 @@ public class SignedS3UploadRequestTest {
     assertThat(policyString)
         .contains(
             "{\"success_action_redirect\":\"https://civiform.dev/programs/4/blocks/1/updateFile/true\"}");
-    assertThat(policyString).doesNotContain("[\"starts-with\",\"success_action_redirect\"");
+    assertThat(policyString).doesNotContain("[\"starts-with\",\"$success_action_redirect\"");
   }
 
   @Test
@@ -49,7 +49,7 @@ public class SignedS3UploadRequestTest {
 
     assertThat(policyString)
         .contains(
-            "[\"starts-with\",\"success_action_redirect\",\"https://civiform.dev/programs/4/blocks/1/updateFile/true\"]");
+            "[\"starts-with\",\"$success_action_redirect\",\"https://civiform.dev/programs/4/blocks/1/updateFile/true\"]");
     assertThat(policyString).doesNotContain("{\"success_action_redirect\":");
   }
 }

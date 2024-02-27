@@ -358,6 +358,13 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
     @AutoValue
     abstract static class StartsWith extends Condition {
 
+      /**
+       * Creates a starts-with clause for the AWS policy. See
+       * https://docs.aws.amazon.com/AmazonS3/latest/userguide/HTTPPOSTForms.html#HTTPPOSTConstructPolicy.
+       *
+       * @param element the policy element, like "key" or "acl". Should **not** include the `$` at
+       *     the beginning (this class will automatically add it).
+       */
       static StartsWith create(String element, String prefix) {
         return new AutoValue_SignedS3UploadRequest_UploadPolicy_StartsWith(element, prefix);
       }
@@ -368,7 +375,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
 
       @JsonValue
       ImmutableList<String> toJson() {
-        return ImmutableList.of("starts-with", element(), prefix());
+        return ImmutableList.of("starts-with", "$" + element(), prefix());
       }
     }
 
@@ -466,7 +473,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
       abstract ImmutableList.Builder<Condition> conditionsBuilder();
 
       Builder setKeyPrefix(String prefix) {
-        conditionsBuilder().add(StartsWith.create("$key", prefix));
+        conditionsBuilder().add(StartsWith.create("key", prefix));
         return this;
       }
 
