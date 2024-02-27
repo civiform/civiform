@@ -14,6 +14,7 @@
         <input type="checkbox" class="hidden" value="" th:name="${multiSelectQuestion.getSelectionPathAsArray()}" th:checked="${!multiSelectQuestion.hasValue()}"/>
         <!-- Render each checkbox option -->
         <div class="usa-checkbox" th:each="option,iterator: ${multiSelectQuestion.getOptions()}">
+          <!-- TODO(ghyde): Add autofocus attribute as appropriate -->
           <input
             class="usa-checkbox__input usa-checkbox__input--tile"
             th:id="'checkbox-' + ${question.getContextualizedPath()} + '-' + ${option.id()}"
