@@ -1,0 +1,3 @@
+<th:block th:fragment="validationErrors (validationErrors, messages)">
+    <div th:each="error: ${validationErrors}" th:text="${error.getMessage(messages)}"></div>
+</th:block>
