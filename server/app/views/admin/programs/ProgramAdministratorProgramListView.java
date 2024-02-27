@@ -88,6 +88,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                             renderViewApplicationsLink(request, activeProgram)))
                     .setExtraRowActions(ImmutableList.of())
                     .build()))
+        .setAdminType(ProgramCardFactory.AdminType.PROGRAM_ADMIN)
         .build();
   }
 

@@ -53,7 +53,11 @@ public final class ProgramCardFactory {
     if (cardData.draftProgram().isPresent()) {
       statusDiv =
           statusDiv.with(
-              renderProgramRow(request, /* isActive= */ false, cardData.draftProgram().get()));
+              renderProgramRow(
+                  request,
+                  cardData.adminType(),
+                  /* isActive= */ false,
+                  cardData.draftProgram().get()));
     }
 
     if (cardData.activeProgram().isPresent()) {
@@ -61,6 +65,7 @@ public final class ProgramCardFactory {
           statusDiv.with(
               renderProgramRow(
                   request,
+                  cardData.adminType(),
                   /* isActive= */ true,
                   cardData.activeProgram().get(),
                   cardData.draftProgram().isPresent() ? "border-t" : ""));
@@ -116,6 +121,7 @@ public final class ProgramCardFactory {
 
   private DivTag renderProgramRow(
       Http.Request request,
+      AdminType adminType,
       boolean isActive,
       ProgramCardData.ProgramRow programRow,
       String... extraStyles) {
@@ -157,7 +163,7 @@ public final class ProgramCardFactory {
             StyleUtils.hover("bg-gray-100"),
             StyleUtils.joinStyles(extraStyles))
         .with(
-            createImageIcon(program, request),
+            createImageIcon(program, request, adminType),
             badge,
             div()
                 .withClasses("ml-4", StyleUtils.responsiveXLarge("ml-10"))
@@ -208,9 +214,14 @@ public final class ProgramCardFactory {
     return cardData.activeProgram().get().program();
   }
 
-  private DivTag createImageIcon(ProgramDefinition program, Http.Request request) {
+  private DivTag createImageIcon(
+      ProgramDefinition program, Http.Request request, AdminType adminType) {
     if (!settingsManifest.getProgramCardImages(request)) {
       // If the program card images feature isn't enabled, don't make any changes to the admin page.
+      return div();
+    }
+    if (adminType == AdminType.PROGRAM_ADMIN) {
+      // Program admins don't need to see the program image preview.
       return div();
     }
     Optional<ImgTag> image =
@@ -239,11 +250,19 @@ public final class ProgramCardFactory {
                 getDisplayProgram(cardData).localizedName().getDefault().toLowerCase(Locale.ROOT));
   }
 
+  /** Represents the type of admin that's viewing the program card. */
+  public enum AdminType {
+    CIVIFORM_ADMIN,
+    PROGRAM_ADMIN,
+  }
+
   @AutoValue
   public abstract static class ProgramCardData {
     abstract Optional<ProgramRow> activeProgram();
 
     abstract Optional<ProgramRow> draftProgram();
+
+    abstract AdminType adminType();
 
     public static Builder builder() {
       return new AutoValue_ProgramCardFactory_ProgramCardData.Builder();
@@ -254,6 +273,8 @@ public final class ProgramCardFactory {
       public abstract Builder setActiveProgram(Optional<ProgramRow> v);
 
       public abstract Builder setDraftProgram(Optional<ProgramRow> v);
+
+      public abstract Builder setAdminType(AdminType adminType);
 
       public abstract ProgramCardData build();
     }
