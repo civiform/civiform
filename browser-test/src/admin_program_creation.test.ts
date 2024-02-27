@@ -473,6 +473,7 @@ test.describe('program creation', () => {
     await loginAsAdmin(page)
     const programName = 'Apc program 3'
     await adminPrograms.addProgram(programName)
+    await adminPrograms.gotoEditDraftProgramPage(programName)
     await adminPrograms.openQuestionBank()
     await validateScreenshot(page, 'question-bank-empty', /* fullPage= */ false)
     await page.click('#create-question-button')
