@@ -266,6 +266,7 @@ content.commonIntakeConfirmationTi=Your client may be able to enroll in these pr
 content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
 content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
 content.commonIntakeNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
+# A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Other programs you might be interested in
 button.downloadPdf=Download PDF
 button.applyToPrograms=Apply to programs
@@ -403,6 +404,7 @@ validation.textTooShort=Must contain at least {0} characters.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Multi option questions cannot have blank options.
+# An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
 adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
 
 #----------------------------------#
