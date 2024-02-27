@@ -4,7 +4,9 @@
         <legend class="usa-legend">
           <span th:text="${question.getQuestionText()}"></span>
           <!-- Required asterisk -->
-          <span th:if="${!question.isOptional()}" class="text-red-600 font-semibold">&nbsp;*</span>
+          <th:block th:if="${!question.isOptional()}">
+            <div th:replace="~{applicant/ApplicantBaseFragment :: requiredAsterisk}"></div>
+          </th:block>
         </legend>
 
         <!-- Question help text -->
