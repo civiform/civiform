@@ -2,19 +2,19 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
+import controllers.applicant.ApplicantRoutes;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
 import services.applicant.Block;
-import auth.CiviFormProfile;
-import controllers.applicant.ApplicantRoutes;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.Map;
 
 /** Renders a list of sections in the form with their status. */
 public final class NorthStarApplicantProgramSummaryView {
@@ -52,7 +52,7 @@ public final class NorthStarApplicantProgramSummaryView {
     return params.blocks().stream()
         .collect(Collectors.toMap(value -> value.getId(), value -> getBlockEditUrl(params, value)));
   }
-  
+
   private String getBlockEditUrl(Params params, Block block) {
     if (block.isAnsweredWithoutErrors()) {
       return applicantRoutes
