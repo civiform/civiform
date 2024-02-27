@@ -41,7 +41,8 @@ public final class AwsStorageUtils {
       String bucketName,
       String actionLink,
       String fileKey,
-      String successRedirectActionLink) {
+      String successRedirectActionLink,
+      boolean useSuccessActionRedirectAsPrefix) {
     AwsCredentials awsCredentials = credentials.getCredentials();
     SignedS3UploadRequest.Builder builder =
         SignedS3UploadRequest.builder()
@@ -53,7 +54,8 @@ public final class AwsStorageUtils {
             .setBucket(bucketName)
             .setActionLink(actionLink)
             .setKey(fileKey)
-            .setSuccessActionRedirect(successRedirectActionLink);
+            .setSuccessActionRedirect(successRedirectActionLink)
+                .setUseSuccessActionRedirectAsPrefix(useSuccessActionRedirectAsPrefix);
 
     if (awsCredentials instanceof AwsSessionCredentials) {
       AwsSessionCredentials sessionCredentials = (AwsSessionCredentials) awsCredentials;
