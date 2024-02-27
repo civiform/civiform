@@ -1,0 +1,10 @@
+<div th:fragment="requiredFieldsExplanation">
+  <!-- This uses utext because the parameter passed into the message is html,
+    it is a placeholder span with the red asterisk. We need it to be html and not
+    raw text to recreate the red style -->
+  <p th:utext="#{content.requiredFieldsNote(~{applicant/ApplicantBaseFragment :: requiredAsterisk})}"></p>
+</div>
+
+<th:block th:fragment="requiredAsterisk">
+    <span class="text-red-600">*</span>
+</th:block>
