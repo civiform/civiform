@@ -44,9 +44,9 @@ public interface ApplicantStorageClient {
    * Creates and returns a request to upload a file to cloud storage.
    *
    * @param fileKey The file key to use when uploading to cloud storage
-   * @param successRedirectActionLink Where a user should be redirected upon successful file upload.
+   * @param successActionRedirect Where a user should be redirected upon successful file upload.
    */
-  StorageUploadRequest getSignedUploadRequest(String fileKey, String successRedirectActionLink);
+  StorageUploadRequest getSignedUploadRequest(String fileKey, String successActionRedirect);
 
   /** Gets the {@link StorageServiceName} for the current storage client. */
   StorageServiceName getStorageServiceName();

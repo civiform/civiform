@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import static services.cloud.aws.AwsStorageUtils.AWS_PRESIGNED_URL_DURATION;
 
 import com.typesafe.config.Config;
+import controllers.applicant.ApplicantRequestedAction;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -87,7 +88,14 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
 
   @Override
   public SignedS3UploadRequest getSignedUploadRequest(
-      String fileKey, String successActionRedirect) {
+      String fileKey, String successActionRedirectUrl) {
+    // assets/javascripts/file_upload.ts may modify the last parameter of the
+    // success_action_redirect URL to specify where the user should be taken after the file has been
+    // successfully uploaded. So, we need to provide the redirect **prefix** to {@link
+    // SignedS3UploadRequest} and specify
+    // that it's just a prefix.
+    String successActionRedirectPrefix =
+        ApplicantRequestedAction.stripActionFromEndOfUrl(successActionRedirectUrl);
     return awsStorageUtils.getSignedUploadRequest(
         credentials,
         region,
@@ -95,7 +103,8 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
         bucket,
         client.actionLink(),
         fileKey,
-        successActionRedirect);
+        successActionRedirectPrefix,
+        /* useSuccessActionRedirectAsPrefix= */ true);
   }
 
   @Override

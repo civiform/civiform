@@ -33,6 +33,10 @@ public final class AwsStorageUtils {
   /**
    * Returns a signed upload request to upload a file with the given {@code fileKey} to the given
    * {@code bucketName}.
+   *
+   * @param useSuccessActionRedirectAsPrefix true if {@code successActionRedirect} is just a prefix
+   *     of the full redirect URL, and false if {@code successActionRedirect} is an exact match to
+   *     the full redirect URL.
    */
   public SignedS3UploadRequest getSignedUploadRequest(
       Credentials credentials,
@@ -41,7 +45,7 @@ public final class AwsStorageUtils {
       String bucketName,
       String actionLink,
       String fileKey,
-      String successRedirectActionLink,
+      String successActionRedirect,
       boolean useSuccessActionRedirectAsPrefix) {
     AwsCredentials awsCredentials = credentials.getCredentials();
     SignedS3UploadRequest.Builder builder =
@@ -54,8 +58,8 @@ public final class AwsStorageUtils {
             .setBucket(bucketName)
             .setActionLink(actionLink)
             .setKey(fileKey)
-            .setSuccessActionRedirect(successRedirectActionLink)
-                .setUseSuccessActionRedirectAsPrefix(useSuccessActionRedirectAsPrefix);
+            .setSuccessActionRedirect(successActionRedirect)
+            .setUseSuccessActionRedirectAsPrefix(useSuccessActionRedirectAsPrefix);
 
     if (awsCredentials instanceof AwsSessionCredentials) {
       AwsSessionCredentials sessionCredentials = (AwsSessionCredentials) awsCredentials;

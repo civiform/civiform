@@ -152,7 +152,6 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                     params.inReview(),
                     NEXT_BLOCK)
                 .url();
-
     String key =
         ApplicantFileNameFormatter.formatFileUploadQuestionFilename(
             params.applicantId(), params.programId(), params.block().getId());
