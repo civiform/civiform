@@ -83,7 +83,7 @@ public class ApplicantDataTest extends ResetPostgres {
 
   @Test
   public void setDateOfBirth_isSuccessful() {
-    ApplicantData data = new ApplicantData();
+    ApplicantData data = createNewApplicantData();
     String sampleDob = "2022-01-05";
     data.setDateOfBirth(sampleDob);
     assertThat(data.getDateOfBirth().get()).isEqualTo(sampleDob);
@@ -93,7 +93,7 @@ public class ApplicantDataTest extends ResetPostgres {
 
   @Test
   public void getDateOfBirth_canHandleDeprecatedDobPath() {
-    ApplicantData data = new ApplicantData();
+    ApplicantData data = createNewApplicantData();
     String sampleDob = "2022-01-05";
     data.putDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED, sampleDob);
     assertThat(data.getDateOfBirth().get()).isEqualTo(sampleDob);
@@ -103,7 +103,7 @@ public class ApplicantDataTest extends ResetPostgres {
 
   @Test
   public void getDateOfBirth_isEmptyWhenNotSet() {
-    ApplicantData applicantData = new ApplicantData();
+    ApplicantData applicantData = createNewApplicantData();
     assertThat(applicantData.getDateOfBirth()).isEqualTo(Optional.empty());
   }
 
