@@ -180,11 +180,11 @@ public interface QuestionJsonSampler<Q extends Question> {
           /* city= */ "Springfield",
           /* state= */ "OR",
           /* zip= */ "97403",
-          /* corrected= */ "",
+          /* corrected= */ "Corrected",
           /* latitude= */ 44.0462,
           /* longitude= */ -123.0236,
-          /* wellKnownId= */ 23214L,
-          /* serviceArea= */ "springfield_county");
+          /* wellKnownId= */ 4326L,
+          /* serviceArea= */ "springfield_county_InArea_1709069741,portland_NotInArea_1709069741");
     }
 
     @Override

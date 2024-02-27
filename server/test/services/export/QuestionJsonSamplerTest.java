@@ -58,13 +58,16 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
                     Optional.of("44.0462"))
                 .put(
                     Path.create("applicant.sample_address_question.well_known_id"),
-                    Optional.of("23214"))
+                    Optional.of("4326"))
                 .put(
                     Path.create("applicant.sample_address_question.service_area"),
-                    Optional.of("springfield_county"))
+                    Optional.of(
+                        "springfield_county_InArea_1709069741,portland_NotInArea_1709069741"))
                 .put(Path.create("applicant.sample_address_question.state"), Optional.of("OR"))
                 .put(Path.create("applicant.sample_address_question.line2"), Optional.empty())
-                .put(Path.create("applicant.sample_address_question.corrected"), Optional.empty())
+                .put(
+                    Path.create("applicant.sample_address_question.corrected"),
+                    Optional.of("Corrected"))
                 .put(
                     Path.create("applicant.sample_address_question.longitude"),
                     Optional.of("-123.0236"))
