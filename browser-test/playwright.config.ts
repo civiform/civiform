@@ -5,10 +5,20 @@ export default defineConfig({
   testDir: './src',
   snapshotPathTemplate: './image_snapshots/{arg}{ext}',
   globalSetup: './src/delete_database.ts',
+  globalTeardown: './src/global-teardown.ts',
   fullyParallel: false,
   workers: 1,
   retries: 1,
   outputDir: './tmp/test-output',
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixelRatio: 0,
+      animations: 'disabled',
+    },
+    toMatchSnapshot: {
+      maxDiffPixelRatio: 0,
+    },
+  },
   use: {
     trace: 'on-first-retry',
     video: process.env.RECORD_VIDEO ? 'on-first-retry' : 'off',
