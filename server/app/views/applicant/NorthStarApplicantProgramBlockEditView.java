@@ -2,15 +2,14 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import views.HtmlBundle;
-import org.thymeleaf.TemplateEngine;
-import modules.ThymeleafModule;
-import play.mvc.Http.Request;
-import controllers.AssetsFinder;
 import com.google.inject.Inject;
-import views.ApplicationBaseView;
+import controllers.AssetsFinder;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
+import modules.ThymeleafModule;
+import org.thymeleaf.TemplateEngine;
+import play.mvc.Http.Request;
+import views.ApplicationBaseView;
 import views.html.helper.CSRF;
 
 /** Renders a page for answering questions in a program screen (block). */
@@ -22,8 +21,8 @@ public final class NorthStarApplicantProgramBlockEditView {
 
   @Inject
   NorthStarApplicantProgramBlockEditView(
-    TemplateEngine templateEngine,
-    ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
+      TemplateEngine templateEngine,
+      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
       ApplicantRoutes applicantRoutes) {
     this.templateEngine = checkNotNull(templateEngine);
