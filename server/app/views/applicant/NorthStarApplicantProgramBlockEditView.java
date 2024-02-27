@@ -47,19 +47,17 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
   }
 
   private String getReviewUrl(ApplicationBaseView.Params params) {
-    return applicantRoutes
-        .review(params.profile(), params.applicantId(), params.programId())
-        .url();
+    return applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
   }
-  
+
   private String getPreviousUrl(ApplicationBaseView.Params params) {
     return applicantRoutes
-            .blockPreviousOrReview(
-                params.profile(),
-                params.applicantId(),
-                params.programId(),
-                /* currentBlockIndex= */ params.blockIndex(),
-                params.inReview())
-            .url();
+        .blockPreviousOrReview(
+            params.profile(),
+            params.applicantId(),
+            params.programId(),
+            /* currentBlockIndex= */ params.blockIndex(),
+            params.inReview())
+        .url();
   }
 }
