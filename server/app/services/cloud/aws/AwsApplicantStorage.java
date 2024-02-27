@@ -94,18 +94,13 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
   @Override
   public SignedS3UploadRequest getSignedUploadRequest(
       String fileKey, String successActionRedirectUrl, Http.Request request) {
-
     if (settingsManifest.getSaveOnAllActions(request)) {
-      System.out.println("flag true");
       // For the file upload question, assets/javascripts/file_upload.ts may modify the {@link
-      // ApplicantRequestedAction} part of the
-      // success_action_redirect URL to specify where the user should be taken after the file has
-      // been
-      // successfully uploaded. So, the redirect URL we send to {@link SignedS3UploadRequest} needs
-      // to have that action removed
-      // and needs it to be considered just a prefix so that the {@link ApplicantRequestedAction} at
-      // the end of the URL can be changed
-      // without causing a policy error. See {@link
+      // ApplicantRequestedAction} part of the success_action_redirect URL to specify where the
+      // user should be taken after the file has been successfully uploaded. So, the redirect
+      // URL we send to {@link SignedS3UploadRequest} needs to have that action removed and needs
+      // it to be considered just a prefix so that the {@link ApplicantRequestedAction} at the
+      // end of the URL can be changed without causing a policy error. See {@link
       // SignedS3UploadRequest#useSuccessActionRedirectAsPrefix} for more details.
       String successActionRedirectPrefix =
           ApplicantRequestedAction.stripActionFromEndOfUrl(successActionRedirectUrl);
@@ -119,7 +114,6 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
           successActionRedirectPrefix,
           /* useSuccessActionRedirectAsPrefix= */ true);
     }
-    System.out.println("flag false");
     return awsStorageUtils.getSignedUploadRequest(
         credentials,
         region,

@@ -7,7 +7,7 @@ import play.mvc.Http;
  * Interface for working with cloud file storage backends for applicant files. This:
  *
  * <p>(1) Allows applicants to upload files as part of their application -- see {@link
- * #getSignedUploadRequest(String, String)}.
+ * #getSignedUploadRequest}.
  *
  * <p>(2) Allows applicants to re-download files they've previously uploaded -- see {@link
  * #getPresignedUrlString(String)}.
