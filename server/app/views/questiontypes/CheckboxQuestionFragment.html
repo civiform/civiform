@@ -13,7 +13,7 @@
         <div th:id="${questionId} + '-description'" th:text="${question.getQuestionHelpText()}"></div>
 
         <!-- Display errors -->
-        <div th:replace="~{applicant/ApplicantBaseFragment :: validationErrors(${validationErrors})}"></div>
+        <div th:replace="~{applicant/ApplicantBaseFragment :: validationErrors(${multiSelectQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
 
         <!-- Hidden input that we have checked to allow clearing data from a multi-select question -->
         <input type="checkbox" class="hidden" value="" th:name="${multiSelectQuestion.getSelectionPathAsArray()}" th:checked="${!multiSelectQuestion.hasValue()}"/>
