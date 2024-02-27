@@ -32,8 +32,8 @@ import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
-import play.mvc.Http.Request;
 import play.mvc.Http;
+import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
 import repository.VersionRepository;
@@ -61,8 +61,8 @@ import views.applicant.AddressCorrectionBlockView;
 import views.applicant.ApplicantFileUploadRenderer;
 import views.applicant.ApplicantProgramBlockEditView;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
-import views.applicant.NorthStarApplicantProgramBlockEditView;
 import views.applicant.IneligibleBlockView;
+import views.applicant.NorthStarApplicantProgramBlockEditView;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
@@ -373,20 +373,23 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
               if (block.isPresent()) {
                 ApplicantPersonalInfo personalInfo = applicantStage.toCompletableFuture().join();
-                ApplicationBaseView.Params applicationParams = buildApplicationBaseViewParams(
-                  request,
-                  applicantId,
-                  programId,
-                  blockId,
-                  inReview,
-                  roApplicantProgramService,
-                  block.get(),
-                  personalInfo,
-                  ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
-                  applicantRoutes,
-                  profile);
+                ApplicationBaseView.Params applicationParams =
+                    buildApplicationBaseViewParams(
+                        request,
+                        applicantId,
+                        programId,
+                        blockId,
+                        inReview,
+                        roApplicantProgramService,
+                        block.get(),
+                        personalInfo,
+                        ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
+                        applicantRoutes,
+                        profile);
                 if (settingsManifest.getNorthStarApplicantUi(request)) {
-                  return ok(northStarApplicantProgramBlockEditView.render(request, applicationParams)).as(Http.MimeTypes.HTML);
+                  return ok(northStarApplicantProgramBlockEditView.render(
+                          request, applicationParams))
+                      .as(Http.MimeTypes.HTML);
                 } else {
                   return ok(editView.render(applicationParams));
                 }
@@ -453,21 +456,26 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               if (block.isPresent()) {
                 ApplicantPersonalInfo personalInfo = applicantStage.toCompletableFuture().join();
                 CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
-                ApplicationBaseView.Params applicationParams = applicationBaseViewParamsBuilder(
-                  request,
-                  applicantId,
-                  programId,
-                  blockId,
-                  inReview,
-                  roApplicantProgramService,
-                  block.get(),
-                  personalInfo,
-                  ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
-                  questionName,
-                  applicantRoutes,
-                  profile).setBannerMessage(flashSuccessBanner).build();
+                ApplicationBaseView.Params applicationParams =
+                    applicationBaseViewParamsBuilder(
+                            request,
+                            applicantId,
+                            programId,
+                            blockId,
+                            inReview,
+                            roApplicantProgramService,
+                            block.get(),
+                            personalInfo,
+                            ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
+                            questionName,
+                            applicantRoutes,
+                            profile)
+                        .setBannerMessage(flashSuccessBanner)
+                        .build();
                 if (settingsManifest.getNorthStarApplicantUi(request)) {
-                  return ok(northStarApplicantProgramBlockEditView.render(request, applicationParams)).as(Http.MimeTypes.HTML);
+                  return ok(northStarApplicantProgramBlockEditView.render(
+                          request, applicationParams))
+                      .as(Http.MimeTypes.HTML);
                 } else {
                   return ok(editView.render(applicationParams));
                 }
