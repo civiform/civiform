@@ -1,16 +1,15 @@
-<div th:fragment="checkbox (question)">
-    <fieldset class="usa-fieldset">
+<div th:fragment="checkbox (question)" th:with="questionId=${#strings.randomAlphanumeric(8)}" th:id="${questionId}">
+    <fieldset class="usa-fieldset" th:aria-describedby="${questionId} + '-description'">
         <legend class="usa-legend" th:text="${question.getQuestionText()}"></legend>
+        <div th:id="${questionId} + '-description'" th:text="${question.getQuestionHelpText()}"></div>
         <div class="usa-checkbox" th:each="option: ${question.createMultiSelectQuestion().getOptions()}">
           <input
             class="usa-checkbox__input usa-checkbox__input--tile"
-            th:id="${option.id()}"
+            th:id="'checkbox-' + ${question.getContextualizedPath()} + '-' + ${option.id()}"
             th:value="${option.id()}"
             th:name="${question.createMultiSelectQuestion().getSelectionPathAsArray()}"
-            type="checkbox"
-          />
-          <label class="usa-checkbox__label" th:for="${option.id()}" th:text="${option.optionText()}"></label
-          >
+            type="checkbox"/>
+          <label class="usa-checkbox__label" th:for="${option.id()}" th:text="${option.optionText()}"></label>
         </div>
     </fieldset>
 </div>
