@@ -1,21 +1,27 @@
 <div th:fragment="checkbox (question)" th:with="questionId=${#strings.randomAlphanumeric(8)}" th:id="${questionId}">
     <fieldset class="usa-fieldset" th:aria-describedby="${questionId} + '-description'" th:with="multiSelectQuestion=${question.createMultiSelectQuestion()}">
         <!-- Question title -->
-        <legend class="usa-legend" th:text="${question.getQuestionText()}"></legend>
+        <legend class="usa-legend">
+          <span th:text="${question.getQuestionText()}"></span>
+          <!-- Required asterisk -->
+          <span th:if="${!question.isOptional()}" class="text-red-600 font-semibold">&nbsp;*</span>
+        </legend>
+
         <!-- Question help text -->
         <div th:id="${questionId} + '-description'" th:text="${question.getQuestionHelpText()}"></div>
 
         <!-- Hidden input that we have checked to allow clearing data from a multi-select question -->
         <input type="checkbox" class="hidden" value="" th:name="${multiSelectQuestion.getSelectionPathAsArray()}" th:checked="${!multiSelectQuestion.hasValue()}"/>
         <!-- Render each checkbox option -->
-        <div class="usa-checkbox" th:each="option: ${multiSelectQuestion.getOptions()}">
+        <div class="usa-checkbox" th:each="option,iterator: ${multiSelectQuestion.getOptions()}">
           <input
             class="usa-checkbox__input usa-checkbox__input--tile"
             th:id="'checkbox-' + ${question.getContextualizedPath()} + '-' + ${option.id()}"
             th:value="${option.id()}"
             th:name="${multiSelectQuestion.getSelectionPathAsArray()}"
             th:checked="${multiSelectQuestion.optionIsSelected(option)}"
-            type="checkbox"/>
+            type="checkbox"
+            th:aria-required="${!question.isOptional()}"/>
           <label class="usa-checkbox__label" th:for="${option.id()}" th:text="${option.optionText()}"></label>
         </div>
     </fieldset>
