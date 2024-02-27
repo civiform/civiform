@@ -1,4 +1,4 @@
-<div th:fragment="checkbox (question)" th:with="questionId=${#strings.randomAlphanumeric(8)}" th:id="${questionId}">
+<div th:fragment="checkbox (question, messages)" th:with="questionId=${#strings.randomAlphanumeric(8)}" th:id="${questionId}">
     <fieldset class="usa-fieldset" th:aria-describedby="${questionId} + '-description'" th:with="multiSelectQuestion=${question.createMultiSelectQuestion()}">
         <!-- Question title -->
         <legend class="usa-legend">
@@ -13,7 +13,7 @@
         <div th:id="${questionId} + '-description'" th:text="${question.getQuestionHelpText()}"></div>
 
         <!-- Display errors -->
-        <div th:replace="~{applicant/ApplicantBaseFragment :: validationErrors(${multiSelectQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
+        <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${multiSelectQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${messages})}"></div>
 
         <!-- Hidden input that we have checked to allow clearing data from a multi-select question -->
         <input type="checkbox" class="hidden" value="" th:name="${multiSelectQuestion.getSelectionPathAsArray()}" th:checked="${!multiSelectQuestion.hasValue()}"/>

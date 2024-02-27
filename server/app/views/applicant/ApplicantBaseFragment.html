@@ -25,5 +25,5 @@
 </th:block>
 
 <th:block th:fragment="validationErrors (validationErrors)">
-    <div th:each="error: ${validationErrors}" th:text="${error}"></div>
+    <div th:each="error: ${validationErrors}" th:text="${error.getMessage(messages)}"></div>
 </th:block>
