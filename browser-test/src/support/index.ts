@@ -583,14 +583,12 @@ const takeScreenshot = async (
     .basename(test.info().file)
     .replace('.test.ts', '_test')
 
-  await expect(element).toHaveScreenshot(
-    [testFileName, fullScreenshotFileName + '.png'],
-    {
+  expect(
+    await element.screenshot({
       fullPage: fullPage,
       animations: 'disabled',
-      maxDiffPixelRatio: 0,
-    },
-  )
+    }),
+  ).toMatchSnapshot([testFileName, fullScreenshotFileName + '.png'])
 }
 
 /*

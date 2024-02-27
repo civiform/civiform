@@ -136,6 +136,8 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                             .withId("apikey-submit-button"))
                     .withAction(routes.AdminApiKeysController.create().url()));
 
+    contentDiv.with(div().withStyle("background-color: #ff0000; color: #ee0000").withText("ERROR"));
+
     HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
 
     return layout.renderCentered(htmlBundle);
