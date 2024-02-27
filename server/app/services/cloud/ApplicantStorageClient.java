@@ -1,6 +1,7 @@
 package services.cloud;
 
 import java.util.Optional;
+import play.mvc.Http;
 
 /**
  * Interface for working with cloud file storage backends for applicant files. This:
@@ -44,9 +45,11 @@ public interface ApplicantStorageClient {
    * Creates and returns a request to upload a file to cloud storage.
    *
    * @param fileKey The file key to use when uploading to cloud storage
-   * @param successActionRedirect Where a user should be redirected upon successful file upload.
+   * @param successActionRedirectUrl a URL specifying where a user should be redirected upon
+   *     successful file upload.
    */
-  StorageUploadRequest getSignedUploadRequest(String fileKey, String successActionRedirect);
+  StorageUploadRequest getSignedUploadRequest(
+      String fileKey, String successActionRedirectUrl, Http.Request request);
 
   /** Gets the {@link StorageServiceName} for the current storage client. */
   StorageServiceName getStorageServiceName();

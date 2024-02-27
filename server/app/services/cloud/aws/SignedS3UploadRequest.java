@@ -79,13 +79,13 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
   public abstract String successActionRedirect();
 
   /**
-   * Boolean representing whether {@link #successActionRedirect()} should be considered just the
-   * prefix to the redirect URL (this value is true), or whether {@link #successActionRedirect()}
-   * should be an exact match to the redirect URL (this value is false). This value should be set to
-   * false for most circumstances, and should only be set to true if the redirect URL can vary
-   * depending on user interaction.
+   * True if {@link #successActionRedirect()} should be considered just the prefix to the redirect
+   * URL, and false if {@link #successActionRedirect()} should be considered an exact match to the
+   * redirect URL (this value is false). This value should be false for most circumstances, and
+   * should only be set to true if the redirect URL can vary depending on user interaction.
    *
-   * <p>Context: {@link #successActionRedirect()} is embedded in the file upload form in two places:
+   * <p>Context: {@link #successActionRedirect()} is embedded in the file upload question `<form>`
+   * in two places:
    *
    * <p>1) In the `<input name="success_action_redirect">` element. (See {@link
    * views.fileupload.AwsFileUploadViewStrategy#additionalFileUploadFormInputs}.)
@@ -94,19 +94,26 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
    * Builder#buildPolicy()}.)
    *
    * <p>AWS will verify that the redirect URL in the `<input name="success_action_redirect">`
-   * element matches the redirect URL in the `<input name="Policy">` element. If they don't
-   * match,AWS will throw a policy error and file upload will fail (see
+   * element matches the redirect URL in the `<input name="Policy">` element. If they don't match,
+   * AWS will throw a policy error and file upload will fail (see
    * https://github.com/civiform/civiform/issues/6737).
    *
-   * <p>To address https://github.com/civiform/civiform/issues/6450, we've updated the file upload
-   * question to always save the uploaded file, regardless of whether the applicant clicked
-   * "Review", "Previous", or "Save & next". This means that the redirect URL needs to be different
-   * depending on which button the applicant clicked. So, we can't require that the `<input
-   * name="success_action_redirect">` element exactly matches the redirect URL in the `<input
-   * name="Policy">` element.
+   * <p>Previously, we only saved the user's file upload if they clicked the "Save&next" button. In
+   * that case, we always used the same redirect URL, so we could have these two `<input>`s use the
+   * same URL with no issues. Now, we want to save the user's file upload when they click any button
+   * -- "Save&next", "Review", or "Previous" (see https://github.com/civiform/civiform/issues/6450).
+   * This means that the redirect URL needs to be different depending on which button the applicant
+   * clicked. So, we can't have the `<input name="success_action_redirect">` element exactly match
+   * the redirect URL in the `<input name="Policy">` element. Instead, the Policy should just have a
+   * specific success_action_redirect *prefix* that should match the <input *
+   * name="success_action_redirect">` element URL. Note that this prefix should be **as specific as
+   * possible** to give us the best security verification from AWS.
    *
-   * <p>Instead, we just need to require that they have the same prefix. Note that this prefix
-   * should be **as specific as possible** to give us the best security verification from AWS.
+   * <p>For example, if the Policy specifies that the "success_action_redirect" starts with
+   * "https://civiform.dev/programs/4/blocks/1/updateFile/true", then the `<input
+   * name="success_action_redirect">` element could use a URL of
+   * "https://civiform.dev/programs/4/blocks/1/updateFile/true/REVIEW_PAGE" to redirect the user to
+   * the review page and AWS would allow it.
    */
   public abstract boolean useSuccessActionRedirectAsPrefix();
 

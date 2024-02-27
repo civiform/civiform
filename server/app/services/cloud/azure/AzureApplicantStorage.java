@@ -24,6 +24,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import play.Environment;
+import play.mvc.Http;
 import services.cloud.ApplicantStorageClient;
 import services.cloud.StorageServiceName;
 
@@ -91,7 +92,7 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
 
   @Override
   public BlobStorageUploadRequest getSignedUploadRequest(
-      String fileName, String successActionRedirect) {
+      String fileName, String successActionRedirectUrl, Http.Request request) {
     // Azure blob must know the name of a file to generate a SAS for it, so we'll
     // use a UUID When the file is uploaded, this UUID is stored along with the name
     // of the file.
@@ -104,7 +105,7 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
             .setContainerName(container)
             .setBlobUrl(client.getBlobUrl(fileName))
             .setSasToken(client.getSasToken(fileName, Optional.empty()))
-            .setSuccessActionRedirect(successActionRedirect);
+            .setSuccessActionRedirect(successActionRedirectUrl);
     return builder.build();
   }
 

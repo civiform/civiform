@@ -152,11 +152,14 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                     params.inReview(),
                     NEXT_BLOCK)
                 .url();
+
     String key =
         ApplicantFileNameFormatter.formatFileUploadQuestionFilename(
             params.applicantId(), params.programId(), params.block().getId());
     StorageUploadRequest signedRequest =
-        params.applicantStorageClient().getSignedUploadRequest(key, onSuccessRedirectUrl);
+        params
+            .applicantStorageClient()
+            .getSignedUploadRequest(key, onSuccessRedirectUrl, params.request());
 
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder()

@@ -36,7 +36,8 @@ public final class AwsStorageUtils {
    *
    * @param useSuccessActionRedirectAsPrefix true if {@code successActionRedirect} is just a prefix
    *     of the full redirect URL, and false if {@code successActionRedirect} is an exact match to
-   *     the full redirect URL.
+   *     the full redirect URL. See {@link SignedS3UploadRequest#useSuccessActionRedirectAsPrefix}
+   *     for more details.
    */
   public SignedS3UploadRequest getSignedUploadRequest(
       Credentials credentials,
