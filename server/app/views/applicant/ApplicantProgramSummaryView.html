@@ -1,13 +1,5 @@
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Title</title>
-
-        <link th:href="${tailwindStylesheet}" type="text/css" rel="stylesheet">
-        <link th:href="${uswdsStylesheet}" type="text/css" rel="stylesheet">
-        <script th:src="${uswdsJsBundle}" type="text/javascript"></script>
-        <script th:src="${adminJsBundle}" type="text/javascript"></script>
-      </head>
+    <head th:replace="~{applicant/ApplicantBaseFragment :: pageHeader}"></div>
     <body>
         <h1>Let's get started.</h1>
         <p>Select a step below to start your application. You can save and come back at any time.</p>
@@ -32,5 +24,7 @@
                 </div>
               </div>
             </li>
+        </ul>
+        <footer th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"></div>
     </body>
 </html>
