@@ -17,7 +17,7 @@ import play.mvc.Http.Request;
 import services.applicant.Block;
 
 /** Renders a list of sections in the form with their status. */
-public final class NorthStarApplicantProgramSummaryView {
+public final class NorthStarApplicantProgramSummaryView extends NorthStarApplicantBaseView {
   private final TemplateEngine templateEngine;
   private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
   private final AssetsFinder assetsFinder;
@@ -29,19 +29,11 @@ public final class NorthStarApplicantProgramSummaryView {
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
       ApplicantRoutes applicantRoutes) {
-    this.templateEngine = checkNotNull(templateEngine);
-    this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
-    this.assetsFinder = checkNotNull(assetsFinder);
-    this.applicantRoutes = checkNotNull(applicantRoutes);
+        super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes);
   }
 
   public String render(Request request, Params params) {
-    ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
-    context.setVariable("tailwindStylesheet", assetsFinder.path("stylesheets/tailwind.css"));
-    context.setVariable("uswdsStylesheet", assetsFinder.path("dist/uswds.min.css"));
-    context.setVariable("uswdsJsBundle", assetsFinder.path("javascripts/uswds/uswds-init.min.js"));
-    context.setVariable("adminJsBundle", assetsFinder.path("dist/admin.bundle.js"));
-    context.setVariable("ApiDocsController", controllers.api.routes.ApiDocsController);
+    ThymeleafModule.PlayThymeleafContext context = createThymeleafContext(request);
     context.setVariable("blocks", params.blocks());
     context.setVariable("blockEditUrlMap", blockEditUrlMap(params));
     return templateEngine.process("applicant/ApplicantProgramSummaryView", context);
