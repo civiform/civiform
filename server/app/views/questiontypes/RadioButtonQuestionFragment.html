@@ -1,17 +1,31 @@
-<div th:fragment="radio (question)" th:class="${question.getContextualizedPath().toString()}">
-    <fieldset class="usa-fieldset">
-        <legend class="usa-legend" th:text="${question.getQuestionText()}"></legend>
-        <div class="usa-radio" th:each="option: ${question.createSingleSelectQuestion().getOptions()}">
+<div th:fragment="radio (question, messages)" th:with="questionId=${#strings.randomAlphanumeric(8)}" th:id="${questionId}">
+    <fieldset class="usa-fieldset" th:aria-describedby="${questionId} + '-description'" th:with="singleSelectQuestion=${question.createSingleSelectQuestion()}">
+        <!-- Question title -->
+        <legend class="usa-legend">
+          <span th:text="${question.getQuestionText()}"></span>
+          <!-- Required asterisk -->
+          <th:block th:if="${!question.isOptional()}">
+            <div th:replace="~{applicant/ApplicantBaseFragment :: requiredAsterisk}"></div>
+          </th:block>
+        </legend>
+
+        <!-- Question help text -->
+        <div th:id="${questionId} + '-description'" th:text="${question.getQuestionHelpText()}"></div>
+
+        <!-- Display errors -->
+        <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${messages})}"></div>
+        <!-- Render each checkbox option -->
+        <div class="usa-radio" th:each="option,iterator: ${singleSelectQuestion.getOptions()}" th:with="inputId=${#strings.randomAlphanumeric(8)}">
+          <!-- TODO(ghyde): Add autofocus attribute as appropriate -->
           <input
-            class="usa-radio__input usa-radio__input--tile"
-            th:id="${option.id()}"
+          class="usa-radio__input usa-radio__input--tile"
+            th:id="${inputId}"
             th:value="${option.id()}"
-            th:name="${question.createSingleSelectQuestion().getSelectionPath().toString()}"
-            th:checked="${question.createSingleSelectQuestion().optionIsSelected(option)}"
+            th:name="${singleSelectQuestion.getSelectionPath()}"
+            th:checked="${singleSelectQuestion.optionIsSelected(option)}"
             type="radio"
-          />
-          <label class="usa-radio__label" th:for="${option.id()}" th:text="${option.optionText()}"></label
-          >
+            th:aria-required="${!question.isOptional()}"/>
+          <label class="usa-radio__label" th:for="${inputId}" th:text="${option.optionText()}"></label>
         </div>
     </fieldset>
 </div>

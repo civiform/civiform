@@ -8,7 +8,7 @@
             <div th:replace="~{questiontypes/NumberQuestionFragment :: number(${question})}"></div>
         </th:block>
         <th:block th:case="'Radio Button'">
-            <div th:replace="~{questiontypes/RadioButtonQuestionFragment :: radio(${question})}"></div>
+            <div th:replace="~{questiontypes/RadioButtonQuestionFragment :: radio(${question}, ${messages})}"></div>
         </th:block>
         <th:block th:case="'Static Text'">
             <div th:replace="~{questiontypes/StaticTextQuestionFragment :: static-text(${question})}"></div>
