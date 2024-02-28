@@ -2,6 +2,7 @@ package models;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
 import java.time.Instant;
@@ -17,6 +18,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
+import services.CfJsonDocumentContext;
 import services.applicant.ApplicantData;
 
 /**
@@ -141,12 +143,28 @@ public class ApplicantModel extends BaseModel {
     return this;
   }
 
+  private void setCountryCodeFromPhoneNumber() {
+    PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
+    if (PHONE_NUMBER_UTIL.isPossibleNumber(this.phoneNumber, "US")) {
+      setCountryCode("US");
+    } else if (PHONE_NUMBER_UTIL.isPossibleNumber(this.phoneNumber, "CA")) {
+      setCountryCode("CA");
+    }
+    // Intentionally don't throw an exception if it doesn't match one of the above,
+    // since we are not currently using the country code for anything.
+  }
+
   public Optional<String> getCountryCode() {
     return Optional.ofNullable(countryCode);
   }
 
+  /** Save in a similar way to {@link CfJsonDocumentContext#putPhoneNumber} */
   public ApplicantModel setPhoneNumber(String phoneNumber) {
-    this.phoneNumber = phoneNumber.isEmpty() || phoneNumber.isBlank() ? null : phoneNumber;
+    this.phoneNumber =
+        phoneNumber.isEmpty() || phoneNumber.isBlank()
+            ? null
+            : phoneNumber.replaceAll("[^0-9]", "");
+    setCountryCodeFromPhoneNumber();
     return this;
   }
 

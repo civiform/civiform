@@ -122,4 +122,14 @@ public class ApplicantModelTest extends ResetPostgres {
     assertThat(applicant.getPhoneNumber().get()).isEqualTo(phoneNumber);
     assertThat(applicant.getDateOfBirth().get()).isEqualTo(dob);
   }
+
+  @Test
+  public void savesPhoneNumberWithCorrectFormat() {
+    ApplicantModel applicant = new ApplicantModel();
+    applicant.setPhoneNumber("(503) 823-4000");
+    applicant.save();
+    applicant = repo.lookupApplicant(applicant.id).toCompletableFuture().join().get();
+    assertThat(applicant.getPhoneNumber().get()).isEqualTo("5038234000");
+    assertThat(applicant.getCountryCode().get()).isEqualTo("US");
+  }
 }
