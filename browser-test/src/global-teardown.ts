@@ -14,10 +14,12 @@ async function globalTeardown() {
 
   for (let i = 0; i < updatedSnapshots.length; i++) {
     const originalFile = updatedSnapshots[i]
+
+    // Make the new file path
+    // Path format is: ./updated_snapshots/test-file-name/image-name.png
     const newFile = path.join(
       './updated_snapshots',
       path.basename(path.dirname(originalFile)),
-      path.basename(path.dirname(path.dirname(originalFile))),
       path.basename(originalFile.replace('-actual.png', '-received.png')),
     )
 
@@ -49,10 +51,10 @@ async function globalTeardown() {
     const actualFileLeft = diffFileLeft + (diffMetadata.width ?? 0)
 
     // Make the new file path
+    // Path format is: ./diff_output/test-file-name/image-name.png
     const newFile = path.join(
       './diff_output',
       path.basename(path.dirname(diffFile)),
-      path.basename(path.dirname(path.dirname(diffFile))),
       path.basename(diffFile),
     )
 
