@@ -111,13 +111,14 @@ test.describe('Checkbox question for applicant flow', () => {
 
       // No validation errors on first page load.
       const checkBoxError = '.cf-applicant-question-errors'
-      expect(await page.isHidden(checkBoxError)).toEqual(true)
+      await expect(page.locator(checkBoxError)).toBeHidden()
 
       // Click next without selecting anything.
       await applicantQuestions.clickNext()
 
       // Check checkbox error and required error are present.
-      expect(await page.isHidden(checkBoxError)).toEqual(false)
+      await expect(page.locator(checkBoxError)).toBeVisible()
+
       const checkboxId = '.cf-question-checkbox'
       expect(await page.innerText(checkboxId)).toContain(
         'This question is required.',
@@ -129,7 +130,7 @@ test.describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       const checkBoxError = '.cf-applicant-question-errors'
       // No validation errors on first page load.
-      expect(await page.isHidden(checkBoxError)).toEqual(true)
+      await expect(page.locator(checkBoxError)).toBeHidden()
 
       // Max of two checked boxes are allowed, but we select three.
       await applicantQuestions.answerCheckboxQuestion([
@@ -140,7 +141,7 @@ test.describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       // Check error is shown.
-      expect(await page.isHidden(checkBoxError)).toEqual(false)
+      await expect(page.locator(checkBoxError)).toBeVisible()
     })
   })
 
@@ -211,7 +212,7 @@ test.describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       const checkboxError = '.cf-applicant-question-errors'
       // No validation errors on first page load.
-      expect(await page.isHidden(checkboxError)).toEqual(true)
+      await expect(page.locator(checkboxError)).toBeHidden()
 
       // Max of 2 answers allowed.
       await applicantQuestions.answerCheckboxQuestion([
@@ -222,7 +223,7 @@ test.describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.answerCheckboxQuestion(['beach'])
       await applicantQuestions.clickNext()
 
-      expect(await page.isHidden(checkboxError)).toEqual(false)
+      await expect(page.locator(checkboxError)).toBeVisible()
     })
 
     test('with second invalid does not submit', async () => {
@@ -230,7 +231,7 @@ test.describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       const checkboxError = '.cf-applicant-question-errors'
       // No validation errors on first page load.
-      expect(await page.isHidden(checkboxError)).toEqual(true)
+      await expect(page.locator(checkboxError)).toBeHidden()
 
       await applicantQuestions.answerCheckboxQuestion(['red'])
       // Max of 2 answers allowed.
@@ -241,7 +242,7 @@ test.describe('Checkbox question for applicant flow', () => {
       ])
       await applicantQuestions.clickNext()
 
-      expect(await page.isHidden(checkboxError)).toEqual(false)
+      await expect(page.locator(checkboxError)).toBeVisible()
     })
 
     test('has no accessibility violations', async () => {
