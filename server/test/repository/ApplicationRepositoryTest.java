@@ -7,6 +7,7 @@ import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
+import java.util.Locale;
 import java.util.Optional;
 import models.AccountModel;
 import models.ApplicantModel;
@@ -181,10 +182,11 @@ public class ApplicationRepositoryTest extends ResetPostgres {
         .isInstanceOf(DuplicateApplicationException.class);
   }
 
-  private ApplicationModel createSubmittedAppAtInstant(ProgramModel program, Instant submitTime) {
+  private ApplicationModel createSubmittedAppAtInstant(
+      ProgramModel program, Instant submitTime, String applicantName) {
     // Use a distinct applicant for each application since it's not possible to create multiple
     // submitted applications for the same program for a given applicant.
-    ApplicantModel applicant = saveApplicant("Alice");
+    ApplicantModel applicant = saveApplicant(applicantName);
     ApplicationModel app =
         repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
     CfTestHelpers.withMockedInstantNow(
@@ -208,12 +210,12 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     Instant tomorrow = dateConverter.parseIso8601DateToStartOfLocalDateInstant("2022-01-04");
 
     // Create applications at each instant in each program.
-    ApplicationModel programOneYesterday = createSubmittedAppAtInstant(programOne, yesterday);
-    ApplicationModel programOneToday = createSubmittedAppAtInstant(programOne, today);
-    ApplicationModel programOneTomorrow = createSubmittedAppAtInstant(programOne, tomorrow);
-    ApplicationModel programTwoYesterday = createSubmittedAppAtInstant(programTwo, yesterday);
-    ApplicationModel programTwoToday = createSubmittedAppAtInstant(programTwo, today);
-    ApplicationModel programTwoTomorrow = createSubmittedAppAtInstant(programTwo, tomorrow);
+    ApplicationModel programOneYesterday = createSubmittedAppAtInstant(programOne, yesterday, "a");
+    ApplicationModel programOneToday = createSubmittedAppAtInstant(programOne, today, "b");
+    ApplicationModel programOneTomorrow = createSubmittedAppAtInstant(programOne, tomorrow, "c");
+    ApplicationModel programTwoYesterday = createSubmittedAppAtInstant(programTwo, yesterday, "d");
+    ApplicationModel programTwoToday = createSubmittedAppAtInstant(programTwo, today, "e");
+    ApplicationModel programTwoTomorrow = createSubmittedAppAtInstant(programTwo, tomorrow, "f");
 
     // No filters. Includes all.
     assertThat(repo.getApplications(TimeFilter.EMPTY).stream().map(a -> a.id))
@@ -349,6 +351,11 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
   private ApplicantModel saveApplicant(String name) {
     AccountModel account = new AccountModel();
+    // TODO (#5503): This can be removed when we are no longer checking name
+    // against the account email in ApplicantData#getApplicantName
+    account.setEmailAddress(String.format("%s@email.com", name.toLowerCase(Locale.ROOT)));
+    account.save();
+
     ApplicantModel applicant = new ApplicantModel();
     applicant.getApplicantData().setUserName(name);
     applicant.setAccount(account);

@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import models.AccountModel;
 import models.ApplicantModel;
 import org.junit.Test;
 import repository.ResetPostgres;
@@ -38,6 +39,15 @@ public class ApplicantDataTest extends ResetPostgres {
 
   private ApplicantData createNewApplicantData() {
     ApplicantModel applicant = new ApplicantModel();
+
+    // TODO (#5503): See the big block comment in ApplicantData#getApplicantName.
+    // Once we stop checking the first name against the account email address,
+    // we can remove this.
+    AccountModel account = new AccountModel();
+    account.setEmailAddress("test@email.com");
+    account.save();
+    applicant.setAccount(account);
+
     applicant.save();
     return new ApplicantData(applicant);
   }
@@ -47,6 +57,15 @@ public class ApplicantDataTest extends ResetPostgres {
     ApplicantData data = createNewApplicantData();
     data.setUserName("First Last");
     assertThat(data.getApplicantName()).isEqualTo(Optional.of("Last, First"));
+  }
+
+  // TODO (#5503): Remove this when we remove this check from ApplicantData#getApplicantName
+  @Test
+  public void getApplicantName_fallsBackToWKPWhenNameIsEmail() {
+    ApplicantData data = createNewApplicantData();
+    data.setUserName("test@email.com");
+    data.putString(WellKnownPaths.APPLICANT_FIRST_NAME, "first");
+    assertThat(data.getApplicantName().get()).isEqualTo("first");
   }
 
   @Test
