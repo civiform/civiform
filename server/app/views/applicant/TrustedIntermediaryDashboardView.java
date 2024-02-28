@@ -28,6 +28,7 @@ import com.google.i18n.phonenumbers.Phonenumber;
 import com.google.inject.Inject;
 import controllers.ti.routes;
 import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LiTag;
@@ -42,6 +43,7 @@ import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
 import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
+import play.mvc.Call;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.ProgramRepository;
@@ -83,10 +85,11 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   public Content render(
       TrustedIntermediaryGroupModel tiGroup,
       ApplicantPersonalInfo personalInfo,
-      ImmutableList<AccountModel> managedAccounts,
-      int totalPageCount,
       int page,
-      SearchParameters searchParameters,
+      Optional<String> nameQuery,
+      Optional<String> dayQuery,
+      Optional<String> monthQuery,
+      Optional<String> yearQuery,
       Http.Request request,
       Messages messages,
       Long currentTisApplicantId) {
@@ -96,25 +99,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setTitle("CiviForm")
             .addMainContent(
                 renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
-                hr(),
-                renderSubHeader("Add Client").withId("add-client").withClass("my-4"),
-                requiredFieldsExplanationContent(),
-                renderAddNewForm(tiGroup, request),
-                hr().withClasses("mt-6"),
-                div()
-                    .withId("tabs")
-                    .attr(
-                        "hx-get", controllers.ti.routes.TrustedIntermediaryController.tab1().url())
-                    .attr("hx-trigger", "load delay:100ms")
-                    .attr("hx-target", "#tabs")
-                    .attr("hx-swap", "innerHTML"),
-                renderSubHeader("All clients").withClass("my-4"),
-                h4("Search"),
-                renderSearchForm(request, searchParameters),
-                renderTIClientsList(managedAccounts, searchParameters, page, totalPageCount),
-                hr().withClasses("mt-6"),
-                renderSubHeader("Organization members").withClass("my-4"),
-                renderTIMembersTable(tiGroup).withClass("pt-2"))
+                hxRenderTabsContainer(page, nameQuery, dayQuery, monthQuery, yearQuery),
+                hr())
             .addMainStyles("px-20", "max-w-screen-xl");
 
     Http.Flash flash = request.flash();
@@ -129,7 +115,78 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
   }
 
-  public DivTag renderTab1(Http.Request request) {
+  private DivTag hxRenderTabsContainer(
+      int page,
+      Optional<String> nameQuery,
+      Optional<String> dayQuery,
+      Optional<String> monthQuery,
+      Optional<String> yearQuery) {
+    return div()
+        .withId("tabs")
+        .attr(
+            "hx-get",
+            controllers.ti.routes.TrustedIntermediaryController.hxClientListTab(
+                nameQuery, dayQuery, monthQuery, yearQuery, Optional.of(page)))
+        .attr("hx-trigger", "load")
+        .attr("hx-target", "#tabs");
+  }
+
+  private ButtonTag hxRenderTabButton(String title, Call route, boolean isSelected) {
+    return button(title)
+        .attr("hx-get", route)
+        .withCondClass(isSelected, "selected")
+        .attr("role", "tab")
+        .attr("aria-selected", isSelected)
+        .attr("aria-controls", "tab-content");
+  }
+
+  public DivTag hxRenderClientListTab(
+      TrustedIntermediaryGroupModel tiGroup,
+      ImmutableList<AccountModel> managedAccounts,
+      int totalPageCount,
+      int page,
+      SearchParameters searchParameters,
+      Http.Request request) {
+    DivTag div =
+        div()
+            .with(
+                div()
+                    .withClasses("tab-list")
+                    .attr("role", "tablist")
+                    .with(
+                        hxRenderTabButton(
+                            "Client list",
+                            controllers.ti.routes.TrustedIntermediaryController.hxClientListTab(
+                                Optional.empty(),
+                                Optional.empty(),
+                                Optional.empty(),
+                                Optional.empty(),
+                                Optional.of(page)),
+                            true),
+                        hxRenderTabButton(
+                            "Account Settings",
+                            controllers.ti.routes.TrustedIntermediaryController
+                                .hxAccountsSettingsTab(),
+                            false)),
+                div()
+                    .with(
+                        renderSubHeader("Add Client").withId("add-client").withClass("my-4"),
+                        requiredFieldsExplanationContent(),
+                        renderAddNewForm(tiGroup, request),
+                        hr().withClasses("mt-6"),
+                        renderSubHeader("All clients").withClass("my-4"),
+                        h4("Search"),
+                        renderSearchForm(request, searchParameters),
+                        renderTIClientsList(
+                            managedAccounts, searchParameters, page, totalPageCount))
+                    .withId("tab-content")
+                    .attr("role", "tabpanel")
+                    .withClasses("tab-content"));
+
+    return div;
+  }
+
+  public DivTag hxRenderAccountSettingsTab(TrustedIntermediaryGroupModel tiGroup) {
 
     DivTag div =
         div()
@@ -138,18 +195,25 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                     .withClasses("tab-list")
                     .attr("role", "tablist")
                     .with(
-                        button("Tab 1")
-                            .attr("hx-get", "/tab1")
-                            .withClasses("selected")
-                            .attr("role", "tab")
-                            .attr("aria-selected", "false")
-                            .attr("aria-controls", "tab-content"),
-                        button("Tab 2")
-                            .attr("hx-get", "/tab2")
-                            .attr("role", "tab")
-                            .attr("aria-selected", "false")
-                            .attr("aria-controls", "tab-content")),
-                div("Oh what lovely tab content for tab 1")
+                        hxRenderTabButton(
+                            "Client list",
+                            controllers.ti.routes.TrustedIntermediaryController.hxClientListTab(
+                                Optional.empty(),
+                                Optional.empty(),
+                                Optional.empty(),
+                                Optional.empty(),
+                                Optional.of(1)),
+                            true),
+                        hxRenderTabButton(
+                            "Account Settings",
+                            controllers.ti.routes.TrustedIntermediaryController
+                                .hxAccountsSettingsTab(),
+                            false)),
+                div()
+                    .with(
+                        renderSubHeader("Account settings"),
+                        renderSubHeader("Organization members").withClass("my-4"),
+                        renderTIMembersTable(tiGroup).withClass("pt-2"))
                     .withId("tab-content")
                     .attr("role", "tabpanel")
                     .withClasses("tab-content"));

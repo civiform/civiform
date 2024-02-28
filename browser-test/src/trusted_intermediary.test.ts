@@ -763,6 +763,7 @@ test.describe('Trusted intermediaries', () => {
       await waitForPageJsLoad(page)
 
       await tiDashboard.createMultipleClients('myname', 10)
+      await validateScreenshot(page, 'test_with_10_clients')
       const cardCount = await page.locator('.usa-card__container').count()
       expect(cardCount).toBe(10)
 
