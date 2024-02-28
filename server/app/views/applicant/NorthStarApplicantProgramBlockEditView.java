@@ -35,8 +35,9 @@ public final class NorthStarApplicantProgramBlockEditView {
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
     context.setVariable("tailwindStylesheet", assetsFinder.path("stylesheets/tailwind.css"));
     context.setVariable("uswdsStylesheet", assetsFinder.path("dist/uswds.min.css"));
-    context.setVariable("uswdsJsBundle", assetsFinder.path("javascripts/uswds/uswds-init.min.js"));
     context.setVariable("adminJsBundle", assetsFinder.path("dist/admin.bundle.js"));
+    context.setVariable("uswdsJsInit", assetsFinder.path("javascripts/uswds/uswds-init.min.js"));
+    context.setVariable("uswdsJsBundle", assetsFinder.path("dist/uswds.bundle.js"));
     context.setVariable("ApiDocsController", controllers.api.routes.ApiDocsController);
     context.setVariable("formAction", getFormAction(applicationParams));
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
