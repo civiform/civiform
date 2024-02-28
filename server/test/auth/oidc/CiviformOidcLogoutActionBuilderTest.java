@@ -16,7 +16,6 @@ import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.PlainJWT;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import filters.SessionIdFilter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -95,13 +94,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
     return Optional.empty();
   }
 
-  WebContext getWebContext(Optional<String> sessionId) {
-    if (sessionId.isPresent()) {
-      return new PlayWebContext(
-          fakeRequest().session(SessionIdFilter.SESSION_ID, sessionId.get()).build());
-    } else {
-      return new PlayWebContext(fakeRequest().build());
-    }
+  WebContext getWebContext() {
+    return new PlayWebContext(fakeRequest().build());
   }
 
   @Test
@@ -121,10 +115,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
         new CiviformOidcLogoutActionBuilder(
             oidcConfig, clientId, params, IdentityProviderType.APPLICANT_IDENTITY_PROVIDER);
 
-    WebContext context = getWebContext(Optional.of(sessionId));
-
     Optional<RedirectionAction> logoutAction =
-        builder.getLogoutAction(context, sessionStore, civiFormProfileData, targetUrl);
+        builder.getLogoutAction(getWebContext(), sessionStore, civiFormProfileData, targetUrl);
 
     assertThat(logoutAction).isNotEmpty();
     assertThat(logoutAction.get().getCode()).isEqualTo(302);
@@ -146,7 +138,10 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
     Config civiformConfig =
         ConfigFactory.parseMap(ImmutableMap.of("admin_oidc_enhanced_logout_enabled", "true"));
 
-    // Set up an admin account.
+    // Store the session id in the profile.
+    civiFormProfileData.addAttribute(CiviformOidcProfileCreator.SESSION_ID, sessionId);
+
+    // Set up an admin account. Associate the session ID with the ID token for logout.
     AccountModel account = new AccountModel();
     account.setGlobalAdmin(true);
     SerializedIdTokens serializedIdTokens =
@@ -162,10 +157,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
         new CiviformOidcLogoutActionBuilder(
             oidcConfig, clientId, params, IdentityProviderType.ADMIN_IDENTITY_PROVIDER);
 
-    WebContext context = getWebContext(Optional.of(sessionId));
-
     Optional<RedirectionAction> logoutAction =
-        builder.getLogoutAction(context, sessionStore, civiFormProfileData, targetUrl);
+        builder.getLogoutAction(getWebContext(), sessionStore, civiFormProfileData, targetUrl);
 
     assertThat(logoutAction).isNotEmpty();
     assertThat(logoutAction.get().getCode()).isEqualTo(302);
@@ -207,10 +200,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
         new CiviformOidcLogoutActionBuilder(
             oidcConfig, clientId, params, IdentityProviderType.APPLICANT_IDENTITY_PROVIDER);
 
-    WebContext context = getWebContext(Optional.of(sessionId));
-
     Optional<RedirectionAction> logoutAction =
-        builder.getLogoutAction(context, sessionStore, civiFormProfileData, targetUrl);
+        builder.getLogoutAction(getWebContext(), sessionStore, civiFormProfileData, targetUrl);
 
     assertThat(logoutAction).isNotEmpty();
     assertThat(logoutAction.get().getCode()).isEqualTo(302);
