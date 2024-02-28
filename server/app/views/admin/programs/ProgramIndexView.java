@@ -96,7 +96,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .filter(QuestionDefinition::isUniversal)
             .map(QuestionDefinition::getId)
             .collect(ImmutableList.toImmutableList());
-    Optional<Modal> maybePublishModal =
+    Optional<DivTag> maybePublishModal =
         maybeRenderPublishAllModal(
             programs,
             readOnlyQuestionService.getActiveAndDraftQuestions(),
@@ -119,7 +119,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                             .getButton()
                             .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-2"),
                         renderNewProgramButton(),
-                        maybePublishModal.isPresent() ? maybePublishModal.get().getButton() : null),
+                        maybePublishModal.isPresent() ? maybePublishModal.get() : null),
                 div()
                     .withClasses("flex", "items-center", "space-x-4", "mt-12")
                     .with(h2(pageExplanation)),
@@ -164,7 +164,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               });
     }
 
-    maybePublishModal.ifPresent(htmlBundle::addModals);
+    maybePublishModal.ifPresent(htmlBundle::addMainContent);
 
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
@@ -293,7 +293,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         .size();
   }
 
-  private Optional<Modal> maybeRenderPublishAllModal(
+  private Optional<DivTag> maybeRenderPublishAllModal(
       ActiveAndDraftPrograms programs,
       ActiveAndDraftQuestions questions,
       Http.Request request,
@@ -370,15 +370,18 @@ public final class ProgramIndexView extends BaseHtmlView {
     ButtonTag publishAllButton =
         makeSvgTextButton("Publish all drafts", Icons.PUBLISH)
             .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON, "my-2");
-    Modal publishAllModal =
-        Modal.builder()
-            .setModalId("publish-all-programs-modal")
-            .setLocation(Modal.Location.ADMIN_FACING)
-            .setContent(publishAllModalContent)
-            .setModalTitle("Do you want to publish all draft programs?")
-            .setTriggerButtonContent(publishAllButton)
-            .build();
-    return Optional.of(publishAllModal);
+    DivTag uswdsModal =
+      ViewUtils.makeUSWDSModal(
+        publishAllModalContent,
+        "publish-all-programs",
+        "Do you want to publish all draft programs?",
+        "link button text",
+        false,
+        publishAllButton,
+        "yes",
+        "no"
+      );
+    return Optional.of(uswdsModal);
   }
 
   private LiTag renderPublishModalProgramItem(
