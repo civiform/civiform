@@ -122,7 +122,9 @@ function validateFileUploadQuestion(blockForm: Element): boolean {
   const isFileUploaded = fileInput.value != ''
 
   const errorDiv = blockForm.querySelector('.cf-fileupload-error')
+  console.log('errorDiv=' + errorDiv)
   if (!errorDiv) {
+    console.log('no error div')
     return isFileUploaded
   }
 

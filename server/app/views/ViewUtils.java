@@ -19,7 +19,6 @@ import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.script;
 import static j2html.TagCreator.select;
 import static j2html.TagCreator.span;
-import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
 
 import com.google.common.base.Joiner;
@@ -394,12 +393,12 @@ public final class ViewUtils {
                 .with(p().withClass("usa-alert__text").withText(text)));
   }
 
-  public static DivTag makeAlertInfoSlim(String text, boolean hidden, String... classes) {
+  public static DivTag makeAlertSlim(String text, boolean hidden, String... classes) {
     return makeAlert(
         text,
         hidden,
         Optional.empty(),
-        Lists.asList(BaseStyles.ALERT_INFO, BaseStyles.ALERT_SLIM, classes).toArray(new String[0]));
+        Lists.asList(BaseStyles.ALERT_SLIM, classes).toArray(new String[0]));
   }
 
   /**
