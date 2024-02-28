@@ -210,7 +210,13 @@ class PreviewController {
               `.${PreviewController.QUESTION_MULTI_OPTION_VALUE_CLASS}`,
             ),
           )
-      optionText.innerText = configuredOption
+      optionText.innerHTML = configuredOption
+      console.log("configured option")
+      console.log(typeof configuredOption)
+      console.log(formatText(configuredOption))
+      console.log("optionText")
+      console.log(optionText.innerHTML)
+      // optionText.innerHTML = formatText(configuredOption)
       previewQuestionOptionContainer.appendChild(newPreviewOption)
     }
   }
