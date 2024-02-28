@@ -5,7 +5,7 @@
 
         <link th:href="${tailwindStylesheet}" type="text/css" rel="stylesheet">
         <link th:href="${uswdsStylesheet}" type="text/css" rel="stylesheet">
-        <script th:src="${uswdsJsBundle}" type="text/javascript"></script>
+        <script th:src="${uswdsJsInit}" type="text/javascript"></script>
         <script th:src="${adminJsBundle}" type="text/javascript"></script>
       </head>
     <body>
@@ -15,5 +15,8 @@
                 <div th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"></div>
             </form>
         </div>
+        <footer>
+            <script th:src="${uswdsJsBundle}" type="text/javascript"></script>
+        </footer>
     </body>
 </html>
