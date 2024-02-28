@@ -37,14 +37,11 @@ public final class FileUploadQuestion extends Question {
 
   @Override
   public ImmutableList<Path> getAllPaths() {
-    return ImmutableList.of();
+    return ImmutableList.of(getFileKeyPath());
   }
 
   @Override
   public boolean isAnswered() {
-    // TODO(#1944): Consider adding getFileKeyPath to getAllPaths.
-    // Adding it currently would cause the value to start being exported
-    // by the demographics exporter.
     return applicantQuestion.getApplicantData().hasPath(getFileKeyPath());
   }
 
