@@ -834,11 +834,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
     if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK) {
       if (onAddressCorrectionPage) {
+        System.out.println("on address correction page");
         // When an applicant is on the address correction view and clicks "Previous", we want them
         // to go back to the block with the address question. Address correction isn't a defined
         // block in the program definition, so `blockId` represents the block with the address
         // question and we just need to go back to that block.
-        return getBlockPage(profile, applicantId, programId, blockId, inReview, flashingMap);
+    //    return getBlockPage(profile, applicantId, programId, blockId, inReview, flashingMap);
       }
 
       int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);

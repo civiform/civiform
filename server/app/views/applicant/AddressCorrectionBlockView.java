@@ -255,8 +255,8 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
     DivTag bottomNavButtonsContainer = div().withClasses(ApplicantStyles.APPLICATION_NAV_BAR);
 
     if (settingsManifest.getSaveOnAllActions(params.request())) {
-      if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK
-          || applicantRequestedAction == ApplicantRequestedAction.REVIEW_PAGE) {
+     // if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK
+     //     || applicantRequestedAction == ApplicantRequestedAction.REVIEW_PAGE) {
         // On the block that had the address question, the applicant selected "Previous" or
         // "Review". But, we still need to correct their address. So, we still show them this
         // address correction screen but then only give them one action, "Confirm address". This
@@ -267,7 +267,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
                     params.messages().at(MessageKey.ADDRESS_CORRECTION_CONFIRM_BUTTON.getKeyName()))
                 .withClasses(ButtonStyles.SOLID_BLUE)
                 .withFormaction(getFormAction(params, applicantRequestedAction)));
-      }
+    //  }
     }
 
     // Otherwise, the applicant selected "Save&next" on the block with the address question. Then we
