@@ -1,5 +1,5 @@
 <html>
-    <head th:replace="~{applicant/ApplicantBaseFragment :: pageHeader}"></div>
+    <head th:replace="~{applicant/ApplicantBaseFragment :: pageHeader}"></head>
     <body>
         <div>
             <form id="cf-block-form" th:action="${formAction}" method="POST">
@@ -7,6 +7,6 @@
                 <div th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"></div>
             </form>
         </div>
-        <head th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"></div>
+        <footer th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"></footer>
     </body>
 </html>
