@@ -254,12 +254,6 @@ public final class ProgramCardFactory {
                 getDisplayProgram(cardData).localizedName().getDefault().toLowerCase(Locale.ROOT));
   }
 
-  /** Represents the type of admin that's viewing the program card. */
-  public enum AdminType {
-    CIVIFORM_ADMIN,
-    PROGRAM_ADMIN,
-  }
-
   @AutoValue
   public abstract static class ProgramCardData {
     abstract Optional<ProgramRow> activeProgram();
