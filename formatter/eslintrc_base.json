@@ -4,6 +4,7 @@
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:playwright/recommended",
     // TODO(#3361): enable
     // "plugin:@typescript-eslint/strict",
     "google",
