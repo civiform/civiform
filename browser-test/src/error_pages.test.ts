@@ -8,7 +8,7 @@ import {
 
 test.describe('error pages', () => {
   const ctx = createTestContext()
-  test('test 404 page', async () => {
+  test('404 page', async () => {
     const {page} = ctx
 
     const notFound = new NotFoundPage(ctx)
