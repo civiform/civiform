@@ -404,6 +404,9 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   private ApplicantModel saveApplicantWithDob(String name, String dob) {
     ApplicantModel applicant = new ApplicantModel();
+    AccountModel account = new AccountModel().setEmailAddress(String.format("%s@email.com", name));
+    account.save();
+    applicant.setAccount(account);
     applicant.getApplicantData().setUserName(name, Optional.empty(), Optional.empty());
     applicant.getApplicantData().setDateOfBirth(dob);
     applicant.save();
@@ -412,6 +415,9 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   private ApplicantModel saveApplicant(String name) {
     ApplicantModel applicant = new ApplicantModel();
+    AccountModel account = new AccountModel().setEmailAddress(String.format("%s@email.com", name));
+    account.save();
+    applicant.setAccount(account);
     applicant.getApplicantData().setUserName(name, Optional.empty(), Optional.empty());
     applicant.save();
     return applicant;

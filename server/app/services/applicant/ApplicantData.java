@@ -201,8 +201,22 @@ public class ApplicantData extends CfJsonDocumentContext {
     applicant.setLastName(lastName.orElse(""));
 
     putString(WellKnownPaths.APPLICANT_FIRST_NAME, firstName);
-    putString(WellKnownPaths.APPLICANT_MIDDLE_NAME, middleName.orElse(""));
-    putString(WellKnownPaths.APPLICANT_LAST_NAME, lastName.orElse(""));
+    Path middlePath = WellKnownPaths.APPLICANT_MIDDLE_NAME;
+    Path lastPath = WellKnownPaths.APPLICANT_LAST_NAME;
+    if (middleName.isPresent()) {
+      putString(middlePath, middleName.get());
+    } else {
+      if (hasPath(middlePath)) {
+        getDocumentContext().delete(middlePath.toString());
+      }
+    }
+    if (lastName.isPresent()) {
+      putString(lastPath, lastName.get());
+    } else {
+      if (hasPath(lastPath)) {
+        getDocumentContext().delete(lastPath.toString());
+      }
+    }
   }
 
   @Override
