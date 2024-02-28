@@ -69,4 +69,17 @@ public final class RecurringJobExecutionTimeResolvers {
           .toInstant();
     }
   }
+
+  /** Nightly at 2am local time */
+  public static final class Nightly2Am implements RecurringJobExecutionTimeResolver {
+
+    @Override
+    public Instant resolveExecutionTime(Clock clock) {
+      return LocalDate.now(clock)
+          .plusDays(1)
+          .atStartOfDay(clock.getZone())
+          .plus(2, ChronoUnit.HOURS)
+          .toInstant();
+    }
+  }
 }
