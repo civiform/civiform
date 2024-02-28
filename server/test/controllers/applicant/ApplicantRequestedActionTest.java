@@ -59,4 +59,26 @@ public class ApplicantRequestedActionTest {
 
     assertThat(result).isEqualTo(input);
   }
+
+  @Test
+  public void stripActionFromEndOfUrl_hasActionAndQueryParam_onlyActionStripped() {
+    String input =
+        "https://civiform.dev/programs/4/blocks/1/updateFile/true/REVIEW_PAGE?param=true";
+
+    String result = ApplicantRequestedAction.stripActionFromEndOfUrl(input);
+
+    assertThat(result)
+        .isEqualTo("https://civiform.dev/programs/4/blocks/1/updateFile/true?param=true");
+  }
+
+  @Test
+  public void stripActionFromEndOfUrl_hasActionAndAnchorTag_onlyActionStripped() {
+    String input =
+        "https://civiform.dev/programs/4/blocks/1/updateFile/true/REVIEW_PAGE#section-name";
+
+    String result = ApplicantRequestedAction.stripActionFromEndOfUrl(input);
+
+    assertThat(result)
+        .isEqualTo("https://civiform.dev/programs/4/blocks/1/updateFile/true#section-name");
+  }
 }
