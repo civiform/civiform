@@ -970,6 +970,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       profile),
                   messagesApi.preferred(request),
                   addressSuggestionGroup,
+                  applicantRequestedAction,
                   isEligibilityEnabledOnThisBlock))
               .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
     }

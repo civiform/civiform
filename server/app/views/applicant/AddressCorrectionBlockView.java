@@ -63,6 +63,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
       Params params,
       Messages messages,
       AddressSuggestionGroup addressSuggestionGroup,
+      ApplicantRequestedAction applicantRequestedAction,
       Boolean isEligibilityEnabled) {
     Address addressAsEntered = addressSuggestionGroup.getOriginalAddress();
     ImmutableList<services.geo.AddressSuggestion> suggestions =
@@ -72,7 +73,13 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
         div()
             .withClass("my-8 m-auto")
             .with(
-                renderForm(params, messages, addressAsEntered, suggestions, isEligibilityEnabled));
+                renderForm(
+                    params,
+                    messages,
+                    addressAsEntered,
+                    suggestions,
+                    applicantRequestedAction,
+                    isEligibilityEnabled));
 
     HtmlBundle bundle =
         layout
@@ -99,6 +106,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
       Messages messages,
       Address addressAsEntered,
       ImmutableList<AddressSuggestion> suggestions,
+      ApplicantRequestedAction applicantRequestedAction,
       Boolean isEligibilityEnabled) {
     FormTag form =
         form()
@@ -146,7 +154,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
           h3(messages.at(suggestionsHeadingMessageKey.getKeyName())).withClass("font-bold mb-2"),
           div().withClasses("mb-8").with(renderSuggestedAddresses(suggestions)));
     }
-    form.with(renderBottomNavButtons(params));
+    form.with(renderBottomNavButtons(params, applicantRequestedAction));
 
     return form;
   }
@@ -242,9 +250,29 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
     return containerDiv;
   }
 
-  private DivTag renderBottomNavButtons(Params params) {
-    return div()
-        .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
+  private DivTag renderBottomNavButtons(
+      Params params, ApplicantRequestedAction applicantRequestedAction) {
+    DivTag bottomNavButtonsContainer = div().withClasses(ApplicantStyles.APPLICATION_NAV_BAR);
+
+    if (settingsManifest.getSaveOnAllActions(params.request())) {
+      if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK
+          || applicantRequestedAction == ApplicantRequestedAction.REVIEW_PAGE) {
+        // On the block that had the address question, the applicant selected "Previous" or
+        // "Review". But, we still need to correct their address. So, we still show them this
+        // address correction screen but then only give them one action, "Confirm address". This
+        // "Confirm address" button will save the address and then proceed with whatever action
+        // they'd chosen in the first place.
+        return bottomNavButtonsContainer.with(
+            submitButton(
+                    params.messages().at(MessageKey.ADDRESS_CORRECTION_CONFIRM_BUTTON.getKeyName()))
+                .withClasses(ButtonStyles.SOLID_BLUE)
+                .withFormaction(getFormAction(params, applicantRequestedAction)));
+      }
+    }
+
+    // Otherwise, the applicant selected "Save&next" on the block with the address question. Then we
+    // can show them all the bottom navigation buttons like normal.
+    return bottomNavButtonsContainer
         .with(
             renderReviewButton(
                 settingsManifest,
