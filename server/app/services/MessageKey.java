@@ -10,6 +10,13 @@ public enum MessageKey {
   ADDRESS_CORRECTION_AS_ENTERED_HEADING("content.addressEntered"),
   ADDRESS_CORRECTION_SUGGESTED_ADDRESS_HEADING("content.suggestedAddress"),
   ADDRESS_CORRECTION_SUGGESTED_ADDRESSES_HEADING("content.suggestedAddresses"),
+  /* New address correction strings */
+  ADDRESS_CORRECTION_TITLE("title.confirmAddress"),
+  ADDRESS_CORRECTION_LINE_1("content.confirmAddressLine1"),
+  ADDRESS_CORRECTION_FOUND_SIMILAR_LINE_2("content.foundSimilarAddressLine2"),
+  ADDRESS_CORRECTION_NO_VALID_LINE_2("content.noValidAddressLine2"),
+  ADDRESS_CORRECTION_CONFIRM_BUTTON("button.confirmAddress"),
+  /* End new address correction strings */
   ADDRESS_LABEL_CITY("label.city"),
   ADDRESS_LABEL_LINE_2("label.addressLine2"),
   ADDRESS_LABEL_STATE("label.state"),
