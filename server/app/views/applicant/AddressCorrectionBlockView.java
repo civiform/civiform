@@ -1,13 +1,13 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.label;
 
-import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
@@ -34,10 +34,7 @@ import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
-import views.components.Icons;
-import views.components.LinkElement;
 import views.style.ApplicantStyles;
-import views.style.StyleUtils;
 
 /**
  * Renders a page asking the applicant to confirm their address from a list of corrected addresses.
@@ -131,12 +128,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
           div()
               .withClasses("mb-8")
               .with(
-                  renderAsEnteredHeading(
-                      params.applicantId(),
-                      params.programId(),
-                      params.block().getId(),
-                      messages,
-                      params.profile()),
+                  renderAsEnteredHeading(messages),
                   renderAddress(
                       addressAsEntered,
                       /* selected= */ !anySuggestions,
@@ -159,37 +151,12 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
     return form;
   }
 
-  private DivTag renderAsEnteredHeading(
-      long applicantId,
-      long programId,
-      String blockId,
-      Messages messages,
-      CiviFormProfile profile) {
-    DivTag containerDiv = div().withClass("flex flex-nowrap mb-2");
-
-    ATag editElement =
-        new LinkElement()
-            .setStyles(
-                "bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"), "mb-2")
-            .setHref(
-                applicantRoutes
-                    .blockReview(
-                        profile,
-                        applicantId,
-                        programId,
-                        blockId,
-                        /* questionName= */ Optional.empty())
-                    .url())
-            .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
-            .setIcon(Icons.EDIT, LinkElement.IconPosition.START)
-            .asAnchorText();
-
-    containerDiv.with(
-        h3(messages.at(MessageKey.ADDRESS_CORRECTION_AS_ENTERED_HEADING.getKeyName()))
-            .withClass("font-bold mb-2 w-full"),
-        editElement);
-
-    return containerDiv;
+  private DivTag renderAsEnteredHeading(Messages messages) {
+    return div()
+        .withClass("flex flex-nowrap mb-2")
+        .with(
+            h3(messages.at(MessageKey.ADDRESS_CORRECTION_AS_ENTERED_HEADING.getKeyName()))
+                .withClass("font-bold mb-2 w-full"));
   }
 
   private ImmutableList<LabelTag> renderSuggestedAddresses(
@@ -255,19 +222,32 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
     DivTag bottomNavButtonsContainer = div().withClasses(ApplicantStyles.APPLICATION_NAV_BAR);
 
     if (settingsManifest.getSaveOnAllActions(params.request())) {
-     // if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK
-     //     || applicantRequestedAction == ApplicantRequestedAction.REVIEW_PAGE) {
-        // On the block that had the address question, the applicant selected "Previous" or
-        // "Review". But, we still need to correct their address. So, we still show them this
-        // address correction screen but then only give them one action, "Confirm address". This
-        // "Confirm address" button will save the address and then proceed with whatever action
-        // they'd chosen in the first place.
-        return bottomNavButtonsContainer.with(
-            submitButton(
-                    params.messages().at(MessageKey.ADDRESS_CORRECTION_CONFIRM_BUTTON.getKeyName()))
-                .withClasses(ButtonStyles.SOLID_BLUE)
-                .withFormaction(getFormAction(params, applicantRequestedAction)));
-    //  }
+      // if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK
+      //     || applicantRequestedAction == ApplicantRequestedAction.REVIEW_PAGE) {
+      // On the block that had the address question, the applicant selected "Previous" or
+      // "Review". But, we still need to correct their address. So, we still show them this
+      // address correction screen but then only give them one action, "Confirm address". This
+      // "Confirm address" button will save the address and then proceed with whatever action
+      // they'd chosen in the first place.
+
+      ButtonTag confirmAddressButton =
+          submitButton(
+                  params.messages().at(MessageKey.ADDRESS_CORRECTION_CONFIRM_BUTTON.getKeyName()))
+              .withClass(ButtonStyles.SOLID_BLUE)
+              .withFormaction(getFormAction(params, applicantRequestedAction));
+      ATag goBackAndEditButton =
+          a().withHref(
+                  applicantRoutes
+                      .blockEditOrBlockReview(
+                          params.profile(),
+                          params.applicantId(),
+                          params.programId(),
+                          params.block().getId(),
+                          params.inReview())
+                      .url())
+              .withText(params.messages().at(MessageKey.BUTTON_GO_BACK_AND_EDIT.getKeyName()))
+              .withClasses(ButtonStyles.OUTLINED_TRANSPARENT);
+      return bottomNavButtonsContainer.with(goBackAndEditButton, confirmAddressButton);
     }
 
     // Otherwise, the applicant selected "Save&next" on the block with the address question. Then we

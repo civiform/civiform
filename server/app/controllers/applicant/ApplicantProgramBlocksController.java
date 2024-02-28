@@ -444,7 +444,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenApplyAsync(
             (roApplicantProgramService) -> {
               Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
-
               if (block.isPresent()) {
                 ApplicantPersonalInfo personalInfo = applicantStage.toCompletableFuture().join();
                 CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
@@ -839,7 +838,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         // to go back to the block with the address question. Address correction isn't a defined
         // block in the program definition, so `blockId` represents the block with the address
         // question and we just need to go back to that block.
-    //    return getBlockPage(profile, applicantId, programId, blockId, inReview, flashingMap);
+        //    return getBlockPage(profile, applicantId, programId, blockId, inReview, flashingMap);
       }
 
       int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
@@ -859,51 +858,17 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     return nextBlockIdMaybe
         .map(
             nextBlockId ->
-                getBlockPage(profile, applicantId, programId, nextBlockId, inReview, flashingMap))
+                supplyAsync(
+                    () ->
+                        redirect(
+                                applicantRoutes.blockEditOrBlockReview(
+                                    profile, applicantId, programId, nextBlockId, inReview))
+                            .flashing(flashingMap)))
         // No next block so go to the program review page.
         .orElseGet(
             () ->
                 supplyAsync(
                     () -> redirect(applicantRoutes.review(profile, applicantId, programId))));
-  }
-
-  /**
-   * Returns a redirect to the block specified by {@code blockId}.
-   *
-   * @param inReview true if the applicant is reviewing their application answers and false if
-   *     they're filling out the application step-by-step. See {@link #edit} and {@link #review} for
-   *     more details.
-   */
-  private CompletionStage<Result> getBlockPage(
-      CiviFormProfile profile,
-      long applicantId,
-      long programId,
-      String blockId,
-      boolean inReview,
-      Map<String, String> flashingMap) {
-    if (inReview) {
-      return supplyAsync(
-          () ->
-              redirect(
-                      applicantRoutes.blockReview(
-                          profile,
-                          applicantId,
-                          programId,
-                          blockId,
-                          /* questionName= */ Optional.empty()))
-                  .flashing(flashingMap));
-    }
-
-    return supplyAsync(
-        () ->
-            redirect(
-                    applicantRoutes.blockEdit(
-                        profile,
-                        applicantId,
-                        programId,
-                        blockId,
-                        /* questionName= */ Optional.empty()))
-                .flashing(flashingMap));
   }
 
   /**

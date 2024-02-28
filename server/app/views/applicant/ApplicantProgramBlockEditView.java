@@ -62,6 +62,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   }
 
   public Content render(Params params) {
+    System.out.println("blockId=" + params.block().getId());
     DivTag blockDiv =
         div()
             .with(div(renderBlockWithSubmitForm(params)).withClasses("my-8"))
