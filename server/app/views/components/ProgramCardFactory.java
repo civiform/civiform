@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
+import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.ButtonTag;
@@ -55,7 +56,7 @@ public final class ProgramCardFactory {
           statusDiv.with(
               renderProgramRow(
                   request,
-                  cardData.adminType(),
+                  cardData.profile(),
                   /* isActive= */ false,
                   cardData.draftProgram().get()));
     }
@@ -65,7 +66,7 @@ public final class ProgramCardFactory {
           statusDiv.with(
               renderProgramRow(
                   request,
-                  cardData.adminType(),
+                  cardData.profile(),
                   /* isActive= */ true,
                   cardData.activeProgram().get(),
                   cardData.draftProgram().isPresent() ? "border-t" : ""));
@@ -121,7 +122,7 @@ public final class ProgramCardFactory {
 
   private DivTag renderProgramRow(
       Http.Request request,
-      AdminType adminType,
+      Optional<CiviFormProfile> profile,
       boolean isActive,
       ProgramCardData.ProgramRow programRow,
       String... extraStyles) {
@@ -163,7 +164,7 @@ public final class ProgramCardFactory {
             StyleUtils.hover("bg-gray-100"),
             StyleUtils.joinStyles(extraStyles))
         .with(
-            createImageIcon(program, request, adminType),
+            createImageIcon(program, request, profile),
             badge,
             div()
                 .withClasses("ml-4", StyleUtils.responsiveXLarge("ml-10"))
@@ -215,15 +216,18 @@ public final class ProgramCardFactory {
   }
 
   private DivTag createImageIcon(
-      ProgramDefinition program, Http.Request request, AdminType adminType) {
+      ProgramDefinition program, Http.Request request, Optional<CiviFormProfile> profile) {
     if (!settingsManifest.getProgramCardImages(request)) {
       // If the program card images feature isn't enabled, don't make any changes to the admin page.
       return div();
     }
-    if (adminType == AdminType.PROGRAM_ADMIN) {
-      // Program admins don't need to see the program image preview.
+    boolean isCiviFormAdmin = profile.isPresent() && profile.get().isCiviFormAdmin();
+    if (!isCiviFormAdmin) {
+      // Only CiviForm admins need the program image preview since they're the only ones that can
+      // modify it. (Specifically, program admins don't need it.)
       return div();
     }
+
     Optional<ImgTag> image =
         programImageUtils.createProgramImage(
             request, program, Locale.getDefault(), /* isWithinProgramCard= */ false);
@@ -262,7 +266,7 @@ public final class ProgramCardFactory {
 
     abstract Optional<ProgramRow> draftProgram();
 
-    abstract AdminType adminType();
+    abstract Optional<CiviFormProfile> profile();
 
     public static Builder builder() {
       return new AutoValue_ProgramCardFactory_ProgramCardData.Builder();
@@ -274,7 +278,7 @@ public final class ProgramCardFactory {
 
       public abstract Builder setDraftProgram(Optional<ProgramRow> v);
 
-      public abstract Builder setAdminType(AdminType adminType);
+      public abstract Builder setProfile(Optional<CiviFormProfile> profile);
 
       public abstract ProgramCardData build();
     }
