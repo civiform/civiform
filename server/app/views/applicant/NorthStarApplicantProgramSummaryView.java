@@ -18,10 +18,6 @@ import services.applicant.Block;
 
 /** Renders a list of sections in the form with their status. */
 public final class NorthStarApplicantProgramSummaryView extends NorthStarApplicantBaseView {
-  private final TemplateEngine templateEngine;
-  private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
-  private final AssetsFinder assetsFinder;
-  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   NorthStarApplicantProgramSummaryView(
