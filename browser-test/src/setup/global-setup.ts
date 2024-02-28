@@ -2,7 +2,7 @@ import {startSession, dropTables, endSession, seedQuestions} from '../support'
 import * as fs from 'fs'
 
 async function globalSetup() {
-  console.log("CUSTOM GLOBAL SETUP")
+  console.log('CUSTOM GLOBAL SETUP')
 
   const {browser, page} = await startSession()
   await dropTables(page)

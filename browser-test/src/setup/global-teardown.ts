@@ -9,8 +9,8 @@ import path = require('path')
 import sharp = require('sharp')
 
 async function globalTeardown() {
-  console.log("CUSTOM GLOBAL TEARDOWN")
-  
+  console.log('CUSTOM GLOBAL TEARDOWN')
+
   // Copy actual image to updated_snapshots folder
   const updatedSnapshots = await glob('./tmp/test-output/**/*-actual.png', {})
 
