@@ -25,7 +25,7 @@ public enum ApplicantRequestedAction {
   public static final ApplicantRequestedAction DEFAULT_ACTION = NEXT_BLOCK;
 
   /**
-   * Removes the applicant-requested action from the end of the path in the provided {@code uri} and
+   * Removes the applicant-requested action from the end of the path in the provided {@code url} and
    * returns the stripped URL, or returns the original URL if it doesn't end in an
    * applicant-requested action.
    *
