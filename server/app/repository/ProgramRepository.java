@@ -63,7 +63,7 @@ public final class ProgramRepository {
       Provider<VersionRepository> versionRepository,
       SettingsManifest settingsManifest,
       @NamedCache("program") SyncCacheApi programCache,
-      @NamedCache("program-definition") SyncCacheApi programDefCache,
+      @NamedCache("full-program-definition") SyncCacheApi programDefCache,
       @NamedCache("program-versions") SyncCacheApi versionsByProgramCache) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
@@ -127,17 +127,11 @@ public final class ProgramRepository {
   }
 
   /**
-   * Gets the program definition from the cache if it exists, otherwise calls the method on the
-   * program model.
-   *
-   * <p>The program definition in the cache will have all the associated question data.
+   * Gets the program definition without the associated question data.
    *
    * <p>This method should replace any calls to ProgramModel.getProgramDefinition()
    */
-  public ProgramDefinition getProgramDefinition(ProgramModel program) {
-    if (getFullProgramDefinitionFromCache(program).isPresent()) {
-      return getFullProgramDefinitionFromCache(program).get();
-    }
+  public ProgramDefinition getShallowProgramDefinition(ProgramModel program) {
     return program.getProgramDefinition();
   }
 
@@ -182,7 +176,7 @@ public final class ProgramRepository {
         versionRepository
             .get()
             .getProgramByNameForVersion(
-                getProgramDefinition(existingProgram).adminName(), draftVersion);
+                getShallowProgramDefinition(existingProgram).adminName(), draftVersion);
     if (existingDraftOpt.isPresent()) {
       ProgramModel existingDraft = existingDraftOpt.get();
       if (!existingDraft.id.equals(existingProgram.id)) {
@@ -194,7 +188,7 @@ public final class ProgramRepository {
             existingProgram.id);
       }
       ProgramModel updatedDraft =
-          getProgramDefinition(existingProgram).toBuilder()
+          getShallowProgramDefinition(existingProgram).toBuilder()
               .setId(existingDraft.id)
               .build()
               .toProgram();
@@ -208,7 +202,8 @@ public final class ProgramRepository {
       // Program -> builder -> back to program in order to clear any metadata stored in the program
       // (for example, version information).
       ProgramModel newDraft =
-          new ProgramModel(getProgramDefinition(existingProgram).toBuilder().build(), draftVersion);
+          new ProgramModel(
+              getShallowProgramDefinition(existingProgram).toBuilder().build(), draftVersion);
       newDraft = insertProgramSync(newDraft);
       draftVersion.refresh();
       Preconditions.checkState(
@@ -218,10 +213,10 @@ public final class ProgramRepository {
           draftVersion.getLifecycleStage().equals(LifecycleStage.DRAFT),
           "Draft version must remain a draft throughout this transaction.");
       // Ensure we didn't add a duplicate with other code running at the same time.
-      String programName = getProgramDefinition(existingProgram).adminName();
+      String programName = getShallowProgramDefinition(existingProgram).adminName();
       Preconditions.checkState(
           versionRepository.get().getProgramsForVersion(draftVersion).stream()
-                  .map(this::getProgramDefinition)
+                  .map(this::getShallowProgramDefinition)
                   .map(ProgramDefinition::adminName)
                   .filter(programName::equals)
                   .count()
@@ -302,7 +297,7 @@ public final class ProgramRepository {
     if (program.isEmpty()) {
       throw new ProgramNotFoundException(programId);
     }
-    return getProgramAdministrators(getProgramDefinition(program.get()).adminName());
+    return getProgramAdministrators(getShallowProgramDefinition(program.get()).adminName());
   }
 
   public ImmutableList<ProgramModel> getAllProgramVersions(long programId) {

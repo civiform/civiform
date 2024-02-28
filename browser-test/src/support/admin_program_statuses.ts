@@ -1,3 +1,4 @@
+import {expect} from '@playwright/test'
 import {ElementHandle, Page} from 'playwright'
 import {dismissModal, waitForAnyModal, waitForPageJsLoad} from './wait'
 

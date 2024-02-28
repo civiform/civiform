@@ -108,7 +108,6 @@ public final class ReferenceClasses {
   public static final String ADDRESS_STATE = "cf-address-state";
   public static final String ADDRESS_ZIP = "cf-address-zip";
 
-  public static final String PHONE_COUNTRY_CODE = "cf-phone-country-code";
   public static final String PHONE_NUMBER = "cf-phone-number";
   public static final String MULTI_OPTION_VALUE = "cf-multi-option-value";
   public static final String MULTI_OPTION_QUESTION_OPTION = "cf-multi-option-question-option";

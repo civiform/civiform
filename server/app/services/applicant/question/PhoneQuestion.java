@@ -37,24 +37,15 @@ public final class PhoneQuestion extends Question {
   @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     // TODO: Implement admin-defined validation.
-    return ImmutableMap.of(
-        getPhoneNumberPath(), validatePhoneNumber(),
-        getCountryCodePath(), validateCountryCode());
+    return ImmutableMap.of(getPhoneNumberPath(), validatePhoneNumber());
   }
 
   private ImmutableSet<ValidationErrorMessage> validatePhoneNumber() {
     Optional<MessageKey> validationErrors =
         PhoneValidationUtils.validatePhoneNumber(getPhoneNumberValue(), getCountryCodeValue());
+
     if (validationErrors.isPresent()) {
       return ImmutableSet.of(ValidationErrorMessage.create(validationErrors.get()));
-    }
-    return ImmutableSet.of();
-  }
-
-  private ImmutableSet<ValidationErrorMessage> validateCountryCode() {
-    if (getCountryCodeValue().isEmpty()) {
-      return ImmutableSet.of(
-          ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_COUNTRY_CODE_REQUIRED));
     }
 
     return ImmutableSet.of();

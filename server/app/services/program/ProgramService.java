@@ -217,7 +217,8 @@ public final class ProgramService {
    *     RuntimeException} is thrown when the future completes and slug does not correspond to a
    *     real Program
    */
-  public CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(String programSlug) {
+  public CompletionStage<ProgramDefinition> getActiveFullProgramDefinitionAsync(
+      String programSlug) {
     return programRepository
         .getActiveProgramFromSlug(programSlug)
         .thenComposeAsync(this::getFullProgramDefinition, httpExecutionContext.current());
@@ -230,7 +231,7 @@ public final class ProgramService {
    * @return the draft {@link ProgramDefinition} for the given slug if it exists, or a {@link
    *     ProgramDraftNotFoundException} is thrown if a draft is not available.
    */
-  public ProgramDefinition getDraftProgramDefinition(String programSlug)
+  public ProgramDefinition getDraftFullProgramDefinition(String programSlug)
       throws ProgramDraftNotFoundException {
     ProgramModel draftProgram = programRepository.getDraftProgramFromSlug(programSlug);
     return syncProgramAssociations(draftProgram).toCompletableFuture().join();
@@ -240,7 +241,7 @@ public final class ProgramService {
    * Get the program matching programId as well as all other versions of the program (i.e. all
    * programs with the same name).
    */
-  public ImmutableList<ProgramDefinition> getAllProgramDefinitionVersions(long programId) {
+  public ImmutableList<ProgramDefinition> getAllVersionsFullProgramDefinition(long programId) {
     return programRepository.getAllProgramVersions(programId).stream()
         .map(p -> getFullProgramDefinition(p).toCompletableFuture().join())
         .collect(ImmutableList.toImmutableList());
@@ -264,13 +265,13 @@ public final class ProgramService {
       // This method makes multiple calls to get questions for the active and
       // draft versions, so we should only call it if we're syncing program
       // associations for a draft program (which means we're in the admin flow).
-      return syncProgramDefinitionQuestions(programRepository.getProgramDefinition(program))
+      return syncProgramDefinitionQuestions(programRepository.getShallowProgramDefinition(program))
           .thenApply(ProgramDefinition::orderBlockDefinitions);
     }
 
     ProgramDefinition programDefinition =
         syncProgramDefinitionQuestions(
-            programRepository.getProgramDefinition(program), maxVersionForProgram);
+            programRepository.getShallowProgramDefinition(program), maxVersionForProgram);
 
     // It is safe to set the program definition cache, since we have already checked that it is
     // not a draft program.
@@ -355,7 +356,8 @@ public final class ProgramService {
             programAcls);
 
     return ErrorAnd.of(
-        programRepository.getProgramDefinition(programRepository.insertProgramSync(program)));
+        programRepository.getShallowProgramDefinition(
+            programRepository.insertProgramSync(program)));
   }
 
   /**
@@ -485,7 +487,7 @@ public final class ProgramService {
 
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
-                programRepository.getProgramDefinition(
+                programRepository.getShallowProgramDefinition(
                     programRepository.updateProgramSync(program)))
             .toCompletableFuture()
             .join());
@@ -536,7 +538,7 @@ public final class ProgramService {
       return;
     }
     ProgramDefinition draftCommonIntakeProgramDefinition =
-        programRepository.getProgramDefinition(
+        programRepository.getShallowProgramDefinition(
             programRepository.createOrUpdateDraft(maybeCommonIntakeForm.get().toProgram()));
     ProgramModel commonIntakeProgram =
         draftCommonIntakeProgramDefinition.toBuilder()
@@ -571,7 +573,7 @@ public final class ProgramService {
     // Note: It's unclear that we actually want to update an existing draft this way, as it would
     // effectively reset the  draft which is not part of any user flow. Given the interdependency of
     // draft updates this is likely to cause issues as in #2179.
-    return programRepository.getProgramDefinition(
+    return programRepository.getShallowProgramDefinition(
         programRepository.createOrUpdateDraft(this.getFullProgramDefinition(id).toProgram()));
   }
 
@@ -694,7 +696,7 @@ public final class ProgramService {
 
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
-                programRepository.getProgramDefinition(
+                programRepository.getShallowProgramDefinition(
                     programRepository.updateProgramSync(newProgram.build().toProgram())))
             .toCompletableFuture()
             .join());
@@ -786,7 +788,7 @@ public final class ProgramService {
 
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
-                programRepository.getProgramDefinition(
+                programRepository.getShallowProgramDefinition(
                     programRepository.updateProgramSync(program.toProgram())))
             .toCompletableFuture()
             .join());
@@ -850,7 +852,7 @@ public final class ProgramService {
 
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
-                programRepository.getProgramDefinition(
+                programRepository.getShallowProgramDefinition(
                     programRepository.updateProgramSync(program.toProgram())))
             .toCompletableFuture()
             .join());
@@ -882,7 +884,7 @@ public final class ProgramService {
 
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
-                programRepository.getProgramDefinition(
+                programRepository.getShallowProgramDefinition(
                     programRepository.updateProgramSync(program.toProgram())))
             .toCompletableFuture()
             .join());
@@ -906,7 +908,7 @@ public final class ProgramService {
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     programDefinition = programDefinition.toBuilder().setEligibilityIsGating(gating).build();
-    return programRepository.getProgramDefinition(
+    return programRepository.getShallowProgramDefinition(
         programRepository.updateProgramSync(programDefinition.toProgram()));
   }
 
@@ -934,7 +936,7 @@ public final class ProgramService {
         getUpdatedSummaryImageDescription(programDefinition, locale, summaryImageDescription);
     programDefinition =
         programDefinition.toBuilder().setLocalizedSummaryImageDescription(newStrings).build();
-    return programRepository.getProgramDefinition(
+    return programRepository.getShallowProgramDefinition(
         programRepository.updateProgramSync(programDefinition.toProgram()));
   }
 
@@ -979,7 +981,7 @@ public final class ProgramService {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     programDefinition =
         programDefinition.toBuilder().setSummaryImageFileKey(Optional.of(fileKey)).build();
-    return programRepository.getProgramDefinition(
+    return programRepository.getShallowProgramDefinition(
         programRepository.updateProgramSync(programDefinition.toProgram()));
   }
 
@@ -992,7 +994,7 @@ public final class ProgramService {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     programDefinition =
         programDefinition.toBuilder().setSummaryImageFileKey(Optional.empty()).build();
-    return programRepository.getProgramDefinition(
+    return programRepository.getShallowProgramDefinition(
         programRepository.updateProgramSync(programDefinition.toProgram()));
   }
 
@@ -1056,7 +1058,7 @@ public final class ProgramService {
         programDefinition.insertBlockDefinitionInTheRightPlace(blockDefinition).toProgram();
     ProgramDefinition updatedProgram =
         syncProgramDefinitionQuestions(
-                programRepository.getProgramDefinition(
+                programRepository.getShallowProgramDefinition(
                     programRepository.updateProgramSync(program)))
             .toCompletableFuture()
             .join();
@@ -1098,7 +1100,8 @@ public final class ProgramService {
           "Something happened to the program's block while trying to move it", e);
     }
     return syncProgramDefinitionQuestions(
-            programRepository.getProgramDefinition(programRepository.updateProgramSync(program)))
+            programRepository.getShallowProgramDefinition(
+                programRepository.updateProgramSync(program)))
         .toCompletableFuture()
         .join();
   }
@@ -1804,7 +1807,7 @@ public final class ProgramService {
     }
 
     return syncProgramDefinitionQuestions(
-            programRepository.getProgramDefinition(
+            programRepository.getShallowProgramDefinition(
                 programRepository.updateProgramSync(program.toProgram())))
         .toCompletableFuture()
         .join();

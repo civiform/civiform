@@ -52,7 +52,7 @@ public class DevDatabaseSeedController extends Controller {
       @NamedCache("version-questions") AsyncCacheApi questionsByVersionCache,
       @NamedCache("version-programs") AsyncCacheApi programsByVersionCache,
       @NamedCache("program") AsyncCacheApi programCache,
-      @NamedCache("program-definition") AsyncCacheApi programDefCache,
+      @NamedCache("full-program-definition") AsyncCacheApi programDefCache,
       @NamedCache("program-versions") AsyncCacheApi versionsByProgramCache) {
     this.devDatabaseSeedTask = checkNotNull(devDatabaseSeedTask);
     this.view = checkNotNull(view);

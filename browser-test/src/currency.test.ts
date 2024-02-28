@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -6,16 +7,16 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('currency applicant flow', () => {
+test.describe('currency applicant flow', () => {
   const validCurrency = '1000'
   // Not enough decimals.
   const invalidCurrency = '1.0'
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('single currency question', () => {
+  test.describe('single currency question', () => {
     const programName = 'Test program for single currency'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -28,14 +29,14 @@ describe('currency applicant flow', () => {
       await logout(page)
     })
 
-    it('validate screenshot', async () => {
+    test('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'currency')
     })
 
-    it('validate screenshot with errors', async () => {
+    test('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
@@ -43,7 +44,7 @@ describe('currency applicant flow', () => {
       await validateScreenshot(page, 'currency-errors')
     })
 
-    it('with valid currency does submit', async () => {
+    test('with valid currency does submit', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency)
@@ -52,7 +53,7 @@ describe('currency applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with invalid currency does not submit', async () => {
+    test('with invalid currency does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error'
@@ -68,10 +69,10 @@ describe('currency applicant flow', () => {
     })
   })
 
-  describe('multiple currency questions', () => {
+  test.describe('multiple currency questions', () => {
     const programName = 'Test program for multiple currencies'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -94,7 +95,7 @@ describe('currency applicant flow', () => {
       await logout(page)
     })
 
-    it('with valid currencies does submit', async () => {
+    test('with valid currencies does submit', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 0)
@@ -104,7 +105,7 @@ describe('currency applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with unanswered optional question submits', async () => {
+    test('with unanswered optional question submits', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
@@ -113,7 +114,7 @@ describe('currency applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with first invalid does not submit', async () => {
+    test('with first invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error >> nth=0'
@@ -127,7 +128,7 @@ describe('currency applicant flow', () => {
       expect(await page.isHidden(currencyError)).toEqual(false)
     })
 
-    it('with second invalid does not submit', async () => {
+    test('with second invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error >> nth=1'
@@ -141,7 +142,7 @@ describe('currency applicant flow', () => {
       expect(await page.isHidden(currencyError)).toEqual(false)
     })
 
-    it('has no accessibility violations', async () => {
+    test('has no accessibility violations', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 

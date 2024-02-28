@@ -1,7 +1,8 @@
+import {test, expect} from '@playwright/test'
 import {createTestContext, isHermeticTestEnvironment} from './support'
 import {BASE_URL, FROZEN_PLAY_SESSION_COOKIE_VALUE} from './support/config'
 
-describe('user HTTP sessions', () => {
+test.describe('user HTTP sessions', () => {
   const ctx = createTestContext()
 
   interface Profile {
@@ -14,7 +15,7 @@ describe('user HTTP sessions', () => {
   // is recognized and properly deserialized by the server.
   //
   // This guards against changes that unexpectedly affect serialization.
-  it('recognizes the profile from a frozen cookie', async () => {
+  test('recognizes the profile from a frozen cookie', async () => {
     // Play encrypts cookies with the server secret:
     // https://www.playframework.com/documentation/2.8.x/ApplicationSecret
     //

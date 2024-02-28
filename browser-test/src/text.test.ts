@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -6,13 +7,13 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('Text question for applicant flow', () => {
+test.describe('Text question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('single text question', () => {
+  test.describe('single text question', () => {
     const programName = 'Test program for single text q'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       // As admin, create program with a free form text question.
       await loginAsAdmin(page)
@@ -30,14 +31,14 @@ describe('Text question for applicant flow', () => {
       await logout(page)
     })
 
-    it('validate screenshot', async () => {
+    test('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'text')
     })
 
-    it('validate screenshot with errors', async () => {
+    test('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
@@ -45,7 +46,7 @@ describe('Text question for applicant flow', () => {
       await validateScreenshot(page, 'text-errors')
     })
 
-    it('with text submits successfully', async () => {
+    test('with text submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!')
@@ -54,7 +55,7 @@ describe('Text question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with empty text does not submit', async () => {
+    test('with empty text does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
@@ -67,7 +68,7 @@ describe('Text question for applicant flow', () => {
       )
     })
 
-    it('with too short text does not submit', async () => {
+    test('with too short text does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('hi')
@@ -79,7 +80,7 @@ describe('Text question for applicant flow', () => {
       )
     })
 
-    it('with too long text does not submit', async () => {
+    test('with too long text does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion(
@@ -93,7 +94,7 @@ describe('Text question for applicant flow', () => {
       )
     })
 
-    it('hitting enter on text does not trigger submission', async () => {
+    test('hitting enter on text does not trigger submission', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
@@ -118,10 +119,10 @@ describe('Text question for applicant flow', () => {
     })
   })
 
-  describe('no max text question', () => {
+  test.describe('no max text question', () => {
     const programName = 'test-program-for-no-max-text-q'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       // As admin, create program with a free form text question.
       await loginAsAdmin(page)
@@ -139,7 +140,7 @@ describe('Text question for applicant flow', () => {
       await logout(page)
     })
 
-    it('text that is too long is cut off at 10k characters', async () => {
+    test('text that is too long is cut off at 10k characters', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       let largeString = ''
@@ -163,10 +164,10 @@ describe('Text question for applicant flow', () => {
     })
   })
 
-  describe('multiple text questions', () => {
+  test.describe('multiple text questions', () => {
     const programName = 'Test program for multiple text qs'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -193,7 +194,7 @@ describe('Text question for applicant flow', () => {
       await logout(page)
     })
 
-    it('with both selections submits successfully', async () => {
+    test('with both selections submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
@@ -203,7 +204,7 @@ describe('Text question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with unanswered optional question submits successfully', async () => {
+    test('with unanswered optional question submits successfully', async () => {
       const {applicantQuestions} = ctx
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
@@ -213,7 +214,7 @@ describe('Text question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with first invalid does not submit', async () => {
+    test('with first invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion(
@@ -229,7 +230,7 @@ describe('Text question for applicant flow', () => {
       )
     })
 
-    it('with second invalid does not submit', async () => {
+    test('with second invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
@@ -245,7 +246,7 @@ describe('Text question for applicant flow', () => {
       )
     })
 
-    it('has no accessiblity violations', async () => {
+    test('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 

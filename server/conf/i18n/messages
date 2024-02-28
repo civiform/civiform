@@ -266,6 +266,7 @@ content.commonIntakeConfirmationTi=Your client may be able to enroll in these pr
 content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
 content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''.  Or to view additional programs you can visit {0}
 content.commonIntakeNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
+# A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Other programs you might be interested in
 button.downloadPdf=Download PDF
 button.applyToPrograms=Apply to programs
@@ -300,7 +301,8 @@ validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
 title.verifyAddress=Verify address
 
 content.foundSimilarAddress=We could not verify the address that you provided, but found something similar.
-content.addressEntered=Address entered:
+# Heading for showing the user the address they provided earlier
+content.addressEntered=Address you entered:
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=Suggested address:
@@ -309,6 +311,24 @@ content.suggestedAddresses=Suggested addresses:
 # Title on address correction dialog when no address is found.
 title.noValidAddress=No valid address found
 content.noValidAddress=We could not verify the address that you provided. Please edit your address to continue.
+
+#-------------------------------------------------------------------------#
+# ADDRESS CORRECTION - text when viewing the address correction screen    #
+# Note: We're re-writing the text shown on the address correction screen. #
+# The strings below will be used in the re-write, and then the strings    #
+# above that are obsolete will be deleted.                                #
+#-------------------------------------------------------------------------#
+
+# Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
+title.confirmAddress=Confirm your address
+# Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
+content.confirmAddressLine1=We were not able to find your address.
+# Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
+content.foundSimilarAddressLine2=Please check your address for spelling or choose an option from the list provided.
+# Message asking the user to check if their address is correct and/or edit the address so that it's valid.
+content.noValidAddressLine2=Please check your address for spelling and edit to continue.
+# Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
+button.confirmAddress=Confirm address
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -403,6 +423,7 @@ validation.textTooShort=Must contain at least {0} characters.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Multi option questions cannot have blank options.
+# An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
 adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
 
 #----------------------------------#

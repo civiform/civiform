@@ -1,3 +1,4 @@
+import {expect} from '@playwright/test'
 import {Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {waitForAnyModal, waitForPageJsLoad} from './wait'
@@ -85,9 +86,9 @@ export class ApplicantQuestions {
     await this.page.fill(`input[currency] >> nth=${index}`, currency)
   }
 
-  async answerFileUploadQuestion(text: string) {
+  async answerFileUploadQuestion(text: string, fileName = 'file.txt') {
     await this.page.setInputFiles('input[type=file]', {
-      name: 'file.txt',
+      name: fileName,
       mimeType: 'text/plain',
       buffer: Buffer.from(text),
     })
@@ -110,15 +111,8 @@ export class ApplicantQuestions {
     )
   }
 
-  async answerPhoneQuestion(country: string, phone: string, index = 0) {
-    // United States
-    await this.page.selectOption(
-      `.cf-phone-country-code select >> nth=${index}`,
-      {
-        label: country,
-      },
-    )
-    await this.page.fill(`.cf-phone-number input >> nth=${index}`, phone)
+  async answerPhoneQuestion(phone: string, index = 0) {
+    await this.page.fill(`.cf-question-phone input >> nth=${index}`, phone)
   }
 
   async answerNumberQuestion(number: string, index = 0) {
@@ -168,6 +162,20 @@ export class ApplicantQuestions {
     await this.validateInputValue(
       entityName,
       `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`,
+    )
+  }
+
+  /** On the review page, click "Answer" on a previously unanswered question. */
+  async answerQuestionFromReviewPage(questionText: string) {
+    await this.page.click(
+      `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Answer")`,
+    )
+  }
+
+  /** On the review page, click "Edit" to change an answer to a previously answered question. */
+  async editQuestionFromReviewPage(questionText: string) {
+    await this.page.click(
+      `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`,
     )
   }
 

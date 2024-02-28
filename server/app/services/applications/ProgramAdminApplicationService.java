@@ -122,7 +122,7 @@ public final class ProgramAdminApplicationService {
       Optional<String> adminSubmitterEmail = application.getSubmitterEmail();
       if (adminSubmitterEmail.isPresent()) {
         sendAdminSubmitterEmail(
-            programRepository.getProgramDefinition(program),
+            programRepository.getShallowProgramDefinition(program),
             applicant,
             statusDef,
             adminSubmitterEmail);
@@ -136,7 +136,10 @@ public final class ProgramAdminApplicationService {
               : Optional.empty();
       if (applicantEmail.isPresent()) {
         sendApplicantEmail(
-            programRepository.getProgramDefinition(program), applicant, statusDef, applicantEmail);
+            programRepository.getShallowProgramDefinition(program),
+            applicant,
+            statusDef,
+            applicantEmail);
       } else {
         // An email was requested to be sent but the applicant doesn't have one.
         throw new AccountHasNoEmailException(applicant.getAccount().id);
@@ -253,11 +256,11 @@ public final class ProgramAdminApplicationService {
       throws ProgramNotFoundException {
     if (application.isEmpty()
         || programRepository
-            .getProgramDefinition(application.get().getProgram())
+            .getShallowProgramDefinition(application.get().getProgram())
             .adminName()
             .isEmpty()
         || !programRepository
-            .getProgramDefinition(application.get().getProgram())
+            .getShallowProgramDefinition(application.get().getProgram())
             .adminName()
             .equals(program.adminName())) {
       throw new ProgramNotFoundException("Application or program is empty or mismatched");

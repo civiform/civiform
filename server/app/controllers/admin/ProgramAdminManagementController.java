@@ -111,7 +111,7 @@ public final class ProgramAdminManagementController {
         return ok(
             manageAdminsView.render(
                 request,
-                programRepository.getProgramDefinition(program.get()),
+                programRepository.getShallowProgramDefinition(program.get()),
                 programAdmins,
                 message));
       }

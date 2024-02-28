@@ -494,7 +494,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    */
   @Secure
   public CompletionStage<Result> updateFileWithApplicantId(
-      Request request, long applicantId, long programId, String blockId, boolean inReview) {
+      Request request,
+      long applicantId,
+      long programId,
+      String blockId,
+      boolean inReview,
+      ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
 
@@ -568,8 +573,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   blockId,
                   applicantStage.toCompletableFuture().join(),
                   inReview,
-                  // TODO(#6450): Pass in the applicant-requested action to direct them correctly.
-                  ApplicantRequestedAction.NEXT_BLOCK,
+                  applicantRequestedActionWrapper.getAction(),
                   /* onAddressCorrectionPage= */ false,
                   roApplicantProgramService);
             },
@@ -585,7 +589,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    */
   @Secure
   public CompletionStage<Result> updateFile(
-      Request request, long programId, String blockId, boolean inReview) {
+      Request request,
+      long programId,
+      String blockId,
+      boolean inReview,
+      ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
@@ -593,7 +601,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
     return updateFileWithApplicantId(
-        request, applicantId.orElseThrow(), programId, blockId, inReview);
+        request,
+        applicantId.orElseThrow(),
+        programId,
+        blockId,
+        inReview,
+        applicantRequestedActionWrapper);
   }
 
   /**
@@ -639,6 +652,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               return applicantService.resetAddressCorrectionWhenAddressChanged(
                   applicantId, programId, blockId, formData);
             },
+            httpExecutionContext.current())
+        .thenComposeAsync(
+            formData ->
+                applicantService.setPhoneCountryCode(applicantId, programId, blockId, formData),
             httpExecutionContext.current())
         .thenComposeAsync(
             formData ->

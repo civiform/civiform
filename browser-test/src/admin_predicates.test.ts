@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   enableFeatureFlag,
@@ -12,9 +13,9 @@ import {
   validateToastMessage,
 } from './support'
 
-describe('create and edit predicates', () => {
+test.describe('create and edit predicates', () => {
   const ctx = createTestContext()
-  it('add a hide predicate', async () => {
+  test('add a hide predicate', async () => {
     const {
       page,
       adminQuestions,
@@ -110,7 +111,7 @@ describe('create and edit predicates', () => {
     expect(applicationText).not.toContain('Screen 2')
   })
 
-  it('add a show predicate', async () => {
+  test('add a show predicate', async () => {
     const {
       page,
       adminQuestions,
@@ -205,7 +206,7 @@ describe('create and edit predicates', () => {
     ).toContain('Screen 2')
   })
 
-  it('add an eligibility predicate', async () => {
+  test('add an eligibility predicate', async () => {
     const {
       page,
       adminQuestions,
@@ -357,7 +358,7 @@ describe('create and edit predicates', () => {
 
   // TODO(https://github.com/civiform/civiform/issues/4167): Enable integration testing of ESRI functionality
   if (isHermeticTestEnvironment()) {
-    it('add a service area validation predicate', async () => {
+    test('add a service area validation predicate', async () => {
       const {page, adminQuestions, adminPrograms, adminPredicates} = ctx
 
       await loginAsAdmin(page)
@@ -404,8 +405,8 @@ describe('create and edit predicates', () => {
     })
   }
 
-  describe('test predicates', () => {
-    beforeEach(async () => {
+  test.describe('test predicates', () => {
+    test.beforeEach(async () => {
       const {page, adminQuestions} = ctx
 
       await loginAsAdmin(page)
@@ -448,7 +449,7 @@ describe('create and edit predicates', () => {
       await logout(page)
     })
 
-    it('eligibility multiple values and multiple questions', async () => {
+    test('eligibility multiple values and multiple questions', async () => {
       const {page, adminPrograms, adminPredicates} = ctx
 
       await loginAsAdmin(page)
@@ -548,7 +549,7 @@ describe('create and edit predicates', () => {
       )
     })
 
-    it('visibility multiple values and multiple questions', async () => {
+    test('visibility multiple values and multiple questions', async () => {
       const {page, adminPrograms, adminPredicates} = ctx
 
       await loginAsAdmin(page)
@@ -629,7 +630,7 @@ describe('create and edit predicates', () => {
       )
     })
 
-    it('every visibility right hand type evaluates correctly', async () => {
+    test('every visibility right hand type evaluates correctly', async () => {
       const {page, adminPrograms, applicantQuestions, adminPredicates} = ctx
 
       await loginAsAdmin(page)
@@ -855,7 +856,7 @@ describe('create and edit predicates', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('every eligibility right hand type evaluates correctly', async () => {
+    test('every eligibility right hand type evaluates correctly', async () => {
       const {page, adminPrograms, applicantQuestions, adminPredicates} = ctx
 
       await loginAsAdmin(page)

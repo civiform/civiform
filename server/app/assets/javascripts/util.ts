@@ -1,3 +1,5 @@
+import MarkdownIt = require('markdown-it')
+
 /** @fileoverview Collection of generic util functions used throughout the
  * codebase.
  */
@@ -46,4 +48,39 @@ export function assertNotNull<T>(
     throw new Error(`Provided value is ${String(value)}. ${extra}`)
   }
   return value
+}
+
+// Setup for formatText function
+const parser = new DOMParser()
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  breaks: true,
+})
+
+/**
+ * Parses text with markdown into HTML with some additional styles applied
+ *
+ * @param {string} text The text to parse into HTML.
+ */
+export function formatText(text: string): Element {
+  // Preserve line breaks before parsing the text
+  text = text.split('\n').join('<br>')
+
+  let parsedHtml = md.render(text)
+  // Format lists
+  parsedHtml = parsedHtml.split('<ul>').join('<ul class="list-disc mx-8">')
+  parsedHtml = parsedHtml.split('<ol>').join('<ol class="list-decimal mx-8">')
+  // Format links
+  parsedHtml = parsedHtml
+    .split('href')
+    .join(
+      'class="text-blue-600 hover:text-blue-500 underline" target="_blank" href',
+    )
+  // Change h1 to h2 (per accessibility standards, there should only ever be one H1 per page)
+  parsedHtml = parsedHtml.split('<h1>').join('<h2>')
+  parsedHtml = parsedHtml.split('</h1>').join('</h2>')
+
+  const html = parser.parseFromString(parsedHtml, 'text/html')
+  return html.body
 }

@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -6,13 +7,13 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('Checkbox question for applicant flow', () => {
+test.describe('Checkbox question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('single checkbox question', () => {
+  test.describe('single checkbox question', () => {
     const programName = 'Test program for single checkbox'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       // As admin, create program with single checkbox question.
       await loginAsAdmin(page)
@@ -36,7 +37,7 @@ describe('Checkbox question for applicant flow', () => {
       await logout(page)
     })
 
-    it('Updates options in preview', async () => {
+    test('Updates options in preview', async () => {
       const {page, adminQuestions} = ctx
       await loginAsAdmin(page)
 
@@ -80,14 +81,14 @@ describe('Checkbox question for applicant flow', () => {
       await adminQuestions.expectPreviewOptions(['Sample question option'])
     })
 
-    it('validate screenshot', async () => {
+    test('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'checkbox')
     })
 
-    it('validate screenshot with errors', async () => {
+    test('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
@@ -95,7 +96,7 @@ describe('Checkbox question for applicant flow', () => {
       await validateScreenshot(page, 'checkbox-errors')
     })
 
-    it('with single checked box submits successfully', async () => {
+    test('with single checked box submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCheckboxQuestion(['blue'])
@@ -104,7 +105,7 @@ describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with no checked boxes does not submit', async () => {
+    test('with no checked boxes does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
@@ -123,7 +124,7 @@ describe('Checkbox question for applicant flow', () => {
       )
     })
 
-    it('with greater than max allowed checked boxes does not submit', async () => {
+    test('with greater than max allowed checked boxes does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       const checkBoxError = '.cf-applicant-question-errors'
@@ -143,10 +144,10 @@ describe('Checkbox question for applicant flow', () => {
     })
   })
 
-  describe('multiple checkbox questions', () => {
+  test.describe('multiple checkbox questions', () => {
     const programName = 'Test program for multiple checkboxes'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -185,7 +186,7 @@ describe('Checkbox question for applicant flow', () => {
       await logout(page)
     })
 
-    it('with valid checkboxes submits successfully', async () => {
+    test('with valid checkboxes submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCheckboxQuestion(['blue'])
@@ -195,7 +196,7 @@ describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with unanswered optional question submits successfully', async () => {
+    test('with unanswered optional question submits successfully', async () => {
       const {applicantQuestions} = ctx
       // Only answer required question.
       await applicantQuestions.applyProgram(programName)
@@ -205,7 +206,7 @@ describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with first invalid does not submit', async () => {
+    test('with first invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       const checkboxError = '.cf-applicant-question-errors'
@@ -224,7 +225,7 @@ describe('Checkbox question for applicant flow', () => {
       expect(await page.isHidden(checkboxError)).toEqual(false)
     })
 
-    it('with second invalid does not submit', async () => {
+    test('with second invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       const checkboxError = '.cf-applicant-question-errors'
@@ -243,7 +244,7 @@ describe('Checkbox question for applicant flow', () => {
       expect(await page.isHidden(checkboxError)).toEqual(false)
     })
 
-    it('has no accessibility violations', async () => {
+    test('has no accessibility violations', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 

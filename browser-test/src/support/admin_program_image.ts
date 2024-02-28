@@ -1,8 +1,10 @@
+import {expect} from '@playwright/test'
 import {Page} from 'playwright'
 import {waitForPageJsLoad} from './wait'
 import {dismissToast, expectDisabled, expectEnabled} from '.'
 
 export class AdminProgramImage {
+  // These values should be kept in sync with views/admin/programs/ProgramImageView.java.
   private imageUploadLocator = 'input[type=file]'
   private imageDescriptionLocator = 'input[name="summaryImageDescription"]'
   private imageUploadSubmitButtonLocator =
@@ -11,6 +13,8 @@ export class AdminProgramImage {
     'button[form=image-description-form][type="submit"]'
   private translationsButtonLocator = 'button:has-text("Manage translations")'
   private continueButtonLocator = '#continue-button'
+  // This should be kept in sync with views/fileupload/FileUploadViewStrategy.FILE_TOO_LARGE_ERROR_ID.
+  private tooLargeErrorLocator = '#file-too-large-error'
 
   private page!: Page
 
@@ -134,6 +138,14 @@ export class AdminProgramImage {
 
   async expectEnabledImageFileUpload() {
     await expectEnabled(this.page, this.imageUploadLocator)
+  }
+
+  async expectTooLargeErrorShown() {
+    expect(await this.page.isHidden(this.tooLargeErrorLocator)).toEqual(false)
+  }
+
+  async expectTooLargeErrorHidden() {
+    expect(await this.page.isHidden(this.tooLargeErrorLocator)).toEqual(true)
   }
 
   /** Expects that the program card preview does not contain an image. */

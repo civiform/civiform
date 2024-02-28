@@ -5,8 +5,8 @@
     "strict": true,
     "module": "commonjs",
     "noEmit": true,
-    "types": ["jest", "node"],
+    "types": ["playwright", "node"],
     "sourceMap": true
   },
-  "include": ["."]
+  "include": [".", "../playwright.config.ts"]
 }

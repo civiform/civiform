@@ -13,7 +13,7 @@ lazy val root = (project in file("."))
   .settings(
     name := """civiform-server""",
     version := "0.0.1",
-    scalaVersion := "2.13.11",
+    scalaVersion := "2.13.13",
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
       // Provides in-memory caching via the Play cache interface.
@@ -36,8 +36,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20180219.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.24.7",
-      "software.amazon.awssdk" % "ses" % "2.24.7",
+      "software.amazon.awssdk" % "s3" % "2.24.12",
+      "software.amazon.awssdk" % "ses" % "2.24.12",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.11.2",

@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   dropTables,
@@ -12,15 +13,15 @@ import {
   waitForPageJsLoad,
 } from './support'
 
-describe('csv export for multioption question', () => {
+test.describe('csv export for multioption question', () => {
   const ctx = createTestContext()
 
-  beforeAll(async () => {
+  test.beforeAll(async () => {
     const {page} = ctx
     await dropTables(page)
     await seedQuestions(page)
   })
-  it('test multioption csv into its own column', async () => {
+  test('test multioption csv into its own column', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
     const noApplyFilters = false
@@ -108,16 +109,16 @@ describe('csv export for multioption question', () => {
   })
 })
 
-describe('normal application flow', () => {
+test.describe('normal application flow', () => {
   const ctx = createTestContext()
 
-  beforeAll(async () => {
+  test.beforeAll(async () => {
     const {page} = ctx
     await dropTables(page)
     await seedQuestions(page)
   })
 
-  it('all major steps', async () => {
+  test('all major steps', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
     const noApplyFilters = false
@@ -196,7 +197,9 @@ describe('normal application flow', () => {
     // Change export visibility of a question
     await adminQuestions.createNewVersion('dropdown-csv-download')
     await adminQuestions.gotoQuestionEditPage('dropdown-csv-download')
-    await page.click('#question-settings button:has-text("Delete"):visible')
+    await page.click(
+      '#question-settings .multi-option-question-field-remove-button',
+    )
     await page.click('text=Update')
 
     // Add a new question so that the program has multiple versions
@@ -366,7 +369,7 @@ describe('normal application flow', () => {
     }
   })
 
-  it('download finished application', async () => {
+  test('download finished application', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
     await loginAsAdmin(page)
