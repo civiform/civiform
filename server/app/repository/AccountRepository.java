@@ -190,8 +190,7 @@ public final class AccountRepository {
       applicant.getApplicantData().setPhoneNumber(phoneNumber);
       applicant
           .getApplicantData()
-          .updateUserName(
-              firstName, Optional.ofNullable(middleName), Optional.ofNullable(lastName));
+          .setUserName(firstName, Optional.ofNullable(middleName), Optional.ofNullable(lastName));
       applicant.getApplicantData().setDateOfBirth(newDob);
       account.save();
       applicant.save();

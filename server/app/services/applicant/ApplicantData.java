@@ -79,7 +79,7 @@ public class ApplicantData extends CfJsonDocumentContext {
   public Optional<String> getApplicantName() {
     Optional<String> firstName = applicant.getFirstName();
     Optional<String> lastName = applicant.getLastName();
-    if (firstName.isEmpty() || firstName.get().equals(applicant.getAccount().getEmailAddress())) {
+    if (firstName.isEmpty()) {
       // TODO (#5503): Return Optional.empty() when removing the feature flag
       return getApplicantNameAtWellKnownPath();
     }
@@ -108,15 +108,18 @@ public class ApplicantData extends CfJsonDocumentContext {
   }
 
   public Optional<String> getApplicantNameAtWellKnownPath() {
-    if (!hasPath(WellKnownPaths.APPLICANT_FIRST_NAME)) {
-      return Optional.empty();
+    Optional<String> firstName =
+        hasPath(WellKnownPaths.APPLICANT_FIRST_NAME)
+            ? readString(WellKnownPaths.APPLICANT_FIRST_NAME)
+            : Optional.empty();
+    Optional<String> lastName =
+        hasPath(WellKnownPaths.APPLICANT_LAST_NAME)
+            ? readString(WellKnownPaths.APPLICANT_LAST_NAME)
+            : Optional.empty();
+    if (firstName.isPresent() && lastName.isPresent()) {
+      return Optional.of(String.format("%s, %s", lastName.get(), firstName.get()));
     }
-    String firstName = readString(WellKnownPaths.APPLICANT_FIRST_NAME).get();
-    if (hasPath(WellKnownPaths.APPLICANT_LAST_NAME)) {
-      String lastName = readString(WellKnownPaths.APPLICANT_LAST_NAME).get();
-      return Optional.of(String.format("%s, %s", lastName, firstName));
-    }
-    return Optional.of(firstName);
+    return firstName;
   }
 
   // TODO (#5503): Fix up all call sites using these functions to operate on the
@@ -135,17 +138,6 @@ public class ApplicantData extends CfJsonDocumentContext {
     return applicant.getLastName().or(() -> readString(WellKnownPaths.APPLICANT_LAST_NAME));
   }
 
-  public void updateUserName(
-      String firstName, Optional<String> middleName, Optional<String> lastName) {
-    applicant.setFirstName(firstName);
-    middleName.ifPresent(applicant::setMiddleName);
-    lastName.ifPresent(applicant::setLastName);
-
-    putString(WellKnownPaths.APPLICANT_FIRST_NAME, firstName);
-    middleName.ifPresent(name -> putString(WellKnownPaths.APPLICANT_MIDDLE_NAME, name));
-    lastName.ifPresent(name -> putString(WellKnownPaths.APPLICANT_LAST_NAME, name));
-  }
-
   public Optional<String> getPhoneNumber() {
     return applicant.getPhoneNumber().or(() -> readString(WellKnownPaths.APPLICANT_PHONE_NUMBER));
   }
@@ -161,16 +153,19 @@ public class ApplicantData extends CfJsonDocumentContext {
         .or(
             () -> {
               Path dobPath = WellKnownPaths.APPLICANT_DOB;
-              return !hasPath(dobPath) ? getDeprecatedDateOfBirth() : readDate(dobPath);
+              Path deprecatedDobPath = WellKnownPaths.APPLICANT_DOB_DEPRECATED;
+              return hasPath(dobPath) ? readDate(dobPath) : readDate(deprecatedDobPath);
             });
   }
 
   public void setDateOfBirth(String dateOfBirth) {
     applicant.setDateOfBirth(dateOfBirth);
-    Path dobPath =
-        hasPath(WellKnownPaths.APPLICANT_DOB_DEPRECATED)
-            ? WellKnownPaths.APPLICANT_DOB_DEPRECATED
-            : WellKnownPaths.APPLICANT_DOB;
+
+    // The new path is underneath the old path, so we have to
+    // specifically check the old path exists but not the new one.
+    Path newPath = WellKnownPaths.APPLICANT_DOB;
+    Path oldPath = WellKnownPaths.APPLICANT_DOB_DEPRECATED;
+    Path dobPath = hasPath(oldPath) && !hasPath(newPath) ? oldPath : newPath;
     putDate(dobPath, dateOfBirth);
   }
 
@@ -201,18 +196,13 @@ public class ApplicantData extends CfJsonDocumentContext {
   public void setUserName(
       String firstName, Optional<String> middleName, Optional<String> lastName) {
     applicant.setFirstName(firstName);
-    middleName.ifPresent(applicant::setMiddleName);
-    lastName.ifPresent(applicant::setLastName);
-    // TODO (#5503): Remove when we remove the feature flag
-    if (!hasPath(WellKnownPaths.APPLICANT_FIRST_NAME)) {
-      putString(WellKnownPaths.APPLICANT_FIRST_NAME, firstName);
-    }
-    if (middleName.isPresent() && !hasPath(WellKnownPaths.APPLICANT_MIDDLE_NAME)) {
-      putString(WellKnownPaths.APPLICANT_MIDDLE_NAME, middleName.get());
-    }
-    if (lastName.isPresent() && !hasPath(WellKnownPaths.APPLICANT_LAST_NAME)) {
-      putString(WellKnownPaths.APPLICANT_LAST_NAME, lastName.get());
-    }
+    // Empty string will remove it from the model
+    applicant.setMiddleName(middleName.orElse(""));
+    applicant.setLastName(lastName.orElse(""));
+
+    putString(WellKnownPaths.APPLICANT_FIRST_NAME, firstName);
+    putString(WellKnownPaths.APPLICANT_MIDDLE_NAME, middleName.orElse(""));
+    putString(WellKnownPaths.APPLICANT_LAST_NAME, lastName.orElse(""));
   }
 
   @Override
@@ -271,9 +261,5 @@ public class ApplicantData extends CfJsonDocumentContext {
     } catch (PathNotFoundException unused) {
       // Metadata may be missing in unit tests. No harm, no foul.
     }
-  }
-
-  public Optional<LocalDate> getDeprecatedDateOfBirth() {
-    return readDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED);
   }
 }

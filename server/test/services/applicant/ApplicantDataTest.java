@@ -111,6 +111,24 @@ public class ApplicantDataTest extends ResetPostgres {
   }
 
   @Test
+  public void setDateOfBirth_updatesAtNewPath() {
+    ApplicantData data = createNewApplicantData();
+    data.putDate(WellKnownPaths.APPLICANT_DOB, "1999-01-01");
+    data.setDateOfBirth("2022-01-05");
+    assertThat(data.asJsonString())
+        .isEqualTo("{\"applicant\":{\"applicant_date_of_birth\":{\"date\":1641340800000}}}");
+  }
+
+  @Test
+  public void setDateOfBirth_updatesAtOldPath() {
+    ApplicantData data = createNewApplicantData();
+    data.putDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED, "1999-01-01");
+    data.setDateOfBirth("2022-01-05");
+    assertThat(data.asJsonString())
+        .isEqualTo("{\"applicant\":{\"applicant_date_of_birth\":1641340800000}}");
+  }
+
+  @Test
   public void getDateOfBirth_canHandleDeprecatedDobPath() {
     ApplicantData data = createNewApplicantData();
     String sampleDob = "2022-01-05";
@@ -173,5 +191,43 @@ public class ApplicantDataTest extends ResetPostgres {
 
     assertThat(data1.isDuplicateOf(data2)).isTrue();
     assertThat(data2.isDuplicateOf(data1)).isTrue();
+  }
+
+  // TODO (#5503): Remove this when we remove the feature flag
+  @Test
+  public void fallsBackToWellKnownPathWhenPrimaryApplicantInfoDoesNotExist() {
+    ApplicantData data = createNewApplicantData();
+    ApplicantModel applicant = data.getApplicant();
+    data.putString(WellKnownPaths.APPLICANT_FIRST_NAME, "Jean");
+    data.putString(WellKnownPaths.APPLICANT_MIDDLE_NAME, "Luc");
+    data.putString(WellKnownPaths.APPLICANT_LAST_NAME, "Picard");
+    data.putPhoneNumber(WellKnownPaths.APPLICANT_PHONE_NUMBER, "5038234000");
+    data.putDate(WellKnownPaths.APPLICANT_DOB, "2305-07-13");
+    applicant.save();
+
+    assertThat(data.getApplicantFirstName().get()).isEqualTo("Jean");
+    assertThat(data.getApplicantMiddleName().get()).isEqualTo("Luc");
+    assertThat(data.getApplicantLastName().get()).isEqualTo("Picard");
+    assertThat(data.getApplicantName().get()).isEqualTo("Picard, Jean");
+    assertThat(data.getPhoneNumber().get()).isEqualTo("5038234000");
+    assertThat(data.getDateOfBirth().get()).isEqualTo("2305-07-13");
+
+    data.setUserName("Kathryn", Optional.empty(), Optional.of("Janeway"));
+    data.setPhoneNumber("(206) 684-2489");
+    data.setDateOfBirth("2328-05-20");
+    applicant.save();
+
+    assertThat(data.getApplicantFirstName().get()).isEqualTo("Kathryn");
+    assertThat(data.getApplicantMiddleName()).isEmpty();
+    assertThat(data.getApplicantLastName().get()).isEqualTo("Janeway");
+    assertThat(data.getApplicantName().get()).isEqualTo("Janeway, Kathryn");
+    assertThat(data.getPhoneNumber().get()).isEqualTo("2066842489");
+    assertThat(data.getDateOfBirth().get()).isEqualTo("2328-05-20");
+
+    assertThat(applicant.getFirstName().get()).isEqualTo("Kathryn");
+    assertThat(applicant.getMiddleName()).isEmpty();
+    assertThat(applicant.getLastName().get()).isEqualTo("Janeway");
+    assertThat(applicant.getPhoneNumber().get()).isEqualTo("2066842489");
+    assertThat(applicant.getDateOfBirth().get()).isEqualTo("2328-05-20");
   }
 }
