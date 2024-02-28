@@ -502,7 +502,7 @@ test.describe('Trusted intermediaries', () => {
     await tiDashboard.expectDashboardContainClient(client2)
   })
 
-  test('managing trusted intermediary ', async () => {
+  test('managing trusted intermediary', async () => {
     const {page, adminTiGroups} = ctx
     await loginAsAdmin(page)
     await adminTiGroups.gotoAdminTIPage()
@@ -844,7 +844,7 @@ test.describe('Trusted intermediaries', () => {
       expect(await page.innerHTML('.usa-current')).toContain('2')
     })
 
-    test('shows 7 pages and no ellipses when there are 65 clients ', async () => {
+    test('shows 7 pages and no ellipses when there are 65 clients', async () => {
       const {page, tiDashboard} = ctx
       await loginAsTrustedIntermediary(page)
       await tiDashboard.gotoTIDashboardPage(page)

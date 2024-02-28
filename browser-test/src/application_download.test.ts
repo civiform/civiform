@@ -21,7 +21,7 @@ test.describe('csv export for multioption question', () => {
     await dropTables(page)
     await seedQuestions(page)
   })
-  test('test multioption csv into its own column', async () => {
+  test('multioption csv into its own column', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
     const noApplyFilters = false
