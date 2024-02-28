@@ -1,0 +1,57 @@
+
+<div th:fragment="address (question, messages, stateAbbreviations)" th:with="questionId=${#strings.randomAlphanumeric(8)}" th:id="${questionId}">
+
+    <fieldset class="usa-fieldset" th:with="addressQuestion=${question.createAddressQuestion()}">
+        <!-- Question title -->
+        <legend class="usa-legend">
+            <span th:text="${question.getQuestionText()}"></span>
+            <!-- Required asterisk -->
+            <th:block th:if="${!question.isOptional()}">
+                <div th:replace="~{applicant/ApplicantBaseFragment :: requiredAsterisk}"></div>
+            </th:block>
+            </legend>
+
+                    <!-- Question help text -->
+        <div th:id="${questionId} + '-description'" th:text="${question.getQuestionHelpText()}"></div>
+
+        <!-- TODO Display errors on each of the inputs -->
+        <!-- TODO Update the ids for each element -->
+
+      <th:block th:with="inputId=${#strings.randomAlphanumeric(8)}">
+        <label class="usa-label" th:for="${inputId}" th:text="#{label.street}"></label>
+        <input class="usa-input" th:id="${inputId}" th:name="${addressQuestion.getStreetPath()}" autocomplete="address-line1"/>
+      </th:block>
+
+      <th:block th:with="inputId=${#strings.randomAlphanumeric(8)}">
+        <label class="usa-label" th:for="${inputId}" th:text="#{label.addressLine2}"></label>
+        <input class="usa-input" th:id="${inputId}" th:name="${addressQuestion.getLine2Path()}" autocomplete="address-line2"/>
+      </th:block>
+
+      <th:block th:with="inputId=${#strings.randomAlphanumeric(8)}">
+        <label class="usa-label" th:for="${inputId}" th:text="#{label.city}"></label>
+        <input class="usa-input" th:id="${inputId}" name="city" th:name="${addressQuestion.getCityPath()}" th:value="${addressQuestion.getCityValue().orElse('')}" autocomplete="address-level2" />
+      </th:block>
+
+      <th:block th:with="inputId=${#strings.randomAlphanumeric(8)}">
+        <label class="usa-label" th:for="${inputId}" th:text="#{label.state}"></label>
+        <select class="usa-select" th:id="${inputId}" th:name="${addressQuestion.getStatePath()}">
+            <option value th:selected="${addressQuestion.getStateValue().isEmpty()}" hidden></option>
+            <optgroup th:label="#{label.selectState}"></optgroup>
+            <option th:each="option: ${stateAbbreviations}"
+                    th:value="${option}"
+                    th:text="${option}"
+                    th:selected="${addressQuestion.getStateValue().equals(option)}">
+            </option>
+        </select>
+      </th:block>
+    
+      <th:block th:with="inputId=${#strings.randomAlphanumeric(8)}">
+        <label class="usa-label" th:for="${inputId}" th:text="#{label.zipcode}"></label>
+        <input
+            class="usa-input usa-input--medium"
+            th:id="${inputId}"
+            th:name="${addressQuestion.getZipPath()}"
+        />
+      </th:block>
+</fieldset>
+</div>

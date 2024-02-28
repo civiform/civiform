@@ -9,6 +9,7 @@ import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
 import views.ApplicationBaseViewParams;
 import views.html.helper.CSRF;
+import views.questiontypes.AddressQuestionRenderer;
 
 /** Renders a page for answering questions in a program screen (block). */
 public final class NorthStarApplicantProgramBlockEditView extends NorthStarApplicantBaseView {
@@ -33,6 +34,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
         "reviewFormAction", getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicationParams", applicationParams);
+    // TODO(ghyde): Why am I unable to access static vars directly from Thymeleaf
+    context.setVariable("stateAbbreviations", AddressQuestionRenderer.STATE_ABBREVIATIONS);
     return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
   }
 
