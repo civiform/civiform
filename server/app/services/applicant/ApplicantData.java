@@ -262,4 +262,8 @@ public class ApplicantData extends CfJsonDocumentContext {
       // Metadata may be missing in unit tests. No harm, no foul.
     }
   }
+
+  public Optional<LocalDate> getDeprecatedDateOfBirth() {
+    return readDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED);
+  }
 }
