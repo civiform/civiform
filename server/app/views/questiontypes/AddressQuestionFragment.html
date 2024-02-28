@@ -19,12 +19,12 @@
 
       <th:block th:with="inputId=${#strings.randomAlphanumeric(8)}">
         <label class="usa-label" th:for="${inputId}" th:text="#{label.street}"></label>
-        <input class="usa-input" th:id="${inputId}" th:name="${addressQuestion.getStreetPath()}" autocomplete="address-line1"/>
+        <input class="usa-input" th:id="${inputId}" th:name="${addressQuestion.getStreetPath()}" th:value="${addressQuestion.getStreetValue().orElse('')}" autocomplete="address-line1"/>
       </th:block>
 
       <th:block th:with="inputId=${#strings.randomAlphanumeric(8)}">
         <label class="usa-label" th:for="${inputId}" th:text="#{label.addressLine2}"></label>
-        <input class="usa-input" th:id="${inputId}" th:name="${addressQuestion.getLine2Path()}" autocomplete="address-line2"/>
+        <input class="usa-input" th:id="${inputId}" th:name="${addressQuestion.getLine2Path()}" th:value="${addressQuestion.getLine2Value().orElse('')}" autocomplete="address-line2"/>
       </th:block>
 
       <th:block th:with="inputId=${#strings.randomAlphanumeric(8)}">
@@ -40,7 +40,7 @@
             <option th:each="option: ${stateAbbreviations}"
                     th:value="${option}"
                     th:text="${option}"
-                    th:selected="${addressQuestion.getStateValue().equals(option)}">
+                    th:selected="${addressQuestion.getStateValue().orElse('').equals(option)}">
             </option>
         </select>
       </th:block>
@@ -51,6 +51,7 @@
             class="usa-input usa-input--medium"
             th:id="${inputId}"
             th:name="${addressQuestion.getZipPath()}"
+            th:value="${addressQuestion.getZipValue().orElse('')}"
         />
       </th:block>
 </fieldset>
