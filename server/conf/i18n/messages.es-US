@@ -266,6 +266,7 @@ content.commonIntakeConfirmationTi=Puedes inscribir a tu cliente en estos progra
 content.commonIntakeNoMatchingPrograms=El proceso de evaluación no pudo encontrar programas para los que cumplas los requisitos en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
 content.commonIntakeNoMatchingProgramsTi=El proceso de evaluación no pudo encontrar programas para los que tu cliente cumpla los requisitos en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
 content.commonIntakeNoMatchingProgramsNextStep=También puedes volver a la página anterior para editar tus respuestas.
+# A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Other programs you might be interested in
 button.downloadPdf=Descargar PDF
 button.applyToPrograms=Postularse a programas
@@ -300,7 +301,8 @@ validation.noPoBox=Ingresa una dirección válida. No aceptamos apartados postal
 title.verifyAddress=Verifica la dirección
 
 content.foundSimilarAddress=No pudimos verificar la dirección que proporcionaste, pero encontramos resultados similares.
-content.addressEntered=Dirección ingresada:
+# Heading for showing the user the address they provided earlier
+content.addressEntered=Address you entered:
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=Dirección sugerida:
@@ -309,6 +311,24 @@ content.suggestedAddresses=Direcciones sugeridas:
 # Title on address correction dialog when no address is found.
 title.noValidAddress=No se encontró ninguna dirección válida
 content.noValidAddress=No pudimos verificar la dirección que proporcionaste. Para continuar, edita la dirección
+
+#-------------------------------------------------------------------------#
+# ADDRESS CORRECTION - text when viewing the address correction screen    #
+# Note: We're re-writing the text shown on the address correction screen. #
+# The strings below will be used in the re-write, and then the strings    #
+# above that are obsolete will be deleted.                                #
+#-------------------------------------------------------------------------#
+
+# Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
+title.confirmAddress=Confirm your address
+# Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
+content.confirmAddressLine1=We were not able to find your address.
+# Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
+content.foundSimilarAddressLine2=Please check your address for spelling or choose an option from the list provided.
+# Message asking the user to check if their address is correct and/or edit the address so that it's valid.
+content.noValidAddressLine2=Please check your address for spelling and edit to continue.
+# Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
+button.confirmAddress=Confirm address
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -403,6 +423,7 @@ validation.textTooShort=Debe tener más de {0} caracteres.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Las preguntas con varias respuestas no pueden tener opciones vacías.
+# An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
 adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
 
 #----------------------------------#
