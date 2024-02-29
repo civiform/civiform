@@ -175,15 +175,18 @@ public class ApplicantData extends CfJsonDocumentContext {
     putDate(dobPath, dateOfBirth);
   }
 
+  // TODO: Get rid of this function, and change ApplicantProfileCreator and SamlProfileCreator
+  // to use the function that passes in each field separately.
   /**
    * Parses a name string to extract the first, middle, and last names, if they exists, and sets
-   * those fields.
+   * those fields. This function will NOT overwrite any existing name data if the first name already
+   * exists. This is because this function is used by {@link ApplicantProfileCreator} and {@link
+   * SamlProfileCreator} and we do not want it to overwrite the name upon login.
    *
    * @param displayName A string that contains the applicant's name, with first, middle, and last
    *     separated by spaces. May provide only first name or only first last.
-   * @param overwrite Overwrite any existing data.
    */
-  public void setUserName(String displayName, boolean overwrite) {
+  public void setUserName(String displayName) {
     String firstName;
     Optional<String> lastName = Optional.empty();
     Optional<String> middleName = Optional.empty();
@@ -204,11 +207,7 @@ public class ApplicantData extends CfJsonDocumentContext {
         // Too many names - put them all in first name.
         firstName = displayName;
     }
-    setUserName(firstName, middleName, lastName, overwrite);
-  }
-
-  public void setUserName(String displayName) {
-    setUserName(displayName, true);
+    setUserName(firstName, middleName, lastName, false);
   }
 
   // By default, overwrite name fields if data exists in them
@@ -231,9 +230,10 @@ public class ApplicantData extends CfJsonDocumentContext {
     Path firstPath = WellKnownPaths.APPLICANT_FIRST_NAME;
     Path middlePath = WellKnownPaths.APPLICANT_MIDDLE_NAME;
     Path lastPath = WellKnownPaths.APPLICANT_LAST_NAME;
-    if (!overwrite
-        && (applicant.getFirstName().isPresent()
-            || (hasPath(firstPath) && readString(firstPath).isPresent()))) {
+    boolean firstNamePresent =
+        applicant.getFirstName().isPresent()
+            || (hasPath(firstPath) && readString(firstPath).isPresent());
+    if (!overwrite && firstNamePresent) {
       return;
     }
     applicant.setFirstName(firstName);
