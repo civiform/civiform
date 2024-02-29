@@ -76,6 +76,12 @@ public class ApplicantData extends CfJsonDocumentContext {
     this.preferredLocale = Optional.of(locale);
   }
 
+  /**
+   * Gets a formatted version of the applicant's name. If only the first name is defined, returns
+   * the first name. If both first and last are defined, returns "last, first".
+   *
+   * @return Formatted name of the applicant
+   */
   public Optional<String> getApplicantName() {
     Optional<String> firstName = applicant.getFirstName();
     Optional<String> lastName = applicant.getLastName();
@@ -169,7 +175,15 @@ public class ApplicantData extends CfJsonDocumentContext {
     putDate(dobPath, dateOfBirth);
   }
 
-  public void setUserName(String displayName) {
+  /**
+   * Parses a name string to extract the first, middle, and last names, if they exists, and sets
+   * those fields.
+   *
+   * @param displayName A string that contains the applicant's name, with first, middle, and last
+   *     separated by spaces. May provide only first name or only first last.
+   * @param ovewrite Overwrite any existing data.
+   */
+  public void setUserName(String displayName, boolean overwrite) {
     String firstName;
     Optional<String> lastName = Optional.empty();
     Optional<String> middleName = Optional.empty();
@@ -190,19 +204,43 @@ public class ApplicantData extends CfJsonDocumentContext {
         // Too many names - put them all in first name.
         firstName = displayName;
     }
-    setUserName(firstName, middleName, lastName);
+    setUserName(firstName, middleName, lastName, overwrite);
   }
 
+  public void setUserName(String displayName) {
+    setUserName(displayName, true);
+  }
+
+  // By default, overwrite name fields if data exists in them
   public void setUserName(
       String firstName, Optional<String> middleName, Optional<String> lastName) {
+    setUserName(firstName, middleName, lastName, true);
+  }
+
+  /**
+   * Sets the first, middle, and last name fields.
+   *
+   * @param firstName First name of applicant
+   * @param middleName Middle name of applicant
+   * @param lastName Last name of applicant
+   * @param overwrite When false, if first name already exists, do not update fields and return
+   *     unchanged.
+   */
+  public void setUserName(
+      String firstName, Optional<String> middleName, Optional<String> lastName, boolean overwrite) {
+    Path firstPath = WellKnownPaths.APPLICANT_FIRST_NAME;
+    Path middlePath = WellKnownPaths.APPLICANT_MIDDLE_NAME;
+    Path lastPath = WellKnownPaths.APPLICANT_LAST_NAME;
+    if (!overwrite && applicant.getFirstName().isPresent()
+        || (hasPath(firstPath) && readString(firstPath).isPresent())) {
+      return;
+    }
     applicant.setFirstName(firstName);
     // Empty string will remove it from the model
     applicant.setMiddleName(middleName.orElse(""));
     applicant.setLastName(lastName.orElse(""));
 
-    putString(WellKnownPaths.APPLICANT_FIRST_NAME, firstName);
-    Path middlePath = WellKnownPaths.APPLICANT_MIDDLE_NAME;
-    Path lastPath = WellKnownPaths.APPLICANT_LAST_NAME;
+    putString(firstPath, firstName);
     if (middleName.isPresent()) {
       putString(middlePath, middleName.get());
     } else {

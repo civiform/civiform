@@ -109,7 +109,8 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
                             .getApplicantData()
                             .setPreferredLocale(Locale.forLanguageTag(locale)));
 
-                maybeName.ifPresent(name -> applicant.getApplicantData().setUserName(name));
+                maybeName.ifPresent(
+                    name -> applicant.getApplicantData().setUserName(name, /* overwrite= */ false));
 
                 applicant.save();
                 return null;

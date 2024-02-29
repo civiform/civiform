@@ -159,11 +159,12 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
                 if (hasFirstName && hasLastName) {
                   applicant
                       .getApplicantData()
-                      .setUserName(String.format("%s %s", firstName, lastName));
+                      .setUserName(
+                          String.format("%s %s", firstName, lastName), /* overwrite= */ false);
                 } else if (hasFirstName) {
-                  applicant.getApplicantData().setUserName(firstName);
+                  applicant.getApplicantData().setUserName(firstName, /* overwrite= */ false);
                 } else if (hasLastName) {
-                  applicant.getApplicantData().setUserName(lastName);
+                  applicant.getApplicantData().setUserName(lastName, /* overwrite= */ false);
                 }
                 applicant.save();
                 return null;
