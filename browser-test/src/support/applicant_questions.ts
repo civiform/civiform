@@ -94,6 +94,19 @@ export class ApplicantQuestions {
     })
   }
 
+/*
+  async answerFileUploadQuestionWithSize(mbSize: int) {
+      const file = {
+                           name: 'file-size-' + mbSize + '-mb.txt',
+                           mimeType: 'text/plain',
+                                 buffer: Buffer.from('fakeText'),
+                         }
+         Object.defineProperty(
+             file, 'size', {value: mbSize * 1024 * 1024, writable: false});
+      await this.page.setInputFiles('input[type=file]', file)
+  }
+  */
+
   async answerIdQuestion(id: string, index = 0) {
     await this.page.fill(`input[type="text"] >> nth=${index}`, id)
   }

@@ -121,10 +121,6 @@ function validateFileUploadQuestion(blockForm: Element): boolean {
     blockForm.querySelector<HTMLInputElement>('input[type=file]'),
   )
 
-  /**
-   * Shows a "Please select a file" error. Used when no file was uploaded
-   * but the user wants to continue to the next page.
-   */
   const isFileUploaded = fileInput.value != ''
 
   const fileNotSelectedErrorDiv = blockForm.querySelector(
@@ -136,18 +132,18 @@ function validateFileUploadQuestion(blockForm: Element): boolean {
     showError(fileNotSelectedErrorDiv, fileInput)
   }
 
-  const fileTooLarge = isFileTooLarge(fileInput)
+  const isFileTooLargeResult = isFileTooLarge(fileInput)
   const fileTooLargeErrorDiv = blockForm.querySelector(
     '.cf-fileupload-too-large-error',
   ) as HTMLElement
-  if (fileTooLarge) {
+  if (isFileTooLargeResult) {
     showError(fileTooLargeErrorDiv, fileInput)
   } else {
     hideError(fileTooLargeErrorDiv, fileInput)
   }
 
   // A valid file upload question is one that has an uploaded file that isn't too large.
-  return isFileUploaded && !fileTooLarge
+  return isFileUploaded && !isFileTooLargeResult
 }
 
 /** Shows the error in the specified {@code errorDiv}. */
