@@ -1,7 +1,6 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
@@ -421,7 +420,6 @@ public final class ViewUtils {
       ContainerTag body,
       String elementIdPrefix,
       String headerText,
-      String linkButtonText,
       boolean hasFooter,
       ButtonTag triggeringButton,
       String firstButtonText,
@@ -483,21 +481,17 @@ public final class ViewUtils {
                                     .attr("focusable", "false")
                                     .attr("role", "img"))));
 
-    //change the helper function - to take a div tag with either a triggering button or a triggering anchor?
-    //add attribute to whatever anchor/button gets passed in
-
     // This div has the button that opens the modal
     DivTag linkDiv =
         div()
             .withClass("margin-y-3")
             .with(
-              triggeringButton
-                    //.withHref("#" + modalId)
-                    .withClasses("usa-button", "bg-blue-600","triggering")
+                triggeringButton
+                    // .withHref("#" + modalId)
+                    .withClasses("usa-button", "bg-blue-600", "triggering")
                     .attr("aria-controls", modalId)
                     .attr("data-open-modal")
-                    .attr("triggering")
-            )
+                    .attr("triggering"))
             .with(modalContent);
 
     return linkDiv;

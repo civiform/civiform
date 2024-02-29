@@ -164,8 +164,6 @@ public final class ProgramIndexView extends BaseHtmlView {
               });
     }
 
-    maybePublishModal.ifPresent(htmlBundle::addMainContent);
-
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(flash.get("error").get()));
@@ -371,16 +369,14 @@ public final class ProgramIndexView extends BaseHtmlView {
         makeSvgTextButton("Publish all drafts", Icons.PUBLISH)
             .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON, "my-2");
     DivTag uswdsModal =
-      ViewUtils.makeUSWDSModal(
-        publishAllModalContent,
-        "publish-all-programs",
-        "Do you want to publish all draft programs?",
-        "link button text",
-        false,
-        publishAllButton,
-        "yes",
-        "no"
-      );
+        ViewUtils.makeUSWDSModal(
+            publishAllModalContent,
+            "publish-all-programs",
+            "Do you want to publish all draft programs?",
+            false,
+            publishAllButton,
+            "yes",
+            "no");
     return Optional.of(uswdsModal);
   }
 
