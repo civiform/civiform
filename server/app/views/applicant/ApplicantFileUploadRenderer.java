@@ -125,10 +125,10 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     result.with(
         ViewUtils.makeAlertSlim(
             fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()),
-            /* hidden= */ false, /* classes...= */
-            BaseStyles.ALERT_ERROR,
+            // file_upload.ts will un-hide this error if needed.
+            /* hidden= */ true,
+            /* classes...= */ BaseStyles.ALERT_ERROR,
             ReferenceClasses.FILEUPLOAD_ERROR,
-            "hidden",
             "mb-2"));
     result.with(
         p(params.messages().at(MessageKey.MOBILE_FILE_UPLOAD_HELP.getKeyName()))

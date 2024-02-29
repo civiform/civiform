@@ -393,11 +393,21 @@ public final class ViewUtils {
                 .with(p().withClass("usa-alert__text").withText(text)));
   }
 
+  /**
+   * Makes a slim version of a USWDS Alert component with the given text. Note that the slim version
+   * has no title. Alert variant is determined by the classes passed in.
+   * https://designsystem.digital.gov/components/alert/
+   *
+   * @param text The text to include in the alert.
+   * @param hidden Whether or not to set the hidden property on the component.
+   * @param classes One or more additional classes to apply to the USWDS Alert component.
+   * @return DivTag containing the alert.
+   */
   public static DivTag makeAlertSlim(String text, boolean hidden, String... classes) {
     return makeAlert(
         text,
         hidden,
-        Optional.empty(),
+        /* title= */ Optional.empty(),
         Lists.asList(BaseStyles.ALERT_SLIM, classes).toArray(new String[0]));
   }
 

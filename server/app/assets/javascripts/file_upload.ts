@@ -121,10 +121,10 @@ function validateFileUploadQuestion(blockForm: Element): boolean {
   )
   const isFileUploaded = fileInput.value != ''
 
-  const errorDiv = blockForm.querySelector('.cf-fileupload-error')
-  console.log('errorDiv=' + errorDiv)
+  const errorDiv = blockForm.querySelector(
+    '.cf-fileupload-error',
+  ) as HTMLElement
   if (!errorDiv) {
-    console.log('no error div')
     return isFileUploaded
   }
 
@@ -141,12 +141,10 @@ function validateFileUploadQuestion(blockForm: Element): boolean {
  * but the user wants to continue to the next page.
  */
 function showFileSelectionError(
-  errorDiv: Element,
+  errorDiv: HTMLElement,
   fileInput: HTMLInputElement,
 ) {
-  errorDiv.classList.remove('hidden')
-  // Add ariaLive label so error is announced to screen reader.
-  errorDiv.ariaLive = 'polite'
+  errorDiv.hidden = false
   fileInput.setAttribute('aria-invalid', 'true')
 
   const errorId = errorDiv.getAttribute('id')
@@ -162,10 +160,10 @@ function showFileSelectionError(
 
 /** Hides the "Please select a file" error. */
 function hideFileSelectionError(
-  errorDiv: Element,
+  errorDiv: HTMLElement,
   fileInput: HTMLInputElement,
 ) {
-  errorDiv.classList.add('hidden')
+  errorDiv.hidden = true
   fileInput.removeAttribute('aria-invalid')
 
   const errorId = errorDiv.getAttribute('id')
