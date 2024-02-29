@@ -34,6 +34,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
     context.setVariable("blockEditUrlMap", blockEditUrlMap(params));
     context.setVariable("continueUrl", getContinueUrl(params));
     context.setVariable("hasCompletedAllBlocks", params.completedBlockCount() == params.totalBlockCount());
+    context.setVariable("submitUrl", getSubmitUrl(params));
     return templateEngine.process("applicant/ApplicantProgramSummaryView", context);
   }
 
@@ -67,6 +68,10 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
 
   private String getContinueUrl(Params params) {
     return applicantRoutes.edit(params.profile(), params.applicantId(), params.programId()).url();
+  }
+
+  private String getSubmitUrl(Params params) {
+    return applicantRoutes.submit(params.profile(), params.applicantId(), params.programId()).url();
   }
 
   @AutoValue
