@@ -32,6 +32,8 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
     ThymeleafModule.PlayThymeleafContext context = createThymeleafContext(request);
     context.setVariable("blocks", params.blocks());
     context.setVariable("blockEditUrlMap", blockEditUrlMap(params));
+    context.setVariable("continueUrl", getContinueUrl(params));
+    context.setVariable("hasCompletedAllBlocks", params.completedBlockCount() == params.totalBlockCount());
     return templateEngine.process("applicant/ApplicantProgramSummaryView", context);
   }
 
@@ -63,6 +65,10 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
     }
   }
 
+  private String getContinueUrl(Params params) {
+    return applicantRoutes.edit(params.profile(), params.applicantId(), params.programId()).url();
+  }
+
   @AutoValue
   public abstract static class Params {
 
@@ -74,9 +80,13 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
 
     abstract ImmutableList<Block> blocks();
 
+    abstract int completedBlockCount();
+
     abstract CiviFormProfile profile();
 
     abstract long programId();
+
+    abstract int totalBlockCount();
 
     @AutoValue.Builder
     public abstract static class Builder {
@@ -85,9 +95,13 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarApplica
 
       public abstract Builder setBlocks(ImmutableList<Block> blocks);
 
+      public abstract Builder setCompletedBlockCount(int completedBlockCount);
+
       public abstract Builder setProfile(CiviFormProfile profile);
 
       public abstract Builder setProgramId(long programId);
+
+      public abstract Builder setTotalBlockCount(int totalBlockCount);
 
       public abstract Params build();
     }
