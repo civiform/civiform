@@ -25,6 +25,12 @@
               </div>
             </li>
         </ul>
+
+        <form th:action="${submitUrl}" method="POST">
+          <input hidden th:value="${csrfToken}" name="csrfToken">
+          <button th:if="${hasCompletedAllBlocks}" th:text="#{button.submit}" type="submit" class="usa-button"></button>
+          <a th:unless="${hasCompletedAllBlocks}" th:href="${continueUrl}" th:text="#{button.continue}" id="continue-application-button" class="usa-button"></a>
+        </form>
         <footer th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"></footer>
     </body>
 </html>

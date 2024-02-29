@@ -8,7 +8,6 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
 import views.ApplicationBaseView;
-import views.html.helper.CSRF;
 
 /** Renders a page for answering questions in a program screen (block). */
 public final class NorthStarApplicantProgramBlockEditView extends NorthStarApplicantBaseView {
@@ -25,7 +24,6 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
   public String render(Request request, ApplicationBaseView.Params applicationParams) {
     ThymeleafModule.PlayThymeleafContext context = createThymeleafContext(request);
     context.setVariable("formAction", getFormAction(applicationParams));
-    context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
   }
 
