@@ -2,6 +2,7 @@ package services.applicant;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
 import play.i18n.Messages;
 import services.MessageKey;
 
@@ -16,6 +17,7 @@ import services.MessageKey;
 public abstract class ValidationErrorMessage {
 
   public static ValidationErrorMessage create(MessageKey key, Object... args) {
+    System.out.println("args=" + Arrays.toString(args));
     return new AutoValue_ValidationErrorMessage(key, ImmutableList.copyOf(args));
   }
 
@@ -28,6 +30,7 @@ public abstract class ValidationErrorMessage {
   }
 
   public String getMessage(Messages messages) {
+    System.out.println("getting message, args=" + args());
     return messages.apply(
         MessageKey.TOAST_ERROR_MSG_OUTLINE.getKeyName(),
         messages.at(key().getKeyName(), args().toArray()));

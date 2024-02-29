@@ -135,9 +135,21 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
             /* classes...= */ BaseStyles.ALERT_ERROR,
             ReferenceClasses.FILEUPLOAD_REQUIRED_ERROR_ID,
             "mb-2"));
+    System.out.println(
+        "final string="
+            + fileUploadQuestion
+                .fileTooLargeMessage(applicantStorageClient.getFileLimitMb())
+                .getMessage(params.messages()));
+    System.out.println(
+        "string w/o validation error:"
+            + params
+                .messages()
+                .at(MessageKey.FILEUPLOAD_VALIDATION_FILE_TOO_LARGE.getKeyName(), 45));
     result.with(
         ViewUtils.makeAlertSlim(
-            "The file you've chosen is too large. Please choose a file under 100 MB.", // TODO
+            fileUploadQuestion
+                .fileTooLargeMessage(applicantStorageClient.getFileLimitMb())
+                .getMessage(params.messages()),
             // file_upload.ts will un-hide this error if needed.
             /* hidden= */ true,
             /* classes...= */ BaseStyles.ALERT_ERROR,
