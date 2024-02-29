@@ -94,7 +94,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.30",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.31",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.6",
