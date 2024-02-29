@@ -70,7 +70,6 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final DateConverter dateConverter;
   private final ProgramRepository programRepository;
-  public static final String OPTIONAL_INDICATOR = " (optional)";
   private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
   @Inject
@@ -233,7 +232,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setId("middle-name-input")
             .setFieldName("middleName")
             .setLabelText(
-                messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName()) + OPTIONAL_INDICATOR)
+                messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName())
+                    + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
             .setValue(request.flash().get("providedMiddleName").orElse(""));
     FieldWithLabel lastNameField =
         FieldWithLabel.input()
@@ -255,7 +255,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         FieldWithLabel.email()
             .setId("email-input")
             .setFieldName("emailAddress")
-            .setLabelText("Email address" + OPTIONAL_INDICATOR)
+            .setLabelText("Email address" + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
             .setToolTipIcon(Icons.INFO)
             .setToolTipText(
                 "Add an email address for your client to receive status updates about their"
