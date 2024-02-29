@@ -233,6 +233,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setFieldName("middleName")
             .setLabelText(
                 messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName())
+                    + " "
                     + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
             .setValue(request.flash().get("providedMiddleName").orElse(""));
     FieldWithLabel lastNameField =
@@ -255,7 +256,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         FieldWithLabel.email()
             .setId("email-input")
             .setFieldName("emailAddress")
-            .setLabelText("Email address" + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
+            .setLabelText("Email address " + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
             .setToolTipIcon(Icons.INFO)
             .setToolTipText(
                 "Add an email address for your client to receive status updates about their"
