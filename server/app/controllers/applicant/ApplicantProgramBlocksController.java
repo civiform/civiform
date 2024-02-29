@@ -758,27 +758,26 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       }
       return supplyAsync(
           () -> {
-          ApplicationBaseView.Params applicationParams =
-          buildApplicationBaseViewParams(
-            request,
-            applicantId,
-            programId,
-            blockId,
-            inReview,
-            roApplicantProgramService,
-            thisBlockUpdated,
-            personalInfo,
-            errorDisplayMode,
-            applicantRoutes,
-            submittingProfile);
-          if (settingsManifest.getNorthStarApplicantUi(request)) {
-            return ok(northStarApplicantProgramBlockEditView.render(
-                    request, applicationParams))
-                .as(Http.MimeTypes.HTML);
-          } else {
-            return ok(editView.render(applicationParams));
-          }
-        });
+            ApplicationBaseView.Params applicationParams =
+                buildApplicationBaseViewParams(
+                    request,
+                    applicantId,
+                    programId,
+                    blockId,
+                    inReview,
+                    roApplicantProgramService,
+                    thisBlockUpdated,
+                    personalInfo,
+                    errorDisplayMode,
+                    applicantRoutes,
+                    submittingProfile);
+            if (settingsManifest.getNorthStarApplicantUi(request)) {
+              return ok(northStarApplicantProgramBlockEditView.render(request, applicationParams))
+                  .as(Http.MimeTypes.HTML);
+            } else {
+              return ok(editView.render(applicationParams));
+            }
+          });
     }
 
     // TODO(#6450): With the SAVE_ON_ALL_ACTIONS flag enabled, when you enter an address that
