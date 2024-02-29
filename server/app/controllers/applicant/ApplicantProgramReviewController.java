@@ -170,6 +170,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 params.setLoginPromptModal(loginPromptModal);
               }
               if (settingsManifest.getNorthStarApplicantUi(request)) {
+                int totalBlockCount = roApplicantProgramService.getAllActiveBlocks().size();
+                int completedBlockCount = roApplicantProgramService.getActiveAndCompletedInProgramBlockCount();
+
                 NorthStarApplicantProgramSummaryView.Params northStarParams =
                     NorthStarApplicantProgramSummaryView.Params.builder()
                         .setBlocks(roApplicantProgramService.getAllActiveBlocks())
@@ -178,6 +181,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
                             submittingProfile.orElseThrow(
                                 () -> new MissingOptionalException(CiviFormProfile.class)))
                         .setProgramId(programId)
+                        .setCompletedBlockCount(completedBlockCount)
+                        .setTotalBlockCount(totalBlockCount)
                         .build();
                 return ok(northStarSummaryView.render(request, northStarParams))
                     .as(Http.MimeTypes.HTML);
