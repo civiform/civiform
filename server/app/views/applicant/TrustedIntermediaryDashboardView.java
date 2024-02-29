@@ -111,7 +111,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 hr().withClasses("mt-6"),
                 renderSubHeader(messages.at(MessageKey.TITLE_ORG_MEMBERS.getKeyName()))
                     .withClass("my-4"),
-                renderTIMembersTable(tiGroup).withClass("pt-2"))
+                renderTIMembersTable(tiGroup, messages).withClass("pt-2"))
             .addMainStyles("px-20", "max-w-screen-xl");
 
     Http.Flash flash = request.flash();
@@ -201,11 +201,11 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                     Optional.of(pageNumber))));
   }
 
-  private DivTag renderTIMembersTable(TrustedIntermediaryGroupModel tiGroup) {
+  private DivTag renderTIMembersTable(TrustedIntermediaryGroupModel tiGroup, Messages messages) {
     return div(
         table()
             .withClasses("border", "border-gray-300", "shadow-md", "w-3/4")
-            .with(renderGroupTableHeader())
+            .with(renderGroupTableHeader(messages))
             .with(
                 tbody(
                     each(
@@ -309,7 +309,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         .withClasses("usa-card__body", "flex")
                         .with(
                             renderCardContactInfo(account, messages).withClasses("w-2/5"),
-                            renderCardApplications(account, messages).withClasses("ml-10 w-2/5"),
+                            renderCardApplications(account).withClasses("ml-10 w-2/5"),
                             renderCardNotes(account.getTiNote(), messages)
                                 .withClasses("ml-10 w-3/5"))));
   }
@@ -355,7 +355,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     }
   }
 
-  private DivTag renderCardApplications(AccountModel account, Messages messages) {
+  private DivTag renderCardApplications(AccountModel account) {
     Optional<ApplicantModel> newestApplicant = account.newestApplicant();
     if (newestApplicant.isEmpty()) {
       return div();
@@ -450,11 +450,12 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES);
   }
 
-  private TheadTag renderGroupTableHeader() {
+  private TheadTag renderGroupTableHeader(Messages messages) {
     return thead(
         tr().withClasses("border-b", "bg-gray-200", "text-left")
             .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/3"))
-            .with(th(MessageKey.TITLE_STATUS.getKeyName()))
-            .withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/4"));
+            .with(
+                th(messages.at(MessageKey.TITLE_STATUS.getKeyName()))
+                    .withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/4")));
   }
 }
