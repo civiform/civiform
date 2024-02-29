@@ -1,6 +1,6 @@
 import {expect} from '@playwright/test'
 import {Page} from 'playwright'
-import {readFileSync} from 'fs'
+import {readFileSync, writeFileSync, unlinkSync} from 'fs'
 import {waitForAnyModal, waitForPageJsLoad} from './wait'
 import {BASE_URL} from './config'
 
@@ -94,18 +94,12 @@ export class ApplicantQuestions {
     })
   }
 
-/*
   async answerFileUploadQuestionWithSize(mbSize: int) {
-      const file = {
-                           name: 'file-size-' + mbSize + '-mb.txt',
-                           mimeType: 'text/plain',
-                                 buffer: Buffer.from('fakeText'),
-                         }
-         Object.defineProperty(
-             file, 'size', {value: mbSize * 1024 * 1024, writable: false});
-      await this.page.setInputFiles('input[type=file]', file)
+    const filePath = 'file-size-' + mbSize + '-mb.txt'
+    writeFileSync(filePath, 'C'.repeat(mbSize * 1024 * 1024))
+    await this.page.setInputFiles('input[type=file]', filePath)
+    unlinkSync(filePath)
   }
-  */
 
   async answerIdQuestion(id: string, index = 0) {
     await this.page.fill(`input[type="text"] >> nth=${index}`, id)

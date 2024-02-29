@@ -24,15 +24,15 @@ export class ApplicantFileQuestion {
     expect(await error?.isHidden()).toEqual(true)
   }
 
-    async expectFileTooLargeErrorShown() {
-      const error = await this.page.$('.cf-fileupload-too-large-error')
-      expect(await error?.isHidden()).toEqual(false)
-    }
+  async expectFileTooLargeErrorShown() {
+    const error = await this.page.$('.cf-fileupload-too-large-error')
+    expect(await error?.isHidden()).toEqual(false)
+  }
 
-    async expectFileTooLargeErrorHidden() {
-      const error = await this.page.$('.cf-fileupload-too-large-error')
-      expect(await error?.isHidden()).toEqual(true)
-    }
+  async expectFileTooLargeErrorHidden() {
+    const error = await this.page.$('.cf-fileupload-too-large-error')
+    expect(await error?.isHidden()).toEqual(true)
+  }
 
   async expectFileNameDisplayed(fileName: string) {
     expect(await this.page.innerHTML('body')).toContain(fileName)

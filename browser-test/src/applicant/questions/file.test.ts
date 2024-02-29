@@ -150,28 +150,27 @@ test.describe('file upload applicant flow', () => {
       await applicantFileQuestion.expectFileSelectionErrorHidden()
     })
 
-/*
     test('too large file uploaded shows error', async () => {
- const {applicantQuestions, applicantFileQuestion} = ctx
+      const {page, applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
 
-  await applicantQuestions.answerFileUploadQuestionWithSize(101)
+      await applicantQuestions.answerFileUploadQuestionWithSize(101)
 
-  await applicantFileQuestion.expectFileTooLargeErrorShown()
+      await validateScreenshot(page, 'file-error-too-large')
+      await applicantFileQuestion.expectFileTooLargeErrorShown()
     })
 
     test('too large file error disappears when smaller file uploaded', async () => {
- const {applicantQuestions, applicantFileQuestion} = ctx
+      const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
 
-  await applicantQuestions.answerFileUploadQuestionWithSize(101)
-  await applicantFileQuestion.expectFileTooLargeErrorShown()
+      await applicantQuestions.answerFileUploadQuestionWithSize(101)
+      await applicantFileQuestion.expectFileTooLargeErrorShown()
 
-    await applicantQuestions.answerFileUploadQuestionWithSize(99) // TODO: 100
+      await applicantQuestions.answerFileUploadQuestionWithSize(100)
 
       await applicantFileQuestion.expectFileTooLargeErrorHidden()
     })
-    */
 
     test('has no accessibility violations', async () => {
       const {page, applicantQuestions} = ctx
@@ -688,7 +687,7 @@ test.describe('file upload applicant flow', () => {
           fileUploadQuestionText,
         )
         await applicantFileQuestion.expectFileSelectionErrorShown()
-        await validateScreenshot(page, 'file-errors')
+        await validateScreenshot(page, 'file-error-none-selected')
       })
 
       test('clicking save&next without file shows error on same page (flag on)', async () => {
