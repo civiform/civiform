@@ -181,7 +181,7 @@ public class ApplicantData extends CfJsonDocumentContext {
    *
    * @param displayName A string that contains the applicant's name, with first, middle, and last
    *     separated by spaces. May provide only first name or only first last.
-   * @param ovewrite Overwrite any existing data.
+   * @param overwrite Overwrite any existing data.
    */
   public void setUserName(String displayName, boolean overwrite) {
     String firstName;
@@ -231,8 +231,9 @@ public class ApplicantData extends CfJsonDocumentContext {
     Path firstPath = WellKnownPaths.APPLICANT_FIRST_NAME;
     Path middlePath = WellKnownPaths.APPLICANT_MIDDLE_NAME;
     Path lastPath = WellKnownPaths.APPLICANT_LAST_NAME;
-    if (!overwrite && applicant.getFirstName().isPresent()
-        || (hasPath(firstPath) && readString(firstPath).isPresent())) {
+    if (!overwrite
+        && (applicant.getFirstName().isPresent()
+            || (hasPath(firstPath) && readString(firstPath).isPresent()))) {
       return;
     }
     applicant.setFirstName(firstName);
