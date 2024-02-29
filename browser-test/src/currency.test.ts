@@ -58,14 +58,14 @@ test.describe('currency applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error'
       // When there are no validation errors, the div still exists but is hidden.
-      expect(await page.isHidden(currencyError)).toEqual(true)
+      await expect(page.locator(currencyError)).toBeHidden()
 
       // Input has not enough decimal points.
       await applicantQuestions.answerCurrencyQuestion(invalidCurrency)
       await applicantQuestions.clickNext()
 
       // The block should be displayed still with the error shown.
-      expect(await page.isHidden(currencyError)).toEqual(false)
+      await expect(page.locator(currencyError)).toBeVisible()
     })
   })
 
@@ -119,13 +119,13 @@ test.describe('currency applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error >> nth=0'
       // When there are no validation errors, the div still exists but is hidden.
-      expect(await page.isHidden(currencyError)).toEqual(true)
+      await expect(page.locator(currencyError)).toBeHidden()
 
       await applicantQuestions.answerCurrencyQuestion(invalidCurrency, 0)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickNext()
 
-      expect(await page.isHidden(currencyError)).toEqual(false)
+      await expect(page.locator(currencyError)).toBeVisible()
     })
 
     test('with second invalid does not submit', async () => {
@@ -133,13 +133,13 @@ test.describe('currency applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error >> nth=1'
       // When there are no validation errors, the div still exists but is hidden.
-      expect(await page.isHidden(currencyError)).toEqual(true)
+      await expect(page.locator(currencyError)).toBeHidden()
 
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 0)
       await applicantQuestions.answerCurrencyQuestion(invalidCurrency, 1)
       await applicantQuestions.clickNext()
 
-      expect(await page.isHidden(currencyError)).toEqual(false)
+      await expect(page.locator(currencyError)).toBeVisible()
     })
 
     test('has no accessibility violations', async () => {
