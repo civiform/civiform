@@ -47,12 +47,12 @@ import play.twirl.api.Content;
 import repository.ProgramRepository;
 import repository.SearchParameters;
 import services.DateConverter;
+import services.MessageKey;
 import services.PhoneValidationResult;
 import services.PhoneValidationUtils;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
 import services.ti.TrustedIntermediaryService;
-import services.MessageKey;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -102,12 +102,15 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 requiredFieldsExplanationContent(),
                 renderAddNewForm(tiGroup, request, messages),
                 hr().withClasses("mt-6"),
-                renderSubHeader(messages.at(MessageKey.TITLE_ALL_CLIENTS.getKeyName())).withClass("my-4"),
+                renderSubHeader(messages.at(MessageKey.TITLE_ALL_CLIENTS.getKeyName()))
+                    .withClass("my-4"),
                 h4("Search"),
                 renderSearchForm(request, searchParameters, messages),
-                renderTIClientsList(managedAccounts, searchParameters, page, totalPageCount, messages),
+                renderTIClientsList(
+                    managedAccounts, searchParameters, page, totalPageCount, messages),
                 hr().withClasses("mt-6"),
-                renderSubHeader(messages.at(MessageKey.TITLE_ORG_MEMBERS.getKeyName())).withClass("my-4"),
+                renderSubHeader(messages.at(MessageKey.TITLE_ORG_MEMBERS.getKeyName()))
+                    .withClass("my-4"),
                 renderTIMembersTable(tiGroup).withClass("pt-2"))
             .addMainStyles("px-20", "max-w-screen-xl");
 
@@ -123,7 +126,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
   }
 
-  private FormTag renderSearchForm(Http.Request request, SearchParameters searchParameters, Messages messages) {
+  private FormTag renderSearchForm(
+      Http.Request request, SearchParameters searchParameters, Messages messages) {
     boolean isValidSearch = TrustedIntermediaryService.validateSearch(searchParameters);
     return form()
         .withId("ti-search-form")
@@ -144,7 +148,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                             .withClass("usa-label")
                             .withId("name-search")
                             .withFor("name-query"),
-                        span(messages.at(MessageKey.NAME_EXAMPLE.getKeyName())).withClass("usa-hint")),
+                        span(messages.at(MessageKey.NAME_EXAMPLE.getKeyName()))
+                            .withClass("usa-hint")),
                     input()
                         .withClasses("usa-input", "mt-12")
                         .withId("name-query")
@@ -209,7 +214,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         this::renderTIRow))));
   }
 
-  private DivTag renderAddNewForm(TrustedIntermediaryGroupModel tiGroup, Http.Request request, Messages messages) {
+  private DivTag renderAddNewForm(
+      TrustedIntermediaryGroupModel tiGroup, Http.Request request, Messages messages) {
     FormTag formTag =
         form()
             .withMethod("POST")
@@ -225,7 +231,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("middle-name-input")
             .setFieldName("middleName")
-            .setLabelText(messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName()) + OPTIONAL_INDICATOR)
+            .setLabelText(
+                messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName()) + OPTIONAL_INDICATOR)
             .setValue(request.flash().get("providedMiddleName").orElse(""));
     FieldWithLabel lastNameField =
         FieldWithLabel.input()
@@ -291,7 +298,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                                     div(
                                             renderSubHeader(account.getApplicantName())
                                                 .withClass("usa-card__heading"),
-                                            u(renderEditClientLink(account.id, messages)).withClass("ml-2"))
+                                            u(renderEditClientLink(account.id, messages))
+                                                .withClass("ml-2"))
                                         .withClass("flex"),
                                     renderClientDateOfBirth(account))
                                 .withClass("flex-col"),
@@ -301,7 +309,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         .with(
                             renderCardContactInfo(account, messages).withClasses("w-2/5"),
                             renderCardApplications(account, messages).withClasses("ml-10 w-2/5"),
-                            renderCardNotes(account.getTiNote(), messages).withClasses("ml-10 w-3/5"))));
+                            renderCardNotes(account.getTiNote(), messages)
+                                .withClasses("ml-10 w-3/5"))));
   }
 
   private DivTag renderCardContactInfo(AccountModel account, Messages messages) {
@@ -314,7 +323,9 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     String email = account.getEmailAddress();
 
     return div(
-        label(messages.at(MessageKey.CONTACT_INFO_LABEL.getKeyName())).withFor("card_contact_info").withClass("whitespace-nowrap"),
+        label(messages.at(MessageKey.CONTACT_INFO_LABEL.getKeyName()))
+            .withFor("card_contact_info")
+            .withClass("whitespace-nowrap"),
         div()
             .condWith(
                 maybePhoneNumber.isPresent(),
@@ -364,7 +375,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         label(
                 String.format(
                     messages.at(MessageKey.CONTENT_NUMBER_OF_APP_SUBMITTED.getKeyName()),
-                    applicationCount, applicationCount == 1 ? "" : "s"))
+                    applicationCount,
+                    applicationCount == 1 ? "" : "s"))
             .withFor("card_applications")
             .withClass("whitespace-nowrap"),
         p(programs).withClass("text-xs").withId("card_applications"));
@@ -372,7 +384,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
 
   private DivTag renderCardNotes(String notes, Messages messages) {
     return div(
-        label(messages.at(MessageKey.NOTES_LABEL.getKeyName())).withFor("card_notes"), p(notes).withClass("text-xs").withId("card_notes"));
+        label(messages.at(MessageKey.NOTES_LABEL.getKeyName())).withFor("card_notes"),
+        p(notes).withClass("text-xs").withId("card_notes"));
   }
 
   private ATag renderEditClientLink(Long accountId, Messages messages) {
@@ -441,6 +454,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return thead(
         tr().withClasses("border-b", "bg-gray-200", "text-left")
             .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/3"))
-            .with(th(MessageKey.TITLE_STATUS.getKeyName())).withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/4")));
+            .with(th(MessageKey.TITLE_STATUS.getKeyName()))
+            .withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/4"));
   }
 }
