@@ -136,13 +136,13 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
             ReferenceClasses.FILEUPLOAD_REQUIRED_ERROR_ID,
             "mb-2"));
     result.with(
-        div("The file you've chosen is too large. Please choose a file under 100 MB.") // TODO:
-                                                                                       // Translations
-            .withId(fileInputId + "-too-large-error")
-            .withClasses(
-                ReferenceClasses.FILEUPLOAD_TOO_LARGE_ERROR,
-                BaseStyles.FORM_ERROR_TEXT_BASE,
-                "hidden"));
+        ViewUtils.makeAlertSlim(
+            "The file you've chosen is too large. Please choose a file under 100 MB.", // TODO
+            // file_upload.ts will un-hide this error if needed.
+            /* hidden= */ true,
+            /* classes...= */ BaseStyles.ALERT_ERROR,
+            ReferenceClasses.FILEUPLOAD_TOO_LARGE_ERROR,
+            "mb-2"));
     result.with(
         p(params.messages().at(MessageKey.MOBILE_FILE_UPLOAD_HELP.getKeyName()))
             .withClasses("text-sm", "text-gray-600", "mb-2"));

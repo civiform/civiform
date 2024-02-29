@@ -139,7 +139,7 @@ function validateFileUploadQuestion(blockForm: Element): boolean {
   const fileTooLarge = isFileTooLarge(fileInput)
   const fileTooLargeErrorDiv = blockForm.querySelector(
     '.cf-fileupload-too-large-error',
-  )
+  ) as HTMLElement
   if (fileTooLarge) {
     showError(fileTooLargeErrorDiv, fileInput)
   } else {
