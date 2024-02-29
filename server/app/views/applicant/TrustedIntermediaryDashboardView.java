@@ -375,9 +375,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return div(
         label(
                 String.format(
-                    messages.at(MessageKey.CONTENT_NUMBER_OF_APP_SUBMITTED.getKeyName()),
-                    applicationCount,
-                    applicationCount == 1 ? "" : "s"))
+                    "%s application%s submitted",
+                    applicationCount, applicationCount == 1 ? "" : "s"))
             .withFor("card_applications")
             .withClass("whitespace-nowrap"),
         p(programs).withClass("text-xs").withId("card_applications"));
