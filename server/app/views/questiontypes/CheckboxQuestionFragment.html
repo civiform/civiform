@@ -16,9 +16,13 @@
         <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${multiSelectQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${messages})}"></div>
 
         <!-- Hidden input that we have checked to allow clearing data from a multi-select question -->
-        <input type="checkbox" class="hidden" value="" th:name="${multiSelectQuestion.getSelectionPathAsArray()}" th:checked="${!multiSelectQuestion.hasValue()}"/>
+        <input type="checkbox" class="hidden" value=""
+            th:name="${multiSelectQuestion.getSelectionPathAsArray()}"
+            checked/>
         <!-- Render each checkbox option -->
-        <div class="usa-checkbox" th:each="option,iterator: ${multiSelectQuestion.getOptions()}" th:with="inputId='checkbox-' + ${question.getContextualizedPath()} + '-' + ${option.id()}">
+        <div class="usa-checkbox"
+            th:each="option,iterator: ${multiSelectQuestion.getOptions()}"
+            th:with="inputId='checkbox-' + ${question.getContextualizedPath()} + '-' + ${option.id()}">
           <!-- TODO(ghyde): Add autofocus attribute as appropriate -->
           <input
             class="usa-checkbox__input usa-checkbox__input--tile"
