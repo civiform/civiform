@@ -17,7 +17,7 @@
     "eslint": "8.56.0",
     "glob": "10.3.10",
     "eslint-plugin-playwright": "1.5.1",
-    "playwright": "1.41.2",
+    "playwright": "1.42.0",
     "sharp": "0.33.2",
     "ts-node": "10.9.2",
     "ts-node-dev": "2.0.0",
