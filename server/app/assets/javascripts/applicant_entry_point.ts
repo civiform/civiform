@@ -13,16 +13,6 @@ import * as azureDelete from './azure_delete'
 import * as azureUpload from './azure_upload'
 import * as phoneNumber from './phone'
 import * as apiDocs from './api_docs'
-import htmx from 'htmx.org'
-
-declare global {
-  interface Window {
-    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-    htmx: any
-  }
-}
-
-window.htmx = htmx
 
 window.addEventListener('load', () => {
   main.init()
