@@ -1,4 +1,9 @@
 #! /usr/bin/env python3
+
+# DOC: Quickly run Playwright trace viewer against an artifact on GitHub
+# DOC: With no arguments this defaults to the current active branch or
+# DOC: pass in the first argument to specify a branch name
+
 import json
 import os
 import requests
