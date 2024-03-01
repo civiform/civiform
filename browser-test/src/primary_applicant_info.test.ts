@@ -231,7 +231,7 @@ test.describe('primary applicant info questions', () => {
     )
   })
 
-  test.only('logging in does not overwrite name with OIDC-provided name', async () => {
+  test('logging in does not overwrite name with OIDC-provided name', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -255,19 +255,28 @@ test.describe('primary applicant info questions', () => {
     await applicantQuestions.answerNameQuestion('Geordi', 'LaForge')
     await applicantQuestions.clickNext()
     await applicantQuestions.submitFromReviewPage()
-    
+
     await logout(page)
     await loginAsProgramAdmin(page)
 
     await adminPrograms.viewApplications('test')
-    expect(await adminPrograms.selectApplicationCardForApplicant('LaForge')).not.toBeNull()
+    await expect(
+      page.locator(adminPrograms.selectApplicationCardForApplicant('LaForge')),
+    ).toBeVisible()
 
     await logout(page)
-    await loginAsTestUser(page, 'a:has-text("Log in")', false, 'LaForge, Geordi')
+    await loginAsTestUser(
+      page,
+      'a:has-text("Log in")',
+      false,
+      'LaForge, Geordi',
+    )
     await logout(page)
     await loginAsProgramAdmin(page)
 
     await adminPrograms.viewApplications('test')
-    expect(await adminPrograms.selectApplicationCardForApplicant('LaForge')).not.toBeNull()
+    await expect(
+      page.locator(adminPrograms.selectApplicationCardForApplicant('LaForge')),
+    ).toBeVisible()
   })
 })
