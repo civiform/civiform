@@ -11,13 +11,11 @@ import auth.oidc.SerializedIdTokens;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import durablejobs.jobs.FixApplicantDobDataPathJob;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import io.ebean.DB;
 import io.ebean.Database;
-<<<<<<< HEAD
-=======
 import io.ebean.Query;
->>>>>>> main
 import io.ebean.Transaction;
 import io.ebean.annotation.TxIsolation;
 import java.util.Comparator;
@@ -442,6 +440,21 @@ public final class AccountRepository {
             + "WHERE accounts.id IN (SELECT account_id FROM unused_accounts);";
 
     return database.sqlUpdate(sql).execute();
+  }
+
+  /**
+   * For use in {@link FixApplicantDobDataPathJob}. This will return applicants who have the
+   * incorrect path for applicant_date_of_birth where applicant_date_of_birth points directly to a
+   * number. eg. {applicant:{applicant_date_of_birth: 1038787200000}}
+   */
+  public Query<ApplicantModel> findApplicantsWithIncorrectDobPath() {
+    String sql =
+        "WITH temp_json_table AS (SELECT * , ((object#>>'{}')::jsonb)::json AS parsed_object FROM"
+            + " applicants) select temp_json_table.* FROM temp_json_table WHERE"
+            + " temp_json_table.parsed_object#>'{applicant,applicant_date_of_birth}' IS NOT NULL"
+            + " AND temp_json_table.parsed_object#>'{applicant,applicant_date_of_birth,date}' IS"
+            + " NULL";
+    return database.findNative(ApplicantModel.class, sql);
   }
 
   /**
