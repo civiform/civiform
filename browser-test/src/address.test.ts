@@ -54,13 +54,13 @@ test.describe('address applicant flow', () => {
         '54321',
       )
       let error = page.locator('.cf-address-street-1-error')
-      expect(await error.isHidden()).toEqual(true)
+      await expect(error).toBeHidden()
       error = page.locator('.cf-address-city-error')
-      expect(await error.isHidden()).toEqual(true)
+      await expect(error).toBeHidden()
       error = page.locator('.cf-address-state-error')
-      expect(await error.isHidden()).toEqual(true)
+      await expect(error).toBeHidden()
       error = page.locator('.cf-address-zip-error')
-      expect(await error.isHidden()).toEqual(true)
+      await expect(error).toBeHidden()
     })
 
     test('with valid address does submit', async () => {
@@ -85,13 +85,13 @@ test.describe('address applicant flow', () => {
       await applicantQuestions.clickNext()
 
       let error = page.locator('.cf-address-street-1-error')
-      expect(await error.isHidden()).toEqual(false)
+      await expect(error).toBeVisible()
       error = page.locator('.cf-address-city-error')
-      expect(await error.isHidden()).toEqual(false)
+      await expect(error).toBeVisible()
       error = page.locator('.cf-address-state-error')
-      expect(await error.isHidden()).toEqual(false)
+      await expect(error).toBeVisible()
       error = page.locator('.cf-address-zip-error')
-      expect(await error.isHidden()).toEqual(false)
+      await expect(error).toBeVisible()
     })
 
     test('with invalid address does not submit', async () => {
@@ -107,7 +107,7 @@ test.describe('address applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const error = page.locator('.cf-address-zip-error')
-      expect(await error.isHidden()).toEqual(false)
+      await expect(error).toBeVisible()
     })
   })
 
@@ -172,23 +172,23 @@ test.describe('address applicant flow', () => {
 
       // First question has errors.
       let error = page.locator('.cf-address-street-1-error >> nth=0')
-      expect(await error.isHidden()).toEqual(false)
+      await expect(error).toBeVisible()
       error = page.locator('.cf-address-city-error >> nth=0')
-      expect(await error.isHidden()).toEqual(false)
+      await expect(error).toBeVisible()
       error = page.locator('.cf-address-state-error >> nth=0')
-      expect(await error.isHidden()).toEqual(false)
+      await expect(error).toBeVisible()
       error = page.locator('.cf-address-zip-error >> nth=0')
-      expect(await error.isHidden()).toEqual(false)
+      await expect(error).toBeVisible()
 
       // Second question has no errors.
       error = page.locator('.cf-address-street-1-error >> nth=1')
-      expect(await error.isHidden()).toEqual(true)
+      await expect(error).toBeHidden()
       error = page.locator('.cf-address-city-error >> nth=1')
-      expect(await error.isHidden()).toEqual(true)
+      await expect(error).toBeHidden()
       error = page.locator('.cf-address-state-error >> nth=1')
-      expect(await error.isHidden()).toEqual(true)
+      await expect(error).toBeHidden()
       error = page.locator('.cf-address-zip-error >> nth=1')
-      expect(await error.isHidden()).toEqual(true)
+      await expect(error).toBeHidden()
     })
 
     test('with second invalid does not submit', async () => {
@@ -207,23 +207,23 @@ test.describe('address applicant flow', () => {
 
       // First question has no errors.
       let error = page.locator('.cf-address-street-1-error >> nth=0')
-      expect(await error.isHidden()).toEqual(true)
+      await expect(error).toBeHidden()
       error = page.locator('.cf-address-city-error >> nth=0')
-      expect(await error.isHidden()).toEqual(true)
+      await expect(error).toBeHidden()
       error = page.locator('.cf-address-state-error >> nth=0')
-      expect(await error.isHidden()).toEqual(true)
+      await expect(error).toBeHidden()
       error = page.locator('.cf-address-zip-error >> nth=0')
-      expect(await error.isHidden()).toEqual(true)
+      await expect(error).toBeHidden()
 
       // Second question has errors.
       error = page.locator('.cf-address-street-1-error >> nth=1')
-      expect(await error.isHidden()).toEqual(false)
+      await expect(error).toBeVisible()
       error = page.locator('.cf-address-city-error >> nth=1')
-      expect(await error.isHidden()).toEqual(false)
+      await expect(error).toBeVisible()
       error = page.locator('.cf-address-state-error >> nth=1')
-      expect(await error.isHidden()).toEqual(false)
+      await expect(error).toBeVisible()
       error = page.locator('.cf-address-zip-error >> nth=1')
-      expect(await error.isHidden()).toEqual(false)
+      await expect(error).toBeVisible()
     })
 
     test('has no accessibility violations', async () => {
@@ -299,11 +299,11 @@ test.describe('address applicant flow', () => {
 
       // First question has errors.
       let error = page.locator('.cf-address-city-error >> nth=0')
-      expect(await error.isHidden()).toEqual(false)
+      await expect(error).toBeVisible()
       error = page.locator('.cf-address-state-error >> nth=0')
-      expect(await error.isHidden()).toEqual(false)
+      await expect(error).toBeVisible()
       error = page.locator('.cf-address-zip-error >> nth=0')
-      expect(await error.isHidden()).toEqual(false)
+      await expect(error).toBeVisible()
     })
 
     test.describe('with invalid required address', () => {
@@ -318,26 +318,26 @@ test.describe('address applicant flow', () => {
         const {page} = ctx
         // Second question has errors.
         let error = page.locator('.cf-address-street-1-error >> nth=1')
-        expect(await error.isHidden()).toEqual(false)
+        await expect(error).toBeVisible()
         error = page.locator('.cf-address-city-error >> nth=1')
-        expect(await error.isHidden()).toEqual(false)
+        await expect(error).toBeVisible()
         error = page.locator('.cf-address-state-error >> nth=1')
-        expect(await error.isHidden()).toEqual(false)
+        await expect(error).toBeVisible()
         error = page.locator('.cf-address-zip-error >> nth=1')
-        expect(await error.isHidden()).toEqual(false)
+        await expect(error).toBeVisible()
       })
 
       test('optional has no errors', async () => {
         const {page} = ctx
         // First question has no errors.
         let error = page.locator('.cf-address-street-1-error >> nth=0')
-        expect(await error.isHidden()).toEqual(true)
+        await expect(error).toBeHidden()
         error = page.locator('.cf-address-city-error >> nth=0')
-        expect(await error.isHidden()).toEqual(true)
+        await expect(error).toBeHidden()
         error = page.locator('.cf-address-state-error >> nth=0')
-        expect(await error.isHidden()).toEqual(true)
+        await expect(error).toBeHidden()
         error = page.locator('.cf-address-zip-error >> nth=0')
-        expect(await error.isHidden()).toEqual(true)
+        await expect(error).toBeHidden()
       })
     })
   })

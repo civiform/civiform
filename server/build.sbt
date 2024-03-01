@@ -36,12 +36,12 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20180219.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.24.12",
-      "software.amazon.awssdk" % "ses" % "2.24.12",
+      "software.amazon.awssdk" % "s3" % "2.24.13",
+      "software.amazon.awssdk" % "ses" % "2.24.13",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.11.2",
-      "com.azure" % "azure-storage-blob" % "12.25.1",
+      "com.azure" % "azure-storage-blob" % "12.25.2",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.2",
@@ -85,7 +85,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value" % "1.10.4",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.24.1",
+      "com.google.errorprone" % "error_prone_core" % "2.25.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.10.0",
@@ -94,7 +94,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.30",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.31",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.6",
@@ -109,25 +109,40 @@ lazy val root = (project in file("."))
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
       "ch.qos.logback" % "logback-classic" % "1.4.8"
     ),
-    javacOptions ++= Seq(
-      "-encoding",
-      "UTF-8",
-      "-parameters",
-      "-Xlint:unchecked",
-      "-Xlint:deprecation",
-      "-XDcompilePolicy=simple",
-      // Turn off the AutoValueSubclassLeaked error since the generated
-      // code contains it - we can't control that.
-      "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
-      "-implicit:class",
-      "-Werror",
-      // The compile option below is a hack that preserves generated files. Normally,
-      // AutoValue generates .java files, compiles them into .class files, and then deletes
-      // the .java files. This option keeps the .java files in the specified directory,
-      // which allows an IDE to recognize the symbols.
-      "-s",
-      generateSourcePath(scalaVersion = scalaVersion.value)
-    ),
+    javacOptions ++= {
+      val defaultCompilerOptions = Seq(
+        "-encoding",
+        "UTF-8",
+        "-parameters",
+        "-Xlint:unchecked",
+        "-Xlint:deprecation",
+        "-XDcompilePolicy=simple",
+        "-implicit:class",
+        // The compile option below is a hack that preserves generated files. Normally,
+        // AutoValue generates .java files, compiles them into .class files, and then deletes
+        // the .java files. This option keeps the .java files in the specified directory,
+        // which allows an IDE to recognize the symbols.
+        "-s",
+        generateSourcePath(scalaVersion = scalaVersion.value)
+      )
+
+      // Disable errorprone checking if the DISABLE_ERRORPRONE environment variable
+      // is set to true
+      val errorProneCompilerOptions = Option(System.getenv("DISABLE_ERRORPRONE"))
+        .filter(_ != "true")
+        .map(_ =>
+          Seq(
+            // Turn off the AutoValueSubclassLeaked error since the generated
+            // code contains it - we can't control that.
+            "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
+            "-Werror"
+          )
+        )
+        .getOrElse(Seq.empty)
+
+      defaultCompilerOptions ++ errorProneCompilerOptions
+    },
+
     // Documented at https://github.com/sbt/zinc/blob/c18637c1b30f8ab7d1f702bb98301689ec75854b/internal/compiler-interface/src/main/contraband/incremental.contra
     // Recompile everything if >30% files have changed, to help avoid infinate
     // incremental compilation.

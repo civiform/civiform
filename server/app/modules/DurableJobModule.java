@@ -102,6 +102,13 @@ public final class DurableJobModule extends AbstractModule {
                 publicStorageClient, versionRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.ThirdOfMonth2Am());
 
+    durableJobRegistry.register(
+        DurableJobName.UNUSED_PROGRAM_IMAGES_CLEANUP,
+        persistedDurableJob ->
+            new UnusedProgramImagesCleanupJob(
+                publicStorageClient, versionRepository, persistedDurableJob),
+        new RecurringJobExecutionTimeResolvers.ThirdOfMonth2Am());
+
     return durableJobRegistry;
   }
 }

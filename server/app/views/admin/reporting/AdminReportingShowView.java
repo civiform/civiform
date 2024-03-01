@@ -66,8 +66,8 @@ public class AdminReportingShowView extends BaseHtmlView {
       String programAdminName,
       String programLocalizedName,
       ReportingService.MonthlyStats monthlyStats) {
-    var title = String.format("%s reporting", programLocalizedName);
 
+    var title = String.format("%s reporting", programLocalizedName);
     DivTag headerDiv =
         div()
             .withClasses("my-8")

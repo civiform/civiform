@@ -103,7 +103,7 @@ test.describe('Text question for applicant flow', () => {
       // submission.
       await page.focus('input[type=text]')
       await page.keyboard.press('Enter')
-      expect(await page.locator('input[type=text]').isVisible()).toEqual(true)
+      await expect(page.locator('input[type=text]')).toBeVisible()
 
       // Check that pressing Enter on button works.
       await page.focus('button:has-text("Save and next")')

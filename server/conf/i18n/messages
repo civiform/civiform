@@ -371,6 +371,8 @@ placeholder.entityName={0} name
 #---------------------------------------------------------------------------------#
 
 validation.fileRequired=Please select a file.
+# An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
+validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
 button.chooseFile=Choose File
 
 #---------------------------------------------------------------------#

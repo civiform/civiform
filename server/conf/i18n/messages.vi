@@ -266,6 +266,7 @@ content.commonIntakeConfirmationTi=Khách hàng của bạn có thể đăng ký
 content.commonIntakeNoMatchingPrograms=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký tham gia chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
 content.commonIntakeNoMatchingProgramsTi=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà khách hàng của bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký tham gia chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
 content.commonIntakeNoMatchingProgramsNextStep=Bạn cũng có thể quay lại trang trước để chỉnh sửa câu trả lời của mình.
+# A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Other programs you might be interested in
 button.downloadPdf=Tải bản PDF xuống
 button.applyToPrograms=Đăng ký chương trình
@@ -300,7 +301,8 @@ validation.noPoBox=Vui lòng nhập một địa chỉ hợp lệ. Chúng tôi k
 title.verifyAddress=Xác minh địa chỉ
 
 content.foundSimilarAddress=Chúng tôi không thể xác minh địa chỉ do bạn cung cấp nhưng đã tìm thấy địa chỉ tương tự.
-content.addressEntered=Địa chỉ đã nhập:
+# Heading for showing the user the address they provided earlier
+content.addressEntered=Address you entered:
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=Địa chỉ được đề xuất:
@@ -309,6 +311,24 @@ content.suggestedAddresses=Các địa chỉ được đề xuất:
 # Title on address correction dialog when no address is found.
 title.noValidAddress=Không tìm thấy địa chỉ hợp lệ
 content.noValidAddress=Chúng tôi không thể xác minh địa chỉ do bạn cung cấp. Vui lòng chỉnh sửa địa chỉ của bạn để tiếp tục.
+
+#-------------------------------------------------------------------------#
+# ADDRESS CORRECTION - text when viewing the address correction screen    #
+# Note: We're re-writing the text shown on the address correction screen. #
+# The strings below will be used in the re-write, and then the strings    #
+# above that are obsolete will be deleted.                                #
+#-------------------------------------------------------------------------#
+
+# Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
+title.confirmAddress=Confirm your address
+# Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
+content.confirmAddressLine1=We were not able to find your address.
+# Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
+content.foundSimilarAddressLine2=Please check your address for spelling or choose an option from the list provided.
+# Message asking the user to check if their address is correct and/or edit the address so that it's valid.
+content.noValidAddressLine2=Please check your address for spelling and edit to continue.
+# Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
+button.confirmAddress=Confirm address
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -403,6 +423,7 @@ validation.textTooShort=Phải có ít nhất {0} ký tự.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Không được để lựa chọn trống trong câu hỏi có nhiều lựa chọn.
+# An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
 adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
 
 #----------------------------------#

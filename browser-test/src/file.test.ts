@@ -533,35 +533,31 @@ test.describe('file upload applicant flow', () => {
         )
       })
 
-      // Enable after fixing https://github.com/civiform/civiform/issues/6737.
-      test.fixme(
-        'clicking review with file saves file and redirects to review page (flag on)',
-        async () => {
-          const {page, applicantQuestions} = ctx
-          await enableFeatureFlag(page, 'save_on_all_actions')
+      test('clicking review with file saves file and redirects to review page (flag on)', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'save_on_all_actions')
 
-          await applicantQuestions.clickApplyProgramButton(programName)
-          await applicantQuestions.answerQuestionFromReviewPage(
-            fileUploadQuestionText,
-          )
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.answerQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
 
-          await applicantQuestions.answerFileUploadQuestion(
-            'some sample text',
-            'sample.txt',
-          )
+        await applicantQuestions.answerFileUploadQuestion(
+          'some sample text',
+          'sample.txt',
+        )
 
-          await applicantQuestions.clickReview()
+        await applicantQuestions.clickReview()
 
-          // Verify we're taken to the review page
-          await applicantQuestions.expectReviewPage()
+        // Verify we're taken to the review page
+        await applicantQuestions.expectReviewPage()
 
-          // Verify the file *was* saved (because the flag is on)
-          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-            fileUploadQuestionText,
-            'sample.txt',
-          )
-        },
-      )
+        // Verify the file *was* saved (because the flag is on)
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          fileUploadQuestionText,
+          'sample.txt',
+        )
+      })
     })
 
     test.describe('previous button', () => {
@@ -628,40 +624,36 @@ test.describe('file upload applicant flow', () => {
         )
       })
 
-      // Enable after fixing https://github.com/civiform/civiform/issues/6737.
-      test.fixme(
-        'clicking previous with file saves file and redirects to previous page (flag on)',
-        async () => {
-          const {page, applicantQuestions} = ctx
-          await enableFeatureFlag(page, 'save_on_all_actions')
+      test('clicking previous with file saves file and redirects to previous page (flag on)', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'save_on_all_actions')
 
-          await applicantQuestions.clickApplyProgramButton(programName)
-          await applicantQuestions.answerQuestionFromReviewPage(
-            fileUploadQuestionText,
-          )
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.answerQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
 
-          await applicantQuestions.answerFileUploadQuestion(
-            'some sample text',
-            'sample.txt',
-          )
+        await applicantQuestions.answerFileUploadQuestion(
+          'some sample text',
+          'sample.txt',
+        )
 
-          await applicantQuestions.clickPrevious()
+        await applicantQuestions.clickPrevious()
 
-          // Verify we're taken to the previous page, which has the email question
-          expect(await page.innerText('.cf-applicant-question-text')).toContain(
-            emailQuestionText,
-          )
+        // Verify we're taken to the previous page, which has the email question
+        expect(await page.innerText('.cf-applicant-question-text')).toContain(
+          emailQuestionText,
+        )
 
-          // Verify the file *was* saved (because the flag is on)
-          await applicantQuestions.clickReview()
-          await applicantQuestions.expectReviewPage()
+        // Verify the file *was* saved (because the flag is on)
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
 
-          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-            fileUploadQuestionText,
-            'sample.txt',
-          )
-        },
-      )
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          fileUploadQuestionText,
+          'sample.txt',
+        )
+      })
     })
 
     test.describe('save & next button', () => {
@@ -849,57 +841,53 @@ test.describe('file upload applicant flow', () => {
         )
       })
 
-      // Enable after fixing https://github.com/civiform/civiform/issues/6737.
-      test.fixme(
-        'clicking continue without new file redirects to next page (flag on)',
-        async () => {
-          const {page, applicantQuestions, applicantFileQuestion} = ctx
-          await enableFeatureFlag(page, 'save_on_all_actions')
+      test('clicking continue without new file redirects to next page (flag on)', async () => {
+        const {page, applicantQuestions, applicantFileQuestion} = ctx
+        await enableFeatureFlag(page, 'save_on_all_actions')
 
-          // First, open the email block so that the email block is considered answered
-          // and we're not taken back to it when we click "Continue".
-          // (see test case 'clicking continue button redirects to first unseen block').
-          await applicantQuestions.applyProgram(programName)
-          await applicantQuestions.clickNext()
+        // First, open the email block so that the email block is considered answered
+        // and we're not taken back to it when we click "Continue".
+        // (see test case 'clicking continue button redirects to first unseen block').
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.clickNext()
 
-          // Answer the file upload question
-          await applicantQuestions.answerFileUploadQuestion(
-            'some old text',
-            'old.txt',
-          )
-          // Note: When the 'save_on_all_actions' flag is on, clicking "Save & next" here
-          // will take us to the third block. Clicking *any* button on that third block
-          // will save our data (because the flag is on), which guarantees that the third
-          // block will be marked as seen.
-          // Since this test is actually about verifying that clicking "Continue" will
-          // take us to the next unseen block, we want the third block to remain unseen.
-          // So, we instead click "Review" here to save the file and go to the review page
-          // without seeing the third block.
-          await applicantQuestions.clickReview()
+        // Answer the file upload question
+        await applicantQuestions.answerFileUploadQuestion(
+          'some old text',
+          'old.txt',
+        )
+        // Note: When the 'save_on_all_actions' flag is on, clicking "Save & next" here
+        // will take us to the third block. Clicking *any* button on that third block
+        // will save our data (because the flag is on), which guarantees that the third
+        // block will be marked as seen.
+        // Since this test is actually about verifying that clicking "Continue" will
+        // take us to the next unseen block, we want the third block to remain unseen.
+        // So, we instead click "Review" here to save the file and go to the review page
+        // without seeing the third block.
+        await applicantQuestions.clickReview()
 
-          // Re-open the file upload question
-          await applicantQuestions.expectReviewPage()
-          await applicantQuestions.editQuestionFromReviewPage(
-            fileUploadQuestionText,
-          )
+        // Re-open the file upload question
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.editQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
 
-          // Click "Continue"
-          await applicantFileQuestion.clickContinue()
+        // Click "Continue"
+        await applicantFileQuestion.clickContinue()
 
-          // Verify we're taken to the next page
-          expect(await page.innerText('.cf-applicant-question-text')).toContain(
-            numberQuestionText,
-          )
+        // Verify we're taken to the next page
+        expect(await page.innerText('.cf-applicant-question-text')).toContain(
+          numberQuestionText,
+        )
 
-          // Verify the old file is still present
-          await applicantQuestions.clickReview()
-          await applicantQuestions.expectReviewPage()
-          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-            fileUploadQuestionText,
-            'old.txt',
-          )
-        },
-      )
+        // Verify the old file is still present
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          fileUploadQuestionText,
+          'old.txt',
+        )
+      })
 
       test('clicking continue with new file does *not* save new file and redirects to next page (flag off)', async () => {
         const {page, applicantQuestions, applicantFileQuestion} = ctx
@@ -953,68 +941,64 @@ test.describe('file upload applicant flow', () => {
         expect(downloadedFileContent).toEqual('some old text')
       })
 
-      // Enable after fixing https://github.com/civiform/civiform/issues/6737.
-      test.fixme(
-        'clicking continue with new file does *not* save new file and redirects to next page (flag on)',
-        async () => {
-          const {page, applicantQuestions, applicantFileQuestion} = ctx
-          await enableFeatureFlag(page, 'save_on_all_actions')
+      test('clicking continue with new file does *not* save new file and redirects to next page (flag on)', async () => {
+        const {page, applicantQuestions, applicantFileQuestion} = ctx
+        await enableFeatureFlag(page, 'save_on_all_actions')
 
-          // First, open the email block so that the email block is considered answered
-          // and we're not taken back to it when we click "Continue".
-          // (see test case 'clicking continue button redirects to first unseen block').
-          await applicantQuestions.applyProgram(programName)
-          await applicantQuestions.clickNext()
+        // First, open the email block so that the email block is considered answered
+        // and we're not taken back to it when we click "Continue".
+        // (see test case 'clicking continue button redirects to first unseen block').
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.clickNext()
 
-          // Answer the file upload question
-          await applicantQuestions.answerFileUploadQuestion(
-            'some old text',
-            'old.txt',
-          )
-          // Note: When the 'save_on_all_actions' flag is on, clicking "Save & next" here
-          // will take us to the third block. Clicking *any* button on that third block
-          // will save our data (because the flag is on), which guarantees that the third
-          // block will be marked as seen.
-          // Since this test is actually about verifying that clicking "Continue" will
-          // take us to the next unseen block, we want the third block to remain unseen.
-          // So, we instead click "Review" here to save the file and go to the review page
-          // without seeing the third block.
-          await applicantQuestions.clickReview()
+        // Answer the file upload question
+        await applicantQuestions.answerFileUploadQuestion(
+          'some old text',
+          'old.txt',
+        )
+        // Note: When the 'save_on_all_actions' flag is on, clicking "Save & next" here
+        // will take us to the third block. Clicking *any* button on that third block
+        // will save our data (because the flag is on), which guarantees that the third
+        // block will be marked as seen.
+        // Since this test is actually about verifying that clicking "Continue" will
+        // take us to the next unseen block, we want the third block to remain unseen.
+        // So, we instead click "Review" here to save the file and go to the review page
+        // without seeing the third block.
+        await applicantQuestions.clickReview()
 
-          // Re-open the file upload question
-          await applicantQuestions.expectReviewPage()
-          await applicantQuestions.editQuestionFromReviewPage(
-            fileUploadQuestionText,
-          )
+        // Re-open the file upload question
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.editQuestionFromReviewPage(
+          fileUploadQuestionText,
+        )
 
-          // Upload a new file
-          await applicantQuestions.answerFileUploadQuestion(
-            'some new text',
-            'new.txt',
-          )
+        // Upload a new file
+        await applicantQuestions.answerFileUploadQuestion(
+          'some new text',
+          'new.txt',
+        )
 
-          // Click "Continue", which does *not* save any new file upload
-          // (we may want to change this behavior in the future, but we
-          // should still test the existing behavior)
-          await applicantFileQuestion.clickContinue()
+        // Click "Continue", which does *not* save any new file upload
+        // (we may want to change this behavior in the future, but we
+        // should still test the existing behavior)
+        await applicantFileQuestion.clickContinue()
 
-          // Verify we're taken to the next page
-          expect(await page.innerText('.cf-applicant-question-text')).toContain(
-            numberQuestionText,
-          )
+        // Verify we're taken to the next page
+        expect(await page.innerText('.cf-applicant-question-text')).toContain(
+          numberQuestionText,
+        )
 
-          // Verify the old file is still used
-          await applicantQuestions.clickReview()
-          await applicantQuestions.expectReviewPage()
-          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-            fileUploadQuestionText,
-            'old.txt',
-          )
-          const downloadedFileContent =
-            await applicantQuestions.downloadSingleQuestionFromReviewPage()
-          expect(downloadedFileContent).toEqual('some old text')
-        },
-      )
+        // Verify the old file is still used
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          fileUploadQuestionText,
+          'old.txt',
+        )
+        const downloadedFileContent =
+          await applicantQuestions.downloadSingleQuestionFromReviewPage()
+        expect(downloadedFileContent).toEqual('some old text')
+      })
     })
   })
 })
