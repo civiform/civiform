@@ -1,4 +1,5 @@
-import axe = require('axe-core')
+import {test, expect} from '@playwright/test'
+import {AxeBuilder} from '@axe-core/playwright'
 import {
   Browser,
   BrowserContext,
@@ -90,20 +91,26 @@ function makeBrowserContext(
     // will only be used when debugging failures.
     const dirs = ['tmp/videos']
     if ('expect' in global && expect.getState() != null) {
-      const testPath = expect.getState().testPath
+      const testPath = test.info().file
+
       if (testPath == null) {
         throw new Error('testPath cannot be null')
       }
+
       const testFile = testPath.substring(testPath.lastIndexOf('/') + 1)
       dirs.push(testFile)
+
       // Some test initialize context in beforeAll at which point test name is
       // not set.
-      const testName = expect.getState().currentTestName
+
+      const testName = test.info().title
+
       if (testName) {
         // remove special characters
         dirs.push(testName.replaceAll(/[:"<>|*?]/g, ''))
       }
     }
+
     contextOptions.recordVideo = {
       dir: path.join(...dirs),
     }
@@ -170,7 +177,7 @@ export interface TestContext {
  * describe('some test', () => {
  *   const ctx = createTestContext()
  *
- *   it('should do foo', async () => {
+ *   test('should do foo', async () => {
  *     await ctx.page.click('#some-button')
  *   })
  * })
@@ -194,7 +201,7 @@ export const createTestContext = (clearDb = true): TestContext => {
   // it only from before/afterX functions or tests.
   const ctx: TestContext = {} as unknown as TestContext
 
-  beforeAll(async () => {
+  test.beforeAll(async () => {
     ctx.browser = await chromium.launch()
     await resetContext(ctx)
     // clear DB at beginning of each test suite. While data can leak/share
@@ -204,11 +211,11 @@ export const createTestContext = (clearDb = true): TestContext => {
     await ctx.page.goto(BASE_URL)
   })
 
-  beforeEach(async () => {
+  test.beforeEach(async () => {
     await resetContext(ctx)
   })
 
-  afterEach(async () => {
+  test.afterEach(async () => {
     if (clearDb) {
       await dropTables(ctx.page)
     }
@@ -218,7 +225,7 @@ export const createTestContext = (clearDb = true): TestContext => {
     await resetContext(ctx)
   })
 
-  afterAll(async () => {
+  test.afterAll(async () => {
     await endSession(ctx.browser)
   })
 
@@ -495,13 +502,14 @@ export const closeWarningMessage = async (page: Page) => {
 }
 
 export const validateAccessibility = async (page: Page) => {
-  // Inject axe and run accessibility test.
-  await page.addScriptTag({path: 'node_modules/axe-core/axe.min.js'})
-  const results = await page.evaluate(() => {
-    return axe.run()
-  })
+  const results = await new AxeBuilder({page}).analyze()
+  const errorMessage = `Found ${results.violations.length} axe accessibility violations:\n ${JSON.stringify(
+    results.violations,
+    null,
+    2,
+  )}`
 
-  expect(results).toHaveNoA11yViolations()
+  expect(results.violations, errorMessage).toEqual([])
 }
 
 /**
@@ -571,23 +579,16 @@ const takeScreenshot = async (
   fullScreenshotFileName: string,
   fullPage?: boolean,
 ) => {
+  const testFileName = path
+    .basename(test.info().file)
+    .replace('.test.ts', '_test')
+
   expect(
     await element.screenshot({
-      fullPage,
+      fullPage: fullPage,
+      animations: 'disabled',
     }),
-  ).toMatchImageSnapshot({
-    allowSizeMismatch: true,
-    failureThreshold: 0,
-    failureThresholdType: 'percent',
-    customSnapshotsDir: 'image_snapshots',
-    customDiffDir: 'diff_output',
-    storeReceivedOnFailure: true,
-    customReceivedDir: 'updated_snapshots',
-    customSnapshotIdentifier: ({testPath}) => {
-      const dir = path.basename(testPath).replace('.test.ts', '_test')
-      return `${dir}/${fullScreenshotFileName}`
-    },
-  })
+  ).toMatchSnapshot([testFileName, fullScreenshotFileName + '.png'])
 }
 
 /*

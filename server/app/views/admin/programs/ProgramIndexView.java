@@ -511,6 +511,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return ProgramCardFactory.ProgramCardData.builder()
         .setActiveProgram(activeRow)
         .setDraftProgram(draftRow)
+        .setProfile(profile)
         .build();
   }
 

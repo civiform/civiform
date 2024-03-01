@@ -16,6 +16,11 @@ public abstract class Column {
   @JsonProperty("jsonPath")
   public abstract Optional<Path> jsonPath();
 
+  // Represent the admin name for an option in a multi-select multi-option question (e.g. Checkbox
+  // Questions)
+  @JsonProperty("optionAdminName")
+  public abstract Optional<String> optionAdminName();
+
   @JsonProperty("columnType")
   public abstract ColumnType columnType();
 
@@ -30,6 +35,9 @@ public abstract class Column {
 
     @JsonProperty("jsonPath")
     public abstract Builder setJsonPath(Path jsonPath);
+
+    @JsonProperty("optionAdminName")
+    public abstract Builder setOptionAdminName(String optionAdminName);
 
     @JsonProperty("columnType")
     public abstract Builder setColumnType(ColumnType columnType);

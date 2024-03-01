@@ -1,7 +1,9 @@
-import {startSession, dropTables, endSession, seedQuestions} from './support'
+import {startSession, dropTables, endSession, seedQuestions} from '../support'
 import * as fs from 'fs'
 
-module.exports = async () => {
+async function globalSetup() {
+  console.log('CUSTOM GLOBAL SETUP')
+
   const {browser, page} = await startSession()
   await dropTables(page)
   await seedQuestions(page)
@@ -15,3 +17,5 @@ module.exports = async () => {
     fs.rmSync('tmp/videos', {recursive: true})
   }
 }
+
+export default globalSetup

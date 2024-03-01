@@ -84,7 +84,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                                 .with(
                                     TextFormatter.formatTextWithAriaLabel(
                                         question.getQuestionText(), /* preserveEmptyLines */
-                                        false, /* addRequiredIndicator */
+                                        true, /* addRequiredIndicator */
                                         false,
                                         messages
                                             .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())

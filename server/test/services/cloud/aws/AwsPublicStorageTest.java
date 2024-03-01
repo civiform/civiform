@@ -210,6 +210,16 @@ public class AwsPublicStorageTest extends ResetPostgres {
   }
 
   @Test
+  public void getSignedUploadRequest_successActionRedirectTreatedAsExactMatch() {
+    AwsPublicStorage awsPublicStorage = instanceOf(AwsPublicStorage.class);
+
+    SignedS3UploadRequest uploadRequest =
+        awsPublicStorage.getSignedUploadRequest("test/fake/fakeFile.png", "redirect");
+
+    assertThat(uploadRequest.useSuccessActionRedirectAsPrefix()).isFalse();
+  }
+
+  @Test
   public void getPublicDisplayUrl_incorrectlyFormatted_throws() {
     AwsPublicStorage awsPublicStorage = instanceOf(AwsPublicStorage.class);
 

@@ -238,7 +238,7 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
     try {
       client.init();
     } catch (RuntimeException e) {
-      logger.error("Error while initilizing OIDC provider", e);
+      logger.error("Error while initializing OIDC provider", e);
       throw e;
     }
     var providerMetadata = client.getConfiguration().getProviderMetadata();

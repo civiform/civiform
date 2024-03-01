@@ -1,3 +1,4 @@
+import {test} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -5,10 +6,10 @@ import {
   AdminSettings,
 } from './support'
 
-describe('Managing system-wide settings', () => {
+test.describe('Managing system-wide settings', () => {
   const ctx = createTestContext()
 
-  it('Displays the settings page', async () => {
+  test('Displays the settings page', async () => {
     const {page} = ctx
     await loginAsAdmin(page)
 
@@ -26,7 +27,7 @@ describe('Managing system-wide settings', () => {
     )
   })
 
-  it('Displays the settings page in a narrow viewport', async () => {
+  test('Displays the settings page in a narrow viewport', async () => {
     const {page} = ctx
 
     // We know the header will start to wrap at smaller widths
@@ -42,7 +43,7 @@ describe('Managing system-wide settings', () => {
     await validateScreenshot(page, 'admin-settings-page-narrow')
   })
 
-  it('Updates settings on save', async () => {
+  test('Updates settings on save', async () => {
     const {page} = ctx
     await loginAsAdmin(page)
 

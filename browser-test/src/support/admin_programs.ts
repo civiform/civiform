@@ -1,3 +1,4 @@
+import {expect} from '@playwright/test'
 import {ElementHandle, Frame, Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {
@@ -519,7 +520,7 @@ export class AdminPrograms {
   async expectProgramBlockReadOnlyPage(programName = '') {
     expect(await this.page.innerText('id=program-title')).toContain(programName)
     // The only element for editing should be one top level button
-    expect(await this.page.innerText('#header_edit_button'))
+    await expect(this.page.locator('#header_edit_button')).toBeVisible()
     expect(await this.page.locator('id=block-edit-form').count()).toEqual(0)
   }
 

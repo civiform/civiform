@@ -10,8 +10,8 @@ import auth.Role;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import filters.SessionIdFilter;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.BiFunction;
 import javax.inject.Provider;
 import models.ApplicantModel;
@@ -40,6 +40,7 @@ import services.settings.SettingsManifest;
  */
 public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
+  public static final String SESSION_ID = "sessionId";
   private static final Logger LOGGER = LoggerFactory.getLogger(CiviformOidcProfileCreator.class);
   protected final ProfileFactory profileFactory;
   protected final Provider<AccountRepository> accountRepositoryProvider;
@@ -152,8 +153,10 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
     civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
 
-    Optional<String> sessionId = getSessionId(context);
-    if (sessionId.isPresent() && enhancedLogoutEnabled()) {
+    setSessionIdInProfile(civiformProfile, context);
+    String sessionId = getSessionId(civiformProfile, context);
+
+    if (enhancedLogoutEnabled()) {
       // Save the id_token from the returned OidcProfile in the account so that it can be
       // retrieved at logout time.
       civiformProfile
@@ -162,7 +165,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
               account -> {
                 accountRepositoryProvider
                     .get()
-                    .updateSerializedIdTokens(account, sessionId.get(), oidcProfile);
+                    .updateSerializedIdTokens(account, sessionId, oidcProfile);
               })
           .join();
     }
@@ -170,9 +173,42 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     return civiformProfile.getProfileData();
   }
 
-  private Optional<String> getSessionId(WebContext context) {
+  private void setSessionIdInProfile(CiviFormProfile profile, WebContext context) {
     PlayWebContext playWebContext = (PlayWebContext) context;
-    return playWebContext.getNativeSession().get(SessionIdFilter.SESSION_ID);
+    // The code below is for migration. We used to create the session id via
+    // a filter and store in the session alongside the profile. Now we will
+    // store it in the profile itself.
+    //
+    // If the session id exists in the session, then use that value in the
+    // profile. Otherwise, generate a new session ID to store in the profile.
+    //
+    // Once current profiles expire, this won't be a problem, and we will always
+    // generate a new session id here.
+    Optional<String> existingSessionIdFromCookie =
+        playWebContext.getNativeSession().get(SESSION_ID);
+    String sessionId = existingSessionIdFromCookie.orElse(UUID.randomUUID().toString());
+    profile.getProfileData().addAttribute(SESSION_ID, sessionId);
+  }
+
+  private String getSessionId(CiviFormProfile profile, WebContext context) {
+    String sessionIdFromProfile = profile.getProfileData().getAttribute(SESSION_ID, String.class);
+
+    // As described in setSessionIdInProfile(), these values should match if both
+    // are present. We log warnings if they do not match so that we can investigate.
+    // However, the value from the profile is authoritative.
+    PlayWebContext playWebContext = (PlayWebContext) context;
+    Optional<String> sessionIdFromContext = playWebContext.getNativeSession().get(SESSION_ID);
+    if (sessionIdFromContext.isPresent()) {
+      final boolean matchingSessionIds = sessionIdFromContext.get().equals(sessionIdFromProfile);
+      if (!matchingSessionIds) {
+        LOGGER.warn(
+            "Non-matching session IDs: id from context = {}, id from session = {}",
+            sessionIdFromContext.get(),
+            sessionIdFromProfile);
+      }
+    }
+
+    return sessionIdFromProfile;
   }
 
   @Override

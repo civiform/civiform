@@ -266,6 +266,7 @@ content.commonIntakeConfirmationTi=Posibleng makapag-enroll ang kliyente mo sa m
 content.commonIntakeNoMatchingPrograms=Hindi makahanap ang pre-screener ng mga programa kung saan puwede kang maging kwalipikado sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
 content.commonIntakeNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga programa kung saan puwedeng maging kwalipikado ang kliyente mo sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
 content.commonIntakeNoMatchingProgramsNextStep=Puwede ka ring bumalik sa nakaraang page para i-edit ang iyong mga sagot.
+# A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Other programs you might be interested in
 button.downloadPdf=I-download ang PDF
 button.applyToPrograms=Mag-apply sa mga programa
@@ -300,7 +301,8 @@ validation.noPoBox=Maaari lamang na ilagay ang wasto na adres. Kami ay hindi nat
 title.verifyAddress=I-verify ang address
 
 content.foundSimilarAddress=Hindi namin ma-verify ang ibinigay mong address, pero may nakita kaming katulad nito.
-content.addressEntered=Inilagay na address:
+# Heading for showing the user the address they provided earlier
+content.addressEntered=Address you entered:
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=Iminumungkahing address:
@@ -309,6 +311,24 @@ content.suggestedAddresses=Mga iminumungkahing address:
 # Title on address correction dialog when no address is found.
 title.noValidAddress=Walang nakitang valid na address
 content.noValidAddress=Hindi namin ma-verify ang ibinigay mong address. Paki-edit ang address mo para magpatuloy.
+
+#-------------------------------------------------------------------------#
+# ADDRESS CORRECTION - text when viewing the address correction screen    #
+# Note: We're re-writing the text shown on the address correction screen. #
+# The strings below will be used in the re-write, and then the strings    #
+# above that are obsolete will be deleted.                                #
+#-------------------------------------------------------------------------#
+
+# Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
+title.confirmAddress=Confirm your address
+# Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
+content.confirmAddressLine1=We were not able to find your address.
+# Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
+content.foundSimilarAddressLine2=Please check your address for spelling or choose an option from the list provided.
+# Message asking the user to check if their address is correct and/or edit the address so that it's valid.
+content.noValidAddressLine2=Please check your address for spelling and edit to continue.
+# Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
+button.confirmAddress=Confirm address
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -403,6 +423,7 @@ validation.textTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga charac
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Ang mga katanungan na maraming pagpipiliang opsyon ay hindi maaaring magkaroon ng mga blanko na mga opsyon.
+# An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
 adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
 
 #----------------------------------#

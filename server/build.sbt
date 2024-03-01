@@ -13,7 +13,7 @@ lazy val root = (project in file("."))
   .settings(
     name := """civiform-server""",
     version := "0.0.1",
-    scalaVersion := "2.13.11",
+    scalaVersion := "2.13.13",
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
       // Provides in-memory caching via the Play cache interface.
@@ -36,12 +36,12 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20180219.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.24.8",
-      "software.amazon.awssdk" % "ses" % "2.24.8",
+      "software.amazon.awssdk" % "s3" % "2.24.13",
+      "software.amazon.awssdk" % "ses" % "2.24.13",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.11.2",
-      "com.azure" % "azure-storage-blob" % "12.25.1",
+      "com.azure" % "azure-storage-blob" % "12.25.2",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.2",
@@ -85,7 +85,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value" % "1.10.4",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.24.1",
+      "com.google.errorprone" % "error_prone_core" % "2.25.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.10.0",
@@ -94,7 +94,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.30",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.31",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.6",

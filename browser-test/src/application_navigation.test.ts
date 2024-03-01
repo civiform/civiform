@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   AdminQuestions,
   ClientInformation,
@@ -17,16 +18,16 @@ import {
 } from './support'
 import {ProgramVisibility} from './support/admin_programs'
 
-describe('Applicant navigation flow', () => {
+test.describe('Applicant navigation flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('navigation with five blocks', () => {
+  test.describe('navigation with five blocks', () => {
     const programName = 'Test program for navigation flows'
     const dateQuestionText = 'date question text'
     const emailQuestionText = 'email question text'
     const addressQuestionText = 'address question text'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
       await enableFeatureFlag(
@@ -81,8 +82,8 @@ describe('Applicant navigation flow', () => {
       await adminPrograms.publishProgram(programName)
     })
 
-    describe('previous button', () => {
-      it('clicking previous on first block goes to summary page', async () => {
+    test.describe('previous button', () => {
+      test('clicking previous on first block goes to summary page', async () => {
         const {applicantQuestions} = ctx
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.clickPrevious()
@@ -91,7 +92,7 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.expectReviewPage()
       })
 
-      it('clicking previous on later blocks goes to previous blocks', async () => {
+      test('clicking previous on later blocks goes to previous blocks', async () => {
         const {applicantQuestions} = ctx
         await applicantQuestions.applyProgram(programName)
 
@@ -137,7 +138,7 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.expectReviewPage()
       })
 
-      it('clicking previous does not save when flag off', async () => {
+      test('clicking previous does not save when flag off', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await disableFeatureFlag(page, 'save_on_all_actions')
@@ -158,7 +159,7 @@ describe('Applicant navigation flow', () => {
         )
       })
 
-      it('clicking previous with correct form shows previous page and saves answers', async () => {
+      test('clicking previous with correct form shows previous page and saves answers', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
@@ -193,7 +194,7 @@ describe('Applicant navigation flow', () => {
         )
       })
 
-      it('clicking previous with missing answers shows modal', async () => {
+      test('clicking previous with missing answers shows modal', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
@@ -210,7 +211,7 @@ describe('Applicant navigation flow', () => {
         await validateScreenshot(page, 'error-on-previous-modal')
       })
 
-      it('error on previous modal > click go back and edit > shows block', async () => {
+      test('error on previous modal > click go back and edit > shows block', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
@@ -247,7 +248,7 @@ describe('Applicant navigation flow', () => {
         )
       })
 
-      it('error on previous modal > click previous without saving > answers not saved', async () => {
+      test('error on previous modal > click previous without saving > answers not saved', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
@@ -273,7 +274,7 @@ describe('Applicant navigation flow', () => {
         )
       })
 
-      it('error on previous modal > click previous without saving > shows previous block', async () => {
+      test('error on previous modal > click previous without saving > shows previous block', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
@@ -299,7 +300,7 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
       })
 
-      afterAll(async () => {
+      test.afterAll(async () => {
         const {page} = ctx
         await loginAsAdmin(page)
         await disableFeatureFlag(page, 'save_on_all_actions')
@@ -307,8 +308,8 @@ describe('Applicant navigation flow', () => {
       })
     })
 
-    describe('review button', () => {
-      it('clicking review does not save when flag off', async () => {
+    test.describe('review button', () => {
+      test('clicking review does not save when flag off', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await disableFeatureFlag(page, 'save_on_all_actions')
@@ -329,7 +330,7 @@ describe('Applicant navigation flow', () => {
         )
       })
 
-      it('clicking review with correct form shows review page with saved answers', async () => {
+      test('clicking review with correct form shows review page with saved answers', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
@@ -352,7 +353,7 @@ describe('Applicant navigation flow', () => {
         )
       })
 
-      it('clicking review with missing answers shows modal', async () => {
+      test('clicking review with missing answers shows modal', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
@@ -369,7 +370,7 @@ describe('Applicant navigation flow', () => {
         await validateScreenshot(page, 'error-on-review-modal')
       })
 
-      it('error on review modal > click go back and edit > shows block', async () => {
+      test('error on review modal > click go back and edit > shows block', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
@@ -404,7 +405,7 @@ describe('Applicant navigation flow', () => {
         )
       })
 
-      it('error on review modal > click review without saving > shows review page without saved answers', async () => {
+      test('error on review modal > click review without saving > shows review page without saved answers', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
@@ -429,7 +430,7 @@ describe('Applicant navigation flow', () => {
         )
       })
 
-      afterAll(async () => {
+      test.afterAll(async () => {
         const {page} = ctx
         await loginAsAdmin(page)
         await disableFeatureFlag(page, 'save_on_all_actions')
@@ -437,7 +438,7 @@ describe('Applicant navigation flow', () => {
       })
     })
 
-    it('verify program details page', async () => {
+    test('verify program details page', async () => {
       const {page} = ctx
       // Begin waiting for the popup before clicking the link, otherwise
       // the popup may fire before the wait is registered, causing the test to flake.
@@ -452,7 +453,7 @@ describe('Applicant navigation flow', () => {
       expect(popupURL).toMatch('https://www.usa.gov')
     })
 
-    it('verify program list page', async () => {
+    test('verify program list page', async () => {
       const {page, adminPrograms} = ctx
       await loginAsAdmin(page)
       // create second program that has an external link and markdown in the program description.
@@ -507,7 +508,7 @@ describe('Applicant navigation flow', () => {
       )
     })
 
-    it('verify program preview page', async () => {
+    test('verify program preview page', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.clickApplyProgramButton(programName)
 
@@ -522,7 +523,7 @@ describe('Applicant navigation flow', () => {
       )
     })
 
-    it('can answer third question directly', async () => {
+    test('can answer third question directly', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.clickApplyProgramButton(programName)
       await applicantQuestions.answerQuestionFromReviewPage(
@@ -565,7 +566,7 @@ describe('Applicant navigation flow', () => {
       )
     })
 
-    it('verify program review page', async () => {
+    test('verify program review page', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
@@ -598,7 +599,7 @@ describe('Applicant navigation flow', () => {
       )
     })
 
-    it('verify program submission page for guest', async () => {
+    test('verify program submission page for guest', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
@@ -647,7 +648,7 @@ describe('Applicant navigation flow', () => {
       )
     })
 
-    it('verify program submission page for logged in user', async () => {
+    test('verify program submission page for logged in user', async () => {
       const {page, applicantQuestions} = ctx
       await loginAsTestUser(page)
       await applicantQuestions.applyProgram(programName)
@@ -685,7 +686,7 @@ describe('Applicant navigation flow', () => {
       )
     })
 
-    it('verify program submission page for guest multiple programs', async () => {
+    test('verify program submission page for guest multiple programs', async () => {
       const {page, applicantQuestions, adminPrograms} = ctx
 
       // Login as an admin and add a bunch of programs
@@ -728,7 +729,7 @@ describe('Applicant navigation flow', () => {
       )
     })
 
-    it('shows error with incomplete submission', async () => {
+    test('shows error with incomplete submission', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.clickApplyProgramButton(programName)
 
@@ -758,7 +759,7 @@ describe('Applicant navigation flow', () => {
       )
     })
 
-    it('shows "no changes" page when a duplicate application is submitted', async () => {
+    test('shows "no changes" page when a duplicate application is submitted', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
@@ -816,22 +817,22 @@ describe('Applicant navigation flow', () => {
     })
   })
 
-  describe('navigation with common intake', () => {
+  test.describe('navigation with common intake', () => {
     // Create two programs, one is common intake
     const commonIntakeProgramName = 'Test Common Intake Form Program'
     const secondProgramName = 'Test Regular Program with Eligibility Conditions'
     const eligibilityQuestionId = 'nav-predicate-number-q'
     const secondProgramCorrectAnswer = '5'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page} = ctx
       await dropTables(page)
     })
 
     // TODO(#4509): Once we can create different test users, change this to
-    // beforeAll and use different users for each test, instead of wiping the
+    // test.beforeAll and use different users for each test, instead of wiping the
     // db after each test.
-    beforeEach(async () => {
+    test.beforeEach(async () => {
       const {page, adminQuestions, adminPredicates, adminPrograms} = ctx
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'intake_form_enabled')
@@ -879,19 +880,19 @@ describe('Applicant navigation flow', () => {
       )
 
       await adminPrograms.publishAllDrafts()
-      // TODO(#4509): Once this is a beforeAll(), it'll automatically go back
+      // TODO(#4509): Once this is a test.beforeAll(), it'll automatically go back
       // to the home page when it's done and we can remove this line.
       await logout(page)
     })
 
-    afterEach(async () => {
+    test.afterEach(async () => {
       // TODO(#4509): Once we can create different test users, we don't need to
       // wipe the db after each test
       const {page} = ctx
       await dropTables(page)
     })
 
-    it('does not show eligible programs or upsell on confirmation page when no programs are eligible and signed in', async () => {
+    test('does not show eligible programs or upsell on confirmation page when no programs are eligible and signed in', async () => {
       const {page, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'intake_form_enabled')
 
@@ -918,7 +919,7 @@ describe('Applicant navigation flow', () => {
       await validateAccessibility(page)
     })
 
-    it('shows eligible programs and no upsell on confirmation page when programs are eligible and signed in', async () => {
+    test('shows eligible programs and no upsell on confirmation page when programs are eligible and signed in', async () => {
       const {page, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'intake_form_enabled')
 
@@ -945,7 +946,7 @@ describe('Applicant navigation flow', () => {
       await validateAccessibility(page)
     })
 
-    it('does not show eligible programs and shows upsell on confirmation page when no programs are eligible and a guest user', async () => {
+    test('does not show eligible programs and shows upsell on confirmation page when no programs are eligible and a guest user', async () => {
       const {page, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'intake_form_enabled')
 
@@ -971,7 +972,7 @@ describe('Applicant navigation flow', () => {
       await validateAccessibility(page)
     })
 
-    it('shows eligible programs and upsell on confirmation page when programs are eligible and a guest user', async () => {
+    test('shows eligible programs and upsell on confirmation page when programs are eligible and a guest user', async () => {
       const {page, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'intake_form_enabled')
 
@@ -1005,7 +1006,7 @@ describe('Applicant navigation flow', () => {
       )
     })
 
-    it('shows intake form as submitted after completion', async () => {
+    test('shows intake form as submitted after completion', async () => {
       const {page, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'intake_form_enabled')
 
@@ -1032,7 +1033,7 @@ describe('Applicant navigation flow', () => {
       )
     })
 
-    it('does not show eligible programs and shows TI text on confirmation page when no programs are eligible and a TI', async () => {
+    test('does not show eligible programs and shows TI text on confirmation page when no programs are eligible and a TI', async () => {
       const {page, tiDashboard, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'intake_form_enabled')
 
@@ -1072,7 +1073,7 @@ describe('Applicant navigation flow', () => {
       )
     })
 
-    it('shows eligible programs and TI text on confirmation page when programs are eligible and a TI', async () => {
+    test('shows eligible programs and TI text on confirmation page when programs are eligible and a TI', async () => {
       const {page, tiDashboard, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'intake_form_enabled')
 
@@ -1112,12 +1113,12 @@ describe('Applicant navigation flow', () => {
     })
   })
 
-  describe('navigation with eligibility conditions', () => {
+  test.describe('navigation with eligibility conditions', () => {
     // Create a program with 2 questions and an eligibility condition.
     const fullProgramName = 'Test program for eligibility navigation flows'
     const eligibilityQuestionId = 'nav-predicate-number-q'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPredicates, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -1157,7 +1158,7 @@ describe('Applicant navigation flow', () => {
       await adminPrograms.publishProgram(fullProgramName)
     })
 
-    it('does not show Not Eligible when there is no answer', async () => {
+    test('does not show Not Eligible when there is no answer', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
@@ -1166,7 +1167,7 @@ describe('Applicant navigation flow', () => {
       )
     })
 
-    it('shows not eligible with ineligible answer', async () => {
+    test('shows not eligible with ineligible answer', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(fullProgramName)
 
@@ -1196,7 +1197,7 @@ describe('Applicant navigation flow', () => {
       await validateAccessibility(page)
     })
 
-    it('shows may be eligible with an eligible answer', async () => {
+    test('shows may be eligible with an eligible answer', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(fullProgramName)
 
@@ -1237,7 +1238,7 @@ describe('Applicant navigation flow', () => {
       )
     })
 
-    it('shows not eligible with ineligible answer from another application', async () => {
+    test('shows not eligible with ineligible answer from another application', async () => {
       const {page, adminPrograms, applicantQuestions} = ctx
       const overlappingOneQProgramName =
         'Test program with one overlapping question for eligibility navigation flows'
@@ -1286,7 +1287,7 @@ describe('Applicant navigation flow', () => {
       await validateAccessibility(page)
     })
 
-    it('shows not eligible upon submit with ineligible answer', async () => {
+    test('shows not eligible upon submit with ineligible answer', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(fullProgramName)
 
@@ -1316,7 +1317,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.expectIneligiblePage()
     })
 
-    it('shows not eligible upon submit with ineligible answer with gating eligibility', async () => {
+    test('shows not eligible upon submit with ineligible answer with gating eligibility', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(fullProgramName)
 
@@ -1346,7 +1347,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.expectIneligiblePage()
     })
 
-    it('ineligible page renders markdown', async () => {
+    test('ineligible page renders markdown', async () => {
       const {
         page,
         adminQuestions,
@@ -1362,6 +1363,9 @@ describe('Applicant navigation flow', () => {
       await adminQuestions.addTextQuestion({
         questionName: questionName,
         questionText:
+          'This is a _question_ with some [markdown](https://www.example.com) and \n line \n\n breaks',
+        // Newline characters break the comparison, so pass in just the first part of the question text
+        expectedQuestionText:
           'This is a _question_ with some [markdown](https://www.example.com)',
       })
       await adminPrograms.addProgram(programName)
@@ -1397,7 +1401,7 @@ describe('Applicant navigation flow', () => {
       )
     })
 
-    it('shows may be eligible with nongating eligibility', async () => {
+    test('shows may be eligible with nongating eligibility', async () => {
       const {page, adminPrograms, applicantQuestions} = ctx
 
       await loginAsAdmin(page)
@@ -1420,7 +1424,7 @@ describe('Applicant navigation flow', () => {
       )
     })
 
-    it('does not show not eligible with nongating eligibility', async () => {
+    test('does not show not eligible with nongating eligibility', async () => {
       const {page, adminPrograms, applicantQuestions} = ctx
 
       await loginAsAdmin(page)
@@ -1450,7 +1454,7 @@ describe('Applicant navigation flow', () => {
     })
   })
 
-  describe('navigation with address correction enabled', () => {
+  test.describe('navigation with address correction enabled', () => {
     const multiBlockMultiAddressProgram =
       'Address correction multi-block, multi-address program'
     const singleBlockMultiAddressProgram =
@@ -1464,7 +1468,7 @@ describe('Applicant navigation flow', () => {
 
     const addressWithCorrectionText = 'With Correction'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
@@ -1558,7 +1562,7 @@ describe('Applicant navigation flow', () => {
     })
 
     if (isLocalDevEnvironment()) {
-      it('can correct address multi-block, multi-address program', async () => {
+      test('can correct address multi-block, multi-address program', async () => {
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'esri_address_correction_enabled')
         await applicantQuestions.applyProgram(multiBlockMultiAddressProgram)
@@ -1593,7 +1597,7 @@ describe('Applicant navigation flow', () => {
         await logout(page)
       })
 
-      it('can correct address single-block, multi-address program', async () => {
+      test('can correct address single-block, multi-address program', async () => {
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'esri_address_correction_enabled')
         await applicantQuestions.applyProgram(singleBlockMultiAddressProgram)
@@ -1626,7 +1630,7 @@ describe('Applicant navigation flow', () => {
         await logout(page)
       })
 
-      it('can correct address single-block, single-address program', async () => {
+      test('can correct address single-block, single-address program', async () => {
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'esri_address_correction_enabled')
         await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
@@ -1661,7 +1665,7 @@ describe('Applicant navigation flow', () => {
         await logout(page)
       })
 
-      it('prompts user to edit if no suggestions are returned', async () => {
+      test('prompts user to edit if no suggestions are returned', async () => {
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'esri_address_correction_enabled')
         await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
@@ -1691,7 +1695,7 @@ describe('Applicant navigation flow', () => {
         await logout(page)
       })
 
-      it('prompts user to edit if an error is returned from the Esri service', async () => {
+      test('prompts user to edit if an error is returned from the Esri service', async () => {
         // This is currently the same as when no suggestions are returend.
         // We may change this later.
         const {page, applicantQuestions} = ctx
@@ -1723,7 +1727,7 @@ describe('Applicant navigation flow', () => {
         await logout(page)
       })
 
-      it('skips the address correction screen if the user enters an address that exactly matches one of the returned suggestions', async () => {
+      test('skips the address correction screen if the user enters an address that exactly matches one of the returned suggestions', async () => {
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'esri_address_correction_enabled')
         await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
@@ -1741,8 +1745,8 @@ describe('Applicant navigation flow', () => {
         await logout(page)
       })
 
-      describe('previous button', () => {
-        it('clicking previous on address correction page takes you back to address entry page (save flag off)', async () => {
+      test.describe('previous button', () => {
+        test('clicking previous on address correction page takes you back to address entry page (save flag off)', async () => {
           const {page, applicantQuestions} = ctx
           await enableFeatureFlag(page, 'esri_address_correction_enabled')
           await disableFeatureFlag(page, 'save_on_all_actions')
@@ -1766,7 +1770,7 @@ describe('Applicant navigation flow', () => {
           await logout(page)
         })
 
-        it('clicking previous on address correction page takes you back to address entry page (save flag on)', async () => {
+        test('clicking previous on address correction page takes you back to address entry page (save flag on)', async () => {
           const {page, applicantQuestions} = ctx
           await enableFeatureFlag(page, 'esri_address_correction_enabled')
           await enableFeatureFlag(page, 'save_on_all_actions')
@@ -1790,7 +1794,7 @@ describe('Applicant navigation flow', () => {
           await logout(page)
         })
 
-        it('clicking previous on address correction page saves original address when selected', async () => {
+        test('clicking previous on address correction page saves original address when selected', async () => {
           const {page, applicantQuestions} = ctx
           await enableFeatureFlag(page, 'esri_address_correction_enabled')
           await enableFeatureFlag(page, 'save_on_all_actions')
@@ -1821,7 +1825,7 @@ describe('Applicant navigation flow', () => {
           await logout(page)
         })
 
-        it('clicking previous on address correction page saves suggested address when selected', async () => {
+        test('clicking previous on address correction page saves suggested address when selected', async () => {
           const {page, applicantQuestions} = ctx
           await enableFeatureFlag(page, 'esri_address_correction_enabled')
           await enableFeatureFlag(page, 'save_on_all_actions')
@@ -1853,7 +1857,7 @@ describe('Applicant navigation flow', () => {
           await logout(page)
         })
 
-        it('clicking previous on address correction page saves original address when no suggestions offered', async () => {
+        test('clicking previous on address correction page saves original address when no suggestions offered', async () => {
           const {page, applicantQuestions} = ctx
           await enableFeatureFlag(page, 'esri_address_correction_enabled')
           await enableFeatureFlag(page, 'save_on_all_actions')
@@ -1880,7 +1884,7 @@ describe('Applicant navigation flow', () => {
           await logout(page)
         })
 
-        it('clicking previous on address correction page does not save selection when flag off', async () => {
+        test('clicking previous on address correction page does not save selection when flag off', async () => {
           const {page, applicantQuestions} = ctx
           await enableFeatureFlag(page, 'esri_address_correction_enabled')
           await disableFeatureFlag(page, 'save_on_all_actions')
@@ -1914,7 +1918,7 @@ describe('Applicant navigation flow', () => {
           await logout(page)
         })
 
-        it('clicking previous saves address and goes to previous block if the user enters an address that exactly matches suggestions', async () => {
+        test('clicking previous saves address and goes to previous block if the user enters an address that exactly matches suggestions', async () => {
           const {page, applicantQuestions} = ctx
           await enableFeatureFlag(page, 'esri_address_correction_enabled')
           await enableFeatureFlag(page, 'save_on_all_actions')
@@ -1944,8 +1948,8 @@ describe('Applicant navigation flow', () => {
         })
       })
 
-      describe('review button', () => {
-        it('clicking review on block with address navigates to address correction page (no suggestions)', async () => {
+      test.describe('review button', () => {
+        test('clicking review on block with address navigates to address correction page (no suggestions)', async () => {
           const {page, applicantQuestions} = ctx
           await enableFeatureFlag(page, 'esri_address_correction_enabled')
           await enableFeatureFlag(page, 'save_on_all_actions')
@@ -1964,7 +1968,7 @@ describe('Applicant navigation flow', () => {
           await applicantQuestions.expectVerifyAddressPage(false)
         })
 
-        it('clicking review on block with address navigates to address correction page (has suggestions)', async () => {
+        test('clicking review on block with address navigates to address correction page (has suggestions)', async () => {
           const {page, applicantQuestions} = ctx
           await enableFeatureFlag(page, 'esri_address_correction_enabled')
           await enableFeatureFlag(page, 'save_on_all_actions')
@@ -1983,7 +1987,7 @@ describe('Applicant navigation flow', () => {
           await applicantQuestions.expectVerifyAddressPage(true)
         })
 
-        it('clicking review on block with address skips address correction screen if the user enters exact match of suggestion', async () => {
+        test('clicking review on block with address skips address correction screen if the user enters exact match of suggestion', async () => {
           const {page, applicantQuestions} = ctx
           await enableFeatureFlag(page, 'esri_address_correction_enabled')
           await enableFeatureFlag(page, 'save_on_all_actions')
@@ -2011,7 +2015,7 @@ describe('Applicant navigation flow', () => {
           await logout(page)
         })
 
-        it('clicking review on address correction page saves original address when selected', async () => {
+        test('clicking review on address correction page saves original address when selected', async () => {
           const {page, applicantQuestions} = ctx
           await enableFeatureFlag(page, 'esri_address_correction_enabled')
           await enableFeatureFlag(page, 'save_on_all_actions')
@@ -2041,7 +2045,7 @@ describe('Applicant navigation flow', () => {
           await logout(page)
         })
 
-        it('clicking review on address correction page saves suggested address when selected', async () => {
+        test('clicking review on address correction page saves suggested address when selected', async () => {
           const {page, applicantQuestions} = ctx
           await enableFeatureFlag(page, 'esri_address_correction_enabled')
           await enableFeatureFlag(page, 'save_on_all_actions')
@@ -2073,7 +2077,7 @@ describe('Applicant navigation flow', () => {
           await logout(page)
         })
 
-        it('clicking review on address correction page saves original address when no suggestions offered', async () => {
+        test('clicking review on address correction page saves original address when no suggestions offered', async () => {
           const {page, applicantQuestions} = ctx
           await enableFeatureFlag(page, 'esri_address_correction_enabled')
           await enableFeatureFlag(page, 'save_on_all_actions')
@@ -2099,7 +2103,7 @@ describe('Applicant navigation flow', () => {
           await logout(page)
         })
 
-        it('clicking review on address correction page does not save selection when flag off', async () => {
+        test('clicking review on address correction page does not save selection when flag off', async () => {
           const {page, applicantQuestions} = ctx
           await enableFeatureFlag(page, 'esri_address_correction_enabled')
           await disableFeatureFlag(page, 'save_on_all_actions')
@@ -2134,7 +2138,7 @@ describe('Applicant navigation flow', () => {
       })
     }
 
-    it('address correction page does not show if feature is disabled', async () => {
+    test('address correction page does not show if feature is disabled', async () => {
       const {page, applicantQuestions} = ctx
       await disableFeatureFlag(page, 'esri_address_correction_enabled')
       await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
@@ -2158,7 +2162,7 @@ describe('Applicant navigation flow', () => {
   })
 
   if (isLocalDevEnvironment()) {
-    describe('using address as visibility condition', () => {
+    test.describe('using address as visibility condition', () => {
       const programName = 'Test program for address as visibility condition'
       const questionAddress = 'address-test-q'
       const questionText1 = 'text-test-q-one'
@@ -2167,7 +2171,7 @@ describe('Applicant navigation flow', () => {
       const screen2 = 'Screen 2'
       const screen3 = 'Screen 3'
 
-      beforeAll(async () => {
+      test.beforeAll(async () => {
         const {page, adminQuestions, adminPrograms, adminPredicates} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'esri_address_correction_enabled')
@@ -2260,7 +2264,7 @@ describe('Applicant navigation flow', () => {
         await logout(page)
       })
 
-      it('when address is eligible show hidden screen', async () => {
+      test('when address is eligible show hidden screen', async () => {
         const {page, applicantQuestions} = ctx
         await applicantQuestions.applyProgram(programName)
 
@@ -2291,7 +2295,7 @@ describe('Applicant navigation flow', () => {
         await logout(page)
       })
 
-      it('when address is not eligible do not show hidden screen', async () => {
+      test('when address is not eligible do not show hidden screen', async () => {
         const {page, applicantQuestions} = ctx
         await applicantQuestions.applyProgram(programName)
 

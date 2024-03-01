@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -6,13 +7,13 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('phone question for applicant flow', () => {
+test.describe('phone question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('single phone question', () => {
+  test.describe('single phone question', () => {
     const programName = 'Test program for single phone q'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       // As admin, create program with a free form text question.
       await loginAsAdmin(page)
@@ -28,14 +29,14 @@ describe('phone question for applicant flow', () => {
       await logout(page)
     })
 
-    it('validate screenshot', async () => {
+    test('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'phone')
     })
 
-    it('validate screenshot with errors', async () => {
+    test('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
@@ -43,7 +44,7 @@ describe('phone question for applicant flow', () => {
       await validateScreenshot(page, 'phone-errors')
     })
 
-    it('with phone submits successfully', async () => {
+    test('with phone submits successfully', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('4256373270')
@@ -53,7 +54,7 @@ describe('phone question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with canada phone submits successfully', async () => {
+    test('with canada phone submits successfully', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('2507274212')
@@ -64,7 +65,7 @@ describe('phone question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with empty phone does not submit', async () => {
+    test('with empty phone does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
@@ -75,7 +76,7 @@ describe('phone question for applicant flow', () => {
       expect(await page.innerText(textId)).toContain('Phone number is required')
     })
 
-    it('invalid phone numbers', async () => {
+    test('invalid phone numbers', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('1234567890')
@@ -88,7 +89,7 @@ describe('phone question for applicant flow', () => {
       )
     })
 
-    it('555 fake phone numbers', async () => {
+    test('555 fake phone numbers', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('5553231234')
@@ -100,7 +101,7 @@ describe('phone question for applicant flow', () => {
       )
     })
 
-    it('invalid length of phone number when only valid characters are included', async () => {
+    test('invalid length of phone number when only valid characters are included', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('123###1212')
@@ -112,7 +113,7 @@ describe('phone question for applicant flow', () => {
       )
     })
 
-    it('invalid characters in phone numbers', async () => {
+    test('invalid characters in phone numbers', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('123###1212121')
@@ -124,7 +125,7 @@ describe('phone question for applicant flow', () => {
       )
     })
 
-    it('incorrect length of phone number', async () => {
+    test('incorrect length of phone number', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('615974')
@@ -136,7 +137,7 @@ describe('phone question for applicant flow', () => {
       )
     })
 
-    it('hitting enter on phone does not trigger submission', async () => {
+    test('hitting enter on phone does not trigger submission', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('2507274212.')
@@ -145,7 +146,7 @@ describe('phone question for applicant flow', () => {
       // submission.
       await page.focus('input[type=text]')
       await page.keyboard.press('Enter')
-      expect(await page.locator('input[type=text]').isVisible()).toEqual(true)
+      await expect(page.locator('input[type=text]')).toBeVisible()
 
       // Check that pressing Enter on button works.
       await page.focus('button:has-text("Save and next")')
@@ -160,7 +161,7 @@ describe('phone question for applicant flow', () => {
       await applicantQuestions.expectReviewPage()
     })
 
-    it('has no accessiblity violations', async () => {
+    test('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
@@ -168,10 +169,10 @@ describe('phone question for applicant flow', () => {
     })
   })
 
-  describe('multiple phone questions', () => {
+  test.describe('multiple phone questions', () => {
     const programName = 'Test program for multiple phone qs'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -194,7 +195,7 @@ describe('phone question for applicant flow', () => {
       await logout(page)
     })
 
-    it('with both selections submits successfully', async () => {
+    test('with both selections submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('2507274212', 0)
@@ -204,7 +205,7 @@ describe('phone question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with unanswered optional question submits successfully', async () => {
+    test('with unanswered optional question submits successfully', async () => {
       const {applicantQuestions} = ctx
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
@@ -214,7 +215,7 @@ describe('phone question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with first invalid does not submit', async () => {
+    test('with first invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('1234567320', 0)
@@ -229,7 +230,7 @@ describe('phone question for applicant flow', () => {
       )
     })
 
-    it('with second invalid does not submit', async () => {
+    test('with second invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('4256373270', 0)
