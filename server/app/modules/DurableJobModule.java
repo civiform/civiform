@@ -12,6 +12,7 @@ import durablejobs.DurableJobRegistry;
 import durablejobs.DurableJobRunner;
 import durablejobs.RecurringJobExecutionTimeResolvers;
 import durablejobs.RecurringJobScheduler;
+import durablejobs.jobs.FixApplicantDobDataPathJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
@@ -21,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.Random;
 import repository.AccountRepository;
 import repository.PersistedDurableJobRepository;
+import repository.ReportingRepository;
 import repository.ReportingRepositoryFactory;
 import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
@@ -71,8 +73,9 @@ public final class DurableJobModule extends AbstractModule {
       AccountRepository accountRepository,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
       PersistedDurableJobRepository persistedDurableJobRepository,
-      ReportingRepositoryFactory reportingRepositoryFactory,
       PublicStorageClient publicStorageClient,
+      ReportingRepository reportingRepository,
+      ReportingRepositoryFactory reportingRepositoryFactory,
       VersionRepository versionRepository) {
     var durableJobRegistry = new DurableJobRegistry();
 
@@ -96,11 +99,10 @@ public final class DurableJobModule extends AbstractModule {
         new RecurringJobExecutionTimeResolvers.SecondOfMonth2Am());
 
     durableJobRegistry.register(
-        DurableJobName.UNUSED_PROGRAM_IMAGES_CLEANUP,
+        DurableJobName.FIX_APPLICANT_DOB_DATA_PATH,
         persistedDurableJob ->
-            new UnusedProgramImagesCleanupJob(
-                publicStorageClient, versionRepository, persistedDurableJob),
-        new RecurringJobExecutionTimeResolvers.ThirdOfMonth2Am());
+            new FixApplicantDobDataPathJob(accountRepository, persistedDurableJob),
+        new RecurringJobExecutionTimeResolvers.Nightly2Am());
 
     durableJobRegistry.register(
         DurableJobName.UNUSED_PROGRAM_IMAGES_CLEANUP,

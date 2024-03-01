@@ -42,12 +42,13 @@ public class ReportingServiceTest extends ResetPostgres {
     applicant = resourceCreator.insertApplicantWithAccount();
     programA = ProgramBuilder.newActiveProgram().withName("Fake Program A").build();
     programB = ProgramBuilder.newActiveProgram().withName("Fake Program B").build();
-    reportingRepositoryFactory = new ReportingRepositoryFactory(testClock, versionRepository,programRepository);
+    reportingRepositoryFactory =
+        new ReportingRepositoryFactory(testClock, versionRepository, programRepository);
     service =
-      new ReportingService(
-        instanceOf(DateConverter.class),
-        reportingRepositoryFactory,
-        instanceOf(SyncCacheApi.class));
+        new ReportingService(
+            instanceOf(DateConverter.class),
+            reportingRepositoryFactory,
+            instanceOf(SyncCacheApi.class));
   }
 
   @Test
@@ -55,63 +56,63 @@ public class ReportingServiceTest extends ResetPostgres {
     insertFakeApplicationsAndRefreshDatabaseView();
 
     var parser =
-      CSVParser.parse(
-        service.applicationCountsByMonthCsv(), CSVFormat.DEFAULT.builder().setHeader().build());
+        CSVParser.parse(
+            service.applicationCountsByMonthCsv(), CSVFormat.DEFAULT.builder().setHeader().build());
 
     assertThat(parser.getHeaderNames())
-      .containsExactly(
-        "Month",
-        "Submissions",
-        "Time to complete (p25)",
-        "Median time to complete",
-        "Time to complete (p75)",
-        "Time to complete (p99)");
+        .containsExactly(
+            "Month",
+            "Submissions",
+            "Time to complete (p25)",
+            "Median time to complete",
+            "Time to complete (p75)",
+            "Time to complete (p99)");
 
     List<CSVRecord> records = parser.getRecords();
     assertThat(records.get(0).toList())
-      .containsExactly("12/2020", "4", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
+        .containsExactly("12/2020", "4", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
     assertThat(records.get(1).toList())
-      .containsExactly("11/2020", "4", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
+        .containsExactly("11/2020", "4", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
     assertThat(records.size()).isEqualTo(2);
 
     parser =
-      CSVParser.parse(
-        service.applicationCountsByProgramCsv(),
-        CSVFormat.DEFAULT.builder().setHeader().build());
+        CSVParser.parse(
+            service.applicationCountsByProgramCsv(),
+            CSVFormat.DEFAULT.builder().setHeader().build());
     assertThat(parser.getHeaderNames())
-      .containsExactly(
-        "Program",
-        "Submissions",
-        "Time to complete (p25)",
-        "Median time to complete",
-        "Time to complete (p75)",
-        "Time to complete (p99)");
+        .containsExactly(
+            "Program",
+            "Submissions",
+            "Time to complete (p25)",
+            "Median time to complete",
+            "Time to complete (p75)",
+            "Time to complete (p99)");
 
     records = parser.getRecords();
     assertThat(records.get(0).toList())
-      .containsExactly("Fake Program B", "4", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
+        .containsExactly("Fake Program B", "4", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
     assertThat(records.get(1).toList())
-      .containsExactly("Fake Program A", "4", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
+        .containsExactly("Fake Program A", "4", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
     assertThat(records.size()).isEqualTo(2);
 
     parser =
-      CSVParser.parse(
-        service.applicationsToProgramByMonthCsv("Fake Program B"),
-        CSVFormat.DEFAULT.builder().setHeader().build());
+        CSVParser.parse(
+            service.applicationsToProgramByMonthCsv("Fake Program B"),
+            CSVFormat.DEFAULT.builder().setHeader().build());
     assertThat(parser.getHeaderNames())
-      .containsExactly(
-        "Month",
-        "Submissions",
-        "Time to complete (p25)",
-        "Median time to complete",
-        "Time to complete (p75)",
-        "Time to complete (p99)");
+        .containsExactly(
+            "Month",
+            "Submissions",
+            "Time to complete (p25)",
+            "Median time to complete",
+            "Time to complete (p75)",
+            "Time to complete (p99)");
 
     records = parser.getRecords();
     assertThat(records.get(0).toList())
-      .containsExactly("12/2020", "2", "00:00:25", "00:00:50", "00:01:15", "00:01:39");
+        .containsExactly("12/2020", "2", "00:00:25", "00:00:50", "00:01:15", "00:01:39");
     assertThat(records.get(1).toList())
-      .containsExactly("11/2020", "2", "00:10:25", "00:12:30", "00:14:35", "00:16:35");
+        .containsExactly("11/2020", "2", "00:10:25", "00:12:30", "00:14:35", "00:16:35");
     assertThat(records.size()).isEqualTo(2);
   }
 
@@ -120,32 +121,32 @@ public class ReportingServiceTest extends ResetPostgres {
     Instant today = testClock.instant();
 
     ImmutableList.of(
-        Pair.of(lastMonth, lastMonth.plusSeconds(100)),
-        Pair.of(today, today.plusSeconds(1000)),
-        Pair.of(today, today.plusSeconds(500)),
-        Pair.of(lastMonth, lastMonth.plusSeconds(1)))
-      .stream()
-      .forEach(
-        applicationSpec ->
-          createFakeApplication(
-            programA, applicationSpec.getLeft(), applicationSpec.getRight()));
+            Pair.of(lastMonth, lastMonth.plusSeconds(100)),
+            Pair.of(today, today.plusSeconds(1000)),
+            Pair.of(today, today.plusSeconds(500)),
+            Pair.of(lastMonth, lastMonth.plusSeconds(1)))
+        .stream()
+        .forEach(
+            applicationSpec ->
+                createFakeApplication(
+                    programA, applicationSpec.getLeft(), applicationSpec.getRight()));
 
     ImmutableList.of(
-        Pair.of(today, today.plusSeconds(100)),
-        Pair.of(lastMonth, lastMonth.plusSeconds(1000)),
-        Pair.of(lastMonth, lastMonth.plusSeconds(500)),
-        Pair.of(today, today.plusSeconds(1)))
-      .stream()
-      .forEach(
-        applicationSpec ->
-          createFakeApplication(
-            programB, applicationSpec.getLeft(), applicationSpec.getRight()));
+            Pair.of(today, today.plusSeconds(100)),
+            Pair.of(lastMonth, lastMonth.plusSeconds(1000)),
+            Pair.of(lastMonth, lastMonth.plusSeconds(500)),
+            Pair.of(today, today.plusSeconds(1)))
+        .stream()
+        .forEach(
+            applicationSpec ->
+                createFakeApplication(
+                    programB, applicationSpec.getLeft(), applicationSpec.getRight()));
 
     reportingRepositoryFactory.create().refreshMonthlyReportingView();
   }
 
   private ApplicationModel createFakeApplication(
-    ProgramModel program, Instant createTime, Instant submitTime) {
+      ProgramModel program, Instant createTime, Instant submitTime) {
     ApplicationModel application = new ApplicationModel(applicant, program, LifecycleStage.ACTIVE);
     application.setApplicantData(applicant.getApplicantData());
     application.save();
