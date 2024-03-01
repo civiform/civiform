@@ -150,6 +150,7 @@ public enum MessageKey {
   ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME("validation.duplicateEntityName"),
   ENUMERATOR_VALIDATION_ENTITY_REQUIRED("validation.entityNameRequired"),
   FILEUPLOAD_VALIDATION_FILE_REQUIRED("validation.fileRequired"),
+  FILEUPLOAD_VALIDATION_FILE_TOO_LARGE("validation.fileTooLarge"),
   FOOTER_SUPPORT_LINK_DESCRIPTION("footer.supportLinkDescription"),
   GENERAL_LOGIN_MODAL_PROMPT("content.generalLoginModalPrompt"),
   GUEST("guest"),
