@@ -18,6 +18,7 @@ import forms.QuestionFormBuilder;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import java.util.Optional;
@@ -28,6 +29,8 @@ import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.export.CsvExporterService;
+import services.question.PrimaryApplicantInfoTag;
+import services.question.QuestionService;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
@@ -35,12 +38,12 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.BaseHtmlView;
-import views.FileUploadViewStrategy;
 import views.HtmlBundle;
 import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.applicant.ApplicantFileUploadRenderer;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
@@ -56,7 +59,8 @@ import views.style.StyleUtils;
 public final class QuestionEditView extends BaseHtmlView {
   private final AdminLayout layout;
   private final Messages messages;
-  private final FileUploadViewStrategy fileUploadViewStrategy;
+  private final ApplicantFileUploadRenderer applicantFileUploadRenderer;
+  private final QuestionService questionService;
   private final SettingsManifest settingsManifest;
 
   private static final String NO_ENUMERATOR_DISPLAY_STRING = "does not repeat";
@@ -68,12 +72,14 @@ public final class QuestionEditView extends BaseHtmlView {
   public QuestionEditView(
       AdminLayoutFactory layoutFactory,
       MessagesApi messagesApi,
-      FileUploadViewStrategy fileUploadViewStrategy,
+      ApplicantFileUploadRenderer applicantFileUploadRenderer,
+      QuestionService questionService,
       SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
-    this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
+    this.applicantFileUploadRenderer = checkNotNull(applicantFileUploadRenderer);
+    this.questionService = checkNotNull(questionService);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
@@ -209,7 +215,7 @@ public final class QuestionEditView extends BaseHtmlView {
   private Content renderWithPreview(
       Request request, DivTag formContent, QuestionType type, String title, Optional<Modal> modal) {
     DivTag previewContent =
-        QuestionPreview.renderQuestionPreview(type, messages, fileUploadViewStrategy);
+        QuestionPreview.renderQuestionPreview(type, messages, applicantFileUploadRenderer);
 
     HtmlBundle htmlBundle =
         layout.getBundle(request).setTitle(title).addMainContent(formContent, previewContent);
@@ -264,10 +270,11 @@ public final class QuestionEditView extends BaseHtmlView {
                     ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
                     ReferenceClasses.MULTI_OPTION_QUESTION_OPTION_EDITABLE,
                     "hidden",
-                    "flex",
-                    "flex-row",
-                    "mb-4",
-                    "items-center"));
+                    "grid",
+                    "grid-cols-8",
+                    "grid-rows-4",
+                    "items-center",
+                    "mb-4"));
   }
 
   private FormTag buildNewQuestionForm(
@@ -431,6 +438,11 @@ public final class QuestionEditView extends BaseHtmlView {
     if (settingsManifest.getUniversalQuestions(request)) {
       questionSettingsContentBuilder.add(buildUniversalQuestion(questionForm));
     }
+    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)
+        && questionForm.getEnumeratorId().isEmpty()
+        && PrimaryApplicantInfoTag.getAllPaiEnabledQuestionTypes().contains(questionType)) {
+      questionSettingsContentBuilder.add(buildPrimaryApplicantInfoSection(questionForm));
+    }
     if (!CsvExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
       questionSettingsContentBuilder.add(buildDemographicFields(questionForm, submittable));
     }
@@ -457,8 +469,88 @@ public final class QuestionEditView extends BaseHtmlView {
             ViewUtils.makeToggleButton(
                 /* fieldName= */ "isUniversal",
                 /* enabled= */ questionForm.isUniversal(),
+                /* hidden= */ false,
                 /* idPrefix= */ Optional.of("universal"),
                 /* text= */ Optional.of("Set as a universal question")));
+  }
+
+  private FieldsetTag buildPrimaryApplicantInfoSection(QuestionForm questionForm) {
+    FieldsetTag result =
+        fieldset()
+            .withId("primary-applicant-info")
+            .with(legend("Primary applicant information").withClass(BaseStyles.INPUT_LABEL));
+    PrimaryApplicantInfoTag.getAllPaiTagsForQuestionType(questionForm.getQuestionType())
+        .forEach(
+            primaryApplicantInfoTag -> {
+              Optional<QuestionDefinition> currentQuestionForTag =
+                  questionService.getReadOnlyQuestionServiceSync().getUpToDateQuestions().stream()
+                      .filter(
+                          qd -> qd.getPrimaryApplicantInfoTags().contains(primaryApplicantInfoTag))
+                      .findFirst();
+              boolean differentQuestionHasTag =
+                  currentQuestionForTag
+                      .map(question -> !question.getName().equals(questionForm.getQuestionName()))
+                      .orElse(false);
+              String otherQuestionName =
+                  currentQuestionForTag.map(QuestionDefinition::getName).orElse("");
+              String nonUniversalAlertText =
+                  "You cannot make this question a Primary applicant information question because"
+                      + " the question is not a Universal question.";
+              String alreadySetAlertText =
+                  String.format(
+                      "You cannot make this question a Primary applicant information question"
+                          + " because the question named \"%s\" is already set as a Primary"
+                          + " applicant information question.",
+                      otherQuestionName);
+              String nonUniversalAlreadySetAlertText =
+                  String.format(
+                      "You cannot make this question a Primary applicant information question"
+                          + " because the question is not a Universal question and because the"
+                          + " question named \"%s\" is already set as a Primary applicant"
+                          + " information question.",
+                      otherQuestionName);
+              DivTag tagSubsection =
+                  div()
+                      .withClass("cf-primary-applicant-info-subsection")
+                      .with(
+                          p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
+                              .with(
+                                  span(primaryApplicantInfoTag.getDescription()),
+                                  ViewUtils.makeToggleButton(
+                                      /* fieldName= */ primaryApplicantInfoTag.getFieldName(),
+                                      /* enabled= */ questionForm
+                                          .primaryApplicantInfoTags()
+                                          .contains(primaryApplicantInfoTag),
+                                      /* hidden= */ !questionForm.isUniversal()
+                                          || differentQuestionHasTag,
+                                      /* idPrefix= */ Optional.of(
+                                          primaryApplicantInfoTag.getFieldName()),
+                                      /* text= */ Optional.of(
+                                          primaryApplicantInfoTag.getDisplayName()))))
+                      .condWith(
+                          !differentQuestionHasTag,
+                          ViewUtils.makeAlertInfoSlim(
+                              nonUniversalAlertText,
+                              /* hidden= */ questionForm.isUniversal(),
+                              /* classes...= */ "cf-pai-not-universal-alert",
+                              "usa-alert-remove-top-margin"))
+                      .condWith(
+                          differentQuestionHasTag,
+                          ViewUtils.makeAlertInfoSlim(
+                              alreadySetAlertText,
+                              /* hidden= */ !questionForm.isUniversal(),
+                              /* classes...= */ "cf-pai-tag-set-alert",
+                              "usa-alert-remove-top-margin"))
+                      .condWith(
+                          differentQuestionHasTag,
+                          ViewUtils.makeAlertInfoSlim(
+                              nonUniversalAlreadySetAlertText,
+                              /* hidden= */ questionForm.isUniversal(),
+                              /* classes...= */ "cf-pai-tag-set-not-universal-alert",
+                              "usa-alert-remove-top-margin"));
+              result.with(tagSubsection);
+            });
+    return result;
   }
 
   private DomContent buildDemographicFields(QuestionForm questionForm, boolean submittable) {

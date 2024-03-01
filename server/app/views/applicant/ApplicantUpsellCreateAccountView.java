@@ -2,14 +2,18 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.section;
+import static services.MessageKey.CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR;
 import static views.applicant.AuthenticateUpsellCreator.createLoginButton;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.applicant.AuthenticateUpsellCreator.createNewAccountButton;
 
 import annotations.BindingAnnotations;
+import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.applicant.ApplicantRoutes;
 import controllers.applicant.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
@@ -22,33 +26,39 @@ import play.twirl.api.Content;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
+import services.applicant.ApplicantService;
 import services.settings.SettingsManifest;
 import views.components.ButtonStyles;
 import views.components.Modal;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
+import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 
 /** Renders a confirmation page after application submission. */
 public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView {
 
   private final ApplicantLayout layout;
+  private final ProgramCardViewRenderer programCardViewRenderer;
   private final String authProviderName;
   private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantUpsellCreateAccountView(
       ApplicantLayout layout,
+      ProgramCardViewRenderer programCardViewRenderer,
       SettingsManifest settingsManifest,
       @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
+    this.programCardViewRenderer = checkNotNull(programCardViewRenderer);
     this.layout = checkNotNull(layout);
-    this.settingsManifest = settingsManifest;
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.authProviderName = checkNotNull(authProviderName);
   }
 
   /** Renders a sign-up page with a baked-in redirect. */
   public Content render(
       Http.Request request,
+      ApplicantService.ApplicationPrograms applicantPrograms,
       String redirectTo,
       AccountModel account,
       Locale locale,
@@ -56,9 +66,11 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
       LocalizedStrings customConfirmationMessage,
       ApplicantPersonalInfo personalInfo,
       Long applicantId,
+      CiviFormProfile profile,
       Long applicationId,
       Messages messages,
-      Optional<ToastMessage> bannerMessage) {
+      Optional<ToastMessage> bannerMessage,
+      ApplicantRoutes applicantRoutes) {
     boolean shouldUpsell = shouldUpsell(account);
     String redirectUrl = routes.UpsellController.download(applicationId, applicantId).url();
     Modal loginPromptModal =
@@ -92,9 +104,12 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                 createApplyToProgramsButton(
                     "another-program",
                     messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()),
-                    applicantId));
+                    applicantId,
+                    profile,
+                    applicantRoutes));
 
     String title = messages.at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName());
+
     var content =
         createMainContent(
             title,
@@ -104,20 +119,54 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                     .withClasses(ReferenceClasses.BT_APPLICATION_ID, "mb-4"),
                 div()
                     .with(
-                        TextFormatter.formatText(
+                        TextFormatter.formatTextWithAriaLabel(
                             customConfirmationMessage.getOrDefault(locale),
-                            /*preserveEmptyLines= */ true,
-                            /*addRequiredIndicator= */ false))
+                            /* preserveEmptyLines= */ true,
+                            /* addRequiredIndicator= */ false,
+                            messages
+                                .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                                .toLowerCase(Locale.ROOT)))
                     .withClasses("mb-4")),
             shouldUpsell,
             messages,
             authProviderName,
             actionButtons);
-    return layout.renderWithNav(
-        request,
-        personalInfo,
-        messages,
-        createHtmlBundle(request, layout, title, bannerMessage, loginPromptModal, content),
-        applicantId);
+
+    var htmlBundle =
+        createHtmlBundle(request, layout, title, bannerMessage, loginPromptModal, content);
+
+    if (!settingsManifest.getSuggestProgramsOnApplicationConfirmationPage(request)) {
+      return layout.renderWithNav(request, personalInfo, messages, htmlBundle, applicantId);
+    }
+
+    var relevantPrograms = applicantPrograms.unappliedAndPotentiallyEligible();
+
+    if (relevantPrograms.size() > 0) {
+      htmlBundle.addMainContent(
+          div()
+              .withClasses(ApplicantStyles.PROGRAM_CARDS_GRANDPARENT_CONTAINER)
+              .with(
+                  div()
+                      .withClasses(ApplicantStyles.PROGRAM_CARDS_PARENT_CONTAINER)
+                      .with(
+                          h2(messages.at(CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR.getKeyName()))
+                              .withClasses("mb-4 font-bold"),
+                          programCardViewRenderer.programCardsSection(
+                              request,
+                              messages,
+                              personalInfo,
+                              /* sectionTitle= */ Optional.empty(),
+                              ProgramCardViewRenderer.programCardsContainerStyles(
+                                  relevantPrograms.size()),
+                              applicantId,
+                              locale,
+                              relevantPrograms,
+                              MessageKey.BUTTON_APPLY,
+                              MessageKey.BUTTON_APPLY_SR,
+                              htmlBundle,
+                              profile))));
+    }
+
+    return layout.renderWithNav(request, personalInfo, messages, htmlBundle, applicantId);
   }
 }

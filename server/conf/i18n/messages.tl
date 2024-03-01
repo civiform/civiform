@@ -29,7 +29,7 @@ toast.errorMessageOutline=Error: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Isara
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
-link.opensNewTabSr=opens in a new tab
+link.opensNewTabSr=magbubukas sa bagong tab
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -46,7 +46,7 @@ button.createAccount=Gumawa ng account
 button.guestLogin=Magpatuloy bilang panauhin
 content.loginDisabledPrompt=Kasalukuyang naka-disable ang pag-log in sa account
 content.adminLoginPrompt=Naghahanap ng iba?
-content.adminFooterPrompt=Isa ka bang administrator ng mga benepisyo?
+content.adminFooterPrompt=Isa ka bang administrator?
 link.adminLogin=Admin login
 
 #--------------------------------------------------------------------------#
@@ -60,10 +60,25 @@ button.nextScreen=Susunod
 button.previousScreen=Nakaraang
 button.review=Pagsusuri
 button.skipFileUpload=Laktawan
+content.blockProgress={0} sa {1}
 toast.localeNotSupported=Pasensya na, hindi ganap na nakasalin ang program na ito sa iyong mas gustong wika.
 link.allDone=Ako ay tapos na
 link.applyToAnotherProgram=Mag-aplay sa ibang programa
 link.createAccountOrSignIn=Gumawa ng account o magsign-in
+# The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
+modal.errorSaving.review.title=Hindi kumpleto ang mga tanong sa page na ito. Gusto mo pa rin bang umalis at simulan ang pagsusuri?
+# The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
+modal.errorSaving.previous.title=Hindi kumpleto ang mga tanong sa page na ito. Gusto mo pa rin bang umalis at pumunta sa nakaraang page?
+# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
+modal.errorSaving.review.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?
+# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
+modal.errorSaving.previous.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the previous question page without saving your answers?
+# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
+modal.errorSaving.review.noSaveButton=Continue to review page without saving
+# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
+modal.errorSaving.previous.noSaveButton=Continue to previous questions without saving
+# Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
+modal.errorSaving.stayAndFixButton=Stay and fix your answers
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -80,14 +95,14 @@ button.startHereCommonIntakeSr=Magsimula rito sa pamamagitan ng pagsasagot sa {0
 button.editCommonIntakeSr=I-edit ang isinumiteng impormasyon para sa {0}
 button.continueCommonIntakeSr=Ipagpatuloy ang pagsasagot ng {0}
 content.submittedDate=Isinumite noong {0}
-content.benefits=Kumuha ng mga benepisyo
-content.description=Matutulungan ka ng CiviForm na humanap ng mga benepisyo kung saan posibleng kwalipikado ka sa {0}. Magsimula sa pamamagitan ng pagpili ng aplikasyon sa ibaba.
-content.saveTime=Makatipid sa oras kapag nag-a-apply para sa mga benepisyo
-content.guestDescription=Mag-log in sa iyong {0} account o gumawa ng account at mag-apply para sa maraming benepisyo nang hindi kailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon anumang oras at tumingin sa mga status ng iyong aplikasyon.
+content.findPrograms=Maghanap ng mga program
+content.findProgramsDescription=Matutulungan ka ng CiviForm na humanap ng mga programa kung saan posibleng kwalipikado ka sa {0}. Magsimula sa pamamagitan ng pagpili ng aplikasyon sa ibaba.
+content.saveTimeServices=Makatipid ng oras sa pag-apply sa mga programa at serbisyo
+content.guestDescription=Mag-log in sa iyong {0} account o gumawa ng account at mag-apply sa mga programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon anumang oras at tumingin sa mga status ng iyong aplikasyon.
 link.programDetails=Mga detalya ng programa
-link.programDetailsSr=Program details for {0}, opens in a new tab
+link.programDetailsSr=Mga detalye ng programa para sa {0}, bubukas sa bagong tab
 title.programs=Mga programa at mga serbisyo
-title.findServicesSection=Humanap ng mga serbisyong makakatulong sa iyo
+title.getStartedSection=Magsimula
 title.allProgramsSection=Lahat ng programa ({0})
 title.status=Status
 title.inProgressProgramsUpdated=Kasalukuyang ginagawa
@@ -95,6 +110,104 @@ title.activeProgramsUpdated=Hindi sinimulan
 title.submittedPrograms=Isinumite
 toast.applicationSaved=Successfully saved application: Matagumpay na nai-save ang aplikasyon: ID ng aplikasyon {0}
 toast.programCompleted=Nakumpleto na ang aplikasyon.
+
+#------------------------------------------------------------------------------------------------------#
+# TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
+#------------------------------------------------------------------------------------------------------#
+
+# Message that appears when a user attempts to delete an account and it fails.
+banner.acctDeleteError=Hindi made-delete ang account na ito.
+# Reason included with the account delete error, which explains the account can't be deleted due to applications the client has open
+banner.acctDeleteErrorReason=Hindi made-delete ang account na ito dahil mayroon itong mga nakabukas na application.
+# Message when information about a client, like their name or contact information is updated.
+banner.clientInfoUpdated=Matagumpay na na-update ang impormasyon ng kliyente.
+# Message when a client account for a user is successfully deleted, with the name of the client substituted in
+banner.clientAcctDeleted=Matagumpay na na-delete ang account ng kliyente para sa "{0}."
+# Message when a user successfully creates a client account.
+banner.newClientCreated=Matagumpay na nakagawa ng bagong kliyente.
+
+# Button that allows a user to add a client to the CiviForm system.
+button.addNewClient=Magdagdag ng bagong kliyente
+# Button that brings the user back to the list of their clients.
+button.backToClientList=Bumalik sa listahan ng kliyente
+# Button that allows the user to navigate back to the edit page after they click to delete a client and get an error.
+button.backToEditing=Bumalik sa pag-edit
+# Button that allows the user to cancel the progress they make on adding or editing a client.
+button.cancel=Kanselahin
+# Button that allows the user to clear any search parameters they have already entered.
+button.clearSearch=I-clear ang paghahanap
+# Button for a user to delete their client's account
+button.deleteAcct=I-delete ang account
+# Button option when asked if the user is sure they want to delete an account.
+button.keepAcct=Panatilihin ang account
+# Button to navigate to the next page.
+button.nextPage=Susunod
+# Button to save information that has been entered.
+button.save=I-save
+# Button to execute a search to filter a client list.
+button.search=Maghanap
+# Button to select a client.
+button.select=Piliin
+# Button to start an application on behalf of a client.
+button.startApp=Magsimula ng application
+# Button to view the applications belonging to an applicant.
+button.viewApplications=Tingnan ang mga application
+
+# Part of the confirmation banner which appears after a new client has been added to a community-based organization.
+content.clientCreated=Naidagdag na sa listahan ng kliyente mo ang iyong bagong kliyenteng si {0}. Puwede ka nang magsimulang magsumite ng mga application para sa kliyenteng ito.
+# For each client on the client list, shows the number of applications that have been submitted for them.
+content.numberOfAppSubmitted={0} (na) application ang naisumite
+# Some explanation text on the confirmation modal when deleting a client.
+content.warning=Walang application na naisumite para sa kliyenteng ito, kaya walang mawawalang application.
+# Confirmation modal text when the user tries to delete a client account.
+dialog.deleteConfirmation=Sigurado ka bang gusto mong i-delete ang account ng kliyenteng ito?
+
+# Header for the page with the Organization Members table.
+header.acctSettings=Mga setting ng account
+# Tab label for getting to the client list page
+header.clientList=Listahan ng kliyente
+
+# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last login XX-XX-XXXX".
+label.acctStatus=Status ng Account
+# Label above the phone number for each client on the client list.
+label.contactInfo=Impormasyon sa Pakikipag-ugnayan
+# The label above the input field for the day of the client birth date. i.e. 12 for November 12
+label.day=Araw
+# Label above the birth date input field when creating or editing a client
+label.dob=Petsa ng kapanganakan
+# Example above the 3 birth date input fields (Month, Day, Year).
+label.dobExample=Halimbawa: Enero 28, 1986
+# Label above the "Email" column of the community-based organization members table.
+label.email=Email
+# The label above the dropdown select field for the month of the client birth date.
+label.month=Buwan
+# Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
+label.name=Pangalan
+# Example above the name input field for the client search.
+label.nameExample=Halimbawa: Gu o Darren o Darren Gu
+# Label above the text input field for notes about a client.
+label.notes=Mga Tala
+# Label above the phone number input field when creating or editing a client.
+label.phoneNum=Numero ng Telepono
+# The label above the Date of Birth search input for the client search.
+label.searchByDob=Maghanap ayon sa Petsa ng Kapanganakan
+# The label above the name search field of the client search.
+label.searchByName=Maghanap ayon sa (mga) pangalan
+# The label above the input field for the year of the client birth date.
+label.year=Taon
+
+link.edit=I-edit
+
+# This is the header above the list of clients and the client search.
+title.allClients=Lahat ng Kliyente
+# This is the heading above a new client creation form.
+title.createClient=Gumawa ng bagong kliyente
+# This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
+title.displayingMultiClients=Nagpapakita ng {0} (na) kliyente
+# This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
+title.displayingOneClient=Nagpapakita ng 1 kliyente
+# This is the heading above a table that contains the members of the current community-based organization.
+title.orgMembers=Mga miyembro ng organisasyon
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -143,16 +256,17 @@ title.applicationConfirmation=Pagkumpirma ng aplikasyon
 content.confirmed=Salamat sa pag-aplay sa {0}.  Ang inyong aplikasyon ay natanggap na, at ang ID ng application ninyo ay {1}.
 title.createAnAccount=Gumawa ng account o magsign-in
 content.pleaseCreateAccount=Kung kayo ay magsign-in ngayon sa isang account ng lungsod, ang inyong impormasyon ay maitatabi at maaring balikan anumang oras upang makumpleto ang mga aplikasyon sa hinaharap. Kung kayo ay wala pang account, pahihintulutan kayo ng pahina ng log-in upang makapagrehistro. Hindi kayo mawawalan ng anumang data na inyo nang nailagay.
-content.generalLoginModalPrompt=Hindi ka naka-log in sa isang account. Hindi mo magagawang mabilis na mag-edit ng aplikasyon, tingnan ang status ng iyong aplikasyon, o mag-apply para sa iba pang benepisyo nang walang account.
-content.initialLoginModalPrompt=Bago ka magpatuloy, mag-log in sa iyong {0} account o gumawa ng account. Magagawa mong mag-apply para sa maraming benepisyo nang hindi kailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon at tumingin ng mga status ng iyong aplikasyon.
+content.generalLoginModalPrompt=Hindi ka naka-log in sa isang account. Hindi mo magagawang mabilis na mag-edit ng aplikasyon, tingnan ang status ng iyong aplikasyon, o mag-apply para sa iba pang programa nang walang account.
+content.initialLoginModalPrompt=Bago ka magpatuloy, mag-log in sa iyong {0} account o gumawa ng account. Makakapag-apply ka para sa maraming programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon at tumingin ng mga status ng iyong aplikasyon.
 button.continueWithoutAnAccount=Magpatuloy nang walang account
-title.commonIntakeConfirmation=Mga benepisyo kung saan puwede kang maging kwalipikado
-title.commonIntakeConfirmationTi=Mga benepisyo kung saan puwedeng maging kwalipikado ang iyong client
-content.commonIntakeConfirmation=Puwede mong makuha ang mga benepisyong ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
-content.commonIntakeConfirmationTi=Puwedeng makuha ng iyong client ang mga benepisyong ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
-content.commonIntakeNoMatchingPrograms=Hindi makahanap ang pre-screener ng mga programa kung saan puwede kang maging kwalipikado sa panahong ito. Pero puwede kang mag-apply sa mga benepisyo anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tingnan ang mga karagdagang programa para sa benepisyo, puwede kang pumunta sa {0}
-content.commonIntakeNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga programa kung saan puwedeng maging kwalipikado ang iyong client sa panahong ito. Pero puwede kang mag-apply sa mga benepisyo anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tingnan ang mga karagdagang programa para sa benepisyo, puwede kang pumunta sa {0}
+title.commonIntakeConfirmation=Mga programa kung saan puwede kang maging kwalipikado
+title.commonIntakeConfirmationTi=Mga programa kung saan puwedeng maging kwalipikado ang kliyente mo
+content.commonIntakeConfirmation=Posibleng makapag-enroll ka sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
+content.commonIntakeConfirmationTi=Posibleng makapag-enroll ang kliyente mo sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
+content.commonIntakeNoMatchingPrograms=Hindi makahanap ang pre-screener ng mga programa kung saan puwede kang maging kwalipikado sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
+content.commonIntakeNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga programa kung saan puwedeng maging kwalipikado ang kliyente mo sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
 content.commonIntakeNoMatchingProgramsNextStep=Puwede ka ring bumalik sa nakaraang page para i-edit ang iyong mga sagot.
+content.otherProgramsToApplyFor=Other programs you might be interested in
 button.downloadPdf=I-download ang PDF
 button.applyToPrograms=Mag-apply sa mga programa
 
@@ -219,6 +333,7 @@ validation.phoneMustBeLocalToCountry=Hindi nabibilang sa bansa ang ibinigay mong
 #----------------------------------------------------------------------------------------------------------#
 
 validation.dateMisformatted=Please enter a date in the format YYYY/MM/DD.
+validation.invalidDateFormat=Maglagay ng petsa sa tamang format
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
@@ -288,7 +403,7 @@ validation.textTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga charac
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Ang mga katanungan na maraming pagpipiliang opsyon ay hindi maaaring magkaroon ng mga blanko na mga opsyon.
-adminValidation.multiOptionAdminError=Mga titik, numero, underscore, at gitling lang ang puwedeng gamitin para sa mga pangalan ng admin.
+adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
 
 #----------------------------------#
 # ERRORS - various error messages  #

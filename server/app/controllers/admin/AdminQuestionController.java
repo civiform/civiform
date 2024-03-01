@@ -150,7 +150,7 @@ public final class AdminQuestionController extends CiviFormController {
 
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = getBuilder(Optional.empty(), questionForm).build();
+      questionDefinition = questionForm.getBuilder().build();
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       return badRequest(e.getMessage());
@@ -234,7 +234,6 @@ public final class AdminQuestionController extends CiviFormController {
 
               // Handle case someone tries to edit a live question that already has a draft version.
               // In this case we should redirect to the draft version.
-              // https://github.com/seattle-uat/civiform/issues/2497
               Optional<QuestionDefinition> possibleDraft =
                   readOnlyService
                       .getActiveAndDraftQuestions()
@@ -290,7 +289,7 @@ public final class AdminQuestionController extends CiviFormController {
 
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndUpdatedQuestionDefinition;
     try {
-      errorAndUpdatedQuestionDefinition = service.update(questionDefinition);
+      errorAndUpdatedQuestionDefinition = service.update(maybeExisting, questionDefinition);
     } catch (InvalidUpdateException e) {
       // Ill-formed update request.
       return badRequest(e.toString());

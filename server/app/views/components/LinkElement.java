@@ -30,7 +30,7 @@ public final class LinkElement {
           "ring-offset-2",
           "border",
           "border-transparent",
-          BaseStyles.BG_SEATTLE_BLUE,
+          BaseStyles.BG_CIVIFORM_BLUE,
           "text-white",
           StyleUtils.hover("bg-blue-700"),
           StyleUtils.focus("outline-none", "ring-2"));

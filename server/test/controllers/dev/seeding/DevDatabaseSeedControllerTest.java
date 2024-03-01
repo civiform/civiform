@@ -51,6 +51,11 @@ public class DevDatabaseSeedControllerTest {
     assertThat(result.flash().get("success")).hasValue("The database has been seeded");
     result = controller.index(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
+
+    // Go to seed data display page.
+    result = controller.data(addCSRFToken(fakeRequest()).build());
+    assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("comprehensive-sample-program");
 
     // Clear the data.
@@ -84,7 +89,7 @@ public class DevDatabaseSeedControllerTest {
     assertThat(result.flash().get("success")).hasValue("The database has been seeded");
     result = controller.index(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("comprehensive-sample-program");
+    assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
 
     // Load the data, which sets the cache and ensure it is present
     VersionModel activeVersion = versionRepo.getActiveVersion();
@@ -101,6 +106,15 @@ public class DevDatabaseSeedControllerTest {
   public void index_inNonDevMode_returnsNotFound() {
     setupControllerInMode(Mode.TEST);
     Result result = controller.index(fakeRequest().build());
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void data_inNonDevMode_returnsNotFound() {
+
+    setupControllerInMode(Mode.TEST);
+    Result result = controller.data(fakeRequest().build());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }

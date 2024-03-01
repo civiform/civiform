@@ -124,7 +124,7 @@ public final class AdminApplicationController extends CiviFormController {
     final ProgramDefinition program;
 
     try {
-      program = programService.getProgramDefinition(programId);
+      program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
@@ -181,7 +181,7 @@ public final class AdminApplicationController extends CiviFormController {
                 .setApplicationStatus(applicationStatus)
                 .build();
       }
-      ProgramDefinition program = programService.getProgramDefinition(programId);
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
       String csv = exporterService.getProgramAllVersionsCsv(programId, filters);
@@ -202,7 +202,7 @@ public final class AdminApplicationController extends CiviFormController {
   public Result downloadSingleVersion(Http.Request request, long programId)
       throws ProgramNotFoundException {
     try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
       String csv = exporterService.getProgramCsv(programId);
@@ -217,7 +217,7 @@ public final class AdminApplicationController extends CiviFormController {
 
   /**
    * Parses a date from a raw query string (e.g. 2022-01-02) and returns an instant representing the
-   * start of that date in the time zone configured for the server deployment.
+   * start of that date in the UTC time zone.
    */
   private Optional<Instant> parseDateFromQuery(
       DateConverter dateConverter, Optional<String> maybeQueryParam) {
@@ -226,7 +226,7 @@ public final class AdminApplicationController extends CiviFormController {
         .map(
             s -> {
               try {
-                return dateConverter.parseIso8601DateToStartOfDateInstant(s);
+                return dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
               } catch (DateTimeParseException e) {
                 throw new BadRequestException("Malformed query param");
               }
@@ -257,7 +257,7 @@ public final class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result download(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
     try {
       checkProgramAdminAuthorization(request, program.adminName()).join();
     } catch (CompletionException | NoSuchElementException e) {
@@ -269,7 +269,9 @@ public final class AdminApplicationController extends CiviFormController {
       return badRequest(String.format("Application %d does not exist.", applicationId));
     }
     ApplicationModel application = applicationMaybe.get();
-    PdfExporter.InMemoryPdf pdf = pdfExporterService.generatePdf(application);
+    PdfExporter.InMemoryPdf pdf =
+        pdfExporterService.generatePdf(
+            application, /* showEligibilityText= */ true, /* includeHiddenBlocks= */ true);
     return ok(pdf.getByteArray())
         .as("application/pdf")
         .withHeader(
@@ -280,7 +282,7 @@ public final class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result show(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
     String programName = program.adminName();
 
     try {
@@ -310,7 +312,7 @@ public final class AdminApplicationController extends CiviFormController {
             .toCompletableFuture()
             .join();
     ImmutableList<Block> blocks = roApplicantService.getAllActiveBlocks();
-    ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
+    ImmutableList<AnswerData> answers = roApplicantService.getSummaryDataOnlyActive();
     Optional<String> noteMaybe = programAdminApplicationService.getNote(application);
 
     return ok(
@@ -337,7 +339,7 @@ public final class AdminApplicationController extends CiviFormController {
           StatusEmailNotFoundException,
           StatusNotFoundException,
           AccountHasNoEmailException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
     String programName = program.adminName();
 
     try {
@@ -415,7 +417,7 @@ public final class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result updateNote(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
     String programName = program.adminName();
 
     try {
@@ -489,7 +491,7 @@ public final class AdminApplicationController extends CiviFormController {
 
     final ProgramDefinition program;
     try {
-      program = programService.getProgramDefinition(programId);
+      program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
@@ -519,7 +521,7 @@ public final class AdminApplicationController extends CiviFormController {
   }
 
   private ImmutableList<String> getAllApplicationStatusesForProgram(long programId) {
-    return programService.getAllProgramDefinitionVersions(programId).stream()
+    return programService.getAllVersionsFullProgramDefinition(programId).stream()
         .map(pdef -> pdef.statusDefinitions().getStatuses())
         .flatMap(ImmutableList::stream)
         .map(StatusDefinitions.Status::statusText)

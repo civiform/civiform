@@ -7,6 +7,7 @@ import static j2html.TagCreator.span;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
@@ -18,6 +19,7 @@ import j2html.tags.attributes.IName;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
+import j2html.tags.specialized.SelectTag;
 import j2html.tags.specialized.TextareaTag;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +29,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import play.data.validation.ValidationError;
 import play.i18n.Messages;
+import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import views.ViewUtils;
 import views.style.BaseStyles;
@@ -84,7 +87,8 @@ public class FieldWithLabel {
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
   protected ImmutableList.Builder<String> styleClassesBuilder = ImmutableList.builder();
   private ImmutableList.Builder<String> ariaDescribedByBuilder = ImmutableList.builder();
-  private final ImmutableSet.Builder<String> attributesSetBuilder = ImmutableSet.builder();
+  private final ImmutableMap.Builder<String, Optional<String>> attributesMapBuilder =
+      ImmutableMap.builder();
 
   private static final String MAX_INPUT_TEXT_LENGTH = "10000";
 
@@ -212,7 +216,13 @@ public class FieldWithLabel {
 
   /** Sets a valueless attribute. */
   public FieldWithLabel setAttribute(String attribute) {
-    this.attributesSetBuilder.add(attribute);
+    this.attributesMapBuilder.put(attribute, Optional.empty());
+    return this;
+  }
+
+  /** Sets an attribute/value pairing. */
+  public FieldWithLabel setAttribute(String attribute, String value) {
+    this.attributesMapBuilder.put(attribute, Optional.of(value));
     return this;
   }
 
@@ -394,7 +404,7 @@ public class FieldWithLabel {
   private InputTag nonNumberGenTagApplyAttrs() {
     InputTag inputFieldTag = TagCreator.input();
     inputFieldTag.withType(getFieldType());
-    applyAttributesFromSet(inputFieldTag);
+    applyAttributesFromMap(inputFieldTag);
     if (!this.fieldType.equals("number")) {
       inputFieldTag.withValue(this.fieldValue);
     } else {
@@ -412,7 +422,7 @@ public class FieldWithLabel {
   private DivTag getNonNumberInputTag() {
     InputTag inputFieldTag = TagCreator.input();
     inputFieldTag.withType(getFieldType());
-    applyAttributesFromSet(inputFieldTag);
+    applyAttributesFromMap(inputFieldTag);
     if (!this.fieldType.equals("number")) {
       inputFieldTag.withValue(this.fieldValue);
     } else {
@@ -425,7 +435,7 @@ public class FieldWithLabel {
   public DivTag getTextareaTag() {
     if (isTagTypeTextarea()) {
       TextareaTag textareaFieldTag = TagCreator.textarea();
-      applyAttributesFromSet(textareaFieldTag);
+      applyAttributesFromMap(textareaFieldTag);
       textareaFieldTag.withText(this.fieldValue);
       if (this.rows.isPresent()) {
         textareaFieldTag.withRows(String.valueOf(this.rows.getAsLong()));
@@ -454,7 +464,7 @@ public class FieldWithLabel {
   public DivTag getNumberTag() {
     InputTag inputFieldTag = TagCreator.input();
     inputFieldTag.withType(getFieldType());
-    applyAttributesFromSet(inputFieldTag);
+    applyAttributesFromMap(inputFieldTag);
     if (this.fieldType.equals("number")) {
       numberTagApplyAttrs(inputFieldTag);
     } else {
@@ -471,14 +481,22 @@ public class FieldWithLabel {
     return getNonNumberInputTag();
   }
 
-  protected void applyAttributesFromSet(Tag fieldTag) {
-    this.attributesSetBuilder.build().forEach(attr -> fieldTag.attr(attr, null));
+  protected void applyAttributesFromMap(Tag fieldTag) {
+    ImmutableMap<String, Optional<String>> attributesMap = this.attributesMapBuilder.build();
+    attributesMap
+        .entrySet()
+        .forEach(entry -> fieldTag.attr(entry.getKey(), entry.getValue().orElse(null)));
   }
 
   private DivTag buildFieldErrorsTag(String id) {
     String[] referenceClasses =
         referenceClassesBuilder.build().stream().map(ref -> ref + "-error").toArray(String[]::new);
-    return div(each(fieldErrors, error -> div(error.format(messages))))
+    return div(each(
+            fieldErrors,
+            error ->
+                div(
+                    messages.apply(
+                        MessageKey.TOAST_ERROR_MSG_OUTLINE.getKeyName(), error.format(messages)))))
         .withId(id)
         .withClasses(
             StyleUtils.joinStyles(referenceClasses),
@@ -563,7 +581,7 @@ public class FieldWithLabel {
     // before the calls to this method, thus simplifying the code.
     fieldTag
         .withClasses(
-            hasFieldErrors ? BaseStyles.INPUT_WITH_ERROR : BaseStyles.INPUT,
+            getFieldClasses(fieldTag, hasFieldErrors),
             // TODO(#5623): Use unified styles for disabled inputs
             this.readOnly ? "text-gray-500" : "",
             this.readOnly ? "bg-gray-100" : "")
@@ -576,6 +594,15 @@ public class FieldWithLabel {
             !Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId)
         .condAttr(focusOnInput, Attr.AUTOFOCUS, "");
+  }
+
+  private String getFieldClasses(Tag fieldTag, boolean hasFieldErrors) {
+    boolean isSelectTag = fieldTag instanceof SelectTag;
+    if (isSelectTag) {
+      return hasFieldErrors ? BaseStyles.SELECT_WITH_ERROR : BaseStyles.SELECT;
+    } else {
+      return hasFieldErrors ? BaseStyles.INPUT_WITH_ERROR : BaseStyles.INPUT;
+    }
   }
 
   protected <T extends Tag<T> & IName<T> & IDisabled<T>>

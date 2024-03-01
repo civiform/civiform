@@ -12,8 +12,10 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
 import com.typesafe.config.Config;
+import controllers.applicant.routes;
 import forms.ProgramForm;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
@@ -60,7 +62,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
 
   /** Builds the form using program form data. */
   protected final FormTag buildProgramForm(
-      Request request, ProgramForm program, boolean editExistingProgram) {
+      Request request, ProgramForm program, ProgramEditStatus programEditStatus) {
     return buildProgramForm(
         request,
         program.getAdminName(),
@@ -71,13 +73,13 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getLocalizedConfirmationMessage(),
         program.getDisplayMode(),
         program.getIsCommonIntakeForm(),
-        editExistingProgram,
+        programEditStatus,
         program.getTiGroups());
   }
 
   /** Builds the form using program definition data. */
   protected final FormTag buildProgramForm(
-      Request request, ProgramDefinition program, boolean editExistingProgram) {
+      Request request, ProgramDefinition program, ProgramEditStatus programEditStatus) {
     return buildProgramForm(
         request,
         program.adminName(),
@@ -88,7 +90,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.localizedConfirmationMessage().getDefault(),
         program.displayMode().getValue(),
         program.programType().equals(ProgramType.COMMON_INTAKE_FORM),
-        editExistingProgram,
+        programEditStatus,
         new ArrayList<>(program.acls().getTiProgramViewAcls()));
   }
 
@@ -102,7 +104,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       String confirmationSceen,
       String displayMode,
       Boolean isCommonIntakeForm,
-      boolean editExistingProgram,
+      ProgramEditStatus programEditStatus,
       List<Long> selectedTi) {
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
     formTag.with(
@@ -122,7 +124,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setRequired(true)
             .setValue(displayDescription)
             .getTextareaTag(),
-        programUrlField(adminName, editExistingProgram),
+        programUrlField(adminName, programEditStatus),
         FieldWithLabel.input()
             .setId("program-external-link-input")
             .setFieldName("externalLink")
@@ -167,7 +169,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setId("program-display-mode-ti-only")
                     .setFieldName("displayMode")
                     .setAriaRequired(true)
-                    .setLabelText("Trusted Intermediaries ONLY")
+                    .setLabelText("Trusted intermediaries only")
                     .setValue(DisplayMode.TI_ONLY.getValue())
                     .setChecked(displayMode.equals(DisplayMode.TI_ONLY.getValue()))
                     .getRadioTag()),
@@ -175,7 +177,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setId("program-display-mode-select-ti-only")
             .setFieldName("displayMode")
             .setAriaRequired(true)
-            .setLabelText("Visible to Selected Trusted Intermediaries ONLY")
+            .setLabelText("Visible to selected trusted intermediaries only")
             .setValue(DisplayMode.SELECT_TI.getValue())
             .setChecked(displayMode.equals(DisplayMode.SELECT_TI.getValue()))
             .getRadioTag(),
@@ -184,7 +186,6 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
             .setLabelText("Program note for administrative use only")
-            .setRequired(true)
             .setValue(adminDescription)
             .getTextareaTag());
     if (settingsManifest.getIntakeFormEnabled(request)) {
@@ -216,11 +217,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                   .addStyleClass("hidden")
                   .getCheckboxTag());
     }
-    formTag.with(
-        submitButton("Save")
-            .withId("program-update-button")
-            .withClasses(ButtonStyles.SOLID_BLUE, "mt-6"));
 
+    formTag.with(createSubmitButton(request, programEditStatus));
     return formTag;
   }
 
@@ -255,7 +253,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .withClasses(
                 ReferenceClasses.RADIO_OPTION,
                 BaseStyles.CHECKBOX_LABEL,
-                true ? BaseStyles.BORDER_SEATTLE_BLUE : "")
+                BaseStyles.BORDER_CIVIFORM_BLUE)
             .with(
                 input()
                     .withId(id)
@@ -272,12 +270,12 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         .with(labelTag);
   }
 
-  private DomContent programUrlField(String adminName, boolean editExistingProgram) {
-    if (editExistingProgram) {
+  private DomContent programUrlField(String adminName, ProgramEditStatus programEditStatus) {
+    if (programEditStatus != ProgramEditStatus.CREATION) {
+      // Only allow editing the program URL at program creation time.
       String programUrl =
           baseUrl
-              + controllers.applicant.routes.DeepLinkController.programBySlug(
-                      MainModule.SLUGIFIER.slugify(adminName))
+              + routes.ApplicantProgramsController.show(MainModule.SLUGIFIER.slugify(adminName))
                   .url();
       return div()
           .withClass("mb-2")
@@ -324,5 +322,24 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         .setDisplayOnLoad(true)
         .setWidth(Width.THIRD)
         .build();
+  }
+
+  private ButtonTag createSubmitButton(Request request, ProgramEditStatus programEditStatus) {
+    String saveProgramDetailsText;
+    if (settingsManifest.getProgramCardImages(request)
+        && (programEditStatus == ProgramEditStatus.CREATION
+            || programEditStatus == ProgramEditStatus.CREATION_EDIT)) {
+      // If the admin is in the middle of creating a new program, they'll be redirected to the next
+      // step of adding a program image, so we want the save button text to reflect that.
+      saveProgramDetailsText = "Save and continue to next step";
+    } else {
+      // If the admin is editing an existing program, they'll be redirected back to the program
+      // blocks page.
+      saveProgramDetailsText = "Save";
+    }
+
+    return submitButton(saveProgramDetailsText)
+        .withId("program-update-button")
+        .withClasses(ButtonStyles.SOLID_BLUE, "mt-6");
   }
 }

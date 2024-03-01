@@ -9,7 +9,7 @@ import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.ul;
 
 import auth.CiviFormProfile;
-import controllers.applicant.routes;
+import controllers.applicant.ApplicantRoutes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.UlTag;
@@ -29,6 +29,7 @@ import views.HtmlBundle;
 import views.components.ButtonStyles;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.components.TextFormatter;
 import views.style.ApplicantStyles;
 import views.style.StyleUtils;
 
@@ -36,10 +37,12 @@ import views.style.StyleUtils;
 public final class IneligibleBlockView extends ApplicationBaseView {
 
   private final ApplicantLayout layout;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
-  IneligibleBlockView(ApplicantLayout layout) {
+  IneligibleBlockView(ApplicantLayout layout, ApplicantRoutes applicantRoutes) {
     this.layout = checkNotNull(layout);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   public Content render(
@@ -54,7 +57,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
     // Use external link if it is present else use the default Program details page
     String programDetailsLink =
         programDefinition.externalLink().isEmpty()
-            ? routes.ApplicantProgramsController.view(applicantId, programId).url()
+            ? applicantRoutes.show(submittingProfile, applicantId, programId).url()
             : programDefinition.externalLink();
     ATag infoLink =
         new LinkElement()
@@ -67,11 +70,25 @@ public final class IneligibleBlockView extends ApplicationBaseView {
             .asAnchorText()
             .attr(
                 "aria-label",
-                messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase(Locale.ROOT));
+                messages
+                    .at(MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName())
+                    .toLowerCase(Locale.ROOT));
     UlTag listTag = ul().withClasses("list-disc", "mx-8");
     roApplicantProgramService
         .getIneligibleQuestions()
-        .forEach(question -> listTag.with(li().withText(question.getQuestionText())));
+        .forEach(
+            question ->
+                listTag.with(
+                    li().with(
+                            div()
+                                .with(
+                                    TextFormatter.formatTextWithAriaLabel(
+                                        question.getQuestionText(), /* preserveEmptyLines */
+                                        true, /* addRequiredIndicator */
+                                        false,
+                                        messages
+                                            .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                                            .toLowerCase(Locale.ROOT))))));
 
     DivTag content =
         div()
@@ -100,7 +117,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                     .with(div().withClasses("flex-grow"))
                     .with(
                         new LinkElement()
-                            .setHref(routes.ApplicantProgramsController.index(applicantId).url())
+                            .setHref(applicantRoutes.index(submittingProfile, applicantId).url())
                             .setText(
                                 messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
                             .asButton()
@@ -108,8 +125,8 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                     .with(
                         new LinkElement()
                             .setHref(
-                                routes.ApplicantProgramReviewController.review(
-                                        applicantId, programId)
+                                applicantRoutes
+                                    .review(submittingProfile, applicantId, programId)
                                     .url())
                             .setText(messages.at(MessageKey.BUTTON_GO_BACK_AND_EDIT.getKeyName()))
                             .asButton()

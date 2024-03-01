@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   AdminQuestions,
   createTestContext,
@@ -6,16 +7,14 @@ import {
   seedQuestions,
   validateScreenshot,
   waitForPageJsLoad,
-  enableFeatureFlag,
-  disableFeatureFlag,
 } from './support'
 import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
 
-describe('normal question lifecycle', () => {
+test.describe('normal question lifecycle', () => {
   const ctx = createTestContext()
 
-  it('sample question seeding works', async () => {
+  test('sample question seeding works', async () => {
     const {page, adminQuestions} = ctx
     await dropTables(page)
     await seedQuestions(page)
@@ -32,7 +31,7 @@ describe('normal question lifecycle', () => {
   // Run create-update-publish test for each question type individually to keep
   // test duration reasonable.
   for (const type of Object.values(QuestionType)) {
-    it(`${type} question: create, update, publish, create a new version, and update`, async () => {
+    test(`${type} question: create, update, publish, create a new version, and update`, async () => {
       const {page, adminQuestions, adminPrograms} = ctx
 
       await loginAsAdmin(page)
@@ -105,7 +104,7 @@ describe('normal question lifecycle', () => {
     })
   }
 
-  it('allows re-ordering options in dropdown question', async () => {
+  test('allows re-ordering options in dropdown question', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -168,7 +167,6 @@ describe('normal question lifecycle', () => {
     await adminQuestions.clickSubmitButtonAndNavigate('Create')
     await adminQuestions.gotoQuestionEditPage(questionName)
 
-    await page.pause()
     // Validate that the options are in the correct order after saving.
     const optionText = await page
       .getByRole('textbox', {name: 'Option Text'})
@@ -188,7 +186,35 @@ describe('normal question lifecycle', () => {
     expect(await adminNames[4].inputValue()).toContain('option4_admin')
   })
 
-  it('shows error when creating a dropdown question and admin left an option field blank', async () => {
+  test('shows markdown format correctly in the preview when creating a new question', async () => {
+    const {page, adminQuestions} = ctx
+    const questionName = 'markdown formatted question'
+
+    await loginAsAdmin(page)
+
+    await adminQuestions.createCheckboxQuestion({
+      questionName: questionName,
+      questionText: 'https://google.com **bold**',
+      helpText: '*italic* [link](https://test.com)',
+      options: [
+        {adminName: 'red_admin', text: 'red'},
+        {adminName: 'green_admin', text: 'green'},
+        {adminName: 'orange_admin', text: 'orange'},
+        {adminName: 'blue_admin', text: 'blue'},
+      ],
+    })
+
+    await adminQuestions.gotoQuestionEditPage(questionName)
+    expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
+      'https://google.com</a> <strong>bold</strong>',
+    )
+    expect(await page.innerHTML('.cf-applicant-question-help-text')).toContain(
+      '<em>italic</em>',
+    )
+    await validateScreenshot(page, 'question-with-markdown-formatted-preview')
+  })
+
+  test('shows error when creating a dropdown question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -219,7 +245,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast()
   })
 
-  it('shows error when creating a radio question and admin left an option field blank', async () => {
+  test('shows error when creating a radio question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -249,7 +275,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast()
   })
 
-  it('shows error when updating a dropdown question and admin left an option field blank', async () => {
+  test('shows error when updating a dropdown question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -275,7 +301,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.expectMultiOptionInvalidOptionAdminError(options, [2])
   })
 
-  it('shows error when updating a radio question and admin left an option field blank', async () => {
+  test('shows error when updating a radio question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -303,7 +329,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.expectMultiOptionInvalidOptionAdminError(options, [2])
   })
 
-  it('shows error when updating a radio question and admin left an adminName field blank', async () => {
+  test('shows error when updating a radio question and admin left an adminName field blank', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -334,7 +360,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.expectMultiOptionInvalidOptionAdminError(options, [2])
   })
 
-  it('shows error when updating a radio question and admin used invalid characters in the admin name', async () => {
+  test('shows error when updating a radio question and admin used invalid characters in the admin name', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -351,21 +377,33 @@ describe('normal question lifecycle', () => {
     // Edit the newly created question
     await adminQuestions.gotoQuestionEditPage(questionName)
 
-    // Add an option with an invalid adminName
+    // Add options with an invalid adminNames
     await page.click('#add-new-option')
-    const newOption = {adminName: 'invalid name', text: 'option3'}
-    await adminQuestions.fillMultiOptionAnswer(2, newOption)
-    // Add the invalid option to the options array
-    options.push(newOption)
+    const invalidOptionSpace = {adminName: 'invalid name', text: 'option3'}
+    await adminQuestions.fillMultiOptionAnswer(2, invalidOptionSpace)
+
+    await page.click('#add-new-option')
+    const invalidOptionCapitalLetter = {
+      adminName: 'invalid_Name',
+      text: 'option4',
+    }
+    await adminQuestions.fillMultiOptionAnswer(3, invalidOptionCapitalLetter)
+
+    // Add the invalid options to the options array
+    options.push(invalidOptionSpace)
+    options.push(invalidOptionCapitalLetter)
 
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
 
     await validateScreenshot(page, 'question-with-invalid-admin-names-error')
     await adminQuestions.expectMultiOptionBlankOptionError(options, [])
-    await adminQuestions.expectMultiOptionInvalidOptionAdminError(options, [2])
+    await adminQuestions.expectMultiOptionInvalidOptionAdminError(
+      options,
+      [2, 3],
+    )
   })
 
-  it('persists export state', async () => {
+  test('persists export state', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -412,7 +450,7 @@ describe('normal question lifecycle', () => {
     ).toBeTruthy()
   })
 
-  it('shows the "Remove from universal questions" confirmation modal in the right circumstances and navigation works', async () => {
+  test('shows the "Remove from universal questions" confirmation modal in the right circumstances and navigation works', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -423,7 +461,6 @@ describe('normal question lifecycle', () => {
     // Since the flag is not enabled, the modal should not appear and you should be redirected to the admin questions page
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
 
-    await enableFeatureFlag(page, 'universal_questions')
     await adminQuestions.gotoQuestionEditPage(questionName)
     await adminQuestions.clickUniversalToggle()
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
@@ -446,10 +483,9 @@ describe('normal question lifecycle', () => {
       'Remove from universal questions',
     )
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
-    await disableFeatureFlag(page, 'universal_questions')
   })
 
-  it('redirects to draft question when trying to edit original question', async () => {
+  test('redirects to draft question when trying to edit original question', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
     await loginAsAdmin(page)
 
@@ -477,7 +513,7 @@ describe('normal question lifecycle', () => {
     )
   })
 
-  it('shows preview of formatted question name when creating a new question', async () => {
+  test('shows preview of formatted question name when creating a new question', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)

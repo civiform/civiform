@@ -18,7 +18,6 @@ import services.program.ProgramDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.question.types.QuestionDefinition;
-import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
@@ -41,27 +40,6 @@ abstract class ProgramBaseView extends BaseHtmlView {
     EDIT_PROGRAM_IMAGE,
     /** Redirects to previewing this program as an applicant. */
     PREVIEW_AS_APPLICANT,
-  }
-
-  /**
-   * Returns the header buttons used for editing various parts of the program (details, image,
-   * etc.).
-   *
-   * @param isEditingAllowed true if the view allows editing and false otherwise. (Typically, a view
-   *     only allows editing if a program is in draft mode.)
-   */
-  protected final ImmutableList<ProgramHeaderButton> getEditHeaderButtons(
-      Http.Request request, SettingsManifest settingsManifest, boolean isEditingAllowed) {
-    if (isEditingAllowed) {
-      if (settingsManifest.getProgramCardImages(request)) {
-        return ImmutableList.of(
-            ProgramHeaderButton.EDIT_PROGRAM_DETAILS, ProgramHeaderButton.EDIT_PROGRAM_IMAGE);
-      } else {
-        return ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM_DETAILS);
-      }
-    } else {
-      return ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM);
-    }
   }
 
   /**
@@ -179,14 +157,17 @@ abstract class ProgramBaseView extends BaseHtmlView {
       case EDIT_PROGRAM_DETAILS:
         return asRedirectElement(
             getStandardizedEditButton("Edit program details"),
-            routes.AdminProgramController.edit(programDefinition.id()).url());
+            routes.AdminProgramController.edit(
+                    programDefinition.id(), ProgramEditStatus.EDIT.name())
+                .url());
       case EDIT_PROGRAM_IMAGE:
         return asRedirectElement(
-            // TODO(#5676): Possibly use a different icon for the button.
-            ViewUtils.makeSvgTextButton("Edit program image", Icons.FILEUPLOAD)
+            ViewUtils.makeSvgTextButton("Edit program image", Icons.IMAGE)
                 .withClasses(HEADER_BUTTON_STYLES)
                 .withId("header_edit_program_image_button"),
-            routes.AdminProgramImageController.index(programDefinition.id()).url());
+            routes.AdminProgramImageController.index(
+                    programDefinition.id(), ProgramEditStatus.EDIT.name())
+                .url());
       case PREVIEW_AS_APPLICANT:
         return asRedirectElement(
             ViewUtils.makeSvgTextButton("Preview as applicant", Icons.VIEW)

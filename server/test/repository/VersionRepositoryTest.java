@@ -41,9 +41,6 @@ public class VersionRepositoryTest extends ResetPostgres {
   private VersionRepository versionRepository;
   private SyncCacheApi questionsByVersionCache;
   private SyncCacheApi programsByVersionCache;
-  private SyncCacheApi programCache;
-  private SyncCacheApi versionsByProgramCache;
-
   private SettingsManifest mockSettingsManifest;
 
   @Before
@@ -51,17 +48,14 @@ public class VersionRepositoryTest extends ResetPostgres {
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     questionsByVersionCache = instanceOf(SyncCacheApi.class);
     programsByVersionCache = instanceOf(SyncCacheApi.class);
-    programCache = instanceOf(SyncCacheApi.class);
-    versionsByProgramCache = instanceOf(SyncCacheApi.class);
     versionRepository =
         new VersionRepository(
             instanceOf(ProgramRepository.class),
+            instanceOf(QuestionRepository.class),
             instanceOf(DatabaseExecutionContext.class),
             mockSettingsManifest,
             questionsByVersionCache,
-            programsByVersionCache,
-            programCache,
-            versionsByProgramCache);
+            programsByVersionCache);
   }
 
   @Test
@@ -999,10 +993,6 @@ public class VersionRepositoryTest extends ResetPostgres {
     version2.refresh();
 
     String version1Key = String.valueOf(version1.id);
-
-    // Remove the questionCache for this version, since it is cached in
-    // publishNewSynchronizedVersion, but we're associating questions with it later.
-    questionsByVersionCache.remove(version1Key);
 
     // Associate question with obsolete version
     QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");

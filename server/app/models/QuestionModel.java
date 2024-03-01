@@ -1,12 +1,9 @@
 package models;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Streams;
+import com.google.common.collect.ImmutableSet;
 import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbJsonB;
 import io.ebean.annotation.WhenCreated;
@@ -14,7 +11,6 @@ import io.ebean.annotation.WhenModified;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -28,6 +24,7 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -64,20 +61,8 @@ public class QuestionModel extends BaseModel {
 
   private @Constraints.Required String description;
 
-  /**
-   * legacyQuestionText is the legacy storage column for question text translations. Questions
-   * created before early May 2021 may use this, but all other question should not.
-   */
-  private @DbJsonB ImmutableMap<Locale, String> legacyQuestionText;
-
   /** questionText is the current storage column for question text translations. */
   private @DbJsonB LocalizedStrings questionText;
-
-  /**
-   * legacyQuestionHelpText is the legacy storage column for question help text translations.
-   * Questions created before early May 2021 may use this, but all other question should not.
-   */
-  private @DbJsonB ImmutableMap<Locale, String> legacyQuestionHelpText;
 
   /** questionHelpText is the current storage column for question help text translations. */
   private @DbJsonB LocalizedStrings questionHelpText;
@@ -85,13 +70,6 @@ public class QuestionModel extends BaseModel {
   private @Constraints.Required String questionType;
 
   private @Constraints.Required @DbJsonB String validationPredicates;
-
-  // legacyQuestionOptions is the legacy storage column for multi-option questions.
-  // A few questions created early on in April 2021 may use this, but all
-  // other multi-option questions should not. In practice one can assume only
-  // a single locale is present for questions that have values stored in this
-  // column.
-  private @DbJsonB ImmutableListMultimap<Locale, String> legacyQuestionOptions;
 
   // questionOptions is the current storage column for multi-option questions.
   private @DbJsonB ImmutableList<QuestionOption> questionOptions;
@@ -151,93 +129,58 @@ public class QuestionModel extends BaseModel {
             .setEnumeratorId(Optional.ofNullable(enumeratorId))
             .setDescription(description)
             .setQuestionType(QuestionType.valueOf(questionType))
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
             .setValidationPredicatesString(validationPredicates)
             .setLastModifiedTime(Optional.ofNullable(lastModifiedTime))
-            .setUniversal(questionTags.contains(QuestionTag.UNIVERSAL));
+            .setUniversal(questionTags.contains(QuestionTag.UNIVERSAL))
+            .setPrimaryApplicantInfoTags(getPrimaryApplicantInfoTagsFromQuestionTags(questionTags));
 
     setEnumeratorEntityType(builder);
-
-    // Build accounting for legacy columns
-    setQuestionText(builder);
-    setQuestionHelpText(builder);
     setQuestionOptions(builder);
 
     this.questionDefinition = builder.build();
   }
 
   /**
-   * Add {@link LocalizedStrings} for question text to the builder, taking into account legacy
-   * columns.
+   * Given a list of {@link QuestionTag}s, fetches the set of {@link PrimaryApplicantInfoTag}s that
+   * correspond to those QuestionTags. Any {@link QuestionTag} that doesn't have a corresponding
+   * {@link PrimaryApplicantInfoTag} is ignored.
    *
-   * <p>The majority of questions should have `questionText` and not `legacyQuestionText`.
+   * @param questionTags The list of {@link QuestionTag}s to check.
+   * @return An {@link ImmutableSet} of {@link PrimaryApplicantInfoTag} corresponding to the given
+   *     {@link QuestionTag}s.
    */
-  private QuestionModel setQuestionText(QuestionDefinitionBuilder builder) {
-    LocalizedStrings textToSet =
-        Optional.ofNullable(questionText)
-            .orElseGet(() -> LocalizedStrings.create(legacyQuestionText));
-    builder.setQuestionText(textToSet);
-    return this;
+  private ImmutableSet<PrimaryApplicantInfoTag> getPrimaryApplicantInfoTagsFromQuestionTags(
+      List<QuestionTag> questionTags) {
+    return ImmutableList.copyOf(PrimaryApplicantInfoTag.values()).stream()
+        .filter(
+            primaryApplicantInfoTag ->
+                questionTags.contains(primaryApplicantInfoTag.getQuestionTag()))
+        .collect(ImmutableSet.toImmutableSet());
   }
 
   /**
-   * Add {@link LocalizedStrings} for question help text to the builder, taking into account legacy
-   * columns.
+   * Add {@link QuestionOption}s to the builder.
    *
-   * <p>The majority of questions should have `questionHelpText` and not `legacyQuestionHelpText`.
+   * <p>The majority of questions should have a `questionOptions`.
    */
-  private QuestionModel setQuestionHelpText(QuestionDefinitionBuilder builder) {
-    LocalizedStrings textToSet =
-        Optional.ofNullable(questionHelpText)
-            .orElseGet(
-                () -> LocalizedStrings.create(legacyQuestionHelpText, /* canBeEmpty= */ true));
-    builder.setQuestionHelpText(textToSet);
-    return this;
-  }
-
-  /**
-   * Add {@link QuestionOption}s to the builder, taking into account legacy columns.
-   *
-   * <p>The majority of questions should have a `questionOptions` and not `legacyQuestionOptions`.
-   */
-  private QuestionModel setQuestionOptions(QuestionDefinitionBuilder builder)
+  private void setQuestionOptions(QuestionDefinitionBuilder builder)
       throws InvalidQuestionTypeException {
     if (!QuestionType.of(questionType).isMultiOptionType()) {
-      return this;
+      return;
     }
 
-    // The majority of multi option questions should have `questionOptions` and not
-    // `legacyQuestionOptions`.
-    // `legacyQuestionOptions` is a legacy implementation that only supported a single locale.
     if (questionOptions != null) {
       builder.setQuestionOptions(questionOptions);
-      return this;
     }
-
-    // If the multi option question does have legacyQuestionOptions, we can assume there is only one
-    // locale and convert the strings to QuestionOption instances each with a single locale.
-    Locale firstKey = legacyQuestionOptions.keySet().stream().iterator().next();
-
-    ImmutableList<QuestionOption> options =
-        Streams.mapWithIndex(
-                legacyQuestionOptions.get(firstKey).stream(),
-                (optionText, i) ->
-                    QuestionOption.create(
-                        Long.valueOf(i),
-                        Long.valueOf(i),
-                        optionText,
-                        LocalizedStrings.of(firstKey, optionText)))
-            .collect(toImmutableList());
-
-    builder.setQuestionOptions(options);
-    return this;
   }
 
-  private QuestionModel setEnumeratorEntityType(QuestionDefinitionBuilder builder)
+  private void setEnumeratorEntityType(QuestionDefinitionBuilder builder)
       throws InvalidQuestionTypeException {
     if (QuestionType.of(questionType).equals(QuestionType.ENUMERATOR)) {
       builder.setEntityType(enumeratorEntityType);
     }
-    return this;
   }
 
   public QuestionDefinition getQuestionDefinition() {
@@ -276,6 +219,12 @@ public class QuestionModel extends BaseModel {
     } else {
       initTags();
     }
+
+    // Add QuestionTags for PrimaryApplicantInfoTags in the list. Note that this must come after
+    // we have done initTags above, either in this function or in addTag previously.
+    questionDefinition
+        .getPrimaryApplicantInfoTags()
+        .forEach(primaryApplicantInfoTag -> addTag(primaryApplicantInfoTag.getQuestionTag()));
 
     return this;
   }

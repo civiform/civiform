@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -6,13 +7,13 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('phone question for applicant flow', () => {
+test.describe('phone question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('single phone question', () => {
+  test.describe('single phone question', () => {
     const programName = 'Test program for single phone q'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       // As admin, create program with a free form text question.
       await loginAsAdmin(page)
@@ -28,14 +29,14 @@ describe('phone question for applicant flow', () => {
       await logout(page)
     })
 
-    it('validate screenshot', async () => {
+    test('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'phone')
     })
 
-    it('validate screenshot with errors', async () => {
+    test('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
@@ -43,22 +44,20 @@ describe('phone question for applicant flow', () => {
       await validateScreenshot(page, 'phone-errors')
     })
 
-    it('with phone submits successfully', async () => {
+    test('with phone submits successfully', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerPhoneQuestion(
-        'United States',
-        '4256373270',
-      )
+      await applicantQuestions.answerPhoneQuestion('4256373270')
       await validateScreenshot(page, 'phone-format-usa')
       await applicantQuestions.clickNext()
 
       await applicantQuestions.submitFromReviewPage()
     })
-    it('with canada phone submits successfully', async () => {
+
+    test('with canada phone submits successfully', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerPhoneQuestion('Canada', '2507274212')
+      await applicantQuestions.answerPhoneQuestion('2507274212')
 
       await validateScreenshot(page, 'phone-format-ca')
 
@@ -66,7 +65,7 @@ describe('phone question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with empty phone does not submit', async () => {
+    test('with empty phone does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
@@ -74,98 +73,74 @@ describe('phone question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const textId = '.cf-question-phone'
-      expect(await page.innerText(textId)).toContain(
-        'This question is required.',
-      )
-    })
-    it('with empty country code does not submit', async () => {
-      const {page, applicantQuestions} = ctx
-      await applicantQuestions.applyProgram(programName)
-
-      // Click next without inputting anything
-      await applicantQuestions.clickNext()
-
-      const countryCodeId = '.cf-phone-country-code'
-      expect(await page.innerText(countryCodeId)).toContain(
-        'Country must be selected',
-      )
+      expect(await page.innerText(textId)).toContain('Phone number is required')
     })
 
-    it('invalid phone numbers', async () => {
+    test('invalid phone numbers', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerPhoneQuestion(
-        'United States',
-        '1234567890',
-      )
+      await applicantQuestions.answerPhoneQuestion('1234567890')
 
       await applicantQuestions.clickNext()
 
-      const countryCodeId = '.cf-phone-number'
+      const countryCodeId = '.cf-question-phone'
       expect(await page.innerText(countryCodeId)).toContain(
         'This phone number is invalid',
       )
     })
 
-    it('invalid phone numbers for the country', async () => {
+    test('555 fake phone numbers', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerPhoneQuestion(
-        'United States',
-        '2507274212.',
-      )
+      await applicantQuestions.answerPhoneQuestion('5553231234')
 
       await applicantQuestions.clickNext()
-
-      const countryCodeId = '.cf-phone-number'
-      expect(await page.innerText(countryCodeId)).toContain(
-        'The phone you have provided does not belong to the country',
-      )
-    })
-
-    it('555 fake phone numbers', async () => {
-      const {page, applicantQuestions} = ctx
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerPhoneQuestion(
-        'United States',
-        '5553231234',
-      )
-
-      await applicantQuestions.clickNext()
-      const countryCodeId = '.cf-phone-number'
+      const countryCodeId = '.cf-question-phone'
       expect(await page.innerText(countryCodeId)).toContain(
         'This phone number is invalid',
       )
     })
-    it('invalid characters in phone numbers', async () => {
+
+    test('invalid length of phone number when only valid characters are included', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerPhoneQuestion(
-        'United States',
-        '123###1212',
-      )
+      await applicantQuestions.answerPhoneQuestion('123###1212')
 
       await applicantQuestions.clickNext()
-      const countryCodeId = '.cf-phone-number'
+      const countryCodeId = '.cf-question-phone'
       expect(await page.innerText(countryCodeId)).toContain(
         'This phone number is invalid',
       )
     })
-    it('incorrect length of phone number', async () => {
+
+    test('invalid characters in phone numbers', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerPhoneQuestion('United States', '615974')
+      await applicantQuestions.answerPhoneQuestion('123###1212121')
 
       await applicantQuestions.clickNext()
-      const countryCodeId = '.cf-phone-number'
+      const countryCodeId = '.cf-question-phone'
+      expect(await page.innerText(countryCodeId)).toContain(
+        'This phone number is invalid',
+      )
+    })
+
+    test('incorrect length of phone number', async () => {
+      const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerPhoneQuestion('615974')
+
+      await applicantQuestions.clickNext()
+      const countryCodeId = '.cf-question-phone'
       expect(await page.innerText(countryCodeId)).toContain(
         'Phone number is required',
       )
     })
-    it('hitting enter on phone does not trigger submission', async () => {
+
+    test('hitting enter on phone does not trigger submission', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerPhoneQuestion('Canada', '2507274212.')
+      await applicantQuestions.answerPhoneQuestion('2507274212.')
 
       // Ensure that clicking enter while on phone input doesn't trigger form
       // submission.
@@ -185,7 +160,8 @@ describe('phone question for applicant flow', () => {
       await page.keyboard.press('Enter')
       await applicantQuestions.expectReviewPage()
     })
-    it('has no accessiblity violations', async () => {
+
+    test('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
@@ -193,94 +169,72 @@ describe('phone question for applicant flow', () => {
     })
   })
 
-  describe('multiple phone questions', () => {
+  test.describe('multiple phone questions', () => {
     const programName = 'Test program for multiple phone qs'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
       await adminQuestions.addPhoneQuestion({
-        questionName: 'first-phone-q',
+        questionName: 'firstphoneq',
       })
       await adminQuestions.addPhoneQuestion({
-        questionName: 'second-phone-q',
+        questionName: 'secondphoneq',
       })
 
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockWithOptional(
         programName,
         'Optional question block',
-        ['second-phone-q'],
-        'first-phone-q', // optional
+        ['secondphoneq'],
+        'firstphoneq', // optional
       )
       await adminPrograms.publishAllDrafts()
 
       await logout(page)
     })
 
-    it('with both selections submits successfully', async () => {
+    test('with both selections submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerPhoneQuestion('Canada', '2507274212', 0)
-      await applicantQuestions.answerPhoneQuestion(
-        'United States',
-        '4256373270',
-        1,
-      )
+      await applicantQuestions.answerPhoneQuestion('2507274212', 0)
+      await applicantQuestions.answerPhoneQuestion('4256373270', 1)
       await applicantQuestions.clickNext()
 
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with unanswered optional question submits successfully', async () => {
+    test('with unanswered optional question submits successfully', async () => {
       const {applicantQuestions} = ctx
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerPhoneQuestion(
-        'United States',
-        '4256373270',
-        1,
-      )
+      await applicantQuestions.answerPhoneQuestion('4256373270', 1)
       await applicantQuestions.clickNext()
 
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with first invalid does not submit', async () => {
+    test('with first invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerPhoneQuestion(
-        'United States',
-        '1234567320',
-        0,
-      )
-      await applicantQuestions.answerPhoneQuestion(
-        'United States',
-        '4256373270',
-        1,
-      )
+      await applicantQuestions.answerPhoneQuestion('1234567320', 0)
+      await applicantQuestions.answerPhoneQuestion('4256373270', 1)
       await applicantQuestions.clickNext()
 
-      const textId = '.cf-question-phone'
-      expect(await page.innerText(textId)).toContain(
+      const locatorId = '[name="applicant.firstphoneq.phone_number"]'
+      const parentElement = page.locator(locatorId).locator('..')
+
+      expect(await parentElement.innerText()).toContain(
         'This phone number is invalid',
       )
     })
 
-    it('with second invalid does not submit', async () => {
+    test('with second invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerPhoneQuestion(
-        'United States',
-        '4256373270',
-        0,
-      )
-      await applicantQuestions.answerPhoneQuestion(
-        'United States',
-        '1234567320',
-        1,
-      )
+      await applicantQuestions.answerPhoneQuestion('4256373270', 0)
+      await applicantQuestions.answerPhoneQuestion('1234567320', 1)
       await applicantQuestions.clickNext()
 
       const textId = `.cf-question-phone >> nth=1`

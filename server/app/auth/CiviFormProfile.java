@@ -1,11 +1,12 @@
 package auth;
 
+import static java.util.Comparator.comparing;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import auth.controllers.MissingOptionalException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -15,6 +16,7 @@ import models.AccountModel;
 import models.ApplicantModel;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
+import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import services.settings.SettingsManifest;
 
@@ -30,27 +32,49 @@ public class CiviFormProfile {
   private final HttpExecutionContext httpContext;
   private final CiviFormProfileData profileData;
   private final SettingsManifest settingsManifest;
+  private final AccountRepository accountRepository;
 
   public CiviFormProfile(
       DatabaseExecutionContext dbContext,
       HttpExecutionContext httpContext,
       CiviFormProfileData profileData,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      AccountRepository accountRepository) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
     this.httpContext = Preconditions.checkNotNull(httpContext);
     this.profileData = Preconditions.checkNotNull(profileData);
     this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
+    this.accountRepository = Preconditions.checkNotNull(accountRepository);
   }
 
   /** Get the latest {@link ApplicantModel} associated with the profile. */
   public CompletableFuture<ApplicantModel> getApplicant() {
+    if (profileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME)) {
+      long applicantId =
+          profileData.getAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, Long.class);
+      return accountRepository
+          .lookupApplicant(applicantId)
+          .thenApply(
+              optionalApplicant -> {
+                return optionalApplicant.orElseThrow(
+                    () -> new MissingOptionalException(ApplicantModel.class));
+              })
+          .toCompletableFuture();
+    }
+
+    // If the applicant id has not yet been stored in the profile, then get it from the account,
+    // which requires an extra db fetch.
     return this.getAccount()
         .thenApplyAsync(
-            (a) ->
-                a.getApplicants().stream()
-                    .min(Comparator.comparing(ApplicantModel::getWhenCreated))
-                    .orElseThrow(),
+            (account) ->
+                getApplicantForAccount(account)
+                    .orElseThrow(() -> new MissingOptionalException(ApplicantModel.class)),
             httpContext.current());
+  }
+
+  private Optional<ApplicantModel> getApplicantForAccount(AccountModel account) {
+    // Accounts (should) correspond to a single applicant.
+    return account.getApplicants().stream().min(comparing(ApplicantModel::getWhenCreated));
   }
 
   /** Look up the {@link AccountModel} associated with the profile from database. */
@@ -262,5 +286,31 @@ public class CiviFormProfile {
                   String.format(
                       "Account %s is not authorized to access program %s.", getId(), programName));
             });
+  }
+
+  /**
+   * Stores applicant id in user profile.
+   *
+   * <p>This allows us to know the applicant id instead of having to specify it in the URL path, or
+   * looking up the account each time and finding the corresponding applicant id.
+   */
+  void storeApplicantIdInProfile(Long applicantId) {
+    if (!profileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME)) {
+      profileData.addAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, applicantId);
+    }
+  }
+
+  /**
+   * Stores applicant id corresponding to this account in user profile.
+   *
+   * <p>This allows us to know the applicant id instead of having to specify it in the URL path, or
+   * looking up the account each time and finding the corresponding applicant id.
+   */
+  void storeApplicantIdInProfile(AccountModel account) {
+    Long applicantId =
+        getApplicantForAccount(account)
+            .orElseThrow(() -> new MissingOptionalException(ApplicantModel.class))
+            .id;
+    storeApplicantIdInProfile(applicantId);
   }
 }

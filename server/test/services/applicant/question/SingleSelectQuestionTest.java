@@ -9,6 +9,7 @@ import java.util.OptionalLong;
 import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.question.LocalizedQuestionOption;
@@ -18,7 +19,7 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.QuestionDefinitionConfig;
 
-public class SingleSelectQuestionTest {
+public class SingleSelectQuestionTest extends ResetPostgres {
 
   private static final QuestionDefinitionConfig CONFIG =
       QuestionDefinitionConfig.builder()

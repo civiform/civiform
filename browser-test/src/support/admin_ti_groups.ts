@@ -1,3 +1,4 @@
+import {expect} from '@playwright/test'
 import {Page} from 'playwright'
 
 export class AdminTIGroups {
@@ -14,7 +15,7 @@ export class AdminTIGroups {
 
   async expectAdminTIPage() {
     expect(await this.page.innerText('h1')).toEqual(
-      'Create New Trusted Intermediary',
+      'Create new trusted intermediary',
     )
   }
 
@@ -43,7 +44,7 @@ export class AdminTIGroups {
   }
 
   async addGroupMember(emailAddress: string) {
-    await this.page.fill('text="Member Email Address"', emailAddress)
+    await this.page.fill('text="Member email address"', emailAddress)
     await this.page.click('text="Add"')
   }
 

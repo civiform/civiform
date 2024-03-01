@@ -26,7 +26,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
+import play.inject.BindingKey;
 import play.libs.F;
 import services.IdentifierBasedPaginationSpec;
 import services.LocalizedStrings;
@@ -36,6 +38,7 @@ import services.WellKnownPaths;
 import services.applicant.ApplicantData;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramType;
 import services.program.StatusDefinitions;
@@ -50,6 +53,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
   private ProgramRepository repo;
   private VersionRepository versionRepo;
   private SyncCacheApi programCache;
+  private SyncCacheApi programDefCache;
   private SyncCacheApi versionsByProgramCache;
   private SettingsManifest mockSettingsManifest;
 
@@ -59,12 +63,19 @@ public class ProgramRepositoryTest extends ResetPostgres {
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     programCache = instanceOf(SyncCacheApi.class);
     versionsByProgramCache = instanceOf(SyncCacheApi.class);
+
+    BindingKey<SyncCacheApi> programDefKey =
+        new BindingKey<>(SyncCacheApi.class)
+            .qualifiedWith(new NamedCacheImpl("full-program-definition"));
+    programDefCache = instanceOf(programDefKey.asScala());
+
     repo =
         new ProgramRepository(
             instanceOf(DatabaseExecutionContext.class),
             Providers.of(versionRepo),
             mockSettingsManifest,
             programCache,
+            programDefCache,
             versionsByProgramCache);
   }
 
@@ -101,42 +112,64 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void loadLegacy() {
-    DB.sqlUpdate(
-            "insert into programs (name, description, block_definitions, legacy_localized_name,"
-                + " legacy_localized_description, program_type) values ('Old Schema Entry',"
-                + " 'Description', '[]', '{\"en_us\": \"name\"}', '{\"en_us\": \"description\"}',"
-                + " 'default');")
-        .execute();
-    DB.sqlUpdate(
-            "insert into versions_programs (versions_id, programs_id) values ("
-                + "(select id from versions where lifecycle_stage = 'active'),"
-                + "(select id from programs where name = 'Old Schema Entry'));")
-        .execute();
+  public void setFullProgramDefinitionFromCache_doesNotSetWhenDraft() {
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(true);
+    ProgramModel program = resourceCreator.insertDraftProgram("testDraftInCache");
 
-    ProgramModel found =
-        versionRepo.getActiveVersion().getPrograms().stream()
-            .filter(
-                program -> program.getProgramDefinition().adminName().equals("Old Schema Entry"))
-            .findFirst()
-            .get();
+    repo.setFullProgramDefinitionCache(program.id, program.getProgramDefinition());
+    Optional<ProgramDefinition> programDefFromCache =
+        repo.getFullProgramDefinitionFromCache(program);
 
-    assertThat(found.getProgramDefinition().adminName()).isEqualTo("Old Schema Entry");
-    assertThat(found.getProgramDefinition().adminDescription()).isEqualTo("Description");
-    assertThat(found.getProgramDefinition().localizedName())
-        .isEqualTo(LocalizedStrings.of(Locale.US, "name"));
-    assertThat(found.getProgramDefinition().localizedDescription())
-        .isEqualTo(LocalizedStrings.of(Locale.US, "description"));
+    assertThat(programDefFromCache).isEmpty();
+  }
+
+  @Test
+  public void getFullProgramDefinitionFromCache_getsFromCacheWhenPresent() {
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(true);
+    ProgramModel program = resourceCreator.insertActiveProgram("testInCache");
+    repo.setFullProgramDefinitionCache(program.id, program.getProgramDefinition());
+
+    Optional<ProgramDefinition> programDefFromCache =
+        repo.getFullProgramDefinitionFromCache(program);
+
+    assertThat(programDefFromCache).isPresent();
+    assertThat(programDefFromCache.get().getQuestionIdsInProgram())
+        .isEqualTo(program.getProgramDefinition().getQuestionIdsInProgram());
+  }
+
+  @Test
+  public void getFullProgramDefinitionFromCache_returnsEmptyOptionalWhenNotPresent() {
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(true);
+    ProgramModel program = resourceCreator.insertActiveProgram("testNotInCache");
+
+    // We don't set the cache, but we try to get it here.
+    Optional<ProgramDefinition> programDefFromCache =
+        repo.getFullProgramDefinitionFromCache(program);
+
+    assertThat(programDefFromCache).isEmpty();
+  }
+
+  @Test
+  public void getFullProgramDefinitionFromCache_returnsEmptyOptionalWhenCacheDisabled() {
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(false);
+    ProgramModel program = resourceCreator.insertActiveProgram("testCacheDisabled");
+    repo.setFullProgramDefinitionCache(program.id, program.getProgramDefinition());
+
+    Optional<ProgramDefinition> programDefFromCache =
+        repo.getFullProgramDefinitionFromCache(program);
+
+    assertThat(programDefFromCache).isEmpty();
   }
 
   // Verify the StatusDefinitions default value in evolution 40 loads.
   @Test
   public void loadStatusDefinitionsEvolution() {
     DB.sqlUpdate(
-            "insert into programs (name, description, block_definitions, legacy_localized_name,"
-                + " legacy_localized_description, status_definitions, program_type) values"
-                + " ('Status Default', 'Description', '[]', '{\"en_us\": \"name\"}','{\"en_us\":"
-                + " \"description\"}', '{\"statuses\": []}', 'default');")
+            "insert into programs (name, description, block_definitions, status_definitions,"
+                + " localized_name, localized_description, program_type) values ('Status Default',"
+                + " 'Description', '[]', '{\"statuses\": []}', '{\"isRequired\": true,"
+                + " \"translations\": {\"en_US\": \"Status Default\"}}',  '{\"isRequired\": true,"
+                + " \"translations\": {\"en_US\": \"\"}}', 'default');")
         .execute();
     DB.sqlUpdate(
             "insert into versions_programs (versions_id, programs_id) values ("

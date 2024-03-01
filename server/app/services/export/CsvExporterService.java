@@ -91,9 +91,9 @@ public final class CsvExporterService {
   public String getProgramAllVersionsCsv(long programId, SubmittedApplicationFilter filters)
       throws ProgramNotFoundException {
     ImmutableList<ProgramDefinition> allProgramVersions =
-        programService.getAllProgramDefinitionVersions(programId).stream()
+        programService.getAllVersionsFullProgramDefinition(programId).stream()
             .collect(ImmutableList.toImmutableList());
-    ProgramDefinition currentProgram = programService.getProgramDefinition(programId);
+    ProgramDefinition currentProgram = programService.getFullProgramDefinition(programId);
     CsvExportConfig exportConfig =
         generateDefaultCsvExportConfig(allProgramVersions, currentProgram.hasEligibilityEnabled());
 
@@ -118,7 +118,7 @@ public final class CsvExporterService {
           programService.getSubmittedProgramApplications(programDefinition.id())) {
         applicantService
             .getReadOnlyApplicantProgramService(application, programDefinition)
-            .getSummaryData()
+            .getSummaryDataOnlyActive()
             .forEach(data -> answerMap.putIfAbsent(data.contextualizedPath(), data));
       }
     }
@@ -144,7 +144,7 @@ public final class CsvExporterService {
   public String getProgramCsv(long programId) throws ProgramNotFoundException {
     ImmutableList<ApplicationModel> applications =
         programService.getSubmittedProgramApplications(programId);
-    ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+    ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
     return exportCsv(
         generateDefaultCsvConfig(programId, programDefinition.hasEligibilityEnabled()),
         applications,
@@ -175,7 +175,7 @@ public final class CsvExporterService {
           Long programId = application.getProgram().id;
           if (!programDefinitions.containsKey(programId)) {
             try {
-              programDefinitions.put(programId, programService.getProgramDefinition(programId));
+              programDefinitions.put(programId, programService.getFullProgramDefinition(programId));
             } catch (ProgramNotFoundException e) {
               throw new RuntimeException("Cannot find a program that has applications for it.", e);
             }
@@ -227,7 +227,7 @@ public final class CsvExporterService {
               .toCompletableFuture()
               .join();
       roApplicantService
-          .getSummaryData()
+          .getSummaryDataOnlyActive()
           .forEach(data -> answerMap.putIfAbsent(answerDataKey(data), data));
     }
 

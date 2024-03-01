@@ -39,7 +39,12 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
 
   private static final String ENUMERATOR_FIELD_CLASSES =
       StyleUtils.joinStyles(
-          ReferenceClasses.ENUMERATOR_FIELD, "grid", "grid-cols-2", "gap-4", "mb-4");
+          ReferenceClasses.ENUMERATOR_FIELD,
+          "grid",
+          "grid-cols-1",
+          "sm:grid-cols-2",
+          "gap-4",
+          "mb-4");
 
   public EnumeratorQuestionRenderer(ApplicantQuestion question) {
     super(question);

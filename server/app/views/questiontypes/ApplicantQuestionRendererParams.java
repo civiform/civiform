@@ -9,7 +9,10 @@ import services.cloud.StorageUploadRequest;
 @AutoValue
 public abstract class ApplicantQuestionRendererParams {
 
-  /** Indicates whether validation errors should be rendered when displaying the question. */
+  /**
+   * Indicates how validation errors should be rendered (or not rendered) when displaying the
+   * question.
+   */
   public enum ErrorDisplayMode {
     /**
      * Validation errors aren't displayed. Typically used when displaying the question to the
@@ -20,7 +23,39 @@ public abstract class ApplicantQuestionRendererParams {
      * Validation errors are displayed. Typically used when displaying a question in response to the
      * applicant submitting a form.
      */
-    DISPLAY_ERRORS
+    DISPLAY_ERRORS,
+    /**
+     * Validation errors are displayed, *and* a modal is displayed on top of the form asking the
+     * applicant to either (1) correct the errors or (2) discard their answers and continue to the
+     * Review page. Typically used when the applicant has clicked Review but their answers didn't
+     * pass validation.
+     */
+    DISPLAY_ERRORS_WITH_MODAL_REVIEW,
+    /**
+     * Validation errors are displayed, *and* a modal is displayed on top of the form asking the
+     * applicant to either (1) correct the errors or (2) discard their answers and continue to the
+     * previous block. Typically used when the applicant has clicked Previous but their answers
+     * didn't pass validation.
+     */
+    DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
+
+    /**
+     * Returns true if the given mode indicates that validation errors should be rendered when
+     * displaying the form and false otherwise.
+     */
+    public static boolean shouldShowErrors(ErrorDisplayMode mode) {
+      return mode == DISPLAY_ERRORS
+          || mode == DISPLAY_ERRORS_WITH_MODAL_REVIEW
+          || mode == DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
+    }
+
+    /**
+     * Returns true if the given mode indicates that validation errors *and* a modal should be
+     * rendered when displaying the form and false otherwise.
+     */
+    public static boolean shouldShowErrorsWithModal(ErrorDisplayMode mode) {
+      return mode == DISPLAY_ERRORS_WITH_MODAL_REVIEW || mode == DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
+    }
   }
 
   public static Builder builder() {

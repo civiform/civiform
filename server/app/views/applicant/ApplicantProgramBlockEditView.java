@@ -4,11 +4,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
-import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS;
+import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrorsWithModal;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.assistedinject.Assisted;
-import controllers.applicant.routes;
+import controllers.applicant.ApplicantRequestedAction;
+import controllers.applicant.ApplicantRoutes;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -22,10 +24,11 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
-import views.FileUploadViewStrategy;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
+import views.components.Modal;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
@@ -36,31 +39,46 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   private final String BLOCK_FORM_ID = "cf-block-form";
 
   private final ApplicantLayout layout;
-  private final FileUploadViewStrategy fileUploadStrategy;
+  private final ApplicantFileUploadRenderer applicantFileUploadRenderer;
   private final ApplicantQuestionRendererFactory applicantQuestionRendererFactory;
+  private final ApplicantRoutes applicantRoutes;
+  private final SettingsManifest settingsManifest;
+  private final EditOrDiscardAnswersModalCreator editOrDiscardAnswersModalCreator;
 
   @Inject
   ApplicantProgramBlockEditView(
       ApplicantLayout layout,
-      FileUploadViewStrategy fileUploadStrategy,
-      @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
+      ApplicantFileUploadRenderer applicantFileUploadRenderer,
+      @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
+      ApplicantRoutes applicantRoutes,
+      EditOrDiscardAnswersModalCreator editOrDiscardAnswersModalCreator,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layout);
-    this.fileUploadStrategy = checkNotNull(fileUploadStrategy);
+    this.applicantFileUploadRenderer = checkNotNull(applicantFileUploadRenderer);
     this.applicantQuestionRendererFactory = checkNotNull(applicantQuestionRendererFactory);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.editOrDiscardAnswersModalCreator = checkNotNull(editOrDiscardAnswersModalCreator);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(Params params) {
     DivTag blockDiv =
         div()
             .with(div(renderBlockWithSubmitForm(params)).withClasses("my-8"))
-            .withClasses("my-8", "m-auto");
+            .withClasses("my-8", "m-auto", "break-words");
 
     String errorMessage = "";
     if (params.block().hasErrors()
-        && ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS.equals(
+        && ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(
             params.errorDisplayMode())) {
       // Add error message to title for screen reader users.
       errorMessage = " — " + params.messages().at(MessageKey.ERROR_ANNOUNCEMENT_SR.getKeyName());
+    }
+
+    ImmutableList.Builder<Modal> modals = ImmutableList.builder();
+    if (settingsManifest.getSaveOnAllActions(params.request())
+        && shouldShowErrorsWithModal(params.errorDisplayMode())) {
+      modals.add(editOrDiscardAnswersModalCreator.createModal(params));
     }
 
     HtmlBundle bundle =
@@ -68,7 +86,10 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
             .getBundle(params.request())
             .setTitle(
                 layout.renderPageTitleWithBlockProgress(
-                        params.programTitle(), params.blockIndex(), params.totalBlockCount())
+                        params.programTitle(),
+                        params.blockIndex(),
+                        params.totalBlockCount(),
+                        params.messages())
                     + errorMessage);
 
     Optional<DivTag> maybeBackToAdminViewButton =
@@ -79,8 +100,13 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     bundle
         .addMainContent(
             layout.renderProgramApplicationTitleAndProgressIndicator(
-                params.programTitle(), params.blockIndex(), params.totalBlockCount(), false),
+                params.programTitle(),
+                params.blockIndex(),
+                params.totalBlockCount(),
+                false,
+                params.messages()),
             blockDiv)
+        .addModals(modals.build())
         .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
     params.bannerMessage().ifPresent(bundle::addToastMessages);
@@ -120,14 +146,15 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
 
   private ContainerTag<?> renderBlockWithSubmitForm(Params params) {
     if (params.block().isFileUpload()) {
-      return fileUploadStrategy.renderFileUploadBlock(params, applicantQuestionRendererFactory);
+      return applicantFileUploadRenderer.renderFileUploadBlock(
+          params, applicantQuestionRendererFactory);
     }
 
     FormTag form = form();
     final boolean formHasErrors = params.block().hasErrors();
 
     if (formHasErrors
-        && ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS.equals(
+        && ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(
             params.errorDisplayMode())) {
       form.with(
           div()
@@ -142,8 +169,14 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     }
 
     String formAction =
-        routes.ApplicantProgramBlocksController.update(
-                params.applicantId(), params.programId(), params.block().getId(), params.inReview())
+        applicantRoutes
+            .updateBlock(
+                params.profile(),
+                params.applicantId(),
+                params.programId(),
+                params.block().getId(),
+                params.inReview(),
+                ApplicantRequestedAction.NEXT_BLOCK)
             .url();
 
     AtomicInteger ordinalErrorCount = new AtomicInteger(0);
@@ -190,7 +223,8 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
       boolean formHasErrors,
       int ordinalErrorCount,
       Optional<String> applicantSelectedQuestionName) {
-    if (formHasErrors && DISPLAY_ERRORS.equals(errorDisplayMode)) {
+    if (formHasErrors
+        && ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(errorDisplayMode)) {
       return ordinalErrorCount == 1
           ? ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_ERROR
           : ApplicantQuestionRendererParams.AutoFocusTarget.NONE;
@@ -206,16 +240,16 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     checkNotNull(
         applicantQuestionRendererFactory,
         "Must call init function for initializing ApplicantQuestionRendererFactory");
-    return applicantQuestionRendererFactory.getRenderer(question).render(params);
+    return applicantQuestionRendererFactory
+        .getRenderer(question, Optional.of(params.messages()))
+        .render(params);
   }
 
   private DivTag renderBottomNavButtons(Params params) {
     return div()
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-        // An empty div to take up the space to the left of the buttons.
-        .with(div().withClasses("flex-grow"))
-        .with(renderReviewButton(params))
-        .with(renderPreviousButton(params))
+        .with(renderReviewButton(settingsManifest, params))
+        .with(renderPreviousButton(settingsManifest, params))
         .with(renderNextButton(params));
   }
 

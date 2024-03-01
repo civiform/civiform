@@ -7,78 +7,60 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import play.Environment;
-import services.cloud.StorageClient;
+import services.cloud.ApplicantStorageClient;
+import services.cloud.PublicStorageClient;
 import services.cloud.StorageServiceName;
-import views.AwsFileUploadViewStrategy;
-import views.AzureFileUploadViewStrategy;
+import services.cloud.aws.AwsApplicantStorage;
+import services.cloud.aws.AwsPublicStorage;
+import services.cloud.aws.AwsS3Client;
+import services.cloud.aws.AwsS3ClientWrapper;
+import services.cloud.azure.AzureApplicantStorage;
+import services.cloud.azure.AzurePublicStorage;
 import views.BaseHtmlView;
-import views.FileUploadViewStrategy;
 import views.applicant.ApplicantProgramBlockEditView;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
+import views.fileupload.AwsFileUploadViewStrategy;
+import views.fileupload.AzureFileUploadViewStrategy;
+import views.fileupload.FileUploadViewStrategy;
 
 /** Configures and initializes the classes for interacting with file storage backends. */
 public class CloudStorageModule extends AbstractModule {
-
-  private static final String AZURE_STORAGE_CLASS_NAME = "services.cloud.azure.BlobStorage";
-  private static final String AWS_STORAGE_CLASS_NAME = "services.cloud.aws.SimpleStorage";
-
-  private final Environment environment;
   private final Config config;
 
-  public CloudStorageModule(Environment environment, Config config) {
-    this.environment = checkNotNull(environment);
+  // Environment must always be provided as a param, even if it's unused.
+  public CloudStorageModule(Environment unused, Config config) {
     this.config = checkNotNull(config);
   }
 
   @Override
   protected void configure() {
-    String className = AWS_STORAGE_CLASS_NAME;
-
+    StorageServiceName storageServiceName;
     try {
       String storageProvider = checkNotNull(config).getString("cloud.storage");
-      className = getStorageProviderClassName(storageProvider);
-      bindCloudStorageStrategy(storageProvider);
+      storageServiceName =
+          StorageServiceName.forString(storageProvider).orElse(StorageServiceName.AWS_S3);
     } catch (ConfigException ex) {
-      // Ignore missing config and default to S3 for now
+      // Default to S3 if nothing is configured
+      storageServiceName = StorageServiceName.AWS_S3;
     }
 
-    try {
-      Class<? extends StorageClient> boundClass =
-          environment.classLoader().loadClass(className).asSubclass(StorageClient.class);
-      bind(StorageClient.class).to(boundClass);
-    } catch (ClassNotFoundException ex) {
-      throw new RuntimeException(
-          String.format("Failed to load storage client class: %s", className));
+    switch (storageServiceName) {
+      case AWS_S3:
+        bind(ApplicantStorageClient.class).to(AwsApplicantStorage.class);
+        bind(PublicStorageClient.class).to(AwsPublicStorage.class);
+        bind(FileUploadViewStrategy.class).to(AwsFileUploadViewStrategy.class);
+        bind(AwsS3ClientWrapper.class).to(AwsS3Client.class);
+        break;
+      case AZURE_BLOB:
+        bind(ApplicantStorageClient.class).to(AzureApplicantStorage.class);
+        bind(PublicStorageClient.class).to(AzurePublicStorage.class);
+        bind(FileUploadViewStrategy.class).to(AzureFileUploadViewStrategy.class);
+        break;
     }
 
     install(
         new FactoryModuleBuilder()
             .implement(BaseHtmlView.class, ApplicantProgramBlockEditView.class)
             .build(ApplicantProgramBlockEditViewFactory.class));
-  }
-
-  private void bindCloudStorageStrategy(String storageProvider) {
-    StorageServiceName storageServiceName = StorageServiceName.forString(storageProvider).get();
-
-    switch (storageServiceName) {
-      case AZURE_BLOB:
-        bind(FileUploadViewStrategy.class).to(AzureFileUploadViewStrategy.class);
-        return;
-      case AWS_S3:
-      default:
-        bind(FileUploadViewStrategy.class).to(AwsFileUploadViewStrategy.class);
-    }
-  }
-
-  private String getStorageProviderClassName(String storageProvider) {
-    StorageServiceName storageServiceName = StorageServiceName.forString(storageProvider).get();
-
-    switch (storageServiceName) {
-      case AZURE_BLOB:
-        return AZURE_STORAGE_CLASS_NAME;
-      case AWS_S3:
-      default:
-        return AWS_STORAGE_CLASS_NAME;
-    }
   }
 }

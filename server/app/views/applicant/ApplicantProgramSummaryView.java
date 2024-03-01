@@ -7,14 +7,16 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 
+import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import controllers.applicant.routes;
+import controllers.applicant.ApplicantRoutes;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -46,13 +48,18 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final DateConverter dateConverter;
   private final SettingsManifest settingsManifest;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public ApplicantProgramSummaryView(
-      ApplicantLayout layout, DateConverter dateConverter, SettingsManifest settingsManifest) {
+      ApplicantLayout layout,
+      DateConverter dateConverter,
+      SettingsManifest settingsManifest,
+      ApplicantRoutes applicantRoutes) {
     this.layout = checkNotNull(layout);
     this.dateConverter = checkNotNull(dateConverter);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   /**
@@ -87,14 +94,14 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
           && currentRepeatedEntity.isPresent()) {
         applicationSummary.with(renderRepeatedEntitySection(currentRepeatedEntity.get(), messages));
       }
-      applicationSummary.with(renderQuestionSummary(answerData, messages, params.applicantId()));
+      applicationSummary.with(
+          renderQuestionSummary(answerData, messages, params.applicantId(), params.profile()));
       previousRepeatedEntity = currentRepeatedEntity;
     }
 
     // Add submit action (POST).
     String submitLink =
-        routes.ApplicantProgramReviewController.submit(params.applicantId(), params.programId())
-            .url();
+        applicantRoutes.submit(params.profile(), params.applicantId(), params.programId()).url();
 
     ContainerTag continueOrSubmitButton;
     if (params.completedBlockCount() == params.totalBlockCount()) {
@@ -103,7 +110,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
               .withClasses(ReferenceClasses.SUBMIT_BUTTON, ButtonStyles.SOLID_BLUE, "mx-auto");
     } else {
       String applyUrl =
-          routes.ApplicantProgramsController.edit(params.applicantId(), params.programId()).url();
+          applicantRoutes.edit(params.profile(), params.applicantId(), params.programId()).url();
       continueOrSubmitButton =
           a().withHref(applyUrl)
               .withText(messages.at(MessageKey.BUTTON_CONTINUE.getKeyName()))
@@ -144,7 +151,11 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     }
     bundle.addMainContent(
         layout.renderProgramApplicationTitleAndProgressIndicator(
-            params.programTitle(), params.completedBlockCount(), params.totalBlockCount(), true),
+            params.programTitle(),
+            params.completedBlockCount(),
+            params.totalBlockCount(),
+            true,
+            messages),
         h2(pageTitle).withClasses(ApplicantStyles.PROGRAM_APPLICATION_TITLE),
         ApplicationBaseView.requiredFieldsExplanationContent(messages),
         content);
@@ -159,12 +170,18 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
   }
 
   /** Renders {@code data} including the question and any existing answer to it. */
-  private DivTag renderQuestionSummary(AnswerData data, Messages messages, long applicantId) {
+  private DivTag renderQuestionSummary(
+      AnswerData data, Messages messages, long applicantId, CiviFormProfile profile) {
     DivTag questionContent =
         div(div()
                 .with(
-                    TextFormatter.formatText(
-                        data.questionText(), true, !data.applicantQuestion().isOptional()))
+                    TextFormatter.formatTextWithAriaLabel(
+                        data.questionText(),
+                        /* preserveEmptyLines */ true,
+                        !data.applicantQuestion().isOptional(),
+                        messages
+                            .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                            .toLowerCase(Locale.ROOT)))
                 .withClasses("font-semibold"))
             .withClasses("pr-2");
 
@@ -229,16 +246,16 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     if (data.isAnswered()) {
       editElement
           .setHref(
-              routes.ApplicantProgramBlocksController.review(
-                      applicantId, data.programId(), data.blockId(), questionName)
+              applicantRoutes
+                  .blockReview(profile, applicantId, data.programId(), data.blockId(), questionName)
                   .url())
           .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
           .setIcon(Icons.EDIT, LinkElement.IconPosition.START);
     } else {
       editElement
           .setHref(
-              routes.ApplicantProgramBlocksController.edit(
-                      applicantId, data.programId(), data.blockId(), questionName)
+              applicantRoutes
+                  .blockEdit(profile, applicantId, data.programId(), data.blockId(), questionName)
                   .url())
           .setText(messages.at(MessageKey.LINK_ANSWER.getKeyName()))
           .setIcon(Icons.ARROW_FORWARD, LinkElement.IconPosition.END);
@@ -331,6 +348,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     abstract Optional<Modal> loginPromptModal();
 
+    abstract CiviFormProfile profile();
+
     @AutoValue.Builder
     public abstract static class Builder {
 
@@ -357,6 +376,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       public abstract Builder setTotalBlockCount(int totalBlockCount);
 
       public abstract Builder setLoginPromptModal(Modal loginPromptModal);
+
+      public abstract Builder setProfile(CiviFormProfile profile);
 
       public abstract Params build();
     }

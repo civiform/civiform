@@ -3,6 +3,7 @@ package models;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import auth.oidc.SerializedIdTokens;
+import autovalue.shaded.com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbJsonB;
@@ -54,6 +55,18 @@ public class AccountModel extends BaseModel {
 
   @DbJsonB(name = "id_tokens")
   private SerializedIdTokens serializedIdTokens;
+
+  private String tiNote;
+
+  public AccountModel setTiNote(String tiNote) {
+    this.tiNote = tiNote;
+    return this;
+  }
+
+  public String getTiNote() {
+    if (Strings.isNullOrEmpty(this.tiNote)) return "";
+    return this.tiNote;
+  }
 
   public ImmutableList<Long> ownedApplicantIds() {
     return getApplicants().stream().map(applicant -> applicant.id).collect(toImmutableList());

@@ -421,6 +421,16 @@
             "description": "The max size (in Mb) of files uploaded to s3.",
             "type": "string"
           },
+          "AWS_S3_PUBLIC_BUCKET_NAME": {
+            "mode": "HIDDEN",
+            "description": "s3 bucket to store **publicly accessible** files in.",
+            "type": "string"
+          },
+          "AWS_S3_PUBLIC_FILE_LIMIT_MB": {
+            "mode": "HIDDEN",
+            "description": "The max size (in Mb) of **publicly accessible** files uploaded to s3.",
+            "type": "string"
+          },
           "AZURE_STORAGE_ACCOUNT_NAME": {
             "mode": "HIDDEN",
             "description": "The azure account name where the blob storage service exists.",
@@ -714,13 +724,18 @@
         "type": "bool"
       },
       "ADMIN_OIDC_ENHANCED_LOGOUT_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enables populating more fields in OIDC logout requests to admin identity provider.",
         "type": "bool"
       },
       "APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enables populating more fields in OIDC logout requests to applicant identity provider.",
+        "type": "bool"
+      },
+      "PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables setting a universal question as a question representing information about the applicant. The system can then take certain actions based on the answer to this question.",
         "type": "bool"
       },
       "UNIVERSAL_QUESTIONS": {
@@ -731,6 +746,16 @@
       "PROGRAM_CARD_IMAGES": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables images on program cards, both for admins to upload them and for applicants to view them.",
+        "type": "bool"
+      },
+      "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Add programs cards to the confirmation screen that an applicant sees after finishing an application.",
+        "type": "bool"
+      },
+      "SAVE_ON_ALL_ACTIONS": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Save an applicant's answers when they take any action ('Review'/'Previous'/'Save and next') instead of only saving on 'Save and next'.",
         "type": "bool"
       }
     }

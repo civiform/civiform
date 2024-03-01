@@ -1,3 +1,4 @@
+import {expect} from '@playwright/test'
 import {ElementHandle, Frame, Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {
@@ -36,8 +37,8 @@ export interface DownloadedApplication {
 export enum ProgramVisibility {
   HIDDEN = 'Hide from applicants.',
   PUBLIC = 'Publicly visible',
-  TI_ONLY = 'Trusted Intermediaries ONLY',
-  SELECT_TI = 'Visible to Selected Trusted Intermediaries ONLY',
+  TI_ONLY = 'Trusted intermediaries only',
+  SELECT_TI = 'Visible to selected trusted intermediaries only',
 }
 
 function slugify(value: string): string {
@@ -98,8 +99,13 @@ export class AdminPrograms {
   }
 
   /**
-   * Creates program with given name. At the end of this method the current
-   * page is going to be block edit page.
+   * Creates program with given name.
+   *
+   * @param {boolean} submitNewProgram - If true, the new program will be submitted
+   * to the database and then the admin will be redirected to the next page in the
+   * program creation flow. If false, the new program information will be filled in
+   * but *not* submitted to the database and the current page will still be the
+   * program creation page.
    */
   async addProgram(
     programName: string,
@@ -119,6 +125,7 @@ export class AdminPrograms {
       '\n' +
       '\n' +
       'This link should be autodetected: https://www.example.com\n',
+    submitNewProgram = true,
   ) {
     await this.gotoAdminProgramsPage()
     await this.page.click('#new-program-button')
@@ -146,10 +153,26 @@ export class AdminPrograms {
       await this.clickCommonIntakeFormToggle()
     }
 
+    if (submitNewProgram) {
+      await this.submitProgramDetailsEdits()
+    }
+  }
+
+  async submitProgramDetailsEdits() {
     await this.page.click('#program-update-button')
     await waitForPageJsLoad(this.page)
-    await this.expectProgramBlockEditPage(programName)
   }
+
+  async expectProgramDetailsSaveAndContinueButton() {
+    expect(await this.page.innerText('#program-update-button')).toEqual(
+      'Save and continue to next step',
+    )
+  }
+
+  async expectProgramDetailsSaveButton() {
+    expect(await this.page.innerText('#program-update-button')).toEqual('Save')
+  }
+
   async editProgram(
     programName: string,
     visibility = ProgramVisibility.PUBLIC,
@@ -166,8 +189,7 @@ export class AdminPrograms {
       await this.page.check(`label:has-text("${selectedTI}")`)
     }
 
-    await this.page.click('#program-update-button')
-    await waitForPageJsLoad(this.page)
+    await this.submitProgramDetailsEdits()
   }
 
   async programNames() {
@@ -289,7 +311,7 @@ export class AdminPrograms {
     await this.expectDraftProgram(programName)
     await this.gotoEditDraftProgramPage(programName)
     await this.page.click('button:has-text("Edit program image")')
-    await this.expectProgramImagePage(programName)
+    await this.expectProgramImagePage()
   }
 
   async gotoManageProgramAdminsPage(programName: string) {
@@ -302,7 +324,7 @@ export class AdminPrograms {
       this.withinProgramCardSelector(
         programName,
         'Draft',
-        ':text("Manage Program Admins")',
+        ':text("Manage program admins")',
       ),
     )
     await waitForPageJsLoad(this.page)
@@ -438,14 +460,14 @@ export class AdminPrograms {
     )
   }
 
-  async expectProgramImagePage(programName: string) {
+  async expectProgramImagePage() {
     const adminProgramImage = new AdminProgramImage(this.page)
-    await adminProgramImage.expectProgramImagePage(programName)
+    await adminProgramImage.expectProgramImagePage()
   }
 
   async expectManageProgramAdminsPage() {
     expect(await this.page.innerText('h1')).toContain(
-      'Manage Admins for Program',
+      'Manage admins for program',
     )
   }
 
@@ -528,6 +550,24 @@ export class AdminPrograms {
     await this.gotoEditDraftProgramPage(programName)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
+    await this.page.fill('textarea', blockDescription)
+    // Make sure input validation enables the button before clicking.
+    await this.page.click('#update-block-button:not([disabled])')
+
+    for (const questionName of questionNames) {
+      await this.addQuestionFromQuestionBank(questionName)
+    }
+  }
+  async editProgramBlockWithBlockName(
+    programName: string,
+    blockName: string,
+    blockDescription = 'screen description',
+    questionNames: string[] = [],
+  ) {
+    await this.gotoEditDraftProgramPage(programName)
+
+    await clickAndWaitForModal(this.page, 'block-description-modal')
+    await this.page.fill('#block-name-input', blockName)
     await this.page.fill('textarea', blockDescription)
     // Make sure input validation enables the button before clicking.
     await this.page.click('#update-block-button:not([disabled])')
@@ -673,7 +713,7 @@ export class AdminPrograms {
   }
 
   private static PUBLISH_ALL_MODAL_TITLE =
-    'All draft programs will be published'
+    'Do you want to publish all draft programs?'
 
   publishAllProgramsModalLocator() {
     return this.page.locator(
@@ -684,7 +724,9 @@ export class AdminPrograms {
   async publishAllDrafts() {
     await this.gotoAdminProgramsPage()
     const modal = await this.openPublishAllDraftsModal()
-    const confirmHandle = (await modal.$('button:has-text("Confirm")'))!
+    const confirmHandle = (await modal.$(
+      'button:has-text("Publish all draft programs and questions")',
+    ))!
     await confirmHandle.click()
 
     await waitForPageJsLoad(this.page)
@@ -751,8 +793,7 @@ export class AdminPrograms {
     await this.page.click('button:has-text("Edit program details")')
     await waitForPageJsLoad(this.page)
 
-    await this.page.click('#program-update-button')
-    await waitForPageJsLoad(this.page)
+    await this.submitProgramDetailsEdits()
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
   }
@@ -1063,7 +1104,7 @@ export class AdminPrograms {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.page.click(
-        '#download-demographics-csv-modal button:has-text("Download Demographic Data (CSV)")',
+        '#download-demographics-csv-modal button:has-text("Download demographic data (CSV)")',
       ),
     ])
     await dismissModal(this.page)
@@ -1138,5 +1179,13 @@ export class AdminPrograms {
 
   async clickCommonIntakeFormToggle() {
     await this.page.click('input[name=isCommonIntakeForm]')
+  }
+
+  async toggleEligibilityGating() {
+    await this.page.getByTestId('goto-program-settings-link').click()
+    await this.page.waitForLoadState()
+    await this.page.click('#eligibility-toggle')
+    await this.page.getByText('Back').click()
+    await this.page.waitForLoadState()
   }
 }

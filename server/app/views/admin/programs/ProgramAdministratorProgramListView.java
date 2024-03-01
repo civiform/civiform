@@ -67,7 +67,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                 each(
                     programs.getActivePrograms().stream()
                         .filter(program -> authorizedPrograms.contains(program.adminName()))
-                        .map(p -> buildCardData(request, p))
+                        .map(p -> buildCardData(request, p, civiformProfile))
                         .sorted(ProgramCardFactory.programTypeThenLastModifiedThenNameComparator())
                         .map(cardData -> programCardFactory.renderCard(request, cardData))));
 
@@ -76,7 +76,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
   }
 
   private ProgramCardFactory.ProgramCardData buildCardData(
-      Request request, ProgramDefinition activeProgram) {
+      Request request, ProgramDefinition activeProgram, Optional<CiviFormProfile> profile) {
     return ProgramCardFactory.ProgramCardData.builder()
         .setActiveProgram(
             Optional.of(
@@ -88,6 +88,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                             renderViewApplicationsLink(request, activeProgram)))
                     .setExtraRowActions(ImmutableList.of())
                     .build()))
+        .setProfile(profile)
         .build();
   }
 
@@ -115,7 +116,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
   private ButtonTag renderShareLink(ProgramDefinition program) {
     String programLink =
         baseUrl
-            + controllers.applicant.routes.DeepLinkController.programBySlug(program.slug()).url();
+            + controllers.applicant.routes.ApplicantProgramsController.show(program.slug()).url();
     return makeSvgTextButton("Share link", Icons.CONTENT_COPY)
         .withClass(ButtonStyles.CLEAR_WITH_ICON)
         .withData("copyable-program-link", programLink);

@@ -9,10 +9,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import controllers.BadRequestException;
+import controllers.admin.ImageDescriptionNotRemovableException;
 import forms.BlockForm;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +32,7 @@ import models.DisplayMode;
 import models.ProgramModel;
 import models.VersionModel;
 import modules.MainModule;
+import org.apache.commons.lang3.StringUtils;
 import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.AccountRepository;
@@ -66,10 +68,11 @@ public final class ProgramService {
       "A public description for the program is required";
   private static final String MISSING_DISPLAY_MODE_MSG =
       "A program visibility option must be selected";
-  private static final String MISSING_ADMIN_DESCRIPTION_MSG = "A program note is required";
   private static final String MISSING_ADMIN_NAME_MSG = "A program URL is required";
   private static final String INVALID_ADMIN_NAME_MSG =
       "A program URL may only contain lowercase letters, numbers, and dashes";
+  private static final String INVALID_PROGRAM_SLUG_MSG =
+      "A program URL must contain at least one letter";
   private static final String INVALID_PROGRAM_LINK_FORMAT_MSG =
       "A program link must begin with 'http://' or 'https://'";
   private static final String MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE =
@@ -140,7 +143,7 @@ public final class ProgramService {
   }
 
   /**
-   * Get the definition for a given program.
+   * Get the full definition for a given program.
    *
    * <p>This method loads question definitions for all block definitions from a version the program
    * is in. If the program contains a question that is not in any versions associated with the
@@ -150,9 +153,9 @@ public final class ProgramService {
    * @return the {@link ProgramDefinition} for the given ID if it exists
    * @throws ProgramNotFoundException when ID does not correspond to a real Program
    */
-  public ProgramDefinition getProgramDefinition(long id) throws ProgramNotFoundException {
+  public ProgramDefinition getFullProgramDefinition(long id) throws ProgramNotFoundException {
     try {
-      return getProgramDefinitionAsync(id).toCompletableFuture().join();
+      return getFullProgramDefinitionAsync(id).toCompletableFuture().join();
     } catch (CompletionException e) {
       if (e.getCause() instanceof ProgramNotFoundException) {
         throw new ProgramNotFoundException(id);
@@ -162,25 +165,48 @@ public final class ProgramService {
   }
 
   /**
-   * Get the definition of a given program asynchronously. The ID may correspond to any version.
+   * Get the full definition of a given program asynchronously. The ID may correspond to any
+   * version.
    *
    * @param id the ID of the program to retrieve
    * @return the {@link ProgramDefinition} for the given ID if it exists, or a
    *     ProgramNotFoundException is thrown when the future completes and ID does not correspond to
    *     a real Program
    */
-  public CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id) {
+  public CompletionStage<ProgramDefinition> getFullProgramDefinitionAsync(long id) {
     return programRepository
-        .lookupProgram(id)
-        .thenComposeAsync(
-            programMaybe -> {
-              if (programMaybe.isEmpty()) {
-                return CompletableFuture.failedFuture(new ProgramNotFoundException(id));
-              }
+        .getFullProgramDefinitionFromCache(id)
+        .map(CompletableFuture::completedStage)
+        .orElse(
+            programRepository
+                .lookupProgram(id)
+                .thenComposeAsync(
+                    programMaybe -> {
+                      if (programMaybe.isEmpty()) {
+                        return CompletableFuture.failedFuture(new ProgramNotFoundException(id));
+                      }
 
-              return syncProgramAssociations(programMaybe.get());
-            },
-            httpExecutionContext.current());
+                      return syncProgramAssociations(programMaybe.get());
+                    },
+                    httpExecutionContext.current()));
+  }
+
+  /**
+   * Get the full definition for a given program from the cache if it is available.
+   *
+   * <p>If the full program definition does not yet exist in the cache or caching is not enabled, a
+   * method is called to sync program associations, which gets the full program definition, and sets
+   * the cache if enabled.
+   *
+   * <p>The cache is set within the {@link #syncProgramAssociations} method, since that method
+   * already checks whether the program is not a draft program, and we only want to set the cache if
+   * the program has been published.
+   */
+  public CompletionStage<ProgramDefinition> getFullProgramDefinition(ProgramModel p) {
+    return programRepository
+        .getFullProgramDefinitionFromCache(p)
+        .map(programDef -> CompletableFuture.completedStage(programDef))
+        .orElse(syncProgramAssociations(p));
   }
 
   /**
@@ -191,10 +217,11 @@ public final class ProgramService {
    *     RuntimeException} is thrown when the future completes and slug does not correspond to a
    *     real Program
    */
-  public CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(String programSlug) {
+  public CompletionStage<ProgramDefinition> getActiveFullProgramDefinitionAsync(
+      String programSlug) {
     return programRepository
         .getActiveProgramFromSlug(programSlug)
-        .thenComposeAsync(this::syncProgramAssociations, httpExecutionContext.current());
+        .thenComposeAsync(this::getFullProgramDefinition, httpExecutionContext.current());
   }
 
   /**
@@ -204,7 +231,7 @@ public final class ProgramService {
    * @return the draft {@link ProgramDefinition} for the given slug if it exists, or a {@link
    *     ProgramDraftNotFoundException} is thrown if a draft is not available.
    */
-  public ProgramDefinition getDraftProgramDefinition(String programSlug)
+  public ProgramDefinition getDraftFullProgramDefinition(String programSlug)
       throws ProgramDraftNotFoundException {
     ProgramModel draftProgram = programRepository.getDraftProgramFromSlug(programSlug);
     return syncProgramAssociations(draftProgram).toCompletableFuture().join();
@@ -214,34 +241,44 @@ public final class ProgramService {
    * Get the program matching programId as well as all other versions of the program (i.e. all
    * programs with the same name).
    */
-  public ImmutableList<ProgramDefinition> getAllProgramDefinitionVersions(long programId) {
+  public ImmutableList<ProgramDefinition> getAllVersionsFullProgramDefinition(long programId) {
     return programRepository.getAllProgramVersions(programId).stream()
-        .map(program -> syncProgramAssociations(program).toCompletableFuture().join())
+        .map(p -> getFullProgramDefinition(p).toCompletableFuture().join())
         .collect(ImmutableList.toImmutableList());
   }
 
+  /**
+   * Get the program definition with the underlying question data.
+   *
+   * <p>Any callers of this function syncing program associations for a non-draft version should use
+   * {@link #getFullProgramDefinition(ProgramModel)} to first try getting the full program
+   * definition from the cache.
+   */
   private CompletionStage<ProgramDefinition> syncProgramAssociations(ProgramModel program) {
-    if (isActiveOrDraftProgram(program)) {
-      return syncProgramDefinitionQuestions(program.getProgramDefinition())
+    VersionModel activeVersion = versionRepository.getActiveVersion();
+    VersionModel maxVersionForProgram =
+        programRepository.getVersionsForProgram(program).stream()
+            .max(Comparator.comparingLong(p -> p.id))
+            .orElseThrow();
+    // If the max version is greater than the active version, it is a draft
+    if (maxVersionForProgram.id > activeVersion.id) {
+      // This method makes multiple calls to get questions for the active and
+      // draft versions, so we should only call it if we're syncing program
+      // associations for a draft program (which means we're in the admin flow).
+      return syncProgramDefinitionQuestions(programRepository.getShallowProgramDefinition(program))
           .thenApply(ProgramDefinition::orderBlockDefinitions);
     }
 
-    // Any version that the program is in has all the questions the program has.
-    VersionModel version =
-        programRepository.getVersionsForProgram(program).stream().findAny().get();
     ProgramDefinition programDefinition =
-        syncProgramDefinitionQuestions(program.getProgramDefinition(), version);
+        syncProgramDefinitionQuestions(
+            programRepository.getShallowProgramDefinition(program), maxVersionForProgram);
+
+    // It is safe to set the program definition cache, since we have already checked that it is
+    // not a draft program.
+    programRepository.setFullProgramDefinitionCache(
+        program.id, programDefinition.orderBlockDefinitions());
 
     return CompletableFuture.completedStage(programDefinition.orderBlockDefinitions());
-  }
-
-  private boolean isActiveOrDraftProgram(ProgramModel program) {
-    return Streams.concat(
-            versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()).stream(),
-            versionRepository
-                .getProgramsForVersion(versionRepository.getDraftVersionOrCreate())
-                .stream())
-        .anyMatch(p -> p.id.equals(program.id));
   }
 
   /**
@@ -280,7 +317,6 @@ public final class ProgramService {
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForCreate(
             adminName,
-            adminDescription,
             defaultDisplayName,
             defaultDisplayDescription,
             externalLink,
@@ -319,7 +355,9 @@ public final class ProgramService {
             programType,
             programAcls);
 
-    return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
+    return ErrorAnd.of(
+        programRepository.getShallowProgramDefinition(
+            programRepository.insertProgramSync(program)));
   }
 
   /**
@@ -327,7 +365,6 @@ public final class ProgramService {
    *
    * @param adminName a name for this program for internal use by admins - this is immutable once
    *     set
-   * @param adminDescription the description of this program - visible only to admins
    * @param displayName a name for this program
    * @param displayDescription the description of what the program provides
    * @param externalLink A link to an external page containing additional program details
@@ -337,7 +374,6 @@ public final class ProgramService {
    */
   public ImmutableSet<CiviFormError> validateProgramDataForCreate(
       String adminName,
-      String adminDescription,
       String displayName,
       String displayDescription,
       String externalLink,
@@ -345,17 +381,13 @@ public final class ProgramService {
       ImmutableList<Long> tiGroups) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     errorsBuilder.addAll(
-        validateProgramData(
-            adminDescription,
-            displayName,
-            displayDescription,
-            externalLink,
-            displayMode,
-            tiGroups));
+        validateProgramData(displayName, displayDescription, externalLink, displayMode, tiGroups));
     if (adminName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
       errorsBuilder.add(CiviFormError.of(INVALID_ADMIN_NAME_MSG));
+    } else if (StringUtils.isNumeric(MainModule.SLUGIFIER.slugify(adminName))) {
+      errorsBuilder.add(CiviFormError.of(INVALID_PROGRAM_SLUG_MSG));
     } else if (hasProgramNameCollision(adminName)) {
       errorsBuilder.add(CiviFormError.of("A program URL of " + adminName + " already exists"));
     }
@@ -409,10 +441,10 @@ public final class ProgramService {
       Boolean isIntakeFormFeatureEnabled,
       ImmutableList<Long> tiGroups)
       throws ProgramNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForUpdate(
-            adminDescription, displayName, displayDescription, externalLink, displayMode, tiGroups);
+            displayName, displayDescription, externalLink, displayMode, tiGroups);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -455,7 +487,8 @@ public final class ProgramService {
 
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
-                programRepository.updateProgramSync(program).getProgramDefinition())
+                programRepository.getShallowProgramDefinition(
+                    programRepository.updateProgramSync(program)))
             .toCompletableFuture()
             .join());
   }
@@ -505,9 +538,8 @@ public final class ProgramService {
       return;
     }
     ProgramDefinition draftCommonIntakeProgramDefinition =
-        programRepository
-            .createOrUpdateDraft(maybeCommonIntakeForm.get().toProgram())
-            .getProgramDefinition();
+        programRepository.getShallowProgramDefinition(
+            programRepository.createOrUpdateDraft(maybeCommonIntakeForm.get().toProgram()));
     ProgramModel commonIntakeProgram =
         draftCommonIntakeProgramDefinition.toBuilder()
             .setProgramType(ProgramType.DEFAULT)
@@ -520,7 +552,6 @@ public final class ProgramService {
    * Checks if the provided data would be valid to update an existing program with. Does not
    * actually update any programs.
    *
-   * @param adminDescription the description of this program - visible only to admins
    * @param displayName a name for this program
    * @param displayDescription the description of what the program provides
    * @param externalLink A link to an external page containing additional program details
@@ -528,14 +559,13 @@ public final class ProgramService {
    * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
    */
   public ImmutableSet<CiviFormError> validateProgramDataForUpdate(
-      String adminDescription,
       String displayName,
       String displayDescription,
       String externalLink,
       String displayMode,
       ImmutableList<Long> tiGroups) {
     return validateProgramData(
-        adminDescription, displayName, displayDescription, externalLink, displayMode, tiGroups);
+        displayName, displayDescription, externalLink, displayMode, tiGroups);
   }
 
   /** Create a new draft starting from the program specified by `id`. */
@@ -543,13 +573,11 @@ public final class ProgramService {
     // Note: It's unclear that we actually want to update an existing draft this way, as it would
     // effectively reset the  draft which is not part of any user flow. Given the interdependency of
     // draft updates this is likely to cause issues as in #2179.
-    return programRepository
-        .createOrUpdateDraft(this.getProgramDefinition(id).toProgram())
-        .getProgramDefinition();
+    return programRepository.getShallowProgramDefinition(
+        programRepository.createOrUpdateDraft(this.getFullProgramDefinition(id).toProgram()));
   }
 
   private ImmutableSet<CiviFormError> validateProgramData(
-      String adminDescription,
       String displayName,
       String displayDescription,
       String externalLink,
@@ -566,9 +594,6 @@ public final class ProgramService {
     }
     if (displayMode.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_MODE_MSG));
-    }
-    if (adminDescription.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_DESCRIPTION_MSG));
     }
     if (!isValidAbsoluteLink(externalLink)) {
       errorsBuilder.add(CiviFormError.of(INVALID_PROGRAM_LINK_FORMAT_MSG));
@@ -602,7 +627,7 @@ public final class ProgramService {
   public ErrorAnd<ProgramDefinition, CiviFormError> updateLocalization(
       long programId, Locale locale, LocalizationUpdate localizationUpdate)
       throws ProgramNotFoundException, OutOfDateStatusesException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     validateProgramText(errorsBuilder, "display name", localizationUpdate.localizedDisplayName());
     validateProgramText(
@@ -671,9 +696,8 @@ public final class ProgramService {
 
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
-                programRepository
-                    .updateProgramSync(newProgram.build().toProgram())
-                    .getProgramDefinition())
+                programRepository.getShallowProgramDefinition(
+                    programRepository.updateProgramSync(newProgram.build().toProgram())))
             .toCompletableFuture()
             .join());
   }
@@ -740,7 +764,7 @@ public final class ProgramService {
   public ErrorAnd<ProgramDefinition, CiviFormError> appendStatus(
       long programId, StatusDefinitions.Status status)
       throws ProgramNotFoundException, DuplicateStatusException {
-    ProgramDefinition program = getProgramDefinition(programId);
+    ProgramDefinition program = getFullProgramDefinition(programId);
     if (program.statusDefinitions().getStatuses().stream()
         .filter(s -> s.statusText().equals(status.statusText()))
         .findAny()
@@ -764,7 +788,8 @@ public final class ProgramService {
 
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
-                programRepository.updateProgramSync(program.toProgram()).getProgramDefinition())
+                programRepository.getShallowProgramDefinition(
+                    programRepository.updateProgramSync(program.toProgram())))
             .toCompletableFuture()
             .join());
   }
@@ -797,7 +822,7 @@ public final class ProgramService {
       String toReplaceStatusName,
       Function<StatusDefinitions.Status, StatusDefinitions.Status> statusReplacer)
       throws ProgramNotFoundException, DuplicateStatusException {
-    ProgramDefinition program = getProgramDefinition(programId);
+    ProgramDefinition program = getFullProgramDefinition(programId);
     ImmutableMap<String, Integer> statusNameToIndex =
         statusNameToIndexMap(program.statusDefinitions().getStatuses());
     if (!statusNameToIndex.containsKey(toReplaceStatusName)) {
@@ -827,7 +852,8 @@ public final class ProgramService {
 
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
-                programRepository.updateProgramSync(program.toProgram()).getProgramDefinition())
+                programRepository.getShallowProgramDefinition(
+                    programRepository.updateProgramSync(program.toProgram())))
             .toCompletableFuture()
             .join());
   }
@@ -841,7 +867,7 @@ public final class ProgramService {
    */
   public ErrorAnd<ProgramDefinition, CiviFormError> deleteStatus(
       long programId, String toRemoveStatusName) throws ProgramNotFoundException {
-    ProgramDefinition program = getProgramDefinition(programId);
+    ProgramDefinition program = getFullProgramDefinition(programId);
     ImmutableMap<String, Integer> statusNameToIndex =
         statusNameToIndexMap(program.statusDefinitions().getStatuses());
     if (!statusNameToIndex.containsKey(toRemoveStatusName)) {
@@ -858,7 +884,8 @@ public final class ProgramService {
 
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
-                programRepository.updateProgramSync(program.toProgram()).getProgramDefinition())
+                programRepository.getShallowProgramDefinition(
+                    programRepository.updateProgramSync(program.toProgram())))
             .toCompletableFuture()
             .join());
   }
@@ -879,11 +906,10 @@ public final class ProgramService {
    */
   public ProgramDefinition setEligibilityIsGating(long programId, boolean gating)
       throws ProgramNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     programDefinition = programDefinition.toBuilder().setEligibilityIsGating(gating).build();
-    return programRepository
-        .updateProgramSync(programDefinition.toProgram())
-        .getProgramDefinition();
+    return programRepository.getShallowProgramDefinition(
+        programRepository.updateProgramSync(programDefinition.toProgram()));
   }
 
   /**
@@ -891,18 +917,27 @@ public final class ProgramService {
    *
    * <p>If the {@code locale} is the default locale and the {@code summaryImageDescription} is empty
    * or blank, then the description for *all* locales will be erased.
+   *
+   * @throws ImageDescriptionNotRemovableException if the admin tries to remove a description while
+   *     they still have an image.
    */
   public ProgramDefinition setSummaryImageDescription(
       long programId, Locale locale, String summaryImageDescription)
       throws ProgramNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
+
+    if (summaryImageDescription.isBlank() && programDefinition.summaryImageFileKey().isPresent()) {
+      throw new ImageDescriptionNotRemovableException(
+          "Description can't be removed because an image is present. Delete the image before"
+              + " deleting the description.");
+    }
+
     Optional<LocalizedStrings> newStrings =
         getUpdatedSummaryImageDescription(programDefinition, locale, summaryImageDescription);
     programDefinition =
         programDefinition.toBuilder().setLocalizedSummaryImageDescription(newStrings).build();
-    return programRepository
-        .updateProgramSync(programDefinition.toProgram())
-        .getProgramDefinition();
+    return programRepository.getShallowProgramDefinition(
+        programRepository.updateProgramSync(programDefinition.toProgram()));
   }
 
   private void updateSummaryImageDescriptionLocalization(
@@ -935,6 +970,32 @@ public final class ProgramService {
       newStrings = currentDescription.get().updateTranslation(locale, summaryImageDescription);
     }
     return Optional.of(newStrings);
+  }
+
+  /**
+   * Sets a key that can be used to fetch the summary image for the given program from cloud
+   * storage.
+   */
+  public ProgramDefinition setSummaryImageFileKey(long programId, String fileKey)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
+    programDefinition =
+        programDefinition.toBuilder().setSummaryImageFileKey(Optional.of(fileKey)).build();
+    return programRepository.getShallowProgramDefinition(
+        programRepository.updateProgramSync(programDefinition.toProgram()));
+  }
+
+  /**
+   * Removes the key used to fetch the given program's summary image from cloud storage so that
+   * there is no longer an image shown for the given program.
+   */
+  public ProgramDefinition deleteSummaryImageFileKey(long programId)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
+    programDefinition =
+        programDefinition.toBuilder().setSummaryImageFileKey(Optional.empty()).build();
+    return programRepository.getShallowProgramDefinition(
+        programRepository.updateProgramSync(programDefinition.toProgram()));
   }
 
   /**
@@ -979,7 +1040,7 @@ public final class ProgramService {
   private ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(
       long programId, Optional<Long> enumeratorBlockId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     if (enumeratorBlockId.isPresent()
         && !programDefinition.hasEnumerator(enumeratorBlockId.get())) {
       throw new ProgramBlockDefinitionNotFoundException(programId, enumeratorBlockId.get());
@@ -997,7 +1058,8 @@ public final class ProgramService {
         programDefinition.insertBlockDefinitionInTheRightPlace(blockDefinition).toProgram();
     ProgramDefinition updatedProgram =
         syncProgramDefinitionQuestions(
-                programRepository.updateProgramSync(program).getProgramDefinition())
+                programRepository.getShallowProgramDefinition(
+                    programRepository.updateProgramSync(program)))
             .toCompletableFuture()
             .join();
     BlockDefinition updatedBlockDefinition =
@@ -1032,13 +1094,14 @@ public final class ProgramService {
       throws ProgramNotFoundException, IllegalPredicateOrderingException {
     final ProgramModel program;
     try {
-      program = getProgramDefinition(programId).moveBlock(blockId, direction).toProgram();
+      program = getFullProgramDefinition(programId).moveBlock(blockId, direction).toProgram();
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(
           "Something happened to the program's block while trying to move it", e);
     }
     return syncProgramDefinitionQuestions(
-            programRepository.updateProgramSync(program).getProgramDefinition())
+            programRepository.getShallowProgramDefinition(
+                programRepository.updateProgramSync(program)))
         .toCompletableFuture()
         .join();
   }
@@ -1058,7 +1121,7 @@ public final class ProgramService {
   public ErrorAnd<ProgramDefinition, CiviFormError> updateBlock(
       long programId, long blockDefinitionId, BlockForm blockForm)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
             .setName(blockForm.getName())
@@ -1099,7 +1162,7 @@ public final class ProgramService {
       throws ProgramNotFoundException,
           ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
@@ -1128,7 +1191,7 @@ public final class ProgramService {
           QuestionNotFoundException,
           ProgramNotFoundException,
           ProgramBlockDefinitionNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
@@ -1191,7 +1254,7 @@ public final class ProgramService {
           ProgramNotFoundException,
           ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
     for (long questionId : questionIds) {
       if (!programDefinition.hasQuestion(questionId)) {
@@ -1233,7 +1296,7 @@ public final class ProgramService {
       throws ProgramNotFoundException,
           ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
@@ -1264,7 +1327,7 @@ public final class ProgramService {
           ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException,
           EligibilityNotValidForProgramTypeException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
     if (programDefinition.isCommonIntakeForm() && eligibility.isPresent()) {
       throw new EligibilityNotValidForProgramTypeException(programDefinition.programType());
@@ -1337,7 +1400,7 @@ public final class ProgramService {
       throws ProgramNotFoundException,
           ProgramNeedsABlockException,
           IllegalPredicateOrderingException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
     ImmutableList<BlockDefinition> newBlocks =
         programDefinition.blockDefinitions().stream()
@@ -1368,7 +1431,9 @@ public final class ProgramService {
      * eligibility state, we must sync each program with a version it
      * is associated with. This diverges from previous behavior where
      * we did not need to sync the programs because the contents of their
-     * questions was not needed in the index view.
+     * questions was not needed in the index view. Note: we only have to do this
+     * for programs with eligibility conditions if the cache is disabled or the
+     * program is not yet in the cache.
      */
 
     // Create a map of the questionService for each program and version to minimize database calls.
@@ -1378,8 +1443,10 @@ public final class ProgramService {
     for (ProgramDefinition programDef : programDefinitions) {
       ProgramModel p = programDef.toProgram();
       p.refresh();
-      // We only need to get the question data if the program has eligibility conditions.
-      if (programDef.hasEligibilityEnabled()) {
+      // We only need to get the question data if the program has eligibility conditions and the
+      // program definition is not in the cache.
+      if (programDef.hasEligibilityEnabled()
+          && !programRepository.getFullProgramDefinitionFromCache(p).isPresent()) {
         VersionModel v =
             programRepository.getVersionsForProgram(p).stream().findAny().orElseThrow();
         ReadOnlyQuestionService questionServiceForVersion = versionToQuestionService.get(v.id);
@@ -1399,9 +1466,13 @@ public final class ProgramService {
                   if (!programDef.hasEligibilityEnabled()) {
                     return programDef;
                   }
+                  long programId = programDef.id();
+                  if (programRepository.getFullProgramDefinitionFromCache(programId).isPresent()) {
+                    return programRepository.getFullProgramDefinitionFromCache(programId).get();
+                  }
                   try {
                     return syncProgramDefinitionQuestions(
-                        programDef, programToQuestionService.get(programDef.id()));
+                        programDef, programToQuestionService.get(programId));
                     /* END TEMP BUG FIX */
                   } catch (QuestionNotFoundException e) {
                     throw new RuntimeException(
@@ -1431,7 +1502,7 @@ public final class ProgramService {
       throws ProgramNotFoundException,
           ProgramBlockDefinitionNotFoundException,
           ProgramQuestionDefinitionNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
     if (!blockDefinition.programQuestionDefinitions().stream()
@@ -1483,7 +1554,7 @@ public final class ProgramService {
           ProgramBlockDefinitionNotFoundException,
           ProgramQuestionDefinitionNotFoundException,
           ProgramQuestionDefinitionInvalidException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
     if (!blockDefinition.programQuestionDefinitions().stream()
@@ -1548,7 +1619,7 @@ public final class ProgramService {
           ProgramBlockDefinitionNotFoundException,
           ProgramQuestionDefinitionNotFoundException,
           InvalidQuestionPositionException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
     ImmutableList<ProgramQuestionDefinition> questions =
@@ -1651,8 +1722,9 @@ public final class ProgramService {
    */
   private CompletionStage<ProgramDefinition> syncProgramDefinitionQuestions(
       ProgramDefinition programDefinition) {
-    // Note: This method is also used for non question updates.  It'd likely be
-    // good to have a focused method for that.
+    // Note: This method is also used for non question updates.
+    // TODO(#6249) We should have a focused method for that because getReadOnlyQuestionService()
+    // makes multiple calls to get question data for the active and draft versions.
     return questionService
         .getReadOnlyQuestionService()
         .thenApplyAsync(
@@ -1735,7 +1807,8 @@ public final class ProgramService {
     }
 
     return syncProgramDefinitionQuestions(
-            programRepository.updateProgramSync(program.toProgram()).getProgramDefinition())
+            programRepository.getShallowProgramDefinition(
+                programRepository.updateProgramSync(program.toProgram())))
         .toCompletableFuture()
         .join();
   }

@@ -20,8 +20,15 @@ import views.ViewUtils;
 public final class TextFormatter {
 
   private static final Logger logger = LoggerFactory.getLogger(TextFormatter.class);
-
   private static final CiviFormMarkdown CIVIFORM_MARKDOWN = new CiviFormMarkdown();
+  public static final String DEFAULT_ARIA_LABEL = "opens in a new tab";
+
+  /** Adds an aria label to links before passing provided text through Markdown formatter. */
+  public static ImmutableList<DomContent> formatTextWithAriaLabel(
+      String text, boolean preserveEmptyLines, boolean addRequiredIndicator, String ariaLabel) {
+    CIVIFORM_MARKDOWN.setAriaLabel(ariaLabel);
+    return formatText(text, preserveEmptyLines, addRequiredIndicator);
+  }
 
   /** Passes provided text through Markdown formatter. */
   public static ImmutableList<DomContent> formatText(
@@ -41,6 +48,11 @@ public final class TextFormatter {
 
     builder.add(rawHtml(sanitizeHtml(markdownText)));
     return builder.build();
+  }
+
+  /** Used for testing */
+  public static void resetAriaLabelToDefault() {
+    CIVIFORM_MARKDOWN.setAriaLabel(DEFAULT_ARIA_LABEL);
   }
 
   private static String preserveEmptyLines(String text) {
@@ -72,10 +84,18 @@ public final class TextFormatter {
 
   private static String addRequiredIndicator(String markdownText) {
     int indexOfClosingTag = markdownText.lastIndexOf("</");
-    String closingTag = markdownText.substring(indexOfClosingTag);
-    String stringWithRequiredIndicator =
-        ViewUtils.requiredQuestionIndicator().toString().concat(closingTag);
-    return markdownText.substring(0, indexOfClosingTag) + stringWithRequiredIndicator;
+    String insertTextAfterRequiredIndicator = markdownText.substring(indexOfClosingTag);
+    // For required questions that end in a list, we want the required indicator to show up at
+    // the end of the paragraph that precedes the list
+    if (insertTextAfterRequiredIndicator.contains("ul")) {
+      int indexOfOpeningUlTag = markdownText.lastIndexOf("<ul");
+      String substringWithoutList = markdownText.substring(0, indexOfOpeningUlTag);
+      indexOfClosingTag = substringWithoutList.lastIndexOf("</");
+      insertTextAfterRequiredIndicator = markdownText.substring(indexOfClosingTag);
+    }
+    String markdownWithRequiredIndicator =
+        ViewUtils.requiredQuestionIndicator().toString().concat(insertTextAfterRequiredIndicator);
+    return markdownText.substring(0, indexOfClosingTag) + markdownWithRequiredIndicator;
   }
 
   private static String sanitizeHtml(String markdownText) {
@@ -102,6 +122,7 @@ public final class TextFormatter {
                 "fill",
                 "stroke",
                 "stroke-width",
+                "aria-label",
                 "aria-hidden",
                 "viewbox",
                 "d")
@@ -109,7 +130,7 @@ public final class TextFormatter {
             .toFactory();
 
     PolicyFactory policy = customPolicy.and(Sanitizers.LINKS);
-    return policy.sanitize(markdownText, buildHtmlChangeListener(), /*context=*/ null);
+    return policy.sanitize(markdownText, buildHtmlChangeListener(), /* context= */ null);
   }
 
   private static HtmlChangeListener<Object> buildHtmlChangeListener() {

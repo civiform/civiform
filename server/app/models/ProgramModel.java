@@ -5,14 +5,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.ProgramAcls;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.DbJsonB;
 import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
 import java.time.Instant;
 import java.util.List;
-import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -72,21 +70,9 @@ public class ProgramModel extends BaseModel {
 
   @DbJsonB private ProgramAcls acls;
 
-  /**
-   * legacyLocalizedName is the legacy storage column for program name translations. Programs
-   * created before early May 2021 may use this, but all other programs should not.
-   */
-  @DbJsonB private ImmutableMap<Locale, String> legacyLocalizedName;
-
   @DbJsonB private LocalizedStrings localizedDescription;
 
   @DbJsonB private LocalizedStrings localizedConfirmationMessage;
-
-  /**
-   * legacyLocalizedDescription is the legacy storage column for program description translations.
-   * Programs created before early May 2021 may use this, but all other programs should not.
-   */
-  @DbJsonB private ImmutableMap<Locale, String> legacyLocalizedDescription;
 
   @Constraints.Required @DbJson private ImmutableList<BlockDefinition> blockDefinitions;
 
@@ -120,6 +106,14 @@ public class ProgramModel extends BaseModel {
    */
   @DbJsonB @Nullable private LocalizedStrings localizedSummaryImageDescription;
 
+  /**
+   * A key used to fetch the program's summary image from cloud storage.
+   *
+   * <p>Null if the program doesn't have a summary image. See note on {@code
+   * localizedSummaryImageDescription} for null vs Optional.
+   */
+  @Nullable private String summaryImageFileKey;
+
   @ManyToMany(mappedBy = "programs")
   @JoinTable(
       name = "versions_programs",
@@ -135,6 +129,12 @@ public class ProgramModel extends BaseModel {
     return ImmutableList.copyOf(versions);
   }
 
+  /**
+   * Gets the program definition from the database.
+   *
+   * <p>This should never be called directly, but instead called from {@link
+   * repository.ProgramRepository#getShallowProgramDefinition}.
+   */
   public ProgramDefinition getProgramDefinition() {
     return checkNotNull(this.programDefinition);
   }
@@ -174,6 +174,7 @@ public class ProgramModel extends BaseModel {
     this.acls = definition.acls();
     this.localizedSummaryImageDescription =
         definition.localizedSummaryImageDescription().orElse(null);
+    this.summaryImageFileKey = definition.summaryImageFileKey().orElse(null);
 
     orderBlockDefinitionsBeforeUpdate();
 
@@ -233,6 +234,7 @@ public class ProgramModel extends BaseModel {
     acls = programDefinition.acls();
     localizedSummaryImageDescription =
         programDefinition.localizedSummaryImageDescription().orElse(null);
+    summaryImageFileKey = programDefinition.summaryImageFileKey().orElse(null);
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -249,6 +251,8 @@ public class ProgramModel extends BaseModel {
             .setAdminDescription(description)
             .setBlockDefinitions(blockDefinitions)
             .setStatusDefinitions(statusDefinitions)
+            .setLocalizedName(localizedName)
+            .setLocalizedDescription(localizedDescription)
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
             .setCreateTime(createTime)
@@ -257,34 +261,10 @@ public class ProgramModel extends BaseModel {
             .setEligibilityIsGating(eligibilityIsGating)
             .setAcls(acls);
 
-    setLocalizedName(builder);
-    setLocalizedDescription(builder);
     setLocalizedConfirmationMessage(builder);
     setLocalizedSummaryImageDescription(builder);
+    setSummaryImageFileKey(builder);
     this.programDefinition = builder.build();
-  }
-
-  /** The majority of programs should have `localizedName` and not `legacyLocalizedName`. */
-  private ProgramModel setLocalizedName(ProgramDefinition.Builder builder) {
-    if (localizedName != null) {
-      builder.setLocalizedName(localizedName);
-    } else {
-      builder.setLocalizedName(LocalizedStrings.create(legacyLocalizedName));
-    }
-    return this;
-  }
-
-  /**
-   * The majority of programs should have `localizedDescription` and not
-   * `legacyLocalizedDescription`.
-   */
-  private ProgramModel setLocalizedDescription(ProgramDefinition.Builder builder) {
-    if (localizedDescription != null) {
-      builder.setLocalizedDescription(localizedDescription);
-    } else {
-      builder.setLocalizedDescription(LocalizedStrings.create(legacyLocalizedDescription));
-    }
-    return this;
   }
 
   private ProgramModel setLocalizedConfirmationMessage(ProgramDefinition.Builder builder) {
@@ -303,6 +283,16 @@ public class ProgramModel extends BaseModel {
       // See docs on `this.localizedSummaryImageDescription` -- a null field here means an
       // Optional.empty field for the program definition.
       builder.setLocalizedSummaryImageDescription(Optional.empty());
+    }
+  }
+
+  private void setSummaryImageFileKey(ProgramDefinition.Builder builder) {
+    if (summaryImageFileKey != null) {
+      builder.setSummaryImageFileKey(Optional.of(summaryImageFileKey));
+    } else {
+      // See docs on `this.summaryImageFileKey` -- a null field here means an
+      // Optional.empty field for the program definition.
+      builder.setSummaryImageFileKey(Optional.empty());
     }
   }
 

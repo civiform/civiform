@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -9,13 +10,13 @@ import {
 const NAME_FIRST = '.cf-name-first'
 const NAME_LAST = '.cf-name-last'
 
-describe('name applicant flow', () => {
+test.describe('name applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('single required name question', () => {
+  test.describe('single required name question', () => {
     const programName = 'Test program for single name'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -29,14 +30,14 @@ describe('name applicant flow', () => {
       await logout(page)
     })
 
-    it('validate screenshot', async () => {
+    test('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'name')
     })
 
-    it('validate screenshot with errors', async () => {
+    test('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
@@ -44,7 +45,7 @@ describe('name applicant flow', () => {
       await validateScreenshot(page, 'name-errors')
     })
 
-    it('does not show errors initially', async () => {
+    test('does not show errors initially', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '')
@@ -54,7 +55,7 @@ describe('name applicant flow', () => {
       expect(await error?.isHidden()).toEqual(true)
     })
 
-    it('with valid name does submit', async () => {
+    test('with valid name does submit', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '')
@@ -63,7 +64,7 @@ describe('name applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with empty name does not submit', async () => {
+    test('with empty name does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '')
@@ -76,10 +77,10 @@ describe('name applicant flow', () => {
     })
   })
 
-  describe('multiple name questions', () => {
+  test.describe('multiple name questions', () => {
     const programName = 'Test program for multiple names'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -97,7 +98,7 @@ describe('name applicant flow', () => {
       await logout(page)
     })
 
-    it('with valid name does submit', async () => {
+    test('with valid name does submit', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 0)
@@ -107,7 +108,7 @@ describe('name applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with first invalid does not submit', async () => {
+    test('with first invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '', 0)
@@ -127,7 +128,7 @@ describe('name applicant flow', () => {
       expect(await error?.isHidden()).toEqual(true)
     })
 
-    it('with second invalid does not submit', async () => {
+    test('with second invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 0)
@@ -147,7 +148,7 @@ describe('name applicant flow', () => {
       expect(await error?.isHidden()).toEqual(false)
     })
 
-    it('has no accessiblity violations', async () => {
+    test('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
@@ -156,10 +157,10 @@ describe('name applicant flow', () => {
   })
 
   // One optional name followed by one required name.
-  describe('optional name question', () => {
+  test.describe('optional name question', () => {
     const programName = 'Test program for optional name'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -181,7 +182,7 @@ describe('name applicant flow', () => {
       await logout(page)
     })
 
-    it('with valid required name does submit', async () => {
+    test('with valid required name does submit', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 1)
@@ -190,7 +191,7 @@ describe('name applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with invalid optional name does not submit', async () => {
+    test('with invalid optional name does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', '', '', 0)
@@ -202,15 +203,15 @@ describe('name applicant flow', () => {
       expect(await error?.isHidden()).toEqual(false)
     })
 
-    describe('with invalid required name', () => {
-      beforeEach(async () => {
+    test.describe('with invalid required name', () => {
+      test.beforeEach(async () => {
         const {applicantQuestions} = ctx
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerNameQuestion('', '', '', 1)
         await applicantQuestions.clickNext()
       })
 
-      it('does not submit', async () => {
+      test('does not submit', async () => {
         const {page} = ctx
         // Second question has errors.
         let error = await page.$(`${NAME_FIRST}-error >> nth=1`)
@@ -219,7 +220,7 @@ describe('name applicant flow', () => {
         expect(await error?.isHidden()).toEqual(false)
       })
 
-      it('optional has no errors', async () => {
+      test('optional has no errors', async () => {
         const {page} = ctx
         // First question has no errors.
         let error = await page.$(`${NAME_FIRST}-error >> nth=0`)

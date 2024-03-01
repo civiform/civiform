@@ -29,6 +29,7 @@ jobs:
       - run: 'echo "skipping"'
 
   run_browser_tests_azure:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - run: 'echo "skipping"'

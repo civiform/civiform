@@ -40,6 +40,7 @@ import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.test.Helpers;
+import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
 import repository.VersionRepository;
@@ -584,7 +585,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             instanceOf(HttpExecutionContext.class),
             instanceOf(CiviFormProfileData.class),
             instanceOf(SettingsManifest.class),
-            adminAccount);
+            adminAccount,
+            instanceOf(AccountRepository.class));
     ProfileUtils profileUtilsNoOpTester =
         new ProfileUtilsNoOpTester(
             instanceOf(SessionStore.class), instanceOf(ProfileFactory.class), profileTester);
@@ -632,8 +634,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
           HttpExecutionContext httpContext,
           CiviFormProfileData profileData,
           SettingsManifest settingsManifest,
-          Optional<AccountModel> adminAccount) {
-        super(dbContext, httpContext, profileData, settingsManifest);
+          Optional<AccountModel> adminAccount,
+          AccountRepository accountRepository) {
+        super(dbContext, httpContext, profileData, settingsManifest, accountRepository);
         this.adminAccount = adminAccount;
       }
 

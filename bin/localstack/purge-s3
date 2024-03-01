@@ -5,4 +5,5 @@
 source bin/lib.sh
 source bin/localstack/lib.sh
 
-localstack::run_command "s3 rm s3://civiform-local-s3/ --recursive"
+localstack::run_command "s3 rm s3://${APPLICANT_BUCKET_NAME}/ --recursive"
+localstack::run_command "s3 rm s3://${PUBLIC_BUCKET_NAME}/ --recursive"

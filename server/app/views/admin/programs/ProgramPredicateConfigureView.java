@@ -62,7 +62,6 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
-import services.settings.SettingsManifest;
 import views.HtmlBundle;
 import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
@@ -98,16 +97,13 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
   }
 
   private final AdminLayout layout;
-  private final SettingsManifest settingsManifest;
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
 
   @Inject
   public ProgramPredicateConfigureView(
       AdminLayoutFactory layoutFactory,
-      SettingsManifest settingsManifest,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
   }
 
@@ -246,7 +242,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
             .addMainContent(
                 renderProgramInfoHeader(
                     programDefinition,
-                    getEditHeaderButtons(request, settingsManifest, /* isEditingAllowed= */ true),
+                    ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM_DETAILS),
                     request),
                 content);
     return layout.renderCentered(htmlBundle);

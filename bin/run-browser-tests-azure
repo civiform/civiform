@@ -3,12 +3,21 @@
 # DOC: Run a subset of browser tests that we want to specifically test in Azure in CI mode.
 
 import subprocess
-
+import sys
 
 def get_test_files():
+    sys.stdout.write(
+        '''
+*******************************************************************************
+IMPORTANT: New file upload tests added in https://github.com/civiform/civiform/pull/6692 aren't
+passing in Azure. Since there's no CEs planning to deploy with Azure, it's not woth spending
+time trying to fix these new file upload tests. Instead, Azure is ignored on GitHub CI
+(see https://github.com/civiform/civiform/pull/6705) and the tests are expected to fail
+if run locally.
+*******************************************************************************
+''')
     test_files = ['src/file.test.ts']  # file upload tests
     return test_files
-
 
 shell_command = ["./bin/run-browser-tests-ci"] + get_test_files()
 subprocess.run(shell_command, check=True)

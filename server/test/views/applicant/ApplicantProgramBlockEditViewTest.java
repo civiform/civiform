@@ -5,12 +5,13 @@ import static views.questiontypes.ApplicantQuestionRendererParams.AutoFocusTarge
 import static views.questiontypes.ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD;
 import static views.questiontypes.ApplicantQuestionRendererParams.AutoFocusTarget.NONE;
 
+import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
 import org.junit.Test;
 import org.mockito.Mockito;
 import repository.ResetPostgres;
 import services.question.types.QuestionDefinition;
-import views.FileUploadViewStrategy;
+import services.settings.SettingsManifest;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
@@ -18,15 +19,16 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
 
   private static QuestionDefinition ADDRESS_QD =
       testQuestionBank.applicantAddress().getQuestionDefinition();
-  // While mocking is generally discouraged, some tests in this file don't need c'tor so mocking
-  // them is a
-  // convenient way to construct an instance of the class under test. The mocks are
-  // not otherwise used.
+  private static ApplicantRoutes applicantRoutes = new ApplicantRoutes();
+
   private static ApplicantProgramBlockEditView EMPTY_VIEW =
       new ApplicantProgramBlockEditView(
           Mockito.mock(ApplicantLayout.class),
-          Mockito.mock(FileUploadViewStrategy.class),
-          Mockito.mock(ApplicantQuestionRendererFactory.class));
+          Mockito.mock(ApplicantFileUploadRenderer.class),
+          Mockito.mock(ApplicantQuestionRendererFactory.class),
+          applicantRoutes,
+          new EditOrDiscardAnswersModalCreator(),
+          Mockito.mock(SettingsManifest.class));
 
   @Test
   public void
@@ -52,6 +54,32 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
                 /* ordinalErrorCount= */ 1,
                 /* applicantSelectedQuestionName= */ Optional.empty()))
         .isEqualTo(NONE);
+  }
+
+  @Test
+  public void
+      calculateAutoFocusTarget_formHasErrors_displayWithModalReview_shouldAutofocusFirstError() {
+    assertThat(
+            EMPTY_VIEW.calculateAutoFocusTarget(
+                ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW,
+                ADDRESS_QD,
+                /* formHasErrors */ true,
+                /* ordinalErrorCount= */ 1,
+                /* applicantSelectedQuestionName= */ Optional.empty()))
+        .isEqualTo(FIRST_ERROR);
+  }
+
+  @Test
+  public void
+      calculateAutoFocusTarget_formHasErrors_displayWithModalPrevious_shouldAutofocusFirstError() {
+    assertThat(
+            EMPTY_VIEW.calculateAutoFocusTarget(
+                ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_PREVIOUS,
+                ADDRESS_QD,
+                /* formHasErrors */ true,
+                /* ordinalErrorCount= */ 1,
+                /* applicantSelectedQuestionName= */ Optional.empty()))
+        .isEqualTo(FIRST_ERROR);
   }
 
   @Test

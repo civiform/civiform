@@ -1,3 +1,4 @@
+import {expect} from '@playwright/test'
 import {Page} from 'playwright'
 import {waitForPageJsLoad} from './wait'
 
@@ -16,7 +17,7 @@ export class TIDashboard {
   }
 
   async gotoTIDashboardPage(page: Page) {
-    await page.click('text="View and Add Clients"')
+    await page.click('text="View and add clients"')
   }
 
   async goToProgramsPageForCurrentClient() {
@@ -24,46 +25,154 @@ export class TIDashboard {
   }
 
   async createClient(client: ClientInformation) {
-    await this.page.fill('label:has-text("Email Address")', client.emailAddress)
-    await this.page.fill('label:has-text("First Name")', client.firstName)
-    await this.page.fill('label:has-text("Middle Name")', client.middleName)
-    await this.page.fill('label:has-text("Last Name")', client.lastName)
-    await this.page.fill('label:has-text("Date Of Birth")', client.dobDate)
+    await this.page.fill('label:has-text("Email address")', client.emailAddress)
+    await this.page.fill('label:has-text("First name")', client.firstName)
+    await this.page.fill('label:has-text("Middle name")', client.middleName)
+    await this.page.fill('label:has-text("Last name")', client.lastName)
+    await this.page.fill('label:has-text("Date of birth")', client.dobDate)
     await this.page.click('text="Add"')
   }
 
+  async createMultipleClients(nameBase: string, copies: number) {
+    for (let i = 1; i <= copies; i++) {
+      await this.page.fill(
+        'label:has-text("Email Address")',
+        nameBase + i + '@test.com',
+      )
+      await this.page.fill('label:has-text("First Name")', nameBase + i)
+      await this.page.fill('label:has-text("Last Name")', 'last')
+      await this.page.fill('label:has-text("Date Of Birth")', '2021-05-10')
+      await this.page.click('text="Add"')
+    }
+  }
+
+  async updateClientEmailAddress(client: ClientInformation, newEmail: string) {
+    await this.page
+      .getByRole('listitem')
+      .filter({hasText: client.emailAddress})
+      .getByText('Edit')
+      .click()
+    await waitForPageJsLoad(this.page)
+    await this.page.waitForSelector('h2:has-text("Edit client")')
+    await this.page.fill('#edit-email-input', newEmail)
+    await this.page.click('text="Save"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async updateClientTiNoteAndPhone(
+    client: ClientInformation,
+    tiNote: string,
+    phone: string,
+  ) {
+    await this.page
+      .getByRole('listitem')
+      .filter({hasText: client.emailAddress})
+      .getByText('Edit')
+      .click()
+    await waitForPageJsLoad(this.page)
+    await this.page.waitForSelector('h2:has-text("Edit client")')
+    await this.page.fill('#edit-phone-number-input', phone)
+    await this.page.fill('#edit-ti-note-input', tiNote)
+    await this.page.click('text="Save"')
+    await waitForPageJsLoad(this.page)
+  }
+
   async updateClientDateOfBirth(client: ClientInformation, newDobDate: string) {
-    await this.page.locator('id=date-of-birth-update').fill(newDobDate)
-    await this.page.click('text="Update DOB"')
+    await this.page
+      .getByRole('listitem')
+      .filter({hasText: client.emailAddress})
+      .getByText('Edit')
+      .click()
+    await waitForPageJsLoad(this.page)
+    await this.page.waitForSelector('h2:has-text("Edit client")')
+    await this.page.fill('#edit-date-of-birth-input', newDobDate)
+    await this.page.click('text="Save"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async expectEditFormContainsTiNoteAndPhone(
+    client: ClientInformation,
+    tiNote: string,
+    phone: string,
+  ) {
+    await this.page
+      .getByRole('listitem')
+      .filter({hasText: client.emailAddress})
+      .getByText('Edit')
+      .click()
+    await waitForPageJsLoad(this.page)
+    await this.page.waitForSelector('h2:has-text("Edit client")')
+    const text = await this.page.innerHTML('#edit-ti')
+    expect(text).toContain(phone)
+    expect(text).toContain(tiNote)
+  }
+
+  async expectDashboardClientContainsTiNoteAndFormattedPhone(
+    client: ClientInformation,
+    tiNote: string,
+    phone: string,
+  ) {
+    const cardContainer = this.page.locator(
+      `.usa-card__container:has-text("${client.lastName}, ${client.firstName}")`,
+    )
+    const cardText = await cardContainer.innerText()
+    expect(cardText).toContain(tiNote)
+    expect(cardText).toContain(phone) // This should be in (xxx) xxx-xxxx format.
   }
 
   async expectDashboardContainClient(client: ClientInformation) {
-    const row = this.page.locator(
-      `.cf-admin-question-table-row:has-text("${client.lastName}, ${client.firstName}")`,
+    const cardContainer = this.page.locator(
+      `.usa-card__container:has-text("${client.lastName}, ${client.firstName}")`,
     )
-    const rowText = await row.innerText()
-    expect(rowText).toContain(client.emailAddress)
-    // date of birth rendered as <input> rather than plain text.
-    expect(await row.locator('input[name="dob"]').inputValue()).toEqual(
-      client.dobDate,
-    )
+    const cardText = await cardContainer.innerText()
+    expect(cardText).toContain(client.emailAddress)
+    expect(cardText).toContain(client.dobDate)
   }
 
   async expectDashboardNotContainClient(client: ClientInformation) {
-    const tableInnerText = await this.page.innerText('table')
+    const tableInnerText = await this.page.innerText('.usa-card-group')
     expect(tableInnerText).not.toContain(client.emailAddress)
     expect(tableInnerText).not.toContain(client.firstName)
     expect(tableInnerText).not.toContain(client.lastName)
   }
 
-  async searchByDateOfBirth(dobDate: string) {
-    await this.page.fill('label:has-text("Search Date Of Birth")', dobDate)
+  async expectClientContainsNumberOfApplications(num: string) {
+    const cardContainer = this.page.locator('.usa-card__body')
+    const cardText = await cardContainer.innerText()
+    expect(cardText).toContain(
+      `${num} application${num == '1' ? '' : 's'} submitted`,
+    )
+  }
+
+  async expectClientContainsProgramNames(programs: string[]) {
+    const cardContainer = this.page.locator('#card_applications')
+    const programsText = await cardContainer.innerText()
+    expect(programsText).toBe(programs.join(', '))
+  }
+
+  async searchByDateOfBirth(dobDay: string, dobMonth: string, dobYear: string) {
+    await this.page.fill('label:has-text("Day")', dobDay)
+    await this.page.selectOption('#date_of_birth_month', dobMonth)
+    await this.page.fill('label:has-text("Year")', dobYear)
     await this.page.click('button:text("Search")')
   }
 
-  async clickOnApplicantDashboard() {
+  async searchByNameAndDateOfBirth(
+    name: string,
+    dobDay: string,
+    dobMonth: string,
+    dobYear: string,
+  ) {
+    await this.page.fill('label:has-text("Search by name(s)")', name)
+    await this.page.fill('label:has-text("Day")', dobDay)
+    await this.page.selectOption('#date_of_birth_month', dobMonth)
+    await this.page.fill('label:has-text("Year")', dobYear)
+    await this.page.click('button:text("Search")')
+  }
+
+  async clickOnViewApplications() {
     await this.page
-      .locator('.cf-admin-question-table-row a:text("Applicant Dashboard")')
+      .locator('.usa-card__container a:text("View applications")')
       .click()
     await waitForPageJsLoad(this.page)
   }
@@ -80,6 +189,45 @@ export class TIDashboard {
       'your client may not qualify',
     )
   }
+
+  async expectPageNumberButton(pageNum: string) {
+    expect(await this.page.innerHTML('.usa-pagination__list')).toContain(
+      `aria-label="Page${pageNum}"`,
+    )
+  }
+
+  async expectPageNumberButtonNotPresent(pageNum: string) {
+    expect(await this.page.innerHTML('.usa-pagination__list')).not.toContain(
+      `aria-label="Page${pageNum}"`,
+    )
+  }
+
+  async expectDateSearchError() {
+    const errorDiv = await this.page.innerHTML('#memorable_date_error')
+    expect(errorDiv).toContain('Error:')
+  }
+
+  expectRedDateFieldOutline(
+    missingMonth: boolean,
+    missingDay: boolean,
+    missingYear: boolean,
+  ) {
+    if (missingMonth) {
+      expect(
+        this.page.locator('#date_of_birth_month .usa-input--error'),
+      ).not.toBeNull()
+    }
+    if (missingDay) {
+      expect(
+        this.page.locator('#date_of_birth_day .usa-input--error'),
+      ).not.toBeNull()
+    }
+    if (missingYear) {
+      expect(
+        this.page.locator('#date_of_birth_year .usa-input--error'),
+      ).not.toBeNull()
+    }
+  }
 }
 
 /*
@@ -92,4 +240,6 @@ export interface ClientInformation {
   middleName: string
   lastName: string
   dobDate: string
+  phoneNumber?: string
+  notes?: string
 }

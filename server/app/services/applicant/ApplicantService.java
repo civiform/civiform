@@ -45,6 +45,7 @@ import play.libs.concurrent.HttpExecutionContext;
 import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
+import repository.ProgramRepository;
 import repository.StoredFileRepository;
 import repository.TimeFilter;
 import repository.VersionRepository;
@@ -53,6 +54,8 @@ import services.DeploymentType;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.Path;
+import services.PhoneValidationResult;
+import services.PhoneValidationUtils;
 import services.applicant.ApplicantPersonalInfo.ApplicantType;
 import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.exception.ApplicantNotFoundException;
@@ -63,6 +66,7 @@ import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.predicate.JsonPathPredicateGeneratorFactory;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.PhoneQuestion;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails;
 import services.cloud.aws.SimpleEmail;
@@ -78,6 +82,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.StatusDefinitions;
 import services.question.exceptions.UnsupportedScalarTypeException;
+import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 import views.applicant.AddressCorrectionBlockView;
 
@@ -97,6 +102,7 @@ public final class ApplicantService {
   private final StoredFileRepository storedFileRepository;
   private final JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory;
   private final VersionRepository versionRepository;
+  private final ProgramRepository programRepository;
   private final ProgramService programService;
   private final SimpleEmail amazonSESClient;
   private final Clock clock;
@@ -116,6 +122,7 @@ public final class ApplicantService {
       ApplicationRepository applicationRepository,
       AccountRepository accountRepository,
       VersionRepository versionRepository,
+      ProgramRepository programRepository,
       StoredFileRepository storedFileRepository,
       JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
       ProgramService programService,
@@ -131,6 +138,7 @@ public final class ApplicantService {
     this.applicationRepository = checkNotNull(applicationRepository);
     this.accountRepository = checkNotNull(accountRepository);
     this.versionRepository = checkNotNull(versionRepository);
+    this.programRepository = checkNotNull(programRepository);
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.jsonPathPredicateGeneratorFactory = checkNotNull(jsonPathPredicateGeneratorFactory);
     this.programService = checkNotNull(programService);
@@ -170,7 +178,7 @@ public final class ApplicantService {
     CompletableFuture<Optional<ApplicantModel>> applicantCompletableFuture =
         accountRepository.lookupApplicant(applicantId).toCompletableFuture();
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
-        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
+        programService.getFullProgramDefinitionAsync(programId).toCompletableFuture();
 
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
         .thenApplyAsync(
@@ -195,7 +203,7 @@ public final class ApplicantService {
           new ReadOnlyApplicantProgramServiceImpl(
               jsonPathPredicateGeneratorFactory,
               application.getApplicantData(),
-              programService.getProgramDefinition(application.getProgram().id),
+              programService.getFullProgramDefinition(application.getProgram().id),
               baseUrl));
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException("Cannot find a program that has applications for it.", e);
@@ -280,7 +288,7 @@ public final class ApplicantService {
         accountRepository.lookupApplicant(applicantId).toCompletableFuture();
 
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
-        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
+        programService.getFullProgramDefinitionAsync(programId).toCompletableFuture();
 
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
         .thenComposeAsync(
@@ -300,7 +308,7 @@ public final class ApplicantService {
                       programDefinition,
                       baseUrl);
               Optional<Block> maybeBlockBeforeUpdate =
-                  readOnlyApplicantProgramServiceBeforeUpdate.getBlock(blockId);
+                  readOnlyApplicantProgramServiceBeforeUpdate.getActiveBlock(blockId);
               if (maybeBlockBeforeUpdate.isEmpty()) {
                 return CompletableFuture.failedFuture(
                     new ProgramBlockNotFoundException(programId, blockId));
@@ -369,7 +377,8 @@ public final class ApplicantService {
             baseUrl,
             failedUpdates);
 
-    Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockBeforeUpdate.getId());
+    Optional<Block> blockMaybe =
+        roApplicantProgramService.getActiveBlock(blockBeforeUpdate.getId());
     if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
       return accountRepository
           .updateApplicant(applicant)
@@ -462,7 +471,8 @@ public final class ApplicantService {
 
               ApplicationModel application = applicationMaybe.get();
               ProgramModel applicationProgram = application.getProgram();
-              ProgramDefinition programDefinition = applicationProgram.getProgramDefinition();
+              ProgramDefinition programDefinition =
+                  programRepository.getShallowProgramDefinition(applicationProgram);
               String programName = programDefinition.adminName();
               Optional<StatusDefinitions.Status> maybeDefaultStatus =
                   applicationProgram.getDefaultStatus();
@@ -538,7 +548,7 @@ public final class ApplicantService {
     }
 
     try {
-      if (!programService.getProgramDefinition(programId).eligibilityIsGating()) {
+      if (!programService.getFullProgramDefinition(programId).eligibilityIsGating()) {
         return CompletableFuture.completedFuture(null);
       }
     } catch (ProgramNotFoundException e) {
@@ -558,7 +568,7 @@ public final class ApplicantService {
    */
   private CompletionStage<Void> updateStoredFileAclsForSubmit(long applicantId, long programId) {
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
-        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
+        programService.getFullProgramDefinitionAsync(programId).toCompletableFuture();
 
     CompletableFuture<List<StoredFileModel>> storedFilesFuture =
         getReadOnlyApplicantProgramService(applicantId, programId)
@@ -647,7 +657,9 @@ public final class ApplicantService {
         baseUrl
             + controllers.ti.routes.TrustedIntermediaryController.dashboard(
                     /* nameQuery= */ Optional.empty(),
-                    /* dateQuery= */ Optional.empty(),
+                    /* dayQuery= */ Optional.empty(),
+                    /* monthQuery= */ Optional.empty(),
+                    /* yearQuery= */ Optional.empty(),
                     /* page= */ Optional.of(1))
                 .url();
     CompletableFuture<Optional<Locale>> localeFuture =
@@ -835,7 +847,7 @@ public final class ApplicantService {
             .toCompletableFuture();
     ImmutableList<ProgramDefinition> activeProgramDefinitions =
         versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()).stream()
-            .map(ProgramModel::getProgramDefinition)
+            .map(p -> programRepository.getShallowProgramDefinition(p))
             .filter(
                 pdef ->
                     pdef.displayMode().equals(DisplayMode.PUBLIC)
@@ -854,7 +866,10 @@ public final class ApplicantService {
               }
               List<ProgramDefinition> programDefinitionsList =
                   applications.stream()
-                      .map(application -> application.getProgram().getProgramDefinition())
+                      .map(
+                          application ->
+                              programRepository.getShallowProgramDefinition(
+                                  application.getProgram()))
                       .collect(Collectors.toList());
               programDefinitionsList.addAll(activeProgramDefinitions);
               return programService.syncQuestionsToProgramDefinitions(
@@ -950,7 +965,9 @@ public final class ApplicantService {
             .collect(
                 Collectors.groupingBy(
                     a -> {
-                      return a.getProgram().getProgramDefinition().adminName();
+                      return programRepository
+                          .getShallowProgramDefinition(a.getProgram())
+                          .adminName();
                     },
                     Collectors.groupingBy(
                         ApplicationModel::getLifecycleStage,
@@ -1004,7 +1021,7 @@ public final class ApplicantService {
             // version at the time of submission are used. However, when clicking "reapply", we use
             // the latest program version below.
             ProgramDefinition applicationProgramVersion =
-                maybeSubmittedApp.get().getProgram().getProgramDefinition();
+                programRepository.getShallowProgramDefinition(maybeSubmittedApp.get().getProgram());
             Optional<String> maybeLatestStatus = maybeSubmittedApp.get().getLatestStatus();
             Optional<StatusDefinitions.Status> maybeCurrentStatus =
                 maybeLatestStatus.isPresent()
@@ -1086,7 +1103,9 @@ public final class ApplicantService {
             .collect(
                 Collectors.groupingBy(
                     a -> {
-                      return a.getProgram().getProgramDefinition().adminName();
+                      return programRepository
+                          .getShallowProgramDefinition(a.getProgram())
+                          .adminName();
                     },
                     Collectors.groupingBy(ApplicationModel::getLifecycleStage)))
             .values();
@@ -1098,14 +1117,20 @@ public final class ApplicantService {
             String.join(
                 ", ",
                 draftApplications.stream()
-                    .map(a -> String.format("%d", a.getProgram().getProgramDefinition().id()))
+                    .map(
+                        a ->
+                            String.format(
+                                "%d",
+                                programRepository.getShallowProgramDefinition(a.getProgram()).id()))
                     .collect(ImmutableList.toImmutableList()));
         logger.debug(
             String.format(
                 "DEBUG LOG ID: 98afa07855eb8e69338b5af13236a6b7. Program"
                     + " Admin Name: %1$s, Duplicate Program Definition"
                     + " ids: %2$s.",
-                draftApplications.get(0).getProgram().getProgramDefinition().adminName(),
+                programRepository
+                    .getShallowProgramDefinition(draftApplications.get(0).getProgram())
+                    .adminName(),
                 joinedProgramIds));
       }
     }
@@ -1117,6 +1142,11 @@ public final class ApplicantService {
    */
   @AutoValue
   public abstract static class ApplicantProgramData {
+
+    public long programId() {
+      return program().id();
+    }
+
     public abstract ProgramDefinition program();
 
     /**
@@ -1138,13 +1168,13 @@ public final class ApplicantService {
      */
     public abstract Optional<LifecycleStage> latestApplicationLifecycleStage();
 
-    static Builder builder() {
+    public static Builder builder() {
       return new AutoValue_ApplicantService_ApplicantProgramData.Builder();
     }
 
     @AutoValue.Builder
-    abstract static class Builder {
-      abstract Builder setProgram(ProgramDefinition v);
+    public abstract static class Builder {
+      public abstract Builder setProgram(ProgramDefinition v);
 
       abstract Builder setIsProgramMaybeEligible(Optional<Boolean> v);
 
@@ -1154,7 +1184,7 @@ public final class ApplicantService {
 
       abstract Builder setLatestApplicationLifecycleStage(Optional<LifecycleStage> v);
 
-      abstract ApplicantProgramData build();
+      public abstract ApplicantProgramData build();
     }
   }
 
@@ -1413,6 +1443,18 @@ public final class ApplicantService {
 
     public abstract ImmutableList<ApplicantProgramData> unapplied();
 
+    /**
+     * Programs the applicant has not applied to and has no questions the applicant has answered
+     * with eligibility criteria that the applicant does not meet.
+     */
+    public ImmutableList<ApplicantProgramData> unappliedAndPotentiallyEligible() {
+      return unapplied().stream()
+          .filter(
+              (ApplicantService.ApplicantProgramData applicantProgramData) ->
+                  applicantProgramData.isProgramMaybeEligible().orElse(true))
+          .collect(ImmutableList.toImmutableList());
+    }
+
     static Builder builder() {
       return new AutoValue_ApplicantService_ApplicationPrograms.Builder();
     }
@@ -1458,12 +1500,12 @@ public final class ApplicantService {
       long applicantId,
       long programId,
       String blockId,
-      String selectedAddress,
+      Optional<String> selectedAddress,
       ImmutableList<AddressSuggestion> addressSuggestions) {
     return getReadOnlyApplicantProgramService(applicantId, programId)
         .thenComposeAsync(
             roApplicantProgramService -> {
-              Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
+              Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockId);
 
               if (blockMaybe.isEmpty()) {
                 return CompletableFuture.failedFuture(
@@ -1478,7 +1520,9 @@ public final class ApplicantService {
                   addressSuggestions.stream()
                       .filter(
                           addressSuggestion ->
-                              addressSuggestion.getSingleLineAddress().equals(selectedAddress))
+                              addressSuggestion
+                                  .getSingleLineAddress()
+                                  .equals(selectedAddress.orElse("")))
                       .findFirst();
 
               ImmutableMap<String, String> questionPathToValueMap =
@@ -1501,7 +1545,7 @@ public final class ApplicantService {
       String blockId,
       AddressQuestion addressQuestion,
       Optional<AddressSuggestion> suggestionMaybe,
-      String selectedAddress) {
+      Optional<String> selectedAddress) {
 
     ImmutableMap.Builder<String, String> questionPathToValueMap = ImmutableMap.builder();
 
@@ -1524,7 +1568,8 @@ public final class ApplicantService {
       questionPathToValueMap.put(
           addressQuestion.getCorrectedPath().toString(),
           CorrectedAddressState.CORRECTED.getSerializationFormat());
-    } else if (selectedAddress.equals(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE)) {
+    } else if (selectedAddress.isPresent()
+        && selectedAddress.get().equals(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE)) {
       questionPathToValueMap.put(
           addressQuestion.getCorrectedPath().toString(),
           CorrectedAddressState.AS_ENTERED_BY_USER.getSerializationFormat());
@@ -1584,7 +1629,7 @@ public final class ApplicantService {
     return getReadOnlyApplicantProgramService(applicantId, programId)
         .thenComposeAsync(
             roApplicantProgramService -> {
-              Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
+              Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockId);
 
               if (blockMaybe.isEmpty()) {
                 return CompletableFuture.failedFuture(
@@ -1612,6 +1657,50 @@ public final class ApplicantService {
               }
 
               return CompletableFuture.completedFuture(formData);
+            });
+  }
+
+  /**
+   * Checks the block for any {@link PhoneQuestion}. If any are found grab the phone number from the
+   * formData and call the {@link PhoneValidationUtils#validatePhoneNumberWithCountryCode} to
+   * calculate the country code.
+   */
+  public CompletionStage<ImmutableMap<String, String>> setPhoneCountryCode(
+      long applicantId, long programId, String blockId, ImmutableMap<String, String> formData) {
+    return getReadOnlyApplicantProgramService(applicantId, programId)
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockId);
+
+              if (blockMaybe.isEmpty()) {
+                return CompletableFuture.failedFuture(
+                    new ProgramBlockNotFoundException(programId, blockId));
+              }
+
+              // Get a writeable map so the existing paths can be replaced
+              Map<String, String> newFormData = new java.util.HashMap<>(formData);
+
+              for (ApplicantQuestion applicantQuestion : blockMaybe.get().getQuestions()) {
+                if (applicantQuestion.getType() != QuestionType.PHONE) {
+                  continue;
+                }
+
+                PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
+
+                Optional<String> phoneNumber =
+                    Optional.of(newFormData.get(phoneQuestion.getPhoneNumberPath().toString()));
+
+                PhoneValidationResult result =
+                    PhoneValidationUtils.determineCountryCode(phoneNumber);
+
+                if (result.isValid()) {
+                  newFormData.put(
+                      phoneQuestion.getCountryCodePath().toString(),
+                      result.getCountryCode().orElse(""));
+                }
+              }
+
+              return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));
             });
   }
 }

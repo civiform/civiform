@@ -3,6 +3,7 @@ package filters;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import akka.stream.Materializer;
+import com.google.common.collect.ImmutableList;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import play.libs.streams.Accumulator;
@@ -26,11 +27,16 @@ public final class SettingsFilter extends EssentialFilter {
     this.materializer = checkNotNull(materializer);
   }
 
+  // The URL paths with these prefixes do not consume the SettingsManifest so
+  // requests to them don't need to load it.
+  private static final ImmutableList<String> EXCLUDED_PATHS =
+      ImmutableList.of("/assets/", "/favicon", "/playIndex");
+
   @Override
   public EssentialAction apply(EssentialAction next) {
     return EssentialAction.of(
         (Http.RequestHeader request) -> {
-          if (request.path().startsWith("/assets")) {
+          if (EXCLUDED_PATHS.stream().anyMatch(prefix -> request.path().startsWith(prefix))) {
             return next.apply(request);
           }
 

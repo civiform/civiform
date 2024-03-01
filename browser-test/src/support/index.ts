@@ -1,18 +1,16 @@
-import axe = require('axe-core')
+import {test, expect} from '@playwright/test'
+import {AxeBuilder} from '@axe-core/playwright'
 import {
   Browser,
   BrowserContext,
   chromium,
   Frame,
   Page,
-  PageScreenshotOptions,
-  LocatorScreenshotOptions,
   Locator,
   devices,
   BrowserContextOptions,
 } from 'playwright'
 import * as path from 'path'
-import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 import {waitForPageJsLoad} from './wait'
 import {
   BASE_URL,
@@ -28,6 +26,7 @@ import {AdminQuestions} from './admin_questions'
 import {AdminPrograms} from './admin_programs'
 import {AdminApiKeys} from './admin_api_keys'
 import {AdminProgramStatuses} from './admin_program_statuses'
+import {ApplicantFileQuestion} from './applicant_file_question'
 import {ApplicantQuestions} from './applicant_questions'
 import {AdminPredicates} from './admin_predicates'
 import {AdminTranslations} from './admin_translations'
@@ -45,8 +44,9 @@ export {AdminSettings} from './admin_settings'
 export {AdminTranslations} from './admin_translations'
 export {AdminProgramImage} from './admin_program_image'
 export {AdminTIGroups} from './admin_ti_groups'
-export {ClientInformation, TIDashboard} from './ti_dashboard'
+export {ApplicantFileQuestion} from './applicant_file_question'
 export {ApplicantQuestions} from './applicant_questions'
+export {ClientInformation, TIDashboard} from './ti_dashboard'
 export {NotFoundPage} from './error_pages'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
 
@@ -91,20 +91,26 @@ function makeBrowserContext(
     // will only be used when debugging failures.
     const dirs = ['tmp/videos']
     if ('expect' in global && expect.getState() != null) {
-      const testPath = expect.getState().testPath
+      const testPath = test.info().file
+
       if (testPath == null) {
         throw new Error('testPath cannot be null')
       }
+
       const testFile = testPath.substring(testPath.lastIndexOf('/') + 1)
       dirs.push(testFile)
+
       // Some test initialize context in beforeAll at which point test name is
       // not set.
-      const testName = expect.getState().currentTestName
+
+      const testName = test.info().title
+
       if (testName) {
         // remove special characters
         dirs.push(testName.replaceAll(/[:"<>|*?]/g, ''))
       }
     }
+
     contextOptions.recordVideo = {
       dir: path.join(...dirs),
     }
@@ -152,6 +158,7 @@ export interface TestContext {
   adminPrograms: AdminPrograms
   adminApiKeys: AdminApiKeys
   adminProgramStatuses: AdminProgramStatuses
+  applicantFileQuestion: ApplicantFileQuestion
   applicantQuestions: ApplicantQuestions
   adminPredicates: AdminPredicates
   adminTranslations: AdminTranslations
@@ -170,7 +177,7 @@ export interface TestContext {
  * describe('some test', () => {
  *   const ctx = createTestContext()
  *
- *   it('should do foo', async () => {
+ *   test('should do foo', async () => {
  *     await ctx.page.click('#some-button')
  *   })
  * })
@@ -194,7 +201,7 @@ export const createTestContext = (clearDb = true): TestContext => {
   // it only from before/afterX functions or tests.
   const ctx: TestContext = {} as unknown as TestContext
 
-  beforeAll(async () => {
+  test.beforeAll(async () => {
     ctx.browser = await chromium.launch()
     await resetContext(ctx)
     // clear DB at beginning of each test suite. While data can leak/share
@@ -204,11 +211,11 @@ export const createTestContext = (clearDb = true): TestContext => {
     await ctx.page.goto(BASE_URL)
   })
 
-  beforeEach(async () => {
+  test.beforeEach(async () => {
     await resetContext(ctx)
   })
 
-  afterEach(async () => {
+  test.afterEach(async () => {
     if (clearDb) {
       await dropTables(ctx.page)
     }
@@ -218,7 +225,7 @@ export const createTestContext = (clearDb = true): TestContext => {
     await resetContext(ctx)
   })
 
-  afterAll(async () => {
+  test.afterAll(async () => {
     await endSession(ctx.browser)
   })
 
@@ -258,6 +265,7 @@ export async function resetContext(ctx: TestContext) {
   ctx.adminPredicates = new AdminPredicates(ctx.page)
   ctx.adminTranslations = new AdminTranslations(ctx.page)
   ctx.adminProgramImage = new AdminProgramImage(ctx.page)
+  ctx.applicantFileQuestion = new ApplicantFileQuestion(ctx.page)
   ctx.tiDashboard = new TIDashboard(ctx.page)
   ctx.adminTiGroups = new AdminTIGroups(ctx.page)
   await ctx.page.goto(BASE_URL)
@@ -294,7 +302,7 @@ export const logout = async (page: Page, closeToast = true) => {
   // page with civiform js where we should waitForPageJsLoad. Because
   // the process goes through a sequence of redirects we need to wait
   // for the final destination URL (the programs index page), to make tests reliable.
-  await page.waitForURL('**/applicants/**')
+  await page.waitForURL('**/programs')
   await validateToastMessage(page, 'Your session has ended.')
   if (closeToast) await dismissToast(page)
 }
@@ -383,7 +391,7 @@ async function loginAsTestUserAwsStaging(
   await page.fill('input[name=username]', TEST_USER_LOGIN)
   await page.fill('input[name=password]', TEST_USER_PASSWORD)
   await Promise.all([
-    page.waitForURL(isTi ? '**/admin/**' : '**/applicants/**', {
+    page.waitForURL(isTi ? '**/admin/**' : /.*\/programs.*/, {
       waitUntil: 'networkidle',
     }),
     // Auth0 has an additional hidden "Continue" button that does nothing for some reason
@@ -425,7 +433,7 @@ async function loginAsTestUserFakeOidc(
   // A screen is shown prompting the user to authorize a set of scopes.
   // This screen is skipped if the user has already logged in once.
   await Promise.all([
-    page.waitForURL(isTi ? '**/admin/**' : '**/applicants/**', {
+    page.waitForURL(isTi ? '**/admin/**' : /\/programs.*/, {
       waitUntil: 'networkidle',
     }),
     page.click('button:has-text("Continue")'),
@@ -494,13 +502,14 @@ export const closeWarningMessage = async (page: Page) => {
 }
 
 export const validateAccessibility = async (page: Page) => {
-  // Inject axe and run accessibility test.
-  await page.addScriptTag({path: 'node_modules/axe-core/axe.min.js'})
-  const results = await page.evaluate(() => {
-    return axe.run()
-  })
+  const results = await new AxeBuilder({page}).analyze()
+  const errorMessage = `Found ${results.violations.length} axe accessibility violations:\n ${JSON.stringify(
+    results.violations,
+    null,
+    2,
+  )}`
 
-  expect(results).toHaveNoA11yViolations()
+  expect(results.violations, errorMessage).toEqual([])
 }
 
 /**
@@ -513,11 +522,10 @@ export const validateAccessibility = async (page: Page) => {
 export const validateScreenshot = async (
   element: Page | Locator,
   screenshotFileName: string,
-  screenshotOptions?: PageScreenshotOptions | LocatorScreenshotOptions,
-  matchImageSnapshotOptions?: MatchImageSnapshotOptions,
   fullPage?: boolean,
+  mobileScreenshot?: boolean,
 ) => {
-  if (fullPage == null) {
+  if (fullPage === undefined) {
     fullPage = true
   }
 
@@ -541,26 +549,46 @@ export const validateScreenshot = async (
       window.scrollTo(0, 0)
     })
   }
+
   expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
+
+  await takeScreenshot(element, `${screenshotFileName}`, fullPage)
+
+  const existingWidth = page.viewportSize()?.width || 1280
+
+  if (mobileScreenshot) {
+    const height = page.viewportSize()?.height || 720
+    // Update the viewport size to different screen widths so we can test on a
+    // variety of sizes
+    await page.setViewportSize({width: 320, height})
+
+    await takeScreenshot(element, `${screenshotFileName}-mobile`, fullPage)
+
+    // Medium width
+    await page.setViewportSize({width: 800, height})
+
+    await takeScreenshot(element, `${screenshotFileName}-medium`, fullPage)
+
+    // Reset back to original width
+    await page.setViewportSize({width: existingWidth, height})
+  }
+}
+
+const takeScreenshot = async (
+  element: Page | Locator,
+  fullScreenshotFileName: string,
+  fullPage?: boolean,
+) => {
+  const testFileName = path
+    .basename(test.info().file)
+    .replace('.test.ts', '_test')
+
   expect(
     await element.screenshot({
-      fullPage,
-      ...screenshotOptions,
+      fullPage: fullPage,
+      animations: 'disabled',
     }),
-  ).toMatchImageSnapshot({
-    allowSizeMismatch: true,
-    failureThreshold: 0,
-    failureThresholdType: 'percent',
-    customSnapshotsDir: 'image_snapshots',
-    customDiffDir: 'diff_output',
-    storeReceivedOnFailure: true,
-    customReceivedDir: 'updated_snapshots',
-    customSnapshotIdentifier: ({testPath}) => {
-      const dir = path.basename(testPath).replace('.test.ts', '_test')
-      return `${dir}/${screenshotFileName}`
-    },
-    ...matchImageSnapshotOptions,
-  })
+  ).toMatchSnapshot([testFileName, fullScreenshotFileName + '.png'])
 }
 
 /*
@@ -647,4 +675,12 @@ export const extractEmailsForRecipient = async function (
 
   await page.goto(originalPageUrl)
   return filteredEmails
+}
+
+export const expectEnabled = async (page: Page, locator: string) => {
+  expect(await page.getAttribute(locator, 'disabled')).toBeNull()
+}
+
+export const expectDisabled = async (page: Page, locator: string) => {
+  expect(await page.getAttribute(locator, 'disabled')).not.toBeNull()
 }

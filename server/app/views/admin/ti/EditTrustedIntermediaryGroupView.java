@@ -50,7 +50,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
   }
 
   public Content render(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
-    String title = "Trusted Intermediary Groups";
+    String title = "Trusted intermediary groups";
 
     HtmlBundle htmlBundle =
         layout
@@ -82,7 +82,6 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  // TODO https://github.com/seattle-uat/civiform/issues/2762
   private DivTag renderAddNewButton(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
     FormTag formTag =
         form()
@@ -93,7 +92,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
         FieldWithLabel.email()
             .setId("group-name-input")
             .setFieldName("emailAddress")
-            .setLabelText("Member Email Address")
+            .setLabelText("Member email address")
             .setValue(request.flash().get("providedEmail").orElse(""));
     return div()
         .with(

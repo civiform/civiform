@@ -58,6 +58,13 @@ public class ApplicantModel extends BaseModel {
     // data and `applicantData` is null, first initialization, where `object`
     // is null and the `applicantData` is also `null`, and in-memory use, where
     // `object` is out-of-date but non-null, and `applicantData` is already valid.
+
+    // Play Ebeans starting at v6.2.0 includes updated Ebeans that fixes a bug we
+    // had relied on to mark the json fields as dirty. We now need to manually
+    // trigger the dirty flag or the @PrePersist/@PreUpdate annotations don't
+    // get triggered.
+    io.ebean.DB.markAsDirty(this);
+
     if (this.applicantData == null && (object != null && !object.isEmpty())) {
       if (preferredLocale == null || preferredLocale.isEmpty()) {
         // Default to English until the applicant specifies their preferred language.

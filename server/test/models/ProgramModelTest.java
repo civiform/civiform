@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ProgramRepository;
@@ -35,10 +36,12 @@ import services.question.types.QuestionType;
 public class ProgramModelTest extends ResetPostgres {
 
   private ProgramRepository repo;
+  private Long uniqueProgramId;
 
   @Before
   public void setupProgramRepository() {
     repo = instanceOf(ProgramRepository.class);
+    uniqueProgramId = new Random().nextLong();
   }
 
   @Test
@@ -51,7 +54,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setDescription("applicant's name")
             .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
             .build();
-    long programDefinitionId = 1L;
+    long programDefinitionId = uniqueProgramId;
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(1L)
@@ -83,6 +86,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setAcls(new ProgramAcls(tiOrgList))
             .setLocalizedSummaryImageDescription(
                 Optional.of(LocalizedStrings.of(Locale.US, "custom summary image description")))
+            .setSummaryImageFileKey(Optional.of("program-card-images/program-1/testFile.png"))
             .build();
     ProgramModel program = new ProgramModel(definition);
 
@@ -97,6 +101,8 @@ public class ProgramModelTest extends ResetPostgres {
         .isEqualTo(LocalizedStrings.of(Locale.US, "custom confirmation message"));
     assertThat(found.getProgramDefinition().localizedSummaryImageDescription().get())
         .isEqualTo(LocalizedStrings.of(Locale.US, "custom summary image description"));
+    assertThat(found.getProgramDefinition().summaryImageFileKey().get())
+        .isEqualTo("program-card-images/program-1/testFile.png");
     assertThat(found.getProgramDefinition().blockDefinitions().get(0).name())
         .isEqualTo("First Block");
     assertThat(found.getProgramDefinition().programType())
@@ -136,7 +142,7 @@ public class ProgramModelTest extends ResetPostgres {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
                 .build();
 
-    long programDefinitionId = 1L;
+    long programDefinitionId = uniqueProgramId;
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(1L)
@@ -209,7 +215,7 @@ public class ProgramModelTest extends ResetPostgres {
 
     ProgramDefinition definition =
         ProgramDefinition.builder()
-            .setId(1L)
+            .setId(uniqueProgramId)
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
@@ -238,7 +244,7 @@ public class ProgramModelTest extends ResetPostgres {
 
   @Test
   public void unorderedBlockDefinitions_getOrderedBlockDefinitionsOnSave() {
-    long programDefinitionId = 45832L;
+    long programDefinitionId = uniqueProgramId;
     ImmutableList<BlockDefinition> unorderedBlocks =
         ImmutableList.<BlockDefinition>builder()
             .add(
@@ -366,7 +372,7 @@ public class ProgramModelTest extends ResetPostgres {
 
     ProgramDefinition definition =
         ProgramDefinition.builder()
-            .setId(1L)
+            .setId(new Random().nextLong())
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
@@ -388,7 +394,7 @@ public class ProgramModelTest extends ResetPostgres {
 
     ProgramDefinition definition2 =
         ProgramDefinition.builder()
-            .setId(2L)
+            .setId(uniqueProgramId)
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))

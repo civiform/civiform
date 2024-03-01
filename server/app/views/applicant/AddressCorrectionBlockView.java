@@ -7,9 +7,12 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.label;
 
+import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
-import controllers.applicant.routes;
+import controllers.applicant.ApplicantRequestedAction;
+import controllers.applicant.ApplicantRoutes;
 import j2html.TagCreator;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -27,6 +30,7 @@ import services.Address;
 import services.MessageKey;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
+import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
@@ -44,10 +48,15 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   public static final String USER_KEEPING_ADDRESS_VALUE = "USER_KEEPING_ADDRESS_VALUE";
   public static final String SELECTED_ADDRESS_NAME = "selectedAddress";
   private final ApplicantLayout layout;
+  private final ApplicantRoutes applicantRoutes;
+  private final SettingsManifest settingsManifest;
 
   @Inject
-  AddressCorrectionBlockView(ApplicantLayout layout) {
+  AddressCorrectionBlockView(
+      ApplicantLayout layout, ApplicantRoutes applicantRoutes, SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layout);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -70,11 +79,15 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
             .getBundle(params.request())
             .setTitle(
                 layout.renderPageTitleWithBlockProgress(
-                    params.programTitle(), params.blockIndex(), params.totalBlockCount()))
+                    params.programTitle(), params.blockIndex(), params.totalBlockCount(), messages))
             .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION)
             .addMainContent(
                 layout.renderProgramApplicationTitleAndProgressIndicator(
-                    params.programTitle(), params.blockIndex(), params.totalBlockCount(), false),
+                    params.programTitle(),
+                    params.blockIndex(),
+                    params.totalBlockCount(),
+                    false,
+                    messages),
                 content);
 
     return layout.renderWithNav(
@@ -87,15 +100,10 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
       Address addressAsEntered,
       ImmutableList<AddressSuggestion> suggestions,
       Boolean isEligibilityEnabled) {
-    String formAction =
-        routes.ApplicantProgramBlocksController.confirmAddress(
-                params.applicantId(), params.programId(), params.block().getId(), params.inReview())
-            .url();
-
     FormTag form =
         form()
             .withId(BLOCK_FORM_ID)
-            .withAction(formAction)
+            .withAction(getFormAction(params, ApplicantRequestedAction.NEXT_BLOCK))
             .withMethod(Http.HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(params.request()));
     MessageKey title =
@@ -116,7 +124,11 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
               .withClasses("mb-8")
               .with(
                   renderAsEnteredHeading(
-                      params.applicantId(), params.programId(), params.block().getId(), messages),
+                      params.applicantId(),
+                      params.programId(),
+                      params.block().getId(),
+                      messages,
+                      params.profile()),
                   renderAddress(
                       addressAsEntered,
                       /* selected= */ !anySuggestions,
@@ -140,7 +152,11 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   }
 
   private DivTag renderAsEnteredHeading(
-      long applicantId, long programId, String blockId, Messages messages) {
+      long applicantId,
+      long programId,
+      String blockId,
+      Messages messages,
+      CiviFormProfile profile) {
     DivTag containerDiv = div().withClass("flex flex-nowrap mb-2");
 
     ATag editElement =
@@ -148,8 +164,13 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
             .setStyles(
                 "bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"), "mb-2")
             .setHref(
-                routes.ApplicantProgramBlocksController.review(
-                        applicantId, programId, blockId, /* questionName= */ Optional.empty())
+                applicantRoutes
+                    .blockReview(
+                        profile,
+                        applicantId,
+                        programId,
+                        blockId,
+                        /* questionName= */ Optional.empty())
                     .url())
             .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
             .setIcon(Icons.EDIT, LinkElement.IconPosition.START)
@@ -224,10 +245,12 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   private DivTag renderBottomNavButtons(Params params) {
     return div()
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-        // An empty div to take up the space to the left of the buttons.
-        .with(div().withClasses("flex-grow"))
-        .with(renderReviewButton(params))
-        .with(renderPreviousButton(params))
+        .with(
+            renderReviewButton(
+                settingsManifest,
+                params,
+                getFormAction(params, ApplicantRequestedAction.REVIEW_PAGE)))
+        .with(renderAddressCorrectionSpecificPreviousButton(params))
         .with(renderNextButton(params));
   }
 
@@ -237,11 +260,29 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
         .withId("cf-block-submit");
   }
 
-  @Override
-  protected ATag renderPreviousButton(Params params) {
-    // Set the block index to the next block, so that the renderPreviousButton
-    // method will render the correct block.
-    Params newParams = params.toBuilder().setBlockIndex(params.blockIndex() + 1).build();
-    return super.renderPreviousButton(newParams);
+  private DomContent renderAddressCorrectionSpecificPreviousButton(Params params) {
+    if (!settingsManifest.getSaveOnAllActions(params.request())) {
+      // Set the block index to the next block, so that the renderPreviousButton
+      // method will render the correct block.
+      Params newParams = params.toBuilder().setBlockIndex(params.blockIndex() + 1).build();
+      return renderOldPreviousButton(newParams);
+    }
+    // In the new previous button, ApplicantProgramBlocksController will handle adjusting the block
+    // index so that the Previous button correctly takes the applicant back to the block with the
+    // address question.
+    return renderPreviousButton(
+        settingsManifest, params, getFormAction(params, ApplicantRequestedAction.PREVIOUS_BLOCK));
+  }
+
+  private String getFormAction(Params params, ApplicantRequestedAction applicantRequestedAction) {
+    return applicantRoutes
+        .confirmAddress(
+            params.profile(),
+            params.applicantId(),
+            params.programId(),
+            params.block().getId(),
+            params.inReview(),
+            applicantRequestedAction)
+        .url();
   }
 }

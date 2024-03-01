@@ -56,7 +56,7 @@ public final class RoleService {
       return Optional.empty();
     }
 
-    ProgramDefinition program = programService.getProgramDefinition(programId);
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
     // Filter out CiviForm admins from the list of emails - a CiviForm admin cannot be a program
     // admin.
     ImmutableSet<String> globalAdminEmails =
@@ -113,7 +113,7 @@ public final class RoleService {
   public void removeProgramAdmins(long programId, ImmutableSet<String> accountEmails)
       throws ProgramNotFoundException {
     if (!accountEmails.isEmpty()) {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
       accountEmails.forEach(email -> accountRepository.removeAdministeredProgram(email, program));
     }
   }

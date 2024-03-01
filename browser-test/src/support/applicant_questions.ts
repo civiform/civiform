@@ -1,6 +1,7 @@
+import {expect} from '@playwright/test'
 import {Page} from 'playwright'
 import {readFileSync} from 'fs'
-import {waitForPageJsLoad} from './wait'
+import {waitForAnyModal, waitForPageJsLoad} from './wait'
 import {BASE_URL} from './config'
 
 export class ApplicantQuestions {
@@ -85,9 +86,9 @@ export class ApplicantQuestions {
     await this.page.fill(`input[currency] >> nth=${index}`, currency)
   }
 
-  async answerFileUploadQuestion(text: string) {
+  async answerFileUploadQuestion(text: string, fileName = 'file.txt') {
     await this.page.setInputFiles('input[type=file]', {
-      name: 'file.txt',
+      name: fileName,
       mimeType: 'text/plain',
       buffer: Buffer.from(text),
     })
@@ -110,15 +111,8 @@ export class ApplicantQuestions {
     )
   }
 
-  async answerPhoneQuestion(country: string, phone: string, index = 0) {
-    // United States
-    await this.page.selectOption(
-      `.cf-phone-country-code select >> nth=${index}`,
-      {
-        label: country,
-      },
-    )
-    await this.page.fill(`.cf-phone-number input >> nth=${index}`, phone)
+  async answerPhoneQuestion(phone: string, index = 0) {
+    await this.page.fill(`.cf-question-phone input >> nth=${index}`, phone)
   }
 
   async answerNumberQuestion(number: string, index = 0) {
@@ -168,6 +162,20 @@ export class ApplicantQuestions {
     await this.validateInputValue(
       entityName,
       `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`,
+    )
+  }
+
+  /** On the review page, click "Answer" on a previously unanswered question. */
+  async answerQuestionFromReviewPage(questionText: string) {
+    await this.page.click(
+      `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Answer")`,
+    )
+  }
+
+  /** On the review page, click "Edit" to change an answer to a previously answered question. */
+  async editQuestionFromReviewPage(questionText: string) {
+    await this.page.click(
+      `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`,
     )
   }
 
@@ -278,7 +286,7 @@ export class ApplicantQuestions {
 
   async expectCommonIntakeForm(commonIntakeFormName: string) {
     const commonIntakeFormSectionNames =
-      await this.programNamesForSection('Find services')
+      await this.programNamesForSection('Get Started')
     expect(commonIntakeFormSectionNames).toEqual([commonIntakeFormName])
   }
 
@@ -353,7 +361,7 @@ export class ApplicantQuestions {
     this.page.once('dialog', (dialog) => {
       void dialog.accept()
     })
-    await this.page.click(`:nth-match(:text("Remove Entity"), ${entityIndex})`)
+    await this.page.click(`:nth-match(:text("Remove entity"), ${entityIndex})`)
   }
 
   async downloadSingleQuestionFromReviewPage() {
@@ -419,11 +427,11 @@ export class ApplicantQuestions {
   ) {
     if (wantTrustedIntermediary) {
       expect(await this.page.innerText('h1')).toContain(
-        'Benefits your client may qualify for',
+        'Programs your client may qualify for',
       )
     } else {
       expect(await this.page.innerText('h1')).toContain(
-        'Benefits you may qualify for',
+        'Programs you may qualify for',
       )
     }
 
@@ -495,7 +503,11 @@ export class ApplicantQuestions {
     expect(await this.page.innerText('legend')).toContain('With Correction')
   }
 
-  async expectAddressHasBeenCorrected(
+  async selectAddressSuggestion(addressName: string) {
+    await this.page.check(`label:has-text("${addressName}")`)
+  }
+
+  async expectQuestionAnsweredOnReviewPage(
     questionText: string,
     answerText: string,
   ) {
@@ -554,5 +566,42 @@ export class ApplicantQuestions {
 
   async seeStaticQuestion(questionText: string) {
     expect(await this.page.textContent('html')).toContain(questionText)
+  }
+
+  async expectErrorOnReviewModal() {
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain(
+      `Questions on this page are not complete`,
+    )
+    expect(await modal.innerText()).toContain(
+      `Continue to review page without saving`,
+    )
+    expect(await modal.innerText()).toContain(`Stay and fix your answers`)
+  }
+  async clickReviewWithoutSaving() {
+    await this.page.click(
+      'button:has-text("Continue to review page without saving")',
+    )
+  }
+
+  async expectErrorOnPreviousModal() {
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain(
+      `Questions on this page are not complete`,
+    )
+    expect(await modal.innerText()).toContain(
+      `Continue to previous questions without saving`,
+    )
+    expect(await modal.innerText()).toContain(`Stay and fix your answers`)
+  }
+
+  async clickPreviousWithoutSaving() {
+    await this.page.click(
+      'button:has-text("Continue to previous questions without saving")',
+    )
+  }
+
+  async clickGoBackAndEdit() {
+    await this.page.click('button:has-text("Stay and fix your answers")')
   }
 }

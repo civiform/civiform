@@ -11,6 +11,7 @@ import models.ProgramModel;
 import models.QuestionModel;
 import models.VersionModel;
 import play.inject.Injector;
+import repository.QuestionRepository;
 import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.program.BlockDefinition;
@@ -226,6 +227,11 @@ public class ProgramBuilder {
     return this;
   }
 
+  public ProgramBuilder setSummaryImageFileKey(Optional<String> summaryImageFileKey) {
+    builder.setSummaryImageFileKey(summaryImageFileKey);
+    return this;
+  }
+
   public ProgramBuilder setLocalizedSummaryImageDescription(
       LocalizedStrings localizedSummaryImageDescription) {
     builder.setLocalizedSummaryImageDescription(Optional.of(localizedSummaryImageDescription));
@@ -333,21 +339,25 @@ public class ProgramBuilder {
 
     /** Add a required question to the block. */
     public BlockBuilder withRequiredQuestion(QuestionModel question) {
+      QuestionRepository questionRepository = injector.instanceOf(QuestionRepository.class);
       blockDefBuilder.addQuestion(
           ProgramQuestionDefinition.create(
-              question.getQuestionDefinition(), Optional.of(programBuilder.programDefinitionId)));
+              questionRepository.getQuestionDefinition(question),
+              Optional.of(programBuilder.programDefinitionId)));
       return this;
     }
 
     /** Add a required address question that has correction enabled to the block. */
     public BlockBuilder withRequiredCorrectedAddressQuestion(QuestionModel question) {
-      if (!(question.getQuestionDefinition() instanceof AddressQuestionDefinition)) {
+      QuestionRepository questionRepository = injector.instanceOf(QuestionRepository.class);
+      if (!(questionRepository.getQuestionDefinition(question)
+          instanceof AddressQuestionDefinition)) {
         throw new IllegalArgumentException("Only address questions can be address corrected.");
       }
 
       blockDefBuilder.addQuestion(
           ProgramQuestionDefinition.create(
-              question.getQuestionDefinition(),
+              questionRepository.getQuestionDefinition(question),
               Optional.of(programBuilder.programDefinitionId),
               /* optional= */ true,
               /* addressCorrectionEnabled= */ true));
@@ -355,7 +365,8 @@ public class ProgramBuilder {
     }
 
     public BlockBuilder withOptionalQuestion(QuestionModel question) {
-      return withOptionalQuestion(question.getQuestionDefinition());
+      QuestionRepository questionRepository = injector.instanceOf(QuestionRepository.class);
+      return withOptionalQuestion(questionRepository.getQuestionDefinition(question));
     }
 
     public BlockBuilder withOptionalQuestion(QuestionDefinition question) {
@@ -384,9 +395,10 @@ public class ProgramBuilder {
     }
 
     public BlockBuilder withRequiredQuestions(ImmutableList<QuestionModel> questions) {
+      QuestionRepository questionRepository = injector.instanceOf(QuestionRepository.class);
       return withRequiredQuestionDefinitions(
           questions.stream()
-              .map(QuestionModel::getQuestionDefinition)
+              .map(q -> questionRepository.getQuestionDefinition(q))
               .collect(ImmutableList.toImmutableList()));
     }
 

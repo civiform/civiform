@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
+import play.i18n.Messages;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
@@ -14,15 +15,15 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
-import views.FileUploadViewStrategy;
+import views.applicant.ApplicantFileUploadRenderer;
 
 /** A helper class for constructing type-specific applicant question renderers. */
 public final class ApplicantQuestionRendererFactory {
 
-  private final FileUploadViewStrategy fileUploadViewStrategy;
+  private final ApplicantFileUploadRenderer applicantFileUploadRenderer;
 
-  public ApplicantQuestionRendererFactory(FileUploadViewStrategy fileUploadViewStrategy) {
-    this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
+  public ApplicantQuestionRendererFactory(ApplicantFileUploadRenderer applicantFileUploadRenderer) {
+    this.applicantFileUploadRenderer = checkNotNull(applicantFileUploadRenderer);
   }
 
   public ApplicantQuestionRenderer getSampleRenderer(QuestionType questionType)
@@ -32,10 +33,11 @@ public final class ApplicantQuestionRendererFactory {
         ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty());
-    return getRenderer(applicantQuestion);
+    return getRenderer(applicantQuestion, Optional.empty());
   }
 
-  public ApplicantQuestionRenderer getRenderer(ApplicantQuestion question) {
+  public ApplicantQuestionRenderer getRenderer(
+      ApplicantQuestion question, Optional<Messages> maybeMessages) {
     switch (question.getType()) {
       case ADDRESS:
         return new AddressQuestionRenderer(question);
@@ -50,7 +52,7 @@ public final class ApplicantQuestionRendererFactory {
       case EMAIL:
         return new EmailQuestionRenderer(question);
       case FILEUPLOAD:
-        return new FileUploadQuestionRenderer(question, fileUploadViewStrategy);
+        return new FileUploadQuestionRenderer(question, applicantFileUploadRenderer);
       case ID:
         return new IdQuestionRenderer(question);
       case NAME:
@@ -62,7 +64,7 @@ public final class ApplicantQuestionRendererFactory {
       case ENUMERATOR:
         return new EnumeratorQuestionRenderer(question);
       case STATIC:
-        return new StaticContentQuestionRenderer(question);
+        return new StaticContentQuestionRenderer(question, maybeMessages);
       case TEXT:
         return new TextQuestionRenderer(question);
       case PHONE:

@@ -43,7 +43,7 @@ import views.style.StyleUtils;
 /** Renders a form for adding and removing program admins via email for a given program. */
 public class ManageProgramAdminsView extends BaseHtmlView {
 
-  private static final String PAGE_TITLE = "Manage Admins for Program: ";
+  private static final String PAGE_TITLE = "Manage admins for program: ";
   private static final String EMAIL_FIELD_NAME = "adminEmail";
 
   private final AdminLayout layout;
@@ -72,9 +72,9 @@ public class ManageProgramAdminsView extends BaseHtmlView {
             .addMainContent(
                 renderBackButton(),
                 renderHeader(fullTitle),
-                h2("Add New Admin"),
+                h2("Add new admin"),
                 renderAddNewAdminForm(request, program.id()),
-                h2("Existing Admins"),
+                h2("Existing admins"),
                 renderExistingAdmins(request, program.id(), existingAdminEmails));
 
     message.map(m -> m.setDuration(6000)).ifPresent(htmlBundle::addToastMessages);
@@ -91,7 +91,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
         FieldWithLabel.email()
             .setId("admin-email-input")
             .setFieldName("adminEmail")
-            .setLabelText("Admin email address");
+            .setLabelText("Admin email address (Email address is case-sensitive)");
     return div()
         .with(
             formTag.with(
@@ -99,8 +99,8 @@ public class ManageProgramAdminsView extends BaseHtmlView {
                 makeCsrfTokenInputTag(request),
                 submitButton("Add")
                     .withId("add-admin-button")
-                    .withClasses(ButtonStyles.SOLID_BLUE, "ml-2", "mb-6")))
-        .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
+                    .withClasses(ButtonStyles.SOLID_BLUE, "ml-2")))
+        .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-2", "mb-6", "p-4");
   }
 
   private DivTag renderExistingAdmins(
@@ -108,7 +108,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
     return div()
         .with(
             table()
-                .withClasses("border", "border-gray-300", "shadow-md", "w-full")
+                .withClasses("border", "border-gray-300", "shadow-md", "w-full", "mt-2")
                 .with(renderExistingAdminsTableHeader())
                 .with(
                     tbody(

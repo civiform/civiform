@@ -22,7 +22,9 @@ services:
           # We use hosted-style for s3 bucket urls. Which matches production.
           # https://docs.localstack.cloud/user-guide/aws/s3/
           # So we need to add host mapping for test bucket civiform-local-s3
+          # and civiform-local-s3-public
           - civiform-local-s3.s3.localhost.localstack.cloud
+          - civiform-local-s3-public.s3.localhost.localstack.cloud
           - localhost.localstack.cloud
 
   azurite:
@@ -48,7 +50,7 @@ services:
     image: civiform-mock-web-services
 
   db:
-    image: postgres:12.14
+    image: postgres:12.18
     restart: always
     expose:
       - '5432'
@@ -73,6 +75,7 @@ services:
       - AWS_REGION
       - SENDER_EMAIL_ADDRESS
       - AWS_S3_BUCKET_NAME
+      - AWS_S3_PUBLIC_BUCKET_NAME
       - AZURE_CLIENT_ID=${AZURE_CLIENT_ID:-test}
       - AZURE_LOCAL_CONNECTION_STRING
       - AZURE_STORAGE_ACCOUNT_NAME

@@ -1,3 +1,4 @@
+import {expect} from '@playwright/test'
 import axios from 'axios'
 import {Page} from 'playwright'
 import {waitForPageJsLoad} from './wait'

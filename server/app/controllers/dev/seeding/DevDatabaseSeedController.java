@@ -37,6 +37,7 @@ public class DevDatabaseSeedController extends Controller {
   private final AsyncCacheApi questionsByVersionCache;
   private final AsyncCacheApi programsByVersionCache;
   private final AsyncCacheApi programCache;
+  private final AsyncCacheApi programDefCache;
   private final AsyncCacheApi versionsByProgramCache;
 
   @Inject
@@ -51,6 +52,7 @@ public class DevDatabaseSeedController extends Controller {
       @NamedCache("version-questions") AsyncCacheApi questionsByVersionCache,
       @NamedCache("version-programs") AsyncCacheApi programsByVersionCache,
       @NamedCache("program") AsyncCacheApi programCache,
+      @NamedCache("full-program-definition") AsyncCacheApi programDefCache,
       @NamedCache("program-versions") AsyncCacheApi versionsByProgramCache) {
     this.devDatabaseSeedTask = checkNotNull(devDatabaseSeedTask);
     this.view = checkNotNull(view);
@@ -63,6 +65,7 @@ public class DevDatabaseSeedController extends Controller {
     this.questionsByVersionCache = checkNotNull(questionsByVersionCache);
     this.programsByVersionCache = checkNotNull(programsByVersionCache);
     this.programCache = checkNotNull(programCache);
+    this.programDefCache = checkNotNull(programDefCache);
     this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
   }
 
@@ -74,12 +77,17 @@ public class DevDatabaseSeedController extends Controller {
     if (!isDevOrStaging) {
       return notFound();
     }
+    return ok(view.render(request, request.flash().get("success")));
+  }
+
+  public Result data(Request request) {
+    if (!isDevOrStaging) {
+      return notFound();
+    }
     ActiveAndDraftPrograms activeAndDraftPrograms = programService.getActiveAndDraftPrograms();
     ImmutableList<QuestionDefinition> questionDefinitions =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join().getAllQuestions();
-    return ok(
-        view.render(
-            request, activeAndDraftPrograms, questionDefinitions, request.flash().get("success")));
+    return ok(view.seedDataView(request, activeAndDraftPrograms, questionDefinitions));
   }
 
   public Result seedQuestions() {
@@ -134,7 +142,16 @@ public class DevDatabaseSeedController extends Controller {
     return ok("The cache has been cleared");
   }
 
+  /**
+   * Clear cache if it is enabled in settings.
+   *
+   * <p>Note: this is not safe to do in most deployed instances, because there may be multiple
+   * tasks, but we assume all dev instances only have one task.
+   */
   private void clearCacheIfEnabled() {
+    if (!isDevOrStaging) {
+      return;
+    }
     if (settingsManifest.getVersionCacheEnabled()) {
       programsByVersionCache.removeAll().toCompletableFuture().join();
       questionsByVersionCache.removeAll().toCompletableFuture().join();
@@ -142,6 +159,9 @@ public class DevDatabaseSeedController extends Controller {
     if (settingsManifest.getProgramCacheEnabled()) {
       programCache.removeAll().toCompletableFuture().join();
       versionsByProgramCache.removeAll().toCompletableFuture().join();
+    }
+    if (settingsManifest.getQuestionCacheEnabled()) {
+      programDefCache.removeAll().toCompletableFuture().join();
     }
   }
 

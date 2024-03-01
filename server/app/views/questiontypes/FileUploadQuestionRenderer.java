@@ -15,7 +15,7 @@ import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
-import views.FileUploadViewStrategy;
+import views.applicant.ApplicantFileUploadRenderer;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
@@ -27,7 +27,7 @@ import views.style.ReferenceClasses;
  * views.applicant.ApplicantProgramBlockEditView#renderFileUploadBlock}.
  */
 public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer {
-  private final FileUploadViewStrategy fileUploadViewStrategy;
+  private final ApplicantFileUploadRenderer applicantFileUploadRenderer;
   private final FileUploadQuestion fileUploadQuestion;
   // The ID used to associate the file input field with its screen reader label.
   private final String fileInputId;
@@ -46,10 +46,10 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
   }
 
   public FileUploadQuestionRenderer(
-      ApplicantQuestion question, FileUploadViewStrategy fileUploadViewStrategy) {
+      ApplicantQuestion question, ApplicantFileUploadRenderer applicantFileUploadRenderer) {
     super(question);
     this.fileUploadQuestion = question.createFileUploadQuestion();
-    this.fileUploadViewStrategy = fileUploadViewStrategy;
+    this.applicantFileUploadRenderer = applicantFileUploadRenderer;
     this.fileInputId = RandomStringUtils.randomAlphabetic(8);
   }
 
@@ -68,7 +68,7 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
                 .withClass("sr-only")
                 .withText(applicantQuestion.getQuestionTextForScreenReader()))
         .with(
-            fileUploadViewStrategy.signedFileUploadFields(
+            applicantFileUploadRenderer.signedFileUploadFields(
                 params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors))
         .with(
             label()

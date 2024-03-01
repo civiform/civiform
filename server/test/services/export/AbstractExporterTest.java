@@ -52,6 +52,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   private ProgramAdminApplicationService programAdminApplicationService;
 
   protected ProgramModel fakeProgramWithEnumerator;
+  protected ProgramModel fakeProgramWithVisibility;
   protected ProgramModel fakeProgramWithEligibility;
   protected ProgramModel fakeProgramWithOptionalFileUpload;
   protected ProgramModel fakeProgram;
@@ -60,12 +61,14 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   protected ApplicantModel applicantFive;
   protected ApplicantModel applicantSix;
   protected ApplicantModel applicantTwo;
+  protected ApplicantModel applicantSeven;
   protected ApplicationModel applicationOne;
   protected ApplicationModel applicationTwo;
   protected ApplicationModel applicationThree;
   protected ApplicationModel applicationFour;
   protected ApplicationModel applicationFive;
   protected ApplicationModel applicationSix;
+  protected ApplicationModel applicationSeven;
 
   @Before
   public void setup() {
@@ -289,6 +292,53 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         "2022-01-01T00:00:00Z", () -> applicationSix.setSubmitTimeToNow());
     applicationSix.setApplicantData(applicantSix.getApplicantData());
     applicationSix.save();
+  }
+
+  /**
+   * Creates a program that has an visibility predicate, one applicant, and one application. The
+   * applications have submission times one month apart starting on 2023-01-01.
+   */
+  protected void createFakeProgramWithVisibilityPredicate() {
+    QuestionModel nameQuestion = testQuestionBank.applicantName();
+    QuestionModel colorQuestion = testQuestionBank.applicantFavoriteColor();
+
+    PredicateDefinition colorPredicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    colorQuestion.id, Scalar.TEXT, Operator.EQUAL_TO, PredicateValue.of("red"))),
+            PredicateAction.HIDE_BLOCK);
+
+    fakeProgramWithVisibility =
+        ProgramBuilder.newActiveProgram()
+            .withName("Fake Program")
+            .withBlock()
+            .withRequiredQuestion(colorQuestion)
+            .withBlock()
+            .withRequiredQuestion(nameQuestion)
+            .withVisibilityPredicate(colorPredicate)
+            .build();
+
+    applicantSeven = resourceCreator.insertApplicantWithAccount();
+    QuestionAnswerer.answerNameQuestion(
+        applicantSeven.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "Jen",
+        "",
+        "Doe");
+    QuestionAnswerer.answerTextQuestion(
+        applicantSeven.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            colorQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "red");
+    applicantSeven.save();
+    applicationSeven =
+        new ApplicationModel(applicantSeven, fakeProgramWithVisibility, LifecycleStage.ACTIVE);
+    applicationSeven.setApplicantData(applicantSeven.getApplicantData());
+    CfTestHelpers.withMockedInstantNow(
+        "2023-01-01T00:00:00Z", () -> applicationSeven.setSubmitTimeToNow());
+    applicationSeven.save();
   }
 
   /**
@@ -536,6 +586,35 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
+    /**
+     * Adds a question with a visibility predicate. If the text question ({@code applicant favorite
+     * color}) is answered with "red" then the date question ({@code applicant birth date}) isn't
+     * shown to the applicant.
+     *
+     * @return the fake {@link ProgramBuilder}
+     */
+    FakeProgramBuilder withDateQuestionWithVisibilityPredicateOnTextQuestion() {
+      QuestionModel dateQuestion = testQuestionBank.applicantDate();
+      QuestionModel colorQuestion = testQuestionBank.applicantFavoriteColor();
+
+      PredicateDefinition colorPredicate =
+          PredicateDefinition.create(
+              PredicateExpressionNode.create(
+                  LeafOperationExpressionNode.create(
+                      colorQuestion.id, Scalar.TEXT, Operator.EQUAL_TO, PredicateValue.of("red"))),
+              PredicateAction.HIDE_BLOCK);
+
+      fakeProgramBuilder
+          .withBlock()
+          .withRequiredQuestion(colorQuestion)
+          .withBlock()
+          .withRequiredQuestions(dateQuestion)
+          .withVisibilityPredicate(colorPredicate)
+          .build();
+
+      return this;
+    }
+
     FakeProgramBuilder withHouseholdMembersEnumeratorQuestion() {
       addEnumeratorQuestion = true;
       return this;
@@ -679,6 +758,18 @@ public abstract class AbstractExporterTest extends ResetPostgres {
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerEmailQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    public FakeApplicationFiller answerTextQuestion(String answer) {
+      Path answerPath =
+          testQuestionBank
+              .applicantFavoriteColor()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerTextQuestion(applicant.getApplicantData(), answerPath, answer);
       applicant.save();
       return this;
     }

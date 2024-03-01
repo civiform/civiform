@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -5,7 +6,7 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('Static text question for applicant flow', () => {
+test.describe('Static text question for applicant flow', () => {
   const staticText = 'Hello, I am some static text!'
   const markdownText =
     '\n[This is a link](https://www.example.com)\n' +
@@ -21,7 +22,7 @@ describe('Static text question for applicant flow', () => {
   const programName = 'Test program for static text'
   const ctx = createTestContext(/* clearDb= */ false)
 
-  beforeAll(async () => {
+  test.beforeAll(async () => {
     const {page, adminQuestions, adminPrograms} = ctx
     // As admin, create program with static text question.
     await loginAsAdmin(page)
@@ -39,21 +40,21 @@ describe('Static text question for applicant flow', () => {
     )
   })
 
-  it('displays static text', async () => {
+  test('displays static text', async () => {
     const {applicantQuestions} = ctx
     await applicantQuestions.applyProgram(programName)
 
     await applicantQuestions.seeStaticQuestion(staticText)
   })
 
-  it('has no accessiblity violations', async () => {
+  test('has no accessiblity violations', async () => {
     const {page, applicantQuestions} = ctx
     await applicantQuestions.applyProgram(programName)
 
     await validateAccessibility(page)
   })
 
-  it('parses markdown', async () => {
+  test('parses markdown', async () => {
     const {page, applicantQuestions} = ctx
     await applicantQuestions.applyProgram(programName)
     await validateScreenshot(page, 'markdown-text')
@@ -62,7 +63,7 @@ describe('Static text question for applicant flow', () => {
       '<p>Hello, I am some static text!<br>',
     )
     expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
-      '<a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" rel="nofollow noopener noreferrer">This is a link<svg',
+      '<a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" aria-label="opens in a new tab" rel="nofollow noopener noreferrer">This is a link<svg',
     )
     expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
       '<ul class="list-disc mx-8"><li>Item 1</li><li>Item 2<br>&nbsp;</li></ul>',
@@ -71,7 +72,7 @@ describe('Static text question for applicant flow', () => {
       '<p>There are some empty lines below this that should be preserved<br>&nbsp;</p>\n<p>&nbsp;</p>',
     )
     expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
-      '<p>This link should be autodetected: <a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" rel="nofollow noopener noreferrer">https://www.example.com<svg',
+      '<p>This link should be autodetected: <a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" aria-label="opens in a new tab" rel="nofollow noopener noreferrer">https://www.example.com<svg',
     )
     expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
       '<strong>Last line of content should be bold</strong>',

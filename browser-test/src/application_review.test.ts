@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   isHermeticTestEnvironment,
@@ -11,10 +12,10 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('Program admin review of submitted applications', () => {
+test.describe('Program admin review of submitted applications', () => {
   const ctx = createTestContext()
 
-  it('all major steps', async () => {
+  test('all major steps', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -150,24 +151,24 @@ describe('Program admin review of submitted applications', () => {
     // Application doesn't progress because of name and address question errors.
     // Verify that address error messages are visible.
     expect(await page.innerText('.cf-address-street-1-error:visible')).toEqual(
-      'Please enter valid street name and number.',
+      'Error: Please enter valid street name and number.',
     )
     expect(await page.innerText('.cf-address-city-error:visible')).toEqual(
-      'Please enter city.',
+      'Error: Please enter city.',
     )
     expect(await page.innerText('.cf-address-state-error:visible')).toEqual(
-      'Please enter state.',
+      'Error: Please enter state.',
     )
     expect(await page.innerText('.cf-address-zip-error:visible')).toEqual(
-      'Please enter valid 5-digit ZIP code.',
+      'Error: Please enter valid 5-digit ZIP code.',
     )
 
     // Verify that name question error messages are visible.
     expect(await page.innerText('.cf-name-first-error:visible')).toEqual(
-      'Please enter your first name.',
+      'Error: Please enter your first name.',
     )
     expect(await page.innerText('.cf-name-last-error:visible')).toEqual(
-      'Please enter your last name.',
+      'Error: Please enter your last name.',
     )
 
     // Fix the address and name questions and submit.
@@ -251,7 +252,9 @@ describe('Program admin review of submitted applications', () => {
     await loginAsAdmin(page)
     await adminQuestions.createNewVersion('favorite-trees-q')
     await adminQuestions.gotoQuestionEditPage('favorite-trees-q')
-    await page.click('#question-settings button:has-text("Delete"):visible')
+    await page.click(
+      '#question-settings .multi-option-question-field-remove-button',
+    )
     await page.click('text=Update')
     await adminPrograms.publishProgram(programName)
 
@@ -313,7 +316,7 @@ describe('Program admin review of submitted applications', () => {
     }
   })
 
-  it('program applications listed most recent first', async () => {
+  test('program applications listed most recent first', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
     // Create a simple one question program application.
@@ -361,7 +364,7 @@ describe('Program admin review of submitted applications', () => {
     }
   })
 
-  it('program application filters cleared', async () => {
+  test('program application filters cleared', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
     const noApplyFilters = false

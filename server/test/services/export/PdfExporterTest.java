@@ -32,7 +32,9 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantName = "name-unavailable";
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationOne.id);
-    PdfExporter.InMemoryPdf result = exporter.export(applicationOne);
+    PdfExporter.InMemoryPdf result =
+        exporter.export(
+            applicationOne, /* showEligibilityText= */ false, /* includeHiddenBlocks= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -80,7 +82,9 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantName = applicationFive.getApplicantData().getApplicantName().get();
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationFive.id);
-    PdfExporter.InMemoryPdf result = exporter.export(applicationFive);
+    PdfExporter.InMemoryPdf result =
+        exporter.export(
+            applicationFive, /* showEligibilityText= */ false, /* includeHiddenBlocks= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -123,7 +127,9 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantName = "name-unavailable";
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationSix.id);
-    PdfExporter.InMemoryPdf result = exporter.export(applicationSix);
+    PdfExporter.InMemoryPdf result =
+        exporter.export(
+            applicationSix, /* showEligibilityText= */ false, /* includeHiddenBlocks= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
     textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
@@ -148,6 +154,30 @@ public class PdfExporterTest extends AbstractExporterTest {
   }
 
   @Test
+  public void validatePDFExport_hiddenQuestionIncluded() throws IOException, DocumentException {
+    createFakeProgramWithVisibilityPredicate();
+
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+    String applicantName = "name-unavailable";
+    String applicantNameWithApplicationId =
+        String.format("%s (%d)", applicantName, applicationSeven.id);
+    PdfExporter.InMemoryPdf result =
+        exporter.export(
+            applicationSeven, /* showEligibilityText= */ false, /* includeHiddenBlocks= */ true);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
+    String programName = applicationSeven.getProgram().getProgramDefinition().adminName();
+    textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
+    pdfReader.close();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+
+    assertThat(textFromPDF).isNotNull();
+    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
+    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
+    assertThat(textFromPDF).contains("Hidden Questions");
+  }
+
+  @Test
   public void validatePDFExport_eligibility() throws IOException, DocumentException {
     createFakeProgramWithEligibilityPredicate();
 
@@ -156,7 +186,9 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantName = "name-unavailable";
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationTwo.id);
-    PdfExporter.InMemoryPdf result = exporter.export(applicationTwo);
+    PdfExporter.InMemoryPdf result =
+        exporter.export(
+            applicationTwo, /* showEligibilityText= */ false, /* includeHiddenBlocks= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
     textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
@@ -166,7 +198,18 @@ public class PdfExporterTest extends AbstractExporterTest {
     String programName = applicationTwo.getProgram().getProgramDefinition().adminName();
     assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
     assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
-    assertThat(textFromPDF).contains("Meets eligibility");
+    assertThat(textFromPDF).doesNotContain("Meets eligibility");
+    PdfExporter.InMemoryPdf resultWithEligibility =
+        exporter.export(
+            applicationTwo, /* showEligibilityText= */ true, /* includeHiddenBlocks= */ false);
+    PdfReader pdfReaderTwo = new PdfReader(resultWithEligibility.getByteArray());
+    StringBuilder textFromPDFTwo = new StringBuilder();
+    textFromPDFTwo.append(PdfTextExtractor.getTextFromPage(pdfReaderTwo, 1));
+    pdfReaderTwo.close();
+    assertThat(textFromPDFTwo).isNotNull();
+    List<String> linesFromPDFTwo = Splitter.on('\n').splitToList(textFromPDFTwo.toString());
+    assertThat(linesFromPDFTwo.get(1)).isEqualTo("Program Name : " + programName);
+    assertThat(textFromPDFTwo).contains("Meets eligibility");
   }
 
   public static final String APPLICATION_SIX_STRING =

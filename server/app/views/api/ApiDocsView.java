@@ -10,6 +10,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
+import static j2html.TagCreator.h4;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.pre;
 import static j2html.TagCreator.select;
@@ -19,18 +20,23 @@ import static services.export.JsonPrettifier.asPrettyJsonString;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import j2html.tags.DomContent;
+import j2html.tags.specialized.CodeTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import repository.ExportServiceRepository;
 import services.TranslationNotFoundException;
 import services.export.ProgramJsonSampler;
 import services.program.ProgramDefinition;
@@ -44,6 +50,10 @@ import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.AccordionFactory;
 
+// TODO: If we're being strict about code organization, access to the ProgramJsonSampler and
+// ExportServiceRepository should be brokered by an ApiDocsService, instead of accessed directly
+// from the view.
+
 public class ApiDocsView extends BaseHtmlView {
   private static final Logger logger = LoggerFactory.getLogger(ApiDocsView.class);
 
@@ -51,17 +61,20 @@ public class ApiDocsView extends BaseHtmlView {
   private final BaseHtmlLayout unauthenticatedlayout;
   private final AdminLayout authenticatedlayout;
   private final ProgramJsonSampler programJsonSampler;
+  private final ExportServiceRepository exportServiceRepository;
 
   @Inject
   public ApiDocsView(
       ProfileUtils profileUtils,
       BaseHtmlLayout unauthenticatedlayout,
       AdminLayoutFactory layoutFactory,
-      ProgramJsonSampler programJsonSampler) {
+      ProgramJsonSampler programJsonSampler,
+      ExportServiceRepository exportServiceRepository) {
     this.profileUtils = profileUtils;
     this.unauthenticatedlayout = unauthenticatedlayout;
     this.authenticatedlayout = layoutFactory.getLayout(NavPage.API_DOCS);
     this.programJsonSampler = programJsonSampler;
+    this.exportServiceRepository = exportServiceRepository;
   }
 
   public Content render(
@@ -76,7 +89,7 @@ public class ApiDocsView extends BaseHtmlView {
     HtmlBundle bundle =
         layout
             .getBundle(request)
-            .setTitle("API Docs")
+            .setTitle("API docs")
             .addMainContent(
                 contentDiv(selectedProgramSlug, programDefinition, allProgramSlugs, request))
             .addMainStyles("overflow-hidden");
@@ -122,7 +135,7 @@ public class ApiDocsView extends BaseHtmlView {
             .with(
                 div()
                     .withClasses("items-center", "mx-6", "my-8")
-                    .with(h1("API Documentation"))
+                    .with(h1("API documentation"))
                     .with(div().withClasses("flex", "flex-col").with(getNotes(request))))
             .with(
                 div()
@@ -144,7 +157,7 @@ public class ApiDocsView extends BaseHtmlView {
       leftSide.with(programDocsDiv(programDefinition.get()));
 
       DivTag rightSide = div().withClasses("w-full flex-grow");
-      rightSide.with(h1("API Response Preview").withClasses("pl-4"));
+      rightSide.with(h1("API response preview").withClasses("pl-4"));
       rightSide.with(apiResponseSampleDiv(programDefinition.get()));
 
       fullProgramDiv.with(leftSide);
@@ -162,17 +175,15 @@ public class ApiDocsView extends BaseHtmlView {
 
     apiResponseSampleDiv.with(
         pre(code(fullJsonResponsePreviewPretty))
-            .withStyle(
-                "background-color: lightgray; max-width: 100ch; overflow-wrap: break-word;"
-                    + " white-space: pre-wrap;")
-            .withClasses("m-4", "rounded-lg"));
+            .withStyle("max-width: 100ch;")
+            .withClasses(
+                "m-4", "p-2", "rounded-lg", "bg-slate-200", "break-words", "whitespace-pre-wrap"));
 
     return apiResponseSampleDiv;
   }
 
   private DivTag programDocsDiv(ProgramDefinition programDefinition) {
-    DivTag programDocsDiv =
-        div().withClasses("flex", "flex-col", "border", "border-gray-300", "rounded-lg", "m-4");
+    DivTag programDocsDiv = div().withClasses("flex", "flex-col", "m-4");
 
     for (QuestionDefinition questionDefinition :
         programDefinition
@@ -188,42 +199,68 @@ public class ApiDocsView extends BaseHtmlView {
   private DivTag questionDocsDiv(QuestionDefinition questionDefinition) {
     DivTag divTag =
         div()
-            .withClasses("pl-4", "border-b", "border-gray-300", "pt-2", "pb-2", "flex", "flex-col");
+            .withClasses(
+                "pl-4",
+                "border",
+                "rounded-lg",
+                "mb-2",
+                "border-gray-300",
+                "pt-2",
+                "pb-2",
+                "flex",
+                "flex-col");
 
     DivTag questionCardHeader = div();
 
     questionCardHeader.with(
         span(
-            h2(b(questionDefinition.getName())).withClasses("inline"),
-            text(" (" + questionDefinition.getQuestionNameKey().toLowerCase(Locale.US) + ")")));
-    questionCardHeader.with(br(), br());
+            h2(b(questionDefinition.getName())).withClasses("inline", "mr-1"),
+            codeWithStyles(questionDefinition.getQuestionNameKey().toLowerCase(Locale.US))));
+    questionCardHeader.withClasses("mb-4");
 
-    DivTag questionCardBodyLeftSide = div().withClasses("w-2/5", "flex", "flex-col", "mr-4");
-    DivTag questionCardBodyRightSide = div().withClasses("w-3/5", "flex", "flex-col", "mr-4");
+    DivTag questionCardBodyTopLeftSide = div().withClasses("w-2/5", "flex", "flex-col", "mr-4");
+    DivTag questionCardBodyTopRightSide = div().withClasses("w-3/5", "flex", "flex-col", "mr-4");
 
-    questionCardBodyLeftSide.with(
-        h3(b("Type")), text(questionDefinition.getQuestionType().toString()));
-
-    if (questionDefinition.getQuestionType().isMultiOptionType()) {
-      MultiOptionQuestionDefinition multiOptionQuestionDefinition =
-          (MultiOptionQuestionDefinition) questionDefinition;
-      questionCardBodyLeftSide.with(
-          br(), br(), h3(b("Options")), text(getOptionsString(multiOptionQuestionDefinition)));
-    }
+    questionCardBodyTopLeftSide.with(
+        div(h3(b("Type")), text(questionDefinition.getQuestionType().toString())));
 
     try {
-      questionCardBodyRightSide.with(
+      questionCardBodyTopRightSide.with(
           h3(b("Text")).withClasses("inline"),
           blockquote(questionDefinition.getQuestionText().get(Locale.US)).withClasses("inline"));
 
     } catch (TranslationNotFoundException e) {
       logger.error("No translation found for locale US in question text: " + e.getMessage());
     }
+    DivTag questionCardBodyTop = div().withClasses("flex", "flex-row");
+    questionCardBodyTop.with(questionCardBodyTopLeftSide, questionCardBodyTopRightSide);
 
-    DivTag questionCardBody = div().withClasses("flex", "flex-row");
+    DivTag questionCardBody = div().withClasses("flex", "flex-column");
+    questionCardBody.with(questionCardBodyTop);
 
-    questionCardBody.with(questionCardBodyLeftSide);
-    questionCardBody.with(questionCardBodyRightSide);
+    if (questionDefinition.getQuestionType().isMultiOptionType()) {
+      DivTag questionCardBodyBottom = div();
+
+      MultiOptionQuestionDefinition multiOptionQD =
+          (MultiOptionQuestionDefinition) questionDefinition;
+
+      Stream<DomContent> currentOptionElements =
+          asCommaSeparatedCodeElementStream(multiOptionQD.getOptionAdminNames());
+
+      Stream<DomContent> allPossibleOptionElements =
+          asCommaSeparatedCodeElementStream(
+              exportServiceRepository.getAllHistoricMultiOptionAdminNames(multiOptionQD));
+
+      questionCardBodyBottom.with(
+          div()
+              .with(h3(b("Options")), h4("Current options:"))
+              .with(currentOptionElements)
+              .with(h4("All possible options:").withClasses("mt-2"))
+              .with(allPossibleOptionElements)
+              .withClasses("mt-4"));
+
+      questionCardBody.with(questionCardBodyBottom);
+    }
 
     divTag.with(questionCardHeader);
     divTag.with(questionCardBody);
@@ -231,8 +268,17 @@ public class ApiDocsView extends BaseHtmlView {
     return divTag;
   }
 
-  private static String getOptionsString(MultiOptionQuestionDefinition questionDefinition) {
-    return "\"" + String.join("\", \"", questionDefinition.getOptionAdminNames()) + "\"";
+  private static Stream<DomContent> asCommaSeparatedCodeElementStream(
+      ImmutableList<String> codeElements) {
+    return codeElements.stream()
+        .map(ApiDocsView::codeWithStyles)
+        .flatMap(element -> Stream.<DomContent>of(element, span(", ").withClass("ml-0.5")))
+        // trim the trailing comma element
+        .limit(codeElements.size() * 2L - 1);
+  }
+
+  private static CodeTag codeWithStyles(String text) {
+    return code(text).withClasses("bg-slate-200", "p-0.5", "rounded-md");
   }
 
   private boolean isAuthenticatedAdmin(Http.Request request) {
@@ -250,7 +296,7 @@ public class ApiDocsView extends BaseHtmlView {
 
     notesTag.with(
         text(
-            "The API Response Preview is a sample of what the API response might look like for a"
+            "The API response preview is a sample of what the API response might look like for a"
                 + " given program. All data is fake. Single-select and multi-select questions have"
                 + " sample answers that are selected from the available responses. General"
                 + " information about using the API is located at "));
@@ -275,7 +321,7 @@ public class ApiDocsView extends BaseHtmlView {
     notesTag.with(
         text(
             "Note that API docs do not currently support enumerated nor enumerator questions."
-                + " Static content questions are not shown on the API Response Preview because"
+                + " Static content questions are not shown on the API response preview because"
                 + " they do not include answers to questions."));
 
     return AccordionFactory.buildAccordion(

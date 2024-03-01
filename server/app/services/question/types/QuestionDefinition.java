@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.time.Instant;
@@ -19,6 +20,8 @@ import services.LocalizedStrings;
 import services.Path;
 import services.applicant.RepeatedEntity;
 import services.applicant.question.Scalar;
+import services.export.enums.ApiPathSegment;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
 
 /** Superclass for all question types. */
@@ -64,6 +67,16 @@ public abstract class QuestionDefinition {
   /** True if the question is marked as a universal question. */
   public final boolean isUniversal() {
     return config.universal();
+  }
+
+  public final ImmutableSet<PrimaryApplicantInfoTag> getPrimaryApplicantInfoTags() {
+    return config.primaryApplicantInfoTags();
+  }
+
+  /** True if this QuestionDefinition contains the given PrimaryApplicantInfoTag. */
+  public final boolean containsPrimaryApplicantInfoTag(
+      PrimaryApplicantInfoTag primaryApplicantInfoTag) {
+    return config.primaryApplicantInfoTags().contains(primaryApplicantInfoTag);
   }
 
   /**
@@ -201,8 +214,35 @@ public abstract class QuestionDefinition {
   /** Get the default validation predicates for this question type. */
   abstract ValidationPredicates getDefaultValidationPredicates();
 
-  /** Validate that all required fields are present and valid for the question. */
+  /**
+   * Overload of {@code validate()} that sets {@code previousDefinition} to empty.
+   *
+   * <p>See {@link #validate(Optional)} for the implications of not providing a {@code
+   * previousDefinition} when validating.
+   */
   public final ImmutableSet<CiviFormError> validate() {
+    return validate(Optional.empty());
+  }
+
+  /**
+   * Validate that all required fields are present and valid for the question.
+   *
+   * <p>If {@code previousDefinition} is provided, only the admin names of the new {@link
+   * QuestionOption} need to pass validation.
+   *
+   * @param previousDefinition the optional previous version of the {@link QuestionDefinition}
+   * @throws IllegalArgumentException if the previousDefinition is not of the same type as this
+   *     definition.
+   */
+  public final ImmutableSet<CiviFormError> validate(
+      Optional<QuestionDefinition> previousDefinition) {
+    if (previousDefinition.isPresent()
+        && previousDefinition.get().getQuestionType() != getQuestionType()) {
+      throw new IllegalArgumentException(
+          "The previous version of the question definition must be of the same question type as the"
+              + " updated version.");
+    }
+
     ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
     if (config.questionText().isEmpty()) {
       errors.add(CiviFormError.of("Question text cannot be blank"));
@@ -214,6 +254,12 @@ public abstract class QuestionDefinition {
       errors.add(CiviFormError.of("Administrative identifier cannot be blank"));
     }
     if (getQuestionPathSegment().equals(Path.empty().join(Scalar.ENTITY_NAME).toString())) {
+      errors.add(
+          CiviFormError.of(
+              String.format("Administrative identifier '%s' is not allowed", getName())));
+    }
+    if (getQuestionPathSegment()
+        .equals(Path.empty().join(ApiPathSegment.ENTITY_METADATA).toString())) {
       errors.add(
           CiviFormError.of(
               String.format("Administrative identifier '%s' is not allowed", getName())));
@@ -242,14 +288,27 @@ public abstract class QuestionDefinition {
         errors.add(CiviFormError.of("Multi-option questions cannot have blank admin names"));
       }
 
+      var existingAdminNames =
+          previousDefinition
+              .map(qd -> (MultiOptionQuestionDefinition) qd)
+              .map(MultiOptionQuestionDefinition::getOptionAdminNames)
+              .orElse(ImmutableList.of())
+              // New option admin names can only be lowercase, but existing option
+              // admin names may have capital letters. We lowercase them before
+              // comparing to avoid collisions.
+              .stream()
+              .map(o -> o.toLowerCase(Locale.ROOT))
+              .collect(ImmutableList.toImmutableList());
+
       if (multiOptionQuestionDefinition.getOptionAdminNames().stream()
-          .anyMatch(s -> !s.matches("[0-9a-zA-Z_-]+"))) {
+          // This is O(n^2) but the list is small and it's simpler than creating a Set
+          .filter(n -> !existingAdminNames.contains(n.toLowerCase(Locale.ROOT)))
+          .anyMatch(s -> !s.matches("[0-9a-z_-]+"))) {
         errors.add(
             CiviFormError.of(
-                "Multi-option admin names can only contain letters, numbers, underscores, and"
-                    + " dashes"));
+                "Multi-option admin names can only contain lowercase letters, numbers, underscores,"
+                    + " and dashes"));
       }
-
       if (multiOptionQuestionDefinition.getOptions().stream()
           .anyMatch(option -> option.optionText().hasEmptyTranslation())) {
         errors.add(CiviFormError.of("Multi-option questions cannot have blank options"));
@@ -259,7 +318,7 @@ public abstract class QuestionDefinition {
       long numUniqueOptionDefaultValues =
           multiOptionQuestionDefinition.getOptions().stream()
               .map(QuestionOption::optionText)
-              .map(LocalizedStrings::getDefault)
+              .map(e -> e.getDefault().toLowerCase(Locale.ROOT))
               .distinct()
               .count();
       if (numUniqueOptionDefaultValues != numOptions) {
@@ -269,6 +328,7 @@ public abstract class QuestionDefinition {
       long numUniqueOptionAdminNames =
           multiOptionQuestionDefinition.getOptions().stream()
               .map(QuestionOption::adminName)
+              .map(e -> e.toLowerCase(Locale.ROOT))
               .distinct()
               .count();
       if (numUniqueOptionAdminNames != numOptions) {

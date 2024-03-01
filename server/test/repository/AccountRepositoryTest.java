@@ -1,6 +1,7 @@
 package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -11,7 +12,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import models.AccountModel;
@@ -23,7 +23,9 @@ import org.pac4j.oidc.profile.OidcProfile;
 import services.CiviFormError;
 import services.Path;
 import services.WellKnownPaths;
+import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
+import services.ti.EmailAddressExistsException;
 import support.ProgramBuilder;
 
 public class AccountRepositoryTest extends ResetPostgres {
@@ -43,6 +45,90 @@ public class AccountRepositoryTest extends ResetPostgres {
     Set<ApplicantModel> allApplicants = repo.listApplicants().toCompletableFuture().join();
 
     assertThat(allApplicants).isEmpty();
+  }
+
+  @Test
+  public void updateClientEmail_ThrowsEmailExistsException() {
+    ApplicantModel applicantModel = setupApplicantForUpdateTest();
+    setupAccountForUpdateTest();
+    AccountModel account = new AccountModel();
+    account.setEmailAddress("test1@test.com");
+    account.save();
+    assertThatThrownBy(
+            () ->
+                repo.updateTiClient(
+                    account,
+                    applicantModel,
+                    "first",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "test@test.com",
+                    "2020-10-10"))
+        .isInstanceOf(EmailAddressExistsException.class);
+  }
+
+  @Test
+  public void updateClientNameTest_AllNonEmpty() {
+    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
+    AccountModel account = setupAccountForUpdateTest();
+    repo.updateTiClient(
+        account, applicantUpdateTest, "Dow", "James", "John", "", "", "", "2020-10-10");
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
+        .isEqualTo("Dow");
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName().get())
+        .isEqualTo("James");
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName().get())
+        .isEqualTo("John");
+  }
+
+  @Test
+  public void updateClientNameTest_EmptyMiddleAndLastName() {
+    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
+    AccountModel account = setupAccountForUpdateTest();
+    repo.updateTiClient(account, applicantUpdateTest, "John", "", "", "", "", "", "2020-10-10");
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
+        .isEqualTo("John");
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName()).isEmpty();
+    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName()).isEmpty();
+  }
+
+  @Test
+  public void updateDobTest() {
+    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
+    AccountModel account = setupAccountForUpdateTest();
+    repo.updateTiClient(
+        account, applicantUpdateTest, "Dow", "James", "John", "", "", "", "2023-12-12");
+    assertThat(applicantUpdateTest.getApplicantData().getDateOfBirth().get())
+        .isEqualTo("2023-12-12");
+  }
+
+  @Test
+  public void updatePhoneNumberTest() {
+    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
+    AccountModel account = setupAccountForUpdateTest();
+    repo.updateTiClient(
+        account, applicantUpdateTest, "Dow", "James", "John", "4259746144", "", "", "2023-12-12");
+    assertThat(applicantUpdateTest.getApplicantData().getPhoneNumber().get())
+        .isEqualTo("4259746144");
+  }
+
+  @Test
+  public void updateTiNoteTest() {
+    ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
+    AccountModel account = setupAccountForUpdateTest();
+    repo.updateTiClient(
+        account,
+        applicantUpdateTest,
+        "Dow",
+        "James",
+        "John",
+        "",
+        "this is notes",
+        "",
+        "2023-12-12");
+    assertThat(account.getTiNote()).isEqualTo("this is notes");
   }
 
   @Test
@@ -261,24 +347,6 @@ public class AccountRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void findApplicantsWithIncorrectDobPath() {
-    // Save an applicant with the correct path for dob
-    saveApplicantWithDob("Foo", "2001-11-01");
-
-    // Save an applicant with the incorrect path for dob
-    ApplicantModel applicantWithDeprecatedPath = saveApplicant("Bar");
-    applicantWithDeprecatedPath
-        .getApplicantData()
-        .putDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED, "2002-12-02");
-    applicantWithDeprecatedPath.save();
-
-    List<ApplicantModel> applicants = repo.findApplicantsWithIncorrectDobPath().findList();
-    // Only the applicant with the incorrect path should be returned
-    assertThat(applicants.size()).isEqualTo(1);
-    assertThat(applicants.get(0).getApplicantData().getApplicantName().get()).isEqualTo("Bar");
-  }
-
-  @Test
   public void updateSerializedIdTokens() {
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
@@ -335,5 +403,21 @@ public class AccountRepositoryTest extends ResetPostgres {
         .putString(Path.create("$." + WellKnownPaths.APPLICANT_FIRST_NAME.toString()), name);
     applicant.save();
     return applicant;
+  }
+
+  private ApplicantModel setupApplicantForUpdateTest() {
+    ApplicantModel applicantUpdateTest = new ApplicantModel();
+    ApplicantData applicantDateUpdateTest = applicantUpdateTest.getApplicantData();
+    applicantDateUpdateTest.setUserName("Jane", "", "Doe");
+    applicantDateUpdateTest.setDateOfBirth("2022-10-10");
+    applicantUpdateTest.save();
+    return applicantUpdateTest;
+  }
+
+  private AccountModel setupAccountForUpdateTest() {
+    AccountModel accountUpdateTest = new AccountModel();
+    accountUpdateTest.setEmailAddress("test@test.com");
+    accountUpdateTest.save();
+    return accountUpdateTest;
   }
 }

@@ -67,14 +67,14 @@ public final class MetricsController extends CiviFormController {
 
     try {
       database
-          .getMetaInfoManager()
+          .metaInfo()
           .collectMetrics()
-          .getQueryMetrics()
+          .queryMetrics()
           .forEach(
               metric -> {
-                String name = metric.getName().substring(NAME_SUBSTRING_INDEX);
-                String className = metric.getType().toString().substring(CLASS_SUBSTRING_INDEX);
-                String location = metric.getLocation() != null ? metric.getLocation() : "";
+                String name = metric.name().substring(NAME_SUBSTRING_INDEX);
+                String className = metric.type().toString().substring(CLASS_SUBSTRING_INDEX);
+                String location = metric.location() != null ? metric.location() : "";
                 // When we use JPA in the model to get the data, we often see incorrect information
                 // after the underscore. In these cases, we set the model class for the name and
                 // location.
@@ -83,18 +83,16 @@ public final class MetricsController extends CiviFormController {
                   name = className;
                   location = className;
                 }
-                QUERY_METRIC_COUNT
-                    .labels(name, location, className)
-                    .inc((double) metric.getCount());
+                QUERY_METRIC_COUNT.labels(name, location, className).inc((double) metric.count());
                 QUERY_METRIC_MEAN_LATENCY
                     .labels(name, location, className)
-                    .inc((double) metric.getMean());
+                    .inc((double) metric.mean());
                 QUERY_METRIC_MAX_LATENCY
                     .labels(name, location, className)
-                    .inc((double) metric.getMax());
+                    .inc((double) metric.max());
                 QUERY_METRIC_TOTAL_LATENCY
                     .labels(name, location, className)
-                    .inc((double) metric.getTotal());
+                    .inc((double) metric.total());
               });
 
       TextFormat.write004(writer, collectorRegistry.metricFamilySamples());
@@ -107,8 +105,6 @@ public final class MetricsController extends CiviFormController {
 
   @VisibleForTesting
   static void initializeCounters() {
-    CollectorRegistry.defaultRegistry.clear();
-
     QUERY_METRIC_COUNT =
         Counter.build()
             .name("ebean_queries_total")

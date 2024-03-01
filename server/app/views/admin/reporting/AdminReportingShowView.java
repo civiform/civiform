@@ -63,9 +63,10 @@ public class AdminReportingShowView extends BaseHtmlView {
       Http.Request request,
       CiviFormProfile profile,
       String programSlug,
-      String programName,
+      String programAdminName,
+      String programLocalizedName,
       ReportingService.MonthlyStats monthlyStats) {
-    var title = String.format("%s Reporting", programName);
+    var title = String.format("%s reporting", programLocalizedName);
 
     DivTag headerDiv =
         div()
@@ -77,7 +78,7 @@ public class AdminReportingShowView extends BaseHtmlView {
 
     contentDiv.with(
         renderProgramMonthlyStats(
-            programSlug, monthlyStats.monthlySubmissionsForProgram(programName)));
+            programSlug, monthlyStats.monthlySubmissionsForProgram(programAdminName)));
 
     HtmlBundle htmlBundle =
         layout.setAdminType(profile).getBundle(request).setTitle(title).addMainContent(contentDiv);

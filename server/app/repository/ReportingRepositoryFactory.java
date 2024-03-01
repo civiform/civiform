@@ -20,12 +20,15 @@ public final class ReportingRepositoryFactory {
   private final Clock clock;
   private final Database database;
   private final VersionRepository versionRepository;
+  private final ProgramRepository programRepository;
 
   @Inject
-  public ReportingRepositoryFactory(Clock clock, VersionRepository versionRepository) {
+  public ReportingRepositoryFactory(
+      Clock clock, VersionRepository versionRepository, ProgramRepository programRepository) {
     this.clock = Preconditions.checkNotNull(clock);
     this.database = DB.getDefault();
     this.versionRepository = Preconditions.checkNotNull(versionRepository);
+    this.programRepository = Preconditions.checkNotNull(programRepository);
   }
 
   /**
@@ -43,7 +46,7 @@ public final class ReportingRepositoryFactory {
       ImmutableList<ProgramModel> listOfPrograms) {
     ImmutableMap.Builder<String, String> programMapBuilder = new ImmutableMap.Builder<>();
     for (ProgramModel p : listOfPrograms) {
-      ProgramDefinition pd = p.getProgramDefinition();
+      ProgramDefinition pd = programRepository.getShallowProgramDefinition(p);
       programMapBuilder.put(pd.adminName(), pd.localizedName().getDefault());
     }
     return programMapBuilder.build();

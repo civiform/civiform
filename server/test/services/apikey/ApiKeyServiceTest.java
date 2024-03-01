@@ -309,7 +309,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
     assertThat(apiKey.getSubnet()).isEqualTo("0.0.0.1/32,1.1.1.0/32");
     assertThat(apiKey.getSubnetSet()).isEqualTo(ImmutableSet.of("0.0.0.1/32", "1.1.1.0/32"));
     assertThat(apiKey.getExpiration())
-        .isEqualTo(dateConverter.parseIso8601DateToStartOfDateInstant("2020-01-30"));
+        .isEqualTo(dateConverter.parseIso8601DateToStartOfLocalDateInstant("2020-01-30"));
     assertThat(apiKey.getGrants().hasProgramPermission("test-program", Permission.READ)).isTrue();
   }
 
@@ -339,7 +339,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
     assertThat(apiKey.getSubnet()).isEqualTo("0.0.0.1/32,1.1.1.0/32");
     assertThat(apiKey.getSubnetSet()).isEqualTo(ImmutableSet.of("0.0.0.1/32", "1.1.1.0/32"));
     assertThat(apiKey.getExpiration())
-        .isEqualTo(dateConverter.parseIso8601DateToStartOfDateInstant("2020-01-30"));
+        .isEqualTo(dateConverter.parseIso8601DateToStartOfLocalDateInstant("2020-01-30"));
     assertThat(apiKey.getGrants().hasProgramPermission("test-program", Permission.READ)).isTrue();
   }
 

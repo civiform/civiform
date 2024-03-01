@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.stream.IntStream;
+import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
@@ -230,6 +231,27 @@ public final class ProgramBlocksView extends ProgramBaseView {
     return layout.render(htmlBundle);
   }
 
+  /**
+   * Returns the header buttons used for editing various parts of the program (details, image,
+   * etc.).
+   *
+   * @param isEditingAllowed true if the view allows editing and false otherwise. (Typically, a view
+   *     only allows editing if a program is in draft mode.)
+   */
+  private ImmutableList<ProgramHeaderButton> getEditHeaderButtons(
+      Http.Request request, SettingsManifest settingsManifest, boolean isEditingAllowed) {
+    if (isEditingAllowed) {
+      if (settingsManifest.getProgramCardImages(request)) {
+        return ImmutableList.of(
+            ProgramHeaderButton.EDIT_PROGRAM_DETAILS, ProgramHeaderButton.EDIT_PROGRAM_IMAGE);
+      } else {
+        return ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM_DETAILS);
+      }
+    } else {
+      return ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM);
+    }
+  }
+
   private DivTag addFormEndpoints(InputTag csrfTag, long programId, long blockId) {
     String blockCreateAction =
         controllers.admin.routes.AdminProgramBlocksController.create(programId).url();
@@ -312,6 +334,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   "px-" + listIndentationFactor,
                   "border",
                   "border-white",
+                  "max-w-md",
                   StyleUtils.hover("border-gray-300"),
                   selectedClasses);
       String switchBlockLink;
@@ -426,8 +449,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     DivTag blockInfoDisplay =
         div()
-            .with(div(blockForm.getName()).withClasses("text-xl", "font-bold", "py-2"))
-            .with(div(blockForm.getDescription()).withClasses("text-lg", "max-w-prose"))
+            .with(div(blockForm.getName()).withClasses("text-xl", "font-bold", "py-2", "break-all"))
+            .with(
+                div(blockForm.getDescription()).withClasses("text-lg", "max-w-prose", "break-all"))
             .withId("block-info-display-" + blockDefinition.id())
             .withClasses("my-4");
 
@@ -649,7 +673,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
     emptyPredicateContentBuilder
         .add(text(" You can change this in the "))
         .add(
-            a().withText("program settings.")
+            a().withData("testid", "goto-program-settings-link")
+                .withText("program settings.")
                 .withHref(routes.AdminProgramController.editProgramSettings(program.id()).url())
                 .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT));
     return div().with(emptyPredicateContentBuilder.build());
@@ -969,7 +994,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
 
     String toggleAddressCorrectionAction =
-        controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
+        controllers.admin.routes.AdminProgramBlockQuestionsController
+            .toggleAddressCorrectionEnabledState(
                 programDefinition.id(), blockDefinition.id(), questionDefinition.getId())
             .url();
     ButtonTag addressCorrectionButton =
@@ -1016,7 +1042,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 input()
                     .isHidden()
                     .withName("addressCorrectionEnabled")
-                    .withValue(addressCorrectionEnabled ? "false" : "true"))
+                    .withValue(String.valueOf(addressCorrectionEnabled)))
             .with(addressCorrectionButton));
   }
 

@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.BadRequestException;
+import controllers.admin.ImageDescriptionNotRemovableException;
 import forms.BlockForm;
 import io.ebean.DB;
 import java.util.ArrayList;
@@ -33,6 +34,9 @@ import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import play.cache.NamedCacheImpl;
+import play.cache.SyncCacheApi;
+import play.inject.BindingKey;
 import repository.ResetPostgres;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -62,9 +66,14 @@ public class ProgramServiceTest extends ResetPostgres {
   private QuestionDefinition colorQuestion;
   private QuestionDefinition nameQuestion;
   private ProgramService ps;
+  private SyncCacheApi programDefCache;
 
   @Before
   public void setProgramServiceImpl() {
+    BindingKey<SyncCacheApi> programDefKey =
+        new BindingKey<>(SyncCacheApi.class)
+            .qualifiedWith(new NamedCacheImpl("full-program-definition"));
+    programDefCache = instanceOf(programDefKey.asScala());
     ps = instanceOf(ProgramService.class);
   }
 
@@ -210,8 +219,7 @@ public class ProgramServiceTest extends ResetPostgres {
         .containsExactlyInAnyOrder(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program URL is required"),
-            CiviFormError.of("A program note is required"));
+            CiviFormError.of("A program URL is required"));
   }
 
   @Test
@@ -433,20 +441,13 @@ public class ProgramServiceTest extends ResetPostgres {
   public void validateProgramDataForCreate_returnsErrors() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
-            "",
-            "",
-            "",
-            "",
-            "",
-            DisplayMode.PUBLIC.getValue(),
-            ImmutableList.copyOf(new ArrayList<>()));
+            "", "", "", "", DisplayMode.PUBLIC.getValue(), ImmutableList.copyOf(new ArrayList<>()));
 
     assertThat(result)
         .containsExactlyInAnyOrder(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program URL is required"),
-            CiviFormError.of("A program note is required"));
+            CiviFormError.of("A program URL is required"));
   }
 
   @Test
@@ -455,7 +456,6 @@ public class ProgramServiceTest extends ResetPostgres {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
             adminName,
-            "description",
             "display name",
             "display desc",
             "https://usa.gov",
@@ -469,11 +469,43 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  @Parameters({"123", "235", "56789"})
+  public void validateProgramDataForCreate_requiresSlugBeingAlphanumerical_failsIfNoLetters(
+      String adminName) {
+    ImmutableSet<CiviFormError> result =
+        ps.validateProgramDataForCreate(
+            adminName,
+            "display name",
+            "display desc",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.copyOf(new ArrayList<>()));
+
+    assertThat(result)
+        .containsExactly(CiviFormError.of("A program URL must contain at least one letter"));
+  }
+
+  @Test
+  @Parameters({"a7859", "b8419", "c-302"})
+  public void validateProgramDataForCreate_requiresSlugBeingAlphanumerical_validIfOneLetter(
+      String adminName) {
+    ImmutableSet<CiviFormError> result =
+        ps.validateProgramDataForCreate(
+            adminName,
+            "display name",
+            "display desc",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.copyOf(new ArrayList<>()));
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
   public void validateProgramDataForCreate_requiresTIListInSelectTiMode() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
             "program",
-            "description",
             "display name",
             "display desc",
             "https://usa.gov",
@@ -489,7 +521,6 @@ public class ProgramServiceTest extends ResetPostgres {
   public void validateProgramDataForUpdate_requiresTIListInSELECT_TIMode() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForUpdate(
-            "program",
             "description",
             "display name",
             "https://usa.gov",
@@ -530,7 +561,6 @@ public class ProgramServiceTest extends ResetPostgres {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
             "name-one",
-            "description",
             "display name",
             "display desc",
             "https://usa.gov",
@@ -545,7 +575,6 @@ public class ProgramServiceTest extends ResetPostgres {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
             "name-two",
-            "description",
             "display name",
             "display description",
             "https://usa.gov",
@@ -563,7 +592,6 @@ public class ProgramServiceTest extends ResetPostgres {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
             "name-two",
-            "description",
             "display name",
             "display description",
             "https://usa.gov",
@@ -614,7 +642,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.hasResult()).isTrue();
     ProgramDefinition updatedProgram = result.getResult();
 
-    ProgramDefinition found = ps.getProgramDefinition(updatedProgram.id());
+    ProgramDefinition found = ps.getFullProgramDefinition(updatedProgram.id());
 
     assertThat(ps.getActiveAndDraftPrograms().getDraftPrograms()).hasSize(1);
     assertThat(ps.getActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms()).hasSize(1);
@@ -674,8 +702,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getErrors())
         .containsOnly(
             CiviFormError.of("A public display name for the program is required"),
-            CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program note is required"));
+            CiviFormError.of("A public description for the program is required"));
   }
 
   @Test
@@ -744,7 +771,7 @@ public class ProgramServiceTest extends ResetPostgres {
   @Test
   public void getProgramDefinition() throws Exception {
     ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
-    ProgramDefinition found = ps.getProgramDefinition(programDefinition.id());
+    ProgramDefinition found = ps.getFullProgramDefinition(programDefinition.id());
 
     assertThat(found.adminName()).isEqualTo(programDefinition.adminName());
   }
@@ -976,7 +1003,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void getProgramDefinition_throwsWhenProgramNotFound() {
-    assertThatThrownBy(() -> ps.getProgramDefinition(1L))
+    assertThatThrownBy(() -> ps.getFullProgramDefinition(1L))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessageContaining("Program not found for ID");
   }
@@ -987,7 +1014,7 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
     ps.addQuestionsToBlock(program.id(), 1L, ImmutableList.of(question.getId()));
 
-    ProgramDefinition found = ps.getProgramDefinition(program.id());
+    ProgramDefinition found = ps.getFullProgramDefinition(program.id());
 
     QuestionDefinition foundQuestion =
         found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
@@ -998,7 +1025,8 @@ public class ProgramServiceTest extends ResetPostgres {
   public void getProgramDefinitionAsync_getsDraftProgram() {
     ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
 
-    CompletionStage<ProgramDefinition> found = ps.getProgramDefinitionAsync(programDefinition.id());
+    CompletionStage<ProgramDefinition> found =
+        ps.getFullProgramDefinitionAsync(programDefinition.id());
 
     assertThat(found.toCompletableFuture().join().adminName())
         .isEqualTo(programDefinition.adminName());
@@ -1009,8 +1037,8 @@ public class ProgramServiceTest extends ResetPostgres {
   public void getProgramDefinitionAsync_getsActiveProgram() {
     ProgramDefinition programDefinition = ProgramBuilder.newActiveProgram().buildDefinition();
 
-    CompletionStage<ProgramDefinition> found = ps.getProgramDefinitionAsync(programDefinition.id());
-
+    CompletionStage<ProgramDefinition> found =
+        ps.getFullProgramDefinitionAsync(programDefinition.id());
     assertThat(found.toCompletableFuture().join().id()).isEqualTo(programDefinition.id());
   }
 
@@ -1019,7 +1047,7 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition = ProgramBuilder.newActiveProgram().buildDefinition();
 
     CompletionStage<ProgramDefinition> found =
-        ps.getProgramDefinitionAsync(programDefinition.id() + 1);
+        ps.getFullProgramDefinitionAsync(programDefinition.id() + 1);
 
     assertThatThrownBy(() -> found.toCompletableFuture().join())
         .isInstanceOf(CompletionException.class)
@@ -1037,11 +1065,56 @@ public class ProgramServiceTest extends ResetPostgres {
             .buildDefinition();
 
     ProgramDefinition found =
-        ps.getProgramDefinitionAsync(program.id()).toCompletableFuture().join();
+        ps.getFullProgramDefinitionAsync(program.id()).toCompletableFuture().join();
 
     QuestionDefinition foundQuestion =
         found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
     assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
+  }
+
+  @Test
+  public void getProgramDefinitionAsync_setsCacheWithQuestionDefinitions() throws Exception {
+    QuestionDefinition question = nameQuestion;
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestionDefinition(question)
+            .buildDefinition();
+
+    ProgramDefinition found =
+        ps.getFullProgramDefinitionAsync(program.id()).toCompletableFuture().join();
+    ProgramDefinition cachedProgram =
+        (ProgramDefinition) programDefCache.get(String.valueOf(program.id())).get();
+
+    QuestionDefinition foundQuestion =
+        cachedProgram
+            .blockDefinitions()
+            .get(0)
+            .programQuestionDefinitions()
+            .get(0)
+            .getQuestionDefinition();
+    assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
+    assertThat(found.getQuestionIdsInProgram()).isEqualTo(cachedProgram.getQuestionIdsInProgram());
+  }
+
+  @Test
+  public void getProgramDefinitionAsync_doesNotSetCacheForDraft() throws Exception {
+    QuestionDefinition question = nameQuestion;
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestionDefinition(question)
+            .buildDefinition();
+
+    ProgramDefinition found =
+        ps.getFullProgramDefinitionAsync(program.id()).toCompletableFuture().join();
+    Optional<ProgramDefinition> maybeCachedProgram =
+        programDefCache.get(String.valueOf(program.id()));
+
+    QuestionDefinition foundQuestion =
+        found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
+    assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
+    assertThat(maybeCachedProgram).isEmpty();
   }
 
   @Test
@@ -1050,7 +1123,7 @@ public class ProgramServiceTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("Test Program").buildDefinition();
 
     CompletionStage<ProgramDefinition> found =
-        ps.getActiveProgramDefinitionAsync(programDefinition.slug());
+        ps.getActiveFullProgramDefinitionAsync(programDefinition.slug());
 
     assertThat(found.toCompletableFuture().join().id()).isEqualTo(programDefinition.id());
   }
@@ -1060,7 +1133,7 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramBuilder.newActiveProgram("Test Program").buildDefinition();
 
     CompletionStage<ProgramDefinition> found =
-        ps.getActiveProgramDefinitionAsync("non-existent-program");
+        ps.getActiveFullProgramDefinitionAsync("non-existent-program");
 
     assertThatThrownBy(() -> found.toCompletableFuture().join())
         .isInstanceOf(CompletionException.class)
@@ -1073,7 +1146,7 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram("Test Program").buildDefinition();
 
-    ProgramDefinition found = ps.getDraftProgramDefinition(programDefinition.slug());
+    ProgramDefinition found = ps.getDraftFullProgramDefinition(programDefinition.slug());
 
     assertThat(found.id()).isEqualTo(programDefinition.id());
   }
@@ -1082,7 +1155,7 @@ public class ProgramServiceTest extends ResetPostgres {
   public void getDraftProgramDefinitionAsync_cannotFindRequestedProgram_throwsException() {
     ProgramBuilder.newDraftProgram("Test Program").buildDefinition();
 
-    assertThatThrownBy(() -> ps.getDraftProgramDefinition("non-existent-program"))
+    assertThatThrownBy(() -> ps.getDraftFullProgramDefinition("non-existent-program"))
         .isInstanceOf(ProgramDraftNotFoundException.class)
         .hasMessageContaining("Program draft not found for slug: non-existent-program");
   }
@@ -1107,7 +1180,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getResult().maybeAddedBlock()).isNotEmpty();
     BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
 
-    ProgramDefinition found = ps.getProgramDefinition(programDefinition.id());
+    ProgramDefinition found = ps.getFullProgramDefinition(programDefinition.id());
 
     assertThat(found.blockDefinitions()).hasSize(2);
     assertThat(found.blockDefinitions())
@@ -1139,7 +1212,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getResult().maybeAddedBlock()).isNotEmpty();
     BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
 
-    ProgramDefinition found = ps.getProgramDefinition(programId);
+    ProgramDefinition found = ps.getFullProgramDefinition(programId);
 
     assertThat(found.blockDefinitions()).hasSize(2);
     assertThat(found.blockDefinitions())
@@ -1150,7 +1223,7 @@ public class ProgramServiceTest extends ResetPostgres {
   @Test
   public void addRepeatedBlockToProgram() throws Exception {
     ProgramModel program =
-        ProgramBuilder.newActiveProgram()
+        ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
             .withRepeatedBlock()
@@ -1168,7 +1241,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getResult().maybeAddedBlock()).isNotEmpty();
     BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
 
-    ProgramDefinition found = ps.getProgramDefinition(program.id);
+    ProgramDefinition found = ps.getFullProgramDefinition(program.id);
 
     assertThat(found.blockDefinitions()).hasSize(4);
     assertThat(found.getBlockDefinitionByIndex(0).get().isEnumerator()).isTrue();
@@ -1199,7 +1272,7 @@ public class ProgramServiceTest extends ResetPostgres {
   @Test
   public void addRepeatedBlockToProgram_toEndOfBlockList() throws Exception {
     ProgramModel program =
-        ProgramBuilder.newActiveProgram()
+        ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .withBlock()
@@ -1217,7 +1290,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getResult().maybeAddedBlock()).isNotEmpty();
     BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
 
-    ProgramDefinition found = ps.getProgramDefinition(program.id);
+    ProgramDefinition found = ps.getFullProgramDefinition(program.id);
 
     assertThat(found.blockDefinitions()).hasSize(4);
     assertThat(found.getBlockDefinitionByIndex(0).get().isEnumerator()).isFalse();
@@ -1294,7 +1367,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
 
-    ProgramDefinition found = ps.getProgramDefinition(program.id());
+    ProgramDefinition found = ps.getFullProgramDefinition(program.id());
 
     assertThat(found.blockDefinitions()).hasSize(1);
     assertThat(found.getBlockDefinition(1L).name()).isEqualTo("new screen name");
@@ -1311,7 +1384,7 @@ public class ProgramServiceTest extends ResetPostgres {
         programId,
         1L,
         ImmutableList.of(ProgramQuestionDefinition.create(question, Optional.of(programId))));
-    ProgramDefinition found = ps.getProgramDefinition(programId);
+    ProgramDefinition found = ps.getFullProgramDefinition(programId);
 
     assertThat(found.blockDefinitions()).hasSize(1);
 
@@ -1520,7 +1593,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
     ps.setBlockVisibilityPredicate(program.id, 2L, Optional.of(predicate));
 
-    ProgramDefinition found = ps.getProgramDefinition(program.id);
+    ProgramDefinition found = ps.getFullProgramDefinition(program.id);
 
     // Verify serialization and deserialization.
     assertThat(found.blockDefinitions().get(1).visibilityPredicate()).hasValue(predicate);
@@ -1636,7 +1709,7 @@ public class ProgramServiceTest extends ResetPostgres {
         2L,
         Optional.of(EligibilityDefinition.builder().setPredicate(predicate).build()));
 
-    ProgramDefinition found = ps.getProgramDefinition(program.id);
+    ProgramDefinition found = ps.getFullProgramDefinition(program.id);
 
     // Verify serialization and deserialization.
     assertThat(found.blockDefinitions().get(1).eligibilityDefinition()).isPresent();
@@ -1694,14 +1767,14 @@ public class ProgramServiceTest extends ResetPostgres {
             PredicateAction.HIDE_BLOCK);
     ps.setBlockVisibilityPredicate(program.id, 2L, Optional.of(predicate));
 
-    ProgramDefinition foundWithPredicate = ps.getProgramDefinition(program.id);
+    ProgramDefinition foundWithPredicate = ps.getFullProgramDefinition(program.id);
     assertThat(foundWithPredicate.blockDefinitions().get(1).visibilityPredicate())
         .hasValue(predicate);
 
     // Then remove that predicate and assert its absence.
     ps.removeBlockPredicate(program.id, 2L);
 
-    ProgramDefinition foundWithoutPredicate = ps.getProgramDefinition(program.id);
+    ProgramDefinition foundWithoutPredicate = ps.getFullProgramDefinition(program.id);
     assertThat(foundWithoutPredicate.blockDefinitions().get(1).visibilityPredicate()).isEmpty();
   }
 
@@ -2457,7 +2530,8 @@ public class ProgramServiceTest extends ResetPostgres {
             mapper.writeValueAsString(unorderedBlockDefinitions), programId);
     DB.sqlUpdate(updateString).execute();
 
-    ProgramDefinition found = ps.getProgramDefinitionAsync(programId).toCompletableFuture().get();
+    ProgramDefinition found =
+        ps.getFullProgramDefinitionAsync(programId).toCompletableFuture().get();
 
     assertThat(found.hasOrderedBlockDefinitions()).isTrue();
   }
@@ -2656,7 +2730,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().statusDefinitions().getStatuses())
         .isEqualTo(ImmutableList.of(REJECTED_STATUS));
-    assertThat(ps.getProgramDefinition(program.id).statusDefinitions().getStatuses())
+    assertThat(ps.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
         .isEqualTo(ImmutableList.of(REJECTED_STATUS));
   }
 
@@ -2683,7 +2757,7 @@ public class ProgramServiceTest extends ResetPostgres {
             CiviFormError.of(
                 "The status being deleted no longer exists and may have been deleted in a"
                     + " separate window."));
-    assertThat(ps.getProgramDefinition(program.id).statusDefinitions().getStatuses())
+    assertThat(ps.getFullProgramDefinition(program.id).statusDefinitions().getStatuses())
         .isEqualTo(ImmutableList.of(APPROVED_STATUS));
   }
 
@@ -2805,7 +2879,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void setSummaryImageDescription_defaultLocaleAndBlank_removesAllTranslations()
-      throws ProgramNotFoundException, TranslationNotFoundException {
+      throws ProgramNotFoundException {
     ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
     ps.setSummaryImageDescription(program.id(), Locale.US, "US description");
     ps.setSummaryImageDescription(program.id(), Locale.CANADA, "Canada description");
@@ -2814,5 +2888,67 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition result = ps.setSummaryImageDescription(program.id(), DEFAULT_LOCALE, "");
 
     assertThat(result.localizedSummaryImageDescription().isPresent()).isFalse();
+  }
+
+  @Test
+  public void setSummaryImageDescription_blank_hasImageFile_throwsNotRemovableException()
+      throws ProgramNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+    ps.setSummaryImageDescription(program.id(), Locale.US, "US description");
+    ps.setSummaryImageFileKey(program.id(), "fileKey.png");
+
+    assertThatThrownBy(() -> ps.setSummaryImageDescription(program.id(), Locale.US, ""))
+        .isInstanceOf(ImageDescriptionNotRemovableException.class)
+        .hasMessageContaining("Description can't be removed because an image is present");
+  }
+
+  @Test
+  public void setSummaryImageFileKey_missingProgram_throws() {
+    assertThatThrownBy(() -> ps.setSummaryImageFileKey(Long.MAX_VALUE, "fileKey"))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID:");
+  }
+
+  @Test
+  public void setSummaryImageFileKey_keySet() throws ProgramNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+
+    ProgramDefinition result1 = ps.setSummaryImageFileKey(program.id(), "fileKey1.png");
+
+    assertThat(result1.summaryImageFileKey().isPresent()).isTrue();
+    assertThat(result1.summaryImageFileKey().get()).isEqualTo("fileKey1.png");
+
+    ProgramDefinition result2 = ps.setSummaryImageFileKey(program.id(), "fileKey2.png");
+
+    assertThat(result2.summaryImageFileKey().isPresent()).isTrue();
+    assertThat(result2.summaryImageFileKey().get()).isEqualTo("fileKey2.png");
+  }
+
+  @Test
+  public void deleteSummaryImageFileKey_missingProgram_throws() {
+    assertThatThrownBy(() -> ps.deleteSummaryImageFileKey(Long.MAX_VALUE))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID:");
+  }
+
+  @Test
+  public void deleteSummaryImageFileKey_noFileKeyPresent_stillNoKey()
+      throws ProgramNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+
+    ProgramDefinition result = ps.deleteSummaryImageFileKey(program.id());
+
+    assertThat(result.summaryImageFileKey()).isEmpty();
+  }
+
+  @Test
+  public void deleteSummaryImageFileKey_hadFileKey_keyRemoved() throws ProgramNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+    ProgramDefinition setResult = ps.setSummaryImageFileKey(program.id(), "fileKey1.png");
+    assertThat(setResult.summaryImageFileKey()).isPresent();
+
+    ProgramDefinition deleteResult = ps.deleteSummaryImageFileKey(program.id());
+
+    assertThat(deleteResult.summaryImageFileKey()).isEmpty();
   }
 }

@@ -12,17 +12,19 @@ import durablejobs.DurableJobRegistry;
 import durablejobs.DurableJobRunner;
 import durablejobs.RecurringJobExecutionTimeResolvers;
 import durablejobs.RecurringJobScheduler;
-import durablejobs.jobs.FixApplicantDobDataPathJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
+import durablejobs.jobs.UnusedProgramImagesCleanupJob;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;
 import repository.AccountRepository;
 import repository.PersistedDurableJobRepository;
 import repository.ReportingRepositoryFactory;
+import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
+import services.cloud.PublicStorageClient;
 
 /**
  * Configures {@link durablejobs.DurableJob}s with their {@link DurableJobName} and, if they are
@@ -69,7 +71,9 @@ public final class DurableJobModule extends AbstractModule {
       AccountRepository accountRepository,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
       PersistedDurableJobRepository persistedDurableJobRepository,
-      ReportingRepositoryFactory reportingRepositoryFactory) {
+      ReportingRepositoryFactory reportingRepositoryFactory,
+      PublicStorageClient publicStorageClient,
+      VersionRepository versionRepository) {
     var durableJobRegistry = new DurableJobRegistry();
 
     durableJobRegistry.register(
@@ -83,7 +87,7 @@ public final class DurableJobModule extends AbstractModule {
         persistedDurableJob ->
             new ReportingDashboardMonthlyRefreshJob(
                 reportingRepositoryFactory.create(), persistedDurableJob),
-        new RecurringJobExecutionTimeResolvers.FirstOfMonth2Am());
+        new RecurringJobExecutionTimeResolvers.Immediately());
 
     durableJobRegistry.register(
         DurableJobName.UNUSED_ACCOUNT_CLEANUP,
@@ -92,10 +96,11 @@ public final class DurableJobModule extends AbstractModule {
         new RecurringJobExecutionTimeResolvers.SecondOfMonth2Am());
 
     durableJobRegistry.register(
-        DurableJobName.FIX_APPLICANT_DOB_DATA_PATH,
+        DurableJobName.UNUSED_PROGRAM_IMAGES_CLEANUP,
         persistedDurableJob ->
-            new FixApplicantDobDataPathJob(accountRepository, persistedDurableJob),
-        new RecurringJobExecutionTimeResolvers.Nightly2Am());
+            new UnusedProgramImagesCleanupJob(
+                publicStorageClient, versionRepository, persistedDurableJob),
+        new RecurringJobExecutionTimeResolvers.ThirdOfMonth2Am());
 
     return durableJobRegistry;
   }

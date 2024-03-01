@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   disableFeatureFlag,
@@ -10,15 +11,114 @@ import {ProgramVisibility} from './support/admin_programs'
 import {dismissModal, waitForAnyModal} from './support/wait'
 import {Page} from 'playwright'
 
-describe('program creation', () => {
+test.describe('program creation', () => {
   const ctx = createTestContext()
 
-  beforeEach(async () => {
-    const {page} = ctx
-    await enableFeatureFlag(page, 'universal_questions')
+  test('create program page with images flag off', async () => {
+    const {page, adminPrograms} = ctx
+    await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(
+      programName,
+      'description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      /* isCommonIntake= */ false,
+      'selectedTI',
+      'confirmationMessage',
+      /* submitNewProgram= */ false,
+    )
+    await adminPrograms.expectProgramDetailsSaveButton()
+    await validateScreenshot(page, 'program-creation-page')
+
+    // When the program submission goes through with the program_card_images flag off,
+    // verify we're redirected to the block edit page.
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  it('program details page screenshot', async () => {
+  test('create program page with images flag on', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(
+      programName,
+      'description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      /* isCommonIntake= */ false,
+      'selectedTI',
+      'confirmationMessage',
+      /* submitNewProgram= */ false,
+    )
+    await adminPrograms.expectProgramDetailsSaveAndContinueButton()
+    await validateScreenshot(page, 'program-creation-page-images-flag-on')
+
+    // When the program submission goes through with the program_card_images flag on,
+    // verify we're redirected to the program image upload page.
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminProgramImage.expectProgramImagePage()
+  })
+
+  test('create program then go back prevents URL edits', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(
+      programName,
+      'description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      /* isCommonIntake= */ false,
+      'selectedTI',
+      'confirmationMessage',
+      /* submitNewProgram= */ false,
+    )
+
+    // On initial program creation, expect an admin can fill in the program name.
+    expect(await page.locator('#program-name-input').count()).toEqual(1)
+
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminProgramImage.expectProgramImagePage()
+
+    // WHEN the admin goes back to the program details page
+    await adminProgramImage.clickBackButton()
+
+    // THEN they should not be able to modify the program name (used for the URL).
+    await adminPrograms.expectProgramEditPage(programName)
+    expect(await page.locator('#program-name-input').count()).toEqual(0)
+  })
+
+  test('create program then go back can still go forward', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+    await adminProgramImage.expectProgramImagePage()
+
+    // WHEN the admin goes back to the program details page
+    await adminProgramImage.clickBackButton()
+
+    // THEN they should be able to still go forward to the program images page again.
+    await adminPrograms.expectProgramEditPage(programName)
+    await adminPrograms.expectProgramDetailsSaveAndContinueButton()
+
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminProgramImage.expectProgramImagePage()
+  })
+
+  test('program details page screenshot', async () => {
     const {page, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -28,7 +128,19 @@ describe('program creation', () => {
     await validateScreenshot(page, 'program-description-page')
   })
 
-  it('shows correct formatting during question creation', async () => {
+  test('program details page redirects to block page', async () => {
+    const {page, adminPrograms} = ctx
+    await loginAsAdmin(page)
+
+    const programName = 'Program Name'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramDescriptionPage(programName)
+    await adminPrograms.submitProgramDetailsEdits()
+
+    await adminPrograms.expectProgramBlockEditPage()
+  })
+
+  test('shows correct formatting during question creation', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -50,7 +162,7 @@ describe('program creation', () => {
     )
   })
 
-  it('create program and search for questions', async () => {
+  test('create program and search for questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -88,10 +200,14 @@ describe('program creation', () => {
       'universal note',
     )
 
-    await validateScreenshot(page, 'open-question-search', {fullPage: false})
+    await validateScreenshot(
+      page,
+      'open-question-search',
+      /* fullPage= */ false,
+    )
   })
 
-  it('create program with enumerator and repeated questions', async () => {
+  test('create program with enumerator and repeated questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -154,7 +270,7 @@ describe('program creation', () => {
     )
   })
 
-  it('create program with address and address correction feature enabled', async () => {
+  test('create program with address and address correction feature enabled', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -177,12 +293,11 @@ describe('program creation', () => {
 
     const addressCorrectionInput = adminPrograms.getAddressCorrectionToggle()
 
-    // the input value shows what it will be set to when clicked
-    expect(await addressCorrectionInput.inputValue()).toBe('true')
+    expect(await addressCorrectionInput.inputValue()).toBe('false')
 
     await adminPrograms.clickAddressCorrectionToggle()
 
-    expect(await addressCorrectionInput.inputValue()).toBe('false')
+    expect(await addressCorrectionInput.inputValue()).toBe('true')
 
     await validateScreenshot(
       page,
@@ -197,7 +312,7 @@ describe('program creation', () => {
     ).not.toContain('Address correction')
   })
 
-  it('create program with multiple address questions, address correction feature enabled, and can only enable correction on one address', async () => {
+  test('create program with multiple address questions, address correction feature enabled, and can only enable correction on one address', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
     const helpText =
       'This screen already contains a question with address correction enabled'
@@ -231,18 +346,16 @@ describe('program creation', () => {
     const addressCorrectionHelpText2 =
       adminPrograms.getAddressCorrectionHelpTextByName('ace-address-two')
 
-    // the input value shows what it will be set to when clicked, so the
-    // opposite of its current value
-    expect(await addressCorrectionInput1.inputValue()).toBe('true')
-    expect(await addressCorrectionInput2.inputValue()).toBe('true')
+    expect(await addressCorrectionInput1.inputValue()).toBe('false')
+    expect(await addressCorrectionInput2.inputValue()).toBe('false')
 
     expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
     expect(await addressCorrectionHelpText2.innerText()).not.toContain(helpText)
 
     await adminPrograms.clickAddressCorrectionToggleByName('ace-address-one')
 
-    expect(await addressCorrectionInput1.inputValue()).toBe('false')
-    expect(await addressCorrectionInput2.inputValue()).toBe('true')
+    expect(await addressCorrectionInput1.inputValue()).toBe('true')
+    expect(await addressCorrectionInput2.inputValue()).toBe('false')
     expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
     expect(await addressCorrectionHelpText2.innerText()).toContain(helpText)
 
@@ -254,8 +367,8 @@ describe('program creation', () => {
     // Trying to toggle the other one should not do anything
     await adminPrograms.clickAddressCorrectionToggleByName('ace-address-two')
 
-    expect(await addressCorrectionInput1.inputValue()).toBe('false')
-    expect(await addressCorrectionInput2.inputValue()).toBe('true')
+    expect(await addressCorrectionInput1.inputValue()).toBe('true')
+    expect(await addressCorrectionInput2.inputValue()).toBe('false')
     expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
     expect(await addressCorrectionHelpText2.innerText()).toContain(helpText)
 
@@ -268,8 +381,8 @@ describe('program creation', () => {
     await adminPrograms.clickAddressCorrectionToggleByName('ace-address-one')
     await adminPrograms.clickAddressCorrectionToggleByName('ace-address-two')
 
-    expect(await addressCorrectionInput1.inputValue()).toBe('true')
-    expect(await addressCorrectionInput2.inputValue()).toBe('false')
+    expect(await addressCorrectionInput1.inputValue()).toBe('false')
+    expect(await addressCorrectionInput2.inputValue()).toBe('true')
     expect(await addressCorrectionHelpText1.innerText()).toContain(helpText)
     expect(await addressCorrectionHelpText2.innerText()).not.toContain(helpText)
 
@@ -286,7 +399,7 @@ describe('program creation', () => {
     ).not.toContain('Address correction')
   })
 
-  it('create program with address and address correction feature disabled', async () => {
+  test('create program with address and address correction feature disabled', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -302,15 +415,14 @@ describe('program creation', () => {
 
     const addressCorrectionInput = adminPrograms.getAddressCorrectionToggle()
 
-    // the input value shows what it will be set to when clicked
-    expect(await addressCorrectionInput.inputValue()).toBe('true')
+    expect(await addressCorrectionInput.inputValue()).toBe('false')
 
     await adminPrograms.clickAddressCorrectionToggle()
     // should be the same as before with button submit disabled
-    expect(await addressCorrectionInput.inputValue()).toBe('true')
+    expect(await addressCorrectionInput.inputValue()).toBe('false')
   })
 
-  it('change questions order within block', async () => {
+  test('change questions order within block', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -355,14 +467,15 @@ describe('program creation', () => {
     await validateScreenshot(page, 'program-creation')
   })
 
-  it('create question from question bank', async () => {
+  test('create question from question bank', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
     const programName = 'Apc program 3'
     await adminPrograms.addProgram(programName)
+    await adminPrograms.gotoEditDraftProgramPage(programName)
     await adminPrograms.openQuestionBank()
-    await validateScreenshot(page, 'question-bank-empty', {fullPage: false})
+    await validateScreenshot(page, 'question-bank-empty', /* fullPage= */ false)
     await page.click('#create-question-button')
     await page.click('#create-text-question')
     await waitForPageJsLoad(page)
@@ -397,9 +510,11 @@ describe('program creation', () => {
       `question ${universalQuestionName} created`,
     )
     await adminPrograms.expectProgramBlockEditPage(programName)
-    await validateScreenshot(page, 'question-bank-with-created-question', {
-      fullPage: false,
-    })
+    await validateScreenshot(
+      page,
+      'question-bank-with-created-question',
+      /* fullPage= */ false,
+    )
 
     await adminQuestions.expectDraftQuestionExist(questionName, questionText)
     await adminQuestions.expectDraftQuestionExist(
@@ -415,7 +530,7 @@ describe('program creation', () => {
     ])
   })
 
-  it('all questions shown on question bank before filtering, then filters based on different attributes correctly', async () => {
+  test('all questions shown on question bank before filtering, then filters based on different attributes correctly', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -573,7 +688,7 @@ describe('program creation', () => {
    * and then go to edit the program, it would error
    * because it would go to the block with ID == 1
    */
-  it('delete first block and edit', async () => {
+  test('delete first block and edit', async () => {
     const {page, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -589,7 +704,7 @@ describe('program creation', () => {
     await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
   })
 
-  it('delete last block and edit', async () => {
+  test('delete last block and edit', async () => {
     const {page, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -601,15 +716,17 @@ describe('program creation', () => {
     await adminPrograms.gotoEditDraftProgramPage(programName)
   })
 
-  it('correctly renders delete screen confirmation modal', async () => {
+  test('correctly renders delete screen confirmation modal', async () => {
     const {page, adminPrograms} = ctx
 
     await loginAsAdmin(page)
 
     await adminPrograms.launchDeleteScreenModal()
-    await validateScreenshot(page, 'delete-screen-confirmation-modal', {
-      fullPage: false,
-    })
+    await validateScreenshot(
+      page,
+      'delete-screen-confirmation-modal',
+      /* fullPage= */ false,
+    )
   })
 
   async function expectQuestionsOrderWithinBlock(
@@ -625,7 +742,7 @@ describe('program creation', () => {
     }
   }
 
-  it('create common intake form with intake form feature enabled', async () => {
+  test('create common intake form with intake form feature enabled', async () => {
     const {page, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -653,7 +770,7 @@ describe('program creation', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  it('correctly renders common intake form change confirmation modal', async () => {
+  test('correctly renders common intake form change confirmation modal', async () => {
     const {page, adminPrograms} = ctx
 
     await enableFeatureFlag(page, 'intake_form_enabled')
@@ -686,9 +803,11 @@ describe('program creation', () => {
 
     let modal = await waitForAnyModal(page)
     expect(await modal.innerText()).toContain(`Confirm pre-screener change?`)
-    await validateScreenshot(page, 'confirm-common-intake-change-modal', {
-      fullPage: false,
-    })
+    await validateScreenshot(
+      page,
+      'confirm-common-intake-change-modal',
+      /* fullPage= */ false,
+    )
 
     // Modal gets re-rendered if needed.
     await dismissModal(page)
@@ -701,7 +820,7 @@ describe('program creation', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  it('regular program has eligibility conditions', async () => {
+  test('regular program has eligibility conditions', async () => {
     const {page, adminPrograms} = ctx
 
     await enableFeatureFlag(page, 'intake_form_enabled')
@@ -721,7 +840,7 @@ describe('program creation', () => {
     expect(await page.innerText('main')).toContain('Eligibility')
   })
 
-  it('common intake form does not have eligibility conditions', async () => {
+  test('common intake form does not have eligibility conditions', async () => {
     const {page, adminPrograms} = ctx
 
     await enableFeatureFlag(page, 'intake_form_enabled')
@@ -741,7 +860,7 @@ describe('program creation', () => {
     expect(await page.innerText('main')).not.toContain('Eligibility')
   })
 
-  it('create program with universal questions', async () => {
+  test('create program with universal questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)

@@ -10,9 +10,12 @@ jobs:
   auto-request-review:
     name: Auto Request Review
     runs-on: ubuntu-latest
+    # Only run this for the main civiform owner. PRs from forks don't have the permissions
+    # needed to run this. See #6681 for notes on a possible better option.
+    if: github.repository_owner == 'civiform'
     steps:
       - name: Request review based on files changes and/or groups the author belongs to
-        uses: necojackarc/auto-request-review@v0.12.0
+        uses: necojackarc/auto-request-review@v0.13.0
         with:
           # This does not use the built in GITHUB_TOKEN because we are using Github
           # teams to specify the list of reviewers. Because of that we need to

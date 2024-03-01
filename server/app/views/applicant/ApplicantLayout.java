@@ -69,7 +69,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
           .setModalId("debug-content-modal")
           .setLocation(Modal.Location.DEBUG)
           .setContent(DebugContent.devTools())
-          .setModalTitle("Debug Tools")
+          .setModalTitle("Debug tools")
           .setWidth(Width.THIRD)
           .build();
 
@@ -107,7 +107,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     bundle.addFooterStyles("mt-24");
 
-    bundle.addModals(DEBUG_CONTENT_MODAL);
+    if (isDevOrStaging && !disableDemoModeLogins) {
+      bundle.addModals(DEBUG_CONTENT_MODAL);
+    }
 
     Content rendered = super.render(bundle);
     if (!rendered.body().contains("<h1")) {
@@ -228,6 +230,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                             "grow",
                             "shrink-0",
                             "place-content-center",
+                            "max-w-full",
                             StyleUtils.responsiveMedium("grow-0", "shrink"))))
         .condWith(
             !onTiDashboardPage(request),
@@ -303,7 +306,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
         div()
             .withClasses("flex", "flex-col", "justify-center", "items-center", "grow-0", "md:grow");
     if (profile.isPresent() && profile.get().isTrustedIntermediary()) {
-      String tiDashboardText = "View and Add Clients";
+      String tiDashboardText = "View and add clients";
       div.with(
           a(tiDashboardText)
               .withId("ti-dashboard-link")
@@ -337,7 +340,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private String getTiDashboardHref() {
     return controllers.ti.routes.TrustedIntermediaryController.dashboard(
             /* nameQuery= */ Optional.empty(),
-            /* dateQuery= */ Optional.empty(),
+            /* dayQuery= */ Optional.empty(),
+            /* monthQuery= */ Optional.empty(),
+            /* yearQuery= */ Optional.empty(),
             /* page= */ Optional.of(1))
         .url();
   }
@@ -424,11 +429,13 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   protected String renderPageTitleWithBlockProgress(
-      String pageTitle, int blockIndex, int totalBlockCount) {
+      String pageTitle, int blockIndex, int totalBlockCount, Messages messages) {
     // While applicant is filling out the application, include the block they are on as part of
     // their progress.
     blockIndex++;
-    return String.format("%s — %d of %d", pageTitle, blockIndex, totalBlockCount);
+    String blockNumberText =
+        messages.at(MessageKey.CONTENT_BLOCK_PROGRESS.getKeyName(), blockIndex, totalBlockCount);
+    return String.format("%s — %s", pageTitle, blockNumberText);
   }
 
   /**
@@ -441,13 +448,17 @@ public class ApplicantLayout extends BaseHtmlLayout {
    * <p>For the summary view, there is no "current" block, and full progress can be shown.
    */
   protected DivTag renderProgramApplicationTitleAndProgressIndicator(
-      String programTitle, int blockIndex, int totalBlockCount, boolean forSummary) {
+      String programTitle,
+      int blockIndex,
+      int totalBlockCount,
+      boolean forSummary,
+      Messages messages) {
     int percentComplete = getPercentComplete(blockIndex, totalBlockCount, forSummary);
 
     DivTag progressInner =
         div()
             .withClasses(
-                BaseStyles.BG_SEATTLE_BLUE,
+                BaseStyles.BG_CIVIFORM_BLUE,
                 "transition-all",
                 "duration-300",
                 "h-full",
@@ -463,7 +474,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             .withId("progress-indicator")
             .withClasses(
                 "border",
-                BaseStyles.BORDER_SEATTLE_BLUE,
+                BaseStyles.BORDER_CIVIFORM_BLUE,
                 "rounded-full",
                 "font-semibold",
                 "bg-white",
@@ -478,13 +489,13 @@ public class ApplicantLayout extends BaseHtmlLayout {
     }
 
     String blockNumberText =
-        forSummary ? "" : String.format("%d of %d", blockIndex, totalBlockCount);
+        messages.at(MessageKey.CONTENT_BLOCK_PROGRESS.getKeyName(), blockIndex, totalBlockCount);
 
     H1Tag programTitleContainer =
         h1().withClasses("flex")
             .with(span(programTitle).withClasses(ApplicantStyles.PROGRAM_TITLE))
             .condWith(
-                !blockNumberText.isEmpty(),
+                !forSummary,
                 span().withClasses("flex-grow"),
                 span(blockNumberText).withClasses("text-gray-500", "text-base", "text-right"));
 
@@ -494,9 +505,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
   /**
    * Returns whole number out of 100 representing the completion percent of this program.
    *
-   * <p>See {@link #renderProgramApplicationTitleAndProgressIndicator(String, int, int, boolean)}
-   * about why there's a difference between the percent complete for summary views, and for
-   * non-summary views.
+   * <p>See {@link #renderProgramApplicationTitleAndProgressIndicator(String, int, int, boolean,
+   * Messages)} about why there's a difference between the percent complete for summary views, and
+   * for non-summary views.
    */
   private int getPercentComplete(int blockIndex, int totalBlockCount, boolean forSummary) {
     if (totalBlockCount == 0) {
@@ -552,7 +563,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
       URI tiDashboardUri =
           new URI(
               controllers.ti.routes.TrustedIntermediaryController.dashboard(
-                      Optional.empty(), Optional.empty(), Optional.empty())
+                      Optional.empty(),
+                      Optional.empty(),
+                      Optional.empty(),
+                      Optional.empty(),
+                      Optional.empty())
                   .url());
       tiDashboardPath = tiDashboardUri.getPath();
     } catch (URISyntaxException e) {

@@ -54,6 +54,7 @@ public final class ProgramRepository {
   private final Provider<VersionRepository> versionRepository;
   private final SettingsManifest settingsManifest;
   private final SyncCacheApi programCache;
+  private final SyncCacheApi programDefCache;
   private final SyncCacheApi versionsByProgramCache;
 
   @Inject
@@ -62,12 +63,14 @@ public final class ProgramRepository {
       Provider<VersionRepository> versionRepository,
       SettingsManifest settingsManifest,
       @NamedCache("program") SyncCacheApi programCache,
+      @NamedCache("full-program-definition") SyncCacheApi programDefCache,
       @NamedCache("program-versions") SyncCacheApi versionsByProgramCache) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
     this.versionRepository = checkNotNull(versionRepository);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programCache = checkNotNull(programCache);
+    this.programDefCache = checkNotNull(programDefCache);
     this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
   }
 
@@ -124,6 +127,46 @@ public final class ProgramRepository {
   }
 
   /**
+   * Gets the program definition without the associated question data.
+   *
+   * <p>This method should replace any calls to ProgramModel.getProgramDefinition()
+   */
+  public ProgramDefinition getShallowProgramDefinition(ProgramModel program) {
+    return program.getProgramDefinition();
+  }
+
+  /**
+   * Gets the program definition that contains the related question data from the cache (if
+   * enabled).
+   */
+  public Optional<ProgramDefinition> getFullProgramDefinitionFromCache(ProgramModel program) {
+    return getFullProgramDefinitionFromCache(program.id);
+  }
+
+  public Optional<ProgramDefinition> getFullProgramDefinitionFromCache(long programId) {
+    if (settingsManifest.getQuestionCacheEnabled()) {
+      return programDefCache.get(String.valueOf(programId));
+    }
+    return Optional.empty();
+  }
+
+  /**
+   * Sets the program definition that contains the related question data in the cache (if enabled).
+   *
+   * <p>Draft program definition data must not be set in the cache.
+   */
+  public void setFullProgramDefinitionCache(long programId, ProgramDefinition programDefinition) {
+    if (settingsManifest.getQuestionCacheEnabled()
+        // We only set the cache if it hasn't yet been set for the ID.
+        && getFullProgramDefinitionFromCache(programId).isEmpty()) {
+      // We should never set the cache for draft programs.
+      if (!versionRepository.get().isDraftProgram(programId)) {
+        programDefCache.set(String.valueOf(programId), programDefinition);
+      }
+    }
+  }
+
+  /**
    * Makes {@code existingProgram} the DRAFT revision configuration of the question, creating a new
    * DRAFT if necessary.
    */
@@ -133,7 +176,7 @@ public final class ProgramRepository {
         versionRepository
             .get()
             .getProgramByNameForVersion(
-                existingProgram.getProgramDefinition().adminName(), draftVersion);
+                getShallowProgramDefinition(existingProgram).adminName(), draftVersion);
     if (existingDraftOpt.isPresent()) {
       ProgramModel existingDraft = existingDraftOpt.get();
       if (!existingDraft.id.equals(existingProgram.id)) {
@@ -145,7 +188,7 @@ public final class ProgramRepository {
             existingProgram.id);
       }
       ProgramModel updatedDraft =
-          existingProgram.getProgramDefinition().toBuilder()
+          getShallowProgramDefinition(existingProgram).toBuilder()
               .setId(existingDraft.id)
               .build()
               .toProgram();
@@ -160,7 +203,7 @@ public final class ProgramRepository {
       // (for example, version information).
       ProgramModel newDraft =
           new ProgramModel(
-              existingProgram.getProgramDefinition().toBuilder().build(), draftVersion);
+              getShallowProgramDefinition(existingProgram).toBuilder().build(), draftVersion);
       newDraft = insertProgramSync(newDraft);
       draftVersion.refresh();
       Preconditions.checkState(
@@ -170,10 +213,10 @@ public final class ProgramRepository {
           draftVersion.getLifecycleStage().equals(LifecycleStage.DRAFT),
           "Draft version must remain a draft throughout this transaction.");
       // Ensure we didn't add a duplicate with other code running at the same time.
-      String programName = existingProgram.getProgramDefinition().adminName();
+      String programName = getShallowProgramDefinition(existingProgram).adminName();
       Preconditions.checkState(
           versionRepository.get().getProgramsForVersion(draftVersion).stream()
-                  .map(ProgramModel::getProgramDefinition)
+                  .map(this::getShallowProgramDefinition)
                   .map(ProgramDefinition::adminName)
                   .filter(programName::equals)
                   .count()
@@ -254,7 +297,7 @@ public final class ProgramRepository {
     if (program.isEmpty()) {
       throw new ProgramNotFoundException(programId);
     }
-    return getProgramAdministrators(program.get().getProgramDefinition().adminName());
+    return getProgramAdministrators(getShallowProgramDefinition(program.get()).adminName());
   }
 
   public ImmutableList<ProgramModel> getAllProgramVersions(long programId) {

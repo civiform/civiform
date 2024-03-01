@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   enableFeatureFlag,
@@ -8,10 +9,10 @@ import {
   validateToastMessage,
 } from './support'
 
-describe('Admin can manage translations', () => {
+test.describe('Admin can manage translations', () => {
   const ctx = createTestContext()
 
-  it('creates a program without statuses and adds translation', async () => {
+  test('creates a program without statuses and adds translation', async () => {
     const {page, adminPrograms, adminTranslations} = ctx
 
     await loginAsAdmin(page)
@@ -58,7 +59,7 @@ describe('Admin can manage translations', () => {
     expect(cardText).toContain('Spanish description')
   })
 
-  it('creates a program with statuses and adds translations for program statuses', async () => {
+  test('creates a program with statuses and adds translations for program statuses', async () => {
     const {page, adminPrograms, adminProgramStatuses, adminTranslations} = ctx
 
     await loginAsAdmin(page)
@@ -151,7 +152,7 @@ describe('Admin can manage translations', () => {
     })
   })
 
-  it('creates a program with summary image description and adds translations', async () => {
+  test('creates a program with summary image description and adds translations', async () => {
     const {page, adminPrograms, adminProgramImage, adminTranslations} = ctx
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_card_images')
@@ -192,7 +193,7 @@ describe('Admin can manage translations', () => {
     await adminTranslations.expectProgramImageDescriptionTranslation('')
   })
 
-  it('editing summary image description does not clobber translations', async () => {
+  test('editing summary image description does not clobber translations', async () => {
     const {page, adminPrograms, adminProgramImage, adminTranslations} = ctx
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_card_images')
@@ -229,7 +230,7 @@ describe('Admin can manage translations', () => {
     )
   })
 
-  it('deleting summary image description deletes all translations', async () => {
+  test('deleting summary image description deletes all translations', async () => {
     const {page, adminPrograms, adminProgramImage, adminTranslations} = ctx
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_card_images')
@@ -264,7 +265,7 @@ describe('Admin can manage translations', () => {
     await adminTranslations.expectNoProgramImageDescription()
   })
 
-  it('creates a question and adds translations', async () => {
+  test('creates a question and adds translations', async () => {
     const {
       page,
       adminPrograms,
@@ -318,7 +319,7 @@ describe('Admin can manage translations', () => {
     )
   })
 
-  it('create a multi-option question and add translations for options', async () => {
+  test('create a multi-option question and add translations for options', async () => {
     const {
       page,
       adminPrograms,
@@ -366,7 +367,7 @@ describe('Admin can manage translations', () => {
     expect(await page.innerText('main form')).toContain('tres')
   })
 
-  it('create an enumerator question and add translations for entity type', async () => {
+  test('create an enumerator question and add translations for entity type', async () => {
     const {
       page,
       adminPrograms,
@@ -402,7 +403,7 @@ describe('Admin can manage translations', () => {
     expect(await page.innerText('main form')).toContain('family member')
   })
 
-  it('updating a question does not clobber translations', async () => {
+  test('updating a question does not clobber translations', async () => {
     const {page, adminQuestions, adminTranslations} = ctx
 
     await loginAsAdmin(page)
@@ -430,7 +431,7 @@ describe('Admin can manage translations', () => {
     )
   })
 
-  it('deleting help text in question edit view deletes all help text translations', async () => {
+  test('deleting help text in question edit view deletes all help text translations', async () => {
     const {page, adminQuestions, adminTranslations} = ctx
 
     await loginAsAdmin(page)
@@ -462,7 +463,7 @@ describe('Admin can manage translations', () => {
     expect(await page.inputValue('text=Question help text')).toEqual('')
   })
 
-  it('Applicant sees toast message warning translation is not complete', async () => {
+  test('Applicant sees toast message warning translation is not complete', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
     // Add a new program with one non-translated question

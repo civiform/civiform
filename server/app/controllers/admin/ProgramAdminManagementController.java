@@ -110,7 +110,10 @@ public final class ProgramAdminManagementController {
 
         return ok(
             manageAdminsView.render(
-                request, program.get().getProgramDefinition(), programAdmins, message));
+                request,
+                programRepository.getShallowProgramDefinition(program.get()),
+                programAdmins,
+                message));
       }
     } catch (ProgramNotFoundException e) {
       return notFound(e.getLocalizedMessage());

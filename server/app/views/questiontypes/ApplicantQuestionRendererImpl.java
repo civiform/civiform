@@ -9,8 +9,10 @@ import com.google.common.collect.ImmutableSet;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
+import java.util.Locale;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
@@ -69,23 +71,21 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                         ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
                         ApplicantStyles.QUESTION_HELP_TEXT)
                     .with(
-                        TextFormatter.formatText(
+                        TextFormatter.formatTextWithAriaLabel(
                             applicantQuestion.getQuestionHelpText(),
-                            /* preserveEmptyLines= */ false,
-                            /* addRequiredIndicator= */ false)))
+                            /* preserveEmptyLines= */ true,
+                            /* addRequiredIndicator= */ false,
+                            messages
+                                .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                                .toLowerCase(Locale.ROOT))))
             .withClasses("mb-4");
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
-    switch (params.errorDisplayMode()) {
-      case HIDE_ERRORS:
-        validationErrors = ImmutableMap.of();
-        break;
-      case DISPLAY_ERRORS:
-        validationErrors = applicantQuestion.getQuestion().getValidationErrors();
-        break;
-      default:
-        throw new IllegalArgumentException(
-            String.format("Unhandled error display mode: %s", params.errorDisplayMode()));
+    if (ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(
+        params.errorDisplayMode())) {
+      validationErrors = applicantQuestion.getQuestion().getValidationErrors();
+    } else {
+      validationErrors = ImmutableMap.of();
     }
 
     ImmutableSet<ValidationErrorMessage> questionErrors =
@@ -100,10 +100,11 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     }
 
     ImmutableList<DomContent> questionTextDoms =
-        TextFormatter.formatText(
+        TextFormatter.formatTextWithAriaLabel(
             applicantQuestion.getQuestionText(),
-            /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ !applicantQuestion.isOptional());
+            /* preserveEmptyLines= */ true,
+            /* addRequiredIndicator= */ !applicantQuestion.isOptional(),
+            messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT));
     // Reverse the list to have errors appear first.
     ImmutableList<String> ariaDescribedByIds = ariaDescribedByBuilder.build().reverse();
 

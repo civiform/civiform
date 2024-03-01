@@ -1,3 +1,4 @@
+import {test} from '@playwright/test'
 import {
   ApplicantQuestions,
   ClientInformation,
@@ -12,9 +13,9 @@ import {
 import {TEST_USER_DISPLAY_NAME} from './support/config'
 import {ProgramVisibility} from './support/admin_programs'
 
-describe('Validate program visibility is correct for applicants and TIs', () => {
+test.describe('Validate program visibility is correct for applicants and TIs', () => {
   const ctx = createTestContext()
-  it('Create a new hidden program, verify applicants cannot see it on the home page', async () => {
+  test('Create a new hidden program, verify applicants cannot see it on the home page', async () => {
     const {page, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -42,7 +43,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     await logout(page)
   })
 
-  it('create a public program, verify applicants can see it on the home page', async () => {
+  test('create a public program, verify applicants can see it on the home page', async () => {
     const {page, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -69,7 +70,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     await validateScreenshot(page, 'program-visibility-public')
   })
 
-  it('create a program visible only to TIs, verify TIs can see it and other applicants cannot', async () => {
+  test('create a program visible only to TIs, verify TIs can see it and other applicants cannot', async () => {
     const {page, tiDashboard, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -107,14 +108,14 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     }
     await tiDashboard.createClient(client)
     await tiDashboard.expectDashboardContainClient(client)
-    await tiDashboard.clickOnApplicantDashboard()
+    await tiDashboard.clickOnViewApplications()
     await applicantQuestions.expectProgramPublic(
       programName,
       programDescription,
     )
     await validateScreenshot(page, 'program-visibility-ti-only-visible-to-ti')
   })
-  it('create a program visible only for Selected TIs, verify those TIs can see it and other applicants/TIs cannot', async () => {
+  test('create a program visible only for Selected TIs, verify those TIs can see it and other applicants/TIs cannot', async () => {
     const {page, tiDashboard, adminPrograms, adminTiGroups} = ctx
 
     await loginAsAdmin(page)
@@ -168,7 +169,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     await tiDashboard.createClient(client)
 
     await tiDashboard.expectDashboardContainClient(client)
-    await tiDashboard.clickOnApplicantDashboard()
+    await tiDashboard.clickOnViewApplications()
     await applicantQuestions.expectProgramHidden(programName)
     await validateScreenshot(page, 'program-visibility-hidden-from-other-tis')
     await logout(page)
@@ -183,14 +184,14 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     }
     await tiDashboard.createClient(clientTwo)
     await tiDashboard.expectDashboardContainClient(clientTwo)
-    await tiDashboard.clickOnApplicantDashboard()
+    await tiDashboard.clickOnViewApplications()
     await applicantQuestions.expectProgramPublic(
       programName,
       programDescription,
     )
     await validateScreenshot(page, 'program-visibility-for-selected-tis')
   })
-  it('create a program visible only for Selected TIs, then choose TI_Only, all TIs can see the program', async () => {
+  test('create a program visible only for Selected TIs, then choose TI_Only, all TIs can see the program', async () => {
     const {page, tiDashboard, adminPrograms, adminTiGroups} = ctx
 
     await loginAsAdmin(page)
@@ -242,7 +243,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     }
     await tiDashboard.createClient(client)
     await tiDashboard.expectDashboardContainClient(client)
-    await tiDashboard.clickOnApplicantDashboard()
+    await tiDashboard.clickOnViewApplications()
     await applicantQuestions.expectProgramHidden(programName)
     await validateScreenshot(
       page,
@@ -261,7 +262,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     await waitForPageJsLoad(page)
 
     await tiDashboard.expectDashboardContainClient(client)
-    await tiDashboard.clickOnApplicantDashboard()
+    await tiDashboard.clickOnViewApplications()
     await applicantQuestions.expectProgramPublic(
       programName,
       programDescription,
