@@ -130,12 +130,14 @@ lazy val root = (project in file("."))
       // is set to true
       val errorProneCompilerOptions = Option(System.getenv("DISABLE_ERRORPRONE"))
         .filter(_ != "true")
-        .map(_ => Seq(
-          // Turn off the AutoValueSubclassLeaked error since the generated
-          // code contains it - we can't control that.
-          "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
-          "-Werror"
-        ))
+        .map(_ =>
+          Seq(
+            // Turn off the AutoValueSubclassLeaked error since the generated
+            // code contains it - we can't control that.
+            "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
+            "-Werror"
+          )
+        )
         .getOrElse(Seq.empty)
 
       defaultCompilerOptions ++ errorProneCompilerOptions
