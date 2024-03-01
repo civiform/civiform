@@ -1,5 +1,6 @@
 {
   "extends": ["config:base"],
+  "ignorePaths": ["**/server/project/build.properties"],
   "labels": ["dependencies"],
   "docker-compose": {
     "fileMatch": [
