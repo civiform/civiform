@@ -342,6 +342,7 @@ export const loginAsTestUser = async (
   page: Page,
   loginButton = 'a:has-text("Log in")',
   isTi = false,
+  displayName: string = '',
 ) => {
   switch (TEST_USER_AUTH_STRATEGY) {
     case AuthStrategy.FAKE_OIDC:
@@ -359,8 +360,11 @@ export const loginAsTestUser = async (
       )
   }
   await waitForPageJsLoad(page)
+  if (displayName === '') {
+    displayName = testUserDisplayName()
+  }
   await page.waitForSelector(
-    `:has-text("Logged in as ${testUserDisplayName()}")`,
+    `:has-text("Logged in as ${displayName}")`,
   )
 }
 
