@@ -62,7 +62,7 @@ test.describe('file upload applicant flow', () => {
       const lastFormInput = formInputs[formInputs.length - 1]
 
       // AWS requires that the <input type="file"> element to be the last <input> in the <form>
-      expect(await lastFormInput.getAttribute('type')).toBe('file')
+      await expect(lastFormInput).toHaveAttribute('type', 'file')
     })
 
     test('does not show errors initially', async () => {
