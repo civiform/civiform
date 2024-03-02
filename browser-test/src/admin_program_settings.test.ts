@@ -59,17 +59,15 @@ test.describe('program settings', () => {
 
     await validateScreenshot(page, 'dropdown-with-settings')
 
-    expect(
-      await page
-        .locator(
-          adminPrograms.withinProgramCardSelector(
-            programName,
-            'Draft',
-            ':text("Settings")',
-          ),
-        )
-        .isVisible(),
-    ).toBe(true)
+    await expect(
+      page.locator(
+        adminPrograms.withinProgramCardSelector(
+          programName,
+          'Draft',
+          ':text("Settings")',
+        ),
+      ),
+    ).toBeVisible()
   })
 
   test('back button on program settings page navigates correctly', async () => {
@@ -128,16 +126,14 @@ test.describe('program settings', () => {
       ),
     )
 
-    expect(
-      await page
-        .locator(
-          adminPrograms.withinProgramCardSelector(
-            programName,
-            'Draft',
-            ':text("Settings")',
-          ),
-        )
-        .isVisible(),
-    ).toBe(false)
+    await expect(
+      page.locator(
+        adminPrograms.withinProgramCardSelector(
+          programName,
+          'Draft',
+          ':text("Settings")',
+        ),
+      ),
+    ).toBeHidden()
   })
 })

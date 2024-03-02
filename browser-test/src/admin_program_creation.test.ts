@@ -261,7 +261,8 @@ test.describe('program creation', () => {
       '.cf-program-question:has-text("apc-name") >> .cf-remove-question-button',
     )
     await adminPrograms.addQuestionFromQuestionBank('apc-enumerator')
-    expect(await page.innerText('id=question-bank-nonuniversal')).toBe('')
+
+    await expect(page.locator('id=question-bank-nonuniversal')).toHaveText('')
 
     // Create a repeated block. The repeated question should be the only option.
     await page.click('#create-repeated-block-button')
@@ -293,11 +294,11 @@ test.describe('program creation', () => {
 
     const addressCorrectionInput = adminPrograms.getAddressCorrectionToggle()
 
-    expect(await addressCorrectionInput.inputValue()).toBe('false')
+    await expect(addressCorrectionInput).toHaveValue('false')
 
     await adminPrograms.clickAddressCorrectionToggle()
 
-    expect(await addressCorrectionInput.inputValue()).toBe('true')
+    await expect(addressCorrectionInput).toHaveValue('true')
 
     await validateScreenshot(
       page,
@@ -346,16 +347,16 @@ test.describe('program creation', () => {
     const addressCorrectionHelpText2 =
       adminPrograms.getAddressCorrectionHelpTextByName('ace-address-two')
 
-    expect(await addressCorrectionInput1.inputValue()).toBe('false')
-    expect(await addressCorrectionInput2.inputValue()).toBe('false')
+    await expect(addressCorrectionInput1).toHaveValue('false')
+    await expect(addressCorrectionInput2).toHaveValue('false')
 
     expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
     expect(await addressCorrectionHelpText2.innerText()).not.toContain(helpText)
 
     await adminPrograms.clickAddressCorrectionToggleByName('ace-address-one')
 
-    expect(await addressCorrectionInput1.inputValue()).toBe('true')
-    expect(await addressCorrectionInput2.inputValue()).toBe('false')
+    await expect(addressCorrectionInput1).toHaveValue('true')
+    await expect(addressCorrectionInput2).toHaveValue('false')
     expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
     expect(await addressCorrectionHelpText2.innerText()).toContain(helpText)
 
@@ -367,8 +368,8 @@ test.describe('program creation', () => {
     // Trying to toggle the other one should not do anything
     await adminPrograms.clickAddressCorrectionToggleByName('ace-address-two')
 
-    expect(await addressCorrectionInput1.inputValue()).toBe('true')
-    expect(await addressCorrectionInput2.inputValue()).toBe('false')
+    await expect(addressCorrectionInput1).toHaveValue('true')
+    await expect(addressCorrectionInput2).toHaveValue('false')
     expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
     expect(await addressCorrectionHelpText2.innerText()).toContain(helpText)
 
@@ -381,8 +382,8 @@ test.describe('program creation', () => {
     await adminPrograms.clickAddressCorrectionToggleByName('ace-address-one')
     await adminPrograms.clickAddressCorrectionToggleByName('ace-address-two')
 
-    expect(await addressCorrectionInput1.inputValue()).toBe('false')
-    expect(await addressCorrectionInput2.inputValue()).toBe('true')
+    await expect(addressCorrectionInput1).toHaveValue('false')
+    await expect(addressCorrectionInput2).toHaveValue('true')
     expect(await addressCorrectionHelpText1.innerText()).toContain(helpText)
     expect(await addressCorrectionHelpText2.innerText()).not.toContain(helpText)
 
@@ -415,11 +416,11 @@ test.describe('program creation', () => {
 
     const addressCorrectionInput = adminPrograms.getAddressCorrectionToggle()
 
-    expect(await addressCorrectionInput.inputValue()).toBe('false')
+    await expect(addressCorrectionInput).toHaveValue('false')
 
     await adminPrograms.clickAddressCorrectionToggle()
     // should be the same as before with button submit disabled
-    expect(await addressCorrectionInput.inputValue()).toBe('false')
+    await expect(addressCorrectionInput).toHaveValue('false')
   })
 
   test('change questions order within block', async () => {
@@ -757,14 +758,14 @@ test.describe('program creation', () => {
       'program-description-page-with-intake-form-false',
     )
     const commonIntakeFormInput = adminPrograms.getCommonIntakeFormToggle()
-    expect(await commonIntakeFormInput.isChecked()).toBe(false)
+    await expect(commonIntakeFormInput).not.toBeChecked()
 
     await adminPrograms.clickCommonIntakeFormToggle()
     await validateScreenshot(
       page,
       'program-description-page-with-intake-form-true',
     )
-    expect(await commonIntakeFormInput.isChecked()).toBe(true)
+    await expect(commonIntakeFormInput).toBeChecked()
     await page.click('#program-update-button')
     await waitForPageJsLoad(page)
     await adminPrograms.expectProgramBlockEditPage(programName)
