@@ -530,9 +530,7 @@ test.describe('Applicant navigation flow', () => {
         'address question text',
       )
       await waitForPageJsLoad(page)
-      expect(await page.innerText('.cf-applicant-question-text')).toContain(
-        'address question text',
-      )
+      await applicantQuestions.validateQuestionIsOnPage('address question text')
       // Should focus on the question the applicant clicked on when answering for the first time
       expect(await page.innerHTML('.cf-address-street-1')).toContain(
         'autofocus',
@@ -557,9 +555,7 @@ test.describe('Applicant navigation flow', () => {
         '.cf-applicant-summary-row:has(div:has-text("address question text")) a:has-text("Edit")',
       )
       await waitForPageJsLoad(page)
-      expect(await page.innerText('.cf-applicant-question-text')).toContain(
-        'address question text',
-      )
+      await applicantQuestions.validateQuestionIsOnPage('address question text')
       // Should focus on the question the applicant clicked on when editing previous answer
       expect(await page.innerHTML('.cf-address-street-1')).toContain(
         'autofocus',
