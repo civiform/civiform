@@ -309,8 +309,10 @@ content.suggestedAddress=建議的地址：
 content.suggestedAddresses=建議的地址：
 
 # Title on address correction dialog when no address is found.
-title.noValidAddress=找不到有效的網址
-content.noValidAddress=我們無法驗證您提供的地址。如要繼續操作，請編輯地址。
+title.noValidAddress=We could not verify that address
+
+# Instructions given to the applicant on how to proceed when the address they entered could not be verified.
+content.noValidAddress=Please check and edit your address to continue. If you believe it is correct, click Save and Next.
 
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
