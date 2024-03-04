@@ -1,4 +1,4 @@
-import {test, expect} from '@playwright/test'
+import {test} from '@playwright/test'
 import {
   createTestContext,
   disableFeatureFlag,
@@ -712,7 +712,7 @@ test.describe('address correction', () => {
         })
 
         test('address correction page saves original address when selected and redirects to previous', async () => {
-          const {page, applicantQuestions} = ctx
+          const {applicantQuestions} = ctx
 
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
@@ -734,9 +734,7 @@ test.describe('address correction', () => {
           await applicantQuestions.clickConfirmAddress()
 
           // Verify we're taken to the page before the address question page, which is the email question page
-          expect(await page.innerText('.cf-applicant-question-text')).toContain(
-            emailQuestionText,
-          )
+          await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
 
           // Verify the original address was saved
           await applicantQuestions.clickReview()
@@ -747,7 +745,7 @@ test.describe('address correction', () => {
         })
 
         test('address correction page saves suggested address when selected and redirects to previous', async () => {
-          const {page, applicantQuestions} = ctx
+          const {applicantQuestions} = ctx
 
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
@@ -770,9 +768,7 @@ test.describe('address correction', () => {
           await applicantQuestions.clickConfirmAddress()
 
           // Verify we're taken to the page before the address question page, which is the email question page
-          expect(await page.innerText('.cf-applicant-question-text')).toContain(
-            emailQuestionText,
-          )
+          await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
 
           // Verify the suggested address was saved
           await applicantQuestions.clickReview()
@@ -783,7 +779,7 @@ test.describe('address correction', () => {
         })
 
         test('address correction page saves original address when no suggestions offered and redirects to previous', async () => {
-          const {page, applicantQuestions} = ctx
+          const {applicantQuestions} = ctx
 
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
@@ -802,9 +798,7 @@ test.describe('address correction', () => {
           await applicantQuestions.clickConfirmAddress()
 
           // Verify we're taken to the page before the address question page, which is the email question page
-          expect(await page.innerText('.cf-applicant-question-text')).toContain(
-            emailQuestionText,
-          )
+          await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
 
           // Verify the suggested address was saved
           await applicantQuestions.clickReview()
@@ -834,9 +828,7 @@ test.describe('address correction', () => {
           await applicantQuestions.clickPrevious()
 
           // Verify we're taken to the page before the address question page, which is the email question page
-          expect(await page.innerText('.cf-applicant-question-text')).toContain(
-            emailQuestionText,
-          )
+          await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
 
           // Verify the address was saved
           await applicantQuestions.clickReview()
@@ -1061,7 +1053,7 @@ test.describe('address correction', () => {
         })
 
         test('address correction page saves original address when selected and redirects to next', async () => {
-          const {page, applicantQuestions} = ctx
+          const {applicantQuestions} = ctx
 
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
@@ -1082,9 +1074,7 @@ test.describe('address correction', () => {
           await applicantQuestions.clickConfirmAddress()
 
           // Verify we're taken to the next page, which has the number question
-          expect(await page.innerText('.cf-applicant-question-text')).toContain(
-            numberQuestionText,
-          )
+          await applicantQuestions.validateQuestionIsOnPage(numberQuestionText)
 
           // Verify the original address was saved
           await applicantQuestions.clickReview()
@@ -1095,7 +1085,7 @@ test.describe('address correction', () => {
         })
 
         test('address correction page saves suggested address when selected and redirects to next', async () => {
-          const {page, applicantQuestions} = ctx
+          const {applicantQuestions} = ctx
 
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
@@ -1118,9 +1108,7 @@ test.describe('address correction', () => {
           await applicantQuestions.clickConfirmAddress()
 
           // Verify we're taken to the next page, which has the number question
-          expect(await page.innerText('.cf-applicant-question-text')).toContain(
-            numberQuestionText,
-          )
+          await applicantQuestions.validateQuestionIsOnPage(numberQuestionText)
 
           // Verify the suggested address was saved
           await applicantQuestions.clickReview()
@@ -1131,7 +1119,7 @@ test.describe('address correction', () => {
         })
 
         test('address correction page saves original address when no suggestions offered and redirects to next', async () => {
-          const {page, applicantQuestions} = ctx
+          const {applicantQuestions} = ctx
 
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
@@ -1150,9 +1138,7 @@ test.describe('address correction', () => {
           await applicantQuestions.clickConfirmAddress()
 
           // Verify we're taken to the next page, which has the number question
-          expect(await page.innerText('.cf-applicant-question-text')).toContain(
-            numberQuestionText,
-          )
+          await applicantQuestions.validateQuestionIsOnPage(numberQuestionText)
 
           // Verify the original address was saved
           await applicantQuestions.clickReview()
@@ -1182,9 +1168,7 @@ test.describe('address correction', () => {
           await applicantQuestions.clickNext()
 
           // Verify we're taken to the next page, which has the number question
-          expect(await page.innerText('.cf-applicant-question-text')).toContain(
-            numberQuestionText,
-          )
+          await applicantQuestions.validateQuestionIsOnPage(numberQuestionText)
 
           // Verify the address was saved
           await applicantQuestions.clickReview()
@@ -1199,7 +1183,7 @@ test.describe('address correction', () => {
 
       test.describe('go back and edit button', () => {
         test('clicking go back and edit on address correction goes back to page with address question', async () => {
-          const {page, applicantQuestions} = ctx
+          const {applicantQuestions} = ctx
 
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
@@ -1218,13 +1202,11 @@ test.describe('address correction', () => {
 
           await applicantQuestions.clickGoBackAndEdit()
 
-          expect(await page.innerText('.cf-applicant-question-text')).toContain(
-            addressQuestionText,
-          )
+          await applicantQuestions.validateQuestionIsOnPage(addressQuestionText)
         })
 
         test('go back and edit does not save address selection', async () => {
-          const {page, applicantQuestions} = ctx
+          const {applicantQuestions} = ctx
 
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
@@ -1249,9 +1231,8 @@ test.describe('address correction', () => {
 
           await applicantQuestions.clickGoBackAndEdit()
 
-          expect(await page.innerText('.cf-applicant-question-text')).toContain(
-            addressQuestionText,
-          )
+          await applicantQuestions.validateQuestionIsOnPage(addressQuestionText)
+
           // Verify the original address (not the suggested address) is filled in on the block page
           await applicantQuestions.checkAddressQuestionValue(
             'Legit Address',
