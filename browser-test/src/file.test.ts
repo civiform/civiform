@@ -238,7 +238,7 @@ test.describe('file upload applicant flow', () => {
     })
 
     test('with missing file shows error and does not proceed if Save&next', async () => {
-      const {page, applicantQuestions, applicantFileQuestion} = ctx
+      const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
 
       // When the applicant clicks "Save & next"
@@ -746,7 +746,7 @@ test.describe('file upload applicant flow', () => {
 
     test.describe('continue button', () => {
       test('clicking continue button redirects to first unseen block', async () => {
-        const {page, applicantQuestions, applicantFileQuestion} = ctx
+        const {applicantQuestions, applicantFileQuestion} = ctx
 
         // Answer the file upload question
         await applicantQuestions.clickApplyProgramButton(programName)
