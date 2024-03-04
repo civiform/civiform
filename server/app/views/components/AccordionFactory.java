@@ -40,6 +40,7 @@ public final class AccordionFactory {
                         "text-black",
                         "px-5",
                         "py-4",
+                        "rounded-lg",
                         "border-0",
                         "hover:bg-gray-100")
                     .attr("aria-expanded", "false")
@@ -48,7 +49,11 @@ public final class AccordionFactory {
     ContainerTag contentDiv =
         div()
             .withId("a1")
-            .withClasses(ReferenceClasses.ACCORDION_CONTENT, "usa-accordion__content", "usa-prose")
+            .withClasses(
+                ReferenceClasses.ACCORDION_CONTENT,
+                "usa-accordion__content",
+                "usa-prose",
+                "rounded-lg")
             .with(content.orElseGet(() -> new DivTag()));
 
     return accordion.with(headerDiv, contentDiv);
