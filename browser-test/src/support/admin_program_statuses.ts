@@ -25,7 +25,7 @@ export class AdminProgramStatuses {
     const statusLocator = this.page.locator(
       this.programStatusItemSelector(statusName),
     )
-    expect(await statusLocator.isVisible()).toEqual(true)
+    await expect(statusLocator).toBeVisible()
     if (expectEmailExists) {
       expect(await statusLocator.innerText()).toContain(
         'Applicant notification email added',
@@ -41,7 +41,7 @@ export class AdminProgramStatuses {
     const statusLocator = this.page.locator(
       this.programStatusItemSelector(statusName),
     )
-    expect(await statusLocator.isVisible()).toEqual(true)
+    await expect(statusLocator).toBeVisible()
     expect(await statusLocator.innerText()).toContain('Default status')
   }
 
@@ -49,7 +49,7 @@ export class AdminProgramStatuses {
     const statusLocator = this.page.locator(
       this.programStatusItemSelector(statusName),
     )
-    expect(await statusLocator.isVisible()).toEqual(true)
+    await expect(statusLocator).toBeVisible()
     expect(await statusLocator.innerText()).not.toContain('Default status')
   }
 
@@ -57,7 +57,7 @@ export class AdminProgramStatuses {
     const statusLocator = this.page.locator(
       this.programStatusItemSelector(statusName),
     )
-    expect(await statusLocator.isVisible()).toEqual(false)
+    await expect(statusLocator).toBeHidden()
   }
 
   async createStatus(

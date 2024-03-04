@@ -536,7 +536,7 @@ export class ApplicantQuestions {
   }
 
   async validateHeader(lang: string) {
-    expect(await this.page.getAttribute('html', 'lang')).toEqual(lang)
+    await expect(this.page.locator('html')).toHaveAttribute('lang', lang)
     expect(await this.page.innerHTML('head')).toContain(
       '<meta name="viewport" content="width=device-width, initial-scale=1">',
     )
@@ -546,22 +546,18 @@ export class ApplicantQuestions {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(
-      await questionLocator
-        .locator('.cf-applicant-question-previously-answered')
-        .isVisible(),
-    ).toEqual(true)
+    await expect(
+      questionLocator.locator('.cf-applicant-question-previously-answered'),
+    ).toBeVisible()
   }
 
   async validateNoPreviouslyAnsweredText(questionText: string) {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(
-      await questionLocator
-        .locator('.cf-applicant-question-previously-answered')
-        .isVisible(),
-    ).toEqual(false)
+    await expect(
+      questionLocator.locator('.cf-applicant-question-previously-answered'),
+    ).toBeHidden()
   }
 
   async seeStaticQuestion(questionText: string) {
