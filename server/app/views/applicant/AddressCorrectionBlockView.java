@@ -1,7 +1,6 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
@@ -274,8 +273,9 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
                   params.messages().at(MessageKey.ADDRESS_CORRECTION_CONFIRM_BUTTON.getKeyName()))
               .withClass(ButtonStyles.SOLID_BLUE)
               .withFormaction(getFormAction(params, applicantRequestedAction));
-      ATag goBackAndEditButton =
-          a().withHref(
+      ButtonTag goBackAndEditButton =
+          redirectButton(
+                  params.messages().at(MessageKey.BUTTON_GO_BACK_AND_EDIT.getKeyName()),
                   applicantRoutes
                       .blockEditOrBlockReview(
                           params.profile(),
@@ -284,7 +284,8 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
                           params.block().getId(),
                           params.inReview())
                       .url())
-              .withText(params.messages().at(MessageKey.BUTTON_GO_BACK_AND_EDIT.getKeyName()))
+              // Set this as "button" type so that it doesn't submit the form.
+              .withType("button")
               .withClasses(ButtonStyles.OUTLINED_TRANSPARENT);
       return bottomNavButtonsContainer.with(goBackAndEditButton, confirmAddressButton);
     }
