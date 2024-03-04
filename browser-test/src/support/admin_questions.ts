@@ -100,7 +100,7 @@ export class AdminQuestions {
   }
 
   async expectAdminQuestionsPage() {
-    expect(await this.page.innerText('h1')).toEqual('All questions')
+    await expect(this.page.locator('h1')).toHaveText('All questions')
   }
 
   selectorForExportOption(exportOption: string) {
@@ -134,9 +134,9 @@ export class AdminQuestions {
     // The order of the options array corresponds to the order of the errors array.
     for (let i = 0; i < options.length; i++) {
       if (blankIndices.includes(i)) {
-        expect(await errors.nth(i).isHidden()).toEqual(false)
+        await expect(errors.nth(i)).toBeVisible()
       } else {
-        expect(await errors.nth(i).isHidden()).toEqual(true)
+        await expect(errors.nth(i)).toBeHidden()
       }
     }
   }
@@ -152,9 +152,9 @@ export class AdminQuestions {
     // The order of the options array corresponds to the order of the errors array.
     for (let i = 0; i < options.length; i++) {
       if (invalidIndices.includes(i)) {
-        expect(await errors.nth(i).isHidden()).toEqual(false)
+        await expect(errors.nth(i)).toBeVisible()
       } else {
-        expect(await errors.nth(i).isHidden()).toEqual(true)
+        await expect(errors.nth(i)).toBeHidden()
       }
     }
   }
@@ -423,13 +423,13 @@ export class AdminQuestions {
       await this.openDropdownMenu(questionName)
       // Ensure that the page has been reloaded and the "Restore archive" link
       // appears.
-      const restoreArchiveIsVisible = await this.page.isVisible(
+      const restoreArchiveIsVisible = this.page.locator(
         this.selectWithinQuestionTableRow(
           questionName,
           ':text("Restore archived")',
         ),
       )
-      expect(restoreArchiveIsVisible).toBe(true)
+      await expect(restoreArchiveIsVisible).toBeVisible()
     }
   }
 
@@ -454,7 +454,7 @@ export class AdminQuestions {
 
   async expectQuestionEditPage(questionName: string) {
     expect(await this.page.innerText('h1')).toContain('Edit')
-    expect(await this.page.innerText('#question-name-input')).toEqual(
+    await expect(this.page.locator('#question-name-input')).toHaveText(
       questionName,
     )
   }
@@ -892,21 +892,15 @@ export class AdminQuestions {
     option: QuestionOption,
     adminNameIsEditable: boolean,
   ) {
-    expect(
-      await this.page
-        .locator(AdminQuestions.multiOptionInputSelector(index))
-        .inputValue(),
-    ).toEqual(option.text)
-    expect(
-      await this.page
-        .locator(AdminQuestions.multiOptionAdminInputSelector(index))
-        .inputValue(),
-    ).toEqual(option.adminName)
-    expect(
-      await this.page
-        .locator(AdminQuestions.multiOptionAdminInputSelector(index))
-        .isEditable(),
-    ).toEqual(adminNameIsEditable)
+    await expect(
+      this.page.locator(AdminQuestions.multiOptionInputSelector(index)),
+    ).toHaveValue(option.text)
+    await expect(
+      this.page.locator(AdminQuestions.multiOptionAdminInputSelector(index)),
+    ).toHaveValue(option.adminName)
+    await expect(
+      this.page.locator(AdminQuestions.multiOptionAdminInputSelector(index)),
+    ).toBeEditable({editable: adminNameIsEditable})
   }
 
   async addCurrencyQuestion({
@@ -1248,22 +1242,22 @@ export class AdminQuestions {
     visible: boolean,
   ) {
     const alert = this.page.locator(type.valueOf())
-    expect(await alert.isVisible()).toEqual(visible)
+    await expect(alert).toBeVisible({visible: visible})
   }
 
   async expectPrimaryApplicantInfoSectionVisible(visible: boolean) {
-    expect(
-      await this.page.locator('#primary-applicant-info').isVisible(),
-    ).toEqual(visible)
+    await expect(this.page.locator('#primary-applicant-info')).toBeVisible({
+      visible: visible,
+    })
   }
 
   async expectPrimaryApplicantInfoToggleVisible(
     fieldName: string,
     visible: boolean,
   ) {
-    expect(await this.page.locator(`#${fieldName}-toggle`).isVisible()).toEqual(
-      visible,
-    )
+    await expect(this.page.locator(`#${fieldName}-toggle`)).toBeVisible({
+      visible: visible,
+    })
   }
 
   async expectPrimaryApplicantInfoToggleValue(
@@ -1364,6 +1358,21 @@ export class AdminQuestions {
     deleteEntityButtonText: string
     addEntityButtonText: string
   }) {
+    // Fix me! ESLint: playwright/prefer-web-first-assertions
+    // Directly switching to the best practice method fails
+    // because of a locator stict mode violation. That is it
+    // returns multiple elements.
+    //
+    // Recommended prefer-web-first-assertions fix:
+    // await expect(this.page.locator('.cf-entity-name-input label')).toHaveText(
+    //   entityNameInputLabelText,
+    // )
+    // await expect(this.page.locator('.cf-enumerator-delete-button')).toHaveText(
+    //   deleteEntityButtonText,
+    // )
+    // await expect(this.page.locator('#enumerator-field-add-button')).toHaveText(
+    //   addEntityButtonText,
+    // )
     expect(await this.page.innerText('.cf-entity-name-input label')).toBe(
       entityNameInputLabelText,
     )
@@ -1382,12 +1391,12 @@ export class AdminQuestions {
     questionText: string
     questionHelpText: string
   }) {
-    expect(await this.page.innerText('.cf-applicant-question-text')).toBe(
+    await expect(this.page.locator('.cf-applicant-question-text')).toHaveText(
       questionText,
     )
-    expect(await this.page.innerText('.cf-applicant-question-help-text')).toBe(
-      questionHelpText,
-    )
+    await expect(
+      this.page.locator('.cf-applicant-question-help-text'),
+    ).toHaveText(questionHelpText)
   }
 
   async expectPreviewOptions(options: string[]) {
