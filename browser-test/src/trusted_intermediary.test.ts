@@ -315,7 +315,7 @@ test.describe('Trusted intermediaries', () => {
     )
   })
 
-  test('TI sees the dashboard fully translated', async () => {
+  test('Trusted intermediary sees the dashboard fully translated', async () => {
     const {page, tiDashboard} = ctx
 
     await loginAsTrustedIntermediary(page)
