@@ -309,8 +309,10 @@ content.suggestedAddress=Iminumungkahing address:
 content.suggestedAddresses=Mga iminumungkahing address:
 
 # Title on address correction dialog when no address is found.
-title.noValidAddress=Walang nakitang valid na address
-content.noValidAddress=Hindi namin ma-verify ang ibinigay mong address. Paki-edit ang address mo para magpatuloy.
+title.noValidAddress=We could not verify that address
+
+# Instructions given to the applicant on how to proceed when the address they entered could not be verified.
+content.noValidAddress=Please check and edit your address to continue. If you believe it is correct, click Save and Next.
 
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
