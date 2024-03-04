@@ -354,7 +354,7 @@ export class ApplicantQuestions {
   }
 
   async clickGoBackAndEdit() {
-    await this.page.click('text="Go back and edit"')
+    await this.page.getByRole('button', { name: 'Go back and edit' }).click()
     await waitForPageJsLoad(this.page)
   }
 
