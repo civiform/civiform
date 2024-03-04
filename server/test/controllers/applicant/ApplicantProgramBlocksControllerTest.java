@@ -1982,13 +1982,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    String previousRoute =
+    String previousBlockEditRoute =
         routes.ApplicantProgramBlocksController.previous(
                 // The 2nd block was filled in, which is index 1. So, the previous block would be
                 // index 0.
                 program.id, /* previousBlockIndex= */ 0, /* inReview= */ false)
             .url();
-    assertThat(result.redirectLocation()).hasValue(previousRoute);
+    assertThat(result.redirectLocation()).hasValue(previousBlockEditRoute);
 
     // Check that the selected suggested address is saved
     applicant.refresh();

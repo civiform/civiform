@@ -10,6 +10,7 @@ import {
   validateScreenshot,
 } from './support'
 
+/** Tests for the address correction view and navigation to and from that view. */
 test.describe('address correction', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
@@ -115,7 +116,6 @@ test.describe('address correction', () => {
     await adminPrograms.gotoAdminProgramsPage()
     await adminPrograms.publishProgram(singleBlockSingleAddressProgram)
 
-    // Log out admin
     await logout(page)
   })
 
@@ -467,9 +467,32 @@ test.describe('address correction', () => {
       await logout(page)
     })
 
-    test('skips the address correction screen if the user enters an address that exactly matches one of the returned suggestions', async () => {
+    test('skips address correction screen if address exactly matches suggestions (save flag off)', async () => {
       const {page, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
+      await disableFeatureFlag(page, 'save_on_all_actions')
+
+      await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+      // Fill out application with address that is contained in findAddressCandidates.json
+      // (the list of suggestions returned from FakeEsriClient.fetchAddressSuggestions())
+      await applicantQuestions.answerAddressQuestion(
+        'Address In Area',
+        '',
+        'Redlands',
+        'CA',
+        '92373',
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectReviewPage()
+
+      await logout(page)
+    })
+
+    test('skips address correction screen if address exactly matches suggestions (save flag on)', async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'esri_address_correction_enabled')
+      await enableFeatureFlag(page, 'save_on_all_actions')
+
       await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
       // Fill out application with address that is contained in findAddressCandidates.json
       // (the list of suggestions returned from FakeEsriClient.fetchAddressSuggestions())
@@ -511,7 +534,7 @@ test.describe('address correction', () => {
       await logout(page)
     })
 
-    test('clicking previous on address correction page does not save selection when flag off', async () => {
+    test('clicking previous on address correction page does not save selection', async () => {
       const {page, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await disableFeatureFlag(page, 'save_on_all_actions')
@@ -545,7 +568,7 @@ test.describe('address correction', () => {
       await logout(page)
     })
 
-    test('clicking review on address correction page does not save selection when flag off', async () => {
+    test('clicking review on address correction page does not save selection', async () => {
       const {page, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await disableFeatureFlag(page, 'save_on_all_actions')
@@ -579,8 +602,8 @@ test.describe('address correction', () => {
     })
 
     /**
-     * Tests for the buttons on a block with an address question and buttons on the subsequent
-     * address correction screen when the SAVE_ON_ALL_ACTIONS flag is enabled.
+     * Tests for the buttons on a block with an address question and on the address correction screen.
+     * These tests all have the SAVE_ON_ALL_ACTIONS flag enabled.
      */
     test.describe('address buttons, save_on_all_actions flag on', () => {
       const programName = 'Test program for file upload buttons'
@@ -710,7 +733,7 @@ test.describe('address correction', () => {
           await applicantQuestions.selectAddressSuggestion('Legit Address')
           await applicantQuestions.clickConfirmAddress()
 
-          // Verify we're taken to the previous page, which has the email question
+          // Verify we're taken to the page before the address question page, which is the email question page
           expect(await page.innerText('.cf-applicant-question-text')).toContain(
             emailQuestionText,
           )
@@ -746,7 +769,7 @@ test.describe('address correction', () => {
           )
           await applicantQuestions.clickConfirmAddress()
 
-          // Verify we're taken to the previous page, which has the email question
+          // Verify we're taken to the page before the address question page, which is the email question page
           expect(await page.innerText('.cf-applicant-question-text')).toContain(
             emailQuestionText,
           )
@@ -778,7 +801,7 @@ test.describe('address correction', () => {
 
           await applicantQuestions.clickConfirmAddress()
 
-          // Verify we're taken to the previous page, which has the email question
+          // Verify we're taken to the page before the address question page, which is the email question page
           expect(await page.innerText('.cf-applicant-question-text')).toContain(
             emailQuestionText,
           )
@@ -810,7 +833,7 @@ test.describe('address correction', () => {
 
           await applicantQuestions.clickPrevious()
 
-          // Verify we're taken to the previous page, which has the email question
+          // Verify we're taken to the page before the address question page, which is the email question page
           expect(await page.innerText('.cf-applicant-question-text')).toContain(
             emailQuestionText,
           )
@@ -1218,7 +1241,8 @@ test.describe('address correction', () => {
           await applicantQuestions.clickNext()
           await applicantQuestions.expectVerifyAddressPage(true)
 
-          // Select an address suggestion, but then click "Go back and edit", which shouldn't save the suggestion
+          // Select an address suggestion, but then click "Go back and edit",
+          // which shouldn't save the suggestion
           await applicantQuestions.selectAddressSuggestion(
             'Address With No Service Area Features',
           )
@@ -1255,6 +1279,8 @@ test.describe('address correction', () => {
       '98109',
     )
     await applicantQuestions.clickNext()
+
+    // Expect the review page, not the address correction page
     await applicantQuestions.expectQuestionAnsweredOnReviewPage(
       addressWithCorrectionText,
       '305 Harrison',

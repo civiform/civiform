@@ -468,42 +468,6 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  public void testBlockEditOrBlockReview_inReviewTrue_isReviewRoute() {
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_APPLICANT.toString());
-    profileData.addAttribute(
-        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
-    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
-
-    String actual =
-        new ApplicantRoutes()
-            .blockEditOrBlockReview(
-                applicantProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, /* inReview= */ true)
-            .url();
-
-    String expectedReviewUrl = String.format("/programs/%d/blocks/%s/review", PROGRAM_ID, BLOCK_ID);
-    assertThat(actual).isEqualTo(expectedReviewUrl);
-  }
-
-  @Test
-  public void testBlockEditOrBlockReview_inReviewFalse_isEditRoute() {
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_APPLICANT.toString());
-    profileData.addAttribute(
-        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
-    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
-
-    String actual =
-        new ApplicantRoutes()
-            .blockEditOrBlockReview(
-                applicantProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, /* inReview= */ false)
-            .url();
-
-    String expectedEditUrl = String.format("/programs/%d/blocks/%s/edit", PROGRAM_ID, BLOCK_ID);
-    assertThat(actual).isEqualTo(expectedEditUrl);
-  }
-
-  @Test
   @Parameters({"true", "false"})
   public void testBlockEditOrBlockReviewRoute_forApplicantWithIdInProfile_newSchemaEnabled(
       String inReview) {
