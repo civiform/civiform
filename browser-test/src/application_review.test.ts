@@ -150,24 +150,22 @@ test.describe('Program admin review of submitted applications', () => {
 
     // Application doesn't progress because of name and address question errors.
     // Verify that address error messages are visible.
-    expect(await page.innerText('.cf-address-street-1-error:visible')).toEqual(
+    await expect(page.locator('.cf-address-street-1-error:visible')).toHaveText(
       'Error: Please enter valid street name and number.',
     )
-    expect(await page.innerText('.cf-address-city-error:visible')).toEqual(
+    await expect(page.locator('.cf-address-city-error:visible')).toHaveText(
       'Error: Please enter city.',
     )
-    expect(await page.innerText('.cf-address-state-error:visible')).toEqual(
+    await expect(page.locator('.cf-address-state-error:visible')).toHaveText(
       'Error: Please enter state.',
     )
-    expect(await page.innerText('.cf-address-zip-error:visible')).toEqual(
+    await expect(page.locator('.cf-address-zip-error:visible')).toHaveText(
       'Error: Please enter valid 5-digit ZIP code.',
     )
-
-    // Verify that name question error messages are visible.
-    expect(await page.innerText('.cf-name-first-error:visible')).toEqual(
+    await expect(page.locator('.cf-name-first-error:visible')).toHaveText(
       'Error: Please enter your first name.',
     )
-    expect(await page.innerText('.cf-name-last-error:visible')).toEqual(
+    await expect(page.locator('.cf-name-last-error:visible')).toHaveText(
       'Error: Please enter your last name.',
     )
 

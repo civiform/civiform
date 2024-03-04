@@ -381,7 +381,7 @@ test.describe('Admin can manage program image', () => {
       const lastFormInput = formInputs[formInputs.length - 1]
 
       // AWS requires that the <input type="file"> element to be the last <input> in the <form>
-      expect(await lastFormInput.getAttribute('type')).toBe('file')
+      await expect(lastFormInput).toHaveAttribute('type', 'file')
     })
 
     test('shows uploaded image before submitting', async () => {
