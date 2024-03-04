@@ -135,7 +135,7 @@ class Runner:
 
             output = item["body"][0:end_index]
 
-            # If the PR body starts with  the description header just cut it out
+            # If the PR body starts with the description header just cut it out
             if output.startswith("Description\n"):
                 output = output[len("Description\n") :]
 
