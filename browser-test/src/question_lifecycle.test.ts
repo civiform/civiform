@@ -414,11 +414,12 @@ test.describe('normal question lifecycle', () => {
     await adminQuestions.page.click('#create-question-button')
     await adminQuestions.page.click('#create-text-question')
     await waitForPageJsLoad(adminQuestions.page)
-    expect(
-      await page.isChecked(
+
+    await expect(
+      page.locator(
         adminQuestions.selectorForExportOption(AdminQuestions.NO_EXPORT_OPTION),
       ),
-    ).toBeTruthy()
+    ).toBeChecked()
 
     const questionName = 'textQuestionWithObfuscatedExport'
     await adminQuestions.addTextQuestion({
@@ -428,19 +429,27 @@ test.describe('normal question lifecycle', () => {
 
     // Confirm that the previously selected export option was propagated.
     await adminQuestions.gotoQuestionEditPage(questionName)
-    expect(
-      await page.isChecked(
+    await expect(
+      page.locator(
         adminQuestions.selectorForExportOption(
           AdminQuestions.EXPORT_OBFUSCATED_OPTION,
         ),
       ),
-    ).toBeTruthy()
+    ).toBeChecked()
 
     // Edit the result and confirm that the new value is propagated.
     await adminQuestions.selectExportOption(AdminQuestions.EXPORT_VALUE_OPTION)
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
     await adminQuestions.gotoQuestionEditPage(questionName)
+
+    // Fix me! ESLint: playwright/prefer-web-first-assertions
+    // Directly switching to the best practice method fails
+    // because of a locator stict mode violation. That is it
+    // returns multiple elements.
+    //
+    // Recommended prefer-web-first-assertions fix:
+    // await expect(page.locator(adminQuestions.selectorForExportOption(AdminQuestions.EXPORT_VALUE_OPTION))).toBeChecked()
     expect(
       await page.isChecked(
         adminQuestions.selectorForExportOption(
@@ -532,8 +541,6 @@ test.describe('normal question lifecycle', () => {
     // Wait for debounce
     await page.waitForTimeout(300) // ms
 
-    expect(await page.locator('#formatted-name').innerText()).toEqual(
-      'my_test_question',
-    )
+    await expect(page.locator('#formatted-name')).toHaveText('my_test_question')
   })
 })

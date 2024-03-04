@@ -460,6 +460,14 @@ test.describe('Admin can manage translations', () => {
     expect(await page.inputValue('text=Question text')).toContain(
       'something different',
     )
+
+    // Fix me! ESLint: playwright/prefer-web-first-assertions
+    // Directly switching to the best practice method fails
+    // because of a locator stict mode violation. That is it
+    // returns multiple elements.
+    //
+    // Recommended prefer-web-first-assertions fix:
+    //   await expect(page.locator('text=Question help text')).toHaveText('')
     expect(await page.inputValue('text=Question help text')).toEqual('')
   })
 
