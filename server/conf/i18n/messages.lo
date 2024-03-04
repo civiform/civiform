@@ -309,8 +309,10 @@ content.suggestedAddress=ທີ່ຢູ່ທີ່ແນະນຳ:
 content.suggestedAddresses=ທີ່ຢູ່ທີ່ແນະນຳ:
 
 # Title on address correction dialog when no address is found.
-title.noValidAddress=ບໍ່ພົບທີ່ຢູ່ທີ່ຖືກຕ້ອງ
-content.noValidAddress=ພວກເຮົາບໍ່ສາມາດຢັ້ງຢືນທີ່ຢູ່ທີ່ທ່ານລະບຸໄດ້. ກະລຸນາແກ້ໄຂທີ່ຢູ່ຂອງທ່ານເພື່ອສືບຕໍ່.
+title.noValidAddress=We could not verify that address
+
+# Instructions given to the applicant on how to proceed when the address they entered could not be verified.
+content.noValidAddress=Please check and edit your address to continue. If you believe it is correct, click Save and Next.
 
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
