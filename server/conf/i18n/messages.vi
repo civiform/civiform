@@ -309,10 +309,8 @@ content.suggestedAddress=Địa chỉ được đề xuất:
 content.suggestedAddresses=Các địa chỉ được đề xuất:
 
 # Title on address correction dialog when no address is found.
-title.noValidAddress=We could not verify that address
-
-# Instructions given to the applicant on how to proceed when the address they entered could not be verified.
-content.noValidAddress=Please check and edit your address to continue. If you believe it is correct, click Save and Next.
+title.noValidAddress=No valid address found
+content.noValidAddress=We could not verify the address that you provided. Please edit your address to continue.
 
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
