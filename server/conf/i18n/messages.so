@@ -309,8 +309,8 @@ content.suggestedAddress=Cinwaanka la soo jeediyay:
 content.suggestedAddresses=Cinwaanada la soo jeediyay:
 
 # Title on address correction dialog when no address is found.
-title.noValidAddress=Lama helin cinwaan ansax ah
-content.noValidAddress=Waanu xaqiijin kari waynay cinwaanka aad bixisay. Fadlan wax ka beddel cinwaankaada si aad horay ugu sii socoto.
+title.noValidAddress=No valid address found
+content.noValidAddress=We could not verify the address that you provided. Please edit your address to continue.
 
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
@@ -371,6 +371,8 @@ placeholder.entityName=Naanaysta {0}
 #---------------------------------------------------------------------------------#
 
 validation.fileRequired=Fadlan dooro fayl.
+# An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
+validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
 button.chooseFile=Dooro Fayl
 
 #---------------------------------------------------------------------#

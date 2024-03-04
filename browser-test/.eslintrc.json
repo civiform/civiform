@@ -11,7 +11,8 @@
     "playwright/no-wait-for-timeout": "off",
     "playwright/no-networkidle": "off",
     "playwright/prefer-web-first-assertions": "off",
-    "playwright/no-eval": "off"
+    "playwright/no-eval": "off",
+    "playwright/valid-expect": "off"
   },
   "parserOptions": {
     "project": ["./src/tsconfig.json"]

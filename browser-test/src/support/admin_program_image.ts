@@ -113,7 +113,7 @@ export class AdminProgramImage {
 
   async expectDescriptionIs(description: string) {
     const descriptionElement = this.page.locator(this.imageDescriptionLocator)
-    expect(await descriptionElement.inputValue()).toBe(description)
+    await expect(descriptionElement).toHaveValue(description)
   }
 
   async expectDisabledImageDescriptionSubmit() {
@@ -141,11 +141,11 @@ export class AdminProgramImage {
   }
 
   async expectTooLargeErrorShown() {
-    expect(await this.page.isHidden(this.tooLargeErrorLocator)).toEqual(false)
+    await expect(this.page.locator(this.tooLargeErrorLocator)).toBeVisible()
   }
 
   async expectTooLargeErrorHidden() {
-    expect(await this.page.isHidden(this.tooLargeErrorLocator)).toEqual(true)
+    await expect(this.page.locator(this.tooLargeErrorLocator)).toBeHidden()
   }
 
   /** Expects that the program card preview does not contain an image. */

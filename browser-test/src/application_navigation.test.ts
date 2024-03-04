@@ -2219,7 +2219,7 @@ test.describe('Applicant navigation flow', () => {
         const addressCorrectionInput =
           adminPrograms.getAddressCorrectionToggleByName(questionAddress)
 
-        expect(await addressCorrectionInput.inputValue()).toBe('true')
+        await expect(addressCorrectionInput).toHaveValue('true')
 
         // Set thing to soft eligibilty
         await adminPrograms.toggleEligibilityGating()

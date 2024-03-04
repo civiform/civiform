@@ -34,6 +34,7 @@ import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import views.ViewUtils;
 import views.style.AdminStyles;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
 /** Contains methods for rendering question bank for an admin to add questions to a program. */
@@ -170,10 +171,11 @@ public final class ProgramQuestionBank {
               .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
               .with(h2("Universal questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
               .with(
-                  ViewUtils.makeAlertInfoSlim(
+                  ViewUtils.makeAlertSlim(
                       "We recommend using all universal questions in your program for personal and"
                           + " contact information questions.",
-                      /* hidden= */ false))
+                      /* hidden= */ false,
+                      /* classes...= */ BaseStyles.ALERT_INFO))
               .with(each(universalQuestions, qd -> renderQuestionDefinition(qd, showUniversal))));
     }
     contentDiv.with(

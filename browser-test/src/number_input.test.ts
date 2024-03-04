@@ -74,7 +74,8 @@ test.describe('Number question for applicant flow', () => {
       for (const testValue of testValues) {
         await applicantQuestions.answerNumberQuestion(testValue)
         await applicantQuestions.clickNext()
-        expect(await page.isHidden(numberInputError)).toEqual(false)
+
+        await expect(page.locator(numberInputError)).toBeVisible()
         await applicantQuestions.answerNumberQuestion('')
       }
     })
@@ -133,6 +134,13 @@ test.describe('Number question for applicant flow', () => {
       await applicantQuestions.answerNumberQuestion('33', 1)
       await applicantQuestions.clickNext()
 
+      // Fix me! ESLint: playwright/prefer-web-first-assertions
+      // Directly switching to the best practice method fails
+      // because of a locator stict mode violation. That is it
+      // returns multiple elements.
+      //
+      // Recommended prefer-web-first-assertions fix:
+      //   await expect(page.locator(numberInputError)).toBeVisible()
       expect(await page.isHidden(numberInputError)).toEqual(false)
     })
 
@@ -143,6 +151,13 @@ test.describe('Number question for applicant flow', () => {
       await applicantQuestions.answerNumberQuestion('-5', 1)
       await applicantQuestions.clickNext()
 
+      // Fix me! ESLint: playwright/prefer-web-first-assertions
+      // Directly switching to the best practice method fails
+      // because of a locator stict mode violation. That is it
+      // returns multiple elements.
+      //
+      // Recommended prefer-web-first-assertions fix:
+      //   await expect(page.locator(numberInputError + ' >> nth=1')).toBeVisible()
       expect(await page.isHidden(numberInputError + ' >> nth=1')).toEqual(false)
     })
 
