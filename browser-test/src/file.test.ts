@@ -663,7 +663,6 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.validateQuestionIsOnPage(
           fileUploadQuestionText,
         )
-
         await applicantFileQuestion.expectFileSelectionErrorShown()
         await validateScreenshot(page, 'file-errors')
       })
