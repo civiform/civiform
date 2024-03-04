@@ -84,12 +84,12 @@ public final class DurableJobModule extends AbstractModule {
         new RecurringJobExecutionTimeResolvers.Sunday2Am());
 
     durableJobRegistry.register(
-      DurableJobName.REPORTING_DASHBOARD_MONTHLY_REFRESH,
-      persistedDurableJob ->
-        new ReportingDashboardMonthlyRefreshJob(
-          reportingRepositoryFactory.create(), persistedDurableJob),
-      //        new RecurringJobExecutionTimeResolvers.FirstOfMonth2Am());
-      new RecurringJobExecutionTimeResolvers.Immediately());
+        DurableJobName.REPORTING_DASHBOARD_MONTHLY_REFRESH,
+        persistedDurableJob ->
+            new ReportingDashboardMonthlyRefreshJob(
+                reportingRepositoryFactory.create(), persistedDurableJob),
+        //        new RecurringJobExecutionTimeResolvers.FirstOfMonth2Am());
+        new RecurringJobExecutionTimeResolvers.Immediately());
 
     durableJobRegistry.register(
         DurableJobName.UNUSED_ACCOUNT_CLEANUP,

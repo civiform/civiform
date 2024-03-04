@@ -66,8 +66,9 @@ public class CfTestHelpers {
       }
     };
   }
+
   public static Provider<VersionRepository> versionRepositoryProvider(
-    VersionRepository versionRepository) {
+      VersionRepository versionRepository) {
     return new Provider<VersionRepository>() {
       @Override
       public VersionRepository get() {

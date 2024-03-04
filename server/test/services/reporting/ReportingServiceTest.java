@@ -19,7 +19,6 @@ import org.junit.Before;
 import org.junit.Test;
 import play.cache.SyncCacheApi;
 import repository.ProgramRepository;
-import repository.ReportingRepository;
 import repository.ReportingRepositoryFactory;
 import repository.ResetPostgres;
 import repository.VersionRepository;
@@ -32,9 +31,10 @@ public class ReportingServiceTest extends ResetPostgres {
   private ApplicantModel applicant;
   private ProgramModel programA;
   private ProgramModel programB;
-private VersionRepository versionRepository;
-private ProgramRepository programRepository;
-private ReportingRepositoryFactory reportingRepositoryFactory;
+  private VersionRepository versionRepository;
+  private ProgramRepository programRepository;
+  private ReportingRepositoryFactory reportingRepositoryFactory;
+
   @Before
   public void setUp() {
     versionRepository = instanceOf(VersionRepository.class);
@@ -43,11 +43,12 @@ private ReportingRepositoryFactory reportingRepositoryFactory;
     programA = ProgramBuilder.newActiveProgram().withName("Fake Program A").build();
     programB = ProgramBuilder.newActiveProgram().withName("Fake Program B").build();
     reportingRepositoryFactory =
-      new ReportingRepositoryFactory(testClock, versionRepository, programRepository);
+        new ReportingRepositoryFactory(testClock, versionRepository, programRepository);
     service =
-      new ReportingService(
-        instanceOf(DateConverter.class),
-        instanceOf(SyncCacheApi.class),reportingRepositoryFactory);
+        new ReportingService(
+            instanceOf(DateConverter.class),
+            instanceOf(SyncCacheApi.class),
+            reportingRepositoryFactory);
   }
 
   @Test
