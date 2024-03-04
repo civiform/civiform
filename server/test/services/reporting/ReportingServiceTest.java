@@ -18,8 +18,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import play.cache.SyncCacheApi;
+import repository.ProgramRepository;
 import repository.ReportingRepository;
+import repository.ReportingRepositoryFactory;
 import repository.ResetPostgres;
+import repository.VersionRepository;
 import services.DateConverter;
 import support.ProgramBuilder;
 
@@ -29,17 +32,22 @@ public class ReportingServiceTest extends ResetPostgres {
   private ApplicantModel applicant;
   private ProgramModel programA;
   private ProgramModel programB;
-
+private VersionRepository versionRepository;
+private ProgramRepository programRepository;
+private ReportingRepositoryFactory reportingRepositoryFactory;
   @Before
   public void setUp() {
-    service =
-        new ReportingService(
-            instanceOf(DateConverter.class),
-            new ReportingRepository(testClock),
-            instanceOf(SyncCacheApi.class));
+    versionRepository = instanceOf(VersionRepository.class);
+    programRepository = instanceOf(ProgramRepository.class);
     applicant = resourceCreator.insertApplicantWithAccount();
     programA = ProgramBuilder.newActiveProgram().withName("Fake Program A").build();
     programB = ProgramBuilder.newActiveProgram().withName("Fake Program B").build();
+    reportingRepositoryFactory =
+      new ReportingRepositoryFactory(testClock, versionRepository, programRepository);
+    service =
+      new ReportingService(
+        instanceOf(DateConverter.class),
+        instanceOf(SyncCacheApi.class),reportingRepositoryFactory);
   }
 
   @Test
@@ -133,7 +141,7 @@ public class ReportingServiceTest extends ResetPostgres {
                 createFakeApplication(
                     programB, applicationSpec.getLeft(), applicationSpec.getRight()));
 
-    instanceOf(ReportingRepository.class).refreshMonthlyReportingView();
+    reportingRepositoryFactory.create().refreshMonthlyReportingView();
   }
 
   private ApplicationModel createFakeApplication(

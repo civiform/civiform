@@ -21,6 +21,7 @@ import play.mvc.Call;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.AccountRepository;
+import repository.VersionRepository;
 import services.program.predicate.PredicateValue;
 
 public class CfTestHelpers {
@@ -62,6 +63,15 @@ public class CfTestHelpers {
       @Override
       public AccountRepository get() {
         return accountRepository;
+      }
+    };
+  }
+  public static Provider<VersionRepository> versionRepositoryProvider(
+    VersionRepository versionRepository) {
+    return new Provider<VersionRepository>() {
+      @Override
+      public VersionRepository get() {
+        return versionRepository;
       }
     };
   }

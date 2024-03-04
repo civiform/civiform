@@ -13,6 +13,7 @@ import java.util.Optional;
 public abstract class ApplicationSubmissionsStat {
 
   public static ApplicationSubmissionsStat create(
+      String publicName,
       String programName,
       Optional<Timestamp> timestamp,
       long applicationCount,
@@ -21,6 +22,7 @@ public abstract class ApplicationSubmissionsStat {
       double submissionDurationSeconds75p,
       double submissionDurationSeconds99p) {
     return new AutoValue_ApplicationSubmissionsStat(
+        publicName,
         programName,
         timestamp,
         applicationCount,
@@ -30,8 +32,11 @@ public abstract class ApplicationSubmissionsStat {
         submissionDurationSeconds99p);
   }
 
-  /** The name of the program the applications were submitted for. */
-  public abstract String programName();
+  /** The public-facing name of the program. */
+  public abstract String publicName();
+
+  /** The immutable admin name of the program the applications were submitted for. */
+  public abstract String programAdminName();
 
   /** A timestamp representing the month they were submitted. */
   public abstract Optional<Timestamp> timestamp();
@@ -52,7 +57,8 @@ public abstract class ApplicationSubmissionsStat {
   public abstract double submissionDurationSeconds99p();
 
   static final class Aggregator {
-    private final String programName;
+    private final String publicName;
+    private final String programAdminName;
     private final Optional<Timestamp> timestamp;
     private long count = 0;
     private double p25WithWeights = 0;
@@ -60,14 +66,10 @@ public abstract class ApplicationSubmissionsStat {
     private double p75WithWeights = 0;
     private double p99WithWeights = 0;
 
-    Aggregator(String programName, Timestamp timestamp) {
-      this.programName = Preconditions.checkNotNull(programName);
+    Aggregator(String publicName, String programAdminName, Timestamp timestamp) {
+      this.publicName = Preconditions.checkNotNull(publicName);
+      this.programAdminName = Preconditions.checkNotNull(programAdminName);
       this.timestamp = Optional.of(Preconditions.checkNotNull(timestamp));
-    }
-
-    Aggregator(String programName) {
-      this.programName = Preconditions.checkNotNull(programName);
-      this.timestamp = Optional.empty();
     }
 
     void update(ApplicationSubmissionsStat stat) {
@@ -78,9 +80,16 @@ public abstract class ApplicationSubmissionsStat {
       p99WithWeights += stat.submissionDurationSeconds99p() * stat.applicationCount();
     }
 
+    Aggregator(String publicName, String programAdminName) {
+      this.publicName = Preconditions.checkNotNull(publicName);
+      this.programAdminName = Preconditions.checkNotNull(programAdminName);
+      this.timestamp = Optional.empty();
+    }
+
     ApplicationSubmissionsStat getAggregateStat() {
       return ApplicationSubmissionsStat.create(
-          programName,
+          publicName,
+          programAdminName,
           timestamp,
           count,
           p25WithWeights / count,

@@ -26,6 +26,7 @@ import org.apache.commons.csv.CSVPrinter;
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
 import repository.ReportingRepository;
+import repository.ReportingRepositoryFactory;
 import services.DateConverter;
 import views.admin.reporting.ReportingTableRenderer;
 
@@ -38,18 +39,18 @@ public final class ReportingService {
   private static final Comparator<ApplicationSubmissionsStat> STAT_TIMESTAMP_DESCENDING =
       Comparator.comparing((ApplicationSubmissionsStat stat) -> stat.timestamp().get()).reversed();
 
-  private final ReportingRepository reportingRepository;
   private final SyncCacheApi reportingDataCache;
   private final DateConverter dateConverter;
+  private final ReportingRepositoryFactory reportingRepositoryFactory;
 
   @Inject
   public ReportingService(
       DateConverter dateConverter,
-      ReportingRepository reportingRepository,
-      @NamedCache("monthly-reporting-data") SyncCacheApi reportingDataCache) {
+      @NamedCache("monthly-reporting-data") SyncCacheApi reportingDataCache,
+      ReportingRepositoryFactory reportingRepositoryFactory) {
     this.dateConverter = checkNotNull(dateConverter);
-    this.reportingRepository = Preconditions.checkNotNull(reportingRepository);
     this.reportingDataCache = Preconditions.checkNotNull(reportingDataCache);
+    this.reportingRepositoryFactory = Preconditions.checkNotNull(reportingRepositoryFactory);
   }
 
   /**
@@ -98,7 +99,7 @@ public final class ReportingService {
         APPLICATION_COUNTS_BY_PROGRAM_HEADERS,
         (printer, stat) -> {
           try {
-            printer.print(stat.programName());
+            printer.print(stat.programAdminName());
             printer.print(stat.applicationCount());
             printer.print(
                 ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds25p()));
@@ -167,6 +168,7 @@ public final class ReportingService {
   }
 
   private MonthlyStats queryAndCollateMonthlyStats() {
+    ReportingRepository reportingRepository = reportingRepositoryFactory.create();
     ImmutableList<ApplicationSubmissionsStat> submissionsByProgramByMonth =
         reportingRepository.loadMonthlyReportingView();
     ImmutableList<ApplicationSubmissionsStat> submissionsThisMonth =
@@ -193,7 +195,7 @@ public final class ReportingService {
                 aggregator = aggregators.get(stat.timestamp().get());
               } else {
                 aggregator =
-                    new ApplicationSubmissionsStat.Aggregator("All", stat.timestamp().get());
+                    new ApplicationSubmissionsStat.Aggregator("All", "All", stat.timestamp().get());
                 aggregators.put(stat.timestamp().get(), aggregator);
               }
 
@@ -216,13 +218,14 @@ public final class ReportingService {
         .forEach(
             stat -> {
               ApplicationSubmissionsStat.Aggregator aggregator;
-              if (aggregators.containsKey(stat.programName())) {
-                aggregator = aggregators.get(stat.programName());
+              if (aggregators.containsKey(stat.programAdminName())) {
+                aggregator = aggregators.get(stat.programAdminName());
               } else {
-                aggregator = new ApplicationSubmissionsStat.Aggregator(stat.programName());
-                aggregators.put(stat.programName(), aggregator);
+                aggregator =
+                    new ApplicationSubmissionsStat.Aggregator(
+                        stat.publicName(), stat.programAdminName());
+                aggregators.put(stat.programAdminName(), aggregator);
               }
-
               aggregator.update(stat);
             });
 
@@ -252,7 +255,7 @@ public final class ReportingService {
     public ImmutableList<ApplicationSubmissionsStat> monthlySubmissionsForProgram(
         String programName) {
       return monthlySubmissionsByProgram().stream()
-          .filter(stat -> stat.programName().equals(programName))
+          .filter(stat -> stat.programAdminName().equals(programName))
           .sorted(STAT_TIMESTAMP_DESCENDING)
           .collect(ImmutableList.toImmutableList());
     }
