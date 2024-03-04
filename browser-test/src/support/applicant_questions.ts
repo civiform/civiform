@@ -542,6 +542,12 @@ export class ApplicantQuestions {
     )
   }
 
+  async validateQuestionIsOnPage(questionText: string) {
+    await expect(
+      this.page.locator('.cf-applicant-question-text'),
+    ).toContainText(questionText)
+  }
+
   async validatePreviouslyAnsweredText(questionText: string) {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
