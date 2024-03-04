@@ -344,7 +344,7 @@ export class ApplicantQuestions {
   }
 
   async clickConfirmAddress() {
-    await this.page.getByRole('button', { name: 'Confirm address' }).click()
+    await this.page.getByRole('button', {name: 'Confirm address'}).click()
     await waitForPageJsLoad(this.page)
   }
 
@@ -354,7 +354,7 @@ export class ApplicantQuestions {
   }
 
   async clickGoBackAndEdit() {
-    await this.page.getByRole('button', { name: 'Go back and edit' }).click()
+    await this.page.getByRole('button', {name: 'Go back and edit'}).click()
     await waitForPageJsLoad(this.page)
   }
 
