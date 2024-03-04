@@ -309,8 +309,10 @@ content.suggestedAddress=የተጠቆመው አድራሻ፦
 content.suggestedAddresses=የተጠቆሙ አድራሻዎች፦
 
 # Title on address correction dialog when no address is found.
-title.noValidAddress=ምንም የሚሠሩ አድራሻዎች አልተገኙም
-content.noValidAddress=የሰጡትን አድራሻ ማረጋገጥ አልቻልንም። እባክዎ ለመቀጠል አድራሻዎን ያርትዑ።
+title.noValidAddress=We could not verify that address
+
+# Instructions given to the applicant on how to proceed when the address they entered could not be verified.
+content.noValidAddress=Please check and edit your address to continue. If you believe it is correct, click Save and Next.
 
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
