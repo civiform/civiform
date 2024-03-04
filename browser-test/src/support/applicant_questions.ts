@@ -495,7 +495,9 @@ export class ApplicantQuestions {
   }
 
   async expectVerifyAddressPage(validAddress: boolean) {
-    const header = validAddress ? 'Verify address' : 'We could not verify that address'
+    const header = validAddress
+      ? 'Verify address'
+      : 'We could not verify that address'
     expect(await this.page.innerText('h2')).toContain(header)
   }
 
