@@ -315,6 +315,20 @@ test.describe('Trusted intermediaries', () => {
     )
   })
 
+  test('TI sees the dashboard fully translated', async () => {
+    const {
+      page,
+      tiDashboard,
+    } = ctx
+
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    await selectApplicantLanguage(page, 'Español')
+
+    await validateScreenshot(page, 'ti-dashboard-spanish')
+  })
+
   test('Applicant sees the program review page fully translated', async () => {
     const {
       page,
