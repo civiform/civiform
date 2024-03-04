@@ -344,7 +344,7 @@ export class ApplicantQuestions {
   }
 
   async clickConfirmAddress() {
-    await this.page.click('text="Confirm address"')
+    await this.page.getByRole('button', { name: 'Confirm address' }).click()
     await waitForPageJsLoad(this.page)
   }
 
