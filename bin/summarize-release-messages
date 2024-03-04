@@ -107,8 +107,13 @@ class Runner:
         self.github = GitHub(os.getenv("GITHUB_TOKEN"))
 
     def filter(self, commits, pull_requests):
+        """
+        Get the commits related to the requested release
+        """
         results = []
 
+        # Filter out any pull requests that are not part of the commits related
+        # to the release.
         for _, pull_request in enumerate(pull_requests):
             if any(x["sha"] == pull_request["merge_commit_sha"] for x in commits):
                 results.append(pull_request)
@@ -116,6 +121,9 @@ class Runner:
         return results
 
     def display_results(self, results):
+        """
+        Print the filtered results to screen
+        """
         for _, item in enumerate(results):
             if "ignore-for-release" in item["labels"]:
                 continue
@@ -127,6 +135,7 @@ class Runner:
 
             output = item["body"][0:end_index]
 
+            # If the PR body starts with  the description header just cut it out
             if output.startswith("Description\n"):
                 output = output[len("Description\n") :]
 
@@ -140,6 +149,10 @@ class Runner:
             print("")
 
     def get_tag_name(self):
+        """
+        Get the tag name to use from either the cli argument if there is one
+        or look it up from the github api
+        """
         if len(sys.argv) > 1:
             tag_name = sys.argv[1]
         else:
