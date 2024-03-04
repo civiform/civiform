@@ -71,7 +71,7 @@ class GitHub:
 
     def get_pull_requests(self):
         """
-        Get a list of GitHub commits since the specified tag
+        Get a list of closed GitHub commits
         """
         try:
             url = f"https://api.github.com/repos/civiform/civiform/pulls?state=closed&per_page=100"
