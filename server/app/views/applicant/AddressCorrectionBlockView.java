@@ -34,7 +34,10 @@ import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
+import views.components.Icons;
+import views.components.LinkElement;
 import views.style.ApplicantStyles;
+import views.style.StyleUtils;
 
 /**
  * Renders a page asking the applicant to confirm their address from a list of corrected addresses.
@@ -128,7 +131,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
           div()
               .withClasses("mb-8")
               .with(
-                  renderAsEnteredHeading(messages),
+                  renderAsEnteredHeading(params, messages),
                   renderAddress(
                       addressAsEntered,
                       /* selected= */ !anySuggestions,
@@ -151,12 +154,37 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
     return form;
   }
 
-  private DivTag renderAsEnteredHeading(Messages messages) {
-    return div()
-        .withClass("flex flex-nowrap mb-2")
-        .with(
-            h3(messages.at(MessageKey.ADDRESS_CORRECTION_AS_ENTERED_HEADING.getKeyName()))
-                .withClass("font-bold mb-2 w-full"));
+  private DivTag renderAsEnteredHeading(Params params, Messages messages) {
+    DivTag containerDiv =
+        div()
+            .withClass("flex flex-nowrap mb-2")
+            .with(
+                h3(messages.at(MessageKey.ADDRESS_CORRECTION_AS_ENTERED_HEADING.getKeyName()))
+                    .withClass("font-bold mb-2 w-full"));
+
+    // When the SAVE_ON_ALL_ACTIONS flag is on, the "Edit" action will be a button in the bottom
+    // navigation.
+    // When the flag is off, the "Edit" action should be part of the "As entered" heading.
+    if (!settingsManifest.getSaveOnAllActions(params.request())) {
+      ATag editElement =
+          new LinkElement()
+              .setStyles(
+                  "bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"), "mb-2")
+              .setHref(
+                  applicantRoutes
+                      .blockReview(
+                          params.profile(),
+                          params.applicantId(),
+                          params.programId(),
+                          params.block().getId(),
+                          /* questionName= */ Optional.empty())
+                      .url())
+              .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
+              .setIcon(Icons.EDIT, LinkElement.IconPosition.START)
+              .asAnchorText();
+      containerDiv.with(editElement);
+    }
+    return containerDiv;
   }
 
   private ImmutableList<LabelTag> renderSuggestedAddresses(
@@ -221,14 +249,15 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
       Params params, ApplicantRequestedAction applicantRequestedAction) {
     DivTag bottomNavButtonsContainer = div().withClasses(ApplicantStyles.APPLICATION_NAV_BAR);
 
+    // If the SAVE_ON_ALL_ACTIONS flag is on, the address correction screen becomes an intermediate
+    // step that only provides two actions:
+    //   1. "Confirm address": Save the address the user selected and take them to wherever they had
+    //      requested to go previously ("Review" -> review page, "Save & next" -> block after the
+    // block with the address question,
+    //      "Previous" -> block before the block with the address question).
+    //   2. "Go back and edit": Go back to the block with the address question to edit the address
+    // they'd entered.
     if (settingsManifest.getSaveOnAllActions(params.request())) {
-      // if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK
-      //     || applicantRequestedAction == ApplicantRequestedAction.REVIEW_PAGE) {
-      // On the block that had the address question, the applicant selected "Previous" or
-      // "Review". But, we still need to correct their address. So, we still show them this
-      // address correction screen but then only give them one action, "Confirm address". This
-      // "Confirm address" button will save the address and then proceed with whatever action
-      // they'd chosen in the first place.
 
       ButtonTag confirmAddressButton =
           submitButton(
@@ -250,8 +279,9 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
       return bottomNavButtonsContainer.with(goBackAndEditButton, confirmAddressButton);
     }
 
-    // Otherwise, the applicant selected "Save&next" on the block with the address question. Then we
-    // can show them all the bottom navigation buttons like normal.
+    // If the SAVE_ON_ALL_ACTIONS flag is off, then the address correction screen looks more like
+    // any other
+    // block, with the three classic actions of "Review", "Previous", and "Save & next".
     return bottomNavButtonsContainer
         .with(
             renderReviewButton(

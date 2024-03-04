@@ -343,8 +343,18 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickConfirmAddress() {
+    await this.page.click('text="Confirm address"')
+    await waitForPageJsLoad(this.page)
+  }
+
   async clickEdit() {
     await this.page.click('text="Edit"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickGoBackAndEdit() {
+    await this.page.click('text="Go back and edit"')
     await waitForPageJsLoad(this.page)
   }
 
@@ -603,7 +613,7 @@ export class ApplicantQuestions {
     )
   }
 
-  async clickGoBackAndEdit() {
+  async clickStayAndFixAnswers() {
     await this.page.click('button:has-text("Stay and fix your answers")')
   }
 }
