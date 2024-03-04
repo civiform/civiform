@@ -309,8 +309,8 @@ content.suggestedAddress=Suggested address:
 content.suggestedAddresses=Suggested addresses:
 
 # Title on address correction dialog when no address is found.
-title.noValidAddress=No valid address found
-content.noValidAddress=We could not verify the address that you provided. Please edit your address to continue.
+title.noValidAddress=We could not verify that address
+content.noValidAddress=Please check and edit your address to continue.  If you believe it is correct, click Save and Next.
 
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
