@@ -1943,7 +1943,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void
-      confirmAddress_requestedActionPrevious_addressSavedAndRedirectedToAddressQuestionBlock() {
+      confirmAddress_requestedActionPrevious_addressSavedAndRedirectedToBlockBeforeAddressQuestion() {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
@@ -1981,15 +1981,14 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    // Address correction is special because it's not part of any block. If a user is on the
-    // address correction screen and requests to go to the previous page, they should be
-    // redirected to the block that contained the address question, which is block 2.
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    String previousBlockEditRoute =
-        routes.ApplicantProgramBlocksController.edit(
-                program.id, /* blockId= */ "2", /* questionName= */ Optional.empty())
+    String previousRoute =
+        routes.ApplicantProgramBlocksController.previous(
+                // The 2nd block was filled in, which is index 1. So, the previous block would be
+                // index 0.
+                program.id, /* previousBlockIndex= */ 0, /* inReview= */ false)
             .url();
-    assertThat(result.redirectLocation()).hasValue(previousBlockEditRoute);
+    assertThat(result.redirectLocation()).hasValue(previousRoute);
 
     // Check that the selected suggested address is saved
     applicant.refresh();

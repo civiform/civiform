@@ -8,6 +8,7 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.label;
 
+import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
@@ -131,7 +132,13 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
           div()
               .withClasses("mb-8")
               .with(
-                  renderAsEnteredHeading(params, messages),
+                  renderAsEnteredHeading(
+                      params.applicantId(),
+                      params.programId(),
+                      params.block().getId(),
+                      messages,
+                      params.request(),
+                      params.profile()),
                   renderAddress(
                       addressAsEntered,
                       /* selected= */ !anySuggestions,
@@ -154,18 +161,22 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
     return form;
   }
 
-  private DivTag renderAsEnteredHeading(Params params, Messages messages) {
-    DivTag containerDiv =
-        div()
-            .withClass("flex flex-nowrap mb-2")
-            .with(
-                h3(messages.at(MessageKey.ADDRESS_CORRECTION_AS_ENTERED_HEADING.getKeyName()))
-                    .withClass("font-bold mb-2 w-full"));
+  private DivTag renderAsEnteredHeading(
+      long applicantId,
+      long programId,
+      String blockId,
+      Messages messages,
+      Http.Request request,
+      CiviFormProfile profile) {
+    DivTag containerDiv = div().withClass("flex flex-nowrap mb-2");
+    containerDiv.with(
+        h3(messages.at(MessageKey.ADDRESS_CORRECTION_AS_ENTERED_HEADING.getKeyName()))
+            .withClass("font-bold mb-2 w-full"));
 
     // When the SAVE_ON_ALL_ACTIONS flag is on, the "Edit" action will be a button in the bottom
-    // navigation.
-    // When the flag is off, the "Edit" action should be part of the "As entered" heading.
-    if (!settingsManifest.getSaveOnAllActions(params.request())) {
+    // navigation. When the flag is off, the "Edit" action should be part of the "As entered"
+    // heading.
+    if (!settingsManifest.getSaveOnAllActions(request)) {
       ATag editElement =
           new LinkElement()
               .setStyles(
@@ -173,10 +184,10 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
               .setHref(
                   applicantRoutes
                       .blockReview(
-                          params.profile(),
-                          params.applicantId(),
-                          params.programId(),
-                          params.block().getId(),
+                          profile,
+                          applicantId,
+                          programId,
+                          blockId,
                           /* questionName= */ Optional.empty())
                       .url())
               .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
@@ -252,13 +263,12 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
     // If the SAVE_ON_ALL_ACTIONS flag is on, the address correction screen becomes an intermediate
     // step that only provides two actions:
     //   1. "Confirm address": Save the address the user selected and take them to wherever they had
-    //      requested to go previously ("Review" -> review page, "Save & next" -> block after the
-    // block with the address question,
-    //      "Previous" -> block before the block with the address question).
+    //      requested to go previously: "Review" -> review page, "Save & next" -> block *after* the
+    //      block with the address question, "Previous" -> block *before* the block with the address
+    //      question.
     //   2. "Go back and edit": Go back to the block with the address question to edit the address
-    // they'd entered.
+    //      they'd entered.
     if (settingsManifest.getSaveOnAllActions(params.request())) {
-
       ButtonTag confirmAddressButton =
           submitButton(
                   params.messages().at(MessageKey.ADDRESS_CORRECTION_CONFIRM_BUTTON.getKeyName()))
@@ -280,8 +290,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
     }
 
     // If the SAVE_ON_ALL_ACTIONS flag is off, then the address correction screen looks more like
-    // any other
-    // block, with the three classic actions of "Review", "Previous", and "Save & next".
+    // any other block, with the three classic actions of "Review", "Previous", and "Save & next".
     return bottomNavButtonsContainer
         .with(
             renderReviewButton(

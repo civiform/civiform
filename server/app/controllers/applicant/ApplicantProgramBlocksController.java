@@ -440,8 +440,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenApplyAsync(
             (roApplicantProgramService) -> {
               Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
-              if (block.isPresent()) {
 
+              if (block.isPresent()) {
                 ApplicantPersonalInfo personalInfo = applicantStage.toCompletableFuture().join();
                 CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
                 return ok(
