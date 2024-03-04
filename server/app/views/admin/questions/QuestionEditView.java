@@ -529,24 +529,27 @@ public final class QuestionEditView extends BaseHtmlView {
                                           primaryApplicantInfoTag.getDisplayName()))))
                       .condWith(
                           !differentQuestionHasTag,
-                          ViewUtils.makeAlertInfoSlim(
+                          ViewUtils.makeAlertSlim(
                               nonUniversalAlertText,
                               /* hidden= */ questionForm.isUniversal(),
-                              /* classes...= */ "cf-pai-not-universal-alert",
+                              /* classes...= */ BaseStyles.ALERT_INFO,
+                              "cf-pai-not-universal-alert",
                               "usa-alert-remove-top-margin"))
                       .condWith(
                           differentQuestionHasTag,
-                          ViewUtils.makeAlertInfoSlim(
+                          ViewUtils.makeAlertSlim(
                               alreadySetAlertText,
                               /* hidden= */ !questionForm.isUniversal(),
-                              /* classes...= */ "cf-pai-tag-set-alert",
+                              /* classes...= */ BaseStyles.ALERT_INFO,
+                              "cf-pai-tag-set-alert",
                               "usa-alert-remove-top-margin"))
                       .condWith(
                           differentQuestionHasTag,
-                          ViewUtils.makeAlertInfoSlim(
+                          ViewUtils.makeAlertSlim(
                               nonUniversalAlreadySetAlertText,
                               /* hidden= */ questionForm.isUniversal(),
-                              /* classes...= */ "cf-pai-tag-set-not-universal-alert",
+                              /* classes...= */ BaseStyles.ALERT_INFO,
+                              "cf-pai-tag-set-not-universal-alert",
                               "usa-alert-remove-top-margin"));
               result.with(tagSubsection);
             });

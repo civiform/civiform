@@ -32,6 +32,7 @@ import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.StorageUploadRequest;
 import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
+import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.fileupload.FileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererFactory;
@@ -122,10 +123,13 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
         fileUploadViewStrategy.additionalFileUploadFormInputs(params.signedFileUploadRequest()));
     result.with(createFileInputFormElement(fileInputId, ariaDescribedByIds, hasErrors));
     result.with(
-        div(fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()))
-            .withId(fileInputId + "-required-error")
-            .withClasses(
-                ReferenceClasses.FILEUPLOAD_ERROR, BaseStyles.FORM_ERROR_TEXT_BASE, "hidden"));
+        ViewUtils.makeAlertSlim(
+            fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()),
+            // file_upload.ts will un-hide this error if needed.
+            /* hidden= */ true,
+            /* classes...= */ BaseStyles.ALERT_ERROR,
+            ReferenceClasses.FILEUPLOAD_ERROR,
+            "mb-2"));
     result.with(
         p(params.messages().at(MessageKey.MOBILE_FILE_UPLOAD_HELP.getKeyName()))
             .withClasses("text-sm", "text-gray-600", "mb-2"));
