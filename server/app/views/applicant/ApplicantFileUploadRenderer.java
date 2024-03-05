@@ -8,7 +8,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
-import static j2html.TagCreator.p;
 import static views.fileupload.FileUploadViewStrategy.createFileTooLargeError;
 
 import com.google.common.base.Preconditions;
@@ -138,9 +137,6 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                 "data-upload-text",
                 params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName()))
             .attr("aria-live", "polite"));
-    result.with(
-        p(params.messages().at(MessageKey.MOBILE_FILE_UPLOAD_HELP.getKeyName()))
-            .withClasses("text-sm", "text-gray-600", "mb-2"));
     return result;
   }
 
