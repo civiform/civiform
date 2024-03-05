@@ -49,12 +49,6 @@ public final class FileUploadQuestion extends Question {
     return ValidationErrorMessage.create(MessageKey.FILEUPLOAD_VALIDATION_FILE_REQUIRED);
   }
 
-  /** Shows a message saying that the file the user uploaded was larger than {@code fileLimitMb}. */
-  public ValidationErrorMessage fileTooLargeMessage(int fileLimitMb) {
-    return ValidationErrorMessage.create(
-        MessageKey.FILEUPLOAD_VALIDATION_FILE_TOO_LARGE, fileLimitMb);
-  }
-
   public Optional<String> getFileKeyValue() {
     if (fileKeyValueCache.isPresent()) {
       return fileKeyValueCache.get();

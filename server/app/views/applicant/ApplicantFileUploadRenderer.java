@@ -9,6 +9,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
+import static views.fileupload.FileUploadViewStrategy.createFileTooLargeError;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -120,22 +121,14 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     // TODO(#6804): Use HTMX to add these errors to the DOM only when they're needed.
     result.with(
         ViewUtils.makeAlertSlim(
-            fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()),
-            // file_upload.ts will un-hide this error if needed.
-            /* hidden= */ true,
-            /* classes...= */ BaseStyles.ALERT_ERROR,
-            ReferenceClasses.FILEUPLOAD_REQUIRED_ERROR_ID,
-            "mb-2"));
+                fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()),
+                // file_upload.ts will un-hide this error if needed.
+                /* hidden= */ true,
+                /* classes...= */ BaseStyles.ALERT_ERROR,
+                "mb-2")
+            .withId(ReferenceClasses.FILEUPLOAD_REQUIRED_ERROR_ID));
     result.with(
-        ViewUtils.makeAlertSlim(
-            fileUploadQuestion
-                .fileTooLargeMessage(applicantStorageClient.getFileLimitMb())
-                .getMessage(params.messages()),
-            // file_upload.ts will un-hide this error if needed.
-            /* hidden= */ true,
-            /* classes...= */ BaseStyles.ALERT_ERROR,
-            ReferenceClasses.FILEUPLOAD_TOO_LARGE_ERROR,
-            "mb-2"));
+        createFileTooLargeError(applicantStorageClient.getFileLimitMb(), params.messages()));
     result.with(
         div()
             .withText(uploaded.orElse(""))

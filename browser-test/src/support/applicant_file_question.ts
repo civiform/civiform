@@ -3,7 +3,8 @@ import {Page} from 'playwright'
 
 /** Class for working with the file upload question that applicants see. */
 export class ApplicantFileQuestion {
-  private fileSelectionErrorLocator = '.cf-fileupload-error'
+  private fileSelectionErrorLocator = '#cf-fileupload-required-error'
+  private fileTooLargeErrorLocator = '#cf-fileupload-too-large-error'
   private continueButtonLocator = '#fileupload-continue-button'
   private skipButtonLocator = '#fileupload-skip-button'
   private deleteButtonLocator = '#fileupload-delete-button'
@@ -15,22 +16,22 @@ export class ApplicantFileQuestion {
   }
 
   async expectFileSelectionErrorShown() {
-    const error = await this.page.$('.cf-fileupload-no-file-error')
+    const error = this.page.locator(this.fileSelectionErrorLocator)
     expect(await error?.isHidden()).toEqual(false)
   }
 
   async expectFileSelectionErrorHidden() {
-    const error = await this.page.$('.cf-fileupload-no-file-error')
+    const error = this.page.locator(this.fileSelectionErrorLocator)
     expect(await error?.isHidden()).toEqual(true)
   }
 
   async expectFileTooLargeErrorShown() {
-    const error = await this.page.$('.cf-fileupload-too-large-error')
+    const error = this.page.locator(this.fileTooLargeErrorLocator)
     expect(await error?.isHidden()).toEqual(false)
   }
 
   async expectFileTooLargeErrorHidden() {
-    const error = await this.page.$('.cf-fileupload-too-large-error')
+    const error = this.page.locator(this.fileTooLargeErrorLocator)
     expect(await error?.isHidden()).toEqual(true)
   }
 

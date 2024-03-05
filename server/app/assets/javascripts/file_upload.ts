@@ -123,8 +123,8 @@ function validateFileUploadQuestion(blockForm: Element): boolean {
 
   const isFileUploaded = fileInput.value != ''
 
-  const fileNotSelectedErrorDiv = blockForm.querySelector(
-    '.cf-fileupload-no-file-error',
+  const fileNotSelectedErrorDiv = document.getElementById(
+    'cf-fileupload-required-error',
   ) as HTMLElement
   if (isFileUploaded) {
     hideError(fileNotSelectedErrorDiv, fileInput)
@@ -133,8 +133,8 @@ function validateFileUploadQuestion(blockForm: Element): boolean {
   }
 
   const isFileTooLargeResult = isFileTooLarge(fileInput)
-  const fileTooLargeErrorDiv = blockForm.querySelector(
-    '.cf-fileupload-too-large-error',
+  const fileTooLargeErrorDiv = document.getElementById(
+    'cf-fileupload-too-large-error',
   ) as HTMLElement
   if (isFileTooLargeResult) {
     showError(fileTooLargeErrorDiv, fileInput)

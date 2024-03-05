@@ -94,6 +94,7 @@ export class ApplicantQuestions {
     })
   }
 
+  /** Creates a file with the given size in MB and uploads it to the file upload question. */
   async answerFileUploadQuestionWithMbSize(mbSize: int) {
     const filePath = 'file-size-' + mbSize + '-mb.txt'
     writeFileSync(filePath, 'C'.repeat(mbSize * 1024 * 1024))
