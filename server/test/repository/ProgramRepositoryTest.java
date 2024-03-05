@@ -54,6 +54,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
   private VersionRepository versionRepo;
   private SyncCacheApi programCache;
   private SyncCacheApi programDefCache;
+  private SyncCacheApi shallowProgramDefCache;
   private SyncCacheApi versionsByProgramCache;
   private SettingsManifest mockSettingsManifest;
 
@@ -62,6 +63,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     versionRepo = instanceOf(VersionRepository.class);
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     programCache = instanceOf(SyncCacheApi.class);
+    shallowProgramDefCache = instanceOf(SyncCacheApi.class);
     versionsByProgramCache = instanceOf(SyncCacheApi.class);
 
     BindingKey<SyncCacheApi> programDefKey =
@@ -76,6 +78,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             mockSettingsManifest,
             programCache,
             programDefCache,
+            shallowProgramDefCache,
             versionsByProgramCache);
   }
 

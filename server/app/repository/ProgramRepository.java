@@ -55,6 +55,7 @@ public final class ProgramRepository {
   private final SettingsManifest settingsManifest;
   private final SyncCacheApi programCache;
   private final SyncCacheApi programDefCache;
+  private final SyncCacheApi shallowProgramDefCache;
   private final SyncCacheApi versionsByProgramCache;
 
   @Inject
@@ -64,12 +65,14 @@ public final class ProgramRepository {
       SettingsManifest settingsManifest,
       @NamedCache("program") SyncCacheApi programCache,
       @NamedCache("full-program-definition") SyncCacheApi programDefCache,
+      @NamedCache("shallow-program-definition") SyncCacheApi shallowProgramDefCache,
       @NamedCache("program-versions") SyncCacheApi versionsByProgramCache) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
     this.versionRepository = checkNotNull(versionRepository);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programCache = checkNotNull(programCache);
+    this.shallowProgramDefCache = checkNotNull(shallowProgramDefCache);
     this.programDefCache = checkNotNull(programDefCache);
     this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
   }
@@ -132,6 +135,10 @@ public final class ProgramRepository {
    * <p>This method should replace any calls to ProgramModel.getProgramDefinition()
    */
   public ProgramDefinition getShallowProgramDefinition(ProgramModel program) {
+    if (settingsManifest.getShallowProgramDefCacheEnabled()) {
+      return shallowProgramDefCache.getOrElseUpdate(
+          String.valueOf(program.id), () -> program.getProgramDefinition());
+    }
     return program.getProgramDefinition();
   }
 
