@@ -14,6 +14,7 @@ Read the full guidelines for PRs [here](https://github.com/civiform/civiform/wik
 
 - [ ] Added the correct label: < feature | enhancement | bug | dependencies | infrastructure | ignore-for-release | database >
 - [ ] Assigned to a specific person, `civiform/developers`, or a [more specific round-robin list](https://github.com/civiform/civiform/wiki/Technical-contribution-guide#adding-reviewers).
+- [ ] If the primary reviewer is someone in the same organization as you, added an additional reviewer from outside your organization as FYI.
 - [ ] Created unit and/or browser tests which fail without the change (if possible)
 - [ ] Performed manual testing (Chrome and Firefox if it includes front-end changes)
 - [ ] Extended the README / documentation, if necessary
