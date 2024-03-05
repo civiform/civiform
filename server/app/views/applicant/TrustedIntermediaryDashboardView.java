@@ -39,6 +39,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import models.AccountModel;
 import models.ApplicantModel;
+import models.ApplicationModel;
 import models.TrustedIntermediaryGroupModel;
 import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
@@ -346,10 +347,12 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     if (newestApplicant.isEmpty()) {
       return div();
     }
-    int applicationCount = newestApplicant.get().getApplications().size();
 
+    ImmutableList<ApplicationModel> newestApplicantApplications =
+        newestApplicant.get().getApplications();
+    int applicationCount = newestApplicantApplications.size();
     String programs =
-        newestApplicant.get().getApplications().stream()
+        newestApplicantApplications.stream()
             .map(
                 application ->
                     programRepository
