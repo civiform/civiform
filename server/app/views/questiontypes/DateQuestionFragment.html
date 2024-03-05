@@ -1,4 +1,4 @@
-<div th:fragment="date (question, messages)" th:with="questionId=${#strings.randomAlphanumeric(8)}">
+<div th:fragment="date (question)" th:with="questionId=${#strings.randomAlphanumeric(8)}">
   <div class="usa-form-group" th:id="${questionId}"
       th:with="dateQuestion=${question.createDateQuestion()},
                inputId=${#strings.randomAlphanumeric(8)}">
@@ -11,7 +11,7 @@
       </label>
       <div th:id="${questionId} + '-description'" th:text="${question.getQuestionHelpText()}" class="usa-hint"></div>
       <!-- Display errors -->
-      <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${messages})}"></div>
+      <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
 
       <div class="usa-date-picker">
         <input
