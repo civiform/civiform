@@ -9,7 +9,7 @@
 
                 <!-- TODO: Implement the rest of the page surrounding the questions -->
                 <div th:each="question: ${applicantQuestions}">
-                    <div th:replace="~{applicant/ApplicantQuestionFragment :: applicant-question(${question}, ${messages})}"></div>
+                    <div th:replace="~{applicant/ApplicantQuestionFragment :: applicant-question(${question})}"></div>
                 </div>
             </form>
         </div>
