@@ -321,7 +321,7 @@ test.describe('Trusted intermediaries', () => {
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
-    await selectApplicantLanguage(page, 'Español')
+    await selectApplicantLanguage(page, '繁體中文')
 
     await validateScreenshot(page, 'ti-dashboard-spanish')
   })

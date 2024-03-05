@@ -455,8 +455,6 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return thead(
         tr().withClasses("border-b", "bg-gray-200", "text-left")
             .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/3"))
-            .with(
-                th(messages.at(MessageKey.TITLE_STATUS.getKeyName()))
-                    .withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/4")));
+            .with(th("Status").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/4")));
   }
 }
