@@ -105,17 +105,23 @@ public abstract class FileUploadViewStrategy {
                 .withCondDisabled(disabled));
   }
 
+  /**
+   * Creates an error div saying that the file the user uploaded was larger than {@code
+   * fileLimitMb}.
+   */
   public static DivTag createFileTooLargeError(int fileLimitMb, Messages messages) {
     return ViewUtils.makeAlertSlim(
             fileTooLargeMessage(fileLimitMb).getMessage(messages),
-            // file_upload.ts will un-hide this error if needed.
+            // TypeScript will un-hide this error when needed.
             /* hidden= */ true,
             /* classes...= */ BaseStyles.ALERT_ERROR,
-            "mb-2")
+            "mb-4")
         .withId(ReferenceClasses.FILEUPLOAD_TOO_LARGE_ERROR_ID);
   }
 
-  /** Shows a message saying that the file the user uploaded was larger than {@code fileLimitMb}. */
+  /**
+   * Creates a message saying that the file the user uploaded was larger than {@code fileLimitMb}.
+   */
   private static ValidationErrorMessage fileTooLargeMessage(int fileLimitMb) {
     return ValidationErrorMessage.create(
         MessageKey.FILEUPLOAD_VALIDATION_FILE_TOO_LARGE, fileLimitMb);
