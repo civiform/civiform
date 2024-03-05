@@ -84,10 +84,8 @@ public final class AdminReportingController extends CiviFormController {
   public Result downloadProgramCsv(String programSlug) {
     String programName =
         programRepository
-            .getActiveProgramFromSlug(programSlug)
-            .toCompletableFuture()
-            .join()
-            .getProgramDefinition()
+            .getShallowProgramDefinition(
+                programRepository.getActiveProgramFromSlug(programSlug).join())
             .adminName();
 
     String csv = reportingService.applicationsToProgramByMonthCsv(programName);
