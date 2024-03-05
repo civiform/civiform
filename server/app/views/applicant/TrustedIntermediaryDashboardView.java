@@ -346,10 +346,10 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     if (newestApplicant.isEmpty()) {
       return div();
     }
-    int applicationCount = newestApplicant.get().getApplications().size();
-
+    ImmutableList<ApplicationModel> newestApplicantApplications = newestApplicant.get().getApplications();
+    int applicationCount = newestApplicantApplications.size();
     String programs =
-        newestApplicant.get().getApplications().stream()
+        newestApplicantApplications.stream()
             .map(
                 application ->
                     programRepository
