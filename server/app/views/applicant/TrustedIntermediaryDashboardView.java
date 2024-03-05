@@ -39,6 +39,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import models.AccountModel;
 import models.ApplicantModel;
+import models.ApplicationModel;
 import models.TrustedIntermediaryGroupModel;
 import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
