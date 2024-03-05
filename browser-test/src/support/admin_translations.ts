@@ -161,8 +161,6 @@ export class AdminTranslations {
 
     await this.page.click('#update-localizations-button')
     await waitForPageJsLoad(this.page)
-    await this.page.click('#back-to-list-button')
-    await waitForPageJsLoad(this.page)
   }
 
   private statusFieldsSelector(configuredStatusText: string): string {

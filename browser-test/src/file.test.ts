@@ -238,7 +238,7 @@ test.describe('file upload applicant flow', () => {
     })
 
     test('with missing file shows error and does not proceed if Save&next', async () => {
-      const {page, applicantQuestions, applicantFileQuestion} = ctx
+      const {applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
 
       // When the applicant clicks "Save & next"
@@ -247,9 +247,7 @@ test.describe('file upload applicant flow', () => {
       // Then we should still show the error, even for an optional question
       await applicantFileQuestion.expectFileSelectionErrorShown()
       // Verify we're still on the file upload question block
-      expect(await page.innerText('.cf-applicant-question-text')).toContain(
-        fileUploadQuestionText,
-      )
+      await applicantQuestions.validateQuestionIsOnPage(fileUploadQuestionText)
     })
 
     test('with missing file can be skipped', async () => {
@@ -573,9 +571,7 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.clickPrevious()
 
         // Verify we're taken to the previous page, which has the email question
-        expect(await page.innerText('.cf-applicant-question-text')).toContain(
-          emailQuestionText,
-        )
+        await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
       })
 
       test('clicking previous without file redirects to previous page (flag on)', async () => {
@@ -590,9 +586,7 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.clickPrevious()
 
         // Verify we're taken to the previous page, which has the email question
-        expect(await page.innerText('.cf-applicant-question-text')).toContain(
-          emailQuestionText,
-        )
+        await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
       })
 
       test('clicking previous with file discards file and redirects to previous page (flag off)', async () => {
@@ -612,9 +606,7 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.clickPrevious()
 
         // Verify we're taken to the previous page, which has the email question
-        expect(await page.innerText('.cf-applicant-question-text')).toContain(
-          emailQuestionText,
-        )
+        await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
 
         // Verify the file was *not* saved (because the flag is off)
         await applicantQuestions.clickReview()
@@ -641,9 +633,7 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.clickPrevious()
 
         // Verify we're taken to the previous page, which has the email question
-        expect(await page.innerText('.cf-applicant-question-text')).toContain(
-          emailQuestionText,
-        )
+        await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
 
         // Verify the file *was* saved (because the flag is on)
         await applicantQuestions.clickReview()
@@ -670,7 +660,7 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.clickNext()
 
         // Verify we're still on the file upload question block and an error is shown
-        expect(await page.innerText('.cf-applicant-question-text')).toContain(
+        await applicantQuestions.validateQuestionIsOnPage(
           fileUploadQuestionText,
         )
         await applicantFileQuestion.expectFileSelectionErrorShown()
@@ -690,7 +680,7 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.clickNext()
 
         // Verify we're still on the file upload question block and an error is shown
-        expect(await page.innerText('.cf-applicant-question-text')).toContain(
+        await applicantQuestions.validateQuestionIsOnPage(
           fileUploadQuestionText,
         )
         await applicantFileQuestion.expectFileSelectionErrorShown()
@@ -713,9 +703,7 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.clickNext()
 
         // Verify we're taken to the next page
-        expect(await page.innerText('.cf-applicant-question-text')).toContain(
-          numberQuestionText,
-        )
+        await applicantQuestions.validateQuestionIsOnPage(numberQuestionText)
 
         // Verify the file was saved
         await applicantQuestions.clickReview()
@@ -743,9 +731,7 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.clickNext()
 
         // Verify we're taken to the next page
-        expect(await page.innerText('.cf-applicant-question-text')).toContain(
-          numberQuestionText,
-        )
+        await applicantQuestions.validateQuestionIsOnPage(numberQuestionText)
 
         // Verify the file was saved
         await applicantQuestions.clickReview()
@@ -759,7 +745,7 @@ test.describe('file upload applicant flow', () => {
 
     test.describe('continue button', () => {
       test('clicking continue button redirects to first unseen block', async () => {
-        const {page, applicantQuestions, applicantFileQuestion} = ctx
+        const {applicantQuestions, applicantFileQuestion} = ctx
 
         // Answer the file upload question
         await applicantQuestions.clickApplyProgramButton(programName)
@@ -787,9 +773,7 @@ test.describe('file upload applicant flow', () => {
         // block an applicant should see is the first block that hasn't ever been seen.
         // In this case, because we never opened the very first block with the email
         // question, clicking "Continue" should take us back to that email question.
-        expect(await page.innerText('.cf-applicant-question-text')).toContain(
-          emailQuestionText,
-        )
+        await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
 
         // Verify the old file is still present
         await applicantQuestions.clickReview()
@@ -828,9 +812,7 @@ test.describe('file upload applicant flow', () => {
         await applicantFileQuestion.clickContinue()
 
         // Verify we're taken to the next page
-        expect(await page.innerText('.cf-applicant-question-text')).toContain(
-          numberQuestionText,
-        )
+        await applicantQuestions.validateQuestionIsOnPage(numberQuestionText)
 
         // Verify the old file is still present
         await applicantQuestions.clickReview()
@@ -876,9 +858,7 @@ test.describe('file upload applicant flow', () => {
         await applicantFileQuestion.clickContinue()
 
         // Verify we're taken to the next page
-        expect(await page.innerText('.cf-applicant-question-text')).toContain(
-          numberQuestionText,
-        )
+        await applicantQuestions.validateQuestionIsOnPage(numberQuestionText)
 
         // Verify the old file is still present
         await applicantQuestions.clickReview()
@@ -925,9 +905,7 @@ test.describe('file upload applicant flow', () => {
         await applicantFileQuestion.clickContinue()
 
         // Verify we're taken to the next page
-        expect(await page.innerText('.cf-applicant-question-text')).toContain(
-          numberQuestionText,
-        )
+        await applicantQuestions.validateQuestionIsOnPage(numberQuestionText)
 
         // Verify the old file is still used
         await applicantQuestions.clickReview()
@@ -984,9 +962,7 @@ test.describe('file upload applicant flow', () => {
         await applicantFileQuestion.clickContinue()
 
         // Verify we're taken to the next page
-        expect(await page.innerText('.cf-applicant-question-text')).toContain(
-          numberQuestionText,
-        )
+        await applicantQuestions.validateQuestionIsOnPage(numberQuestionText)
 
         // Verify the old file is still used
         await applicantQuestions.clickReview()

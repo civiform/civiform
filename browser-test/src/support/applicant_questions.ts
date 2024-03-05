@@ -343,8 +343,18 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickConfirmAddress() {
+    await this.page.getByRole('button', {name: 'Confirm address'}).click()
+    await waitForPageJsLoad(this.page)
+  }
+
   async clickEdit() {
     await this.page.click('text="Edit"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickGoBackAndEdit() {
+    await this.page.getByRole('button', {name: 'Go back and edit'}).click()
     await waitForPageJsLoad(this.page)
   }
 
@@ -495,9 +505,7 @@ export class ApplicantQuestions {
   }
 
   async expectVerifyAddressPage(validAddress: boolean) {
-    const header = validAddress
-      ? 'Verify address'
-      : 'We could not verify that address'
+    const header = validAddress ? 'Verify address' : 'No valid address found'
     expect(await this.page.innerText('h2')).toContain(header)
   }
 
@@ -542,6 +550,12 @@ export class ApplicantQuestions {
     expect(await this.page.innerHTML('head')).toContain(
       '<meta name="viewport" content="width=device-width, initial-scale=1">',
     )
+  }
+
+  async validateQuestionIsOnPage(questionText: string) {
+    await expect(
+      this.page.locator('.cf-applicant-question-text'),
+    ).toContainText(questionText)
   }
 
   async validatePreviouslyAnsweredText(questionText: string) {
@@ -599,7 +613,7 @@ export class ApplicantQuestions {
     )
   }
 
-  async clickGoBackAndEdit() {
+  async clickStayAndFixAnswers() {
     await this.page.click('button:has-text("Stay and fix your answers")')
   }
 }
