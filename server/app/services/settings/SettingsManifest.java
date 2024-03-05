@@ -903,7 +903,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SAVE_ON_ALL_ACTIONS", request);
   }
 
-  /** Enables showing new pages with the UX North Star for Applicant flows */
+  /** Enables showing new UI with an updated user experience in Applicant flows */
   public boolean getNorthStarApplicantUi(RequestHeader request) {
     return getBool("NORTH_STAR_APPLICANT_UI", request);
   }
@@ -1882,7 +1882,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "NORTH_STAR_APPLICANT_UI",
-                      "Enables showing new pages with the UX North Star for Applicant flows",
+                      "Enables showing new UI with an updated user experience in Applicant flows",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),
