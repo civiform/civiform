@@ -117,7 +117,10 @@ public final class ProgramImageView extends BaseHtmlView {
     formsContainer.with(createImageDescriptionForm(request, programDefinition, editStatus));
     formsContainer.with(
         createImageUploadForm(
-            request, programDefinition, deleteImageModal.getButton(), editStatus));
+            messagesApi.preferred(request),
+            programDefinition,
+            deleteImageModal.getButton(),
+            editStatus));
     if (editStatusEnum == ProgramEditStatus.CREATION
         || editStatusEnum == ProgramEditStatus.CREATION_EDIT) {
       // When an admin is going through the creation flow, we want to make sure they have a
@@ -241,7 +244,7 @@ public final class ProgramImageView extends BaseHtmlView {
   }
 
   private DivTag createImageUploadForm(
-      Http.Request request, ProgramDefinition program, ButtonTag deleteButton, String editStatus) {
+      Messages messages, ProgramDefinition program, ButtonTag deleteButton, String editStatus) {
     boolean hasNoDescription = getExistingDescription(program).isBlank();
     StorageUploadRequest storageUploadRequest = createStorageUploadRequest(program, editStatus);
     FormTag form =
@@ -260,7 +263,7 @@ public final class ProgramImageView extends BaseHtmlView {
                     + " right will show the cropping once the image is saved."),
             /* disabled= */ hasNoDescription,
             /* fileLimitMb= */ publicStorageClient.getFileLimitMb(),
-            messagesApi.preferred(request));
+            messages);
     FormTag fullForm =
         form.with(additionalFileUploadFormInputs)
             // It's critical that the "file" field be the last input element for the form since S3
