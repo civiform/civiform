@@ -36,7 +36,8 @@ public final class ReportingRepositoryFactory {
    * <code>ImmutableMap</code>.
    */
   public ReportingRepository create() {
-    ImmutableList<ProgramModel> listOfPrograms = versionRepository.getActiveVersion().getPrograms();
+    ImmutableList<ProgramModel> listOfPrograms =
+        versionRepository.getProgramsForVersion(versionRepository.getActiveVersion());
     ImmutableMap<String, String> programAdminNameToProgramDisplayName =
         programMapBuilder(listOfPrograms);
     return new ReportingRepository(clock, database, programAdminNameToProgramDisplayName);

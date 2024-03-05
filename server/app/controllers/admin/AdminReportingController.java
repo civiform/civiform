@@ -59,18 +59,15 @@ public final class AdminReportingController extends CiviFormController {
   public Result show(Http.Request request, String programSlug) {
     String programLocalizedName =
         programRepository
-            .getActiveProgramFromSlug(programSlug)
-            .join()
-            .getProgramDefinition()
+            .getShallowProgramDefinition(
+                programRepository.getActiveProgramFromSlug(programSlug).join())
             .localizedName()
             .getDefault();
     String programAdminName =
         programRepository
-            .getActiveProgramFromSlug(programSlug)
-            .join()
-            .getProgramDefinition()
-            .localizedName()
-            .getDefault();
+            .getShallowProgramDefinition(
+                programRepository.getActiveProgramFromSlug(programSlug).join())
+            .adminName();
     return ok(
         adminReportingShowView
             .get()
