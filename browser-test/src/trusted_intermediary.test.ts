@@ -323,7 +323,7 @@ test.describe('Trusted intermediaries', () => {
     await waitForPageJsLoad(page)
     await selectApplicantLanguage(page, '繁體中文')
 
-    await validateScreenshot(page, 'ti-dashboard-spanish')
+    await validateScreenshot(page, 'ti-dashboard-chinese')
   })
 
   test('Applicant sees the program review page fully translated', async () => {
