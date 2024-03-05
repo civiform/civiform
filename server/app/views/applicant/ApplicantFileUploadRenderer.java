@@ -131,9 +131,6 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
             ReferenceClasses.FILEUPLOAD_ERROR,
             "mb-2"));
     result.with(
-        p(params.messages().at(MessageKey.MOBILE_FILE_UPLOAD_HELP.getKeyName()))
-            .withClasses("text-sm", "text-gray-600", "mb-2"));
-    result.with(
         div()
             .withText(uploaded.orElse(""))
             // adds INPUT_FILE_ALREADY_UPLOADED text to data attribute here so client side

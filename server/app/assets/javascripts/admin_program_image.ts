@@ -70,12 +70,12 @@ class AdminProgramImage {
     )
     const fileTooLargeError = assertNotNull(
       document.getElementById(AdminProgramImage.FILE_TOO_LARGE_ID),
-    )
+    ) as HTMLElement
 
     if (imageInput.value == '') {
       // Prevent submission and hide the too-large error if no file is uploaded
       submitButton.setAttribute('disabled', '')
-      fileTooLargeError.classList.add('hidden')
+      fileTooLargeError.hidden = true
       return
     }
 
@@ -83,11 +83,11 @@ class AdminProgramImage {
     if (fileTooLarge) {
       // Prevent submission and show the too-large error if the file was too large
       submitButton.setAttribute('disabled', '')
-      fileTooLargeError.classList.remove('hidden')
+      fileTooLargeError.hidden = false
     } else {
       // Allow submission and hide the too-large error if the file is small enough
       submitButton.removeAttribute('disabled')
-      fileTooLargeError.classList.add('hidden')
+      fileTooLargeError.hidden = true
     }
   }
 }

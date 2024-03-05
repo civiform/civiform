@@ -16,7 +16,6 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
-
 import play.i18n.Messages;
 import play.mvc.Http;
 import services.MessageKey;
@@ -108,18 +107,18 @@ public abstract class FileUploadViewStrategy {
 
   public static DivTag createFileTooLargeError(int fileLimitMb, Messages messages) {
     return ViewUtils.makeAlertSlim(
-            fileTooLargeMessage(fileLimitMb)
-                    .getMessage(messages),
+            fileTooLargeMessage(fileLimitMb).getMessage(messages),
             // file_upload.ts will un-hide this error if needed.
             /* hidden= */ true,
             /* classes...= */ BaseStyles.ALERT_ERROR,
-            "mb-2").withId(ReferenceClasses.FILEUPLOAD_TOO_LARGE_ERROR_ID);
+            "mb-2")
+        .withId(ReferenceClasses.FILEUPLOAD_TOO_LARGE_ERROR_ID);
   }
 
   /** Shows a message saying that the file the user uploaded was larger than {@code fileLimitMb}. */
   private static ValidationErrorMessage fileTooLargeMessage(int fileLimitMb) {
     return ValidationErrorMessage.create(
-            MessageKey.FILEUPLOAD_VALIDATION_FILE_TOO_LARGE, fileLimitMb);
+        MessageKey.FILEUPLOAD_VALIDATION_FILE_TOO_LARGE, fileLimitMb);
   }
 
   /**
