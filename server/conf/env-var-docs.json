@@ -723,6 +723,11 @@
         "description": "Enables caching for questions and their associated data.",
         "type": "bool"
       },
+      "SHALLOW_PROGRAM_DEF_CACHE_ENABLED": {
+        "mode": "HIDDEN",
+        "description": "Enables caching for program definitions without associated question data.",
+        "type": "bool"
+      },
       "ADMIN_OIDC_ENHANCED_LOGOUT_ENABLED": {
         "mode": "ADMIN_READABLE",
         "description": "Enables populating more fields in OIDC logout requests to admin identity provider.",

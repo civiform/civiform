@@ -852,6 +852,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("QUESTION_CACHE_ENABLED");
   }
 
+  /** Enables caching for program definitions without associated question data. */
+  public boolean getShallowProgramDefCacheEnabled() {
+    return getBool("SHALLOW_PROGRAM_DEF_CACHE_ENABLED");
+  }
+
   /** Enables populating more fields in OIDC logout requests to admin identity provider. */
   public boolean getAdminOidcEnhancedLogoutEnabled() {
     return getBool("ADMIN_OIDC_ENHANCED_LOGOUT_ENABLED");
@@ -1819,6 +1824,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   SettingDescription.create(
                       "QUESTION_CACHE_ENABLED",
                       "Enables caching for questions and their associated data.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.HIDDEN),
+                  SettingDescription.create(
+                      "SHALLOW_PROGRAM_DEF_CACHE_ENABLED",
+                      "Enables caching for program definitions without associated question data.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.HIDDEN),
