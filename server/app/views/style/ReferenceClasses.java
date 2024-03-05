@@ -127,6 +127,7 @@ public final class ReferenceClasses {
 
   public static final String FILEUPLOAD_QUESTION = "cf-question-fileupload";
   public static final String FILEUPLOAD_ERROR = "cf-fileupload-error";
+  public static final String FILEUPLOAD_TOO_LARGE_ERROR_ID = "cf-fileupload-too-large-error";
 
   public static final String NAME_QUESTION = "cf-question-name";
   public static final String NAME_FIRST = "cf-name-first";

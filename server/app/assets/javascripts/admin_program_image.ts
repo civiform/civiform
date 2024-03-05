@@ -6,8 +6,8 @@ class AdminProgramImage {
   // These values should be kept in sync with views/admin/programs/ProgramImageView.java.
   private static IMAGE_DESCRIPTION_FORM_ID = 'image-description-form'
   private static IMAGE_FILE_UPLOAD_FORM_ID = 'image-file-upload-form'
-  // This should be kept in sync with views/fileupload/FileUploadViewStrategy.FILE_TOO_LARGE_ERROR_ID.
-  private static FILE_TOO_LARGE_ID = 'file-too-large-error'
+  // This should be kept in sync with views/fileupload/FileUploadViewStrategy#createFileTooLargeError.
+  private static FILE_TOO_LARGE_ID = 'cf-fileupload-too-large-error'
 
   static attachEventListenersToDescriptionForm() {
     const descriptionForm = document.getElementById(

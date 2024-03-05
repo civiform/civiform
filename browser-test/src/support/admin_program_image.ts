@@ -13,8 +13,8 @@ export class AdminProgramImage {
     'button[form=image-description-form][type="submit"]'
   private translationsButtonLocator = 'button:has-text("Manage translations")'
   private continueButtonLocator = '#continue-button'
-  // This should be kept in sync with views/fileupload/FileUploadViewStrategy.FILE_TOO_LARGE_ERROR_ID.
-  private tooLargeErrorLocator = '#file-too-large-error'
+  // This should be kept in sync with views/fileupload/FileUploadViewStrategy#createFileTooLargeError.
+  private tooLargeErrorLocator = '#cf-fileupload-too-large-error'
 
   private page!: Page
 
