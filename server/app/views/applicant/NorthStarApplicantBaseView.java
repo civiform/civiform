@@ -32,7 +32,6 @@ public abstract class NorthStarApplicantBaseView {
     context.setVariable("adminJsBundle", assetsFinder.path("dist/admin.bundle.js"));
     context.setVariable("uswdsJsInit", assetsFinder.path("javascripts/uswds/uswds-init.min.js"));
     context.setVariable("uswdsJsBundle", assetsFinder.path("dist/uswds.bundle.js"));
-    context.setVariable("ApiDocsController", controllers.api.routes.ApiDocsController);
     return context;
   }
 }
