@@ -93,8 +93,12 @@ public abstract class BaseHtmlView {
     return submitButton(textContents).withId(id);
   }
 
+  protected static ButtonTag redirectButton(String text, String redirectUrl) {
+    return asRedirectElement(TagCreator.button(text).withClasses("m-2"), redirectUrl);
+  }
+
   protected static ButtonTag redirectButton(String id, String text, String redirectUrl) {
-    return asRedirectElement(TagCreator.button(text).withId(id).withClasses("m-2"), redirectUrl);
+    return redirectButton(text, redirectUrl).withId(id);
   }
 
   /**
