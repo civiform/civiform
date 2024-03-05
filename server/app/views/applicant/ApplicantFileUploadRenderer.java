@@ -127,6 +127,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     result.with(
         fileUploadViewStrategy.additionalFileUploadFormInputs(params.signedFileUploadRequest()));
     result.with(createFileInputFormElement(fileInputId, ariaDescribedByIds, hasErrors));
+    // TODO(#6804): Use HTMX to add these errors to the DOM only when they're needed.
     result.with(
         ViewUtils.makeAlertSlim(
             fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()),

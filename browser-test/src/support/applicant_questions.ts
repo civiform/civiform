@@ -94,7 +94,7 @@ export class ApplicantQuestions {
     })
   }
 
-  async answerFileUploadQuestionWithSize(mbSize: int) {
+  async answerFileUploadQuestionWithMbSize(mbSize: int) {
     const filePath = 'file-size-' + mbSize + '-mb.txt'
     writeFileSync(filePath, 'C'.repeat(mbSize * 1024 * 1024))
     await this.page.setInputFiles('input[type=file]', filePath)

@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static services.cloud.aws.AwsStorageUtils.AWS_PRESIGNED_URL_DURATION;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
 import controllers.applicant.ApplicantRequestedAction;
 import java.net.URL;
@@ -30,7 +31,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 public class AwsApplicantStorage implements ApplicantStorageClient {
 
   private static final String AWS_S3_BUCKET_CONF_PATH = "aws.s3.bucket";
-  private static final String AWS_S3_FILE_LIMIT_CONF_PATH = "aws.s3.filelimitmb";
+  @VisibleForTesting static final String AWS_S3_FILE_LIMIT_CONF_PATH = "aws.s3.filelimitmb";
 
   private final AwsStorageUtils awsStorageUtils;
   private final Region region;
