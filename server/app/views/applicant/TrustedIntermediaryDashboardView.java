@@ -41,11 +41,11 @@ import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import models.TrustedIntermediaryGroupModel;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import repository.ProgramRepository;
 import repository.SearchParameters;
 import services.DateConverter;
 import services.MessageKey;
@@ -53,6 +53,8 @@ import services.PhoneValidationResult;
 import services.PhoneValidationUtils;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
+import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 import services.ti.TrustedIntermediaryService;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -68,17 +70,19 @@ import views.style.StyleUtils;
 
 /** Renders a page for a trusted intermediary to manage their clients. */
 public class TrustedIntermediaryDashboardView extends BaseHtmlView {
+  private static final Logger logger =
+      LoggerFactory.getLogger(TrustedIntermediaryDashboardView.class);
   private final ApplicantLayout layout;
   private final DateConverter dateConverter;
-  private final ProgramRepository programRepository;
+  private final ProgramService programService;
   private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
   @Inject
   public TrustedIntermediaryDashboardView(
-      ApplicantLayout layout, DateConverter dateConverter, ProgramRepository programRepository) {
+      ApplicantLayout layout, DateConverter dateConverter, ProgramService programService) {
     this.layout = checkNotNull(layout);
     this.dateConverter = checkNotNull(dateConverter);
-    this.programRepository = checkNotNull(programRepository);
+    this.programService = programService;
   }
 
   public Content render(
@@ -369,11 +373,24 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     String programs =
         newestApplicantApplications.stream()
             .map(
-                application ->
-                    programRepository
-                        .getShallowProgramDefinition(application.getProgram())
+                application -> {
+                  try {
+                    return programService
+                        .getFullProgramDefinition(application.getProgram().id)
                         .localizedName()
-                        .getDefault())
+                        .getDefault();
+                  } catch (ProgramNotFoundException e) {
+                    // Since this is just trying to get a csv representation of the programs
+                    // put a placeholder string if this exception occurs. Realistically at
+                    // this area of CiviForm it "shouldn't" occur, but why leave it up to
+                    // fate to raise an exception.
+                    logger.error(
+                        "Unable to build complete string of programs. At least one program was not"
+                            + " found",
+                        e);
+                    return "<unknown>";
+                  }
+                })
             .collect(Collectors.joining(", "));
 
     return div(
