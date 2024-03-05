@@ -113,17 +113,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
             .getFilename()
             .map(f -> params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName(), f));
 
-    DivTag result =
-        div()
-            .with(
-                div()
-                    .withText(uploaded.orElse(""))
-                    // adds INPUT_FILE_ALREADY_UPLOADED text to data attribute here so client side
-                    // can render the translated text if it gets added
-                    .attr(
-                        "data-upload-text",
-                        params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName()))
-                    .attr("aria-live", "polite"));
+    DivTag result = div();
     result.with(
         fileUploadViewStrategy.additionalFileUploadFormInputs(params.signedFileUploadRequest()));
     result.with(createFileInputFormElement(fileInputId, ariaDescribedByIds, hasErrors));
@@ -146,6 +136,15 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
             /* classes...= */ BaseStyles.ALERT_ERROR,
             ReferenceClasses.FILEUPLOAD_TOO_LARGE_ERROR,
             "mb-2"));
+    result.with(
+        div()
+            .withText(uploaded.orElse(""))
+            // adds INPUT_FILE_ALREADY_UPLOADED text to data attribute here so client side
+            // can render the translated text if it gets added
+            .attr(
+                "data-upload-text",
+                params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName()))
+            .attr("aria-live", "polite"));
     result.with(
         p(params.messages().at(MessageKey.MOBILE_FILE_UPLOAD_HELP.getKeyName()))
             .withClasses("text-sm", "text-gray-600", "mb-2"));
