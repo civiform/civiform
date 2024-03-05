@@ -273,7 +273,10 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             .get();
     assertThat(account.getApplicants().get(0).getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2011-11-11");
+    ApplicantModel applicant = account.getApplicants().get(0);
+    assertThat(applicant.getDateOfBirth().get().toString()).isEqualTo("2011-11-11");
     assertThat(account.getEmailAddress()).isNull();
+    assertThat(applicant.getEmailAddress()).isEmpty();
   }
 
   @Test
@@ -304,6 +307,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
 
     assertThat(account.getApplicants().get(0).getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2022-07-07");
+
+    ApplicantModel applicant = account.getApplicants().get(0);
+    assertThat(applicant.getDateOfBirth().get().toString()).isEqualTo("2022-07-07");
   }
 
   @Test
@@ -458,9 +464,13 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         .isEqualTo("2022-07-07");
     assertThat(applicantFinal.getApplicantData().getPhoneNumber().get().toString())
         .isEqualTo("4259879090");
+
+    assertThat(applicantFinal.getDateOfBirth().get().toString()).isEqualTo("2022-07-07");
+    assertThat(applicantFinal.getPhoneNumber().get().toString()).isEqualTo("4259879090");
     assertThat(applicantFinal.getApplicantData().getApplicantName().get())
         .isEqualTo("ClientLast, clientFirst");
     assertThat(accountFinal.getEmailAddress()).isEqualTo("emailAllPassEditClient");
+    assertThat(applicantFinal.getEmailAddress().get()).isEqualTo("emailAllPassEditClient");
   }
 
   @Test
@@ -778,7 +788,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     ApplicantModel applicant = new ApplicantModel();
     applicant.setAccount(account);
     ApplicantData applicantData = applicant.getApplicantData();
-    applicantData.setUserName(firstName, "", "Last");
+    applicantData.setUserName(firstName, Optional.empty(), Optional.of("Last"));
     applicantData.setDateOfBirth(dob);
     applicant.save();
   }
@@ -795,7 +805,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     ApplicantModel applicant = new ApplicantModel();
     applicant.setAccount(account);
     ApplicantData applicantData = applicant.getApplicantData();
-    applicantData.setUserName(firstName, "", "Last");
+    applicantData.setUserName(firstName, Optional.empty(), Optional.of("Last"));
     applicantData.setDateOfBirth(dob);
     applicant.save();
     account.save();

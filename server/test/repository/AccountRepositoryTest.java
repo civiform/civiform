@@ -22,7 +22,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.oidc.profile.OidcProfile;
 import services.CiviFormError;
-import services.Path;
 import services.WellKnownPaths;
 import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
@@ -191,8 +190,7 @@ public class AccountRepositoryTest extends ResetPostgres {
   @Test
   public void insertApplicant() {
     ApplicantModel applicant = new ApplicantModel();
-    String path = "$." + WellKnownPaths.APPLICANT_DOB.toString();
-    applicant.getApplicantData().putDate(Path.create(path), "2021-01-01");
+    applicant.getApplicantData().setDateOfBirth("2021-01-01");
 
     repo.insertApplicant(applicant).toCompletableFuture().join();
 
@@ -206,15 +204,14 @@ public class AccountRepositoryTest extends ResetPostgres {
   public void updateApplicant() {
     ApplicantModel applicant = new ApplicantModel();
     repo.insertApplicant(applicant).toCompletableFuture().join();
-    String path = "$." + WellKnownPaths.APPLICANT_DOB.toString();
-    applicant.getApplicantData().putString(Path.create(path), "1/1/2021");
+    applicant.getApplicantData().setDateOfBirth("2021-01-01");
 
     repo.updateApplicant(applicant).toCompletableFuture().join();
 
     long id = applicant.id;
     ApplicantModel a = repo.lookupApplicant(id).toCompletableFuture().join().get();
     assertThat(a.id).isEqualTo(id);
-    assertThat(a.getApplicantData().readString(Path.create(path))).hasValue("1/1/2021");
+    assertThat(a.getApplicantData().getDateOfBirth().get().toString()).isEqualTo("2021-01-01");
   }
 
   @Test
@@ -407,9 +404,10 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   private ApplicantModel saveApplicantWithDob(String name, String dob) {
     ApplicantModel applicant = new ApplicantModel();
-    applicant
-        .getApplicantData()
-        .putString(Path.create("$." + WellKnownPaths.APPLICANT_FIRST_NAME.toString()), name);
+    AccountModel account = new AccountModel().setEmailAddress(String.format("%s@email.com", name));
+    account.save();
+    applicant.setAccount(account);
+    applicant.getApplicantData().setUserName(name, Optional.empty(), Optional.empty());
     applicant.getApplicantData().setDateOfBirth(dob);
     applicant.save();
     return applicant;
@@ -417,9 +415,10 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   private ApplicantModel saveApplicant(String name) {
     ApplicantModel applicant = new ApplicantModel();
-    applicant
-        .getApplicantData()
-        .putString(Path.create("$." + WellKnownPaths.APPLICANT_FIRST_NAME.toString()), name);
+    AccountModel account = new AccountModel().setEmailAddress(String.format("%s@email.com", name));
+    account.save();
+    applicant.setAccount(account);
+    applicant.getApplicantData().setUserName(name, Optional.empty(), Optional.empty());
     applicant.save();
     return applicant;
   }
@@ -427,7 +426,7 @@ public class AccountRepositoryTest extends ResetPostgres {
   private ApplicantModel setupApplicantForUpdateTest() {
     ApplicantModel applicantUpdateTest = new ApplicantModel();
     ApplicantData applicantDateUpdateTest = applicantUpdateTest.getApplicantData();
-    applicantDateUpdateTest.setUserName("Jane", "", "Doe");
+    applicantDateUpdateTest.setUserName("Jane", Optional.empty(), Optional.of("Doe"));
     applicantDateUpdateTest.setDateOfBirth("2022-10-10");
     applicantUpdateTest.save();
     return applicantUpdateTest;
