@@ -32,8 +32,8 @@ public final class ReportingRepositoryFactory {
   }
 
   /**
-   * Creating a ReportingRepository object with <code>List&lt;ProgramModel&gt;</code> output as a
-   * <code>ImmutableMap</code>.
+   * Creating a ReportingRepository object with {@code List<ProgramModel>} output as a {@code
+   * ImmutableMap}.
    */
   public ReportingRepository create() {
     ImmutableList<ProgramModel> listOfPrograms =

@@ -12,8 +12,9 @@ import javax.inject.Provider;
 import org.pac4j.play.java.Secure;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.ProgramRepository;
 import repository.VersionRepository;
+import services.program.ProgramDefinition;
+import services.program.ProgramService;
 import services.reporting.ReportingService;
 import views.admin.reporting.AdminReportingIndexView;
 import views.admin.reporting.AdminReportingShowView;
@@ -24,7 +25,7 @@ public final class AdminReportingController extends CiviFormController {
   private final Provider<AdminReportingIndexView> adminReportingIndexView;
   private final Provider<AdminReportingShowView> adminReportingShowView;
   private final ReportingService reportingService;
-  private final ProgramRepository programRepository;
+  private final ProgramService programService;
 
   @Inject
   public AdminReportingController(
@@ -33,12 +34,12 @@ public final class AdminReportingController extends CiviFormController {
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
       ReportingService reportingService,
-      ProgramRepository programRepository) {
+      ProgramService programService) {
     super(profileUtils, versionRepository);
     this.adminReportingIndexView = Preconditions.checkNotNull(adminReportingIndexView);
     this.adminReportingShowView = Preconditions.checkNotNull(adminReportingShowView);
     this.reportingService = Preconditions.checkNotNull(reportingService);
-    this.programRepository = Preconditions.checkNotNull(programRepository);
+    this.programService = Preconditions.checkNotNull(programService);
   }
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
@@ -57,17 +58,13 @@ public final class AdminReportingController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result show(Http.Request request, String programSlug) {
-    String programLocalizedName =
-        programRepository
-            .getShallowProgramDefinition(
-                programRepository.getActiveProgramFromSlug(programSlug).join())
-            .localizedName()
-            .getDefault();
-    String programAdminName =
-        programRepository
-            .getShallowProgramDefinition(
-                programRepository.getActiveProgramFromSlug(programSlug).join())
-            .adminName();
+    ProgramDefinition programDefinition =
+        programService
+            .getActiveFullProgramDefinitionAsync(programSlug)
+            .toCompletableFuture()
+            .join();
+    String programLocalizedName = programDefinition.localizedName().getDefault();
+    String programAdminName = programDefinition.adminName();
     return ok(
         adminReportingShowView
             .get()
@@ -83,9 +80,10 @@ public final class AdminReportingController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result downloadProgramCsv(String programSlug) {
     String programName =
-        programRepository
-            .getShallowProgramDefinition(
-                programRepository.getActiveProgramFromSlug(programSlug).join())
+        programService
+            .getActiveFullProgramDefinitionAsync(programSlug)
+            .toCompletableFuture()
+            .join()
             .adminName();
 
     String csv = reportingService.applicationsToProgramByMonthCsv(programName);
