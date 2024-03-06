@@ -15,7 +15,10 @@ import support.CfTestHelpers.ResultWithFinalRequestUri;
 
 public class HomeControllerTest extends ResetPostgres {
   @Test
-  public void testUnauthenticatedSecurePage() {
+  public void testSecurePage() {
+    // This test accesses a resource that is protected by a @Secure annotation.
+    // The test ensures that the requester gets a pac4j profile so that it can access
+    // the resource.
     Http.RequestBuilder request =
         fakeRequest(routes.HomeController.securePlayIndex())
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
@@ -23,7 +26,8 @@ public class HomeControllerTest extends ResetPostgres {
         CfTestHelpers.doRequestWithInternalRedirects(app, request);
 
     assertThat(resultWithFinalRequestUri.getResult().status()).isEqualTo(HttpConstants.OK);
-    assertThat(resultWithFinalRequestUri.getFinalRequestUri()).isEqualTo("/programs");
+    assertThat(resultWithFinalRequestUri.getFinalRequestUri())
+        .isEqualTo(routes.HomeController.securePlayIndex().url());
   }
 
   @Test

@@ -95,7 +95,7 @@ public final class AdminLayout extends BaseHtmlLayout {
 
   @Override
   protected String getTitleSuffix() {
-    return "CiviForm Admin Console";
+    return "CiviForm admin console";
   }
 
   @Override

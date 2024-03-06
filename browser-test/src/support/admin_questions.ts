@@ -1,6 +1,6 @@
+import {expect} from '@playwright/test'
 import {ElementHandle, Page} from 'playwright'
 import {dismissModal, waitForAnyModal, waitForPageJsLoad} from './wait'
-import * as assert from 'assert'
 
 type QuestionOption = {
   adminName: string
@@ -14,6 +14,7 @@ type QuestionParams = {
   options?: Array<QuestionOption>
   description?: string
   questionText?: string
+  expectedQuestionText?: string | null
   markdownText?: string
   helpText?: string
   enumeratorName?: string
@@ -75,7 +76,7 @@ export class AdminQuestions {
   public static readonly multiOptionDeleteButtonSelector = (index: number) =>
     `:nth-match(#question-settings div.cf-multi-option-question-option, ${
       index + 1
-    }) button:has-text("Delete")`
+    }) .multi-option-question-field-remove-button`
 
   constructor(page: Page) {
     this.page = page
@@ -99,7 +100,7 @@ export class AdminQuestions {
   }
 
   async expectAdminQuestionsPage() {
-    expect(await this.page.innerText('h1')).toEqual('All Questions')
+    await expect(this.page.locator('h1')).toHaveText('All questions')
   }
 
   selectorForExportOption(exportOption: string) {
@@ -133,9 +134,9 @@ export class AdminQuestions {
     // The order of the options array corresponds to the order of the errors array.
     for (let i = 0; i < options.length; i++) {
       if (blankIndices.includes(i)) {
-        expect(await errors.nth(i).isHidden()).toEqual(false)
+        await expect(errors.nth(i)).toBeVisible()
       } else {
-        expect(await errors.nth(i).isHidden()).toEqual(true)
+        await expect(errors.nth(i)).toBeHidden()
       }
     }
   }
@@ -151,9 +152,9 @@ export class AdminQuestions {
     // The order of the options array corresponds to the order of the errors array.
     for (let i = 0; i < options.length; i++) {
       if (invalidIndices.includes(i)) {
-        expect(await errors.nth(i).isHidden()).toEqual(false)
+        await expect(errors.nth(i)).toBeVisible()
       } else {
-        expect(await errors.nth(i).isHidden()).toEqual(true)
+        await expect(errors.nth(i)).toBeHidden()
       }
     }
   }
@@ -168,7 +169,7 @@ export class AdminQuestions {
     universal = false,
   }: QuestionParams) {
     // This function should only be called on question create/edit page.
-    await this.page.fill('label:has-text("Question Text")', questionText ?? '')
+    await this.page.fill('label:has-text("Question text")', questionText ?? '')
     await this.page.fill('label:has-text("Question help text")', helpText ?? '')
     await this.page.fill(
       'label:has-text("Administrative identifier")',
@@ -201,7 +202,7 @@ export class AdminQuestions {
     const questionText = await this.page.textContent('#question-text-textarea')
     const updatedText = questionText! + updateText
 
-    await this.page.fill('text=Question Text', updatedText)
+    await this.page.fill('text=Question text', updatedText)
     return updatedText
   }
 
@@ -380,7 +381,7 @@ export class AdminQuestions {
     await this.page.click(
       this.selectWithinQuestionTableRow(
         questionName,
-        ':text("Restore Archived")',
+        ':text("Restore archived")',
       ),
     )
     await waitForPageJsLoad(this.page)
@@ -391,7 +392,7 @@ export class AdminQuestions {
     await this.gotoAdminQuestionsPage()
     await this.openDropdownMenu(questionName)
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("Discard Draft")'),
+      this.selectWithinQuestionTableRow(questionName, ':text("Discard draft")'),
     )
     await this.page.click('#discard-button')
     await waitForPageJsLoad(this.page)
@@ -422,13 +423,13 @@ export class AdminQuestions {
       await this.openDropdownMenu(questionName)
       // Ensure that the page has been reloaded and the "Restore archive" link
       // appears.
-      const restoreArchiveIsVisible = await this.page.isVisible(
+      const restoreArchiveIsVisible = this.page.locator(
         this.selectWithinQuestionTableRow(
           questionName,
-          ':text("Restore Archived")',
+          ':text("Restore archived")',
         ),
       )
-      expect(restoreArchiveIsVisible).toBe(true)
+      await expect(restoreArchiveIsVisible).toBeVisible()
     }
   }
 
@@ -438,7 +439,7 @@ export class AdminQuestions {
     await this.page.click(
       this.selectWithinQuestionTableRow(
         questionName,
-        ':text("Manage Translations")',
+        ':text("Manage translations")',
       ),
     )
     await waitForPageJsLoad(this.page)
@@ -453,14 +454,14 @@ export class AdminQuestions {
 
   async expectQuestionEditPage(questionName: string) {
     expect(await this.page.innerText('h1')).toContain('Edit')
-    expect(await this.page.innerText('#question-name-input')).toEqual(
+    await expect(this.page.locator('#question-name-input')).toHaveText(
       questionName,
     )
   }
 
   async expectQuestionTranslationPage(questionName: string) {
     expect(await this.page.innerText('h1')).toContain(
-      `Manage Question Translations: ${questionName}`,
+      `Manage question translations: ${questionName}`,
     )
   }
 
@@ -475,7 +476,7 @@ export class AdminQuestions {
 
   async changeQuestionHelpText(questionName: string, questionHelpText: string) {
     await this.gotoQuestionEditPage(questionName)
-    await this.page.fill('text=Question Help Text', questionHelpText)
+    await this.page.fill('text=Question help text', questionHelpText)
     await this.clickSubmitButtonAndNavigate('Update')
     await this.expectAdminQuestionsPageWithUpdateSuccessToast()
     await this.expectDraftQuestionExist(questionName)
@@ -788,10 +789,11 @@ export class AdminQuestions {
       )
     }
 
-    assert(options)
-    for (let index = 0; index < options.length; index++) {
+    expect(options).toBeTruthy()
+
+    for (let index = 0; index < options!.length; index++) {
       await this.page.click('#add-new-option')
-      await this.fillMultiOptionAnswer(index, options[index])
+      await this.fillMultiOptionAnswer(index, options![index])
     }
 
     if (clickSubmit) {
@@ -829,10 +831,11 @@ export class AdminQuestions {
       universal,
     })
 
-    assert(options)
-    for (let index = 0; index < options.length; index++) {
+    expect(options).toBeTruthy()
+
+    for (let index = 0; index < options!.length; index++) {
       await this.page.click('#add-new-option')
-      await this.fillMultiOptionAnswer(index, options[index])
+      await this.fillMultiOptionAnswer(index, options![index])
     }
 
     if (clickSubmit) {
@@ -889,21 +892,15 @@ export class AdminQuestions {
     option: QuestionOption,
     adminNameIsEditable: boolean,
   ) {
-    expect(
-      await this.page
-        .locator(AdminQuestions.multiOptionInputSelector(index))
-        .inputValue(),
-    ).toEqual(option.text)
-    expect(
-      await this.page
-        .locator(AdminQuestions.multiOptionAdminInputSelector(index))
-        .inputValue(),
-    ).toEqual(option.adminName)
-    expect(
-      await this.page
-        .locator(AdminQuestions.multiOptionAdminInputSelector(index))
-        .isEditable(),
-    ).toEqual(adminNameIsEditable)
+    await expect(
+      this.page.locator(AdminQuestions.multiOptionInputSelector(index)),
+    ).toHaveValue(option.text)
+    await expect(
+      this.page.locator(AdminQuestions.multiOptionAdminInputSelector(index)),
+    ).toHaveValue(option.adminName)
+    await expect(
+      this.page.locator(AdminQuestions.multiOptionAdminInputSelector(index)),
+    ).toBeEditable({editable: adminNameIsEditable})
   }
 
   async addCurrencyQuestion({
@@ -1028,7 +1025,7 @@ export class AdminQuestions {
     await waitForPageJsLoad(this.page)
 
     await this.page.fill(
-      'label:has-text("Question Text")',
+      'label:has-text("Question text")',
       questionText + markdownText,
     )
     await this.page.fill(
@@ -1168,10 +1165,11 @@ export class AdminQuestions {
       universal,
     })
 
-    assert(options)
-    for (let index = 0; index < options.length; index++) {
+    expect(options).toBeTruthy()
+
+    for (let index = 0; index < options!.length; index++) {
       await this.page.click('#add-new-option')
-      await this.fillMultiOptionAnswer(index, options[index])
+      await this.fillMultiOptionAnswer(index, options![index])
     }
 
     if (clickSubmit) {
@@ -1183,6 +1181,7 @@ export class AdminQuestions {
     questionName,
     description = 'text description',
     questionText = 'text question text',
+    expectedQuestionText = null,
     helpText = 'text question help text',
     minNum = null,
     maxNum = null,
@@ -1217,7 +1216,9 @@ export class AdminQuestions {
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
 
-    await this.expectDraftQuestionExist(questionName, questionText)
+    expectedQuestionText = expectedQuestionText ?? questionText
+
+    await this.expectDraftQuestionExist(questionName, expectedQuestionText)
   }
 
   async clickUniversalToggle() {
@@ -1241,22 +1242,22 @@ export class AdminQuestions {
     visible: boolean,
   ) {
     const alert = this.page.locator(type.valueOf())
-    expect(await alert.isVisible()).toEqual(visible)
+    await expect(alert).toBeVisible({visible: visible})
   }
 
   async expectPrimaryApplicantInfoSectionVisible(visible: boolean) {
-    expect(
-      await this.page.locator('#primary-applicant-info').isVisible(),
-    ).toEqual(visible)
+    await expect(this.page.locator('#primary-applicant-info')).toBeVisible({
+      visible: visible,
+    })
   }
 
   async expectPrimaryApplicantInfoToggleVisible(
     fieldName: string,
     visible: boolean,
   ) {
-    expect(await this.page.locator(`#${fieldName}-toggle`).isVisible()).toEqual(
-      visible,
-    )
+    await expect(this.page.locator(`#${fieldName}-toggle`)).toBeVisible({
+      visible: visible,
+    })
   }
 
   async expectPrimaryApplicantInfoToggleValue(
@@ -1357,6 +1358,21 @@ export class AdminQuestions {
     deleteEntityButtonText: string
     addEntityButtonText: string
   }) {
+    // Fix me! ESLint: playwright/prefer-web-first-assertions
+    // Directly switching to the best practice method fails
+    // because of a locator stict mode violation. That is it
+    // returns multiple elements.
+    //
+    // Recommended prefer-web-first-assertions fix:
+    // await expect(this.page.locator('.cf-entity-name-input label')).toHaveText(
+    //   entityNameInputLabelText,
+    // )
+    // await expect(this.page.locator('.cf-enumerator-delete-button')).toHaveText(
+    //   deleteEntityButtonText,
+    // )
+    // await expect(this.page.locator('#enumerator-field-add-button')).toHaveText(
+    //   addEntityButtonText,
+    // )
     expect(await this.page.innerText('.cf-entity-name-input label')).toBe(
       entityNameInputLabelText,
     )
@@ -1375,12 +1391,12 @@ export class AdminQuestions {
     questionText: string
     questionHelpText: string
   }) {
-    expect(await this.page.innerText('.cf-applicant-question-text')).toBe(
+    await expect(this.page.locator('.cf-applicant-question-text')).toHaveText(
       questionText,
     )
-    expect(await this.page.innerText('.cf-applicant-question-help-text')).toBe(
-      questionHelpText,
-    )
+    await expect(
+      this.page.locator('.cf-applicant-question-help-text'),
+    ).toHaveText(questionHelpText)
   }
 
   async expectPreviewOptions(options: string[]) {
@@ -1423,7 +1439,7 @@ export class AdminQuestions {
       universal,
     })
 
-    await this.page.fill('text=Repeated Entity Type', 'Entity')
+    await this.page.fill('text=Repeated entity type', 'Entity')
 
     await this.clickSubmitButtonAndNavigate('Create')
 

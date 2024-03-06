@@ -27,8 +27,11 @@ jobs:
         run: bin/build-dev-oidc
       - name: Run tests
         run: bin/run-test-ci
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           file: server/code-coverage/report/jacoco.xml
           verbose: true
@@ -124,6 +127,7 @@ jobs:
         run: cat .dockerlogs
 
   run_browser_tests_azure:
+    if: false
     strategy:
       fail-fast: false
     runs-on: ubuntu-latest

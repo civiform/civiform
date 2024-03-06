@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   enableFeatureFlag,
@@ -7,10 +8,10 @@ import {
 } from './support'
 import {ProgramVisibility} from './support/admin_programs'
 
-describe('program settings', () => {
+test.describe('program settings', () => {
   const ctx = createTestContext()
 
-  it('program settings page', async () => {
+  test('program settings page', async () => {
     const {page, adminPrograms} = ctx
 
     await enableFeatureFlag(page, 'intake_form_enabled')
@@ -35,7 +36,7 @@ describe('program settings', () => {
     await validateScreenshot(page, 'nongating-eligibility')
   })
 
-  it('program index shows settings in dropdown', async () => {
+  test('program index shows settings in dropdown', async () => {
     const {page, adminPrograms} = ctx
 
     await enableFeatureFlag(page, 'intake_form_enabled')
@@ -58,20 +59,18 @@ describe('program settings', () => {
 
     await validateScreenshot(page, 'dropdown-with-settings')
 
-    expect(
-      await page
-        .locator(
-          adminPrograms.withinProgramCardSelector(
-            programName,
-            'Draft',
-            ':text("Settings")',
-          ),
-        )
-        .isVisible(),
-    ).toBe(true)
+    await expect(
+      page.locator(
+        adminPrograms.withinProgramCardSelector(
+          programName,
+          'Draft',
+          ':text("Settings")',
+        ),
+      ),
+    ).toBeVisible()
   })
 
-  it('back button on program settings page navigates correctly', async () => {
+  test('back button on program settings page navigates correctly', async () => {
     const {page, adminPrograms} = ctx
 
     await enableFeatureFlag(page, 'intake_form_enabled')
@@ -99,7 +98,7 @@ describe('program settings', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  it('program index hides settings in dropdown for common intake form', async () => {
+  test('program index hides settings in dropdown for common intake form', async () => {
     const {page, adminPrograms} = ctx
 
     await enableFeatureFlag(page, 'intake_form_enabled')
@@ -127,16 +126,14 @@ describe('program settings', () => {
       ),
     )
 
-    expect(
-      await page
-        .locator(
-          adminPrograms.withinProgramCardSelector(
-            programName,
-            'Draft',
-            ':text("Settings")',
-          ),
-        )
-        .isVisible(),
-    ).toBe(false)
+    await expect(
+      page.locator(
+        adminPrograms.withinProgramCardSelector(
+          programName,
+          'Draft',
+          ':text("Settings")',
+        ),
+      ),
+    ).toBeHidden()
   })
 })

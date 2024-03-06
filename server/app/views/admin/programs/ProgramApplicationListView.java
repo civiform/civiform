@@ -99,7 +99,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         div()
             .with(
                 h1(program.adminName()).withClasses("my-4"),
-                renderPaginationDiv(
+                renderPaginationDivOldWay(
                         paginationSpec.getCurrentPage(),
                         paginatedApplications.getNumPages(),
                         pageNumber ->

@@ -41,7 +41,7 @@ public final class ApiKeyCredentialsView extends BaseHtmlView {
           new LinkElement()
               .setHref("https://docs.civiform.us/it-manual/api/authentication")
               .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
-              .setText("API Documentation")
+              .setText("API documentation")
               .opensInNewTab()
               .asAnchorText(),
           text("for details."));
@@ -68,13 +68,13 @@ public final class ApiKeyCredentialsView extends BaseHtmlView {
                 p(CREDENTIALS_DESCRIPTION).withClasses("my-4"),
                 CREDENTIALS_USERNAME_PASSWORD_EXPLANATION.withClasses("my-4"),
                 p(
-                        text("API Secret Token: "),
+                        text("API secret token: "),
                         span(encodedCredentials)
                             .withId("api-key-credentials")
                             .withClasses("font-mono"))
                     .withClasses("my-4"),
-                p(text("API Username: "), span(keyId).withClasses("font-mono")),
-                p(text("API Password: "), span(keySecret).withClasses("font-mono")));
+                p(text("API username: "), span(keyId).withClasses("font-mono")),
+                p(text("API password: "), span(keySecret).withClasses("font-mono")));
 
     HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
 

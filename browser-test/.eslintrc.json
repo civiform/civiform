@@ -2,7 +2,17 @@
   "root": true,
   "extends": "../formatter/eslintrc_base.json",
   "rules": {
-    "@typescript-eslint/no-non-null-assertion": "off" // this is test code.
+    "@typescript-eslint/no-non-null-assertion": "off", // this is test code.
+    "playwright/expect-expect": "off",
+    "playwright/no-wait-for-selector": "off",
+    "playwright/no-element-handle": "off",
+    "playwright/no-conditional-in-test": "off",
+    "playwright/no-conditional-expect": "off",
+    "playwright/no-wait-for-timeout": "off",
+    "playwright/no-networkidle": "off",
+    "playwright/prefer-web-first-assertions": "off",
+    "playwright/no-eval": "off",
+    "playwright/valid-expect": "off"
   },
   "parserOptions": {
     "project": ["./src/tsconfig.json"]

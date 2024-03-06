@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -6,13 +7,13 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('Email question for applicant flow', () => {
+test.describe('Email question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('single email question', () => {
+  test.describe('single email question', () => {
     const programName = 'Test program for single email'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       // As admin, create program with single email question.
       await loginAsAdmin(page)
@@ -26,14 +27,14 @@ describe('Email question for applicant flow', () => {
       await logout(page)
     })
 
-    it('validate screenshot', async () => {
+    test('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'email')
     })
 
-    it('validate screenshot with errors', async () => {
+    test('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
@@ -41,7 +42,7 @@ describe('Email question for applicant flow', () => {
       await validateScreenshot(page, 'email-errors')
     })
 
-    it('with email input submits successfully', async () => {
+    test('with email input submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov')
@@ -50,7 +51,7 @@ describe('Email question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with no email input does not submit', async () => {
+    test('with no email input does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       // Click next without inputting anything.
@@ -64,10 +65,10 @@ describe('Email question for applicant flow', () => {
     })
   })
 
-  describe('multiple email questions', () => {
+  test.describe('multiple email questions', () => {
     const programName = 'Test program for multiple emails'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -86,7 +87,7 @@ describe('Email question for applicant flow', () => {
       await logout(page)
     })
 
-    it('with email inputs submits successfully', async () => {
+    test('with email inputs submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerEmailQuestion('your_email@civiform.gov', 0)
@@ -96,7 +97,7 @@ describe('Email question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with unanswered optional question submits successfully', async () => {
+    test('with unanswered optional question submits successfully', async () => {
       const {applicantQuestions} = ctx
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
@@ -106,7 +107,7 @@ describe('Email question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('has no accessiblity violations', async () => {
+    test('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 

@@ -1,3 +1,4 @@
+import {test} from '@playwright/test'
 import {
   createTestContext,
   enableFeatureFlag,
@@ -6,10 +7,10 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('admin program view page', () => {
+test.describe('admin program view page', () => {
   const ctx = createTestContext()
 
-  it('view active program shows read only view', async () => {
+  test('view active program shows read only view', async () => {
     const {page, adminPrograms} = ctx
     await loginAsAdmin(page)
 
@@ -20,7 +21,7 @@ describe('admin program view page', () => {
     await validateScreenshot(page, 'program-read-only-view')
   })
 
-  it('view draft program has edit image button if images flag on', async () => {
+  test('view draft program has edit image button if images flag on', async () => {
     const {page, adminPrograms} = ctx
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_card_images')
@@ -32,7 +33,7 @@ describe('admin program view page', () => {
     await validateScreenshot(page, 'program-draft-view-images-flag-on')
   })
 
-  it('view draft program has no edit image button if images flag off', async () => {
+  test('view draft program has no edit image button if images flag off', async () => {
     const {page, adminPrograms} = ctx
     await loginAsAdmin(page)
     await disableFeatureFlag(page, 'program_card_images')
@@ -44,7 +45,7 @@ describe('admin program view page', () => {
     await validateScreenshot(page, 'program-draft-view-images-flag-off')
   })
 
-  it('view program with universal questions', async () => {
+  test('view program with universal questions', async () => {
     const {page, adminPrograms, adminQuestions} = ctx
     await loginAsAdmin(page)
 
@@ -88,7 +89,7 @@ describe('admin program view page', () => {
     await validateScreenshot(page, 'program-view-universal-questions')
   })
 
-  it('view program, view multiple blocks, then start editing with extra long screen name and description', async () => {
+  test('view program, view multiple blocks, then start editing with extra long screen name and description', async () => {
     const {page, adminPrograms, adminQuestions} = ctx
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'esri_address_correction_enabled')
@@ -138,7 +139,7 @@ describe('admin program view page', () => {
     )
   })
 
-  it('view program, view multiple blocks, then start editing', async () => {
+  test('view program, view multiple blocks, then start editing', async () => {
     const {page, adminPrograms, adminQuestions} = ctx
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'esri_address_correction_enabled')

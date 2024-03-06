@@ -1,3 +1,4 @@
+import {expect} from '@playwright/test'
 import {ElementHandle, Frame, Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {
@@ -36,8 +37,8 @@ export interface DownloadedApplication {
 export enum ProgramVisibility {
   HIDDEN = 'Hide from applicants.',
   PUBLIC = 'Publicly visible',
-  TI_ONLY = 'Trusted Intermediaries ONLY',
-  SELECT_TI = 'Visible to Selected Trusted Intermediaries ONLY',
+  TI_ONLY = 'Trusted intermediaries only',
+  SELECT_TI = 'Visible to selected trusted intermediaries only',
 }
 
 function slugify(value: string): string {
@@ -323,7 +324,7 @@ export class AdminPrograms {
       this.withinProgramCardSelector(
         programName,
         'Draft',
-        ':text("Manage Program Admins")',
+        ':text("Manage program admins")',
       ),
     )
     await waitForPageJsLoad(this.page)
@@ -466,7 +467,7 @@ export class AdminPrograms {
 
   async expectManageProgramAdminsPage() {
     expect(await this.page.innerText('h1')).toContain(
-      'Manage Admins for Program',
+      'Manage admins for program',
     )
   }
 
@@ -519,7 +520,7 @@ export class AdminPrograms {
   async expectProgramBlockReadOnlyPage(programName = '') {
     expect(await this.page.innerText('id=program-title')).toContain(programName)
     // The only element for editing should be one top level button
-    expect(await this.page.innerText('#header_edit_button'))
+    await expect(this.page.locator('#header_edit_button')).toBeVisible()
     expect(await this.page.locator('id=block-edit-form').count()).toEqual(0)
   }
 
@@ -1103,7 +1104,7 @@ export class AdminPrograms {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.page.click(
-        '#download-demographics-csv-modal button:has-text("Download Demographic Data (CSV)")',
+        '#download-demographics-csv-modal button:has-text("Download demographic data (CSV)")',
       ),
     ])
     await dismissModal(this.page)

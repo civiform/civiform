@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   AdminPrograms,
   AdminQuestions,
@@ -12,7 +13,7 @@ import {
 import {Page} from 'playwright'
 import {ProgramVisibility} from './support/admin_programs'
 
-describe('publishing all draft questions and programs', () => {
+test.describe('publishing all draft questions and programs', () => {
   const ctx = createTestContext()
   let pageObject: Page
   let adminPrograms: AdminPrograms
@@ -25,7 +26,7 @@ describe('publishing all draft questions and programs', () => {
   // CreateNewVersion implicitly updates the question text to be suffixed with " new version".
   const draftQuestionText = `${questionText} new version`
 
-  beforeAll(async () => {
+  test.beforeAll(async () => {
     const session = await startSession()
     pageObject = session.page
 
@@ -66,7 +67,7 @@ describe('publishing all draft questions and programs', () => {
     await adminPrograms.gotoAdminProgramsPage()
   })
 
-  it('shows programs and questions that will be published in the modal', async () => {
+  test('shows programs and questions that will be published in the modal', async () => {
     await adminPrograms.expectProgramReferencesModalContains({
       expectedQuestionsContents: [`${draftQuestionText} - Edit`],
       expectedProgramsContents: [
@@ -76,7 +77,7 @@ describe('publishing all draft questions and programs', () => {
     })
   })
 
-  it('validate screenshot', async () => {
+  test('validate screenshot', async () => {
     await adminPrograms.openPublishAllDraftsModal()
     await validateScreenshot(
       adminPrograms.publishAllProgramsModalLocator(),
@@ -85,7 +86,7 @@ describe('publishing all draft questions and programs', () => {
     await dismissModal(pageObject)
   })
 
-  it('publishing all programs with universal questions feature flag on shows a modal with information about universal questions', async () => {
+  test('publishing all programs with universal questions feature flag on shows a modal with information about universal questions', async () => {
     const {page, adminPrograms, adminQuestions} = ctx
     await loginAsAdmin(page)
     // Create programs and questions (including universal questions)

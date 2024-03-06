@@ -19,11 +19,13 @@ function formatPhone(element: HTMLElement) {
 }
 
 export function init() {
-  const element = document.getElementById('cf-phone-number')
-  const countryElement = document.getElementById('cf-phone-country-code')
-  if (element && countryElement) {
-    formatPhone(element)
-  }
+  document.querySelectorAll('[id^=cf-phone-number]').forEach((el) => {
+    // Our questions automatically include an element matching id appended with "-errors"; filter them out.
+    if (!el.id.endsWith('-errors')) {
+      formatPhone(el as HTMLElement)
+    }
+  })
+
   const phoneElement = document.getElementById('edit-phone-number-input')
   if (phoneElement) {
     formatPhone(phoneElement)

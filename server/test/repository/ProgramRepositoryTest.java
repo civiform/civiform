@@ -69,7 +69,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
     BindingKey<SyncCacheApi> programDefKey =
         new BindingKey<>(SyncCacheApi.class)
-            .qualifiedWith(new NamedCacheImpl("program-definition"));
+            .qualifiedWith(new NamedCacheImpl("full-program-definition"));
     programDefCache = instanceOf(programDefKey.asScala());
 
     repo =

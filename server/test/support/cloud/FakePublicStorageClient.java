@@ -8,6 +8,7 @@ import services.cloud.StorageUploadRequest;
 public final class FakePublicStorageClient extends PublicStorageClient {
 
   public static final String FAKE_BUCKET_NAME = "fakeBucket";
+  private static final int FILE_LIMIT_MB = 6;
 
   private ImmutableSet<String> lastInUseFileKeys;
 
@@ -16,6 +17,11 @@ public final class FakePublicStorageClient extends PublicStorageClient {
   @Override
   public String getBucketName() {
     return FAKE_BUCKET_NAME;
+  }
+
+  @Override
+  public int getFileLimitMb() {
+    return FILE_LIMIT_MB;
   }
 
   @Override

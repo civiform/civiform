@@ -1,3 +1,4 @@
+import {expect} from '@playwright/test'
 import {Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {waitForAnyModal, waitForPageJsLoad} from './wait'
@@ -85,9 +86,9 @@ export class ApplicantQuestions {
     await this.page.fill(`input[currency] >> nth=${index}`, currency)
   }
 
-  async answerFileUploadQuestion(text: string) {
+  async answerFileUploadQuestion(text: string, fileName = 'file.txt') {
     await this.page.setInputFiles('input[type=file]', {
-      name: 'file.txt',
+      name: fileName,
       mimeType: 'text/plain',
       buffer: Buffer.from(text),
     })
@@ -110,15 +111,8 @@ export class ApplicantQuestions {
     )
   }
 
-  async answerPhoneQuestion(country: string, phone: string, index = 0) {
-    // United States
-    await this.page.selectOption(
-      `.cf-phone-country-code select >> nth=${index}`,
-      {
-        label: country,
-      },
-    )
-    await this.page.fill(`.cf-phone-number input >> nth=${index}`, phone)
+  async answerPhoneQuestion(phone: string, index = 0) {
+    await this.page.fill(`.cf-question-phone input >> nth=${index}`, phone)
   }
 
   async answerNumberQuestion(number: string, index = 0) {
@@ -168,6 +162,20 @@ export class ApplicantQuestions {
     await this.validateInputValue(
       entityName,
       `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`,
+    )
+  }
+
+  /** On the review page, click "Answer" on a previously unanswered question. */
+  async answerQuestionFromReviewPage(questionText: string) {
+    await this.page.click(
+      `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Answer")`,
+    )
+  }
+
+  /** On the review page, click "Edit" to change an answer to a previously answered question. */
+  async editQuestionFromReviewPage(questionText: string) {
+    await this.page.click(
+      `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`,
     )
   }
 
@@ -335,8 +343,18 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickConfirmAddress() {
+    await this.page.getByRole('button', {name: 'Confirm address'}).click()
+    await waitForPageJsLoad(this.page)
+  }
+
   async clickEdit() {
     await this.page.click('text="Edit"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickGoBackAndEdit() {
+    await this.page.getByRole('button', {name: 'Go back and edit'}).click()
     await waitForPageJsLoad(this.page)
   }
 
@@ -353,7 +371,7 @@ export class ApplicantQuestions {
     this.page.once('dialog', (dialog) => {
       void dialog.accept()
     })
-    await this.page.click(`:nth-match(:text("Remove Entity"), ${entityIndex})`)
+    await this.page.click(`:nth-match(:text("Remove entity"), ${entityIndex})`)
   }
 
   async downloadSingleQuestionFromReviewPage() {
@@ -528,32 +546,34 @@ export class ApplicantQuestions {
   }
 
   async validateHeader(lang: string) {
-    expect(await this.page.getAttribute('html', 'lang')).toEqual(lang)
+    await expect(this.page.locator('html')).toHaveAttribute('lang', lang)
     expect(await this.page.innerHTML('head')).toContain(
       '<meta name="viewport" content="width=device-width, initial-scale=1">',
     )
+  }
+
+  async validateQuestionIsOnPage(questionText: string) {
+    await expect(
+      this.page.locator('.cf-applicant-question-text'),
+    ).toContainText(questionText)
   }
 
   async validatePreviouslyAnsweredText(questionText: string) {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(
-      await questionLocator
-        .locator('.cf-applicant-question-previously-answered')
-        .isVisible(),
-    ).toEqual(true)
+    await expect(
+      questionLocator.locator('.cf-applicant-question-previously-answered'),
+    ).toBeVisible()
   }
 
   async validateNoPreviouslyAnsweredText(questionText: string) {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(
-      await questionLocator
-        .locator('.cf-applicant-question-previously-answered')
-        .isVisible(),
-    ).toEqual(false)
+    await expect(
+      questionLocator.locator('.cf-applicant-question-previously-answered'),
+    ).toBeHidden()
   }
 
   async seeStaticQuestion(questionText: string) {
@@ -593,7 +613,7 @@ export class ApplicantQuestions {
     )
   }
 
-  async clickGoBackAndEdit() {
+  async clickStayAndFixAnswers() {
     await this.page.click('button:has-text("Stay and fix your answers")')
   }
 }

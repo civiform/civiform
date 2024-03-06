@@ -1,3 +1,4 @@
+import {expect} from '@playwright/test'
 import {Page} from 'playwright'
 import {BASE_URL} from './config'
 
@@ -22,21 +23,15 @@ export class AdminSettings {
   }
 
   async expectEnabled(settingName: string) {
-    expect(
-      await this.page
-        .getByTestId(`enable-${settingName}`)
-        .getByRole('radio')
-        .isChecked(),
-    ).toBe(true)
+    await expect(
+      this.page.getByTestId(`enable-${settingName}`).getByRole('radio'),
+    ).toBeChecked()
   }
 
   async expectDisabled(settingName: string) {
-    expect(
-      await this.page
-        .getByTestId(`disable-${settingName}`)
-        .getByRole('radio')
-        .isChecked(),
-    ).toBe(true)
+    await expect(
+      this.page.getByTestId(`disable-${settingName}`).getByRole('radio'),
+    ).toBeChecked()
   }
 
   async saveChanges(expectUpdated = true) {

@@ -16,9 +16,15 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
+import play.i18n.Messages;
 import play.mvc.Http;
+import services.MessageKey;
+import services.applicant.ValidationErrorMessage;
 import services.cloud.StorageUploadRequest;
+import views.ViewUtils;
 import views.applicant.ApplicantFileUploadRenderer;
+import views.style.BaseStyles;
+import views.style.ReferenceClasses;
 
 /**
  * Class to render a <form> that supports file upload. Must be subclassed by each cloud storage
@@ -29,6 +35,7 @@ import views.applicant.ApplicantFileUploadRenderer;
  */
 public abstract class FileUploadViewStrategy {
   @VisibleForTesting static final String FILE_INPUT_HINT_ID_PREFIX = "file-input-hint-";
+  private static final String FILE_LIMIT_ATTR = "data-file-limit-mb";
 
   /** Returns a top-level <form> element to use for file upload. */
   public FormTag renderFileUploadFormElement(StorageUploadRequest request) {
@@ -58,9 +65,16 @@ public abstract class FileUploadViewStrategy {
    * @param id the ID to apply to the outermost div.
    * @param hints a list of hints that should be displayed above the file input UI.
    * @param disabled true if the file input should be shown as disabled.
+   * @param fileLimitMb the maximum file size in megabytes allowed for this file input element. Used
+   *     to show an error client-side if the user uploads a file that's too large.
    */
   public static DivTag createUswdsFileInputFormElement(
-      String id, String acceptedMimeTypes, ImmutableList<String> hints, boolean disabled) {
+      String id,
+      String acceptedMimeTypes,
+      ImmutableList<String> hints,
+      boolean disabled,
+      int fileLimitMb,
+      Messages messages) {
     StringBuilder ariaDescribedByIds = new StringBuilder();
     for (int i = 0; i < hints.size(); i++) {
       ariaDescribedByIds.append(FILE_INPUT_HINT_ID_PREFIX);
@@ -78,13 +92,39 @@ public abstract class FileUploadViewStrategy {
                         .withId(FILE_INPUT_HINT_ID_PREFIX + index)
                         .withClasses("usa-hint", "mb-2")))
         .with(
+            // TODO(#6804): Use HTMX to add these errors to the DOM only when they're needed.
+            createFileTooLargeError(fileLimitMb, messages))
+        .with(
             input()
                 .withType("file")
                 .withName("file")
                 .withClasses("usa-file-input")
                 .attr("aria-describedby", ariaDescribedByIds.toString())
+                .attr(FILE_LIMIT_ATTR, fileLimitMb)
                 .withAccept(acceptedMimeTypes)
                 .withCondDisabled(disabled));
+  }
+
+  /**
+   * Creates an error div saying that the file the user uploaded was larger than {@code
+   * fileLimitMb}.
+   */
+  public static DivTag createFileTooLargeError(int fileLimitMb, Messages messages) {
+    return ViewUtils.makeAlertSlim(
+            fileTooLargeMessage(fileLimitMb).getMessage(messages),
+            // TypeScript will un-hide this error when needed.
+            /* hidden= */ true,
+            /* classes...= */ BaseStyles.ALERT_ERROR,
+            "mb-4")
+        .withId(ReferenceClasses.FILEUPLOAD_TOO_LARGE_ERROR_ID);
+  }
+
+  /**
+   * Creates a message saying that the file the user uploaded was larger than {@code fileLimitMb}.
+   */
+  private static ValidationErrorMessage fileTooLargeMessage(int fileLimitMb) {
+    return ValidationErrorMessage.create(
+        MessageKey.FILEUPLOAD_VALIDATION_FILE_TOO_LARGE, fileLimitMb);
   }
 
   /**

@@ -25,7 +25,9 @@ import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 @Singleton
 public final class AwsPublicStorage extends PublicStorageClient {
   @VisibleForTesting static final String AWS_PUBLIC_S3_BUCKET_CONF_PATH = "aws.s3.public_bucket";
-  private static final String AWS_PUBLIC_S3_FILE_LIMIT_CONF_PATH = "aws.s3.public_file_limit_mb";
+
+  @VisibleForTesting
+  static final String AWS_PUBLIC_S3_FILE_LIMIT_CONF_PATH = "aws.s3.public_file_limit_mb";
 
   private static final Logger logger = LoggerFactory.getLogger(AwsPublicStorage.class);
 
@@ -66,6 +68,11 @@ public final class AwsPublicStorage extends PublicStorageClient {
   }
 
   @Override
+  public int getFileLimitMb() {
+    return fileLimitMb;
+  }
+
+  @Override
   public SignedS3UploadRequest getSignedUploadRequest(
       String fileKey, String successRedirectActionLink) {
     return awsStorageUtils.getSignedUploadRequest(
@@ -75,7 +82,8 @@ public final class AwsPublicStorage extends PublicStorageClient {
         bucket,
         /* actionLink= */ client.actionLink(),
         fileKey,
-        successRedirectActionLink);
+        successRedirectActionLink,
+        /* useSuccessActionRedirectAsPrefix= */ false);
   }
 
   /** Returns a direct cloud storage URL to the file with the given key. */

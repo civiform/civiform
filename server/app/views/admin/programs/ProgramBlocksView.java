@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.stream.IntStream;
+import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
@@ -228,6 +229,27 @@ public final class ProgramBlocksView extends ProgramBaseView {
     message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.render(htmlBundle);
+  }
+
+  /**
+   * Returns the header buttons used for editing various parts of the program (details, image,
+   * etc.).
+   *
+   * @param isEditingAllowed true if the view allows editing and false otherwise. (Typically, a view
+   *     only allows editing if a program is in draft mode.)
+   */
+  private ImmutableList<ProgramHeaderButton> getEditHeaderButtons(
+      Http.Request request, SettingsManifest settingsManifest, boolean isEditingAllowed) {
+    if (isEditingAllowed) {
+      if (settingsManifest.getProgramCardImages(request)) {
+        return ImmutableList.of(
+            ProgramHeaderButton.EDIT_PROGRAM_DETAILS, ProgramHeaderButton.EDIT_PROGRAM_IMAGE);
+      } else {
+        return ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM_DETAILS);
+      }
+    } else {
+      return ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM);
+    }
   }
 
   private DivTag addFormEndpoints(InputTag csrfTag, long programId, long blockId) {

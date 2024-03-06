@@ -1,3 +1,4 @@
+import {test} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -5,10 +6,10 @@ import {
   waitForPageJsLoad,
 } from './support'
 
-describe('admin program preview', () => {
+test.describe('admin program preview', () => {
   const ctx = createTestContext()
 
-  it('preview draft program and submit', async () => {
+  test('preview draft program and submit', async () => {
     const {page, adminPrograms, adminQuestions, applicantQuestions} = ctx
     await loginAsAdmin(page)
 
@@ -33,7 +34,7 @@ describe('admin program preview', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  it('preview active program and submit', async () => {
+  test('preview active program and submit', async () => {
     const {page, adminPrograms, adminQuestions, applicantQuestions} = ctx
     await loginAsAdmin(page)
 
@@ -57,7 +58,7 @@ describe('admin program preview', () => {
     await adminPrograms.expectProgramBlockReadOnlyPage()
   })
 
-  it('preview program and use back button', async () => {
+  test('preview program and use back button', async () => {
     const {page, adminPrograms, adminQuestions, applicantQuestions} = ctx
     await loginAsAdmin(page)
 

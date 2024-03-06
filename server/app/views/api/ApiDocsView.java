@@ -1,10 +1,8 @@
 package views.api;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.blockquote;
-import static j2html.TagCreator.br;
 import static j2html.TagCreator.code;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
@@ -12,6 +10,7 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.option;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.pre;
 import static j2html.TagCreator.select;
 import static j2html.TagCreator.span;
@@ -49,6 +48,8 @@ import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.AccordionFactory;
+import views.components.LinkElement;
+import views.style.StyleUtils;
 
 // TODO: If we're being strict about code organization, access to the ProgramJsonSampler and
 // ExportServiceRepository should be brokered by an ApiDocsService, instead of accessed directly
@@ -56,6 +57,8 @@ import views.components.AccordionFactory;
 
 public class ApiDocsView extends BaseHtmlView {
   private static final Logger logger = LoggerFactory.getLogger(ApiDocsView.class);
+  private static final String CODE_STYLES =
+      StyleUtils.joinStyles("bg-slate-200", "p-0.5", "rounded-md");
 
   private final ProfileUtils profileUtils;
   private final BaseHtmlLayout unauthenticatedlayout;
@@ -89,7 +92,7 @@ public class ApiDocsView extends BaseHtmlView {
     HtmlBundle bundle =
         layout
             .getBundle(request)
-            .setTitle("API Docs")
+            .setTitle("API docs")
             .addMainContent(
                 contentDiv(selectedProgramSlug, programDefinition, allProgramSlugs, request))
             .addMainStyles("overflow-hidden");
@@ -135,7 +138,20 @@ public class ApiDocsView extends BaseHtmlView {
             .with(
                 div()
                     .withClasses("items-center", "mx-6", "my-8")
-                    .with(h1("API Documentation"))
+                    .with(h1("API documentation"))
+                    .with(
+                        p().withClasses("my-2")
+                            .with(
+                                text(
+                                    "This page includes program-specific API documentation for"
+                                        + " Active and Draft programs. Detailed documentation about"
+                                        + " authentication, pagination, and every field's possible"
+                                        + " values is located at "),
+                                new LinkElement()
+                                    .setHref("https://docs.civiform.us/it-manual/api")
+                                    .setText("docs.civiform.us/it-manual/api")
+                                    .asAnchorText(),
+                                text(".")))
                     .with(div().withClasses("flex", "flex-col").with(getNotes(request))))
             .with(
                 div()
@@ -157,7 +173,7 @@ public class ApiDocsView extends BaseHtmlView {
       leftSide.with(programDocsDiv(programDefinition.get()));
 
       DivTag rightSide = div().withClasses("w-full flex-grow");
-      rightSide.with(h1("API Response Preview").withClasses("pl-4"));
+      rightSide.with(h1("API response preview").withClasses("pl-4"));
       rightSide.with(apiResponseSampleDiv(programDefinition.get()));
 
       fullProgramDiv.with(leftSide);
@@ -278,7 +294,7 @@ public class ApiDocsView extends BaseHtmlView {
   }
 
   private static CodeTag codeWithStyles(String text) {
-    return code(text).withClasses("bg-slate-200", "p-0.5", "rounded-md");
+    return code(text).withClass(CODE_STYLES);
   }
 
   private boolean isAuthenticatedAdmin(Http.Request request) {
@@ -289,40 +305,37 @@ public class ApiDocsView extends BaseHtmlView {
   }
 
   private DivTag getNotes(Http.Request request) {
-    String generalDocsLink = "https://docs.civiform.us/it-manual/api.";
     String apiDocsLink = controllers.api.routes.ApiDocsController.index().absoluteURL(request);
 
-    DivTag notesTag = div().withClasses("mt-6");
+    DivTag notesTag = div().withClasses("mt-2");
 
     notesTag.with(
-        text(
-            "The API Response Preview is a sample of what the API response might look like for a"
-                + " given program. All data is fake. Single-select and multi-select questions have"
-                + " sample answers that are selected from the available responses. General"
-                + " information about using the API is located at "));
-    notesTag.with(
-        a(generalDocsLink)
-            .withHref(generalDocsLink)
-            .withClasses("text-blue-500", "underline")); // create a clickable link
-    notesTag.with(br());
-    notesTag.with(br());
-    notesTag.with(text("You may share this link, "));
-    notesTag.with(
-        a(apiDocsLink)
-            .withHref(apiDocsLink)
-            .withClasses("text-blue-500", "underline")); // create a clickable link
-    notesTag.with(
-        text(
-            ", with anyone in your organization who needs to see API docs, even "
-                + "if they are not a CiviForm Admin or Program Admin."));
-    notesTag.with(br());
-    notesTag.with(br());
-
-    notesTag.with(
-        text(
-            "Note that API docs do not currently support enumerated nor enumerator questions."
-                + " Static content questions are not shown on the API Response Preview because"
-                + " they do not include answers to questions."));
+        p().withClasses("my-2")
+            .with(
+                text(
+                    "The API response preview is a sample of what the API response might look like"
+                        + " for a given program. All data is fake. Single-select and multi-select"
+                        + " questions have sample answers that are selected from the available"
+                        + " responses.")),
+        p().withClasses("my-2")
+            .with(
+                text("You may share this link, "),
+                code(new LinkElement().setHref(apiDocsLink).setText(apiDocsLink).asAnchorText())
+                    .withClass(CODE_STYLES),
+                text(
+                    ", with anyone who needs to see API docs. It is accessible without logging in,"
+                        + " so they do not need to be a CiviForm Admin or Program Admin to view"
+                        + " this page.")),
+        p().withClasses("my-2")
+            .with(
+                text(
+                    "Note: These API docs do not currently support enumerator or repeated"
+                        + " questions. See GitHub Issue "),
+                new LinkElement()
+                    .setHref("https://github.com/civiform/civiform/issues/5238")
+                    .setText("#5238")
+                    .asAnchorText(),
+                text(" for progress on this.")));
 
     return AccordionFactory.buildAccordion(
         Optional.of("How does this work?"), Optional.of(notesTag));

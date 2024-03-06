@@ -70,13 +70,13 @@ public final class ApiDocsController {
       if (useActiveVersion) {
         ProgramDefinition activeProgramDefinition =
             programService
-                .getActiveProgramDefinitionAsync(programSlug)
+                .getActiveFullProgramDefinitionAsync(programSlug)
                 .toCompletableFuture()
                 .join();
         return Optional.of(activeProgramDefinition);
       } else {
         ProgramDefinition draftProgramDefinition =
-            programService.getDraftProgramDefinition(programSlug);
+            programService.getDraftFullProgramDefinition(programSlug);
         return Optional.of(draftProgramDefinition);
       }
 

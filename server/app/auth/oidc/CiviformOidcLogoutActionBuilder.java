@@ -9,7 +9,6 @@ import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import com.typesafe.config.Config;
-import filters.SessionIdFilter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
@@ -95,15 +94,29 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
     return this;
   }
 
-  private Optional<JWT> getIdTokenForAccount(long accountId, WebContext context) {
+  private Optional<JWT> getIdTokenForAccount(
+      long accountId, WebContext context, CiviFormProfileData profileData) {
     if (!enhancedLogoutEnabled()) {
       return Optional.empty();
     }
 
-    PlayWebContext playWebContext = (PlayWebContext) context;
-    Optional<String> sessionId = playWebContext.getNativeSession().get(SessionIdFilter.SESSION_ID);
+    // Generally, the session id should be stored in the profile.
+    //
+    // However, during a transition period, the profile may have been created before we were
+    // populating session ids in the profile. Before, they were specified directly in the
+    // session. Fall back to that value if not present in the profile.
+    Optional<String> sessionId;
+    if (profileData.containsAttribute(CiviformOidcProfileCreator.SESSION_ID)) {
+      sessionId =
+          Optional.of(
+              profileData.getAttribute(CiviformOidcProfileCreator.SESSION_ID, String.class));
+    } else {
+      PlayWebContext playWebContext = (PlayWebContext) context;
+      sessionId = playWebContext.getNativeSession().get(CiviformOidcProfileCreator.SESSION_ID);
+    }
+
     if (sessionId.isEmpty()) {
-      // The session id is only populated if the feature flag is enabled.
+      // Can't find a session id.
       return Optional.empty();
     }
 
@@ -150,7 +163,8 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
             new State(configuration.getStateGenerator().generateValue(context, sessionStore));
 
         long accountId = Long.parseLong(currentProfile.getId());
-        Optional<JWT> idToken = getIdTokenForAccount(accountId, context);
+        Optional<JWT> idToken =
+            getIdTokenForAccount(accountId, context, (CiviFormProfileData) currentProfile);
 
         LogoutRequest logoutRequest =
             new CustomOidcLogoutRequest(

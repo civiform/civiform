@@ -59,7 +59,7 @@ public final class AdminReportingController extends CiviFormController {
   public Result show(Http.Request request, String programSlug) {
     String programName =
         programService
-            .getActiveProgramDefinitionAsync(programSlug)
+            .getActiveFullProgramDefinitionAsync(programSlug)
             .toCompletableFuture()
             .join()
             .adminName();
@@ -79,7 +79,7 @@ public final class AdminReportingController extends CiviFormController {
   public Result downloadProgramCsv(String programSlug) {
     String programName =
         programService
-            .getActiveProgramDefinitionAsync(programSlug)
+            .getActiveFullProgramDefinitionAsync(programSlug)
             .toCompletableFuture()
             .join()
             .adminName();

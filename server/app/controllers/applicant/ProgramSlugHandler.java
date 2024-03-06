@@ -97,7 +97,7 @@ public final class ProgramSlugHandler {
                                       () -> new MissingOptionalException(CiviFormProfile.class))));
                         } else {
                           return programService
-                              .getActiveProgramDefinitionAsync(programSlug)
+                              .getActiveFullProgramDefinitionAsync(programSlug)
                               .thenApply(
                                   activeProgramDefinition ->
                                       redirectToReviewPage(

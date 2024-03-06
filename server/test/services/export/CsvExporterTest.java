@@ -21,7 +21,6 @@ import repository.TimeFilter;
 import repository.VersionRepository;
 import services.DateConverter;
 import services.LocalizedStrings;
-import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
 import services.applicant.question.ApplicantQuestion;
@@ -105,14 +104,16 @@ public class CsvExporterTest extends AbstractExporterTest {
             "TI Email",
             "TI Organization",
             "Status",
-            "kitchen tools (toaster)",
-            "kitchen tools (pepper_grinder)",
-            "kitchen tools (garlic_press)",
-            "kitchen tools (stand_mixer)");
-    assertThat(records.get(0).get("kitchen tools (toaster)")).contains("NOT_SELECTED");
-    assertThat(records.get(0).get("kitchen tools (pepper_grinder)")).contains("SELECTED");
-    assertThat(records.get(0).get("kitchen tools (garlic_press)")).contains("SELECTED");
-    assertThat(records.get(0).get("kitchen tools (stand_mixer)"))
+            "kitchen tools (selections - toaster)",
+            "kitchen tools (selections - pepper_grinder)",
+            "kitchen tools (selections - garlic_press)",
+            "kitchen tools (selections - stand_mixer)");
+    assertThat(records.get(0).get("kitchen tools (selections - toaster)")).contains("NOT_SELECTED");
+    assertThat(records.get(0).get("kitchen tools (selections - pepper_grinder)"))
+        .contains("SELECTED");
+    assertThat(records.get(0).get("kitchen tools (selections - garlic_press)"))
+        .contains("SELECTED");
+    assertThat(records.get(0).get("kitchen tools (selections - stand_mixer)"))
         .contains("NOT_AN_OPTION_AT_PROGRAM_VERSION");
   }
 
@@ -144,9 +145,9 @@ public class CsvExporterTest extends AbstractExporterTest {
             "applicant name (last_name)",
             "applicant phone (phone_number)",
             "applicant phone (country_code)",
-            "kitchen tools (toaster)",
-            "kitchen tools (pepper_grinder)",
-            "kitchen tools (garlic_press)",
+            "kitchen tools (selections - toaster)",
+            "kitchen tools (selections - pepper_grinder)",
+            "kitchen tools (selections - garlic_press)",
             "number of items applicant can juggle (number)",
             "applicant address (street)",
             "applicant address (line2)",
@@ -169,15 +170,15 @@ public class CsvExporterTest extends AbstractExporterTest {
         getApplicantQuestion(testQuestionBank.applicantName().getQuestionDefinition())
             .createNameQuestion();
     String firstNameHeader =
-        CsvExporterService.pathToHeader(nameApplicantQuestion.getFirstNamePath());
+        CsvExporterService.formatHeader(nameApplicantQuestion.getFirstNamePath());
     String lastNameHeader =
-        CsvExporterService.pathToHeader(nameApplicantQuestion.getLastNamePath());
+        CsvExporterService.formatHeader(nameApplicantQuestion.getLastNamePath());
     QuestionModel phoneQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.PHONE);
     PhoneQuestion phoneQuestion1 =
         getApplicantQuestion(phoneQuestion.getQuestionDefinition()).createPhoneQuestion();
-    String phoneHeader = CsvExporterService.pathToHeader(phoneQuestion1.getPhoneNumberPath());
-    String countryCodeHeader = CsvExporterService.pathToHeader(phoneQuestion1.getCountryCodePath());
+    String phoneHeader = CsvExporterService.formatHeader(phoneQuestion1.getPhoneNumberPath());
+    String countryCodeHeader = CsvExporterService.formatHeader(phoneQuestion1.getCountryCodePath());
     assertThat(records.get(1).get(phoneHeader)).contains("6157571010");
     assertThat(records.get(1).get(countryCodeHeader)).contains("US");
 
@@ -187,6 +188,7 @@ public class CsvExporterTest extends AbstractExporterTest {
     assertThat(records.get(0).get("Status")).isEqualTo("");
     assertThat(records.get(1).get("Status")).isEqualTo(STATUS_VALUE);
     assertThat(records.get(0).get("Submitter Type")).isEqualTo("APPLICANT");
+
     // Check list for multiselect in default locale
     QuestionModel checkboxQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.CHECKBOX);
@@ -194,29 +196,26 @@ public class CsvExporterTest extends AbstractExporterTest {
         getApplicantQuestion(checkboxQuestion.getQuestionDefinition()).createMultiSelectQuestion();
 
     String multiSelectHeader_1 =
-        CsvExporterService.pathToHeader(
-            Path.create(multiSelectApplicantQuestion.getQuestionDefinition().getName())
-                .join("toaster"));
+        CsvExporterService.formatHeader(multiSelectApplicantQuestion.getSelectionPath(), "toaster");
     assertThat(records.get(1).get(multiSelectHeader_1))
         .isEqualTo(MultiOptionSelectionExportType.SELECTED.toString());
     String multiSelectHeader_2 =
-        CsvExporterService.pathToHeader(
-            Path.create(multiSelectApplicantQuestion.getQuestionDefinition().getName())
-                .join("pepper_grinder"));
+        CsvExporterService.formatHeader(
+            multiSelectApplicantQuestion.getSelectionPath(), "pepper_grinder");
     assertThat(records.get(1).get(multiSelectHeader_2))
         .isEqualTo(MultiOptionSelectionExportType.SELECTED.toString());
     String multiSelectHeader_3 =
-        CsvExporterService.pathToHeader(
-            Path.create(multiSelectApplicantQuestion.getQuestionDefinition().getName())
-                .join("garlic_press"));
+        CsvExporterService.formatHeader(
+            multiSelectApplicantQuestion.getSelectionPath(), "garlic_press");
     assertThat(records.get(1).get(multiSelectHeader_3))
         .isEqualTo(MultiOptionSelectionExportType.NOT_SELECTED.toString());
+
     QuestionModel fileuploadQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.FILEUPLOAD);
     FileUploadQuestion fileuploadApplicantQuestion =
         getApplicantQuestion(fileuploadQuestion.getQuestionDefinition()).createFileUploadQuestion();
     String fileKeyHeader =
-        CsvExporterService.pathToHeader(fileuploadApplicantQuestion.getFileKeyPath());
+        CsvExporterService.formatHeader(fileuploadApplicantQuestion.getFileKeyPath());
     assertThat(records.get(1).get(fileKeyHeader))
         .contains(String.format("/admin/programs/%d/files/my-file-key", fakeProgram.id));
   }
@@ -252,7 +251,7 @@ public class CsvExporterTest extends AbstractExporterTest {
         getApplicantQuestion(testQuestionBank.applicantName().getQuestionDefinition())
             .createNameQuestion();
     String firstNameHeader =
-        CsvExporterService.pathToHeader(nameApplicantQuestion.getFirstNamePath());
+        CsvExporterService.formatHeader(nameApplicantQuestion.getFirstNamePath());
     // Applications should appear most recent first.
     assertThat(records.get(0).get(firstNameHeader)).isEqualTo("John");
     assertThat(records.get(1).get(firstNameHeader)).isEqualTo("John");

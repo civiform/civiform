@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   AdminQuestions,
   createTestContext,
@@ -10,10 +11,10 @@ import {
 import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
 
-describe('normal question lifecycle', () => {
+test.describe('normal question lifecycle', () => {
   const ctx = createTestContext()
 
-  it('sample question seeding works', async () => {
+  test('sample question seeding works', async () => {
     const {page, adminQuestions} = ctx
     await dropTables(page)
     await seedQuestions(page)
@@ -30,7 +31,7 @@ describe('normal question lifecycle', () => {
   // Run create-update-publish test for each question type individually to keep
   // test duration reasonable.
   for (const type of Object.values(QuestionType)) {
-    it(`${type} question: create, update, publish, create a new version, and update`, async () => {
+    test(`${type} question: create, update, publish, create a new version, and update`, async () => {
       const {page, adminQuestions, adminPrograms} = ctx
 
       await loginAsAdmin(page)
@@ -103,7 +104,7 @@ describe('normal question lifecycle', () => {
     })
   }
 
-  it('allows re-ordering options in dropdown question', async () => {
+  test('allows re-ordering options in dropdown question', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -185,7 +186,7 @@ describe('normal question lifecycle', () => {
     expect(await adminNames[4].inputValue()).toContain('option4_admin')
   })
 
-  it('shows markdown format correctly in the preview when creating a new question', async () => {
+  test('shows markdown format correctly in the preview when creating a new question', async () => {
     const {page, adminQuestions} = ctx
     const questionName = 'markdown formatted question'
 
@@ -213,7 +214,7 @@ describe('normal question lifecycle', () => {
     await validateScreenshot(page, 'question-with-markdown-formatted-preview')
   })
 
-  it('shows error when creating a dropdown question and admin left an option field blank', async () => {
+  test('shows error when creating a dropdown question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -244,7 +245,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast()
   })
 
-  it('shows error when creating a radio question and admin left an option field blank', async () => {
+  test('shows error when creating a radio question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -274,7 +275,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast()
   })
 
-  it('shows error when updating a dropdown question and admin left an option field blank', async () => {
+  test('shows error when updating a dropdown question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -300,7 +301,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.expectMultiOptionInvalidOptionAdminError(options, [2])
   })
 
-  it('shows error when updating a radio question and admin left an option field blank', async () => {
+  test('shows error when updating a radio question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -328,7 +329,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.expectMultiOptionInvalidOptionAdminError(options, [2])
   })
 
-  it('shows error when updating a radio question and admin left an adminName field blank', async () => {
+  test('shows error when updating a radio question and admin left an adminName field blank', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -359,7 +360,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.expectMultiOptionInvalidOptionAdminError(options, [2])
   })
 
-  it('shows error when updating a radio question and admin used invalid characters in the admin name', async () => {
+  test('shows error when updating a radio question and admin used invalid characters in the admin name', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -402,7 +403,7 @@ describe('normal question lifecycle', () => {
     )
   })
 
-  it('persists export state', async () => {
+  test('persists export state', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -413,11 +414,12 @@ describe('normal question lifecycle', () => {
     await adminQuestions.page.click('#create-question-button')
     await adminQuestions.page.click('#create-text-question')
     await waitForPageJsLoad(adminQuestions.page)
-    expect(
-      await page.isChecked(
+
+    await expect(
+      page.locator(
         adminQuestions.selectorForExportOption(AdminQuestions.NO_EXPORT_OPTION),
       ),
-    ).toBeTruthy()
+    ).toBeChecked()
 
     const questionName = 'textQuestionWithObfuscatedExport'
     await adminQuestions.addTextQuestion({
@@ -427,19 +429,27 @@ describe('normal question lifecycle', () => {
 
     // Confirm that the previously selected export option was propagated.
     await adminQuestions.gotoQuestionEditPage(questionName)
-    expect(
-      await page.isChecked(
+    await expect(
+      page.locator(
         adminQuestions.selectorForExportOption(
           AdminQuestions.EXPORT_OBFUSCATED_OPTION,
         ),
       ),
-    ).toBeTruthy()
+    ).toBeChecked()
 
     // Edit the result and confirm that the new value is propagated.
     await adminQuestions.selectExportOption(AdminQuestions.EXPORT_VALUE_OPTION)
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
     await adminQuestions.gotoQuestionEditPage(questionName)
+
+    // Fix me! ESLint: playwright/prefer-web-first-assertions
+    // Directly switching to the best practice method fails
+    // because of a locator stict mode violation. That is it
+    // returns multiple elements.
+    //
+    // Recommended prefer-web-first-assertions fix:
+    // await expect(page.locator(adminQuestions.selectorForExportOption(AdminQuestions.EXPORT_VALUE_OPTION))).toBeChecked()
     expect(
       await page.isChecked(
         adminQuestions.selectorForExportOption(
@@ -449,7 +459,7 @@ describe('normal question lifecycle', () => {
     ).toBeTruthy()
   })
 
-  it('shows the "Remove from universal questions" confirmation modal in the right circumstances and navigation works', async () => {
+  test('shows the "Remove from universal questions" confirmation modal in the right circumstances and navigation works', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -484,7 +494,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
   })
 
-  it('redirects to draft question when trying to edit original question', async () => {
+  test('redirects to draft question when trying to edit original question', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
     await loginAsAdmin(page)
 
@@ -512,7 +522,7 @@ describe('normal question lifecycle', () => {
     )
   })
 
-  it('shows preview of formatted question name when creating a new question', async () => {
+  test('shows preview of formatted question name when creating a new question', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -531,8 +541,6 @@ describe('normal question lifecycle', () => {
     // Wait for debounce
     await page.waitForTimeout(300) // ms
 
-    expect(await page.locator('#formatted-name').innerText()).toEqual(
-      'my_test_question',
-    )
+    await expect(page.locator('#formatted-name')).toHaveText('my_test_question')
   })
 })

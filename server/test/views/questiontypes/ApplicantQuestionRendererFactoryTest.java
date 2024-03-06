@@ -5,7 +5,9 @@ import static j2html.TagCreator.html;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.stubMessagesApi;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.typesafe.config.ConfigFactory;
 import controllers.applicant.ApplicantRoutes;
 import j2html.tags.specialized.DivTag;
 import junitparams.JUnitParamsRunner;
@@ -16,6 +18,7 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.applicant.ApplicantFileUploadRenderer;
 import views.fileupload.AwsFileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
@@ -43,7 +46,10 @@ public class ApplicantQuestionRendererFactoryTest {
 
     ApplicantQuestionRendererFactory factory =
         new ApplicantQuestionRendererFactory(
-            new ApplicantFileUploadRenderer(new AwsFileUploadViewStrategy(), applicantRoutes));
+            new ApplicantFileUploadRenderer(
+                new AwsFileUploadViewStrategy(),
+                applicantRoutes,
+                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 
@@ -67,7 +73,10 @@ public class ApplicantQuestionRendererFactoryTest {
     // Multi-input questions should be wrapped in fieldsets for screen reader users.
     ApplicantQuestionRendererFactory factory =
         new ApplicantQuestionRendererFactory(
-            new ApplicantFileUploadRenderer(new AwsFileUploadViewStrategy(), applicantRoutes));
+            new ApplicantFileUploadRenderer(
+                new AwsFileUploadViewStrategy(),
+                applicantRoutes,
+                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 
@@ -78,7 +87,6 @@ public class ApplicantQuestionRendererFactoryTest {
       case CHECKBOX:
       case ENUMERATOR:
       case NAME:
-      case PHONE:
       case RADIO_BUTTON:
         assertThat(renderedContent).contains("fieldset");
         break;
@@ -89,6 +97,7 @@ public class ApplicantQuestionRendererFactoryTest {
       case FILEUPLOAD:
       case ID:
       case NUMBER:
+      case PHONE:
       case STATIC:
       case TEXT:
         assertThat(renderedContent).doesNotContain("fieldset");

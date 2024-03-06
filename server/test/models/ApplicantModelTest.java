@@ -2,6 +2,8 @@ package models;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
 import org.junit.Before;
@@ -91,5 +93,43 @@ public class ApplicantModelTest extends ResetPostgres {
     assertThat(removedPaths).contains(foo);
     assertThat(removedPaths).doesNotContain(subMapFoo);
     assertThat(data1.readString(subMapBar)).isNotEmpty();
+  }
+
+  @Test
+  public void savesPrimaryApplicantInfoColumns() {
+    String firstName = "firstName";
+    String middleName = "middleName";
+    String lastName = "lastName";
+    String emailAddress = "email@address.com";
+    String countryCode = "US";
+    String phoneNumber = "1234567890";
+    LocalDate dob = LocalDate.now(ZoneId.systemDefault());
+    ApplicantModel applicant = new ApplicantModel();
+    applicant.setFirstName(firstName);
+    applicant.setMiddleName(middleName);
+    applicant.setLastName(lastName);
+    applicant.setEmailAddress(emailAddress);
+    applicant.setCountryCode(countryCode);
+    applicant.setPhoneNumber(phoneNumber);
+    applicant.setDateOfBirth(dob);
+    applicant.save();
+    applicant = repo.lookupApplicant(applicant.id).toCompletableFuture().join().get();
+    assertThat(applicant.getFirstName().get()).isEqualTo(firstName);
+    assertThat(applicant.getMiddleName().get()).isEqualTo(middleName);
+    assertThat(applicant.getLastName().get()).isEqualTo(lastName);
+    assertThat(applicant.getEmailAddress().get()).isEqualTo(emailAddress);
+    assertThat(applicant.getCountryCode().get()).isEqualTo(countryCode);
+    assertThat(applicant.getPhoneNumber().get()).isEqualTo(phoneNumber);
+    assertThat(applicant.getDateOfBirth().get()).isEqualTo(dob);
+  }
+
+  @Test
+  public void savesPhoneNumberWithCorrectFormat() {
+    ApplicantModel applicant = new ApplicantModel();
+    applicant.setPhoneNumber("(503) 823-4000");
+    applicant.save();
+    applicant = repo.lookupApplicant(applicant.id).toCompletableFuture().join().get();
+    assertThat(applicant.getPhoneNumber().get()).isEqualTo("5038234000");
+    assertThat(applicant.getCountryCode().get()).isEqualTo("US");
   }
 }

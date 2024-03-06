@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -6,13 +7,13 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('Radio button question for applicant flow', () => {
+test.describe('Radio button question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('single radio button question', () => {
+  test.describe('single radio button question', () => {
     const programName = 'Test program for single radio button'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       // As admin, create program with radio button question.
       await loginAsAdmin(page)
@@ -33,7 +34,7 @@ describe('Radio button question for applicant flow', () => {
       await logout(page)
     })
 
-    it('Updates options in preview', async () => {
+    test('Updates options in preview', async () => {
       const {page, adminQuestions} = ctx
       await loginAsAdmin(page)
 
@@ -77,14 +78,14 @@ describe('Radio button question for applicant flow', () => {
       await adminQuestions.expectPreviewOptions(['Sample question option'])
     })
 
-    it('validate screenshot', async () => {
+    test('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'radio-button')
     })
 
-    it('validate screenshot with errors', async () => {
+    test('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
@@ -92,7 +93,7 @@ describe('Radio button question for applicant flow', () => {
       await validateScreenshot(page, 'radio-button-errors')
     })
 
-    it('with selection submits successfully', async () => {
+    test('with selection submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerRadioButtonQuestion('matcha')
@@ -101,7 +102,7 @@ describe('Radio button question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with empty selection does not submit', async () => {
+    test('with empty selection does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
@@ -116,10 +117,10 @@ describe('Radio button question for applicant flow', () => {
     })
   })
 
-  describe('multiple radio button questions', () => {
+  test.describe('multiple radio button questions', () => {
     const programName = 'Test program for multiple radio button qs'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -154,7 +155,7 @@ describe('Radio button question for applicant flow', () => {
       await logout(page)
     })
 
-    it('with both selections submits successfully', async () => {
+    test('with both selections submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerRadioButtonQuestion('matcha')
@@ -164,7 +165,7 @@ describe('Radio button question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with unanswered optional question submits successfully', async () => {
+    test('with unanswered optional question submits successfully', async () => {
       const {applicantQuestions} = ctx
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
@@ -174,7 +175,7 @@ describe('Radio button question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('has no accessiblity violations', async () => {
+    test('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 

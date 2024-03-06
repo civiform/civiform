@@ -1,3 +1,4 @@
+import {expect} from '@playwright/test'
 import {Page} from 'playwright'
 import {waitForPageJsLoad} from './wait'
 
@@ -16,7 +17,7 @@ export class TIDashboard {
   }
 
   async gotoTIDashboardPage(page: Page) {
-    await page.click('text="View and Add Clients"')
+    await page.click('text="View and add clients"')
   }
 
   async goToProgramsPageForCurrentClient() {
@@ -24,12 +25,25 @@ export class TIDashboard {
   }
 
   async createClient(client: ClientInformation) {
-    await this.page.fill('label:has-text("Email Address")', client.emailAddress)
-    await this.page.fill('label:has-text("First Name")', client.firstName)
-    await this.page.fill('label:has-text("Middle Name")', client.middleName)
-    await this.page.fill('label:has-text("Last Name")', client.lastName)
-    await this.page.fill('label:has-text("Date Of Birth")', client.dobDate)
+    await this.page.fill('label:has-text("Email address")', client.emailAddress)
+    await this.page.fill('label:has-text("First name")', client.firstName)
+    await this.page.fill('label:has-text("Middle name")', client.middleName)
+    await this.page.fill('label:has-text("Last name")', client.lastName)
+    await this.page.fill('label:has-text("Date of birth")', client.dobDate)
     await this.page.click('text="Add"')
+  }
+
+  async createMultipleClients(nameBase: string, copies: number) {
+    for (let i = 1; i <= copies; i++) {
+      await this.page.fill(
+        'label:has-text("Email Address")',
+        nameBase + i + '@test.com',
+      )
+      await this.page.fill('label:has-text("First Name")', nameBase + i)
+      await this.page.fill('label:has-text("Last Name")', 'last')
+      await this.page.fill('label:has-text("Date Of Birth")', '2021-05-10')
+      await this.page.click('text="Add"')
+    }
   }
 
   async updateClientEmailAddress(client: ClientInformation, newEmail: string) {
@@ -39,7 +53,7 @@ export class TIDashboard {
       .getByText('Edit')
       .click()
     await waitForPageJsLoad(this.page)
-    await this.page.waitForSelector('h2:has-text("Edit Client")')
+    await this.page.waitForSelector('h2:has-text("Edit client")')
     await this.page.fill('#edit-email-input', newEmail)
     await this.page.click('text="Save"')
     await waitForPageJsLoad(this.page)
@@ -56,7 +70,7 @@ export class TIDashboard {
       .getByText('Edit')
       .click()
     await waitForPageJsLoad(this.page)
-    await this.page.waitForSelector('h2:has-text("Edit Client")')
+    await this.page.waitForSelector('h2:has-text("Edit client")')
     await this.page.fill('#edit-phone-number-input', phone)
     await this.page.fill('#edit-ti-note-input', tiNote)
     await this.page.click('text="Save"')
@@ -70,7 +84,7 @@ export class TIDashboard {
       .getByText('Edit')
       .click()
     await waitForPageJsLoad(this.page)
-    await this.page.waitForSelector('h2:has-text("Edit Client")')
+    await this.page.waitForSelector('h2:has-text("Edit client")')
     await this.page.fill('#edit-date-of-birth-input', newDobDate)
     await this.page.click('text="Save"')
     await waitForPageJsLoad(this.page)
@@ -87,7 +101,7 @@ export class TIDashboard {
       .getByText('Edit')
       .click()
     await waitForPageJsLoad(this.page)
-    await this.page.waitForSelector('h2:has-text("Edit Client")')
+    await this.page.waitForSelector('h2:has-text("Edit client")')
     const text = await this.page.innerHTML('#edit-ti')
     expect(text).toContain(phone)
     expect(text).toContain(tiNote)
@@ -173,6 +187,18 @@ export class TIDashboard {
   async expectIneligiblePage() {
     expect(await this.page.innerText('h2')).toContain(
       'your client may not qualify',
+    )
+  }
+
+  async expectPageNumberButton(pageNum: string) {
+    expect(await this.page.innerHTML('.usa-pagination__list')).toContain(
+      `aria-label="Page${pageNum}"`,
+    )
+  }
+
+  async expectPageNumberButtonNotPresent(pageNum: string) {
+    expect(await this.page.innerHTML('.usa-pagination__list')).not.toContain(
+      `aria-label="Page${pageNum}"`,
     )
   }
 

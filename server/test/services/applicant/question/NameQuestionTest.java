@@ -11,6 +11,7 @@ import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.program.ProgramQuestionDefinition;
@@ -19,7 +20,7 @@ import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 
 @RunWith(JUnitParamsRunner.class)
-public class NameQuestionTest {
+public class NameQuestionTest extends ResetPostgres {
   private static final NameQuestionDefinition nameQuestionDefinition =
       new NameQuestionDefinition(
           QuestionDefinitionConfig.builder()

@@ -1,3 +1,4 @@
+import {expect} from '@playwright/test'
 import {Page} from 'playwright'
 import {BASE_URL} from './config'
 import {TestContext} from './index'

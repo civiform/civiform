@@ -108,7 +108,6 @@ public final class ReferenceClasses {
   public static final String ADDRESS_STATE = "cf-address-state";
   public static final String ADDRESS_ZIP = "cf-address-zip";
 
-  public static final String PHONE_COUNTRY_CODE = "cf-phone-country-code";
   public static final String PHONE_NUMBER = "cf-phone-number";
   public static final String MULTI_OPTION_VALUE = "cf-multi-option-value";
   public static final String MULTI_OPTION_QUESTION_OPTION = "cf-multi-option-question-option";
@@ -128,6 +127,7 @@ public final class ReferenceClasses {
 
   public static final String FILEUPLOAD_QUESTION = "cf-question-fileupload";
   public static final String FILEUPLOAD_ERROR = "cf-fileupload-error";
+  public static final String FILEUPLOAD_TOO_LARGE_ERROR_ID = "cf-fileupload-too-large-error";
 
   public static final String NAME_QUESTION = "cf-question-name";
   public static final String NAME_FIRST = "cf-name-first";

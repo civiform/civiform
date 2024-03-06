@@ -39,16 +39,22 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import models.AccountModel;
 import models.ApplicantModel;
+import models.ApplicationModel;
 import models.TrustedIntermediaryGroupModel;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import repository.ProgramRepository;
 import repository.SearchParameters;
 import services.DateConverter;
+import services.MessageKey;
+import services.PhoneValidationResult;
+import services.PhoneValidationUtils;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
+import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 import services.ti.TrustedIntermediaryService;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -64,18 +70,19 @@ import views.style.StyleUtils;
 
 /** Renders a page for a trusted intermediary to manage their clients. */
 public class TrustedIntermediaryDashboardView extends BaseHtmlView {
+  private static final Logger logger =
+      LoggerFactory.getLogger(TrustedIntermediaryDashboardView.class);
   private final ApplicantLayout layout;
   private final DateConverter dateConverter;
-  private final ProgramRepository programRepository;
-  public static final String OPTIONAL_INDICATOR = " (optional)";
+  private final ProgramService programService;
   private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
   @Inject
   public TrustedIntermediaryDashboardView(
-      ApplicantLayout layout, DateConverter dateConverter, ProgramRepository programRepository) {
+      ApplicantLayout layout, DateConverter dateConverter, ProgramService programService) {
     this.layout = checkNotNull(layout);
     this.dateConverter = checkNotNull(dateConverter);
-    this.programRepository = checkNotNull(programRepository);
+    this.programService = programService;
   }
 
   public Content render(
@@ -97,14 +104,17 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 hr(),
                 renderSubHeader("Add Client").withId("add-client").withClass("my-4"),
                 requiredFieldsExplanationContent(),
-                renderAddNewForm(tiGroup, request),
+                renderAddNewForm(tiGroup, request, messages),
                 hr().withClasses("mt-6"),
-                renderSubHeader("All Clients").withClass("my-4"),
+                renderSubHeader(messages.at(MessageKey.TITLE_ALL_CLIENTS.getKeyName()))
+                    .withClass("my-4"),
                 h4("Search"),
-                renderSearchForm(request, searchParameters),
-                renderTIClientsList(managedAccounts, searchParameters, page, totalPageCount),
+                renderSearchForm(request, searchParameters, messages),
+                renderTIClientsList(
+                    managedAccounts, searchParameters, page, totalPageCount, messages),
                 hr().withClasses("mt-6"),
-                renderSubHeader("Organization members").withClass("my-4"),
+                renderSubHeader(messages.at(MessageKey.TITLE_ORG_MEMBERS.getKeyName()))
+                    .withClass("my-4"),
                 renderTIMembersTable(tiGroup).withClass("pt-2"))
             .addMainStyles("px-20", "max-w-screen-xl");
 
@@ -120,7 +130,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
   }
 
-  private FormTag renderSearchForm(Http.Request request, SearchParameters searchParameters) {
+  private FormTag renderSearchForm(
+      Http.Request request, SearchParameters searchParameters, Messages messages) {
     boolean isValidSearch = TrustedIntermediaryService.validateSearch(searchParameters);
     return form()
         .withId("ti-search-form")
@@ -137,11 +148,12 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(
             div(
                     div(
-                        label("Search by name(s)")
+                        label(messages.at(MessageKey.SEARCH_BY_NAME.getKeyName()))
                             .withClass("usa-label")
                             .withId("name-search")
                             .withFor("name-query"),
-                        span("For example: Gu or Darren or Darren Gu").withClass("usa-hint")),
+                        span(messages.at(MessageKey.NAME_EXAMPLE.getKeyName()))
+                            .withClass("usa-hint")),
                     input()
                         .withClasses("usa-input", "mt-12")
                         .withId("name-query")
@@ -152,11 +164,12 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                     searchParameters.dayQuery().orElse(""),
                     searchParameters.monthQuery().orElse(""),
                     searchParameters.yearQuery().orElse(""),
-                    "Search by Date of Birth",
+                    messages.at(MessageKey.SEARCH_BY_DOB.getKeyName()),
                     !isValidSearch)
                 .withClass("ml-6"),
             makeCsrfTokenInputTag(request),
-            div(submitButton("Search").withClasses("ml-6", "h-11"))
+            div(submitButton(messages.at(MessageKey.BUTTON_SEARCH.getKeyName()))
+                    .withClasses("ml-6", "h-11"))
                 .withClasses("flex", "flex-col", "justify-end"))
         .withClasses("flex", "my-6");
   }
@@ -165,7 +178,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       ImmutableList<AccountModel> managedAccounts,
       SearchParameters searchParameters,
       int page,
-      int totalPageCount) {
+      int totalPageCount,
+      Messages messages) {
     DivTag clientsList =
         div()
             .with(
@@ -175,10 +189,11 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                             managedAccounts.stream()
                                 .sorted(Comparator.comparing(AccountModel::getApplicantName))
                                 .collect(Collectors.toList()),
-                            account -> renderClientCard(account))));
+                            account -> renderClientCard(account, messages))));
 
-    return clientsList.with(
-        renderPaginationDiv(
+    return clientsList.condWith(
+        managedAccounts.size() > 0,
+        renderPagination(
             page,
             totalPageCount,
             pageNumber ->
@@ -204,7 +219,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         this::renderTIRow))));
   }
 
-  private DivTag renderAddNewForm(TrustedIntermediaryGroupModel tiGroup, Http.Request request) {
+  private DivTag renderAddNewForm(
+      TrustedIntermediaryGroupModel tiGroup, Http.Request request, Messages messages) {
     FormTag formTag =
         form()
             .withMethod("POST")
@@ -213,20 +229,23 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("first-name-input")
             .setFieldName("firstName")
-            .setLabelText("First Name")
+            .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
             .setRequired(true)
             .setValue(request.flash().get("providedFirstName").orElse(""));
     FieldWithLabel middleNameField =
         FieldWithLabel.input()
             .setId("middle-name-input")
             .setFieldName("middleName")
-            .setLabelText("Middle Name" + OPTIONAL_INDICATOR)
+            .setLabelText(
+                messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName())
+                    + " "
+                    + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
             .setValue(request.flash().get("providedMiddleName").orElse(""));
     FieldWithLabel lastNameField =
         FieldWithLabel.input()
             .setId("last-name-input")
             .setFieldName("lastName")
-            .setLabelText("Last Name")
+            .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
             .setRequired(true)
             .setValue(request.flash().get("providedLastName").orElse(""));
     // TODO: do something with this field.  currently doesn't do anything. Add a Path
@@ -235,14 +254,14 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         FieldWithLabel.date()
             .setId("date-of-birth-input")
             .setFieldName("dob")
-            .setLabelText("Date Of Birth")
+            .setLabelText(messages.at(MessageKey.DOB_LABEL.getKeyName()))
             .setRequired(true)
             .setValue(request.flash().get("providedDob").orElse(""));
     FieldWithLabel emailField =
         FieldWithLabel.email()
             .setId("email-input")
             .setFieldName("emailAddress")
-            .setLabelText("Email Address" + OPTIONAL_INDICATOR)
+            .setLabelText("Email address " + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
             .setToolTipIcon(Icons.INFO)
             .setToolTipText(
                 "Add an email address for your client to receive status updates about their"
@@ -273,7 +292,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderStatusCell(ti));
   }
 
-  private LiTag renderClientCard(AccountModel account) {
+  private LiTag renderClientCard(AccountModel account, Messages messages) {
     return li().withClass("usa-card tablet-lg:grid-col-6 widescreen:grid-col-4")
         .with(
             div()
@@ -286,20 +305,22 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                                     div(
                                             renderSubHeader(account.getApplicantName())
                                                 .withClass("usa-card__heading"),
-                                            u(renderEditClientLink(account.id)).withClass("ml-2"))
+                                            u(renderEditClientLink(account.id, messages))
+                                                .withClass("ml-2"))
                                         .withClass("flex"),
                                     renderClientDateOfBirth(account))
                                 .withClass("flex-col"),
-                            renderIndexPageLink(account)),
+                            renderIndexPageLink(account, messages)),
                     div()
                         .withClasses("usa-card__body", "flex")
                         .with(
-                            renderCardContactInfo(account).withClasses("w-2/5"),
+                            renderCardContactInfo(account, messages).withClasses("w-2/5"),
                             renderCardApplications(account).withClasses("ml-10 w-2/5"),
-                            renderCardNotes(account.getTiNote()).withClasses("ml-10 w-3/5"))));
+                            renderCardNotes(account.getTiNote(), messages)
+                                .withClasses("ml-10 w-3/5"))));
   }
 
-  private DivTag renderCardContactInfo(AccountModel account) {
+  private DivTag renderCardContactInfo(AccountModel account, Messages messages) {
     Optional<ApplicantModel> newestApplicant = account.newestApplicant();
     if (newestApplicant.isEmpty()) {
       return div();
@@ -309,7 +330,9 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     String email = account.getEmailAddress();
 
     return div(
-        label("Contact information").withFor("card_contact_info").withClass("whitespace-nowrap"),
+        label(messages.at(MessageKey.CONTACT_INFO_LABEL.getKeyName()))
+            .withFor("card_contact_info")
+            .withClass("whitespace-nowrap"),
         div()
             .condWith(
                 maybePhoneNumber.isPresent(),
@@ -327,8 +350,11 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
 
   private String formatPhone(String phone) {
     try {
+      PhoneValidationResult phoneValidationResults =
+          PhoneValidationUtils.determineCountryCode(Optional.ofNullable(phone));
+
       Phonenumber.PhoneNumber phoneNumber =
-          PHONE_NUMBER_UTIL.parse(phone, TrustedIntermediaryService.COUNTRY_CODE_FOR_US_REGION);
+          PHONE_NUMBER_UTIL.parse(phone, phoneValidationResults.getCountryCode().orElse(""));
       return PHONE_NUMBER_UTIL.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.NATIONAL);
     } catch (NumberParseException e) {
       return "-";
@@ -340,16 +366,31 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     if (newestApplicant.isEmpty()) {
       return div();
     }
-    int applicationCount = newestApplicant.get().getApplications().size();
 
+    ImmutableList<ApplicationModel> newestApplicantApplications =
+        newestApplicant.get().getApplications();
+    int applicationCount = newestApplicantApplications.size();
     String programs =
-        newestApplicant.get().getApplications().stream()
+        newestApplicantApplications.stream()
             .map(
-                application ->
-                    programRepository
-                        .getProgramDefinition(application.getProgram())
+                application -> {
+                  try {
+                    return programService
+                        .getFullProgramDefinition(application.getProgram().id)
                         .localizedName()
-                        .getDefault())
+                        .getDefault();
+                  } catch (ProgramNotFoundException e) {
+                    // Since this is just trying to get a csv representation of the programs
+                    // put a placeholder string if this exception occurs. Realistically at
+                    // this area of CiviForm it "shouldn't" occur, but why leave it up to
+                    // fate to raise an exception.
+                    logger.error(
+                        "Unable to build complete string of programs. At least one program was not"
+                            + " found",
+                        e);
+                    return "<unknown>";
+                  }
+                })
             .collect(Collectors.joining(", "));
 
     return div(
@@ -362,15 +403,16 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         p(programs).withClass("text-xs").withId("card_applications"));
   }
 
-  private DivTag renderCardNotes(String notes) {
+  private DivTag renderCardNotes(String notes, Messages messages) {
     return div(
-        label("Notes").withFor("card_notes"), p(notes).withClass("text-xs").withId("card_notes"));
+        label(messages.at(MessageKey.NOTES_LABEL.getKeyName())).withFor("card_notes"),
+        p(notes).withClass("text-xs").withId("card_notes"));
   }
 
-  private ATag renderEditClientLink(Long accountId) {
+  private ATag renderEditClientLink(Long accountId, Messages messages) {
     return new LinkElement()
         .setId("edit-client")
-        .setText("Edit")
+        .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
         .setHref(controllers.ti.routes.TrustedIntermediaryController.editClient(accountId).url())
         .asAnchorText();
   }
@@ -393,7 +435,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             Icons.svg(Icons.CAKE).withClasses("h-3", "w-3", "mr-1"), p(String.format(currentDob)));
   }
 
-  private DivTag renderIndexPageLink(AccountModel applicant) {
+  private DivTag renderIndexPageLink(AccountModel applicant, Messages messages) {
     Optional<ApplicantModel> newestApplicant = applicant.newestApplicant();
     if (newestApplicant.isEmpty()) {
       return div();
@@ -403,7 +445,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             new ATag()
                 .withClasses("usa-button usa-button--outline")
                 .withId(String.format("act-as-%d-button", newestApplicant.get().id))
-                .withText("View applications")
+                .withText(messages.at(MessageKey.BUTTON_VIEW_APPLICATIONS.getKeyName()))
                 .withHref(
                     controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
                             newestApplicant.get().id)

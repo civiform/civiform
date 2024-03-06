@@ -169,6 +169,24 @@ public final class ApplicantRoutes {
   }
 
   /**
+   * Returns the route to the block specified by {@code blockId}.
+   *
+   * @param inReview true if the applicant is reviewing their application answers and false if
+   *     they're filling out the application step-by-step. See {@link #edit} and {@link #review} for
+   *     more details.
+   */
+  public Call blockEditOrBlockReview(
+      CiviFormProfile profile, long applicantId, long programId, String blockId, boolean inReview) {
+    if (inReview) {
+      return blockReview(
+          profile, applicantId, programId, blockId, /* questionName= */ Optional.empty());
+    } else {
+      return blockEdit(
+          profile, applicantId, programId, blockId, /* questionName= */ Optional.empty());
+    }
+  }
+
+  /**
    * Returns the route corresponding to the applicant confirm address action.
    *
    * @param profile - Profile corresponding to the logged-in user (applicant or TI).
@@ -251,15 +269,30 @@ public final class ApplicantRoutes {
    * @param programId - ID of program to review
    * @param blockId - ID of the block containing file upload question
    * @param inReview - true if executing the review action (as opposed to edit)
+   * @param applicantRequestedAction - the page the applicant would like to see after the updates
+   *     are made
    * @return Route for the applicant update file action
    */
   public Call updateFile(
-      CiviFormProfile profile, long applicantId, long programId, String blockId, boolean inReview) {
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String blockId,
+      boolean inReview,
+      ApplicantRequestedAction applicantRequestedAction) {
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
-          applicantId, programId, blockId, inReview);
+          applicantId,
+          programId,
+          blockId,
+          inReview,
+          new ApplicantRequestedActionWrapper(applicantRequestedAction));
     } else {
-      return routes.ApplicantProgramBlocksController.updateFile(programId, blockId, inReview);
+      return routes.ApplicantProgramBlocksController.updateFile(
+          programId,
+          blockId,
+          inReview,
+          new ApplicantRequestedActionWrapper(applicantRequestedAction));
     }
   }
 

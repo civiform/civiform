@@ -1,3 +1,4 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -6,13 +7,13 @@ import {
   validateScreenshot,
 } from './support'
 
-describe('Date question for applicant flow', () => {
+test.describe('Date question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('single date question', () => {
+  test.describe('single date question', () => {
     const programName = 'Test program for single date'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       // As admin, create program with single date question.
       await loginAsAdmin(page)
@@ -26,14 +27,14 @@ describe('Date question for applicant flow', () => {
       await logout(page)
     })
 
-    it('validate screenshot', async () => {
+    test('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'date')
     })
 
-    it('validate screenshot with errors', async () => {
+    test('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
@@ -41,7 +42,7 @@ describe('Date question for applicant flow', () => {
       await validateScreenshot(page, 'date-errors')
     })
 
-    it('with filled in date submits successfully', async () => {
+    test('with filled in date submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDateQuestion('2022-05-02')
@@ -50,7 +51,7 @@ describe('Date question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with no answer does not submit', async () => {
+    test('with no answer does not submit', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       // Click next without selecting anything.
@@ -64,10 +65,10 @@ describe('Date question for applicant flow', () => {
     })
   })
 
-  describe('multiple date questions', () => {
+  test.describe('multiple date questions', () => {
     const programName = 'Test program for multiple date questions'
 
-    beforeAll(async () => {
+    test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
       await loginAsAdmin(page)
 
@@ -86,7 +87,7 @@ describe('Date question for applicant flow', () => {
       await logout(page)
     })
 
-    it('with valid dates submits successfully', async () => {
+    test('with valid dates submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDateQuestion('2022-07-04', 0)
@@ -96,7 +97,7 @@ describe('Date question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('with unanswered optional question submits successfully', async () => {
+    test('with unanswered optional question submits successfully', async () => {
       const {applicantQuestions} = ctx
       // Only answer second question.
       await applicantQuestions.applyProgram(programName)
@@ -106,7 +107,7 @@ describe('Date question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('has no accessiblity violations', async () => {
+    test('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 

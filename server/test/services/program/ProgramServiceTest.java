@@ -72,7 +72,7 @@ public class ProgramServiceTest extends ResetPostgres {
   public void setProgramServiceImpl() {
     BindingKey<SyncCacheApi> programDefKey =
         new BindingKey<>(SyncCacheApi.class)
-            .qualifiedWith(new NamedCacheImpl("program-definition"));
+            .qualifiedWith(new NamedCacheImpl("full-program-definition"));
     programDefCache = instanceOf(programDefKey.asScala());
     ps = instanceOf(ProgramService.class);
   }
@@ -1123,7 +1123,7 @@ public class ProgramServiceTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("Test Program").buildDefinition();
 
     CompletionStage<ProgramDefinition> found =
-        ps.getActiveProgramDefinitionAsync(programDefinition.slug());
+        ps.getActiveFullProgramDefinitionAsync(programDefinition.slug());
 
     assertThat(found.toCompletableFuture().join().id()).isEqualTo(programDefinition.id());
   }
@@ -1133,7 +1133,7 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramBuilder.newActiveProgram("Test Program").buildDefinition();
 
     CompletionStage<ProgramDefinition> found =
-        ps.getActiveProgramDefinitionAsync("non-existent-program");
+        ps.getActiveFullProgramDefinitionAsync("non-existent-program");
 
     assertThatThrownBy(() -> found.toCompletableFuture().join())
         .isInstanceOf(CompletionException.class)
@@ -1146,7 +1146,7 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram("Test Program").buildDefinition();
 
-    ProgramDefinition found = ps.getDraftProgramDefinition(programDefinition.slug());
+    ProgramDefinition found = ps.getDraftFullProgramDefinition(programDefinition.slug());
 
     assertThat(found.id()).isEqualTo(programDefinition.id());
   }
@@ -1155,7 +1155,7 @@ public class ProgramServiceTest extends ResetPostgres {
   public void getDraftProgramDefinitionAsync_cannotFindRequestedProgram_throwsException() {
     ProgramBuilder.newDraftProgram("Test Program").buildDefinition();
 
-    assertThatThrownBy(() -> ps.getDraftProgramDefinition("non-existent-program"))
+    assertThatThrownBy(() -> ps.getDraftFullProgramDefinition("non-existent-program"))
         .isInstanceOf(ProgramDraftNotFoundException.class)
         .hasMessageContaining("Program draft not found for slug: non-existent-program");
   }

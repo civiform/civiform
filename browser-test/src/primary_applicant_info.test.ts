@@ -1,7 +1,11 @@
+import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   enableFeatureFlag,
   loginAsAdmin,
+  loginAsProgramAdmin,
+  loginAsTestUser,
+  logout,
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
@@ -10,10 +14,10 @@ import {
   PrimaryApplicantInfoField,
 } from './support/admin_questions'
 
-describe('primary applicant info questions', () => {
+test.describe('primary applicant info questions', () => {
   const ctx = createTestContext()
 
-  it('shows primary applicant info toggles/alerts correctly when creating a new question, and tag is persisted', async () => {
+  test('shows primary applicant info toggles/alerts correctly when creating a new question, and tag is persisted', async () => {
     const {page, adminQuestions} = ctx
     await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
 
@@ -80,7 +84,7 @@ describe('primary applicant info questions', () => {
     await adminQuestions.expectPrimaryApplicantInfoToggleValue(nameField, true)
   })
 
-  it('shows primary applicant info toggles/alerts correctly when editing an existing question, and tag is persisted', async () => {
+  test('shows primary applicant info toggles/alerts correctly when editing an existing question, and tag is persisted', async () => {
     const {page, adminQuestions} = ctx
     await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
 
@@ -188,7 +192,7 @@ describe('primary applicant info questions', () => {
     await adminQuestions.expectPrimaryApplicantInfoToggleValue(nameField, false)
   })
 
-  it('shows the alert when a different question has the primary applicant info tag', async () => {
+  test('shows the alert when a different question has the primary applicant info tag', async () => {
     const {page, adminQuestions} = ctx
     await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
 
@@ -225,5 +229,54 @@ describe('primary applicant info questions', () => {
       page,
       'primary-applicant-info-non-universal-and-already-set',
     )
+  })
+
+  test('logging in does not overwrite name with OIDC-provided name', async () => {
+    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
+
+    await loginAsAdmin(page)
+
+    // For now, we use the preseeded question since we still fall back
+    // to reading the well known path in getApplicantName when there is
+    // no PAI data, which there won't be until we implement it later.
+    await adminQuestions.addNameQuestion({questionName: 'name'})
+    await adminPrograms.addProgram('test')
+    await adminPrograms.editProgramBlock('test', 'desc', ['name'])
+    await adminPrograms.gotoAdminProgramsPage()
+    await adminPrograms.expectDraftProgram('test')
+    await adminPrograms.publishProgram('test')
+    await adminPrograms.expectActiveProgram('test')
+    await adminQuestions.expectActiveQuestionExist('name')
+
+    await logout(page)
+    await loginAsTestUser(page)
+
+    await applicantQuestions.applyProgram('test')
+    await applicantQuestions.answerNameQuestion('Geordi', 'LaForge')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.submitFromReviewPage()
+
+    await logout(page)
+    await loginAsProgramAdmin(page)
+
+    await adminPrograms.viewApplications('test')
+    await expect(
+      page.locator(adminPrograms.selectApplicationCardForApplicant('LaForge')),
+    ).toBeVisible()
+
+    await logout(page)
+    await loginAsTestUser(
+      page,
+      'a:has-text("Log in")',
+      false,
+      'LaForge, Geordi',
+    )
+    await logout(page)
+    await loginAsProgramAdmin(page)
+
+    await adminPrograms.viewApplications('test')
+    await expect(
+      page.locator(adminPrograms.selectApplicationCardForApplicant('LaForge')),
+    ).toBeVisible()
   })
 })

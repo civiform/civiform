@@ -12,6 +12,9 @@ public abstract class PublicStorageClient {
   /** Returns the name of the cloud storage bucket that's storing the files. */
   public abstract String getBucketName();
 
+  /** Returns the maximum file size in megabytes allowed for public files. */
+  public abstract int getFileLimitMb();
+
   /**
    * Creates and returns a request to upload a **publicly accessible** file to cloud storage.
    *
