@@ -1,16 +1,12 @@
-import {test} from '@playwright/test'
+import {test} from '../fixtures/custom_fixture'
 import {
-  createTestContext,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
 
-test.describe('admin program preview', () => {
-  const ctx = createTestContext()
-
-  test('preview draft program and submit', async () => {
-    const {page, adminPrograms, adminQuestions, applicantQuestions} = ctx
+test.describe('admin program preview', {tag: ['@migrated']}, () => {
+  test('preview draft program and submit', async ({page, adminPrograms, adminQuestions, applicantQuestions} ) => {
     await loginAsAdmin(page)
 
     await adminQuestions.addEmailQuestion({questionName: 'email-q'})
@@ -34,8 +30,7 @@ test.describe('admin program preview', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  test('preview active program and submit', async () => {
-    const {page, adminPrograms, adminQuestions, applicantQuestions} = ctx
+  test('preview active program and submit', async ({page, adminPrograms, adminQuestions, applicantQuestions} ) => {
     await loginAsAdmin(page)
 
     await adminQuestions.addEmailQuestion({questionName: 'email-q'})
@@ -58,8 +53,7 @@ test.describe('admin program preview', () => {
     await adminPrograms.expectProgramBlockReadOnlyPage()
   })
 
-  test('preview program and use back button', async () => {
-    const {page, adminPrograms, adminQuestions, applicantQuestions} = ctx
+  test('preview program and use back button', async ({page, adminPrograms, adminQuestions, applicantQuestions} ) => {
     await loginAsAdmin(page)
 
     await adminQuestions.addEmailQuestion({questionName: 'email-q'})

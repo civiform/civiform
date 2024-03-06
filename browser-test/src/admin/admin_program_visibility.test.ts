@@ -1,8 +1,7 @@
-import {test} from '@playwright/test'
+import {test} from '../fixtures/custom_fixture'
 import {
   ApplicantQuestions,
   ClientInformation,
-  createTestContext,
   loginAsAdmin,
   loginAsTestUser,
   loginAsTrustedIntermediary,
@@ -13,11 +12,8 @@ import {
 import {TEST_USER_DISPLAY_NAME} from '../support/config'
 import {ProgramVisibility} from '../support/admin_programs'
 
-test.describe('Validate program visibility is correct for applicants and TIs', () => {
-  const ctx = createTestContext()
-  test('Create a new hidden program, verify applicants cannot see it on the home page', async () => {
-    const {page, adminPrograms} = ctx
-
+test.describe('Validate program visibility is correct for applicants and TIs', {tag: ['@migrated']}, () => {
+  test('Create a new hidden program, verify applicants cannot see it on the home page', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
     // Create a hidden program
@@ -43,9 +39,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await logout(page)
   })
 
-  test('create a public program, verify applicants can see it on the home page', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('create a public program, verify applicants can see it on the home page', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
     const programName = 'Public program'
@@ -70,9 +64,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await validateScreenshot(page, 'program-visibility-public')
   })
 
-  test('create a program visible only to TIs, verify TIs can see it and other applicants cannot', async () => {
-    const {page, tiDashboard, adminPrograms} = ctx
-
+  test('create a program visible only to TIs, verify TIs can see it and other applicants cannot', async ({page, tiDashboard, adminPrograms}) => {
     await loginAsAdmin(page)
 
     const programName = 'TI-only program'
@@ -115,9 +107,8 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     )
     await validateScreenshot(page, 'program-visibility-ti-only-visible-to-ti')
   })
-  test('create a program visible only for Selected TIs, verify those TIs can see it and other applicants/TIs cannot', async () => {
-    const {page, tiDashboard, adminPrograms, adminTiGroups} = ctx
 
+  test('create a program visible only for Selected TIs, verify those TIs can see it and other applicants/TIs cannot', async ({page, tiDashboard, adminPrograms, adminTiGroups}) => {
     await loginAsAdmin(page)
     await adminTiGroups.gotoAdminTIPage()
     await adminTiGroups.fillInGroupBasics('groupOne', 'groupOne description')
@@ -191,9 +182,8 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     )
     await validateScreenshot(page, 'program-visibility-for-selected-tis')
   })
-  test('create a program visible only for Selected TIs, then choose TI_Only, all TIs can see the program', async () => {
-    const {page, tiDashboard, adminPrograms, adminTiGroups} = ctx
 
+  test('create a program visible only for Selected TIs, then choose TI_Only, all TIs can see the program', async ({page, tiDashboard, adminPrograms, adminTiGroups}) => {
     await loginAsAdmin(page)
     await adminTiGroups.gotoAdminTIPage()
     await adminTiGroups.fillInGroupBasics('groupOne', 'groupOne description')

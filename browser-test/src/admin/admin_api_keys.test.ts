@@ -1,11 +1,8 @@
-import {test, expect} from '@playwright/test'
-import {createTestContext, loginAsAdmin, validateScreenshot} from '../support'
+import {test, expect} from '../fixtures/custom_fixture'
+import {loginAsAdmin, validateScreenshot} from '../support'
 
-test.describe('Managing API keys', () => {
-  const ctx = createTestContext()
-
-  test('Creates, views and retires new API key', async () => {
-    const {page, adminApiKeys, adminPrograms} = ctx
+test.describe('Managing API keys', {tag: ['@migrated']}, () => {
+  test('Creates, views and retires new API key', async ({page, adminApiKeys, adminPrograms}) => {
     await loginAsAdmin(page)
 
     const programName = 'Api using program'
@@ -32,12 +29,12 @@ test.describe('Managing API keys', () => {
     await validateScreenshot(page, 'api-key-index-page')
 
     let apiResponse = await adminApiKeys.callCheckAuth(credentials)
-    expect(apiResponse.status).toEqual(200)
+    expect(apiResponse.status()).toEqual(200)
     await adminApiKeys.expectKeyCallCount('test-api-key', 1)
     await adminApiKeys.expectLastCallIpAddressToBeSet('test-api-key')
 
     apiResponse = await adminApiKeys.callCheckAuth(credentials)
-    expect(apiResponse.status).toEqual(200)
+    expect(apiResponse.status()).toEqual(200)
     await adminApiKeys.expectKeyCallCount('test-api-key', 2)
 
     await adminApiKeys.retireApiKey('test-api-key')

@@ -1,7 +1,6 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from '../fixtures/custom_fixture'
 import {
   AdminPrograms,
-  createTestContext,
   enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
@@ -9,11 +8,9 @@ import {
 } from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
 
-test.describe('Program list page.', () => {
-  const ctx = createTestContext()
+test.describe('Program list page.', {tag: ['@migrated']}, () => {
 
-  test('view draft program', async () => {
-    const {page, adminPrograms} = ctx
+  test('view draft program', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
     const programName = 'Test program'
@@ -22,8 +19,7 @@ test.describe('Program list page.', () => {
     await validateScreenshot(page, 'program-list-one-draft-program')
   })
 
-  test('view active program', async () => {
-    const {page, adminPrograms} = ctx
+  test('view active program', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
     const programName = 'Test program'
@@ -33,8 +29,7 @@ test.describe('Program list page.', () => {
     await validateScreenshot(page, 'program-list-one-active-program')
   })
 
-  test('view program with active and draft versions', async () => {
-    const {page, adminPrograms} = ctx
+  test('view program with active and draft versions', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
     const programName = 'Test program'
@@ -47,9 +42,7 @@ test.describe('Program list page.', () => {
     await validateScreenshot(page, 'program-list-active-and-draft-versions')
   })
 
-  test('sorts by last updated, preferring draft over active', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('sorts by last updated, preferring draft over active', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
     const programOne = 'List test program one'
@@ -79,9 +72,7 @@ test.describe('Program list page.', () => {
     ])
   })
 
-  test('shows which program is the common intake when enabled', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('shows which program is the common intake when enabled', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'intake_form_enabled')
 
@@ -102,9 +93,7 @@ test.describe('Program list page.', () => {
     await validateScreenshot(page, 'intake-form-indicator')
   })
 
-  test('shows information about universal questions when the flag is enabled and at least one universal question is set', async () => {
-    const {page, adminPrograms, adminQuestions} = ctx
-
+  test('shows information about universal questions when the flag is enabled and at least one universal question is set', async ({page, adminPrograms, adminQuestions}) => {
     await loginAsAdmin(page)
 
     // Create a program and question that is not universal
@@ -155,9 +144,7 @@ test.describe('Program list page.', () => {
     expect(programListNames).toEqual(expectedPrograms)
   }
 
-  test('publishes a single program', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('publishes a single program', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
     const programOne = 'list-test-program-one'
@@ -180,9 +167,7 @@ test.describe('Program list page.', () => {
     await adminPrograms.expectActiveProgram(programOne)
   })
 
-  test('publishing a single program shows a modal with conditional warning about universal questions', async () => {
-    const {page, adminPrograms, adminQuestions} = ctx
-
+  test('publishing a single program shows a modal with conditional warning about universal questions', async ({page, adminPrograms, adminQuestions}) => {
     await loginAsAdmin(page)
 
     // Create a program and question that is not universal
@@ -244,8 +229,7 @@ test.describe('Program list page.', () => {
     await adminPrograms.expectActiveProgram(programOne)
   })
 
-  test('program list has current image', async () => {
-    const {page, adminPrograms, adminProgramImage} = ctx
+  test('program list has current image', async ({page, adminPrograms, adminProgramImage}) => {
     await loginAsAdmin(page)
 
     const programName = 'Images Flag On Program'
@@ -260,8 +244,7 @@ test.describe('Program list page.', () => {
     await validateScreenshot(page, 'program-list')
   })
 
-  test('program list with no image', async () => {
-    const {page, adminPrograms} = ctx
+  test('program list with no image', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
     const programName = 'No Image Program'
@@ -272,8 +255,7 @@ test.describe('Program list page.', () => {
     await validateScreenshot(page, 'program-list-no-image')
   })
 
-  test('program list with new image in draft', async () => {
-    const {page, adminPrograms, adminProgramImage} = ctx
+  test('program list with new image in draft', async ({page, adminPrograms, adminProgramImage}) => {
     await loginAsAdmin(page)
 
     // Start the program as having no image
@@ -297,8 +279,7 @@ test.describe('Program list page.', () => {
   // This test is flaky in staging prober tests, so only run it locally and on
   // GitHub actions. See issue #6624 for more details.
   if (isLocalDevEnvironment()) {
-    test('program list with different active and draft image', async () => {
-      const {page, adminPrograms, adminProgramImage} = ctx
+    test('program list with different active and draft image', async ({page, adminPrograms, adminProgramImage}) => {
       await loginAsAdmin(page)
 
       const programName = 'Different Images Program'
@@ -324,8 +305,7 @@ test.describe('Program list page.', () => {
     })
   }
 
-  test('program list with same active and draft image', async () => {
-    const {page, adminPrograms, adminProgramImage} = ctx
+  test('program list with same active and draft image', async ({page, adminPrograms, adminProgramImage}) => {
     await loginAsAdmin(page)
 
     const programName = 'Same Image Program'

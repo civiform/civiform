@@ -1,13 +1,9 @@
-import {test} from '@playwright/test'
-import {createTestContext, loginAsAdmin} from './support'
+import {test} from './fixtures/custom_fixture'
+import {loginAsAdmin} from './support'
 import {QuestionType} from './support/admin_questions'
 
-test.describe('deleting question lifecycle', () => {
-  const ctx = createTestContext()
-
-  test('create, publish, delete unused questions', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-
+test.describe('deleting question lifecycle', {tag: ['@migrated']}, () => {
+  test('create, publish, delete unused questions', async ({page, adminQuestions, adminPrograms}) => {
     await loginAsAdmin(page)
 
     const programName = 'Deleting program'

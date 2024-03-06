@@ -1,15 +1,15 @@
-import {test, expect} from '@playwright/test'
-import {Page} from 'playwright'
+import { Page } from 'playwright-core'
+import {test, expect} from '../../fixtures/custom_fixture'
 import {
-  createTestContext,
   disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
+  logout,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
 
-test.describe('Static text question for applicant flow', () => {
+test.describe('Static text question for applicant flow', {tag: ['@migrated']}, () => {
   const staticText = 'Hello, I am some static text!'
   const markdownText =
     '\n[This is a link](https://www.example.com)\n' +
@@ -23,10 +23,9 @@ test.describe('Static text question for applicant flow', () => {
     'This link should be autodetected: https://www.example.com\n' +
     '__Last line of content should be bold__'
   const programName = 'Test program for static text'
-  const ctx = createTestContext(/* clearDb= */ false)
 
-  test.beforeAll(async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
+  test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    // beforeAll
     // As admin, create program with static text question.
     await loginAsAdmin(page)
 
@@ -41,24 +40,25 @@ test.describe('Static text question for applicant flow', () => {
       ['static-text-q', 'partner-email-q'],
       programName,
     )
+
+    await logout(page)
+
+    // beforeEach
   })
 
-  test('displays static text', async () => {
-    const {applicantQuestions} = ctx
+  test('displays static text', async ({applicantQuestions}) => {
     await applicantQuestions.applyProgram(programName)
 
     await applicantQuestions.seeStaticQuestion(staticText)
   })
 
-  test('has no accessiblity violations', async () => {
-    const {page, applicantQuestions} = ctx
+  test('has no accessiblity violations', async ({page, applicantQuestions} ) => {
     await applicantQuestions.applyProgram(programName)
 
     await validateAccessibility(page)
   })
 
-  test('parses markdown', async () => {
-    const {page, applicantQuestions} = ctx
+  test('parses markdown', async ({page, applicantQuestions} ) => {
     await disableFeatureFlag(page, 'north_star_applicant_ui')
     await applicantQuestions.applyProgram(programName)
     await validateScreenshot(page, 'markdown-text')
@@ -69,8 +69,7 @@ test.describe('Static text question for applicant flow', () => {
   test(
     'parses markdown with north star enabled',
     {tag: ['@northstar']},
-    async () => {
-      const {page, applicantQuestions} = ctx
+    async ({page, applicantQuestions}) => {
       await enableFeatureFlag(page, 'north_star_applicant_ui')
       await applicantQuestions.applyProgram(programName)
       await validateScreenshot(

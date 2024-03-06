@@ -1,22 +1,20 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from '../../fixtures/custom_fixture'
 import {
-  createTestContext,
-  disableFeatureFlag,
   enableFeatureFlag,
+  disableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
 
-test.describe('Checkbox question for applicant flow', () => {
-  const ctx = createTestContext(/* clearDb= */ false)
-
+test.describe('Checkbox question for applicant flow', {tag: ['@migrated']}, () => {
   test.describe('single checkbox question', () => {
     const programName = 'Test program for single checkbox'
 
-    test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      // beforeAll
+
       // As admin, create program with single checkbox question.
       await loginAsAdmin(page)
 
@@ -37,15 +35,12 @@ test.describe('Checkbox question for applicant flow', () => {
       )
 
       await logout(page)
-    })
 
-    test.beforeEach(async () => {
-      const {page} = ctx
+      // beforeEach
       await disableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
-    test('Updates options in preview', async () => {
-      const {page, adminQuestions} = ctx
+    test('Updates options in preview', async ({page, adminQuestions}) => {
       await loginAsAdmin(page)
 
       await adminQuestions.createCheckboxQuestion(
@@ -88,15 +83,13 @@ test.describe('Checkbox question for applicant flow', () => {
       await adminQuestions.expectPreviewOptions(['Sample question option'])
     })
 
-    test('validate screenshot', async () => {
-      const {page, applicantQuestions} = ctx
+    test('validate screenshot', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'checkbox')
     })
 
-    test('validate screenshot with errors', async () => {
-      const {page, applicantQuestions} = ctx
+    test('validate screenshot with errors', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
@@ -106,8 +99,7 @@ test.describe('Checkbox question for applicant flow', () => {
     test(
       'validate screenshot with north star flag enabled',
       {tag: ['@northstar']},
-      async () => {
-        const {page, applicantQuestions} = ctx
+      async ({page, applicantQuestions}) => {
         await enableFeatureFlag(page, 'north_star_applicant_ui')
         await applicantQuestions.applyProgram(programName)
 
@@ -120,8 +112,7 @@ test.describe('Checkbox question for applicant flow', () => {
       },
     )
 
-    test('with single checked box submits successfully', async () => {
-      const {applicantQuestions} = ctx
+    test('with single checked box submits successfully', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCheckboxQuestion(['blue'])
       await applicantQuestions.clickNext()
@@ -129,8 +120,7 @@ test.describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with no checked boxes does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with no checked boxes does not submit', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
       // No validation errors on first page load.
@@ -149,8 +139,7 @@ test.describe('Checkbox question for applicant flow', () => {
       )
     })
 
-    test('with greater than max allowed checked boxes does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with greater than max allowed checked boxes does not submit', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       const checkBoxError = '.cf-applicant-question-errors'
       // No validation errors on first page load.
@@ -172,8 +161,8 @@ test.describe('Checkbox question for applicant flow', () => {
   test.describe('multiple checkbox questions', () => {
     const programName = 'Test program for multiple checkboxes'
 
-    test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      // beforeAll
       await loginAsAdmin(page)
 
       await adminQuestions.addCheckboxQuestion({
@@ -209,10 +198,11 @@ test.describe('Checkbox question for applicant flow', () => {
       await adminPrograms.publishAllDrafts()
 
       await logout(page)
+
+      // beforeEach
     })
 
-    test('with valid checkboxes submits successfully', async () => {
-      const {applicantQuestions} = ctx
+    test('with valid checkboxes submits successfully', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCheckboxQuestion(['blue'])
       await applicantQuestions.answerCheckboxQuestion(['beach'])
@@ -221,8 +211,7 @@ test.describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with unanswered optional question submits successfully', async () => {
-      const {applicantQuestions} = ctx
+    test('with unanswered optional question submits successfully', async ({applicantQuestions}) => {
       // Only answer required question.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCheckboxQuestion(['red'])
@@ -231,8 +220,7 @@ test.describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with first invalid does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with first invalid does not submit', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       const checkboxError = '.cf-applicant-question-errors'
       // No validation errors on first page load.
@@ -250,8 +238,7 @@ test.describe('Checkbox question for applicant flow', () => {
       await expect(page.locator(checkboxError)).toBeVisible()
     })
 
-    test('with second invalid does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with second invalid does not submit', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       const checkboxError = '.cf-applicant-question-errors'
       // No validation errors on first page load.
@@ -269,8 +256,7 @@ test.describe('Checkbox question for applicant flow', () => {
       await expect(page.locator(checkboxError)).toBeVisible()
     })
 
-    test('has no accessibility violations', async () => {
-      const {page, applicantQuestions} = ctx
+    test('has no accessibility violations', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)

@@ -1,11 +1,9 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from '../fixtures/custom_fixture'
 import {
   AdminQuestions,
   ClientInformation,
-  createTestContext,
   enableFeatureFlag,
   disableFeatureFlag,
-  dropTables,
   loginAsAdmin,
   loginAsTestUser,
   loginAsTrustedIntermediary,
@@ -19,7 +17,7 @@ import {
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Applicant navigation flow', () => {
-  const ctx = createTestContext(/* clearDb= */ false)
+  test.slow()
 
   test.describe('navigation with five blocks', () => {
     const programName = 'Test program for navigation flows'
@@ -27,13 +25,10 @@ test.describe('Applicant navigation flow', () => {
     const emailQuestionText = 'email question text'
     const addressQuestionText = 'address question text'
 
-    test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
+    test.beforeEach(async ( {page, adminQuestions, adminPrograms, helpers}) => {
+      // beforeAll
       await loginAsAdmin(page)
-      await enableFeatureFlag(
-        page,
-        'suggest_programs_on_application_confirmation_page',
-      )
+      await helpers.enableFeatureFlag('suggest_programs_on_application_confirmation_page')
 
       await adminQuestions.addDateQuestion({
         questionName: 'nav-date-q',
@@ -80,12 +75,12 @@ test.describe('Applicant navigation flow', () => {
 
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishProgram(programName)
+      await logout(page)
+      // beforeEach
     })
 
     test.describe('previous button', () => {
-      test('clicking previous on first block goes to summary page', async () => {
-        const {page, applicantQuestions} = ctx
-        await enableFeatureFlag(page, 'save_on_all_actions')
+      test('clicking previous on first block goes to summary page', async ({applicantQuestions}) => {
         await applicantQuestions.applyProgram(programName)
 
         await applicantQuestions.clickPrevious()
@@ -95,8 +90,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.expectReviewPage()
       })
 
-      test('clicking previous on later blocks goes to previous blocks', async () => {
-        const {page, applicantQuestions} = ctx
+      test('clicking previous on later blocks goes to previous blocks', async ({page, applicantQuestions}) => {
         await enableFeatureFlag(page, 'save_on_all_actions')
         await applicantQuestions.applyProgram(programName)
 
@@ -143,8 +137,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.expectReviewPage()
       })
 
-      test('clicking previous does not save when flag off', async () => {
-        const {page, applicantQuestions} = ctx
+      test('clicking previous does not save when flag off', async ({page, applicantQuestions}) => {
         await loginAsAdmin(page)
         await disableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -164,8 +157,7 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('clicking previous with correct form shows previous page and saves answers', async () => {
-        const {page, applicantQuestions} = ctx
+      test('clicking previous with correct form shows previous page and saves answers', async ({page, applicantQuestions} ) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -199,8 +191,7 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('clicking previous with missing answers shows modal', async () => {
-        const {page, applicantQuestions} = ctx
+      test('clicking previous with missing answers shows modal', async ({page, applicantQuestions} ) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -216,8 +207,7 @@ test.describe('Applicant navigation flow', () => {
         await validateScreenshot(page, 'error-on-previous-modal')
       })
 
-      test('error on previous modal > click stay and fix > shows block', async () => {
-        const {page, applicantQuestions} = ctx
+      test('error on previous modal > click stay and fix > shows block', async ({page, applicantQuestions}) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -253,8 +243,7 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('error on previous modal > click previous without saving > answers not saved', async () => {
-        const {page, applicantQuestions} = ctx
+      test('error on previous modal > click previous without saving > answers not saved', async ({page, applicantQuestions} ) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -279,8 +268,7 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('error on previous modal > click previous without saving > shows previous block', async () => {
-        const {page, applicantQuestions} = ctx
+      test('error on previous modal > click previous without saving > shows previous block', async ({page, applicantQuestions} ) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -304,18 +292,10 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.checkDateQuestionValue('2021-11-01')
         await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
       })
-
-      test.afterAll(async () => {
-        const {page} = ctx
-        await loginAsAdmin(page)
-        await disableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
-      })
     })
 
     test.describe('review button', () => {
-      test('clicking review does not save when flag off', async () => {
-        const {page, applicantQuestions} = ctx
+      test('clicking review does not save when flag off', async ({page, applicantQuestions} ) => {
         await loginAsAdmin(page)
         await disableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -335,8 +315,7 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('clicking review with correct form shows review page with saved answers', async () => {
-        const {page, applicantQuestions} = ctx
+      test('clicking review with correct form shows review page with saved answers', async ({page, applicantQuestions} ) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -358,8 +337,7 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('clicking review with missing answers shows modal', async () => {
-        const {page, applicantQuestions} = ctx
+      test('clicking review with missing answers shows modal', async ({page, applicantQuestions} ) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -375,8 +353,7 @@ test.describe('Applicant navigation flow', () => {
         await validateScreenshot(page, 'error-on-review-modal')
       })
 
-      test('error on review modal > click stay and fix > shows block', async () => {
-        const {page, applicantQuestions} = ctx
+      test('error on review modal > click stay and fix > shows block', async ({page, applicantQuestions}) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -410,8 +387,7 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('error on review modal > click review without saving > shows review page without saved answers', async () => {
-        const {page, applicantQuestions} = ctx
+      test('error on review modal > click review without saving > shows review page without saved answers', async ({page, applicantQuestions} ) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -434,17 +410,9 @@ test.describe('Applicant navigation flow', () => {
           emailQuestionText,
         )
       })
-
-      test.afterAll(async () => {
-        const {page} = ctx
-        await loginAsAdmin(page)
-        await disableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
-      })
     })
 
-    test('verify program details page', async () => {
-      const {page} = ctx
+    test('verify program details page', async ({page}) => {
       // Begin waiting for the popup before clicking the link, otherwise
       // the popup may fire before the wait is registered, causing the test to flake.
       const popupPromise = page.waitForEvent('popup')
@@ -458,8 +426,7 @@ test.describe('Applicant navigation flow', () => {
       expect(popupURL).toMatch('https://www.usa.gov')
     })
 
-    test('verify program list page', async () => {
-      const {page, adminPrograms} = ctx
+    test('verify program list page', async ({page, adminPrograms} ) => {
       await loginAsAdmin(page)
       // create second program that has an external link and markdown in the program description.
       const programWithExternalLink = 'Program with external link'
@@ -513,8 +480,7 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('verify program preview page', async () => {
-      const {page, applicantQuestions} = ctx
+    test('verify program preview page', async ({page, applicantQuestions}) => {
       await applicantQuestions.clickApplyProgramButton(programName)
 
       // Verify we are on program preview page.
@@ -528,8 +494,7 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('can answer third question directly', async () => {
-      const {page, applicantQuestions} = ctx
+    test('can answer third question directly', async ({page, applicantQuestions}) => {
       await applicantQuestions.clickApplyProgramButton(programName)
       await applicantQuestions.answerQuestionFromReviewPage(
         'address question text',
@@ -567,8 +532,7 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('verify program review page', async () => {
-      const {page, applicantQuestions} = ctx
+    test('verify program review page', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
       // Answer all program questions
@@ -600,8 +564,7 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('verify program submission page for guest', async () => {
-      const {page, applicantQuestions} = ctx
+    test('verify program submission page for guest', async ({page, applicantQuestions, helpers}) => {
       await applicantQuestions.applyProgram(programName)
 
       // Fill out application and submit.
@@ -649,8 +612,7 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('verify program submission page for logged in user', async () => {
-      const {page, applicantQuestions} = ctx
+    test('verify program submission page for logged in user', async ({page, applicantQuestions}) => {
       await loginAsTestUser(page)
       await applicantQuestions.applyProgram(programName)
 
@@ -687,8 +649,7 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('verify program submission page for guest multiple programs', async () => {
-      const {page, applicantQuestions, adminPrograms} = ctx
+    test('verify program submission page for guest multiple programs', async ({page, applicantQuestions, adminPrograms}) => {
 
       // Login as an admin and add a bunch of programs
       await loginAsAdmin(page)
@@ -730,8 +691,7 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('shows error with incomplete submission', async () => {
-      const {page, applicantQuestions} = ctx
+    test('shows error with incomplete submission', async ({page, applicantQuestions}) => {
       await applicantQuestions.clickApplyProgramButton(programName)
 
       // The UI correctly won't let us submit because the application isn't complete.
@@ -760,8 +720,7 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('shows "no changes" page when a duplicate application is submitted', async () => {
-      const {page, applicantQuestions} = ctx
+    test('shows "no changes" page when a duplicate application is submitted', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
       // Fill out application and submit.
@@ -825,16 +784,13 @@ test.describe('Applicant navigation flow', () => {
     const eligibilityQuestionId = 'nav-predicate-number-q'
     const secondProgramCorrectAnswer = '5'
 
-    test.beforeAll(async () => {
-      const {page} = ctx
-      await dropTables(page)
-    })
-
     // TODO(#4509): Once we can create different test users, change this to
     // test.beforeAll and use different users for each test, instead of wiping the
     // db after each test.
-    test.beforeEach(async () => {
-      const {page, adminQuestions, adminPredicates, adminPrograms} = ctx
+    test.beforeEach(async ({page, adminQuestions, adminPredicates, adminPrograms}) => {
+      // beforeAll
+
+      // beforeEach
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'intake_form_enabled')
 
@@ -886,15 +842,7 @@ test.describe('Applicant navigation flow', () => {
       await logout(page)
     })
 
-    test.afterEach(async () => {
-      // TODO(#4509): Once we can create different test users, we don't need to
-      // wipe the db after each test
-      const {page} = ctx
-      await dropTables(page)
-    })
-
-    test('does not show eligible programs or upsell on confirmation page when no programs are eligible and signed in', async () => {
-      const {page, applicantQuestions} = ctx
+    test('does not show eligible programs or upsell on confirmation page when no programs are eligible and signed in', async ({page, applicantQuestions}) => {
       await enableFeatureFlag(page, 'intake_form_enabled')
 
       await loginAsTestUser(page)
@@ -920,8 +868,7 @@ test.describe('Applicant navigation flow', () => {
       await validateAccessibility(page)
     })
 
-    test('shows eligible programs and no upsell on confirmation page when programs are eligible and signed in', async () => {
-      const {page, applicantQuestions} = ctx
+    test('shows eligible programs and no upsell on confirmation page when programs are eligible and signed in', async ({page, applicantQuestions}) => {
       await enableFeatureFlag(page, 'intake_form_enabled')
 
       await loginAsTestUser(page)
@@ -947,8 +894,7 @@ test.describe('Applicant navigation flow', () => {
       await validateAccessibility(page)
     })
 
-    test('does not show eligible programs and shows upsell on confirmation page when no programs are eligible and a guest user', async () => {
-      const {page, applicantQuestions} = ctx
+    test('does not show eligible programs and shows upsell on confirmation page when no programs are eligible and a guest user', async ({page, applicantQuestions}) => {
       await enableFeatureFlag(page, 'intake_form_enabled')
 
       // Fill out common intake form, with non-eligible response
@@ -973,8 +919,7 @@ test.describe('Applicant navigation flow', () => {
       await validateAccessibility(page)
     })
 
-    test('shows eligible programs and upsell on confirmation page when programs are eligible and a guest user', async () => {
-      const {page, applicantQuestions} = ctx
+    test('shows eligible programs and upsell on confirmation page when programs are eligible and a guest user', async ({page, applicantQuestions}) => {
       await enableFeatureFlag(page, 'intake_form_enabled')
 
       // Fill out common intake form, with eligible response
@@ -1007,8 +952,7 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('shows intake form as submitted after completion', async () => {
-      const {page, applicantQuestions} = ctx
+    test('shows intake form as submitted after completion', async ({page, applicantQuestions}) => {
       await enableFeatureFlag(page, 'intake_form_enabled')
 
       // Fill out common intake form, with eligible response
@@ -1034,8 +978,7 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('does not show eligible programs and shows TI text on confirmation page when no programs are eligible and a TI', async () => {
-      const {page, tiDashboard, applicantQuestions} = ctx
+    test('does not show eligible programs and shows TI text on confirmation page when no programs are eligible and a TI', async ({page, tiDashboard, applicantQuestions}) => {
       await enableFeatureFlag(page, 'intake_form_enabled')
 
       // Create trusted intermediary client
@@ -1074,8 +1017,7 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('shows eligible programs and TI text on confirmation page when programs are eligible and a TI', async () => {
-      const {page, tiDashboard, applicantQuestions} = ctx
+    test('shows eligible programs and TI text on confirmation page when programs are eligible and a TI', async ({page, tiDashboard, applicantQuestions}) => {
       await enableFeatureFlag(page, 'intake_form_enabled')
 
       // Create trusted intermediary client
@@ -1119,8 +1061,8 @@ test.describe('Applicant navigation flow', () => {
     const fullProgramName = 'Test program for eligibility navigation flows'
     const eligibilityQuestionId = 'nav-predicate-number-q'
 
-    test.beforeAll(async () => {
-      const {page, adminQuestions, adminPredicates, adminPrograms} = ctx
+    test.beforeEach(async ({page, adminQuestions, adminPredicates, adminPrograms}) => {
+      // beforeAll
       await loginAsAdmin(page)
 
       await adminQuestions.addNumberQuestion({
@@ -1157,10 +1099,11 @@ test.describe('Applicant navigation flow', () => {
 
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishProgram(fullProgramName)
+
+      // beforeEach
     })
 
-    test('does not show Not Eligible when there is no answer', async () => {
-      const {applicantQuestions} = ctx
+    test('does not show Not Eligible when there is no answer', async ({applicantQuestions}) => {
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
       await applicantQuestions.expectQuestionHasNoEligibilityIndicator(
@@ -1168,8 +1111,7 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('shows not eligible with ineligible answer', async () => {
-      const {page, applicantQuestions} = ctx
+    test('shows not eligible with ineligible answer', async ({page, applicantQuestions} ) => {
       await applicantQuestions.applyProgram(fullProgramName)
 
       // Fill out application and submit.
@@ -1198,8 +1140,7 @@ test.describe('Applicant navigation flow', () => {
       await validateAccessibility(page)
     })
 
-    test('shows may be eligible with an eligible answer', async () => {
-      const {page, applicantQuestions} = ctx
+    test('shows may be eligible with an eligible answer', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(fullProgramName)
 
       // Fill out application and without submitting.
@@ -1239,8 +1180,7 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('shows not eligible with ineligible answer from another application', async () => {
-      const {page, adminPrograms, applicantQuestions} = ctx
+    test('shows not eligible with ineligible answer from another application', async ({page, adminPrograms, applicantQuestions}) => {
       const overlappingOneQProgramName =
         'Test program with one overlapping question for eligibility navigation flows'
 
@@ -1288,8 +1228,7 @@ test.describe('Applicant navigation flow', () => {
       await validateAccessibility(page)
     })
 
-    test('shows not eligible upon submit with ineligible answer', async () => {
-      const {applicantQuestions} = ctx
+    test('shows not eligible upon submit with ineligible answer', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(fullProgramName)
 
       // Fill out application and submit.
@@ -1318,8 +1257,7 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.expectIneligiblePage()
     })
 
-    test('shows not eligible upon submit with ineligible answer with gating eligibility', async () => {
-      const {applicantQuestions} = ctx
+    test('shows not eligible upon submit with ineligible answer with gating eligibility', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(fullProgramName)
 
       // Fill out application and submit.
@@ -1348,14 +1286,13 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.expectIneligiblePage()
     })
 
-    test('ineligible page renders markdown', async () => {
-      const {
-        page,
-        adminQuestions,
-        applicantQuestions,
-        adminPredicates,
-        adminPrograms,
-      } = ctx
+    test('ineligible page renders markdown', async ({
+      page,
+      adminQuestions,
+      applicantQuestions,
+      adminPredicates,
+      adminPrograms,
+    }) => {
       const questionName = 'question-with-markdown'
       const programName = 'Program with markdown question'
 
@@ -1402,9 +1339,7 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('shows may be eligible with nongating eligibility', async () => {
-      const {page, adminPrograms, applicantQuestions} = ctx
-
+    test('shows may be eligible with nongating eligibility', async ({page, adminPrograms, applicantQuestions}) => {
       await loginAsAdmin(page)
       await adminPrograms.createNewVersion(fullProgramName)
       await adminPrograms.setProgramEligibilityToNongating(fullProgramName)
@@ -1425,9 +1360,7 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('does not show not eligible with nongating eligibility', async () => {
-      const {page, adminPrograms, applicantQuestions} = ctx
-
+    test('does not show not eligible with nongating eligibility', async ({page, adminPrograms, applicantQuestions}) => {
       await loginAsAdmin(page)
       await adminPrograms.createNewVersion(fullProgramName)
       await adminPrograms.setProgramEligibilityToNongating(fullProgramName)
@@ -1465,8 +1398,8 @@ test.describe('Applicant navigation flow', () => {
       const screen2 = 'Screen 2'
       const screen3 = 'Screen 3'
 
-      test.beforeAll(async () => {
-        const {page, adminQuestions, adminPrograms, adminPredicates} = ctx
+      test.beforeEach(async ({page, adminQuestions, adminPrograms, adminPredicates} ) => {
+        // beforeAll
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'esri_address_correction_enabled')
         await enableFeatureFlag(
@@ -1556,10 +1489,11 @@ test.describe('Applicant navigation flow', () => {
         await adminPrograms.publishProgram(programName)
 
         await logout(page)
+
+        // beforeEach
       })
 
-      test('when address is eligible show hidden screen', async () => {
-        const {page, applicantQuestions} = ctx
+      test('when address is eligible show hidden screen', async ({page, applicantQuestions}) => {
         await disableFeatureFlag(page, 'save_on_all_actions')
 
         await applicantQuestions.applyProgram(programName)
@@ -1591,8 +1525,7 @@ test.describe('Applicant navigation flow', () => {
         await logout(page)
       })
 
-      test('when address is not eligible do not show hidden screen', async () => {
-        const {page, applicantQuestions} = ctx
+      test('when address is not eligible do not show hidden screen', async ({page, applicantQuestions}) => {
         await applicantQuestions.applyProgram(programName)
 
         // Fill out application and submit.

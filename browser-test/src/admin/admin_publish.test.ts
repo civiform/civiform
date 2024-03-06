@@ -1,24 +1,12 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from '../fixtures/custom_fixture'
 import {
-  AdminPrograms,
-  AdminQuestions,
   dismissModal,
-  dropTables,
-  gotoEndpoint,
   loginAsAdmin,
-  startSession,
   validateScreenshot,
-  createTestContext,
 } from '../support'
-import {Page} from 'playwright'
 import {ProgramVisibility} from '../support/admin_programs'
 
-test.describe('publishing all draft questions and programs', () => {
-  const ctx = createTestContext()
-  let pageObject: Page
-  let adminPrograms: AdminPrograms
-  let adminQuestions: AdminQuestions
-
+test.describe('publishing all draft questions and programs', {tag: ['@migrated']}, () => {
   const hiddenProgramNoQuestions = 'Public test program hidden no questions'
   const visibleProgramWithQuestion = 'Public test program visible with question'
   const questionName = 'publish-test-address-q'
@@ -26,17 +14,9 @@ test.describe('publishing all draft questions and programs', () => {
   // CreateNewVersion implicitly updates the question text to be suffixed with " new version".
   const draftQuestionText = `${questionText} new version`
 
-  test.beforeAll(async () => {
-    const session = await startSession()
-    pageObject = session.page
-
-    await dropTables(pageObject)
-    await gotoEndpoint(pageObject)
-
-    adminPrograms = new AdminPrograms(pageObject)
-    adminQuestions = new AdminQuestions(pageObject)
-
-    await loginAsAdmin(pageObject)
+    test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+      // beforeAll
+    await loginAsAdmin(page)
 
     // Create a hidden program with no questions
     await adminPrograms.addProgram(
@@ -65,9 +45,10 @@ test.describe('publishing all draft questions and programs', () => {
     await adminQuestions.createNewVersion(questionName)
 
     await adminPrograms.gotoAdminProgramsPage()
+    // beforeEach
   })
 
-  test('shows programs and questions that will be published in the modal', async () => {
+  test('shows programs and questions that will be published in the modal', async ({adminPrograms}) => {
     await adminPrograms.expectProgramReferencesModalContains({
       expectedQuestionsContents: [`${draftQuestionText} - Edit`],
       expectedProgramsContents: [
@@ -77,17 +58,16 @@ test.describe('publishing all draft questions and programs', () => {
     })
   })
 
-  test('validate screenshot', async () => {
+  test('validate screenshot', async ({page, adminPrograms}) => {
     await adminPrograms.openPublishAllDraftsModal()
     await validateScreenshot(
       adminPrograms.publishAllProgramsModalLocator(),
       'publish-modal',
     )
-    await dismissModal(pageObject)
+    await dismissModal(page)
   })
 
-  test('publishing all programs with universal questions feature flag on shows a modal with information about universal questions', async () => {
-    const {page, adminPrograms, adminQuestions} = ctx
+  test('publishing all programs with universal questions feature flag on shows a modal with information about universal questions', async ({page, adminPrograms, adminQuestions}) => {
     await loginAsAdmin(page)
     // Create programs and questions (including universal questions)
     const programOne = 'program one'

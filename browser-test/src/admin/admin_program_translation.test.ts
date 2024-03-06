@@ -1,6 +1,5 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from '../fixtures/custom_fixture'
 import {
-  createTestContext,
   loginAsAdmin,
   logout,
   selectApplicantLanguage,
@@ -8,12 +7,8 @@ import {
   validateToastMessage,
 } from '../support'
 
-test.describe('Admin can manage translations', () => {
-  const ctx = createTestContext()
-
-  test('creates a program without statuses and adds translation', async () => {
-    const {page, adminPrograms, adminTranslations} = ctx
-
+test.describe('Admin can manage translations', {tag: ['@migrated']}, () => {
+  test('creates a program without statuses and adds translation', async ({page, adminPrograms, adminTranslations} ) => {
     await loginAsAdmin(page)
 
     const programName = 'Program to be translated no statuses'
@@ -58,9 +53,7 @@ test.describe('Admin can manage translations', () => {
     expect(cardText).toContain('Spanish description')
   })
 
-  test('creates a program with statuses and adds translations for program statuses', async () => {
-    const {page, adminPrograms, adminProgramStatuses, adminTranslations} = ctx
-
+  test('creates a program with statuses and adds translations for program statuses', async ({page, adminPrograms, adminProgramStatuses, adminTranslations} ) => {
     await loginAsAdmin(page)
 
     const programName = 'Program to be translated with statuses'
@@ -151,8 +144,7 @@ test.describe('Admin can manage translations', () => {
     })
   })
 
-  test('creates a program with summary image description and adds translations', async () => {
-    const {page, adminPrograms, adminProgramImage, adminTranslations} = ctx
+  test('creates a program with summary image description and adds translations', async ({page, adminPrograms, adminProgramImage, adminTranslations} ) => {
     await loginAsAdmin(page)
 
     const programName = 'Program with summary image description'
@@ -191,8 +183,7 @@ test.describe('Admin can manage translations', () => {
     await adminTranslations.expectProgramImageDescriptionTranslation('')
   })
 
-  test('editing summary image description does not clobber translations', async () => {
-    const {page, adminPrograms, adminProgramImage, adminTranslations} = ctx
+  test('editing summary image description does not clobber translations', async ({page, adminPrograms, adminProgramImage, adminTranslations} ) => {
     await loginAsAdmin(page)
 
     const programName = 'Program with summary image description'
@@ -227,8 +218,7 @@ test.describe('Admin can manage translations', () => {
     )
   })
 
-  test('deleting summary image description deletes all translations', async () => {
-    const {page, adminPrograms, adminProgramImage, adminTranslations} = ctx
+  test('deleting summary image description deletes all translations', async ({page, adminPrograms, adminProgramImage, adminTranslations} ) => {
     await loginAsAdmin(page)
 
     const programName = 'Program with summary image description'
@@ -261,15 +251,13 @@ test.describe('Admin can manage translations', () => {
     await adminTranslations.expectNoProgramImageDescription()
   })
 
-  test('creates a question and adds translations', async () => {
-    const {
+  test('creates a question and adds translations', async ({
       page,
       adminPrograms,
       adminQuestions,
       adminTranslations,
       applicantQuestions,
-    } = ctx
-
+    }) => {
     await loginAsAdmin(page)
 
     // Add a new question to be translated
@@ -315,15 +303,13 @@ test.describe('Admin can manage translations', () => {
     )
   })
 
-  test('create a multi-option question and add translations for options', async () => {
-    const {
-      page,
-      adminPrograms,
-      adminQuestions,
-      adminTranslations,
-      applicantQuestions,
-    } = ctx
-
+  test('create a multi-option question and add translations for options', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+    adminTranslations,
+    applicantQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     // Add a new question to be translated
@@ -363,15 +349,13 @@ test.describe('Admin can manage translations', () => {
     expect(await page.innerText('main form')).toContain('tres')
   })
 
-  test('create an enumerator question and add translations for entity type', async () => {
-    const {
-      page,
-      adminPrograms,
-      adminQuestions,
-      adminTranslations,
-      applicantQuestions,
-    } = ctx
-
+  test('create an enumerator question and add translations for entity type', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+    adminTranslations,
+    applicantQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     // Add a new question to be translated
@@ -399,9 +383,7 @@ test.describe('Admin can manage translations', () => {
     expect(await page.innerText('main form')).toContain('family member')
   })
 
-  test('updating a question does not clobber translations', async () => {
-    const {page, adminQuestions, adminTranslations} = ctx
-
+  test('updating a question does not clobber translations', async ({page, adminQuestions, adminTranslations} ) => {
     await loginAsAdmin(page)
 
     // Add a new question.
@@ -427,9 +409,7 @@ test.describe('Admin can manage translations', () => {
     )
   })
 
-  test('deleting help text in question edit view deletes all help text translations', async () => {
-    const {page, adminQuestions, adminTranslations} = ctx
-
+  test('deleting help text in question edit view deletes all help text translations', async ({page, adminQuestions, adminTranslations} ) => {
     await loginAsAdmin(page)
 
     // Add a new question with help text
@@ -467,9 +447,7 @@ test.describe('Admin can manage translations', () => {
     expect(await page.inputValue('text=Question help text')).toEqual('')
   })
 
-  test('Applicant sees toast message warning translation is not complete', async () => {
-    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
-
+  test('Applicant sees toast message warning translation is not complete', async ({page, adminQuestions, adminPrograms, applicantQuestions}) => {
     // Add a new program with one non-translated question
     await loginAsAdmin(page)
 

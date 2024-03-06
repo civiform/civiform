@@ -1,13 +1,10 @@
-import {test, expect} from '@playwright/test'
-import {createTestContext, loginAsAdmin, waitForPageJsLoad} from '../support'
+import {test, expect} from '../fixtures/custom_fixture'
+import {waitForPageJsLoad} from '../support'
 
-test.describe('create dropdown question with options', () => {
-  const ctx = createTestContext()
+test.describe('create dropdown question with options', {tag: ['@migrated']}, () => {
+  test('add remove buttons work correctly', async ({page, adminQuestions, helpers}) => {
 
-  test('add remove buttons work correctly', async () => {
-    const {page, adminQuestions} = ctx
-
-    await loginAsAdmin(page)
+    await helpers.loginAsAdmin()
 
     await page.click('text=Questions')
     await waitForPageJsLoad(page)

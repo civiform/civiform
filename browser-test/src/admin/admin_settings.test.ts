@@ -1,16 +1,12 @@
-import {test} from '@playwright/test'
+import {test} from '../fixtures/custom_fixture'
 import {
-  createTestContext,
   loginAsAdmin,
   validateScreenshot,
   AdminSettings,
 } from '../support'
 
-test.describe('Managing system-wide settings', () => {
-  const ctx = createTestContext()
-
-  test('Displays the settings page', async () => {
-    const {page} = ctx
+test.describe('Managing system-wide settings', {tag: ['@migrated']}, () => {
+  test('Displays the settings page', async ({page}) => {
     await loginAsAdmin(page)
 
     const adminSettings = new AdminSettings(page)
@@ -27,9 +23,7 @@ test.describe('Managing system-wide settings', () => {
     )
   })
 
-  test('Displays the settings page in a narrow viewport', async () => {
-    const {page} = ctx
-
+  test('Displays the settings page in a narrow viewport', async ({page}) => {
     // We know the header will start to wrap at smaller widths
     await page.setViewportSize({
       width: 768,
@@ -43,8 +37,7 @@ test.describe('Managing system-wide settings', () => {
     await validateScreenshot(page, 'admin-settings-page-narrow')
   })
 
-  test('Updates settings on save', async () => {
-    const {page} = ctx
+  test('Updates settings on save', async ({page} ) => {
     await loginAsAdmin(page)
 
     const adminSettings = new AdminSettings(page)

@@ -1,21 +1,23 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from '../../fixtures/custom_fixture'
 import {
-  createTestContext,
+  AdminPrograms,
+  AdminQuestions,
+  ApplicantQuestions,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
 
-test.describe('address applicant flow', () => {
-  const ctx = createTestContext(/* clearDb= */ false)
-
+test.describe('address applicant flow', {tag: ['@migrated']}, () => {
   test.describe('single required address question', () => {
     const programName = 'Test program for single address'
 
-    test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
-      await loginAsAdmin(page)
+    test.beforeEach(async ({page, helpers}) => {
+      const adminQuestions = new AdminQuestions(page)
+      const adminPrograms = new AdminPrograms(page)
+
+      await helpers.loginAsAdmin()
 
       await adminQuestions.addAddressQuestion({
         questionName: 'address-test-q',
@@ -25,26 +27,24 @@ test.describe('address applicant flow', () => {
         programName,
       )
 
-      await logout(page)
+      await helpers.logout()
     })
 
-    test('validate screenshot', async () => {
-      const {page, applicantQuestions} = ctx
+    test('validate screenshot', async ({page}) => {
+      const applicantQuestions = new ApplicantQuestions(page)
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'address')
     })
 
-    test('validate screenshot with errors', async () => {
-      const {page, applicantQuestions} = ctx
+    test('validate screenshot with errors', async ({page, applicantQuestions} ) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
       await validateScreenshot(page, 'address-errors')
     })
 
-    test('does not show errors initially', async () => {
-      const {page, applicantQuestions} = ctx
+    test('does not show errors initially', async ({page, applicantQuestions} ) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -63,8 +63,7 @@ test.describe('address applicant flow', () => {
       await expect(error).toBeHidden()
     })
 
-    test('with valid address does submit', async () => {
-      const {applicantQuestions} = ctx
+    test('with valid address does submit', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -78,8 +77,7 @@ test.describe('address applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with empty address does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with empty address does not submit', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion('', '', '', '', '')
       await applicantQuestions.clickNext()
@@ -94,8 +92,7 @@ test.describe('address applicant flow', () => {
       await expect(error).toBeVisible()
     })
 
-    test('with invalid address does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with invalid address does not submit', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -114,8 +111,7 @@ test.describe('address applicant flow', () => {
   test.describe('multiple address questions', () => {
     const programName = 'Test program for multiple addresses'
 
-    test.beforeAll(async () => {
-      const {page, adminPrograms, adminQuestions} = ctx
+    test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
       await loginAsAdmin(page)
 
       await adminQuestions.addAddressQuestion({
@@ -132,8 +128,7 @@ test.describe('address applicant flow', () => {
       await logout(page)
     })
 
-    test('with valid addresses does submit', async () => {
-      const {applicantQuestions} = ctx
+    test('with valid addresses does submit', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -156,8 +151,7 @@ test.describe('address applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with first invalid does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with first invalid does not submit', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion('', '', '', '', '', 0)
       await applicantQuestions.answerAddressQuestion(
@@ -191,8 +185,7 @@ test.describe('address applicant flow', () => {
       await expect(error).toBeHidden()
     })
 
-    test('with second invalid does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with second invalid does not submit', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -226,8 +219,7 @@ test.describe('address applicant flow', () => {
       await expect(error).toBeVisible()
     })
 
-    test('has no accessibility violations', async () => {
-      const {page, applicantQuestions} = ctx
+    test('has no accessibility violations', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
@@ -238,8 +230,7 @@ test.describe('address applicant flow', () => {
   test.describe('optional address question', () => {
     const programName = 'Test program for optional address'
 
-    test.beforeAll(async () => {
-      const {page, adminPrograms, adminQuestions} = ctx
+    test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
       await loginAsAdmin(page)
 
       await adminQuestions.addAddressQuestion({
@@ -260,8 +251,7 @@ test.describe('address applicant flow', () => {
       await logout(page)
     })
 
-    test('with valid required address does submit', async () => {
-      const {applicantQuestions} = ctx
+    test('with valid required address does submit', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -276,8 +266,7 @@ test.describe('address applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with invalid optional address does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with invalid optional address does not submit', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -307,15 +296,13 @@ test.describe('address applicant flow', () => {
     })
 
     test.describe('with invalid required address', () => {
-      test.beforeEach(async () => {
-        const {applicantQuestions} = ctx
+      test.beforeEach(async ({applicantQuestions}) => {
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerAddressQuestion('', '', '', '', '', 1)
         await applicantQuestions.clickNext()
       })
 
-      test('does not submit', async () => {
-        const {page} = ctx
+      test('does not submit', async ({page}) => {
         // Second question has errors.
         let error = page.locator('.cf-address-street-1-error >> nth=1')
         await expect(error).toBeVisible()
@@ -327,8 +314,7 @@ test.describe('address applicant flow', () => {
         await expect(error).toBeVisible()
       })
 
-      test('optional has no errors', async () => {
-        const {page} = ctx
+      test('optional has no errors', async ({page}) => {
         // First question has no errors.
         let error = page.locator('.cf-address-street-1-error >> nth=0')
         await expect(error).toBeHidden()

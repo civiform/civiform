@@ -1,26 +1,23 @@
 import {test, expect} from '@playwright/test'
-import {createTestContext, validateAccessibility} from './support'
+import {validateAccessibility} from './support'
 import {BASE_URL} from './support/config'
 
 test.describe('user HTTP sessions', () => {
-  const ctx = createTestContext()
-
   interface Profile {
     id: string
     roles: string[]
     clientName: string
   }
 
-  test('ensures that an initial request gets a user profile', async () => {
+  test('ensures that an initial request gets a user profile', async ({page}) => {
     // Load a page that corresponds to a user-facing route in order to get a profile.
-    const {page} = ctx
     await validateAccessibility(page)
     expect(await page.textContent('#login-button')).toContain('Log in')
 
     // Now validate that a user profile is present.
-    await ctx.page.goto(BASE_URL + '/dev/profile')
+    await page.goto(BASE_URL + '/dev/profile')
 
-    const content = await ctx.page.content()
+    const content = await page.content()
     // Pull out the JSON from the page using multiline matching.
     const matches = content.match(/{.*}/s)
 

@@ -1,6 +1,5 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from './fixtures/custom_fixture'
 import {
-  createTestContext,
   dropTables,
   isHermeticTestEnvironment,
   loginAsAdmin,
@@ -10,21 +9,16 @@ import {
 } from './support'
 import {BASE_URL} from './support/config'
 
-test.describe('Viewing API docs', () => {
-  const ctx = createTestContext()
-
-  test.beforeEach(async () => {
-    const {page} = ctx
+test.describe('Viewing API docs', {tag: ['@migrated']}, () => {
+  test.beforeEach(async ({page}) => {
     await dropTables(page)
     await seedPrograms(page)
   })
 
-  test('Views active API docs', async () => {
+  test('Views active API docs', async ( {page, adminPrograms, adminQuestions}) => {
     // TODO: fix the problem with these test on probers
     // https://github.com/civiform/civiform/issues/6158
     if (isHermeticTestEnvironment()) {
-      const {page, adminPrograms, adminQuestions} = ctx
-
       await page.goto(BASE_URL)
       await loginAsAdmin(page)
 
@@ -56,9 +50,7 @@ test.describe('Viewing API docs', () => {
     }
   })
 
-  test('Views active API docs without logging in', async () => {
-    const {page, adminPrograms, browserContext} = ctx
-
+  test('Views active API docs without logging in', async ( {page, adminPrograms, context}) => {
     await page.goto(BASE_URL)
     await loginAsAdmin(page)
 
@@ -68,8 +60,8 @@ test.describe('Viewing API docs', () => {
 
     // Log out and clear cookies before accessing API docs.
     await logout(page)
-    await browserContext.clearCookies()
-    const freshPage = await browserContext.newPage()
+    await context.clearCookies()
+    const freshPage = await context.newPage()
     await freshPage.goto(apiDocsUrl)
 
     expect(await freshPage.textContent('html')).toContain(
@@ -92,10 +84,8 @@ test.describe('Viewing API docs', () => {
     )
   })
 
-  test('Views draft API docs when available', async () => {
+  test('Views draft API docs when available', async ({page}) => {
     if (isHermeticTestEnvironment()) {
-      const {page} = ctx
-
       await page.goto(BASE_URL)
       await loginAsAdmin(page)
       await page.click('text=API docs')
@@ -109,10 +99,8 @@ test.describe('Viewing API docs', () => {
     }
   })
 
-  test('Shows error on draft API docs when no draft available', async () => {
+  test('Shows error on draft API docs when no draft available', async ({page, adminPrograms}) => {
     if (isHermeticTestEnvironment()) {
-      const {page, adminPrograms} = ctx
-
       await page.goto(BASE_URL)
       await loginAsAdmin(page)
       await adminPrograms.publishAllDrafts()
@@ -127,9 +115,7 @@ test.describe('Viewing API docs', () => {
     }
   })
 
-  test('Opens help accordion with a click', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('Opens help accordion with a click', async ({page, adminPrograms} ) => {
     await page.goto(BASE_URL)
     await loginAsAdmin(page)
     await adminPrograms.publishAllDrafts()

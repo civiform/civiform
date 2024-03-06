@@ -1,14 +1,14 @@
 import {defineConfig} from '@playwright/test'
 
 export default defineConfig({
-  timeout: 180000,
+  timeout: 15 * 1000,// 180000,
   testDir: './src',
   snapshotPathTemplate: './image_snapshots/{arg}{ext}',
   globalSetup: './src/setup/global-setup.ts',
   globalTeardown: './src/setup/global-teardown.ts',
   fullyParallel: false,
   workers: 1,
-  retries: 1,
+  retries: 0,
   outputDir: './tmp/test-output',
   expect: {
     toHaveScreenshot: {
@@ -20,8 +20,9 @@ export default defineConfig({
     },
   },
   use: {
-    trace: 'on-first-retry',
+    trace: 'on',
     video: process.env.RECORD_VIDEO ? 'on-first-retry' : 'off',
+    baseURL: 'http://civiform:9000'
   },
   reporter: [
     ['list', {printSteps: true}],

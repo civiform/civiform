@@ -1,17 +1,14 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from '../fixtures/custom_fixture'
 import {
   AdminPrograms,
   AdminQuestions,
-  createTestContext,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
-test.describe('Admin question list', () => {
-  const ctx = createTestContext()
-  test('sorts by last updated, preferring draft over active', async () => {
-    const {page, adminPrograms, adminQuestions} = ctx
 
+test.describe('Admin question list', {tag: ['@migrated']}, () => {
+  test('sorts by last updated, preferring draft over active', async ({page, adminPrograms, adminQuestions} ) => {
     await loginAsAdmin(page)
 
     const questionOnePublishedText = 'question list test question one'
@@ -84,8 +81,7 @@ test.describe('Admin question list', () => {
     ])
   })
 
-  test('filters question list with search query', async () => {
-    const {page, adminQuestions} = ctx
+  test('filters question list with search query', async ({page, adminQuestions}) => {
     await loginAsAdmin(page)
     await adminQuestions.addTextQuestion({
       questionName: 'q-f',
@@ -111,8 +107,7 @@ test.describe('Admin question list', () => {
     ])
   })
 
-  test('sorts question list based on selection', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
+  test('sorts question list based on selection', async ({page, adminQuestions, adminPrograms}) => {
     await loginAsAdmin(page)
     // Set the questionText to the same as questionName to make validation easier since questionBankNames()
     // returns the questionText. The questionText is not actually used to sort.
@@ -159,8 +154,7 @@ test.describe('Admin question list', () => {
     await validateScreenshot(page, 'questions-list-sort-dropdown-lastmodified')
   })
 
-  test('shows if questions are marked for archival', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
+  test('shows if questions are marked for archival', async ({page, adminQuestions, adminPrograms}) => {
     await loginAsAdmin(page)
 
     const questionOne = 'question list test question one'
@@ -191,8 +185,7 @@ test.describe('Admin question list', () => {
     await validateScreenshot(page, 'questions-list-with-archived-questions')
   })
 
-  test('does not sort archived questions', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
+  test('does not sort archived questions', async ({page, adminQuestions, adminPrograms}) => {
     await loginAsAdmin(page)
 
     const questionOne = 'question list test question one'
@@ -236,9 +229,7 @@ test.describe('Admin question list', () => {
     ])
   })
 
-  test('persists universal state and orders questions correctly', async () => {
-    const {page, adminQuestions} = ctx
-
+  test('persists universal state and orders questions correctly', async ({page, adminQuestions}) => {
     await loginAsAdmin(page)
 
     // Navigate to the new question page and ensure that the universal toggle is unset

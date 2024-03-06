@@ -1,11 +1,8 @@
-import {test} from '@playwright/test'
-import {createTestContext, loginAsAdmin, validateScreenshot} from '../support'
+import {test} from '../fixtures/custom_fixture'
+import {loginAsAdmin, validateScreenshot} from '../support'
 
-test.describe('view program references from question view', () => {
-  const ctx = createTestContext()
-
-  test('shows no results for an unreferenced question', async () => {
-    const {page, adminQuestions} = ctx
+test.describe('view program references from question view', {tag: ['@migrated']}, () => {
+  test('shows no results for an unreferenced question', async ({page, adminQuestions} ) => {
     await loginAsAdmin(page)
     const questionName = 'unreferenced-q'
     await adminQuestions.addAddressQuestion({questionName})
@@ -16,8 +13,7 @@ test.describe('view program references from question view', () => {
     })
   })
 
-  test('shows results for referencing programs', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
+  test('shows results for referencing programs', async ({page, adminQuestions, adminPrograms}) => {
     const questionName = 'question-references-q'
     await loginAsAdmin(page)
     await adminQuestions.addAddressQuestion({questionName})

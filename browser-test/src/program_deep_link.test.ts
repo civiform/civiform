@@ -1,24 +1,17 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from './fixtures/custom_fixture'
 import {
-  createTestContext,
   gotoEndpoint,
   loginAsAdmin,
   loginAsTestUser,
   logout,
-  resetContext,
   selectApplicantLanguage,
   validateScreenshot,
-  TestContext,
 } from './support'
 
-test.describe('navigating to a deep link', () => {
-  const ctx: TestContext = createTestContext()
-
+test.describe('navigating to a deep link', {tag: ['@migrated']}, () => {
   const questionText = 'What is your address?'
 
-  test.beforeEach(async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
-
+  test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
     // Arrange
     await loginAsAdmin(page)
 
@@ -41,10 +34,7 @@ test.describe('navigating to a deep link', () => {
     await logout(page)
   })
 
-  test('shows a login prompt for guest users', async () => {
-    await resetContext(ctx)
-    const {page} = ctx
-
+  test('shows a login prompt for guest users', async ({page}) => {
     await gotoEndpoint(page, '/programs/test-deep-link')
     expect(await page.innerText('html')).toContain(
       'Create an account or sign in',
@@ -55,10 +45,7 @@ test.describe('navigating to a deep link', () => {
     )
   })
 
-  test('does not show login prompt for logged in users', async () => {
-    await resetContext(ctx)
-    const {page} = ctx
-
+  test('does not show login prompt for logged in users', async ({page}) => {
     await gotoEndpoint(page, '/programs/test-deep-link')
     await loginAsTestUser(page, 'button:has-text("Log in")')
     expect(await page.innerText('html')).not.toContain(
@@ -66,10 +53,7 @@ test.describe('navigating to a deep link', () => {
     )
   })
 
-  test('takes guests and logged in users through the flow correctly', async () => {
-    await resetContext(ctx)
-    const {page, applicantQuestions} = ctx
-
+  test('takes guests and logged in users through the flow correctly', async ({page, applicantQuestions}) => {
     // Exercise guest path
     // Act
     await gotoEndpoint(page, '/programs/test-deep-link')
@@ -89,12 +73,9 @@ test.describe('navigating to a deep link', () => {
     await applicantQuestions.validateQuestionIsOnPage(questionText)
   })
 
-  test('Non-logged in user should get redirected to the program page and not an error', async () => {
-    await resetContext(ctx)
-    const {page, applicantQuestions, browserContext} = ctx
-
+  test('Non-logged in user should get redirected to the program page and not an error', async ({page, context, applicantQuestions}) => {
     await logout(page)
-    await browserContext.clearCookies()
+    await context.clearCookies()
     await gotoEndpoint(page, '/programs/test-deep-link')
     await page.click('text="Continue to application"')
     await selectApplicantLanguage(page, 'English')
@@ -106,14 +87,11 @@ test.describe('navigating to a deep link', () => {
     await logout(page)
   })
 
-  test('Logging in to an existing account after opening a deep link in a new browser session', async () => {
-    await resetContext(ctx)
-    const {page, applicantQuestions, browserContext} = ctx
-
+  test('Logging in to an existing account after opening a deep link in a new browser session', async ({page, context, applicantQuestions}) => {
     // Log in and log out to establish the test user in the database.
     await loginAsTestUser(page)
     await logout(page)
-    await browserContext.clearCookies()
+    await context.clearCookies()
 
     // Go to deep link as a guest
     await gotoEndpoint(page, '/programs/test-deep-link')
@@ -126,10 +104,8 @@ test.describe('navigating to a deep link', () => {
     await logout(page)
   })
 
-  test('Going to a deep link does not retain redirect in session', async () => {
-    await resetContext(ctx)
-    const {page, browserContext} = ctx
-    await browserContext.clearCookies()
+  test('Going to a deep link does not retain redirect in session', async ({page, context}) => {
+    await context.clearCookies()
 
     // Go to a deep link
     await gotoEndpoint(page, '/programs/test-deep-link')

@@ -1,8 +1,7 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from './fixtures/custom_fixture'
 import {
   AdminPrograms,
   AdminQuestions,
-  createTestContext,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
@@ -12,11 +11,10 @@ import {
 } from './support'
 
 test.describe('End to end enumerator test', () => {
-  const programName = 'Ete enumerator program'
-  const ctx = createTestContext(/* clearDb= */ false)
+  test.slow()
 
-  test('Updates enumerator elements in preview', async () => {
-    const {page, adminQuestions} = ctx
+  const programName = 'Ete enumerator program'
+  test('Updates enumerator elements in preview', async ({page, adminQuestions} ) => {
     await loginAsAdmin(page)
 
     await adminQuestions.gotoAdminQuestionsPage()
@@ -48,8 +46,7 @@ test.describe('End to end enumerator test', () => {
     })
   })
 
-  test('Create nested enumerator and repeated questions as admin', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
+  test('Create nested enumerator and repeated questions as admin', async ({page, adminQuestions, adminPrograms} ) => {
     await loginAsAdmin(page)
 
     await adminQuestions.addNameQuestion({
@@ -164,8 +161,7 @@ test.describe('End to end enumerator test', () => {
     await logout(page)
   })
 
-  test('has no accessibility violations', async () => {
-    const {page, applicantQuestions} = ctx
+  test('has no accessibility violations', async ( {page, applicantQuestions}) => {
     await applicantQuestions.applyProgram(programName)
 
     await applicantQuestions.answerNameQuestion('Porky', 'Pig')
@@ -191,8 +187,7 @@ test.describe('End to end enumerator test', () => {
     await validateAccessibility(page)
   })
 
-  test('validate screenshot', async () => {
-    const {page, applicantQuestions} = ctx
+  test('validate screenshot', async ({page, applicantQuestions}) => {
     await applicantQuestions.applyProgram(programName)
 
     await applicantQuestions.answerNameQuestion('Porky', 'Pig')
@@ -203,8 +198,7 @@ test.describe('End to end enumerator test', () => {
     await validateScreenshot(page, 'enumerator')
   })
 
-  test('validate screenshot with errors', async () => {
-    const {page, applicantQuestions} = ctx
+  test('validate screenshot with errors', async ({page, applicantQuestions}) => {
     await applicantQuestions.applyProgram(programName)
 
     await applicantQuestions.answerNameQuestion('Porky', 'Pig')
@@ -215,8 +209,7 @@ test.describe('End to end enumerator test', () => {
     await validateScreenshot(page, 'enumerator-errors')
   })
 
-  test('Renders the correct indexes for labels and buttons', async () => {
-    const {page, applicantQuestions} = ctx
+  test('Renders the correct indexes for labels and buttons', async ({page, applicantQuestions}) => {
     await applicantQuestions.applyProgram(programName)
 
     // Fill in name question
@@ -234,8 +227,7 @@ test.describe('End to end enumerator test', () => {
     await validateScreenshot(page, 'enumerator-indexes-after-removing-field')
   })
 
-  test('Applicant can fill in lots of blocks, and then go back and delete some repeated entities', async () => {
-    const {page, applicantQuestions} = ctx
+  test('Applicant can fill in lots of blocks, and then go back and delete some repeated entities', async ({page, applicantQuestions}) => {
     await enableFeatureFlag(page, 'save_on_all_actions')
     await applicantQuestions.applyProgram(programName)
 
@@ -367,8 +359,7 @@ test.describe('End to end enumerator test', () => {
     await logout(page)
   })
 
-  test('Applicant can navigate to previous blocks', async () => {
-    const {page, applicantQuestions} = ctx
+  test('Applicant can navigate to previous blocks', async ({page, applicantQuestions}) => {
     await enableFeatureFlag(page, 'save_on_all_actions')
     await applicantQuestions.applyProgram(programName)
 
@@ -420,8 +411,7 @@ test.describe('End to end enumerator test', () => {
     await logout(page)
   })
 
-  test('Create new version of enumerator and update repeated questions and programs', async () => {
-    const {page} = ctx
+  test('Create new version of enumerator and update repeated questions and programs', async ({page}) => {
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)

@@ -597,17 +597,17 @@ export class AdminPrograms {
     // Animation is 150ms. Give some extra overhead to avoid flakiness on slow CPU.
     // This is currently called over 300 times which adds up.
     // https://tailwindcss.com/docs/transition-property
-    await this.page.waitForTimeout(250)
+    //await this.page.waitForTimeout(250)
   }
 
   async openQuestionBank() {
     await this.page.click('button:has-text("Add a question")')
-    await this.waitForQuestionBankAnimationToFinish()
+    // await this.waitForQuestionBankAnimationToFinish()
   }
 
   async closeQuestionBank() {
     await this.page.click('button.cf-close-question-bank-button')
-    await this.waitForQuestionBankAnimationToFinish()
+    // await this.waitForQuestionBankAnimationToFinish()
   }
 
   async addQuestionFromQuestionBank(questionName: string) {
@@ -903,10 +903,11 @@ export class AdminPrograms {
 
   async waitForApplicationFrame() {
     const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
+    
     if (!frame) {
       throw new Error('Expected an application frame')
     }
-    await frame.waitForNavigation()
+    // await frame.waitForNavigation()
     await waitForPageJsLoad(frame)
   }
 

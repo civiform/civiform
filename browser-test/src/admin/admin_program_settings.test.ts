@@ -1,6 +1,5 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from '../fixtures/custom_fixture'
 import {
-  createTestContext,
   enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
@@ -8,12 +7,9 @@ import {
 } from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
 
-test.describe('program settings', () => {
-  const ctx = createTestContext()
+test.describe('program settings', {tag: ['@migrated']}, () => {
 
-  test('program settings page', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('program settings page', async ({page, adminPrograms}) => {
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsAdmin(page)
@@ -36,9 +32,7 @@ test.describe('program settings', () => {
     await validateScreenshot(page, 'nongating-eligibility')
   })
 
-  test('program index shows settings in dropdown', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('program index shows settings in dropdown', async ({page, adminPrograms}) => {
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsAdmin(page)
@@ -70,9 +64,7 @@ test.describe('program settings', () => {
     ).toBeVisible()
   })
 
-  test('back button on program settings page navigates correctly', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('back button on program settings page navigates correctly', async ({page, adminPrograms}) => {
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsAdmin(page)
@@ -98,9 +90,7 @@ test.describe('program settings', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  test('program index hides settings in dropdown for common intake form', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('program index hides settings in dropdown for common intake form', async ({page, adminPrograms}) => {
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsAdmin(page)

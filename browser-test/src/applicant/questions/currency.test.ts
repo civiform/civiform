@@ -1,23 +1,21 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from '../../fixtures/custom_fixture'
 import {
-  createTestContext,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
 
-test.describe('currency applicant flow', () => {
+test.describe('currency applicant flow', {tag: ['@migrated']}, () => {
   const validCurrency = '1000'
   // Not enough decimals.
   const invalidCurrency = '1.0'
-  const ctx = createTestContext(/* clearDb= */ false)
 
   test.describe('single currency question', () => {
     const programName = 'Test program for single currency'
 
-    test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      // beforeAll
       await loginAsAdmin(page)
 
       await adminQuestions.addCurrencyQuestion({questionName: 'currency-q'})
@@ -27,25 +25,24 @@ test.describe('currency applicant flow', () => {
       )
 
       await logout(page)
+
+      // beforeEach
     })
 
-    test('validate screenshot', async () => {
-      const {page, applicantQuestions} = ctx
+    test('validate screenshot', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'currency')
     })
 
-    test('validate screenshot with errors', async () => {
-      const {page, applicantQuestions} = ctx
+    test('validate screenshot with errors', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
       await validateScreenshot(page, 'currency-errors')
     })
 
-    test('with valid currency does submit', async () => {
-      const {applicantQuestions} = ctx
+    test('with valid currency does submit', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency)
       await applicantQuestions.clickNext()
@@ -53,8 +50,7 @@ test.describe('currency applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with invalid currency does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with invalid currency does not submit', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error'
       // When there are no validation errors, the div still exists but is hidden.
@@ -72,8 +68,8 @@ test.describe('currency applicant flow', () => {
   test.describe('multiple currency questions', () => {
     const programName = 'Test program for multiple currencies'
 
-    test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      // beforeAll
       await loginAsAdmin(page)
 
       await adminQuestions.addCurrencyQuestion({
@@ -93,10 +89,11 @@ test.describe('currency applicant flow', () => {
       await adminPrograms.publishAllDrafts()
 
       await logout(page)
+
+      // beforeEach
     })
 
-    test('with valid currencies does submit', async () => {
-      const {applicantQuestions} = ctx
+    test('with valid currencies does submit', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 0)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
@@ -105,8 +102,7 @@ test.describe('currency applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with unanswered optional question submits', async () => {
-      const {applicantQuestions} = ctx
+    test('with unanswered optional question submits', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickNext()
@@ -114,8 +110,7 @@ test.describe('currency applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with first invalid does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with first invalid does not submit', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error >> nth=0'
       // When there are no validation errors, the div still exists but is hidden.
@@ -128,8 +123,7 @@ test.describe('currency applicant flow', () => {
       await expect(page.locator(currencyError)).toBeVisible()
     })
 
-    test('with second invalid does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with second invalid does not submit', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error >> nth=1'
       // When there are no validation errors, the div still exists but is hidden.
@@ -142,8 +136,7 @@ test.describe('currency applicant flow', () => {
       await expect(page.locator(currencyError)).toBeVisible()
     })
 
-    test('has no accessibility violations', async () => {
-      const {page, applicantQuestions} = ctx
+    test('has no accessibility violations', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)

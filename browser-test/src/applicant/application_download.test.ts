@@ -1,7 +1,5 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from '../fixtures/custom_fixture'
 import {
-  createTestContext,
-  dropTables,
   enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
@@ -14,16 +12,14 @@ import {
 } from '../support'
 
 test.describe('csv export for multioption question', () => {
-  const ctx = createTestContext()
-
-  test.beforeAll(async () => {
-    const {page} = ctx
-    await dropTables(page)
+  test.beforeEach(async ({page}) => {
+    // beforeAll 
     await seedQuestions(page)
-  })
-  test('multioption csv into its own column', async () => {
-    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
+    // beforeEach
+  })
+
+  test('multioption csv into its own column', async ({page, adminQuestions, adminPrograms, applicantQuestions}) => {
     const noApplyFilters = false
 
     await loginAsAdmin(page)
@@ -110,17 +106,16 @@ test.describe('csv export for multioption question', () => {
 })
 
 test.describe('normal application flow', () => {
-  const ctx = createTestContext()
 
-  test.beforeAll(async () => {
-    const {page} = ctx
-    await dropTables(page)
+  test.beforeEach(async ({page} ) => {
+    // beforeAll
     await seedQuestions(page)
+    await logout(page)
+
+    // beforeEach
   })
 
-  test('all major steps', async () => {
-    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
-
+  test('all major steps', async ({page, adminQuestions, adminPrograms, applicantQuestions}) => {
     const noApplyFilters = false
     const applyFilters = true
 
@@ -369,9 +364,7 @@ test.describe('normal application flow', () => {
     }
   })
 
-  test('download finished application', async () => {
-    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
-
+  test('download finished application', async ({page, adminQuestions, adminPrograms, applicantQuestions} ) => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'application_exportable')
 

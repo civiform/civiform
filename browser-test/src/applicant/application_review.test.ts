@@ -1,6 +1,5 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from '../fixtures/custom_fixture'
 import {
-  createTestContext,
   isHermeticTestEnvironment,
   loginAsAdmin,
   loginAsCiviformAndProgramAdmin,
@@ -13,12 +12,10 @@ import {
   enableFeatureFlag,
 } from '../support'
 
-test.describe('Program admin review of submitted applications', () => {
-  const ctx = createTestContext()
+test.describe('Program admin review of submitted applications', {tag: ['@migrated']}, () => {
+  test.slow()
 
-  test('all major steps', async () => {
-    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
-
+  test('all major steps', async ({page, adminQuestions, adminPrograms, applicantQuestions}) => {
     await loginAsAdmin(page)
 
     await adminQuestions.addDateQuestion({questionName: 'date-q'})
@@ -315,9 +312,7 @@ test.describe('Program admin review of submitted applications', () => {
     }
   })
 
-  test('program applications listed most recent first', async () => {
-    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
-
+  test('program applications listed most recent first', async ({page, adminQuestions, adminPrograms, applicantQuestions}) => {
     // Create a simple one question program application.
     await loginAsAdmin(page)
 
@@ -363,9 +358,7 @@ test.describe('Program admin review of submitted applications', () => {
     }
   })
 
-  test('program application filters cleared', async () => {
-    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
-
+  test('program application filters cleared', async ( {page, adminQuestions, adminPrograms, applicantQuestions}) => {
     const noApplyFilters = false
     const applyFilters = true
 
@@ -426,9 +419,7 @@ test.describe('Program admin review of submitted applications', () => {
     await logout(page)
   })
 
-  test('Application search using Personal Applicant Info works', async () => {
-    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
-
+  test('Application search using Personal Applicant Info works', async ({page, adminQuestions, adminPrograms, applicantQuestions}) => {
     await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
     // Login as an admin and create a program with three PAI questions
     await loginAsAdmin(page)

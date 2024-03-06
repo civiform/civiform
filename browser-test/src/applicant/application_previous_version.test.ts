@@ -1,7 +1,6 @@
-import {test} from '@playwright/test'
+import {test} from '../fixtures/custom_fixture'
 import {
   ApplicantQuestions,
-  createTestContext,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -9,11 +8,8 @@ import {
   testUserDisplayName,
 } from '../support'
 
-test.describe('view an application in an older version', () => {
-  const ctx = createTestContext()
-
-  test('create an application, and create a new version of the program, and view the application in the old version of the program', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
+test.describe('view an application in an older version', {tag: ['@migrated']}, () => {
+  test('create an application, and create a new version of the program, and view the application in the old version of the program', async ({page, adminQuestions, adminPrograms} ) => {
     await loginAsAdmin(page)
 
     // Create a program with one question

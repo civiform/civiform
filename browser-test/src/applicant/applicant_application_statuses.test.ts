@@ -1,6 +1,5 @@
-import {test} from '@playwright/test'
+import {test} from '../fixtures/custom_fixture'
 import {
-  createTestContext,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -10,14 +9,12 @@ import {
   validateScreenshot,
 } from '../support'
 
-test.describe('with program statuses', () => {
-  const ctx = createTestContext(/* clearDb= */ false)
-
+test.describe('with program statuses', {tag: ['@migrated']}, () => {
   const programName = 'Applicant with statuses program'
   const approvedStatusName = 'Approved'
 
-  test.beforeAll(async () => {
-    const {page, adminPrograms, adminProgramStatuses, applicantQuestions} = ctx
+  test.beforeEach(async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
+    // beforeAll
     await loginAsAdmin(page)
 
     await adminPrograms.addProgram(programName)
@@ -41,10 +38,11 @@ test.describe('with program statuses', () => {
       await adminPrograms.setStatusOptionAndAwaitModal(approvedStatusName)
     await adminPrograms.confirmStatusUpdateModal(modal)
     await logout(page)
+
+    // beforeEach
   })
 
-  test('displays status and passes accessibility checks', async () => {
-    const {page} = ctx
+  test('displays status and passes accessibility checks', async ({page}) => {
     await loginAsTestUser(page)
     await validateAccessibility(page)
     await validateScreenshot(page, 'program-list-with-status')

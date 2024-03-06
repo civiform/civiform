@@ -1,20 +1,17 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from '../../fixtures/custom_fixture'
 import {
-  createTestContext,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
 
-test.describe('Dropdown question for applicant flow', () => {
-  const ctx = createTestContext(/* clearDb= */ false)
-
+test.describe('Dropdown question for applicant flow', {tag: ['@migrated']}, () => {
   test.describe('single dropdown question', () => {
     const programName = 'Test program for single dropdown'
 
-    test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
+    test.beforeEach(async ({page, adminQuestions, adminPrograms} ) => {
+      // beforeAll
       // As admin, create program with single dropdown question.
       await loginAsAdmin(page)
 
@@ -33,10 +30,11 @@ test.describe('Dropdown question for applicant flow', () => {
       )
 
       await logout(page)
+
+      // beforeEach
     })
 
-    test('Updates options in preview', async () => {
-      const {page, adminQuestions} = ctx
+    test('Updates options in preview', async ({page, adminQuestions}) => {
       await loginAsAdmin(page)
 
       await adminQuestions.createDropdownQuestion(
@@ -79,23 +77,20 @@ test.describe('Dropdown question for applicant flow', () => {
       await adminQuestions.expectPreviewOptions(['Sample question option'])
     })
 
-    test('validate screenshot', async () => {
-      const {page, applicantQuestions} = ctx
+    test('validate screenshot', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'dropdown')
     })
 
-    test('validate screenshot with errors', async () => {
-      const {page, applicantQuestions} = ctx
+    test('validate screenshot with errors', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
       await validateScreenshot(page, 'dropdown-errors')
     })
 
-    test('with selected option submits successfully', async () => {
-      const {applicantQuestions} = ctx
+    test('with selected option submits successfully', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDropdownQuestion('green')
       await applicantQuestions.clickNext()
@@ -103,8 +98,7 @@ test.describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with no selection does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with no selection does not submit', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       // Click next without selecting anything.
       await applicantQuestions.clickNext()
@@ -119,8 +113,8 @@ test.describe('Dropdown question for applicant flow', () => {
   test.describe('multiple dropdown questions', () => {
     const programName = 'Test program for multiple dropdowns'
 
-    test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      // beforeAll
       await loginAsAdmin(page)
 
       await adminQuestions.addDropdownQuestion({
@@ -152,10 +146,11 @@ test.describe('Dropdown question for applicant flow', () => {
       await adminPrograms.publishAllDrafts()
 
       await logout(page)
+
+      // beforeEach
     })
 
-    test('with selected options submits successfully', async () => {
-      const {applicantQuestions} = ctx
+    test('with selected options submits successfully', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDropdownQuestion('beach', 0)
       await applicantQuestions.answerDropdownQuestion('blue', 1)
@@ -164,8 +159,7 @@ test.describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with unanswered optional question submits successfully', async () => {
-      const {applicantQuestions} = ctx
+    test('with unanswered optional question submits successfully', async ({applicantQuestions}) => {
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDropdownQuestion('red', 1)
@@ -174,8 +168,7 @@ test.describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('has no accessibility violations', async () => {
-      const {page, applicantQuestions} = ctx
+    test('has no accessibility violations', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
