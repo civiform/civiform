@@ -1,6 +1,8 @@
 import {test, expect} from '@playwright/test'
 import {
   createTestContext,
+  disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -35,6 +37,11 @@ test.describe('Checkbox question for applicant flow', () => {
       )
 
       await logout(page)
+    })
+
+    test.beforeEach(async () => {
+      const {page} = ctx
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
     test('Updates options in preview', async () => {
@@ -94,6 +101,15 @@ test.describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       await validateScreenshot(page, 'checkbox-errors')
+    })
+
+    test('validate screenshot with north star flag enabled', async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+      await applicantQuestions.applyProgram(programName)
+
+      await validateScreenshot(page, 'checkbox-north-star', /* fullPage= */ true,
+      /* mobileScreenshot= */ true)
     })
 
     test('with single checked box submits successfully', async () => {
