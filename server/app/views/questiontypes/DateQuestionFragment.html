@@ -8,6 +8,9 @@
       th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
     ></div>
 
+     <!-- Display errors -->
+     <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
+
     <div class="usa-memorable-date">
       <div class="usa-form-group usa-form-group--month usa-form-group--select cf-date-month">
         <label class="usa-label" for="date_of_birth_month">Month</label>
