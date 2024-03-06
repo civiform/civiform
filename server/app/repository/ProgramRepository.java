@@ -454,7 +454,8 @@ public final class ProgramRepository {
     }
   }
 
-  // TODO (#5503): Remove this when we remove the PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED feature flag
+  // TODO (#5503): Remove this when we remove the PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED feature
+  // flag
   private ExpressionList<ApplicationModel> searchUsingWellKnownPaths(
       String search, ExpressionList<ApplicationModel> query) {
 

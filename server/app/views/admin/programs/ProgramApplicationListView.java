@@ -39,6 +39,7 @@ import services.UrlUtils;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions;
+import services.settings.SettingsManifest;
 import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -65,9 +66,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   private final AdminLayout layout;
   private final ApplicantUtils applicantUtils;
-
   private final ApplicantService applicantService;
   private final DateConverter dateConverter;
+  private final SettingsManifest settingsManifest;
   private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
 
   @Inject
@@ -75,11 +76,13 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       AdminLayoutFactory layoutFactory,
       ApplicantUtils applicantUtils,
       ApplicantService applicantService,
-      DateConverter dateConverter) {
+      DateConverter dateConverter,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.applicantUtils = checkNotNull(applicantUtils);
     this.applicantService = checkNotNull(applicantService);
     this.dateConverter = checkNotNull(dateConverter);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -117,7 +120,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     program,
                     allPossibleProgramApplicationStatuses,
                     downloadModal.getButton(),
-                    filterParams),
+                    filterParams,
+                    request),
                 each(
                     paginatedApplications.getPageContents(),
                     application ->
@@ -165,7 +169,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ProgramDefinition program,
       ImmutableList<String> allPossibleProgramApplicationStatuses,
       ButtonTag downloadButton,
-      RenderFilterParams filterParams) {
+      RenderFilterParams filterParams,
+      Http.Request request) {
     String redirectUrl =
         routes.AdminApplicationController.index(
                 program.id(),
@@ -176,6 +181,10 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 /* applicationStatus= */ Optional.empty(),
                 /* selectedApplicationUri= */ Optional.empty())
             .url();
+    String labelText =
+        settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)
+            ? "Search by name, email, phone number, or application ID"
+            : "Search by name, email, or application ID";
     return form()
         .withClasses("mt-6")
         .attr("data-override-disable-submit-on-enter")
@@ -213,7 +222,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             FieldWithLabel.input()
                 .setFieldName(SEARCH_PARAM)
                 .setValue(filterParams.search().orElse(""))
-                .setLabelText("Search by name, email, phone number, or application ID")
+                .setLabelText(labelText)
                 .getInputTag()
                 .withClasses("w-full", "mt-4"))
         .condWith(
