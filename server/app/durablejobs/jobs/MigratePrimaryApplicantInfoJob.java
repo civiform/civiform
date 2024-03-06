@@ -3,6 +3,9 @@ package durablejobs.jobs;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 import durablejobs.DurableJob;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -10,16 +13,24 @@ import models.PersistedDurableJobModel;
 import repository.AccountRepository;
 import services.WellKnownPaths;
 import services.applicant.ApplicantData;
+import services.settings.SettingsService;
 
 public final class MigratePrimaryApplicantInfoJob extends DurableJob {
 
   private final PersistedDurableJobModel persistedDurableJob;
   private final AccountRepository accountRepository;
+  private final SettingsService settingsService;
+  private final Config config;
 
   public MigratePrimaryApplicantInfoJob(
-      PersistedDurableJobModel persistedDurableJob, AccountRepository accountRepository) {
+      PersistedDurableJobModel persistedDurableJob,
+      AccountRepository accountRepository,
+      SettingsService settingsService,
+      Config config) {
     this.persistedDurableJob = checkNotNull(persistedDurableJob);
     this.accountRepository = checkNotNull(accountRepository);
+    this.settingsService = checkNotNull(settingsService);
+    this.config = checkNotNull(config);
   }
 
   @Override
@@ -29,47 +40,72 @@ public final class MigratePrimaryApplicantInfoJob extends DurableJob {
 
   @Override
   public void run() {
-    accountRepository
-        .findApplicantsNeedingPrimaryApplicantInfoDataMigration()
-        .findEach(
-            (applicant) -> {
-              ApplicantData applicantData = applicant.getApplicantData();
-              Optional<String> firstName =
-                  applicantData.readString(WellKnownPaths.APPLICANT_FIRST_NAME);
-              Optional<String> middleName =
-                  applicantData.readString(WellKnownPaths.APPLICANT_MIDDLE_NAME);
-              Optional<String> lastName =
-                  applicantData.readString(WellKnownPaths.APPLICANT_LAST_NAME);
-              String emailAddress = applicant.getAccount().getEmailAddress();
-              Optional<String> phoneNumber =
-                  applicantData.readString(WellKnownPaths.APPLICANT_PHONE_NUMBER);
-              Optional<LocalDate> dob =
-                  applicantData
-                      .readDate(WellKnownPaths.APPLICANT_DOB)
-                      .or(() -> applicantData.readDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED));
+    /*
+     * In this job, we always copy data from the Well Known Path (WKP) to the Primary Applicant Info (PAI)
+     * columns, if the WKP data is present.  Data in the PAI columns will get overwritten. This is so that
+     * if a preseeded question is answered while the feature flag is off (or in the case of DOB, a
+     * question whose name happens to match where we are putting the data from TI client creation), that
+     * data gets synced over to the PAI columns.  The exception is for email address, for which there is
+     * no WKP. We will copy the account email over to the PAI column only if the PAI column is empty.
+     *
+     * When updating a TI client, both PAI and WKP get updated with the new data, so the two locations
+     * should remain in sync.
+     *
+     * When the flag is on, this job will be a no-op, as we will be removing WKP and PAI
+     * should be the authoritative source of truth for the data about the applicant. Because the flag
+     * will be ADMIN_WRITEABLE at first, then ADMIN_READABLE when we want to turn it on for everybody,
+     * and we don't have access to a request object, we need to check both the database and the config
+     * file setting to determine if the flag is on.
+     */
+    boolean doMigration;
+    Optional<ImmutableMap<String, String>> writeableSettings =
+        settingsService.loadSettings().toCompletableFuture().join();
+    if (writeableSettings.isPresent()
+        && writeableSettings.get().containsKey("PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED")) {
+      doMigration =
+          !writeableSettings.get().get("PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED").equals("true");
+    } else {
+      try {
+        doMigration = !config.getString("primary_applicant_info_questions_enabled").equals("true");
+      } catch (ConfigException.Missing e) {
+        doMigration = false;
+      }
+    }
+    if (doMigration) {
+      accountRepository
+          .findApplicantsNeedingPrimaryApplicantInfoDataMigration()
+          .findEach(
+              (applicant) -> {
+                ApplicantData applicantData = applicant.getApplicantData();
+                Optional<String> firstName =
+                    applicantData.readString(WellKnownPaths.APPLICANT_FIRST_NAME);
+                Optional<String> middleName =
+                    applicantData.readString(WellKnownPaths.APPLICANT_MIDDLE_NAME);
+                Optional<String> lastName =
+                    applicantData.readString(WellKnownPaths.APPLICANT_LAST_NAME);
+                String emailAddress = applicant.getAccount().getEmailAddress();
+                // Note that this will only return a value if it's set via TI client
+                // creation/edit. This is because that code sets a string here directly,
+                // whereas a phone number question would have an object here that includes
+                // the number and country code. We only really care about porting over
+                // TI client data for this field.
+                Optional<String> phoneNumber =
+                    applicantData.readString(WellKnownPaths.APPLICANT_PHONE_NUMBER);
+                Optional<LocalDate> dob =
+                    applicantData
+                        .readDate(WellKnownPaths.APPLICANT_DOB)
+                        .or(() -> applicantData.readDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED));
 
-              Optional<String> paiFirstName = applicant.getFirstName();
-              boolean firstNameNeedsUpdating =
-                  paiFirstName.isEmpty() || paiFirstName.get().contains("@");
-              if (firstName.isPresent() && firstNameNeedsUpdating) {
-                applicant.setFirstName(firstName.get());
-              }
-              if (middleName.isPresent() && applicant.getMiddleName().isEmpty()) {
-                applicant.setMiddleName(middleName.get());
-              }
-              if (lastName.isPresent() && applicant.getLastName().isEmpty()) {
-                applicant.setLastName(lastName.get());
-              }
-              if (!Strings.isNullOrEmpty(emailAddress) && applicant.getEmailAddress().isEmpty()) {
-                applicant.setEmailAddress(emailAddress);
-              }
-              if (phoneNumber.isPresent() && applicant.getPhoneNumber().isEmpty()) {
-                applicant.setPhoneNumber(phoneNumber.get());
-              }
-              if (dob.isPresent() && applicant.getDateOfBirth().isEmpty()) {
-                applicant.setDateOfBirth(dob.get());
-              }
-              applicant.save();
-            });
+                firstName.ifPresent(first -> applicant.setFirstName(first));
+                middleName.ifPresent(middle -> applicant.setMiddleName(middle));
+                lastName.ifPresent(last -> applicant.setLastName(last));
+                phoneNumber.ifPresent(phone -> applicant.setPhoneNumber(phone));
+                dob.ifPresent(date -> applicant.setDateOfBirth(date));
+                if (!Strings.isNullOrEmpty(emailAddress) && applicant.getEmailAddress().isEmpty()) {
+                  applicant.setEmailAddress(emailAddress);
+                }
+                applicant.save();
+              });
+    }
   }
 }

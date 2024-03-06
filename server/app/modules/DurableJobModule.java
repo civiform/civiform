@@ -27,6 +27,7 @@ import repository.ReportingRepository;
 import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
 import services.cloud.PublicStorageClient;
+import services.settings.SettingsService;
 
 /**
  * Configures {@link durablejobs.DurableJob}s with their {@link DurableJobName} and, if they are
@@ -75,7 +76,9 @@ public final class DurableJobModule extends AbstractModule {
       PersistedDurableJobRepository persistedDurableJobRepository,
       PublicStorageClient publicStorageClient,
       ReportingRepository reportingRepository,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      SettingsService settingsService,
+      Config config) {
     var durableJobRegistry = new DurableJobRegistry();
 
     durableJobRegistry.register(
@@ -112,7 +115,8 @@ public final class DurableJobModule extends AbstractModule {
     durableJobRegistry.register(
         DurableJobName.MIGRATE_PRIMARY_APPLICANT_INFO,
         persistedDurableJob ->
-            new MigratePrimaryApplicantInfoJob(persistedDurableJob, accountRepository),
+            new MigratePrimaryApplicantInfoJob(
+                persistedDurableJob, accountRepository, settingsService, config),
         new RecurringJobExecutionTimeResolvers.Nightly2Am());
 
     return durableJobRegistry;
