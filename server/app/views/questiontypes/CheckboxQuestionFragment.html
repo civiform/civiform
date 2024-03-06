@@ -1,16 +1,7 @@
 <div th:fragment="checkbox (question)" th:with="questionId=${#strings.randomAlphanumeric(8)}" th:id="${questionId}">
     <fieldset class="usa-fieldset" th:aria-describedby="${questionId} + '-description'" th:with="multiSelectQuestion=${question.createMultiSelectQuestion()}">
-        <!-- Question title -->
-        <legend class="usa-legend">
-          <span th:text="${question.getQuestionText()}"></span>
-          <!-- Required asterisk -->
-          <th:block th:if="${!question.isOptional()}">
-            <span class="usa-hint--required"> *</span>
-          </th:block>
-        </legend>
-
-        <!-- Question help text -->
-        <div th:id="${questionId} + '-description'" th:text="${question.getQuestionHelpText()}"></div>
+        <!-- Title and Help Text -->
+        <div th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpText(${question}, ${questionId})}"></div>
 
         <!-- Display errors -->
         <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${multiSelectQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
