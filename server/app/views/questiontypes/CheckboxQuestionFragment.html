@@ -5,7 +5,7 @@
           <span th:text="${question.getQuestionText()}"></span>
           <!-- Required asterisk -->
           <th:block th:if="${!question.isOptional()}">
-            <div th:replace="~{applicant/ApplicantBaseFragment :: requiredAsterisk}"></div>
+            <span class="usa-hint--required"> *</span>
           </th:block>
         </legend>
 
