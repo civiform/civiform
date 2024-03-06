@@ -545,7 +545,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     resourceCreator.insertActiveApplication(applicant, program);
   }
 
-  // TODO (#5503): Remove this when we remove the feature flag
+  // TODO (#5503): Remove this when we remove the PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED feature flag
   private ApplicationModel makeApplicationWithName(
       ApplicantModel applicant,
       ProgramModel program,

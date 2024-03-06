@@ -431,8 +431,9 @@ public final class ProgramRepository {
 
   private ExpressionList<ApplicationModel> searchUsingPrimaryApplicantInfo(
       String search, ExpressionList<ApplicationModel> query) {
+    // Remove all special characters
     String maybeOnlyDigits = search.replaceAll("[^a-zA-Z0-9]", "");
-
+    // Check if remaining string is actually only digits
     if (maybeOnlyDigits.matches("^\\d+$")) {
       return query
           .or()
@@ -453,7 +454,7 @@ public final class ProgramRepository {
     }
   }
 
-  // TODO (#5503): Remove this when we remove the feature flag
+  // TODO (#5503): Remove this when we remove the PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED feature flag
   private ExpressionList<ApplicationModel> searchUsingWellKnownPaths(
       String search, ExpressionList<ApplicationModel> query) {
 
