@@ -67,6 +67,8 @@ Valid options are:
 - Legit Address
 - Bogus Address
 
+See [find_address_candidates](https://github.com/civiform/civiform/blob/ad287486d941812ecbcd6d51926b35f14b1c531c/mock-web-services/esri/__init__.py#L18) in `esri/__init__.py`.
+
 #### Examples in curl
 
 - `curl http://localhost:8000/esri/findAddressCandidates?address=Address%20In%20Area`
@@ -82,6 +84,15 @@ Valid options are:
 - 100.0
 - 101.0
 - 102.0
+
+See [#service_area_features](https://github.com/civiform/civiform/blob/ad287486d941812ecbcd6d51926b35f14b1c531c/mock-web-services/esri/__init__.py#L32) in `esri/__init__.py`.
+
+Note that those `y` values correlate to address suggestions from
+`server/test/resources/esri/findAddressCandidates.json`:
+
+- "Address In Area" has `y = 100.0`
+- "Address With No Service Area Features" has `y = 101.0`
+- "Address Not In Area" has `y = 102.0`
 
 #### Examples in curl
 
