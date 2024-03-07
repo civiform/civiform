@@ -8,6 +8,7 @@ import durablejobs.DurableJobName;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
+import io.ebean.annotation.TxIsolation;
 import java.time.Instant;
 import models.AccountModel;
 import models.ApplicantModel;
@@ -53,25 +54,25 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
     runJob(false);
   }
 
-  private void runJob(boolean setFlag) {
+  private void runJob(Boolean setFlag) {
     Database database = DB.getDefault();
-    Transaction transaction = database.beginTransaction();
-    // Flag will be false by default
+    Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE);
+
     SettingsService settingsService = instanceOf(SettingsService.class);
-    if (setFlag) {
-      ImmutableMap<String, String> settings =
-          settingsService.loadSettings().toCompletableFuture().join().get();
-      ImmutableMap.Builder<String, String> newSettings = ImmutableMap.builder();
-      for (var entry : settings.entrySet()) {
-        if (!entry.getKey().equals("PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED")) {
-          newSettings.put(entry);
-        }
+    ImmutableMap<String, String> settings =
+        settingsService.loadSettings().toCompletableFuture().join().get();
+    ImmutableMap.Builder<String, String> newSettings = ImmutableMap.builder();
+    for (var entry : settings.entrySet()) {
+      if (!entry.getKey().equals("PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED")) {
+        newSettings.put(entry);
       }
-      newSettings.put("PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED", "true");
-      settingsService.updateSettings(newSettings.build(), "test");
-      transaction.commit();
-      transaction = database.beginTransaction();
     }
+    newSettings.put("PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED", setFlag.toString());
+    settingsService.updateSettings(newSettings.build(), "test");
+    transaction.commit();
+    transaction.close();
+    transaction = database.beginTransaction(TxIsolation.SERIALIZABLE);
+
     PersistedDurableJobModel job =
         new PersistedDurableJobModel(
             DurableJobName.MIGRATE_PRIMARY_APPLICANT_INFO.toString(), Instant.ofEpochMilli(0));
