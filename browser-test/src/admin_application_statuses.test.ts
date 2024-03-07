@@ -58,6 +58,34 @@ test.describe('view program statuses', () => {
     test('does not show edit note', async () => {
       expect(await ctx.adminPrograms.isEditNoteVisible()).toBe(false)
     })
+
+    test('does not show pagination when there is only 1 page of applications', async () => {
+      expect(await ctx.adminPrograms.isPaginationVisible()).toBe(false)
+    })
+
+    /* See trusted_intermediary.test.ts for more comprehensive pagination testing */
+    test('shows pagination if there are more than 10 applications', async () => {
+      const {page, adminPrograms, applicantQuestions} = ctx
+      // Apply to 10 more programs as a guest
+      for (let i = 0; i < 10; i++) {
+        await logout(page)
+
+        // Submit an application as a guest.
+        await applicantQuestions.clickApplyProgramButton(
+          programWithoutStatusesName,
+        )
+        await applicantQuestions.submitFromReviewPage()
+
+        // Navigate to the submitted application as the program admin.
+        await loginAsProgramAdmin(page)
+      }
+
+      // Navigate to the applications list
+      await adminPrograms.viewApplications(programWithoutStatusesName)
+
+      expect(await ctx.adminPrograms.isPaginationVisible()).toBe(true)
+      expect(page.locator('.usa-pagination__button:has-text("2")'))
+    })
   })
 
   test.describe('with program statuses', () => {

@@ -1188,4 +1188,8 @@ export class AdminPrograms {
     await this.page.getByText('Back').click()
     await this.page.waitForLoadState()
   }
+
+  async isPaginationVisible(): Promise<boolean> {
+    return this.page.locator('.usa-pagination').isVisible()
+  }
 }
