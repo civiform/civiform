@@ -9,6 +9,7 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.ti.routes;
 import forms.EditTiClientInfoForm;
+import j2html.tags.Tag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -54,7 +55,7 @@ public class EditTiClientView extends BaseHtmlView {
       ApplicantPersonalInfo personalInfo,
       Http.Request request,
       Messages messages,
-      Long accountId,
+      Optional<Long> accountId,
       Optional<Form<EditTiClientInfoForm>> editTiClientInfoForm) {
 
     HtmlBundle bundle =
@@ -67,13 +68,18 @@ public class EditTiClientView extends BaseHtmlView {
                 renderSubHeader("Edit client").withId("edit-client").withClass("my-4"),
                 renderBackLink(),
                 requiredFieldsExplanationContent(),
-                renderEditClientForm(
-                    accountRepository.lookupAccount(accountId).get(),
+                accountId.isPresent()? 
+                  renderEditClientForm(
+                    accountRepository.lookupAccount(accountId.get()).get(),
                     request,
                     editTiClientInfoForm,
-                    messages))
+                    messages) :
+                  renderAddClientForm(request,messages))
             .addMainStyles("px-20", "max-w-screen-xl");
     return layout.renderWithNav(request, personalInfo, messages, bundle, accountId);
+  }
+
+  private Tag renderAddClientForm(Http.Request request, Messages messages) {
   }
 
   private ATag renderBackLink() {

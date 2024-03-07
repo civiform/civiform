@@ -124,6 +124,31 @@ public final class TrustedIntermediaryController {
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
+  public Result addClient(Http.Request request)
+  {
+    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
+    if (civiformProfile.isEmpty()) {
+      return unauthorized();
+    }
+    Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
+      accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+    if (trustedIntermediaryGroup.isEmpty()) {
+      return notFound();
+    }
+    Optional<String> applicantName =
+      civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName();
+
+    return ok(
+      editTiClientView.render(
+        trustedIntermediaryGroup.get(),
+        ApplicantPersonalInfo.ofLoggedInUser(
+          Representation.builder().setName(applicantName).build()),
+        request,
+        messagesApi.preferred(request),
+        Optional.empty(),
+        /* editTiClientInfoForm= */ Optional.empty()));
+  }
+  @Secure(authorizers = Authorizers.Labels.TI)
   public Result editClient(Long accountId, Http.Request request) {
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
     if (civiformProfile.isEmpty()) {
@@ -142,7 +167,7 @@ public final class TrustedIntermediaryController {
                 Representation.builder().setName(applicantName).build()),
             request,
             messagesApi.preferred(request),
-            accountId,
+            Optional.of(accountId),
             /* editTiClientInfoForm= */ Optional.empty()));
   }
 
@@ -213,7 +238,7 @@ public final class TrustedIntermediaryController {
                       .build()),
               request,
               messagesApi.preferred(request),
-              id,
+              Optional.of(id),
               Optional.of(form)));
     }
     return redirect(

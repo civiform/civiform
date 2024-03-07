@@ -60,6 +60,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
 import views.admin.ti.TrustedIntermediaryGroupListView;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
@@ -101,10 +102,12 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setTitle("CiviForm")
             .addMainContent(
                 renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
-                hr(),
-                renderSubHeader("Add Client").withId("add-client").withClass("my-4"),
-                requiredFieldsExplanationContent(),
-                renderAddNewForm(tiGroup, request, messages),
+               //button("Add new Clients"),
+              //hr(),
+                //renderSubHeader("Add Client").withId("add-client").withClass("my-4"),
+                //requiredFieldsExplanationContent(),
+                //renderAddNewForm(tiGroup, request, messages),
+              renderAddNewClientButton(messages),
                 hr().withClasses("mt-6"),
                 renderSubHeader(messages.at(MessageKey.TITLE_ALL_CLIENTS.getKeyName()))
                     .withClass("my-4"),
@@ -129,7 +132,13 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     }
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
   }
-
+ private ATag renderAddNewClientButton(Messages messages) {
+   return new ATag()
+     //.withHref()
+     .with(
+       button(messages.at(MessageKey.BUTTON_ADD_NEW_CLIENT.getKeyName()))
+     .withClass("flex"));
+ }
   private FormTag renderSearchForm(
       Http.Request request, SearchParameters searchParameters, Messages messages) {
     boolean isValidSearch = TrustedIntermediaryService.validateSearch(searchParameters);
@@ -219,7 +228,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         this::renderTIRow))));
   }
 
-  private DivTag renderAddNewForm(
+ /* private DivTag renderAddNewForm(
       TrustedIntermediaryGroupModel tiGroup, Http.Request request, Messages messages) {
     FormTag formTag =
         form()
@@ -280,7 +289,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 makeCsrfTokenInputTag(request),
                 submitButton("Add").withClasses("ml-2", "mb-6")))
         .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
-  }
+  }*/
 
   private TrTag renderTIRow(AccountModel ti) {
     return tr().withClasses(
