@@ -47,6 +47,5 @@ public final class StaticContentQuestion extends Question {
         /* preserveEmptyLines= */ true,
         /* addRequiredIndicator= */ false,
         ariaLabel);
-    // TODO: pass the message from thymeleaf instead of through view
   }
 }
