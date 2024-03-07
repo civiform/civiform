@@ -1,0 +1,20 @@
+<div th:fragment="date (question)" th:with="questionId=${#strings.randomAlphanumeric(8)}">
+  <div class="usa-form-group" th:id="${questionId}"
+      th:with="dateQuestion=${question.createDateQuestion()},
+               inputId=${#strings.randomAlphanumeric(8)}">
+      <!-- Title and Help Text -->
+      <div th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpText(${question}, ${questionId})}"></div>
+
+      <!-- Display errors -->
+      <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
+
+      <div class="usa-date-picker">
+        <input
+          class="usa-input"
+          th:id="${inputId}"
+          th:name="${question.createDateQuestion().getDatePath().toString()}"
+          th:aria-describedby="${questionId} + '-description'"
+        />
+      </div>
+    </div>
+</div>
