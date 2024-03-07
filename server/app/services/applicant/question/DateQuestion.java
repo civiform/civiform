@@ -85,14 +85,24 @@ public final class DateQuestion extends Question {
     return applicantQuestion.getContextualizedPath().join(Scalar.DATE);
   }
 
+<<<<<<< HEAD
   public Path getMonthPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.MONTH);
   }
 
+=======
+>>>>>>> 17274e733 (Use memorable date. more to come)
   public Path getYearPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.YEAR);
   }
 
+<<<<<<< HEAD
+=======
+  public Path getMonthPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.MONTH);
+  }
+
+>>>>>>> 17274e733 (Use memorable date. more to come)
   public Path getDayPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.DAY);
   }
