@@ -2,7 +2,6 @@ package views;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static play.test.Helpers.fakeRequest;
 
 import j2html.tags.specialized.ImgTag;
 import java.util.Locale;
@@ -41,7 +40,7 @@ public class ProgramImageUtilsTest extends ResetPostgres {
 
     Optional<ImgTag> result =
         programImageUtils.createProgramImage(
-            fakeRequest().build(), program, Locale.getDefault(), /* isWithinProgramCard= */ true);
+            program, Locale.getDefault(), /* isWithinProgramCard= */ true);
 
     assertThat(result).isEmpty();
   }
@@ -56,7 +55,7 @@ public class ProgramImageUtilsTest extends ResetPostgres {
 
     Optional<ImgTag> result =
         programImageUtils.createProgramImage(
-            fakeRequest().build(), program, Locale.getDefault(), /* isWithinProgramCard= */ true);
+            program, Locale.getDefault(), /* isWithinProgramCard= */ true);
 
     assertThat(result).isEmpty();
   }
@@ -71,7 +70,7 @@ public class ProgramImageUtilsTest extends ResetPostgres {
 
     Optional<ImgTag> result =
         programImageUtils.createProgramImage(
-            fakeRequest().build(), program, Locale.getDefault(), /* isWithinProgramCard= */ true);
+            program, Locale.getDefault(), /* isWithinProgramCard= */ true);
 
     assertThat(result).isEmpty();
   }
@@ -86,7 +85,7 @@ public class ProgramImageUtilsTest extends ResetPostgres {
 
     Optional<ImgTag> result =
         programImageUtils.createProgramImage(
-            fakeRequest().build(), program, Locale.getDefault(), /* isWithinProgramCard= */ true);
+            program, Locale.getDefault(), /* isWithinProgramCard= */ true);
 
     assertThat(result).isNotEmpty();
   }
@@ -101,7 +100,7 @@ public class ProgramImageUtilsTest extends ResetPostgres {
 
     Optional<ImgTag> result =
         programImageUtils.createProgramImage(
-            fakeRequest().build(), program, Locale.getDefault(), /* isWithinProgramCard= */ true);
+            program, Locale.getDefault(), /* isWithinProgramCard= */ true);
 
     assertThat(result).isNotEmpty();
     String renderedImage = result.get().render();
@@ -120,7 +119,7 @@ public class ProgramImageUtilsTest extends ResetPostgres {
 
     Optional<ImgTag> result =
         programImageUtils.createProgramImage(
-            fakeRequest().build(), program, Locale.CHINESE, /* isWithinProgramCard= */ true);
+            program, Locale.CHINESE, /* isWithinProgramCard= */ true);
 
     assertThat(result).isNotEmpty();
     String renderedImage = result.get().render();
@@ -140,7 +139,7 @@ public class ProgramImageUtilsTest extends ResetPostgres {
 
     Optional<ImgTag> result =
         programImageUtils.createProgramImage(
-            fakeRequest().build(), program, Locale.CHINESE, /* isWithinProgramCard= */ true);
+            program, Locale.CHINESE, /* isWithinProgramCard= */ true);
 
     assertThat(result).isNotEmpty();
     String renderedImage = result.get().render();
