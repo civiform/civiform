@@ -38,7 +38,7 @@ public final class DateQuestion extends Question {
 
   @Override
   public ImmutableList<Path> getAllPaths() {
-    return ImmutableList.of(getDatePath());
+    return ImmutableList.of(getDatePath(), getYearPath(), getMonthPath(), getDayPath());
   }
 
   public Path getDatePath() {

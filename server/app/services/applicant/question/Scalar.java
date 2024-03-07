@@ -87,7 +87,7 @@ public enum Scalar {
 
   private static final ImmutableSet<Scalar> CURRENCY_SCALARS = ImmutableSet.of(CURRENCY_CENTS);
 
-  private static final ImmutableSet<Scalar> DATE_SCALARS = ImmutableSet.of(DATE);
+  private static final ImmutableSet<Scalar> DATE_SCALARS = ImmutableSet.of(DATE, DAY, MONTH, YEAR);
 
   private static final ImmutableSet<Scalar> EMAIL_SCALARS = ImmutableSet.of(EMAIL);
 
