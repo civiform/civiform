@@ -108,8 +108,12 @@ test.describe('Checkbox question for applicant flow', () => {
       await enableFeatureFlag(page, 'north_star_applicant_ui')
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(page, 'checkbox-north-star', /* fullPage= */ true,
-      /* mobileScreenshot= */ true)
+      await validateScreenshot(
+        page,
+        'checkbox-north-star',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
     })
 
     test('with single checked box submits successfully', async () => {
