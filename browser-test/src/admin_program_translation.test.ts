@@ -1,7 +1,6 @@
 import {test, expect} from '@playwright/test'
 import {
   createTestContext,
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   selectApplicantLanguage,
@@ -155,7 +154,6 @@ test.describe('Admin can manage translations', () => {
   test('creates a program with summary image description and adds translations', async () => {
     const {page, adminPrograms, adminProgramImage, adminTranslations} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_card_images')
 
     const programName = 'Program with summary image description'
     await adminPrograms.addProgram(programName)
@@ -196,7 +194,6 @@ test.describe('Admin can manage translations', () => {
   test('editing summary image description does not clobber translations', async () => {
     const {page, adminPrograms, adminProgramImage, adminTranslations} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_card_images')
 
     const programName = 'Program with summary image description'
     await adminPrograms.addProgram(programName)
@@ -233,7 +230,6 @@ test.describe('Admin can manage translations', () => {
   test('deleting summary image description deletes all translations', async () => {
     const {page, adminPrograms, adminProgramImage, adminTranslations} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_card_images')
 
     const programName = 'Program with summary image description'
     await adminPrograms.addProgram(programName)

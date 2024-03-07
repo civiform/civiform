@@ -1,7 +1,6 @@
 package views;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static play.test.Helpers.fakeRequest;
 
@@ -27,12 +26,12 @@ public class ProgramImageUtilsTest extends ResetPostgres {
 
   @Before
   public void setUp() {
-    when(mockSettingsManifest.getProgramCardImages(any())).thenReturn(true);
+    when(mockSettingsManifest.getProgramCardImages()).thenReturn(true);
   }
 
   @Test
   public void createProgramImage_featureNotEnabled_returnsEmpty() {
-    when(mockSettingsManifest.getProgramCardImages(any())).thenReturn(false);
+    when(mockSettingsManifest.getProgramCardImages()).thenReturn(false);
 
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram("Test Program Name")

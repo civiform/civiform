@@ -883,8 +883,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * Enables images on program cards, both for admins to upload them and for applicants to view
    * them.
    */
-  public boolean getProgramCardImages(RequestHeader request) {
-    return getBool("PROGRAM_CARD_IMAGES", request);
+  public boolean getProgramCardImages() {
+    return getBool("PROGRAM_CARD_IMAGES");
   }
 
   /**

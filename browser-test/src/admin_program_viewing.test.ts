@@ -2,7 +2,6 @@ import {test} from '@playwright/test'
 import {
   createTestContext,
   enableFeatureFlag,
-  disableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
 } from './support'
@@ -21,28 +20,15 @@ test.describe('admin program view page', () => {
     await validateScreenshot(page, 'program-read-only-view')
   })
 
-  test('view draft program has edit image button if images flag on', async () => {
+  test('view draft program', async () => {
     const {page, adminPrograms} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_card_images')
 
     const programName = 'Draft Program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.gotoEditDraftProgramPage(programName)
 
-    await validateScreenshot(page, 'program-draft-view-images-flag-on')
-  })
-
-  test('view draft program has no edit image button if images flag off', async () => {
-    const {page, adminPrograms} = ctx
-    await loginAsAdmin(page)
-    await disableFeatureFlag(page, 'program_card_images')
-
-    const programName = 'Draft Program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.gotoEditDraftProgramPage(programName)
-
-    await validateScreenshot(page, 'program-draft-view-images-flag-off')
+    await validateScreenshot(page, 'program-draft-view')
   })
 
   test('view program with universal questions', async () => {

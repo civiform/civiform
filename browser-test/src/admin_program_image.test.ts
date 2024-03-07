@@ -2,7 +2,6 @@ import {test, expect} from '@playwright/test'
 import {
   createTestContext,
   dismissToast,
-  enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
   validateToastMessage,
@@ -14,7 +13,6 @@ test.describe('Admin can manage program image', () => {
   test('views a program without an image', async () => {
     const {page, adminPrograms} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_card_images')
 
     const programName = 'Program without image'
     await adminPrograms.addProgram(programName)
@@ -28,7 +26,6 @@ test.describe('Admin can manage program image', () => {
     test('back button redirects to block page if came from block page', async () => {
       const {page, adminPrograms, adminProgramImage} = ctx
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_card_images')
 
       const programName = 'program name'
       await adminPrograms.addProgram(programName)
@@ -44,7 +41,6 @@ test.describe('Admin can manage program image', () => {
     test('back button redirects to details page if came from create program page', async () => {
       const {page, adminPrograms, adminProgramImage} = ctx
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_card_images')
 
       // After creating a program, admin should be redirected to the program images page
       const programName = 'Back Test Program'
@@ -61,7 +57,6 @@ test.describe('Admin can manage program image', () => {
     test('back button preserves location after interaction', async () => {
       const {page, adminPrograms, adminProgramImage} = ctx
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_card_images')
 
       const programName = 'Back Test Program'
       await adminPrograms.addProgram(programName)
@@ -85,7 +80,6 @@ test.describe('Admin can manage program image', () => {
     test('continue button shows if from program creation page', async () => {
       const {page, adminPrograms, adminProgramImage} = ctx
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_card_images')
 
       const programName = 'Back Test Program'
       await adminPrograms.addProgram(programName)
@@ -98,7 +92,6 @@ test.describe('Admin can manage program image', () => {
     test('continue button redirects to program blocks page', async () => {
       const {page, adminPrograms, adminProgramImage} = ctx
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_card_images')
 
       const programName = 'Back Test Program'
       await adminPrograms.addProgram(programName)
@@ -113,7 +106,6 @@ test.describe('Admin can manage program image', () => {
     test('continue button hides if from edit program image page', async () => {
       const {page, adminPrograms, adminProgramImage} = ctx
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_card_images')
 
       const programName = 'program name'
       await adminPrograms.addProgram(programName)
@@ -131,7 +123,6 @@ test.describe('Admin can manage program image', () => {
     test.beforeEach(async () => {
       const {page, adminPrograms} = ctx
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_card_images')
       await adminPrograms.addProgram(programName)
       await adminPrograms.goToProgramImagePage(programName)
     })
@@ -366,7 +357,6 @@ test.describe('Admin can manage program image', () => {
     test.beforeEach(async () => {
       const {page, adminPrograms} = ctx
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_card_images')
       await adminPrograms.addProgram(programName)
       await adminPrograms.goToProgramImagePage(programName)
     })

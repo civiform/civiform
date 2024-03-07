@@ -172,7 +172,7 @@ public final class ProgramCardViewRenderer {
 
     Optional<ImgTag> programImage =
         programImageUtils.createProgramImage(
-            request, program, preferredLocale, /* isWithinProgramCard= */ true);
+            program, preferredLocale, /* isWithinProgramCard= */ true);
 
     ContainerTag title =
         nestedUnderSubheading
