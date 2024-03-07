@@ -80,12 +80,16 @@ import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
 import services.question.QuestionService;
+import services.question.types.DateQuestionDefinition;
+import services.question.types.EmailQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.NameQuestionDefinition;
+import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 import support.ProgramBuilder;
@@ -810,6 +814,119 @@ public class ApplicantServiceTest extends ResetPostgres {
         .isEqualTo(programDefinition.id());
     assertThat(application.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     assertThat(application.getApplicantData().asJsonString()).contains("Alice", "Doe");
+  }
+
+  @Test
+  public void submitApplication_savesPrimaryApplicantInfoAnswers() {
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    NameQuestionDefinition nameQuestion =
+        (NameQuestionDefinition)
+            questionService
+                .create(
+                    new NameQuestionDefinition(
+                        QuestionDefinitionConfig.builder()
+                            .setName("nameplz")
+                            .setDescription("Name plz")
+                            .setQuestionText(LocalizedStrings.of(Locale.US, "Give name plz"))
+                            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "Name!"))
+                            .setPrimaryApplicantInfoTags(
+                                ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_NAME))
+                            .build()))
+                .getResult();
+
+    DateQuestionDefinition dateQuestion =
+        (DateQuestionDefinition)
+            questionService
+                .create(
+                    new DateQuestionDefinition(
+                        QuestionDefinitionConfig.builder()
+                            .setName("dateplz")
+                            .setDescription("Date plz")
+                            .setQuestionText(LocalizedStrings.of(Locale.US, "Give date plz"))
+                            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "Date!"))
+                            .setPrimaryApplicantInfoTags(
+                                ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_DOB))
+                            .build()))
+                .getResult();
+
+    EmailQuestionDefinition emailQuestion =
+        (EmailQuestionDefinition)
+            questionService
+                .create(
+                    new EmailQuestionDefinition(
+                        QuestionDefinitionConfig.builder()
+                            .setName("emailplz")
+                            .setDescription("Email plz")
+                            .setQuestionText(LocalizedStrings.of(Locale.US, "Give email plz"))
+                            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "Email!"))
+                            .setPrimaryApplicantInfoTags(
+                                ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_EMAIL))
+                            .build()))
+                .getResult();
+
+    PhoneQuestionDefinition phoneQuestion =
+        (PhoneQuestionDefinition)
+            questionService
+                .create(
+                    new PhoneQuestionDefinition(
+                        QuestionDefinitionConfig.builder()
+                            .setName("phoneplz")
+                            .setDescription("Phone plz")
+                            .setQuestionText(LocalizedStrings.of(Locale.US, "Give phone plz"))
+                            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "Phone!"))
+                            .setPrimaryApplicantInfoTags(
+                                ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_PHONE))
+                            .build()))
+                .getResult();
+
+    ProgramDefinition progDef =
+        ProgramBuilder.newDraftProgram("PAI program", "desc")
+            .withBlock()
+            .withRequiredQuestionDefinitions(
+                ImmutableList.of(nameQuestion, dateQuestion, emailQuestion, phoneQuestion))
+            .buildDefinition();
+    versionRepository.publishNewSynchronizedVersion();
+
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(Path.create("applicant.nameplz").join(Scalar.FIRST_NAME).toString(), "Jean")
+            .put(Path.create("applicant.nameplz").join(Scalar.MIDDLE_NAME).toString(), "Luc")
+            .put(Path.create("applicant.nameplz").join(Scalar.LAST_NAME).toString(), "Picard")
+            .put(Path.create("applicant.dateplz").join(Scalar.DATE).toString(), "1999-01-07")
+            .put(
+                Path.create("applicant.emailplz").join(Scalar.EMAIL).toString(),
+                "picard@starfleet.com")
+            .put(
+                Path.create("applicant.phoneplz").join(Scalar.PHONE_NUMBER).toString(),
+                "5032161111")
+            .put(Path.create("applicant.phoneplz").join(Scalar.COUNTRY_CODE).toString(), "US")
+            .build();
+
+    subject
+        .stageAndUpdateIfValid(applicant.id, progDef.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+
+    ApplicationModel application =
+        subject
+            .submitApplication(applicant.id, progDef.id(), trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
+
+    applicant.refresh();
+    assertThat(application.getApplicant()).isEqualTo(applicant);
+    assertThat(application.getProgram().getProgramDefinition().id()).isEqualTo(progDef.id());
+    assertThat(application.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+    assertThat(applicant.getFirstName().get()).isEqualTo("Jean");
+    assertThat(applicant.getMiddleName().get()).isEqualTo("Luc");
+    assertThat(applicant.getLastName().get()).isEqualTo("Picard");
+    assertThat(applicant.getDateOfBirth().get()).isEqualTo("1999-01-07");
+    assertThat(applicant.getEmailAddress().get()).isEqualTo("picard@starfleet.com");
+    assertThat(applicant.getPhoneNumber().get()).isEqualTo("5032161111");
+    assertThat(applicant.getCountryCode().get()).isEqualTo("US");
   }
 
   @Test
