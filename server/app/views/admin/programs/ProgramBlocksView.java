@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.stream.IntStream;
-import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
@@ -160,7 +159,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     ArrayList<ProgramHeaderButton> headerButtons =
         new ArrayList<>(
             getEditHeaderButtons(
-                request, settingsManifest, /* isEditingAllowed= */ viewAllowsEditingProgram()));
+                settingsManifest, /* isEditingAllowed= */ viewAllowsEditingProgram()));
     headerButtons.add(ProgramHeaderButton.PREVIEW_AS_APPLICANT);
 
     HtmlBundle htmlBundle =
@@ -239,9 +238,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
    *     only allows editing if a program is in draft mode.)
    */
   private ImmutableList<ProgramHeaderButton> getEditHeaderButtons(
-      Http.Request request, SettingsManifest settingsManifest, boolean isEditingAllowed) {
+      SettingsManifest settingsManifest, boolean isEditingAllowed) {
     if (isEditingAllowed) {
-      if (settingsManifest.getProgramCardImages(request)) {
+      if (settingsManifest.getProgramCardImages()) {
         return ImmutableList.of(
             ProgramHeaderButton.EDIT_PROGRAM_DETAILS, ProgramHeaderButton.EDIT_PROGRAM_IMAGE);
       } else {

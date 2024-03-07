@@ -1,7 +1,6 @@
 import {test, expect} from '@playwright/test'
 import {
   createTestContext,
-  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -261,7 +260,6 @@ test.describe('applicant program index page with images', () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     const programName = 'Wide Image Program'
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_card_images')
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramImagePage(programName)
     await adminProgramImage.setImageFileAndSubmit(
@@ -278,7 +276,6 @@ test.describe('applicant program index page with images', () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     const programName = 'Tall Image Program'
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_card_images')
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramImagePage(programName)
     await adminProgramImage.setImageFileAndSubmit(
@@ -290,31 +287,10 @@ test.describe('applicant program index page with images', () => {
     await validateScreenshot(page, 'program-image-tall')
   })
 
-  test('no program image if flag off', async () => {
-    const {page, adminPrograms, adminProgramImage} = ctx
-    const programName = 'Image Flag Off Program'
-    await loginAsAdmin(page)
-    // Enable the flag and set an image as the admin
-    await enableFeatureFlag(page, 'program_card_images')
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.goToProgramImagePage(programName)
-    await adminProgramImage.setImageFileAndSubmit(
-      'src/assets/program-summary-image-tall.png',
-    )
-    await adminPrograms.publishAllDrafts()
-    // Then disable the flag before logging out
-    await disableFeatureFlag(page, 'program_card_images')
-    await logout(page)
-
-    // Verify the user doesn't see the image
-    await validateScreenshot(page, 'program-image-flag-off')
-  })
-
   test('shows program with image and status', async () => {
     const {page, adminPrograms, adminProgramStatuses, adminProgramImage} = ctx
     const programName = 'Image And Status Program'
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_card_images')
 
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramImagePage(programName)
@@ -348,7 +324,6 @@ test.describe('applicant program index page with images', () => {
       applicantQuestions,
     } = ctx
     await enableFeatureFlag(page, 'intake_form_enabled')
-    await enableFeatureFlag(page, 'program_card_images')
 
     // Common Intake: Basic (no image or status)
     await loginAsAdmin(page)

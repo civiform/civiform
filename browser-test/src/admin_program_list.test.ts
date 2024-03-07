@@ -2,7 +2,6 @@ import {test, expect} from '@playwright/test'
 import {
   AdminPrograms,
   createTestContext,
-  disableFeatureFlag,
   enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
@@ -245,10 +244,9 @@ test.describe('Program list page.', () => {
     await adminPrograms.expectActiveProgram(programOne)
   })
 
-  test('program list has current image if images flag on', async () => {
+  test('program list has current image', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_card_images')
 
     const programName = 'Images Flag On Program'
     await adminPrograms.addProgram(programName)
@@ -259,34 +257,12 @@ test.describe('Program list page.', () => {
     await adminPrograms.publishAllDrafts()
     await adminPrograms.gotoAdminProgramsPage()
 
-    await validateScreenshot(page, 'program-list-with-image-flag-on')
-  })
-
-  test('program list does not show current image if images flag off', async () => {
-    const {page, adminPrograms, adminProgramImage} = ctx
-    await loginAsAdmin(page)
-    // Enable the flag to set a program image
-    await enableFeatureFlag(page, 'program_card_images')
-
-    const programName = 'Images Flag Off Program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.goToProgramImagePage(programName)
-    await adminProgramImage.setImageFileAndSubmit(
-      'src/assets/program-summary-image-wide.png',
-    )
-    await adminPrograms.publishAllDrafts()
-
-    // Disable the flag then check the program list page
-    await disableFeatureFlag(page, 'program_card_images')
-    await adminPrograms.gotoAdminProgramsPage()
-
-    await validateScreenshot(page, 'program-list-with-image-flag-off')
+    await validateScreenshot(page, 'program-list')
   })
 
   test('program list with no image', async () => {
     const {page, adminPrograms} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_card_images')
 
     const programName = 'No Image Program'
     await adminPrograms.addProgram(programName)
@@ -299,7 +275,6 @@ test.describe('Program list page.', () => {
   test('program list with new image in draft', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_card_images')
 
     // Start the program as having no image
     const programName = 'New Image Program'
@@ -325,7 +300,6 @@ test.describe('Program list page.', () => {
     test('program list with different active and draft image', async () => {
       const {page, adminPrograms, adminProgramImage} = ctx
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_card_images')
 
       const programName = 'Different Images Program'
       await adminPrograms.addProgram(programName)
@@ -353,7 +327,6 @@ test.describe('Program list page.', () => {
   test('program list with same active and draft image', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_card_images')
 
     const programName = 'Same Image Program'
     await adminPrograms.addProgram(programName)

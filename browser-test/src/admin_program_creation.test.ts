@@ -14,36 +14,9 @@ import {Page} from 'playwright'
 test.describe('program creation', () => {
   const ctx = createTestContext()
 
-  test('create program page with images flag off', async () => {
-    const {page, adminPrograms} = ctx
-    await loginAsAdmin(page)
-    await disableFeatureFlag(page, 'program_card_images')
-
-    const programName = 'Apc program'
-    await adminPrograms.addProgram(
-      programName,
-      'description',
-      'https://usa.gov',
-      ProgramVisibility.PUBLIC,
-      'admin description',
-      /* isCommonIntake= */ false,
-      'selectedTI',
-      'confirmationMessage',
-      /* submitNewProgram= */ false,
-    )
-    await adminPrograms.expectProgramDetailsSaveButton()
-    await validateScreenshot(page, 'program-creation-page')
-
-    // When the program submission goes through with the program_card_images flag off,
-    // verify we're redirected to the block edit page.
-    await adminPrograms.submitProgramDetailsEdits()
-    await adminPrograms.expectProgramBlockEditPage(programName)
-  })
-
-  test('create program page with images flag on', async () => {
+  test('create program page', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_card_images')
 
     const programName = 'Apc program'
     await adminPrograms.addProgram(
@@ -58,9 +31,9 @@ test.describe('program creation', () => {
       /* submitNewProgram= */ false,
     )
     await adminPrograms.expectProgramDetailsSaveAndContinueButton()
-    await validateScreenshot(page, 'program-creation-page-images-flag-on')
+    await validateScreenshot(page, 'program-creation-page')
 
-    // When the program submission goes through with the program_card_images flag on,
+    // When the program submission goes through,
     // verify we're redirected to the program image upload page.
     await adminPrograms.submitProgramDetailsEdits()
     await adminProgramImage.expectProgramImagePage()
@@ -69,7 +42,6 @@ test.describe('program creation', () => {
   test('create program then go back prevents URL edits', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_card_images')
 
     const programName = 'Apc program'
     await adminPrograms.addProgram(
@@ -101,7 +73,6 @@ test.describe('program creation', () => {
   test('create program then go back can still go forward', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_card_images')
 
     const programName = 'Apc program'
     await adminPrograms.addProgram(programName)

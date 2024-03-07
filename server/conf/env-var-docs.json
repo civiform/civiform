@@ -744,7 +744,7 @@
         "type": "bool"
       },
       "PROGRAM_CARD_IMAGES": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enables images on program cards, both for admins to upload them and for applicants to view them.",
         "type": "bool"
       },
