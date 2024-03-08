@@ -13,6 +13,7 @@ import org.pac4j.play.java.Secure;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
+import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.reporting.ReportingService;
 import views.admin.reporting.AdminReportingIndexView;
@@ -57,12 +58,11 @@ public final class AdminReportingController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result show(Http.Request request, String programSlug) {
-    String programName =
+    ProgramDefinition programDefinition =
         programService
             .getActiveFullProgramDefinitionAsync(programSlug)
             .toCompletableFuture()
-            .join()
-            .adminName();
+            .join();
 
     return ok(
         adminReportingShowView
@@ -71,7 +71,8 @@ public final class AdminReportingController extends CiviFormController {
                 request,
                 getCiviFormProfile(request),
                 programSlug,
-                programName,
+                programDefinition.adminName(),
+                programDefinition.localizedName().getDefault(),
                 reportingService.getMonthlyStats()));
   }
 
