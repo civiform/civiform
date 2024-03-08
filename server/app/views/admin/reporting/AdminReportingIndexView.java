@@ -165,10 +165,11 @@ public final class AdminReportingIndexView extends BaseHtmlView {
                         tr(
                             td(
                                 new LinkElement()
-                                    .setText(stat.programName())
+                                    .setText(stat.publicName())
                                     .setHref(
                                         controllers.admin.routes.AdminReportingController.show(
-                                                MainModule.SLUGIFIER.slugify(stat.programName()))
+                                                MainModule.SLUGIFIER.slugify(
+                                                    stat.programAdminName()))
                                             .url())
                                     .asAnchorText()),
                             td(

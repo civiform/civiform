@@ -4,7 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import io.ebean.DB;
+import com.google.common.collect.ImmutableMap;
 import io.ebean.Database;
 import io.ebean.SqlRow;
 import java.sql.Timestamp;
@@ -21,11 +21,17 @@ public final class ReportingRepository {
 
   private final Clock clock;
   private final Database database;
+  private final ImmutableMap<String, String> programAdminNameToProgramDisplayName;
 
   @Inject
-  public ReportingRepository(Clock clock) {
+  public ReportingRepository(
+      Clock clock,
+      Database database,
+      ImmutableMap<String, String> programAdminNameToProgramDisplayName) {
     this.clock = Preconditions.checkNotNull(clock);
-    this.database = DB.getDefault();
+    this.programAdminNameToProgramDisplayName =
+        Preconditions.checkNotNull(programAdminNameToProgramDisplayName);
+    this.database = Preconditions.checkNotNull(database);
   }
 
   /**
@@ -42,16 +48,26 @@ public final class ReportingRepository {
         .findList()
         .stream()
         .map(
-            row ->
-                ApplicationSubmissionsStat.create(
-                    row.getString("program_name"),
-                    Optional.of(row.getTimestamp("submit_month")),
-                    row.getLong("count"),
-                    getSecondsFromPgIntervalRowValue(row, "p25"),
-                    getSecondsFromPgIntervalRowValue(row, "p50"),
-                    getSecondsFromPgIntervalRowValue(row, "p75"),
-                    getSecondsFromPgIntervalRowValue(row, "p99")))
+            row -> {
+              String programName = row.getString("program_name");
+              return ApplicationSubmissionsStat.create(
+                  getProgramLocalizedName(programName),
+                  programName,
+                  Optional.of(row.getTimestamp("submit_month")),
+                  row.getLong("count"),
+                  getSecondsFromPgIntervalRowValue(row, "p25"),
+                  getSecondsFromPgIntervalRowValue(row, "p50"),
+                  getSecondsFromPgIntervalRowValue(row, "p75"),
+                  getSecondsFromPgIntervalRowValue(row, "p99"));
+            })
         .collect(ImmutableList.toImmutableList());
+  }
+
+  private String getProgramLocalizedName(String name) {
+    if (programAdminNameToProgramDisplayName.containsKey(name)) {
+      return programAdminNameToProgramDisplayName.get(name);
+    }
+    return name;
   }
 
   private Timestamp getFirstOfMonth() {
@@ -85,15 +101,18 @@ public final class ReportingRepository {
         .findList()
         .stream()
         .map(
-            row ->
-                ApplicationSubmissionsStat.create(
-                    row.getString("program_name"),
-                    Optional.of(firstOfMonth),
-                    row.getLong("count"),
-                    getSecondsFromPgIntervalRowValue(row, "p25"),
-                    getSecondsFromPgIntervalRowValue(row, "p50"),
-                    getSecondsFromPgIntervalRowValue(row, "p75"),
-                    getSecondsFromPgIntervalRowValue(row, "p99")))
+            row -> {
+              String programName = row.getString("program_name");
+              return ApplicationSubmissionsStat.create(
+                  getProgramLocalizedName(programName),
+                  programName,
+                  Optional.of(firstOfMonth),
+                  row.getLong("count"),
+                  getSecondsFromPgIntervalRowValue(row, "p25"),
+                  getSecondsFromPgIntervalRowValue(row, "p50"),
+                  getSecondsFromPgIntervalRowValue(row, "p75"),
+                  getSecondsFromPgIntervalRowValue(row, "p99"));
+            })
         .collect(ImmutableList.toImmutableList());
   }
 
