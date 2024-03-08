@@ -33,7 +33,7 @@ GROUP BY programs.name, activeprogram.localized_name, DATE_TRUNC('month', applic
 ORDER BY programs.name,activeprogram.localized_name, DATE_TRUNC('month', applications.submit_time) DESC;
 
 --Reindexing
-REINDEX INDEX IF EXISTS index_applications_by_submit_time;
+REINDEX INDEX index_applications_by_submit_time;
 
 # --- !Downs
 
