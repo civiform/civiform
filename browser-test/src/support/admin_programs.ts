@@ -1188,4 +1188,9 @@ export class AdminPrograms {
     await this.page.getByText('Back').click()
     await this.page.waitForLoadState()
   }
+
+  async isPaginationVisibleForApplicationList(): Promise<boolean> {
+    const applicationListDiv = this.page.getByTestId('application-list')
+    return applicationListDiv.locator('.usa-pagination').isVisible()
+  }
 }
