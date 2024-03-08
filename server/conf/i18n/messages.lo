@@ -309,8 +309,8 @@ content.suggestedAddress=ທີ່ຢູ່ທີ່ແນະນຳ:
 content.suggestedAddresses=ທີ່ຢູ່ທີ່ແນະນຳ:
 
 # Title on address correction dialog when no address is found.
-title.noValidAddress=No valid address found
-content.noValidAddress=We could not verify the address that you provided. Please edit your address to continue.
+title.noValidAddress=ບໍ່ພົບທີ່ຢູ່ທີ່ຖືກຕ້ອງ
+content.noValidAddress=ພວກເຮົາບໍ່ສາມາດຢັ້ງຢືນທີ່ຢູ່ທີ່ທ່ານລະບຸໄດ້. ກະລຸນາແກ້ໄຂທີ່ຢູ່ຂອງທ່ານເພື່ອສືບຕໍ່.
 
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
@@ -371,8 +371,6 @@ placeholder.entityName=ຊື່ {0}
 #---------------------------------------------------------------------------------#
 
 validation.fileRequired=ກະລຸນາເລືອກໄຟລ໌.
-# An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
-validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
 button.chooseFile=ເລືອກໄຟລ໌
 
 #---------------------------------------------------------------------#
