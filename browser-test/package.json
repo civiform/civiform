@@ -16,7 +16,7 @@
     "axios": "1.6.7",
     "eslint": "8.57.0",
     "glob": "10.3.10",
-    "eslint-plugin-playwright": "1.5.1",
+    "eslint-plugin-playwright": "1.5.2",
     "playwright": "1.42.0",
     "sharp": "0.33.2",
     "ts-node": "10.9.2",
