@@ -362,6 +362,8 @@ validation.invalidDateFormat=Fadlan taariikhda ugu qor qaabka saxda ah
 button.addEntity=Ku dar {0}
 button.removeEntity=Ka saar {0}
 dialog.confirmDelete=Ma hubtaa inaad doonayso inaad tan saarto {0}? Isbeddelkan waa la keydin doonaa ka dib markaad gujiso ''Kan XIga'' oo dhammaan xogta la xiriirta tan waa lumin doonaa.
+# Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
+dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
 validation.entityNameRequired=Fadlan geli qiimaha sadar kasta.
 validation.duplicateEntityName=Fadlan geli qiime u gaar ah sadar kasta.
 placeholder.entityName=Naanaysta {0}
