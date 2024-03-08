@@ -1,8 +1,8 @@
 # --- !Ups
 --Drop the existing view
-DROP MATERIALIZED VIEW monthly_submissions_reporting_view;
+DROP MATERIALIZED VIEW IF EXISTS monthly_submissions_reporting_view;
 -- create a new view
-CREATE MATERIALIZED VIEW monthly_submissions_reporting_view AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS monthly_submissions_reporting_view AS
   SELECT
   programs.name AS program_name,
   activeprogram.localized_name AS localized_name,
@@ -33,15 +33,15 @@ GROUP BY programs.name, activeprogram.localized_name, DATE_TRUNC('month', applic
 ORDER BY programs.name,activeprogram.localized_name, DATE_TRUNC('month', applications.submit_time) DESC;
 
 --Reindexing
-REINDEX INDEX index_applications_by_submit_time;
+REINDEX INDEX IF EXISTS index_applications_by_submit_time;
 
 # --- !Downs
 
 DROP INDEX IF EXISTS index_applications_by_submit_time;
 
-DROP MATERIALIZED VIEW monthly_submissions_reporting_view;
+DROP MATERIALIZED VIEW IF EXISTS monthly_submissions_reporting_view;
 
-CREATE MATERIALIZED VIEW monthly_submissions_reporting_view AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS monthly_submissions_reporting_view AS
 SELECT
   programs.name AS program_name,
   date_trunc('month', applications.submit_time) AS submit_month,
