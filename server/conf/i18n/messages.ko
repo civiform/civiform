@@ -302,7 +302,7 @@ title.verifyAddress=주소 확인
 
 content.foundSimilarAddress=제공된 주소를 확인할 수 없지만 비슷한 주소를 발견했습니다.
 # Heading for showing the user the address they provided earlier
-content.addressEntered=Address you entered:
+content.addressEntered=입력된 주소:
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=추천 주소:

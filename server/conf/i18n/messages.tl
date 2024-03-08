@@ -302,7 +302,7 @@ title.verifyAddress=I-verify ang address
 
 content.foundSimilarAddress=Hindi namin ma-verify ang ibinigay mong address, pero may nakita kaming katulad nito.
 # Heading for showing the user the address they provided earlier
-content.addressEntered=Address you entered:
+content.addressEntered=Inilagay na address:
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=Iminumungkahing address:

@@ -302,7 +302,7 @@ title.verifyAddress=Verifica la dirección
 
 content.foundSimilarAddress=No pudimos verificar la dirección que proporcionaste, pero encontramos resultados similares.
 # Heading for showing the user the address they provided earlier
-content.addressEntered=Address you entered:
+content.addressEntered=Dirección ingresada:
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=Dirección sugerida:
