@@ -1189,7 +1189,8 @@ export class AdminPrograms {
     await this.page.waitForLoadState()
   }
 
-  async isPaginationVisible(): Promise<boolean> {
-    return this.page.locator('.usa-pagination').isVisible()
+  async isPaginationVisibleForApplicationList(): Promise<boolean> {
+    const applicationListDiv = this.page.getByTestId('application-list')
+    return applicationListDiv.locator('.usa-pagination').isVisible()
   }
 }

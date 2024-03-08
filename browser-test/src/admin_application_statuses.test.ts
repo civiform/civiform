@@ -60,13 +60,15 @@ test.describe('view program statuses', () => {
     })
 
     test('does not show pagination when there is only 1 page of applications', async () => {
-      expect(await ctx.adminPrograms.isPaginationVisible()).toBe(false)
+      expect(
+        await ctx.adminPrograms.isPaginationVisibleForApplicationList(),
+      ).toBe(false)
     })
 
     /* See trusted_intermediary.test.ts for more comprehensive pagination testing */
     test('shows pagination if there are more than 10 applications', async () => {
       const {page, adminPrograms, applicantQuestions} = ctx
-      // Apply to 10 more programs as a guest
+      // There is already 1 application from the beforeAll, so apply to 10 more programs.
       for (let i = 0; i < 10; i++) {
         await logout(page)
 
@@ -83,7 +85,10 @@ test.describe('view program statuses', () => {
       // Navigate to the applications list
       await adminPrograms.viewApplications(programWithoutStatusesName)
 
-      expect(await ctx.adminPrograms.isPaginationVisible()).toBe(true)
+      await validateScreenshot(ctx.page, 'application-list-pagination')
+      expect(
+        await ctx.adminPrograms.isPaginationVisibleForApplicationList(),
+      ).toBe(true)
       expect(page.locator('.usa-pagination__button:has-text("2")'))
     })
   })

@@ -97,8 +97,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
     DivTag applicationListDiv =
         div()
+            .withData("testid", "application-list")
             .with(
-                h1(program.adminName()).withClasses("my-4"),
+                h1(program.adminName()).withClasses("mt-4"),
                 br(),
                 renderSearchForm(
                     program,
