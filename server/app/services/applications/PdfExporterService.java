@@ -2,11 +2,15 @@ package services.applications;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.itextpdf.text.DocumentException;
 import java.io.IOException;
 import models.ApplicationModel;
+import services.TranslationNotFoundException;
 import services.export.PdfExporter;
+import services.program.ProgramDefinition;
+import services.question.types.QuestionDefinition;
 
 /** The service responsible for exporting a PDF file */
 public final class PdfExporterService {
@@ -29,6 +33,17 @@ public final class PdfExporterService {
     try {
       pdf = pdfExporter.exportApplication(application, showEligibilityText, includeHiddenBlocks);
     } catch (DocumentException | IOException e) {
+      throw new RuntimeException(e);
+    }
+    return pdf;
+  }
+
+  public PdfExporter.InMemoryPdf generateProgramPreview(
+      ProgramDefinition programDefinition, ImmutableList<QuestionDefinition> allQuestions) {
+    PdfExporter.InMemoryPdf pdf;
+    try {
+      pdf = pdfExporter.export(programDefinition, allQuestions);
+    } catch (DocumentException | IOException | TranslationNotFoundException e) {
       throw new RuntimeException(e);
     }
     return pdf;
