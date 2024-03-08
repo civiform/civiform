@@ -302,15 +302,15 @@ title.verifyAddress=驗證地址
 
 content.foundSimilarAddress=我們無法驗證您提供的地址，但找到了類似的地址。
 # Heading for showing the user the address they provided earlier
-content.addressEntered=Address you entered:
+content.addressEntered=您輸入的地址：
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=建議的地址：
 content.suggestedAddresses=建議的地址：
 
 # Title on address correction dialog when no address is found.
-title.noValidAddress=No valid address found
-content.noValidAddress=We could not verify the address that you provided. Please edit your address to continue.
+title.noValidAddress=找不到有效的網址
+content.noValidAddress=我們無法驗證您提供的地址。如要繼續操作，請編輯地址。
 
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
@@ -373,9 +373,9 @@ placeholder.entityName=「{0}」名稱
 #---------------------------------------------------------------------------------#
 
 validation.fileRequired=請選取檔案。
+button.chooseFile=選擇檔案
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
-button.chooseFile=選擇檔案
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #

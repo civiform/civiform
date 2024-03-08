@@ -302,15 +302,15 @@ title.verifyAddress=I-verify ang address
 
 content.foundSimilarAddress=Hindi namin ma-verify ang ibinigay mong address, pero may nakita kaming katulad nito.
 # Heading for showing the user the address they provided earlier
-content.addressEntered=Address you entered:
+content.addressEntered=Inilagay na address:
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=Iminumungkahing address:
 content.suggestedAddresses=Mga iminumungkahing address:
 
 # Title on address correction dialog when no address is found.
-title.noValidAddress=No valid address found
-content.noValidAddress=We could not verify the address that you provided. Please edit your address to continue.
+title.noValidAddress=Walang nakitang valid na address
+content.noValidAddress=Hindi namin ma-verify ang ibinigay mong address. Paki-edit ang address mo para magpatuloy.
 
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
@@ -373,9 +373,9 @@ placeholder.entityName={0} Palayaw
 #---------------------------------------------------------------------------------#
 
 validation.fileRequired=Maaari lamang ay pumili ng file.
+button.chooseFile=Pumili ng File
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
-button.chooseFile=Pumili ng File
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
