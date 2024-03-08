@@ -362,6 +362,8 @@ validation.invalidDateFormat=Ingresa una fecha en el formato correcto.
 button.addEntity=Agregar {0}
 button.removeEntity=Quitar {0}
 dialog.confirmDelete=¿Confirmas que quieres quitar esta {0}? Se guardará este cambio cuando hagas clic en "Siguiente" y se perderán todos los datos asociados con esta {0}.
+# Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
+dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
 validation.entityNameRequired=Ingresa un valor para cada línea.
 validation.duplicateEntityName=Ingresa un valor único para cada línea.
 placeholder.entityName=Nombre de {0}

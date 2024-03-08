@@ -362,6 +362,8 @@ validation.invalidDateFormat=日期的格式不正確，請重新輸入
 button.addEntity=新增「{0}」
 button.removeEntity=移除「{0}」
 dialog.confirmDelete=確定要移除此「{0}」嗎？點選「下一步」後，系統就會儲存變更並移除與此「{0}」相關的所有資料。
+# Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
+dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
 validation.entityNameRequired=請每行輸入一個值。
 validation.duplicateEntityName=每行輸入的值不可重複。
 placeholder.entityName=「{0}」名稱
