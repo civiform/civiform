@@ -75,8 +75,8 @@ public class ReportingRepositoryTest extends ResetPostgres {
             // The expected values here have submission duration percentile stats calculated from
             // the submitted (i.e. active and obsolete) applications.
             ApplicationSubmissionsStat.create(
-                "Fake Program A",
                 "fake-program-a",
+                "Fake Program A",
                 getMonthTimestamp(lastMonth),
                 3L,
                 300,
@@ -84,8 +84,8 @@ public class ReportingRepositoryTest extends ResetPostgres {
                 750,
                 990),
             ApplicationSubmissionsStat.create(
-                "Fake Program B",
                 "fake-program-b",
+                "Fake Program B",
                 getMonthTimestamp(twoMonthsAgo),
                 3L,
                 300,
@@ -131,8 +131,8 @@ public class ReportingRepositoryTest extends ResetPostgres {
             // The expected values here have submission duration percentile stats calculated from
             // the submitted (i.e. active and obsolete) applications.
             ApplicationSubmissionsStat.create(
-                "Fake Program A",
                 "fake-program-a",
+                "Fake Program A",
                 getMonthTimestamp(today),
                 3L,
                 300,
@@ -140,8 +140,8 @@ public class ReportingRepositoryTest extends ResetPostgres {
                 750,
                 990),
             ApplicationSubmissionsStat.create(
-                "Fake Program B",
                 "fake-program-b",
+                "Fake Program B",
                 getMonthTimestamp(today),
                 3L,
                 300,
