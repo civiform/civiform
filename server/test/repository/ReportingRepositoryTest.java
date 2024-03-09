@@ -29,8 +29,10 @@ public class ReportingRepositoryTest extends ResetPostgres {
   public void setUp() {
     repo = new ReportingRepository(testClock);
     applicant = resourceCreator.insertApplicantWithAccount();
-    programA = ProgramBuilder.newActiveProgram().withName("Fake Program A").build();
-    programB = ProgramBuilder.newActiveProgram().withName("Fake Program B").build();
+    programA =
+        ProgramBuilder.newActiveProgramWithDisplayName("fake-program-a", "Fake Program A").build();
+    programB =
+        ProgramBuilder.newActiveProgramWithDisplayName("fake-program-b", "Fake Program B").build();
   }
 
   @Test
@@ -73,9 +75,23 @@ public class ReportingRepositoryTest extends ResetPostgres {
             // The expected values here have submission duration percentile stats calculated from
             // the submitted (i.e. active and obsolete) applications.
             ApplicationSubmissionsStat.create(
-                "Fake Program A", getMonthTimestamp(lastMonth), 3L, 300, 500, 750, 990),
+                "Fake Program A",
+                "fake-program-a",
+                getMonthTimestamp(lastMonth),
+                3L,
+                300,
+                500,
+                750,
+                990),
             ApplicationSubmissionsStat.create(
-                "Fake Program B", getMonthTimestamp(twoMonthsAgo), 3L, 300, 500, 750, 990));
+                "Fake Program B",
+                "fake-program-b",
+                getMonthTimestamp(twoMonthsAgo),
+                3L,
+                300,
+                500,
+                750,
+                990));
   }
 
   @Test
@@ -115,9 +131,23 @@ public class ReportingRepositoryTest extends ResetPostgres {
             // The expected values here have submission duration percentile stats calculated from
             // the submitted (i.e. active and obsolete) applications.
             ApplicationSubmissionsStat.create(
-                "Fake Program A", getMonthTimestamp(today), 3L, 300, 500, 750, 990),
+                "Fake Program A",
+                "fake-program-a",
+                getMonthTimestamp(today),
+                3L,
+                300,
+                500,
+                750,
+                990),
             ApplicationSubmissionsStat.create(
-                "Fake Program B", getMonthTimestamp(today), 3L, 300, 500, 750, 990));
+                "Fake Program B",
+                "fake-program-b",
+                getMonthTimestamp(today),
+                3L,
+                300,
+                500,
+                750,
+                990));
   }
 
   private static Optional<Timestamp> getMonthTimestamp(Instant lastMonth) {
