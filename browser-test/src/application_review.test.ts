@@ -280,7 +280,7 @@ test.describe('Program admin review of submitted applications', () => {
       await validateScreenshot(page, 'reporting-page')
     }
 
-    await page.click(`text=${programName}`)
+    await page.getByRole('link', { name: programName })
 
     if (isHermeticTestEnvironment()) {
       await validateScreenshot(page, 'program-specific-reporting-page')
