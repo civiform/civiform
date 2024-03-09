@@ -23,6 +23,7 @@ import java.util.Random;
 import repository.AccountRepository;
 import repository.PersistedDurableJobRepository;
 import repository.ReportingRepository;
+import repository.ReportingRepositoryFactory;
 import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
 import services.cloud.PublicStorageClient;
@@ -74,6 +75,7 @@ public final class DurableJobModule extends AbstractModule {
       PersistedDurableJobRepository persistedDurableJobRepository,
       PublicStorageClient publicStorageClient,
       ReportingRepository reportingRepository,
+      ReportingRepositoryFactory reportingRepositoryFactory,
       VersionRepository versionRepository) {
     var durableJobRegistry = new DurableJobRegistry();
 
@@ -86,8 +88,9 @@ public final class DurableJobModule extends AbstractModule {
     durableJobRegistry.register(
         DurableJobName.REPORTING_DASHBOARD_MONTHLY_REFRESH,
         persistedDurableJob ->
-            new ReportingDashboardMonthlyRefreshJob(reportingRepository, persistedDurableJob),
-        new RecurringJobExecutionTimeResolvers.FirstOfMonth2Am());
+            new ReportingDashboardMonthlyRefreshJob(
+                reportingRepositoryFactory.create(), persistedDurableJob),
+        new RecurringJobExecutionTimeResolvers.Immediately());
 
     durableJobRegistry.register(
         DurableJobName.UNUSED_ACCOUNT_CLEANUP,
