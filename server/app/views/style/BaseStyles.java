@@ -185,11 +185,7 @@ public final class BaseStyles {
 
   public static final String ADMIN_LOGIN =
       StyleUtils.joinStyles(
-          "bg-transparent",
-          "text-black",
-          "underline",
-          "font-bold",
-          StyleUtils.hover("bg-gray-200", "opacity-90"));
+          "text-black", "underline", "font-bold", StyleUtils.hover("bg-gray-200", "opacity-90"));
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // USWDS Alert style classes

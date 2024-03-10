@@ -347,7 +347,9 @@ public final class QuestionEditView extends BaseHtmlView {
                             .attr("form", "full-edit-form")
                             .withClasses(ButtonStyles.SOLID_BLUE),
                         button("Cancel")
-                            .withClasses(ButtonStyles.LINK_STYLE, ReferenceClasses.MODAL_CLOSE))
+                            .withClasses(
+                                ButtonStyles.LINK_STYLE_PUBLISH_PROGRAM,
+                                ReferenceClasses.MODAL_CLOSE))
                     .withClasses("flex", "flex-col", StyleUtils.responsiveMedium("flex-row")));
     return Modal.builder()
         .setModalId("confirm-question-updates-modal")

@@ -931,13 +931,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     DivTag ret =
         div()
             .withClasses(
-                "flex",
-                "gap-2",
-                "items-center",
-                "text-gray-400",
-                "font-medium",
-                "bg-transparent",
-                "rounded-full")
+                "flex", "gap-2", "items-center", "text-gray-400", "font-medium", "rounded-full")
             .with(p(label));
     return ret;
   }

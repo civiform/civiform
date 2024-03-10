@@ -36,7 +36,6 @@ public final class ButtonStyles {
           "font-semibold",
           "px-8",
           BUTTON_BASE,
-          "bg-transparent",
           BaseStyles.TEXT_CIVIFORM_BLUE,
           BaseStyles.BORDER_CIVIFORM_BLUE,
           StyleUtils.hover("bg-blue-100"));
@@ -64,12 +63,12 @@ public final class ButtonStyles {
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_BLUE_SEMIBOLD, "text-xl");
 
   public static final String OUTLINED_TRANSPARENT =
-      StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_SEMIBOLD, "text-base");
+      StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_SEMIBOLD, "text-base", "bg-transparent");
 
   public static final String OUTLINED_WHITE_WITH_ICON =
       StyleUtils.joinStyles(
           // Buttons with icons should not have extra padding
-          StyleUtils.removeStyles(BUTTON_BASE_OUTLINE_SEMIBOLD, "px-8", "bg-transparent"),
+          StyleUtils.removeStyles(BUTTON_BASE_OUTLINE_SEMIBOLD, "px-8"),
           "flex",
           "items-center",
           "font-medium",
@@ -97,7 +96,9 @@ public final class ButtonStyles {
   public static final String LINK_STYLE =
       StyleUtils.joinStyles(
           StyleUtils.removeStyles(ApplicantStyles.LINK, "text-sm"),
-          "bg-transparent",
           "border-none",
           "hover:bg-opacity-0");
+
+  public static final String LINK_STYLE_PUBLISH_PROGRAM =
+      StyleUtils.joinStyles(LINK_STYLE, "bg-transparent");
 }
