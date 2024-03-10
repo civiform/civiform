@@ -99,6 +99,6 @@ public final class ButtonStyles {
           "border-none",
           "hover:bg-opacity-0");
 
-  public static final String LINK_STYLE_PUBLISH_PROGRAM =
+  public static final String LINK_STYLE_WITH_TRANSPARENCY =
       StyleUtils.joinStyles(LINK_STYLE, "bg-transparent");
 }

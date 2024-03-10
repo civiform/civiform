@@ -348,7 +348,7 @@ public final class QuestionEditView extends BaseHtmlView {
                             .withClasses(ButtonStyles.SOLID_BLUE),
                         button("Cancel")
                             .withClasses(
-                                ButtonStyles.LINK_STYLE_PUBLISH_PROGRAM,
+                                ButtonStyles.LINK_STYLE_WITH_TRANSPARENCY,
                                 ReferenceClasses.MODAL_CLOSE))
                     .withClasses("flex", "flex-col", StyleUtils.responsiveMedium("flex-row")));
     return Modal.builder()
