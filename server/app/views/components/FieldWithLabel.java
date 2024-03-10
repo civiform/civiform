@@ -583,8 +583,8 @@ public class FieldWithLabel {
         .withClasses(
             getFieldClasses(fieldTag, hasFieldErrors),
             // TODO(#5623): Use unified styles for disabled inputs
-            this.readOnly ? "text-gray-500" : "",
-            this.readOnly ? "bg-gray-100" : "")
+            this.readOnly ? "read-only:text-gray-500" : "",
+            this.readOnly ? "read-only:bg-gray-100" : "")
         .withId(this.id)
         .withName(this.fieldName)
         .withCondDisabled(this.disabled)
