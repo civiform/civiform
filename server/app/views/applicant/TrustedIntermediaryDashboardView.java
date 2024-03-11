@@ -34,6 +34,7 @@ import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -367,11 +368,16 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       return div();
     }
 
-    ImmutableList<ApplicationModel> newestApplicantApplications =
-        newestApplicant.get().getApplications();
-    int applicationCount = newestApplicantApplications.size();
+    ImmutableList<ApplicationModel> submittedApplications =
+        newestApplicant.get().getApplications().stream()
+            .filter(
+                application ->
+                    application.getSubmitTime() != null
+                        && application.getSubmitTime().compareTo(Instant.now()) <= 0)
+            .collect(ImmutableList.toImmutableList());
+    int applicationCount = submittedApplications.size();
     String programs =
-        newestApplicantApplications.stream()
+        submittedApplications.stream()
             .map(
                 application -> {
                   try {
