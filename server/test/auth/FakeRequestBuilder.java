@@ -3,14 +3,16 @@ package auth;
 import static play.test.Helpers.fakeRequest;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
 import play.mvc.Http;
 
 public final class FakeRequestBuilder {
-  String remoteAddress = "1.1.1.1";
-  Optional<String> xForwardedFor = Optional.empty();
-  Optional<String> rawCredentials = Optional.empty();
+  private String remoteAddress = "1.1.1.1";
+  private List<String> xForwardedFor = new ArrayList<>();
+  private Optional<String> rawCredentials = Optional.empty();
 
   public FakeRequestBuilder() {}
 
@@ -19,8 +21,11 @@ public final class FakeRequestBuilder {
     return this;
   }
 
-  public FakeRequestBuilder withXForwardedFor(String xForwardedFor) {
-    this.xForwardedFor = Optional.of(xForwardedFor);
+  // Add an X-Forwarded-For header.
+  //
+  // Can be called multiple times.
+  public FakeRequestBuilder withXForwardedFor(String xff) {
+    this.xForwardedFor.add(xff);
     return this;
   }
 
@@ -31,7 +36,9 @@ public final class FakeRequestBuilder {
 
   public Http.Request build() {
     Http.RequestBuilder fakeRequest = fakeRequest().remoteAddress(this.remoteAddress);
-    xForwardedFor.ifPresent(xForwardedFor -> fakeRequest.header("X-Forwarded-For", xForwardedFor));
+    if (!xForwardedFor.isEmpty()) {
+      fakeRequest.header(ClientIpResolver.X_FORWARDED_FOR, xForwardedFor);
+    }
     rawCredentials
         .map(
             rawCreds ->

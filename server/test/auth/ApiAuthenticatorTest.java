@@ -2,16 +2,15 @@ package auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.typesafe.config.ConfigFactory;
 import io.ebean.DB;
 import java.time.Instant;
 import java.util.Optional;
@@ -36,6 +35,7 @@ import play.inject.guice.GuiceApplicationLoader;
 import play.mvc.Http;
 import play.test.Helpers;
 import services.apikey.ApiKeyService;
+import services.settings.SettingsManifest;
 import support.ResourceCreator;
 
 public class ApiAuthenticatorTest {
@@ -52,6 +52,8 @@ public class ApiAuthenticatorTest {
   private static final String secret = "secret";
   private static final String validRawCredentials = keyId + ":" + secret;
   private static final SessionStore MOCK_SESSION_STORE = Mockito.mock(SessionStore.class);
+  private static final SettingsManifest MOCK_SETTINGS_MANIFEST =
+      Mockito.mock(SettingsManifest.class);
   private ApiKeyModel apiKey;
   private Injector injector;
 
@@ -113,12 +115,13 @@ public class ApiAuthenticatorTest {
 
   @Test
   public void validate_success_forwarded() {
+    when(MOCK_SETTINGS_MANIFEST.getNumTrustedProxies()).thenReturn(Optional.of(1));
+    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
 
     var authenticator =
         new ApiAuthenticator(
             injector.getProvider(ApiKeyService.class),
-            new ClientIpResolver(
-                ConfigFactory.parseMap(ImmutableMap.of("client_ip_type", "FORWARDED"))));
+            new ClientIpResolver(MOCK_SETTINGS_MANIFEST));
     apiKey.setSubnet("3.3.3.3/32");
     apiKey.save();
 
@@ -184,11 +187,13 @@ public class ApiAuthenticatorTest {
 
   @Test
   public void validate_ipNotInSubnet_forwarded() {
+    when(MOCK_SETTINGS_MANIFEST.getNumTrustedProxies()).thenReturn(Optional.of(1));
+    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
+
     var authenticator =
         new ApiAuthenticator(
             injector.getProvider(ApiKeyService.class),
-            new ClientIpResolver(
-                ConfigFactory.parseMap(ImmutableMap.of("client_ip_type", "FORWARDED"))));
+            new ClientIpResolver(MOCK_SETTINGS_MANIFEST));
 
     apiKey.setSubnet("2.2.2.2/30,3.3.3.3/32");
     apiKey.save();
@@ -211,11 +216,13 @@ public class ApiAuthenticatorTest {
     listAppender.start();
     logger.addAppender(listAppender);
 
+    when(MOCK_SETTINGS_MANIFEST.getNumTrustedProxies()).thenReturn(Optional.of(1));
+    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
+
     var authenticator =
         new ApiAuthenticator(
             injector.getProvider(ApiKeyService.class),
-            new ClientIpResolver(
-                ConfigFactory.parseMap(ImmutableMap.of("client_ip_type", "FORWARDED"))));
+            new ClientIpResolver(MOCK_SETTINGS_MANIFEST));
 
     apiKey.setSubnet("2.2.2.2/30,3.3.3.3/32");
     apiKey.save();
