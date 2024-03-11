@@ -1,4 +1,4 @@
-<div th:fragment="checkbox (question)" th:with="questionId=${#strings.randomAlphanumeric(8)}" th:id="${questionId}">
+<div th:fragment="checkbox (question, questionRendererParams)" th:with="questionId=${#strings.randomAlphanumeric(8)}" th:id="${questionId}">
     <fieldset class="usa-fieldset" th:aria-describedby="${questionId} + '-description'" th:with="multiSelectQuestion=${question.createMultiSelectQuestion()}">
         <!-- Title and Help Text -->
         <div th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpText(${question}, ${questionId})}"></div>
@@ -12,9 +12,8 @@
             checked/>
         <!-- Render each checkbox option -->
         <div class="usa-checkbox"
-            th:each="option,iterator: ${multiSelectQuestion.getOptions()}"
+            th:each="option,iterator: ${multiSelectQuestion.getSortedLocalizedOptions()}"
             th:with="inputId='checkbox-' + ${question.getContextualizedPath()} + '-' + ${option.id()}">
-          <!-- TODO(ghyde): Add autofocus attribute as appropriate -->
           <input
             class="usa-checkbox__input usa-checkbox__input--tile"
             th:id="${inputId}"
@@ -22,7 +21,8 @@
             th:name="${multiSelectQuestion.getSelectionPathAsArray()}"
             th:checked="${multiSelectQuestion.optionIsSelected(option)}"
             type="checkbox"
-            th:aria-required="${!question.isOptional()}"/>
+            th:aria-required="${!question.isOptional()}"
+            th:autofocus="${questionRendererParams.autofocusSingleField() && iterator.index == 0}">
           <label class="usa-checkbox__label" th:for="${inputId}" th:text="${option.optionText()}"></label>
         </div>
     </fieldset>
