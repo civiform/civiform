@@ -302,15 +302,15 @@ title.verifyAddress=አድራሻን ያረጋግጡ
 
 content.foundSimilarAddress=የሰጡትን አድራሻ ማረጋገጥ አልቻልንም ነገር ግን የሆነ ተመሳሳይ ነገር አግኝተናል።
 # Heading for showing the user the address they provided earlier
-content.addressEntered=Address you entered:
+content.addressEntered=የገባ አድራሻ፦
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=የተጠቆመው አድራሻ፦
 content.suggestedAddresses=የተጠቆሙ አድራሻዎች፦
 
 # Title on address correction dialog when no address is found.
-title.noValidAddress=No valid address found
-content.noValidAddress=We could not verify the address that you provided. Please edit your address to continue.
+title.noValidAddress=ምንም የሚሠሩ አድራሻዎች አልተገኙም
+content.noValidAddress=የሰጡትን አድራሻ ማረጋገጥ አልቻልንም። እባክዎ ለመቀጠል አድራሻዎን ያርትዑ።
 
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
@@ -362,6 +362,8 @@ validation.invalidDateFormat=እባክዎ ቀንን በትክክለኛው ቅር
 button.addEntity={0}ን አክል
 button.removeEntity={0}ን አስወግድ
 dialog.confirmDelete=ይህን {0} ማስወገድ እንደሚፈልጉ እርግጠኛ ነዎት? ይህ ለውጥ «ቀጣይ»ን ከተጫኑ በኋላ ይቀመጣል፣ እና ከዚህ {0} ጋር የተጎዳኘ ሁሉም ውሂብ ይጠፋል።
+# Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
+dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
 validation.entityNameRequired=እባክዎ ለእያንዳንዱ መስመር እሴት ያስገቡ።
 validation.duplicateEntityName=እባክዎ ለእያንዳንዱ መስመር ልዩ እሴት ያስገቡ።
 placeholder.entityName={0} ስም
@@ -371,9 +373,9 @@ placeholder.entityName={0} ስም
 #---------------------------------------------------------------------------------#
 
 validation.fileRequired=እባክዎ ፋይል ይምረጡ።
+button.chooseFile=ፋይል ይምረጡ
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
-button.chooseFile=ፋይል ይምረጡ
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
