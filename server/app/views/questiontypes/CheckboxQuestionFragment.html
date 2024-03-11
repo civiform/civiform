@@ -1,5 +1,5 @@
 <div
-  th:fragment="checkbox(question)"
+  th:fragment="checkbox(question, questionRendererParams)"
   th:with="questionId=${#strings.randomAlphanumeric(8)}"
   th:id="${questionId}"
 >
@@ -41,7 +41,8 @@
         th:checked="${multiSelectQuestion.optionIsSelected(option)}"
         type="checkbox"
         th:aria-required="${!question.isOptional()}"
-      />
+        th:autofocus="${questionRendererParams.autofocusSingleField() && iterator.index == 0}">
+        />
       <label
         class="usa-checkbox__label"
         th:for="${inputId}"
