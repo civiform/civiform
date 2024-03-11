@@ -5,11 +5,13 @@ on:
     inputs:
       branch_name:
         description: 'The name of the branch to build from'
+        default: main
         required: true
 
       test_to_run:
         description: 'The load test to run from load-test/'
         type: choice
+        default: applicant_submit_application
         options:
         - applicant_submit_application
         - applicant_landing_page
