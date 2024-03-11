@@ -9,6 +9,14 @@ import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
 import views.ApplicationBaseView;
 import views.html.helper.CSRF;
+import views.questiontypes.ApplicantQuestionRendererParams;
+import services.question.types.QuestionDefinition;
+import java.util.Optional;
+import com.google.common.annotations.VisibleForTesting;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicInteger;
+
 
 /** Renders a page for answering questions in a program screen (block). */
 public final class NorthStarApplicantProgramBlockEditView extends NorthStarApplicantBaseView {
@@ -27,6 +35,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
     context.setVariable("formAction", getFormAction(applicationParams));
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicantQuestions", applicationParams.block().getQuestions());
+    context.setVariable("questionRendererParams", getApplicantQuestionRendererParams(applicationParams));
     return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
   }
 
@@ -40,5 +49,53 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
             params.inReview(),
             ApplicantRequestedAction.NEXT_BLOCK)
         .url();
+  }
+
+  // Returns a mapping from Question ID to Renderer params for that question.
+  private Map<Long, ApplicantQuestionRendererParams> getApplicantQuestionRendererParams(ApplicationBaseView.Params params) {
+    AtomicInteger ordinalErrorCount = new AtomicInteger(0);
+
+    return params.block().getQuestions().stream().collect(Collectors.toMap(
+      question -> question.getQuestionDefinition().getId(),
+      question -> {
+        if (question.hasErrors()) {
+          ordinalErrorCount.incrementAndGet();
+        }
+        return ApplicantQuestionRendererParams.builder()
+        .setMessages(params.messages())
+        .setErrorDisplayMode(params.errorDisplayMode())
+        .setAutofocus(
+            calculateAutoFocusTarget(
+                params.errorDisplayMode(),
+                question.getQuestionDefinition(),
+                params.block().hasErrors(),
+                ordinalErrorCount.get(),
+                params.applicantSelectedQuestionName()))
+        .build();
+      }
+    ));
+  }
+
+    // One field at most should be autofocused on the page. If there are errors,
+  // it should be the first field with an error of the first question with
+  // errors. Otherwise, if there is a user-selected question it should be the
+  // first field of that question.
+  @VisibleForTesting
+  ApplicantQuestionRendererParams.AutoFocusTarget calculateAutoFocusTarget(
+      ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode,
+      QuestionDefinition questionDefinition,
+      boolean formHasErrors,
+      int ordinalErrorCount,
+      Optional<String> applicantSelectedQuestionName) {
+    if (formHasErrors
+        && ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(errorDisplayMode)) {
+      return ordinalErrorCount == 1
+          ? ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_ERROR
+          : ApplicantQuestionRendererParams.AutoFocusTarget.NONE;
+    }
+
+    return applicantSelectedQuestionName.map(questionDefinition.getName()::equals).orElse(false)
+        ? ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD
+        : ApplicantQuestionRendererParams.AutoFocusTarget.NONE;
   }
 }
