@@ -165,7 +165,7 @@ public final class AdminReportingIndexView extends BaseHtmlView {
                         tr(
                             td(
                                 new LinkElement()
-                                    .setText(stat.localizedProgramName())
+                                    .setText(stat.enUSLocalizedProgramName())
                                     .setHref(
                                         controllers.admin.routes.AdminReportingController.show(
                                                 MainModule.SLUGIFIER.slugify(stat.programName()))

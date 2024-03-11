@@ -45,7 +45,7 @@ public final class ReportingRepository {
             row ->
                 ApplicationSubmissionsStat.create(
                     row.getString("program_name"),
-                    row.getString("localized_name"),
+                    row.getString("en_us_localized_name"),
                     Optional.of(row.getTimestamp("submit_month")),
                     row.getLong("count"),
                     getSecondsFromPgIntervalRowValue(row, "p25"),
@@ -68,7 +68,7 @@ public final class ReportingRepository {
         .sqlQuery(
             "SELECT\n"
                 + "  programs.name AS program_name,\n"
-                + "  activeprogram.localized_name AS localized_name,\n"
+                + "  active_program.localized_name AS en_us_localized_name,\n"
                 + "  count(*),\n"
                 + "  percentile_cont(0.5) WITHIN GROUP (\n"
                 + "    ORDER BY applications.submission_duration) AS p50,\n"
@@ -84,17 +84,17 @@ public final class ReportingRepository {
                 + "  ( SELECT\n"
                 + "    p.name,\n"
                 + "  ((p.localized_name #>> '{}')::jsonb #>> '{translations,en_US}') AS"
-                + " localized_name\n"
+                + " en_us_localized_name\n"
                 + "  FROM programs p\n"
                 + "  INNER JOIN versions_programs vp ON\n"
                 + "  vp.programs_id = p.id\n"
                 + "  INNER JOIN  versions v ON\n"
                 + "  vp.versions_id = v.id WHERE v.lifecycle_stage IN ('active')) AS"
-                + " activeprogram\n"
-                + "  ON activeprogram.name = programs.name\n"
+                + " active_program\n"
+                + "  ON active_program.name = programs.name\n"
                 + "WHERE applications.lifecycle_stage IN ('active', 'obsolete')\n"
                 + "AND applications.submit_time >= date_trunc('month', :current_date::date)\n"
-                + "GROUP BY programs.name,activeprogram.localized_name ")
+                + "GROUP BY programs.name, active_program.en_us_localized_name")
         .setParameter("current_date", firstOfMonth)
         .findList()
         .stream()
@@ -102,7 +102,7 @@ public final class ReportingRepository {
             row ->
                 ApplicationSubmissionsStat.create(
                     row.getString("program_name"),
-                    row.getString("localized_name"),
+                    row.getString("en_us_localized_name"),
                     Optional.of(firstOfMonth),
                     row.getLong("count"),
                     getSecondsFromPgIntervalRowValue(row, "p25"),

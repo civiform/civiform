@@ -221,7 +221,7 @@ public final class ReportingService {
               } else {
                 aggregator =
                     new ApplicationSubmissionsStat.Aggregator(
-                        stat.programName(), stat.localizedProgramName());
+                        stat.programName(), stat.enUSLocalizedProgramName());
                 aggregators.put(stat.programName(), aggregator);
               }
 
