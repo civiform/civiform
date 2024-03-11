@@ -68,7 +68,7 @@ public final class ReportingRepository {
         .sqlQuery(
             "SELECT\n"
                 + "  programs.name AS program_name,\n"
-                + "  active_program.localized_name AS en_us_localized_name,\n"
+                + "  active_program.en_us_localized_name AS en_us_localized_name,\n"
                 + "  count(*),\n"
                 + "  percentile_cont(0.5) WITHIN GROUP (\n"
                 + "    ORDER BY applications.submission_duration) AS p50,\n"
