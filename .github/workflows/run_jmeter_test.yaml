@@ -28,7 +28,7 @@ jobs:
           test-plan-path: load_test/${{ github.event.inputs.test_to_run }}.jmx
           args: ""
       - name: Upload Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jmeter-results
           path: result.jtl
