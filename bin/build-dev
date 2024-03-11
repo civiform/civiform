@@ -19,6 +19,7 @@ BUILD_ARGS=(--file "${DOCKERFILE}"
   --tag "${NAMESPACE}/${IMAGE}:latest"
   --cache-from "${NAMESPACE}/${IMAGE}"
   --build-arg BUILDKIT_INLINE_CACHE=1
+  --build-arg SBT_VERSION="${SBT_VERSION}"
   "${LOCATION}")
 
 PLATFORM_ARG=()
