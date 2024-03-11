@@ -105,7 +105,7 @@ object WebAssetsBundler extends AutoPlugin {
       )
     // we only watch for changes in TS files.
     val tsFiles = inputFiles map { p => p._1 } filter { f =>
-      f.getName.endsWith(".ts")
+      f.getName.endsWith(".ts") || f.getName.endsWith(".scss")
     }
     // we are using sbt-web syncIncremental function. It's somewhat complicated. For our
     // use case we just want to see if any of TS files changed and if so - rerun Webpack

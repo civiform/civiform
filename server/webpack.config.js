@@ -4,6 +4,9 @@ module.exports = {
   mode: 'production',
   devtool: 'source-map',
   stats: 'errors-only',
+  cache: {
+    type: 'filesystem'
+  },
   module: {
     rules: [
       {
@@ -21,7 +24,10 @@ module.exports = {
             loader: 'sass-loader' /* Converts Sass into CSS. */,
             options: {
               sassOptions: {
-                includePaths: ['./node_modules/@uswds/uswds/packages'],
+                includePaths: [
+                  './app/assets/stylesheets/custom',
+                  './node_modules/@uswds/uswds/packages'
+                ],
               },
             },
           },
@@ -40,17 +46,20 @@ module.exports = {
   entry: {
     applicant: './app/assets/javascripts/applicant_entry_point.ts',
     admin: './app/assets/javascripts/admin_entry_point.ts',
-    uswds: './node_modules/@uswds/uswds/dist/js/uswds.min.js',
-    uswdsStyles: './app/assets/stylesheets/uswds/styles.scss',
+    uswds: [
+      './node_modules/@uswds/uswds/dist/js/uswds.min.js',
+      './app/assets/stylesheets/uswds/styles.scss',
+    ],
+    sample: './app/assets/stylesheets/custom/sample.scss',
   },
   output: {
     filename: `[name].bundle.js`,
-    sourceMapFilename: '[name].bundle.js.map',
+    sourceMapFilename: '[file].map',
     iife: true,
   },
   plugins: [
     new MiniCssExtractPlugin({
-      filename: 'uswds.min.css' /* The name for the compiled output CSS file */,
+      filename: '[name].min.css' /* The name for the compiled output CSS file */,
     }),
   ],
 }
