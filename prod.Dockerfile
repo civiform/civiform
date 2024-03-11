@@ -2,7 +2,8 @@
 # For production images, use the adoptium.net official JRE & JDK docker images.
 FROM --platform=linux/amd64 eclipse-temurin:11.0.22_7-jdk-alpine AS stage1
 
-ENV SBT_VERSION "${SBT_VERSION:-1.8.2}"
+ARG SBT_VERSION
+ENV SBT_VERSION "${SBT_VERSION}"
 ENV INSTALL_DIR /usr/local
 ENV SBT_HOME /usr/local/sbt
 ENV PATH "${PATH}:${SBT_HOME}/bin"
