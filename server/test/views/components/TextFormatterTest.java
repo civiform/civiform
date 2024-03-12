@@ -253,9 +253,12 @@ public class TextFormatterTest extends ResetPostgres {
   public void formatTextToSanitizedHTMLWithAriaLabel_appliesMarkdownFormatting() {
     String stringWithMarkdown =
         "# Hello!\nThis is a string with *italics* and **bold** and `inline code`";
-        String formattedText =
+    String formattedText =
         TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
-            stringWithMarkdown, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false, "aria ");
+            stringWithMarkdown,
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ false,
+            "aria ");
     assertThat(formattedText)
         .isEqualTo(
             "<h2>Hello!</h2>\n"
