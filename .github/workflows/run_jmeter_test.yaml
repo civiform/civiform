@@ -33,10 +33,10 @@ jobs:
         uses: QAInsights/PerfAction@v5.6.2
         with:
           test-plan-path: load-test/${{ github.event.inputs.test_to_run }}.jmx
-          results-file: result.jtl
+          results-file: result.csv
       - name: Upload Results
         uses: actions/upload-artifact@v4
         with:
           name: jmeter-results
-          path: result.jtl
+          path: result.csv
           if-no-files-found: error
