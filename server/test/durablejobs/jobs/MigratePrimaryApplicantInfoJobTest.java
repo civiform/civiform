@@ -129,71 +129,91 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
   }
 
   @Test
-  public void run_migratesWhenOnlySomeWkpDataIsPopulated() {
-    ApplicantModel applicantFirstName = createApplicant();
-    ApplicantModel applicantTiClient = createApplicant();
-    ApplicantModel applicantEmailOnly = createApplicant();
-    ApplicantModel applicantEmailPresent = createApplicant();
-
+  public void run_migratesWhenOnlyFirstNameIsPopulated() {
+    ApplicantModel applicant = createApplicant();
     database.beginTransaction();
-    applicantFirstName.getApplicantData().putString(WellKnownPaths.APPLICANT_FIRST_NAME, "Jean");
-    applicantFirstName.save();
+    applicant.getApplicantData().putString(WellKnownPaths.APPLICANT_FIRST_NAME, "Jean");
+    applicant.save();
+    database.commitTransaction();
 
-    ApplicantData data = applicantTiClient.getApplicantData();
+    runJob();
+
+    applicant.refresh();
+    assertThat(applicant.getFirstName().get()).isEqualTo("Jean");
+    assertThat(applicant.getMiddleName()).isEmpty();
+    assertThat(applicant.getLastName()).isEmpty();
+    assertThat(applicant.getDateOfBirth()).isEmpty();
+    assertThat(applicant.getEmailAddress()).isEmpty();
+    assertThat(applicant.getPhoneNumber()).isEmpty();
+    assertThat(applicant.getCountryCode()).isEmpty();
+  }
+
+  @Test
+  public void run_migratesWhenTiClientDataIsPopulated() {
+    ApplicantModel applicant = createApplicant();
+    database.beginTransaction();
+    ApplicantData data = applicant.getApplicantData();
     data.putString(WellKnownPaths.APPLICANT_FIRST_NAME, "Jean");
+    data.putString(WellKnownPaths.APPLICANT_MIDDLE_NAME, "Luc");
     data.putString(WellKnownPaths.APPLICANT_LAST_NAME, "Picard");
     data.putDate(WellKnownPaths.APPLICANT_DOB, "2305-07-13");
     data.putString(WellKnownPaths.APPLICANT_PHONE_NUMBER, "5038234000");
-    applicantTiClient.save();
-
-    AccountModel account = applicantEmailOnly.getAccount();
-    account.setEmailAddress("picard_account_1@starfleet.com");
-    account.save();
-
-    account = applicantEmailPresent.getAccount();
-    account.setEmailAddress("picard_account_2@starfleet.com");
-    account.save();
-    applicantEmailPresent.setEmailAddress("picard_real_email@starfleet.com");
-    applicantEmailPresent.save();
+    applicant.save();
     database.commitTransaction();
+
     runJob();
 
-    applicantFirstName.refresh();
-    assertThat(applicantFirstName.getFirstName().get()).isEqualTo("Jean");
-    assertThat(applicantFirstName.getMiddleName()).isEmpty();
-    assertThat(applicantFirstName.getLastName()).isEmpty();
-    assertThat(applicantFirstName.getDateOfBirth()).isEmpty();
-    assertThat(applicantFirstName.getEmailAddress()).isEmpty();
-    assertThat(applicantFirstName.getPhoneNumber()).isEmpty();
-    assertThat(applicantFirstName.getCountryCode()).isEmpty();
+    applicant.refresh();
+    assertThat(applicant.getFirstName().get()).isEqualTo("Jean");
+    assertThat(applicant.getMiddleName().get()).isEqualTo("Luc");
+    assertThat(applicant.getLastName().get()).isEqualTo("Picard");
+    assertThat(applicant.getDateOfBirth().get()).isEqualTo("2305-07-13");
+    assertThat(applicant.getPhoneNumber().get()).isEqualTo("5038234000");
+    assertThat(applicant.getCountryCode().get()).isEqualTo("US");
+    assertThat(applicant.getEmailAddress()).isEmpty();
+  }
 
-    applicantTiClient.refresh();
-    assertThat(applicantTiClient.getFirstName().get()).isEqualTo("Jean");
-    assertThat(applicantTiClient.getMiddleName()).isEmpty();
-    assertThat(applicantTiClient.getLastName().get()).isEqualTo("Picard");
-    assertThat(applicantTiClient.getDateOfBirth().get()).isEqualTo("2305-07-13");
-    assertThat(applicantTiClient.getPhoneNumber().get()).isEqualTo("5038234000");
-    assertThat(applicantTiClient.getCountryCode().get()).isEqualTo("US");
-    assertThat(applicantTiClient.getEmailAddress()).isEmpty();
+  @Test
+  public void run_migratesWhenOnlyAccountEmailIsPresent() {
+    ApplicantModel applicant = createApplicant();
+    database.beginTransaction();
+    AccountModel account = applicant.getAccount();
+    account.setEmailAddress("picard@starfleet.com");
+    account.save();
+    database.commitTransaction();
 
-    applicantEmailOnly.refresh();
-    assertThat(applicantEmailOnly.getEmailAddress().get())
-        .isEqualTo("picard_account_1@starfleet.com");
-    assertThat(applicantEmailOnly.getFirstName()).isEmpty();
-    assertThat(applicantEmailOnly.getMiddleName()).isEmpty();
-    assertThat(applicantEmailOnly.getLastName()).isEmpty();
-    assertThat(applicantEmailOnly.getDateOfBirth()).isEmpty();
-    assertThat(applicantEmailOnly.getPhoneNumber()).isEmpty();
-    assertThat(applicantEmailOnly.getCountryCode()).isEmpty();
+    runJob();
 
-    applicantEmailPresent.refresh();
-    assertThat(applicantEmailPresent.getEmailAddress().get())
-        .isEqualTo("picard_real_email@starfleet.com");
-    assertThat(applicantEmailPresent.getFirstName()).isEmpty();
-    assertThat(applicantEmailPresent.getMiddleName()).isEmpty();
-    assertThat(applicantEmailPresent.getLastName()).isEmpty();
-    assertThat(applicantEmailPresent.getDateOfBirth()).isEmpty();
-    assertThat(applicantEmailPresent.getPhoneNumber()).isEmpty();
-    assertThat(applicantEmailPresent.getCountryCode()).isEmpty();
+    applicant.refresh();
+    assertThat(applicant.getEmailAddress().get()).isEqualTo("picard@starfleet.com");
+    assertThat(applicant.getFirstName()).isEmpty();
+    assertThat(applicant.getMiddleName()).isEmpty();
+    assertThat(applicant.getLastName()).isEmpty();
+    assertThat(applicant.getDateOfBirth()).isEmpty();
+    assertThat(applicant.getPhoneNumber()).isEmpty();
+    assertThat(applicant.getCountryCode()).isEmpty();
+  }
+
+  @Test
+  public void run_doesNotMigrateWhenEmailIsAlreadyPresent() {
+    ApplicantModel applicant = createApplicant();
+    database.beginTransaction();
+    AccountModel account = applicant.getAccount();
+    account.setEmailAddress("picard@starfleet.com");
+    account.save();
+    applicant.setEmailAddress("picard_real_email@starfleet.com");
+    applicant.save();
+    database.commitTransaction();
+
+    runJob();
+
+    applicant.refresh();
+    assertThat(applicant.getEmailAddress().get()).isEqualTo("picard_real_email@starfleet.com");
+    assertThat(applicant.getFirstName()).isEmpty();
+    assertThat(applicant.getMiddleName()).isEmpty();
+    assertThat(applicant.getLastName()).isEmpty();
+    assertThat(applicant.getDateOfBirth()).isEmpty();
+    assertThat(applicant.getPhoneNumber()).isEmpty();
+    assertThat(applicant.getCountryCode()).isEmpty();
   }
 }

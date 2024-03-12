@@ -395,7 +395,6 @@ public class AccountRepositoryTest extends ResetPostgres {
 
     List<ApplicantModel> applicants =
         repo.findApplicantsNeedingPrimaryApplicantInfoDataMigration().findList();
-    // Only the applicant with no primary applicant info should be returned
     assertThat(applicants.size()).isEqualTo(4);
   }
 
