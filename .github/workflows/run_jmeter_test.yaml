@@ -23,10 +23,11 @@ jobs:
   testing:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.branch_name }}
+      # - name: Checkout
+      #   uses: actions/checkout@v4
+      #   with:
+      #     ref: ${{ github.event.inputs.branch_name }}
+      - uses: actions/checkout@v3
       - name: JMeter Test - ${{ github.event.inputs.test_to_run }}
         uses: QAInsights/PerfAction@v5.6.2
         with:
