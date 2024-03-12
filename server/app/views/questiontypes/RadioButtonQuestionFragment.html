@@ -1,20 +1,12 @@
-<div th:fragment="radio (question, messages)" th:with="questionId=${#strings.randomAlphanumeric(8)}" th:id="${questionId}">
+<div th:fragment="radio (question)" th:with="questionId=${#strings.randomAlphanumeric(8)}" th:id="${questionId}">
     <fieldset class="usa-fieldset" th:aria-describedby="${questionId} + '-description'" th:with="singleSelectQuestion=${question.createSingleSelectQuestion()}">
-        <!-- Question title -->
-        <legend class="usa-legend">
-          <span th:text="${question.getQuestionText()}"></span>
-          <!-- Required asterisk -->
-          <th:block th:if="${!question.isOptional()}">
-            <div th:replace="~{applicant/ApplicantBaseFragment :: requiredAsterisk}"></div>
-          </th:block>
-        </legend>
-
-        <!-- Question help text -->
-        <div th:id="${questionId} + '-description'" th:text="${question.getQuestionHelpText()}"></div>
+        <!-- Title and Help Text -->
+        <div th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpText(${question}, ${questionId})}"></div>
 
         <!-- Display errors -->
-        <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${messages})}"></div>
-        <!-- Render each checkbox option -->
+        <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${multiSelectQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
+
+        <!-- Render each radio button option -->
         <div class="usa-radio" th:each="option,iterator: ${singleSelectQuestion.getOptions()}" th:with="inputId=${#strings.randomAlphanumeric(8)}">
           <!-- TODO(ghyde): Add autofocus attribute as appropriate -->
           <input
