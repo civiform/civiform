@@ -459,7 +459,7 @@ public final class ApplicantService {
    * Saves the answers to the applicantion's Primary Applicant Info questions into the Primary
    * Applicant Info columns in the applicants table. If the application is empty, nothing is saved.
    *
-   * @param application The application being submitted
+   * @param optionalApplication The application being submitted
    * @return A CompletionStage returning the application with the Primary Applicant Info columns
    *     updated on the applicant model.
    */
