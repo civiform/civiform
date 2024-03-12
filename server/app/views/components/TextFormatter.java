@@ -38,6 +38,10 @@ public final class TextFormatter {
     return builder.build();
   }
 
+  /**
+   * Passes provided text through Markdown formatter, returning a String with the sanitized HTML.
+   * This is used by Thymeleaf to render Static Text questions.
+   */
   public static String formatTextToSanitizedHTMLWithAriaLabel(
       String text, boolean preserveEmptyLines, boolean addRequiredIndicator, String ariaLabel) {
     CIVIFORM_MARKDOWN.setAriaLabel(ariaLabel);
@@ -45,7 +49,7 @@ public final class TextFormatter {
   }
 
   /** Passes provided text through Markdown formatter, generating an HTML String */
-  public static String formatTextToSanitizedHTML(
+  private static String formatTextToSanitizedHTML(
       String text, boolean preserveEmptyLines, boolean addRequiredIndicator) {
     if (preserveEmptyLines) {
       text = preserveEmptyLines(text);
