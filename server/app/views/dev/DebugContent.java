@@ -50,8 +50,8 @@ public final class DebugContent extends BaseHtmlView {
                         FakeAdminClient.CLIENT_NAME, FakeAdminClient.TRUSTED_INTERMEDIARY)
                     .url()),
             redirectButton(
-                "database-seed",
-                "Seed Database",
+                "additional-tools",
+                "Additional tools",
                 controllers.dev.seeding.routes.DevDatabaseSeedController.index().url()),
             redirectButton(
                 "show-profile",
