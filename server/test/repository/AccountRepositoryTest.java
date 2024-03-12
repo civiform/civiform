@@ -363,6 +363,43 @@ public class AccountRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void findApplicantsNeedingPrimaryApplicantInfoDataMigration() {
+    // First name only
+    ApplicantModel applicant = savePlainApplicant();
+    applicant.getApplicantData().putString(WellKnownPaths.APPLICANT_FIRST_NAME, "Jean");
+    applicant.save();
+
+    // DOB only (using preseeded question)
+    applicant = savePlainApplicant();
+    applicant.getApplicantData().putString(WellKnownPaths.APPLICANT_DOB, "1999-01-11");
+    applicant.save();
+
+    // All the things a TI client has (except optional email address)
+    applicant = savePlainApplicant();
+    ApplicantData applicantData = applicant.getApplicantData();
+    applicantData.putString(WellKnownPaths.APPLICANT_FIRST_NAME, "Jean");
+    applicantData.putString(WellKnownPaths.APPLICANT_MIDDLE_NAME, "Luc");
+    applicantData.putString(WellKnownPaths.APPLICANT_LAST_NAME, "Picard");
+    applicantData.putString(WellKnownPaths.APPLICANT_PHONE_NUMBER, "5038234000");
+    applicantData.putDate(WellKnownPaths.APPLICANT_DOB, "2305-07-13");
+    applicant.save();
+
+    // Applicant with an account email address and no well known path data
+    applicant = savePlainApplicant();
+    AccountModel account = applicant.getAccount();
+    account.setEmailAddress("picard@starfleet.com");
+    account.save();
+
+    // Applicant with no well known path data or account email address
+    savePlainApplicant();
+
+    List<ApplicantModel> applicants =
+        repo.findApplicantsNeedingPrimaryApplicantInfoDataMigration().findList();
+    // Only the applicant with no primary applicant info should be returned
+    assertThat(applicants.size()).isEqualTo(4);
+  }
+
+  @Test
   public void updateSerializedIdTokens() {
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
@@ -419,6 +456,15 @@ public class AccountRepositoryTest extends ResetPostgres {
     account.save();
     applicant.setAccount(account);
     applicant.getApplicantData().setUserName(name, Optional.empty(), Optional.empty());
+    applicant.save();
+    return applicant;
+  }
+
+  private ApplicantModel savePlainApplicant() {
+    ApplicantModel applicant = new ApplicantModel();
+    AccountModel account = new AccountModel();
+    account.save();
+    applicant.setAccount(account);
     applicant.save();
     return applicant;
   }
