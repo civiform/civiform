@@ -241,6 +241,10 @@ public final class Block {
     return getQuestions().stream().allMatch(ApplicantQuestion::isAnswered);
   }
 
+  public int answeredQuestionsCount() {
+    return (int) getQuestions().stream().filter(ApplicantQuestion::isAnswered).count();
+  }
+
   /**
    * A block is complete with respect to a specific program if all of its questions are answered, or
    * are optional questions that were skipped in the program.
