@@ -4,7 +4,7 @@
         <div th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpText(${question}, ${questionId})}"></div>
 
         <!-- Display errors -->
-        <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${multiSelectQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
+        <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
 
         <!-- Render each radio button option -->
         <div class="usa-radio" th:each="option,iterator: ${singleSelectQuestion.getOptions()}" th:with="inputId=${#strings.randomAlphanumeric(8)}">
