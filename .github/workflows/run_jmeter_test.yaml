@@ -21,14 +21,14 @@ jobs:
   testing:
     runs-on: ubuntu-latest
     steps:
-      # - name: Checkout
-        # uses: actions/checkout@v4
-        # with:
-        #   ref: ${{ github.event.inputs.branch_name }}
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch_name }}
       - name: JMeter Test - ${{ github.event.inputs.test_to_run }}
         uses: QAInsights/PerfAction@v5.6.2
         with:
-          test-plan-path: ./load_test/${{ github.event.inputs.test_to_run }}.jmx
+          test-plan-path: $GITHUB_WORKSPACE/load_test/${{ github.event.inputs.test_to_run }}.jmx
           args: ""
       - name: Upload Results
         uses: actions/upload-artifact@v4
