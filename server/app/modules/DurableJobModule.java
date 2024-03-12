@@ -117,7 +117,7 @@ public final class DurableJobModule extends AbstractModule {
         persistedDurableJob ->
             new MigratePrimaryApplicantInfoJob(
                 persistedDurableJob, accountRepository, settingsService, config),
-        new RecurringJobExecutionTimeResolvers.Nightly2Am());
+        new RecurringJobExecutionTimeResolvers.Nightly3Am());
 
     return durableJobRegistry;
   }
