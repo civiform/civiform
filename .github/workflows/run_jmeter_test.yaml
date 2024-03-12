@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.branch_name }}
-      - name: JMeter Test
+      - name: JMeter Test - ${{ github.event.inputs.test_to_run }}
         uses: QAInsights/PerfAction@v5.6.2
         with:
           test-plan-path: load_test/${{ github.event.inputs.test_to_run }}.jmx
