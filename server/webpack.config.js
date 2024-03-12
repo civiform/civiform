@@ -24,10 +24,7 @@ module.exports = {
             loader: 'sass-loader' /* Converts Sass into CSS. */,
             options: {
               sassOptions: {
-                includePaths: [
-                  './app/assets/stylesheets/custom',
-                  './node_modules/@uswds/uswds/packages'
-                ],
+                includePaths: ['./node_modules/@uswds/uswds/packages'],
               },
             },
           },
@@ -50,7 +47,6 @@ module.exports = {
       './node_modules/@uswds/uswds/dist/js/uswds.min.js',
       './app/assets/stylesheets/uswds/styles.scss',
     ],
-    sample: './app/assets/stylesheets/custom/sample.scss',
   },
   output: {
     filename: `[name].bundle.js`,
