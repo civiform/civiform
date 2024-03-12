@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
+import models.LifecycleStage;
 import models.TrustedIntermediaryGroupModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -367,11 +368,13 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       return div();
     }
 
-    ImmutableList<ApplicationModel> newestApplicantApplications =
-        newestApplicant.get().getApplications();
-    int applicationCount = newestApplicantApplications.size();
+    ImmutableList<ApplicationModel> submittedApplications =
+        newestApplicant.get().getApplications().stream()
+            .filter(application -> application.getLifecycleStage() == LifecycleStage.ACTIVE)
+            .collect(ImmutableList.toImmutableList());
+    int applicationCount = submittedApplications.size();
     String programs =
-        newestApplicantApplications.stream()
+        submittedApplications.stream()
             .map(
                 application -> {
                   try {
