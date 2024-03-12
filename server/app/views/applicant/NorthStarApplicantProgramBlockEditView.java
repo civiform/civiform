@@ -7,7 +7,7 @@ import controllers.applicant.ApplicantRoutes;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
-import views.ApplicationBaseView;
+import views.ApplicationBaseViewParams;
 import views.html.helper.CSRF;
 
 /** Renders a page for answering questions in a program screen (block). */
@@ -22,14 +22,14 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
     super(templateEngine, playThymeleafContextFactory, assetsFinder, applicantRoutes);
   }
 
-  public String render(Request request, ApplicationBaseView.Params applicationParams) {
+  public String render(Request request, ApplicationBaseViewParams applicationParams) {
     ThymeleafModule.PlayThymeleafContext context = createThymeleafContext(request);
     context.setVariable("formAction", getFormAction(applicationParams));
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
   }
 
-  private String getFormAction(ApplicationBaseView.Params params) {
+  private String getFormAction(ApplicationBaseViewParams params) {
     return applicantRoutes
         .updateBlock(
             params.profile(),
