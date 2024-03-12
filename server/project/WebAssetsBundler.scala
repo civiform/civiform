@@ -72,9 +72,9 @@ object WebAssetsBundler extends AutoPlugin {
   )
 
   /** Given list of all assets (css, image, TS, Sass files) figures out whether
-    * any TS files have been changed and recompiles them. If no files have been
-    * changed assumes JS and CSS files have been compiled at earlier iterations
-    * and returns them.
+    * any TS or Sass files have been changed and recompiles them. If no files
+    * have been changed assumes JS and CSS files have been compiled at earlier
+    * iterations and returns them.
     *
     * @param inputFiles
     *   All assets files passed by sbt-web.
