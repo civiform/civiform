@@ -16,9 +16,12 @@ on:
         - applicant_submit_application
         - applicant_landing_page
         - ti_landing_page
+        
+permissions: read-all
 
 jobs:
   testing:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,8 +30,8 @@ jobs:
       - name: JMeter Test - ${{ github.event.inputs.test_to_run }}
         uses: QAInsights/PerfAction@v5.6.2
         with:
-          test-plan-path: load_test/${{ github.event.inputs.test_to_run }}.jmx
-          args: ""
+          test-plan-path: load-test/${{ github.event.inputs.test_to_run }}.jmx
+          results-file: result.jtl
       - name: Upload Results
         uses: actions/upload-artifact@v4
         with:
