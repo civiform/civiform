@@ -3,6 +3,7 @@ import {
   AdminPrograms,
   AdminQuestions,
   createTestContext,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -235,6 +236,7 @@ test.describe('End to end enumerator test', () => {
 
   test('Applicant can fill in lots of blocks, and then go back and delete some repeated entities', async () => {
     const {page, applicantQuestions} = ctx
+    await enableFeatureFlag(page, 'save_on_all_actions')
     await applicantQuestions.applyProgram(programName)
 
     // Fill in name question
@@ -341,6 +343,7 @@ test.describe('End to end enumerator test', () => {
     await applicantQuestions.answerNameQuestion('Tweety', 'Bird')
     await applicantQuestions.clickNext()
     await applicantQuestions.clickReview()
+    await applicantQuestions.clickReviewWithoutSaving()
 
     // Review page should contain Daffy Duck and newly added Tweety Bird.
     expect(await page.innerText('#application-summary')).toContain('Porky Pig')
@@ -411,7 +414,6 @@ test.describe('End to end enumerator test', () => {
     // Click previous and see name question
     await applicantQuestions.clickPrevious()
     await applicantQuestions.checkNameQuestionValue('Porky', 'Pig')
-
     await logout(page)
   })
 

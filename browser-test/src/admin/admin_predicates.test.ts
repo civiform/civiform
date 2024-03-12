@@ -858,6 +858,7 @@ test.describe('create and edit predicates', () => {
 
     test('every eligibility right hand type evaluates correctly', async () => {
       const {page, adminPrograms, applicantQuestions, adminPredicates} = ctx
+      await enableFeatureFlag(page, 'save_on_all_actions')
 
       await loginAsAdmin(page)
 
@@ -1131,6 +1132,7 @@ test.describe('create and edit predicates', () => {
       await validateToastMessage(page, 'may qualify')
 
       await applicantQuestions.clickReview()
+      await applicantQuestions.clickReviewWithoutSaving()
       await validateScreenshot(page, 'review-page-no-ineligible-banner')
       await validateToastMessage(page, '')
       await applicantQuestions.clickContinue()
