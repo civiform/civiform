@@ -9,7 +9,6 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.ti.routes;
 import forms.EditTiClientInfoForm;
-import j2html.tags.Tag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -56,30 +55,43 @@ public class EditTiClientView extends BaseHtmlView {
       Http.Request request,
       Messages messages,
       Optional<Long> accountId,
+      Optional<Long> currentTisAccountId,
       Optional<Form<EditTiClientInfoForm>> editTiClientInfoForm) {
 
-    HtmlBundle bundle =
-        layout
-            .getBundle(request)
-            .setTitle("Edit client info")
-            .addMainContent(
-                renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
-                hr(),
-                renderSubHeader("Edit client").withId("edit-client").withClass("my-4"),
-                renderBackLink(),
-                requiredFieldsExplanationContent(),
-                accountId.isPresent()? 
+    if (currentTisAccountId.isEmpty()) {
+      HtmlBundle bundle =
+          layout
+              .getBundle(request)
+              .setTitle("Edit client info")
+              .addMainContent(
+                  renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
+                  hr(),
+                  renderSubHeader("Edit client").withId("edit-client").withClass("my-4"),
+                  renderBackLink(),
+                  requiredFieldsExplanationContent(),
                   renderEditClientForm(
-                    accountRepository.lookupAccount(accountId.get()).get(),
-                    request,
-                    editTiClientInfoForm,
-                    messages) :
-                  renderAddClientForm(request,messages))
-            .addMainStyles("px-20", "max-w-screen-xl");
-    return layout.renderWithNav(request, personalInfo, messages, bundle, accountId);
-  }
-
-  private Tag renderAddClientForm(Http.Request request, Messages messages) {
+                      accountRepository.lookupAccount(accountId.get()).get(),
+                      request,
+                      editTiClientInfoForm,
+                      messages))
+              .addMainStyles("px-20", "max-w-screen-xl");
+      return layout.renderWithNav(request, personalInfo, messages, bundle, accountId.get());
+    } else {
+      HtmlBundle bundle =
+          layout
+              .getBundle(request)
+              .setTitle("Add new client")
+              .addMainContent(
+                  renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
+                  hr(),
+                  renderSubHeader("Add client").withId("add-client").withClass("my-4"),
+                  renderBackLink(),
+                  requiredFieldsExplanationContent(),
+                  renderAddClientForm(tiGroup, request, editTiClientInfoForm, messages))
+              .addMainStyles("px-20", "max-w-screen-xl");
+      return layout.renderWithNav(
+          request, personalInfo, messages, bundle, currentTisAccountId.get());
+    }
   }
 
   private ATag renderBackLink() {
@@ -94,6 +106,125 @@ public class EditTiClientView extends BaseHtmlView {
                 .url();
     LinkElement link = new LinkElement().setHref(tiDashLink).setText("Back to client list");
     return link.asAnchorText();
+  }
+
+  private DivTag renderAddClientForm(
+      TrustedIntermediaryGroupModel tiGroup,
+      Http.Request request,
+      Optional<Form<EditTiClientInfoForm>> form,
+      Messages messages) {
+    FormTag formTag =
+        form()
+            .withId("add-ti")
+            .withMethod("POST")
+            .withAction(routes.TrustedIntermediaryController.addApplicant(tiGroup.id).url());
+    FieldWithLabel firstNameField =
+        setStateIfPresent(
+            FieldWithLabel.input()
+                .setId("add-first-name-input")
+                .setFieldName("firstName")
+                .setLabelText("First name")
+                .setRequired(true)
+                .setValue(""),
+            form,
+            TrustedIntermediaryService.FORM_FIELD_NAME_FIRST_NAME,
+            messages);
+
+    FieldWithLabel middleNameField =
+        setStateIfPresent(
+            FieldWithLabel.input()
+                .setId("add-middle-name-input")
+                .setFieldName("middleName")
+                .setLabelText("Middle name")
+                .setValue(""),
+            form,
+            TrustedIntermediaryService.FORM_FIELD_NAME_MIDDLE_NAME,
+            messages);
+    FieldWithLabel lastNameField =
+        setStateIfPresent(
+            FieldWithLabel.input()
+                .setId("add-last-name-input")
+                .setFieldName("lastName")
+                .setLabelText("Last name")
+                .setRequired(true)
+                .setValue(""),
+            form,
+            TrustedIntermediaryService.FORM_FIELD_NAME_LAST_NAME,
+            messages);
+    FieldWithLabel phoneNumberField =
+        setStateIfPresent(
+            FieldWithLabel.input()
+                .setId("add-phone-number-input")
+                .setPlaceholderText("(xxx) xxx-xxxx")
+                .setAttribute("inputmode", "tel")
+                .setFieldName("phoneNumber")
+                .setLabelText("Phone number")
+                .setValue(""),
+            form,
+            TrustedIntermediaryService.FORM_FIELD_NAME_PHONE,
+            messages);
+
+    FieldWithLabel emailField =
+        setStateIfPresent(
+            FieldWithLabel.input()
+                .setId("add-email-input")
+                .setFieldName("emailAddress")
+                .setLabelText("Email address")
+                .setToolTipIcon(Icons.INFO)
+                .setToolTipText(
+                    "Add an email address for your client to receive status updates about their"
+                        + " application automatically. Without an email, you or your"
+                        + " community-based organization will be responsible for communicating"
+                        + " updates to your client.")
+                .setValue(""),
+            form,
+            TrustedIntermediaryService.FORM_FIELD_NAME_EMAIL_ADDRESS,
+            messages);
+    FieldWithLabel dateOfBirthField =
+        setStateIfPresent(
+            FieldWithLabel.date()
+                .setId("add-date-of-birth-input")
+                .setFieldName("dob")
+                .setLabelText("Date of birth")
+                .setRequired(true)
+                .setValue(""),
+            form,
+            TrustedIntermediaryService.FORM_FIELD_NAME_DOB,
+            messages);
+    FieldWithLabel tiNoteField =
+        setStateIfPresent(
+            FieldWithLabel.textArea()
+                .setId("add-ti-note-input")
+                .setFieldName("tiNote")
+                .setLabelText("Notes")
+                .setValue(""),
+            form,
+            TrustedIntermediaryService.FORM_FIELD_NAME_TI_NOTES,
+            messages);
+    String cancelUrl =
+        baseUrl
+            + controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                    /* nameQuery= */ Optional.empty(),
+                    /* dayQuery= */ Optional.empty(),
+                    /* monthQuery= */ Optional.empty(),
+                    /* yearQuery= */ Optional.empty(),
+                    /* page= */ Optional.of(1))
+                .url();
+    return div()
+        .with(
+            formTag
+                .with(
+                    firstNameField.getInputTag(),
+                    middleNameField.getInputTag(),
+                    lastNameField.getInputTag(),
+                    phoneNumberField.getInputTag(),
+                    emailField.getEmailTag(),
+                    dateOfBirthField.getDateTag(),
+                    tiNoteField.getTextareaTag(),
+                    makeCsrfTokenInputTag(request),
+                    submitButton("Save").withClasses("ml-2", "mb-6"),
+                    asRedirectElement(button("Cancel").withClasses("m-2"), cancelUrl))
+                .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6"));
   }
 
   private DivTag renderEditClientForm(

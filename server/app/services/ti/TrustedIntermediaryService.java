@@ -3,7 +3,6 @@ package services.ti;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import forms.EditTiClientInfoForm;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -53,15 +52,18 @@ public final class TrustedIntermediaryService {
     this.dateConverter = Preconditions.checkNotNull(dateConverter);
   }
 
-  public Form<AddApplicantToTrustedIntermediaryGroupForm> addNewClient(
-      Form<AddApplicantToTrustedIntermediaryGroupForm> form,
-      TrustedIntermediaryGroupModel trustedIntermediaryGroup) {
-    form = validateFirstName(form);
-    form = validateLastName(form);
-    form = validateDateOfBirthForAddApplicant(form);
+  public Form<EditTiClientInfoForm> addNewClient(
+      Form<EditTiClientInfoForm> form,
+      TrustedIntermediaryGroupModel trustedIntermediaryGroup,
+      Messages preferredLanguage) {
+    form = validateFirstNameForEditClient(form);
+    form = validateLastNameForEditClient(form);
+    form = validatePhoneNumber(form, preferredLanguage);
+    form = validateDateOfBirth(form);
     if (form.hasErrors()) {
       return form;
     }
+
     try {
       accountRepository.createNewApplicantForTrustedIntermediaryGroup(
           form.get(), trustedIntermediaryGroup);
@@ -74,30 +76,30 @@ public final class TrustedIntermediaryService {
     return form;
   }
 
-  private Form<AddApplicantToTrustedIntermediaryGroupForm> validateFirstName(
-      Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
-    if (Strings.isNullOrEmpty(form.value().get().getFirstName())) {
-      return form.withError(FORM_FIELD_NAME_FIRST_NAME, "First name required");
-    }
-    return form;
-  }
-
-  private Form<AddApplicantToTrustedIntermediaryGroupForm> validateLastName(
-      Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
-    if (Strings.isNullOrEmpty(form.value().get().getLastName())) {
-      return form.withError(FORM_FIELD_NAME_LAST_NAME, "Last name required");
-    }
-    return form;
-  }
-
-  private Form<AddApplicantToTrustedIntermediaryGroupForm> validateDateOfBirthForAddApplicant(
-      Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
-    Optional<String> errorMessage = validateDateOfBirth(form.value().get().getDob());
-    if (errorMessage.isPresent()) {
-      return form.withError(FORM_FIELD_NAME_DOB, errorMessage.get());
-    }
-    return form;
-  }
+  //  private Form<AddApplicantToTrustedIntermediaryGroupForm> validateFirstName(
+  //      Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
+  //    if (Strings.isNullOrEmpty(form.value().get().getFirstName())) {
+  //      return form.withError(FORM_FIELD_NAME_FIRST_NAME, "First name required");
+  //    }
+  //    return form;
+  //  }
+  //
+  //  private Form<AddApplicantToTrustedIntermediaryGroupForm> validateLastName(
+  //      Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
+  //    if (Strings.isNullOrEmpty(form.value().get().getLastName())) {
+  //      return form.withError(FORM_FIELD_NAME_LAST_NAME, "Last name required");
+  //    }
+  //    return form;
+  //  }
+  //
+  //  private Form<AddApplicantToTrustedIntermediaryGroupForm> validateDateOfBirthForAddApplicant(
+  //      Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
+  //    Optional<String> errorMessage = validateDateOfBirth(form.value().get().getDob());
+  //    if (errorMessage.isPresent()) {
+  //      return form.withError(FORM_FIELD_NAME_DOB, errorMessage.get());
+  //    }
+  //    return form;
+  //  }
 
   private Optional<String> validateDateOfBirth(String dob) {
     if (Strings.isNullOrEmpty(dob)) {
