@@ -51,8 +51,7 @@ class Git:
         Get the current branch name
         """
         try:
-            process = subprocess.call(["git", "rev-parse", "--abbrev-ref", "HEAD"], stdout=subprocess.PIPE)
-            return process.stdout.decode("utf-8")
+            return subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], text=True)
         except Exception as error:
             print("Unable to run `git`. Make sure `git` is installed and you are in a git folder.")
             print(error)
@@ -154,7 +153,7 @@ class Runner:
         """
         branch_name = ""
 
-        if len(sys.argv) > 0:
+        if len(sys.argv) > 1:
             branch_name = sys.argv[1]
         else:
             branch_name = self.git.get_current_branch()
@@ -224,6 +223,8 @@ class Runner:
         Run the application core
         """
         branch_name = self.get_branch_name()
+        print(f'Running on branch: {branch_name}')
+
         workflow_runs = self.github.get_failed_workflow_runs(branch_name)
 
         self.print_workflow_runs_table(workflow_runs)
