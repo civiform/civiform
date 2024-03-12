@@ -66,14 +66,18 @@ test.describe('Static text question for applicant flow', () => {
     await verifyMarkdownHtml(page)
   })
 
-  test('parses markdown with north star enabled', async () => {
-    const {page, applicantQuestions} = ctx
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-    await applicantQuestions.applyProgram(programName)
-    await validateScreenshot(page, 'markdown-text-north-star')
+  test(
+    'parses markdown with north star enabled',
+    {tag: ['@northstar']},
+    async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+      await applicantQuestions.applyProgram(programName)
+      await validateScreenshot(page, 'markdown-text-north-star')
 
-    await verifyMarkdownHtml(page)
-  })
+      await verifyMarkdownHtml(page)
+    },
+  )
 
   async function verifyMarkdownHtml(page: Page) {
     expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
