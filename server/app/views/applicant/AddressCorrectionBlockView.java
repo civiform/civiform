@@ -63,6 +63,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
       Params params,
       Messages messages,
       AddressSuggestionGroup addressSuggestionGroup,
+      ApplicantRequestedAction applicantRequestedAction,
       Boolean isEligibilityEnabled) {
     Address addressAsEntered = addressSuggestionGroup.getOriginalAddress();
     ImmutableList<services.geo.AddressSuggestion> suggestions =
@@ -72,7 +73,13 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
         div()
             .withClass("my-8 m-auto")
             .with(
-                renderForm(params, messages, addressAsEntered, suggestions, isEligibilityEnabled));
+                renderForm(
+                    params,
+                    messages,
+                    addressAsEntered,
+                    suggestions,
+                    applicantRequestedAction,
+                    isEligibilityEnabled));
 
     HtmlBundle bundle =
         layout
@@ -99,6 +106,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
       Messages messages,
       Address addressAsEntered,
       ImmutableList<AddressSuggestion> suggestions,
+      ApplicantRequestedAction applicantRequestedAction,
       Boolean isEligibilityEnabled) {
     FormTag form =
         form()
@@ -118,6 +126,11 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
         .with(div(messages.at(instructions.getKeyName())).withClass("mb-8"));
 
     boolean anySuggestions = suggestions.size() > 0;
+    // If the address question is part of determining eligibility, then the address *must* get
+    // corrected. We need the address's latitude and longitude values from ESRI to determine if
+    // the address is eligible, and we only get the lat/long values via address correction. We
+    // can't let the user choose their original, non-corrected address because then we won't have
+    // the lat/long values to determine eligibility.
     if (!isEligibilityEnabled) {
       form.with(
           div()
@@ -128,6 +141,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
                       params.programId(),
                       params.block().getId(),
                       messages,
+                      params.request(),
                       params.profile()),
                   renderAddress(
                       addressAsEntered,
@@ -146,7 +160,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
           h3(messages.at(suggestionsHeadingMessageKey.getKeyName())).withClass("font-bold mb-2"),
           div().withClasses("mb-8").with(renderSuggestedAddresses(suggestions)));
     }
-    form.with(renderBottomNavButtons(params));
+    form.with(renderBottomNavButtons(params, applicantRequestedAction));
 
     return form;
   }
@@ -156,31 +170,35 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
       long programId,
       String blockId,
       Messages messages,
+      Http.Request request,
       CiviFormProfile profile) {
     DivTag containerDiv = div().withClass("flex flex-nowrap mb-2");
-
-    ATag editElement =
-        new LinkElement()
-            .setStyles(
-                "bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"), "mb-2")
-            .setHref(
-                applicantRoutes
-                    .blockReview(
-                        profile,
-                        applicantId,
-                        programId,
-                        blockId,
-                        /* questionName= */ Optional.empty())
-                    .url())
-            .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
-            .setIcon(Icons.EDIT, LinkElement.IconPosition.START)
-            .asAnchorText();
-
     containerDiv.with(
         h3(messages.at(MessageKey.ADDRESS_CORRECTION_AS_ENTERED_HEADING.getKeyName()))
-            .withClass("font-bold mb-2 w-full"),
-        editElement);
+            .withClass("font-bold mb-2 w-full"));
 
+    // When the SAVE_ON_ALL_ACTIONS flag is on, the "Edit" action will be a button in the bottom
+    // navigation. When the flag is off, the "Edit" action should be part of the "As entered"
+    // heading.
+    if (!settingsManifest.getSaveOnAllActions(request)) {
+      ATag editElement =
+          new LinkElement()
+              .setStyles(
+                  "bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"), "mb-2")
+              .setHref(
+                  applicantRoutes
+                      .blockReview(
+                          profile,
+                          applicantId,
+                          programId,
+                          blockId,
+                          /* questionName= */ Optional.empty())
+                      .url())
+              .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
+              .setIcon(Icons.EDIT, LinkElement.IconPosition.START)
+              .asAnchorText();
+      containerDiv.with(editElement);
+    }
     return containerDiv;
   }
 
@@ -242,9 +260,44 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
     return containerDiv;
   }
 
-  private DivTag renderBottomNavButtons(Params params) {
-    return div()
-        .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
+  private DivTag renderBottomNavButtons(
+      Params params, ApplicantRequestedAction applicantRequestedAction) {
+    DivTag bottomNavButtonsContainer = div().withClasses(ApplicantStyles.APPLICATION_NAV_BAR);
+
+    // If the SAVE_ON_ALL_ACTIONS flag is on, the address correction screen becomes an intermediate
+    // step that only provides two actions:
+    //   1. "Confirm address": Save the address the user selected and take them to wherever they had
+    //      requested to go previously: "Review" -> review page, "Save & next" -> block *after* the
+    //      block with the address question, "Previous" -> block *before* the block with the address
+    //      question.
+    //   2. "Go back and edit": Go back to the block with the address question to edit the address
+    //      they'd entered.
+    if (settingsManifest.getSaveOnAllActions(params.request())) {
+      ButtonTag confirmAddressButton =
+          submitButton(
+                  params.messages().at(MessageKey.ADDRESS_CORRECTION_CONFIRM_BUTTON.getKeyName()))
+              .withClass(ButtonStyles.SOLID_BLUE)
+              .withFormaction(getFormAction(params, applicantRequestedAction));
+      ButtonTag goBackAndEditButton =
+          redirectButton(
+                  params.messages().at(MessageKey.BUTTON_GO_BACK_AND_EDIT.getKeyName()),
+                  applicantRoutes
+                      .blockEditOrBlockReview(
+                          params.profile(),
+                          params.applicantId(),
+                          params.programId(),
+                          params.block().getId(),
+                          params.inReview())
+                      .url())
+              // Set this as "button" type so that it doesn't submit the form.
+              .withType("button")
+              .withClasses(ButtonStyles.OUTLINED_TRANSPARENT);
+      return bottomNavButtonsContainer.with(goBackAndEditButton, confirmAddressButton);
+    }
+
+    // If the SAVE_ON_ALL_ACTIONS flag is off, then the address correction screen looks more like
+    // any other block, with the three classic actions of "Review", "Previous", and "Save & next".
+    return bottomNavButtonsContainer
         .with(
             renderReviewButton(
                 settingsManifest,

@@ -97,21 +97,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
     DivTag applicationListDiv =
         div()
+            .withData("testid", "application-list")
             .with(
-                h1(program.adminName()).withClasses("my-4"),
-                renderPaginationDivOldWay(
-                        paginationSpec.getCurrentPage(),
-                        paginatedApplications.getNumPages(),
-                        pageNumber ->
-                            routes.AdminApplicationController.index(
-                                program.id(),
-                                filterParams.search(),
-                                Optional.of(pageNumber),
-                                filterParams.fromDate(),
-                                filterParams.untilDate(),
-                                filterParams.selectedApplicationStatus(),
-                                /* selectedApplicationUri= */ Optional.empty()))
-                    .withClasses("mb-2"),
+                h1(program.adminName()).withClasses("mt-4"),
                 br(),
                 renderSearchForm(
                     program,
@@ -129,6 +117,20 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                     application, program)
                                 : Optional.empty(),
                             defaultStatus)))
+            .condWith(
+                paginatedApplications.getNumPages() > 1,
+                renderPagination(
+                    paginationSpec.getCurrentPage(),
+                    paginatedApplications.getNumPages(),
+                    pageNumber ->
+                        routes.AdminApplicationController.index(
+                            program.id(),
+                            filterParams.search(),
+                            Optional.of(pageNumber),
+                            filterParams.fromDate(),
+                            filterParams.untilDate(),
+                            filterParams.selectedApplicationStatus(),
+                            /* selectedApplicationUri= */ Optional.empty())))
             .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2");
 
     DivTag applicationShowDiv =

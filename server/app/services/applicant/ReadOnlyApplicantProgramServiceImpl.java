@@ -71,7 +71,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       String baseUrl,
       ImmutableMap<Path, String> failedUpdates) {
     this.jsonPathPredicateGeneratorFactory = checkNotNull(jsonPathPredicateGeneratorFactory);
-    this.applicantData = new ApplicantData(checkNotNull(applicantData).asJsonString());
+    this.applicantData =
+        new ApplicantData(checkNotNull(applicantData).asJsonString(), applicantData.getApplicant());
     this.applicantData.setPreferredLocale(applicantData.preferredLocale());
     this.applicantData.setFailedUpdates(failedUpdates);
     this.applicantData.lock();

@@ -56,7 +56,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
             .addMainContent(
                 renderHeader("Create new trusted intermediary").withClass("mt-8"),
                 renderAddNewButton(request),
-                renderHeader("Existing trusted intermediaries"),
+                renderSubHeader("Existing trusted intermediaries").withClass("mt-8"),
                 renderTiGroupCards(tis, request));
 
     if (request.flash().get("error").isPresent()) {

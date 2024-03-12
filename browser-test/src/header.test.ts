@@ -42,19 +42,15 @@ test.describe('Header', () => {
   test('Government banner expands when clicked and closes when clicked again', async () => {
     const {page} = ctx
     // The banner is initially closed
-    expect(await page.locator('.usa-banner__content').isVisible()).toEqual(
-      false,
-    )
+    await expect(page.locator('.usa-banner__content')).toBeHidden()
     // Click to expand the banner
     await page.click('.usa-banner__button')
 
-    expect(await page.locator('.usa-banner__content').isVisible()).toEqual(true)
+    await expect(page.locator('.usa-banner__content')).toBeVisible()
     await validateScreenshot(page.getByRole('navigation'), 'banner-expanded')
     // Click again to close the banner
     await page.click('.usa-banner__button')
 
-    expect(await page.locator('.usa-banner__content').isVisible()).toEqual(
-      false,
-    )
+    await expect(page.locator('.usa-banner__content')).toBeHidden()
   })
 })

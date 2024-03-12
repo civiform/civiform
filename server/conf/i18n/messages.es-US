@@ -302,7 +302,7 @@ title.verifyAddress=Verifica la dirección
 
 content.foundSimilarAddress=No pudimos verificar la dirección que proporcionaste, pero encontramos resultados similares.
 # Heading for showing the user the address they provided earlier
-content.addressEntered=Address you entered:
+content.addressEntered=Dirección ingresada:
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=Dirección sugerida:
@@ -362,6 +362,8 @@ validation.invalidDateFormat=Ingresa una fecha en el formato correcto.
 button.addEntity=Agregar {0}
 button.removeEntity=Quitar {0}
 dialog.confirmDelete=¿Confirmas que quieres quitar esta {0}? Se guardará este cambio cuando hagas clic en "Siguiente" y se perderán todos los datos asociados con esta {0}.
+# Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
+dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
 validation.entityNameRequired=Ingresa un valor para cada línea.
 validation.duplicateEntityName=Ingresa un valor único para cada línea.
 placeholder.entityName=Nombre de {0}
@@ -372,6 +374,8 @@ placeholder.entityName=Nombre de {0}
 
 validation.fileRequired=Elige un archivo.
 button.chooseFile=Elegir archivo
+# An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
+validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #

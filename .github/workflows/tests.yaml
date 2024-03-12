@@ -17,10 +17,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
       - name: Build test container
         env:
           DOCKER_BUILDKIT: 1
-        run: docker build -t civiform-dev --cache-from docker.io/civiform/civiform-dev:latest ./
+        run: bin/build-dev
+
       - name: Build dev-oidc
         env:
           DOCKER_BUILDKIT: 1
@@ -46,10 +48,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
       - name: Build test container
         env:
           DOCKER_BUILDKIT: 1
-        run: docker build -t civiform-dev --cache-from docker.io/civiform/civiform-dev:latest ./
+        run: bin/build-dev
+
       - name: Run tests
         run: bin/run-ts-tests
 
@@ -64,10 +68,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
       - name: Build test app container
         env:
           DOCKER_BUILDKIT: 1
-        run: docker build -t civiform-dev --cache-from docker.io/civiform/civiform-dev:latest ./
+        run: bin/build-dev
+
       - name: Build browser testing container
         env:
           DOCKER_BUILDKIT: 1
@@ -139,7 +145,7 @@ jobs:
       - name: Build test app container
         env:
           DOCKER_BUILDKIT: 1
-        run: docker build -t civiform-dev --cache-from docker.io/civiform/civiform-dev:latest ./
+        run: bin/build-dev
       - name: Build browser testing container
         env:
           DOCKER_BUILDKIT: 1
@@ -195,10 +201,15 @@ jobs:
         uses: actions/checkout@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
       - name: Build prod container
         env:
           DOCKER_BUILDKIT: 1
-        run: docker build -f prod.Dockerfile -t civiform:prod --cache-from docker.io/civiform/civiform:latest ./
+        run: bin/build-prod
+
+      - name: Set local prod container tag
+        run: docker tag civiform:latest civiform:prod
+
       - name: Build the stack
         run: docker compose -f test-support/prod-simulator-compose.yml up -d
       - name: Test

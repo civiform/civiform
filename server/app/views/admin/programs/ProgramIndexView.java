@@ -253,7 +253,9 @@ public final class ProgramIndexView extends BaseHtmlView {
                   div(
                           submitButton("Publish program").withClasses(ButtonStyles.SOLID_BLUE),
                           button("Cancel")
-                              .withClasses(ButtonStyles.LINK_STYLE, ReferenceClasses.MODAL_CLOSE))
+                              .withClasses(
+                                  ButtonStyles.LINK_STYLE_WITH_TRANSPARENCY,
+                                  ReferenceClasses.MODAL_CLOSE))
                       .withClasses(
                           "flex", "flex-col", StyleUtils.responsiveMedium("flex-row"), "py-4");
 
@@ -364,7 +366,9 @@ public final class ProgramIndexView extends BaseHtmlView {
                             link,
                             request),
                         button("Cancel")
-                            .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.LINK_STYLE)));
+                            .withClasses(
+                                ReferenceClasses.MODAL_CLOSE,
+                                ButtonStyles.LINK_STYLE_WITH_TRANSPARENCY)));
     ButtonTag publishAllButton =
         makeSvgTextButton("Publish all drafts", Icons.PUBLISH)
             .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON, "my-2");

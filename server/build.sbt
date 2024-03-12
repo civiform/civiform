@@ -31,6 +31,7 @@ lazy val root = (project in file("."))
 
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
+      "org.thymeleaf" % "thymeleaf" % "3.1.2.RELEASE",
       "org.commonmark" % "commonmark" % "0.21.0",
       "org.commonmark" % "commonmark-ext-autolink" % "0.21.0",
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20180219.1",
@@ -109,25 +110,40 @@ lazy val root = (project in file("."))
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
       "ch.qos.logback" % "logback-classic" % "1.4.8"
     ),
-    javacOptions ++= Seq(
-      "-encoding",
-      "UTF-8",
-      "-parameters",
-      "-Xlint:unchecked",
-      "-Xlint:deprecation",
-      "-XDcompilePolicy=simple",
-      // Turn off the AutoValueSubclassLeaked error since the generated
-      // code contains it - we can't control that.
-      "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
-      "-implicit:class",
-      "-Werror",
-      // The compile option below is a hack that preserves generated files. Normally,
-      // AutoValue generates .java files, compiles them into .class files, and then deletes
-      // the .java files. This option keeps the .java files in the specified directory,
-      // which allows an IDE to recognize the symbols.
-      "-s",
-      generateSourcePath(scalaVersion = scalaVersion.value)
-    ),
+    javacOptions ++= {
+      val defaultCompilerOptions = Seq(
+        "-encoding",
+        "UTF-8",
+        "-parameters",
+        "-Xlint:unchecked",
+        "-Xlint:deprecation",
+        "-XDcompilePolicy=simple",
+        "-implicit:class",
+        // The compile option below is a hack that preserves generated files. Normally,
+        // AutoValue generates .java files, compiles them into .class files, and then deletes
+        // the .java files. This option keeps the .java files in the specified directory,
+        // which allows an IDE to recognize the symbols.
+        "-s",
+        generateSourcePath(scalaVersion = scalaVersion.value)
+      )
+
+      // Disable errorprone checking if the DISABLE_ERRORPRONE environment variable
+      // is set to true
+      val errorProneCompilerOptions = Option(System.getenv("DISABLE_ERRORPRONE"))
+        .filter(_ != "true")
+        .map(_ =>
+          Seq(
+            // Turn off the AutoValueSubclassLeaked error since the generated
+            // code contains it - we can't control that.
+            "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
+            "-Werror"
+          )
+        )
+        .getOrElse(Seq.empty)
+
+      defaultCompilerOptions ++ errorProneCompilerOptions
+    },
+
     // Documented at https://github.com/sbt/zinc/blob/c18637c1b30f8ab7d1f702bb98301689ec75854b/internal/compiler-interface/src/main/contraband/incremental.contra
     // Recompile everything if >30% files have changed, to help avoid infinate
     // incremental compilation.

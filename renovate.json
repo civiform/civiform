@@ -1,5 +1,5 @@
 {
-  "extends": ["config:base"],
+  "extends": ["config:recommended"],
   "labels": ["dependencies"],
   "docker-compose": {
     "fileMatch": [
@@ -45,7 +45,7 @@
       ]
     },
     {
-      "matchPaths": [
+      "matchFileNames": [
         ".github/workflows/**",
         "browser-test/**",
         "env-var-docs/**",

@@ -744,7 +744,7 @@
         "type": "bool"
       },
       "PROGRAM_CARD_IMAGES": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enables images on program cards, both for admins to upload them and for applicants to view them.",
         "type": "bool"
       },
@@ -756,6 +756,11 @@
       "SAVE_ON_ALL_ACTIONS": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Save an applicant's answers when they take any action ('Review'/'Previous'/'Save and next') instead of only saving on 'Save and next'.",
+        "type": "bool"
+      },
+      "NORTH_STAR_APPLICANT_UI": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables showing new UI with an updated user experience in Applicant flows",
         "type": "bool"
       }
     }

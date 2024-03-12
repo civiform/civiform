@@ -185,11 +185,7 @@ public final class BaseStyles {
 
   public static final String ADMIN_LOGIN =
       StyleUtils.joinStyles(
-          "bg-transparent",
-          "text-black",
-          "underline",
-          "font-bold",
-          StyleUtils.hover("bg-gray-200", "opacity-90"));
+          "text-black", "underline", "font-bold", StyleUtils.hover("bg-gray-200", "opacity-90"));
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // USWDS Alert style classes
@@ -197,5 +193,6 @@ public final class BaseStyles {
 
   public static String ALERT_INFO = "usa-alert--info";
   public static String ALERT_WARNING = "usa-alert--warning";
+  public static String ALERT_ERROR = "usa-alert--error";
   public static String ALERT_SLIM = "usa-alert--slim";
 }

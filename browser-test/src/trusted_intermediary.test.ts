@@ -315,6 +315,17 @@ test.describe('Trusted intermediaries', () => {
     )
   })
 
+  test('Trusted intermediary sees the dashboard fully translated', async () => {
+    const {page, tiDashboard} = ctx
+
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    await selectApplicantLanguage(page, '繁體中文')
+
+    await validateScreenshot(page, 'ti-dashboard-chinese')
+  })
+
   test('Applicant sees the program review page fully translated', async () => {
     const {
       page,
@@ -677,7 +688,9 @@ test.describe('Trusted intermediaries', () => {
     // Create a program with 1 question.
     const program1 = 'Test program 1'
     const program2 = 'Test program 2'
+    const program3 = 'Test program 3'
     const emailQuestionId = 'ti-email-question'
+    const numberQuestionId = 'ti-number-question'
 
     test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms, tiDashboard} = ctx
@@ -687,9 +700,13 @@ test.describe('Trusted intermediaries', () => {
         questionName: emailQuestionId,
       })
 
+      await adminQuestions.addNumberQuestion({
+        questionName: numberQuestionId,
+      })
+
       // Create program 1
       await adminPrograms.addProgram(program1)
-      await adminPrograms.editProgramBlock(program1, 'first description', [
+      await adminPrograms.editProgramBlock(program1, 'description', [
         emailQuestionId,
       ])
 
@@ -698,12 +715,21 @@ test.describe('Trusted intermediaries', () => {
 
       // Create program 2
       await adminPrograms.addProgram(program2)
-      await adminPrograms.editProgramBlock(program2, 'first description', [
+      await adminPrograms.editProgramBlock(program2, 'description', [
         emailQuestionId,
       ])
 
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishProgram(program2)
+
+      // Create program 3
+      await adminPrograms.addProgram(program3)
+      await adminPrograms.editProgramBlock(program3, 'description', [
+        numberQuestionId,
+      ])
+
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(program3)
 
       await logout(page)
 
@@ -747,6 +773,23 @@ test.describe('Trusted intermediaries', () => {
       await applicantQuestions.clickSubmit()
 
       await tiDashboard.gotoTIDashboardPage(page)
+      await tiDashboard.expectClientContainsNumberOfApplications('2')
+      await tiDashboard.expectClientContainsProgramNames([
+        'Test program 1',
+        'Test program 2',
+      ])
+
+      // Start application to third program, but don't submit
+      await tiDashboard.clickOnViewApplications()
+
+      await applicantQuestions.clickApplyProgramButton(program3)
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.answerNumberQuestion('1')
+      await applicantQuestions.clickNext()
+
+      await tiDashboard.gotoTIDashboardPage(page)
+
+      // Should only show submitted applications
       await tiDashboard.expectClientContainsNumberOfApplications('2')
       await tiDashboard.expectClientContainsProgramNames([
         'Test program 1',

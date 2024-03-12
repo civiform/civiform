@@ -302,7 +302,7 @@ title.verifyAddress=I-verify ang address
 
 content.foundSimilarAddress=Hindi namin ma-verify ang ibinigay mong address, pero may nakita kaming katulad nito.
 # Heading for showing the user the address they provided earlier
-content.addressEntered=Address you entered:
+content.addressEntered=Inilagay na address:
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=Iminumungkahing address:
@@ -362,6 +362,8 @@ validation.invalidDateFormat=Maglagay ng petsa sa tamang format
 button.addEntity=Idagdag {0}
 button.removeEntity=Alisin {0}
 dialog.confirmDelete=Kayo ba ay sigurado sa nais na alisin {0}? Ang pagbabago na ito ay maitatala matapos mong i-click ang "Next" at lahat ng mga data na nauugnay dito ay mawawala.
+# Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
+dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
 validation.entityNameRequired=Maaari lamang ay maglagay ng halaga para sa bawat linya.
 validation.duplicateEntityName=Maaari lamang ay maglagay ng natatangi na halaga para sa bawat linya.
 placeholder.entityName={0} Palayaw
@@ -372,6 +374,8 @@ placeholder.entityName={0} Palayaw
 
 validation.fileRequired=Maaari lamang ay pumili ng file.
 button.chooseFile=Pumili ng File
+# An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
+validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
