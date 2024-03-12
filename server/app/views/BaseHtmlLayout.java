@@ -126,7 +126,6 @@ public class BaseHtmlLayout {
     // Add default stylesheets.
     bundle.addStylesheets(viewUtils.makeLocalCssTag(USWDS_STYLESHEET_FILEPATH));
     bundle.addStylesheets(viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILEPATH));
-    bundle.addStylesheets(viewUtils.makeLocalCssTag("dist/sample.min"));
 
     // Add Google analytics scripts.
     measurementId
