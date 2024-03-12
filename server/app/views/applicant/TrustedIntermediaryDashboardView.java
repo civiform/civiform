@@ -34,13 +34,13 @@ import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
-import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
+import models.LifecycleStage;
 import models.TrustedIntermediaryGroupModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -370,10 +370,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
 
     ImmutableList<ApplicationModel> submittedApplications =
         newestApplicant.get().getApplications().stream()
-            .filter(
-                application ->
-                    application.getSubmitTime() != null
-                        && application.getSubmitTime().compareTo(Instant.now()) <= 0)
+            .filter(application -> application.getLifecycleStage() == LifecycleStage.ACTIVE)
             .collect(ImmutableList.toImmutableList());
     int applicationCount = submittedApplications.size();
     String programs =
