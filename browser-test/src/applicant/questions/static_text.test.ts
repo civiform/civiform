@@ -73,7 +73,12 @@ test.describe('Static text question for applicant flow', () => {
       const {page, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'north_star_applicant_ui')
       await applicantQuestions.applyProgram(programName)
-      await validateScreenshot(page, 'markdown-text-north-star')
+      await validateScreenshot(
+        page,
+        'markdown-text-north-star',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
 
       await verifyMarkdownHtml(page)
     },
