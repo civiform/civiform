@@ -13,7 +13,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import filters.SessionIdFilter;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -157,6 +156,12 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
     assertThat(maybeApplicant).isPresent();
 
+    // Ensure that the session ID is set.
+    assertThat(profileData.containsAttribute(CiviformOidcProfileCreator.SESSION_ID)).isTrue();
+    // The session ID is a random value, so just ensure it's not an empty string.
+    assertThat(profileData.getAttribute(CiviformOidcProfileCreator.SESSION_ID, String.class))
+        .isNotEmpty();
+
     ApplicantData applicantData = maybeApplicant.get().getApplicantData();
 
     assertThat(applicantData.getApplicantName().orElse("<empty optional>"))
@@ -169,7 +174,8 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   public void mergeCiviFormProfile_succeeds_new_user_with_enhanced_logout() {
     // Create a web context containing a session id.
     PlayWebContext context =
-        new PlayWebContext(fakeRequest().session(SessionIdFilter.SESSION_ID, SESSION_ID).build());
+        new PlayWebContext(
+            fakeRequest().session(CiviformOidcProfileCreator.SESSION_ID, SESSION_ID).build());
     CiviformOidcProfileCreator oidcProfileAdapter =
         getOidcProfileCreatorWithEnhancedLogoutEnabled();
 

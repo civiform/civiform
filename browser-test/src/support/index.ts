@@ -342,6 +342,7 @@ export const loginAsTestUser = async (
   page: Page,
   loginButton = 'a:has-text("Log in")',
   isTi = false,
+  displayName: string = '',
 ) => {
   switch (TEST_USER_AUTH_STRATEGY) {
     case AuthStrategy.FAKE_OIDC:
@@ -359,9 +360,10 @@ export const loginAsTestUser = async (
       )
   }
   await waitForPageJsLoad(page)
-  await page.waitForSelector(
-    `:has-text("Logged in as ${testUserDisplayName()}")`,
-  )
+  if (displayName === '') {
+    displayName = testUserDisplayName()
+  }
+  await page.waitForSelector(`:has-text("Logged in as ${displayName}")`)
 }
 
 async function loginAsTestUserSeattleStaging(page: Page, loginButton: string) {
@@ -583,14 +585,12 @@ const takeScreenshot = async (
     .basename(test.info().file)
     .replace('.test.ts', '_test')
 
-  await expect(element).toHaveScreenshot(
-    [testFileName, fullScreenshotFileName + '.png'],
-    {
+  expect(
+    await element.screenshot({
       fullPage: fullPage,
       animations: 'disabled',
-      maxDiffPixelRatio: 0,
-    },
-  )
+    }),
+  ).toMatchSnapshot([testFileName, fullScreenshotFileName + '.png'])
 }
 
 /*

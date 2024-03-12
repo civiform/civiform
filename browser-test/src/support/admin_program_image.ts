@@ -13,8 +13,8 @@ export class AdminProgramImage {
     'button[form=image-description-form][type="submit"]'
   private translationsButtonLocator = 'button:has-text("Manage translations")'
   private continueButtonLocator = '#continue-button'
-  // This should be kept in sync with views/fileupload/FileUploadViewStrategy.FILE_TOO_LARGE_ERROR_ID.
-  private tooLargeErrorLocator = '#file-too-large-error'
+  // This should be kept in sync with views/fileupload/FileUploadViewStrategy#createFileTooLargeError.
+  private tooLargeErrorLocator = '#cf-fileupload-too-large-error'
 
   private page!: Page
 
@@ -113,7 +113,7 @@ export class AdminProgramImage {
 
   async expectDescriptionIs(description: string) {
     const descriptionElement = this.page.locator(this.imageDescriptionLocator)
-    expect(await descriptionElement.inputValue()).toBe(description)
+    await expect(descriptionElement).toHaveValue(description)
   }
 
   async expectDisabledImageDescriptionSubmit() {
@@ -141,11 +141,11 @@ export class AdminProgramImage {
   }
 
   async expectTooLargeErrorShown() {
-    expect(await this.page.isHidden(this.tooLargeErrorLocator)).toEqual(false)
+    await expect(this.page.locator(this.tooLargeErrorLocator)).toBeVisible()
   }
 
   async expectTooLargeErrorHidden() {
-    expect(await this.page.isHidden(this.tooLargeErrorLocator)).toEqual(true)
+    await expect(this.page.locator(this.tooLargeErrorLocator)).toBeHidden()
   }
 
   /** Expects that the program card preview does not contain an image. */

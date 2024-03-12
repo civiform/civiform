@@ -159,7 +159,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     ArrayList<ProgramHeaderButton> headerButtons =
         new ArrayList<>(
             getEditHeaderButtons(
-                request, settingsManifest, /* isEditingAllowed= */ viewAllowsEditingProgram()));
+                settingsManifest, /* isEditingAllowed= */ viewAllowsEditingProgram()));
     headerButtons.add(ProgramHeaderButton.PREVIEW_AS_APPLICANT);
 
     HtmlBundle htmlBundle =
@@ -228,6 +228,27 @@ public final class ProgramBlocksView extends ProgramBaseView {
     message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.render(htmlBundle);
+  }
+
+  /**
+   * Returns the header buttons used for editing various parts of the program (details, image,
+   * etc.).
+   *
+   * @param isEditingAllowed true if the view allows editing and false otherwise. (Typically, a view
+   *     only allows editing if a program is in draft mode.)
+   */
+  private ImmutableList<ProgramHeaderButton> getEditHeaderButtons(
+      SettingsManifest settingsManifest, boolean isEditingAllowed) {
+    if (isEditingAllowed) {
+      if (settingsManifest.getProgramCardImages()) {
+        return ImmutableList.of(
+            ProgramHeaderButton.EDIT_PROGRAM_DETAILS, ProgramHeaderButton.EDIT_PROGRAM_IMAGE);
+      } else {
+        return ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM_DETAILS);
+      }
+    } else {
+      return ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM);
+    }
   }
 
   private DivTag addFormEndpoints(InputTag csrfTag, long programId, long blockId) {
@@ -910,13 +931,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     DivTag ret =
         div()
             .withClasses(
-                "flex",
-                "gap-2",
-                "items-center",
-                "text-gray-400",
-                "font-medium",
-                "bg-transparent",
-                "rounded-full")
+                "flex", "gap-2", "items-center", "text-gray-400", "font-medium", "rounded-full")
             .with(p(label));
     return ret;
   }

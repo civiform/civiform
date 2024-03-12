@@ -1,7 +1,6 @@
 package views.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
@@ -84,12 +83,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
       Http.Request request,
       Locale locale,
       String formAction,
-      ImmutableList<DomContent> formFieldContent,
-      boolean isProgramEdit) {
-    String redirectUrl =
-        isProgramEdit
-            ? controllers.admin.routes.AdminProgramController.index().url()
-            : controllers.admin.routes.AdminQuestionController.index().url();
+      ImmutableList<DomContent> formFieldContent) {
     FormTag form =
         form()
             .withMethod("POST")
@@ -100,10 +94,6 @@ public abstract class TranslationFormView extends BaseHtmlView {
                 div()
                     .withClasses("flex", "flex-row", "gap-x-2")
                     .with(
-                        a("Back")
-                            .withHref(redirectUrl)
-                            .withId("back-to-list-button")
-                            .withClasses(ButtonStyles.OUTLINED_TRANSPARENT),
                         submitButton(
                                 String.format(
                                     "Save %s updates",

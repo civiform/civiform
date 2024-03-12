@@ -68,7 +68,7 @@ test.describe('navigating to a deep link', () => {
 
   test('takes guests and logged in users through the flow correctly', async () => {
     await resetContext(ctx)
-    const {page} = ctx
+    const {page, applicantQuestions} = ctx
 
     // Exercise guest path
     // Act
@@ -76,9 +76,7 @@ test.describe('navigating to a deep link', () => {
     await page.click('text="Continue to application"')
     // Assert
     await page.click('#continue-application-button')
-    expect(await page.innerText('.cf-applicant-question-text')).toContain(
-      questionText,
-    )
+    await applicantQuestions.validateQuestionIsOnPage(questionText)
 
     await logout(page)
 
@@ -88,14 +86,12 @@ test.describe('navigating to a deep link', () => {
     await loginAsTestUser(page, 'button:has-text("Log in")')
     // Assert
     await page.click('#continue-application-button')
-    expect(await page.innerText('.cf-applicant-question-text')).toContain(
-      questionText,
-    )
+    await applicantQuestions.validateQuestionIsOnPage(questionText)
   })
 
   test('Non-logged in user should get redirected to the program page and not an error', async () => {
     await resetContext(ctx)
-    const {page, browserContext} = ctx
+    const {page, applicantQuestions, browserContext} = ctx
 
     await logout(page)
     await browserContext.clearCookies()
@@ -105,16 +101,14 @@ test.describe('navigating to a deep link', () => {
 
     // Assert
     await page.click('#continue-application-button')
-    expect(await page.innerText('.cf-applicant-question-text')).toContain(
-      questionText,
-    )
+    await applicantQuestions.validateQuestionIsOnPage(questionText)
 
     await logout(page)
   })
 
   test('Logging in to an existing account after opening a deep link in a new browser session', async () => {
     await resetContext(ctx)
-    const {page, browserContext} = ctx
+    const {page, applicantQuestions, browserContext} = ctx
 
     // Log in and log out to establish the test user in the database.
     await loginAsTestUser(page)
@@ -127,9 +121,7 @@ test.describe('navigating to a deep link', () => {
     await loginAsTestUser(page, 'button:has-text("Log in")')
 
     await page.click('#continue-application-button')
-    expect(await page.innerText('.cf-applicant-question-text')).toContain(
-      questionText,
-    )
+    await applicantQuestions.validateQuestionIsOnPage(questionText)
 
     await logout(page)
   })

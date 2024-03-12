@@ -1,0 +1,269 @@
+#! /usr/bin/env python3
+
+# DOC: Quickly run Playwright trace viewer against an artifact on GitHub
+# DOC: With no arguments this defaults to the current active branch or
+# DOC: pass in the first argument to specify a branch name
+
+import json
+import os
+import requests
+import sys
+import subprocess
+import zipfile
+from pathlib import Path
+
+
+class Playwright:
+    """
+    Interact with Playwright executable
+    """
+
+    def run_trace_viewer(self, path):
+        """
+        Start the Playwright Trace Viewer at specific path
+        """
+
+        if not os.path.exists(path):
+            print(f"Tried running Playwright point at this path: {path}")
+            exit(1)
+
+        if not path.endswith("html-output"):
+            print(f"Path does not contain the Playwright trace folder 'html-output' {path}")
+            exit(1)
+
+        try:
+            cmd = f'npx playwright show-report "{path}"'
+            subprocess.run(cmd, shell=True)
+        except Exception as error:
+            print("Unable to run Playwright. Try running `npm install` from the `browser-test` directory.")
+            print(f"Tried running Playwright point at this path: {path}")
+            print(error)
+            exit(1)
+
+
+class Git:
+    """
+    Interact with Git executable
+    """
+
+    def get_current_branch(self):
+        """
+        Get the current branch name
+        """
+        try:
+            return subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], text=True)
+        except Exception as error:
+            print("Unable to run `git`. Make sure `git` is installed and you are in a git folder.")
+            print(error)
+            exit(1)
+
+
+class GitHub:
+    """
+    Interact with the GitHub API
+    """
+
+    def __init__(self, github_token):
+        if github_token is None:
+            raise Exception("'github_token' was not set")
+
+        self.github_headers = {
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {github_token}",
+            "X-GitHub-Api-Version": "2022-11-28",
+        }
+
+    def get_failed_workflow_runs(self, branch_name):
+        """
+        Get a list of GitHub action workflow runs for the specified branch
+        """
+        try:
+            url = f"https://api.github.com/repos/civiform/civiform/actions/runs?per_page=20&status=failure&branch={branch_name}"
+            response = requests.get(url, headers=self.github_headers)
+            response_json = json.loads(response.text)
+            workflow_runs = [
+                {
+                    "id": x["id"],
+                    "display_title": x["display_title"],
+                    "updated_at": x["updated_at"],
+                    "artifacts_url": x["artifacts_url"],
+                }
+                for x in response_json["workflow_runs"]
+                if x["name"] == "Server - On PR to Main"
+            ]
+            return workflow_runs
+        except Exception as error:
+            print("Failed trying to get workflow run data from GitHub API")
+            print(f"Attempted calling: {url}")
+            print(error)
+            exit(1)
+
+    def get_artifacts_list(self, workflow_run):
+        """
+        Get list of artifacts for the specified workflow run
+        """
+        try:
+            artifacts_url = workflow_run["artifacts_url"]
+            response = requests.get(artifacts_url, headers=self.github_headers)
+            response_json = json.loads(response.text)
+            artifacts = [
+                {"id": x["id"], "name": x["name"], "url": x["archive_download_url"]}
+                for x in response_json["artifacts"]
+                if x["name"].startswith("tests videos")
+            ]
+            return artifacts
+        except Exception as error:
+            print("Failed trying to get artifact list")
+            print(f"Attempted calling: {artifacts_url}")
+            print(error)
+            exit(1)
+
+    def download_artifact(self, artifact_item, path):
+        """
+        Download the artifact zip from the specific artifact url
+        """
+        filepath = f'{path}/{artifact_item["name"]}.zip'
+
+        # download
+        try:
+            response = requests.get(artifact_item["url"], allow_redirects=True, headers=self.github_headers)
+            open(filepath, "wb").write(response.content)
+            return filepath
+        except Exception as error:
+            print("Unable to download artifact")
+            print(f'Attempted download from: {artifact_item["url"]}')
+            print(error)
+            exit(1)
+
+
+class Runner:
+    """
+    Main app
+    """
+
+    def __init__(self):
+        self.git = Git()
+        self.github = GitHub(os.getenv("GITHUB_TOKEN"))
+        self.playwright = Playwright()
+
+    def get_branch_name(self):
+        """
+        Get the branch name from passed in argument or from the active git
+        branch
+        """
+        branch_name = ""
+
+        if len(sys.argv) > 1:
+            branch_name = sys.argv[1]
+        else:
+            branch_name = self.git.get_current_branch()
+
+        return branch_name
+
+    def print_workflow_runs_table(self, workflow_runs):
+        """
+        Format and output the data table listing workflow run information
+        """
+        if len(workflow_runs) == 0:
+            print("Did not find any workflow runs for your branch")
+            exit(1)
+
+        print("Select run\n")
+        print("Index | Id         | Date                 | Name")
+        print("------+------------+----------------------+-------------------------------")
+        for index, workflow_run in enumerate(workflow_runs):
+            print(
+                f'  {index: <4}| {workflow_run["id"]} | {workflow_run["updated_at"]} | {workflow_run["display_title"]}'
+            )
+
+    def print_download_artifacts_table(self, artifacts_list):
+        """
+        Format and output the data table listing available artifacts
+        """
+        if len(artifacts_list) == 0:
+            print("\nDid not find any artifacts for this workflow run")
+            exit(1)
+
+        print("\n\nSelect artifact\n")
+        print("Index | Id         | Name")
+        print("------+------------+-----------------------------------------------------")
+        for index, artifact_item in enumerate(artifacts_list):
+            print(f'  {index: <4}| {artifact_item["id"]} | {artifact_item["name"]}')
+
+    def get_index(self):
+        """
+        Ask the user for input, default to 0, the first option in the list
+        """
+        inputValue = input("\nEnter Index (default=0): ")
+        inputIndex = int(inputValue) if inputValue.isdigit() else None
+
+        if inputIndex is None:
+            inputIndex = 0
+
+        return inputIndex
+
+    def unzip_artifact(self, filepath, path):
+        """
+        Unzip the artifact zip file
+        """
+        try:
+            filename = Path(filepath).stem
+            unzipped_path = f"{path}/unzipped/{filename}"
+
+            with zipfile.ZipFile(filepath, "r") as zip_ref:
+                zip_ref.extractall(unzipped_path)
+            return f"{unzipped_path}/html-output"
+        except Exception as error:
+            print(f"Unable to unzip artifact: {filepath}")
+            print(error)
+            exit(1)
+
+    def run(self, path):
+        """
+        Run the application core
+        """
+        branch_name = self.get_branch_name()
+        print(f'Running on branch: {branch_name}')
+
+        workflow_runs = self.github.get_failed_workflow_runs(branch_name)
+
+        self.print_workflow_runs_table(workflow_runs)
+
+        try:
+            inputIndex = self.get_index()
+            artifacts_list = self.github.get_artifacts_list(workflow_runs[inputIndex])
+            self.print_download_artifacts_table(artifacts_list)
+        except IndexError:
+            print("Invalid index for workflow runs list")
+            exit(1)
+
+        try:
+            inputIndex = self.get_index()
+            artifact_zip_file_path = self.github.download_artifact(artifacts_list[inputIndex], path)
+            unzipped_artifact_path = self.unzip_artifact(artifact_zip_file_path, path)
+        except IndexError:
+            print("Invalid index for artifact list")
+            exit(1)
+
+        print("Start playwright trace viewer")
+        os.chdir("./browser-test")
+        print(unzipped_artifact_path)
+        self.playwright.run_trace_viewer(unzipped_artifact_path)
+
+
+def main():
+    runner = Runner()
+
+    try:
+        path = "/tmp/playwright_temp_data"
+
+        if not os.path.isdir(path):
+            os.mkdir(path)
+
+        runner.run(path)
+    except KeyboardInterrupt:
+        print("\n\nYou pressed ctrl+c. Closing app.")
+
+
+if __name__ == "__main__":
+    main()

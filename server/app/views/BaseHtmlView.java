@@ -1,7 +1,6 @@
 package views;
 
 import static j2html.TagCreator.a;
-import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -39,7 +38,6 @@ import play.mvc.Call;
 import play.mvc.Http;
 import services.applicant.ValidationErrorMessage;
 import views.components.Icons;
-import views.components.LinkElement;
 import views.html.helper.CSRF;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
@@ -93,8 +91,12 @@ public abstract class BaseHtmlView {
     return submitButton(textContents).withId(id);
   }
 
+  protected static ButtonTag redirectButton(String text, String redirectUrl) {
+    return asRedirectElement(TagCreator.button(text).withClasses("m-2"), redirectUrl);
+  }
+
   protected static ButtonTag redirectButton(String id, String text, String redirectUrl) {
-    return asRedirectElement(TagCreator.button(text).withId(id).withClasses("m-2"), redirectUrl);
+    return redirectButton(text, redirectUrl).withId(id);
   }
 
   /**
@@ -214,34 +216,6 @@ public abstract class BaseHtmlView {
                             renderPaginationPageButton(pageNum, page == pageNum, linkForPage)),
                     renderPaginationPageButton(pageCount, page == pageCount, linkForPage))
                 .condWith(page != pageCount, renderNextPageButton(page, linkForPage)));
-  }
-
-  /**
-   * DEPRECATED
-   *
-   * <p>Note that this is deprecated in favor of the USWDS pagination component. Prefer using {@link
-   * views.BaseHtmlView#renderPagination} instead of this method.
-   */
-  protected DivTag renderPaginationDivOldWay(
-      int page, int pageCount, Function<Integer, Call> linkForPage) {
-    DivTag div = div();
-    if (page <= 1) {
-      div.with(new LinkElement().setText("∅").asButtonNoHref());
-    } else {
-      div.with(
-          new LinkElement().setText("←").setHref(linkForPage.apply(page - 1).url()).asButton());
-    }
-    String paginationText =
-        pageCount > 0 ? String.format("Page %d of %d", page, pageCount) : "No results";
-    div.with(
-        div(paginationText).withClasses("leading-3", "float-left", "inline-block", "p-2", "m-4"));
-    if (pageCount > page) {
-      div.with(
-          new LinkElement().setText("→").setHref(linkForPage.apply(page + 1).url()).asButton());
-    } else {
-      div.with(new LinkElement().setText("∅").asButtonNoHref());
-    }
-    return div.with(br());
   }
 
   private LiTag renderPaginationPageButton(

@@ -48,7 +48,7 @@ export class AdminApiKeys {
   }
 
   async expectApiKeyCredentialsPage(name: string) {
-    expect(await this.page.innerText('h1')).toEqual(`Created API key: ${name}`)
+    await expect(this.page.locator('h1')).toHaveText(`Created API key: ${name}`)
   }
 
   async gotoNewApiKeyPage() {
@@ -59,7 +59,7 @@ export class AdminApiKeys {
   }
 
   async expectNewApiKeyPage() {
-    expect(await this.page.innerText('h1')).toEqual('Create a new API key')
+    await expect(this.page.locator('h1')).toHaveText('Create a new API key')
   }
 
   async expectKeyCallCount(
@@ -155,6 +155,6 @@ export class AdminApiKeys {
   }
 
   async expectApiKeysIndexPage() {
-    expect(await this.page.innerText('h1')).toEqual('API Keys')
+    await expect(this.page.locator('h1')).toHaveText('API Keys')
   }
 }

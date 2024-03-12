@@ -520,7 +520,7 @@ export class AdminPrograms {
   async expectProgramBlockReadOnlyPage(programName = '') {
     expect(await this.page.innerText('id=program-title')).toContain(programName)
     // The only element for editing should be one top level button
-    expect(await this.page.innerText('#header_edit_button'))
+    await expect(this.page.locator('#header_edit_button')).toBeVisible()
     expect(await this.page.locator('id=block-edit-form').count()).toEqual(0)
   }
 
@@ -1187,5 +1187,10 @@ export class AdminPrograms {
     await this.page.click('#eligibility-toggle')
     await this.page.getByText('Back').click()
     await this.page.waitForLoadState()
+  }
+
+  async isPaginationVisibleForApplicationList(): Promise<boolean> {
+    const applicationListDiv = this.page.getByTestId('application-list')
+    return applicationListDiv.locator('.usa-pagination').isVisible()
   }
 }

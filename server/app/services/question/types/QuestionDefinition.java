@@ -271,11 +271,11 @@ public abstract class QuestionDefinition {
         errors.add(CiviFormError.of("Enumerator question must have specified entity type"));
       }
     }
-    if (isRepeated() && !questionTextAndHelpTextContainsRepeatedEntityNameFormatString()) {
-      errors.add(
-          CiviFormError.of(
-              "Repeated questions must reference '$this' in the text and help text (if present)"));
+
+    if (isRepeated() && !questionTextContainsRepeatedEntityNameFormatString()) {
+      errors.add(CiviFormError.of("Repeated questions must reference '$this' in the text"));
     }
+
     if (getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOptionQuestionDefinition =
           (MultiOptionQuestionDefinition) this;
@@ -421,14 +421,9 @@ public abstract class QuestionDefinition {
     return false;
   }
 
-  private boolean questionTextAndHelpTextContainsRepeatedEntityNameFormatString() {
-    boolean textMissingFormatString =
-        getQuestionText().translations().values().stream()
-            .anyMatch(text -> !text.contains("$this"));
-    boolean helpTextMissingFormatString =
-        getQuestionHelpText().translations().values().stream()
-            .anyMatch(helpText -> !helpText.contains("$this"));
-    return !textMissingFormatString && !helpTextMissingFormatString;
+  private boolean questionTextContainsRepeatedEntityNameFormatString() {
+    return getQuestionText().translations().values().stream()
+        .allMatch(text -> text.contains("$this"));
   }
 
   /**

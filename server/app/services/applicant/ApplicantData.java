@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import javax.annotation.Nullable;
+import models.ApplicantModel;
 import services.CfJsonDocumentContext;
 import services.LocalizedStrings;
 import services.Path;
@@ -34,21 +34,31 @@ public class ApplicantData extends CfJsonDocumentContext {
   private static final String EMPTY_APPLICANT_DATA_JSON =
       String.format("{ \"%s\": {} }", APPLICANT);
   private Optional<Locale> preferredLocale;
-
   private Optional<ImmutableMap<Path, String>> failedUpdates;
+  private ApplicantModel applicant;
 
   public ApplicantData() {
-    this(EMPTY_APPLICANT_DATA_JSON);
+    this(EMPTY_APPLICANT_DATA_JSON, null);
   }
 
-  public ApplicantData(String jsonData) {
-    this(Optional.empty(), jsonData);
+  public ApplicantData(ApplicantModel applicant) {
+    this(EMPTY_APPLICANT_DATA_JSON, applicant);
   }
 
-  public ApplicantData(Optional<Locale> preferredLocale, String jsonData) {
+  public ApplicantData(String jsonData, ApplicantModel applicant) {
+    this(Optional.empty(), jsonData, applicant);
+  }
+
+  public ApplicantData(
+      Optional<Locale> preferredLocale, String jsonData, ApplicantModel applicant) {
     super(JsonPathProvider.getJsonPath().parse(checkNotNull(jsonData)));
     this.preferredLocale = preferredLocale;
     this.failedUpdates = Optional.empty();
+    this.applicant = applicant;
+  }
+
+  public ApplicantModel getApplicant() {
+    return applicant;
   }
 
   /** Returns true if this applicant has set their preferred locale, and false otherwise. */
@@ -66,64 +76,130 @@ public class ApplicantData extends CfJsonDocumentContext {
     this.preferredLocale = Optional.of(locale);
   }
 
+  /**
+   * Gets a formatted version of the applicant's name. If only the first name is defined, returns
+   * the first name. If both first and last are defined, returns "last, first".
+   *
+   * @return Formatted name of the applicant
+   */
   public Optional<String> getApplicantName() {
-    if (!hasPath(WellKnownPaths.APPLICANT_FIRST_NAME)) {
-      return Optional.empty();
+    Optional<String> firstName = applicant.getFirstName();
+    Optional<String> lastName = applicant.getLastName();
+    if (firstName.isEmpty()) {
+      // TODO (#5503): Return Optional.empty() when removing the feature flag
+      return getApplicantNameAtWellKnownPath();
     }
-    String firstName = readString(WellKnownPaths.APPLICANT_FIRST_NAME).get();
-    if (hasPath(WellKnownPaths.APPLICANT_LAST_NAME)) {
-      String lastName = readString(WellKnownPaths.APPLICANT_LAST_NAME).get();
-      return Optional.of(String.format("%s, %s", lastName, firstName));
+    /* TODO (#5503): Probably remove this.
+     * When the OIDC provider doesn't include the user's name, it inserts
+     * the email address as the name. When the CiviFormProfile is merged with
+     * the OidcProfile, the applicant name gets set to the OidcProfile name,
+     * which can be the email address.
+     * https://github.com/civiform/civiform/blob/eaa46a7edb4628b56e298e88aeb2dcfd8ffebeb2/server/app/auth/oidc/applicant/ApplicantProfileCreator.java#L112
+     * In this case, we want to check if there is a real name at the
+     * Well Known Path (answer to the preseeded question) and use that. If there
+     * isn't one there, then go ahead and use the email address as that's all we have.
+     * When we remove Well Known Paths in favor of Primary Applicant Info, we can
+     * probably remove this, since we expect there to be a name PAI question
+     * that will overwrite the email address in the PAI first name column.
+     * Additionally, the DurableJob we will create to move data from the WKP
+     * to the PAI columns will do this check and overwrite an email address
+     * in the first name field.
+     */
+    if (firstName.get().equals(applicant.getAccount().getEmailAddress())) {
+      return Optional.of(getApplicantNameAtWellKnownPath().orElse(firstName.get()));
     }
-    return Optional.of(firstName);
+    return lastName.isEmpty()
+        ? Optional.of(firstName.get())
+        : Optional.of(String.format("%s, %s", lastName.get(), firstName.get()));
   }
 
+  public Optional<String> getApplicantNameAtWellKnownPath() {
+    Optional<String> firstName =
+        hasPath(WellKnownPaths.APPLICANT_FIRST_NAME)
+            ? readString(WellKnownPaths.APPLICANT_FIRST_NAME)
+            : Optional.empty();
+    Optional<String> lastName =
+        hasPath(WellKnownPaths.APPLICANT_LAST_NAME)
+            ? readString(WellKnownPaths.APPLICANT_LAST_NAME)
+            : Optional.empty();
+    if (firstName.isPresent() && lastName.isPresent()) {
+      return Optional.of(String.format("%s, %s", lastName.get(), firstName.get()));
+    }
+    return firstName;
+  }
+
+  // TODO (#5503): Fix up all call sites using these functions to operate on the
+  // ApplicantModel fields directly instead. It is still encapsulated here so
+  // that we can modify both the Primary Applicant Info columns and
+  // Well Known Paths at the same time.
   public Optional<String> getApplicantFirstName() {
-    return readString(WellKnownPaths.APPLICANT_FIRST_NAME);
+    return applicant.getFirstName().or(() -> readString(WellKnownPaths.APPLICANT_FIRST_NAME));
   }
 
   public Optional<String> getApplicantMiddleName() {
-    return readString(WellKnownPaths.APPLICANT_MIDDLE_NAME);
+    return applicant.getMiddleName().or(() -> readString(WellKnownPaths.APPLICANT_MIDDLE_NAME));
   }
 
   public Optional<String> getApplicantLastName() {
-    return readString(WellKnownPaths.APPLICANT_LAST_NAME);
-  }
-
-  /** Updates the TI client name in the Applicant table */
-  public void updateUserName(
-      String firstName, @Nullable String middleName, @Nullable String lastName) {
-    putString(WellKnownPaths.APPLICANT_FIRST_NAME, firstName);
-    if (middleName != null) {
-      putString(WellKnownPaths.APPLICANT_MIDDLE_NAME, middleName);
-    }
-    if (lastName != null) {
-      putString(WellKnownPaths.APPLICANT_LAST_NAME, lastName);
-    }
+    return applicant.getLastName().or(() -> readString(WellKnownPaths.APPLICANT_LAST_NAME));
   }
 
   public Optional<String> getPhoneNumber() {
-    return readString(WellKnownPaths.APPLICANT_PHONE_NUMBER);
+    return applicant.getPhoneNumber().or(() -> readString(WellKnownPaths.APPLICANT_PHONE_NUMBER));
   }
 
   public void setPhoneNumber(String phoneNumber) {
+    applicant.setPhoneNumber(phoneNumber);
     putPhoneNumber(WellKnownPaths.APPLICANT_PHONE_NUMBER, phoneNumber);
   }
 
+  public Optional<LocalDate> getDateOfBirth() {
+    return applicant
+        .getDateOfBirth()
+        .or(
+            () -> {
+              Path dobPath = WellKnownPaths.APPLICANT_DOB;
+              Path deprecatedDobPath = WellKnownPaths.APPLICANT_DOB_DEPRECATED;
+              return hasPath(dobPath) ? readDate(dobPath) : readDate(deprecatedDobPath);
+            });
+  }
+
+  public void setDateOfBirth(String dateOfBirth) {
+    applicant.setDateOfBirth(dateOfBirth);
+
+    // The new path is underneath the old path, so we have to
+    // specifically check the old path exists but not the new one.
+    Path newPath = WellKnownPaths.APPLICANT_DOB;
+    Path oldPath = WellKnownPaths.APPLICANT_DOB_DEPRECATED;
+    Path dobPath = hasPath(oldPath) && !hasPath(newPath) ? oldPath : newPath;
+    putDate(dobPath, dateOfBirth);
+  }
+
+  // TODO: Get rid of this function, and change ApplicantProfileCreator and SamlProfileCreator
+  // to use the function that passes in each field separately.
+  /**
+   * Parses a name string to extract the first, middle, and last names, if they exists, and sets
+   * those fields. This function will NOT overwrite any existing name data if the first name already
+   * exists. This is because this function is used by {@link ApplicantProfileCreator} and {@link
+   * SamlProfileCreator} and we do not want it to overwrite the name upon login.
+   *
+   * @param displayName A string that contains the applicant's name, with first, middle, and last
+   *     separated by spaces. May provide only first name or only first last.
+   */
   public void setUserName(String displayName) {
     String firstName;
-    String lastName = null;
-    String middleName = null;
+    Optional<String> lastName = Optional.empty();
+    Optional<String> middleName = Optional.empty();
     List<String> listSplit = Splitter.on(' ').splitToList(displayName);
     switch (listSplit.size()) {
       case 2:
         firstName = listSplit.get(0);
-        lastName = listSplit.get(1);
+        lastName = Optional.of(listSplit.get(1));
         break;
       case 3:
         firstName = listSplit.get(0);
-        middleName = listSplit.get(1);
-        lastName = listSplit.get(2);
+        middleName = Optional.of(listSplit.get(1));
+        lastName = Optional.of(listSplit.get(2));
         break;
       case 1:
         // fallthrough
@@ -131,19 +207,54 @@ public class ApplicantData extends CfJsonDocumentContext {
         // Too many names - put them all in first name.
         firstName = displayName;
     }
-    setUserName(firstName, middleName, lastName);
+    setUserName(firstName, middleName, lastName, false);
   }
 
+  // By default, overwrite name fields if data exists in them
   public void setUserName(
-      String firstName, @Nullable String middleName, @Nullable String lastName) {
-    if (!hasPath(WellKnownPaths.APPLICANT_FIRST_NAME)) {
-      putString(WellKnownPaths.APPLICANT_FIRST_NAME, firstName);
+      String firstName, Optional<String> middleName, Optional<String> lastName) {
+    setUserName(firstName, middleName, lastName, true);
+  }
+
+  /**
+   * Sets the first, middle, and last name fields.
+   *
+   * @param firstName First name of applicant
+   * @param middleName Middle name of applicant
+   * @param lastName Last name of applicant
+   * @param overwrite When false, if first name already exists, do not update fields and return
+   *     unchanged.
+   */
+  public void setUserName(
+      String firstName, Optional<String> middleName, Optional<String> lastName, boolean overwrite) {
+    Path firstPath = WellKnownPaths.APPLICANT_FIRST_NAME;
+    Path middlePath = WellKnownPaths.APPLICANT_MIDDLE_NAME;
+    Path lastPath = WellKnownPaths.APPLICANT_LAST_NAME;
+    boolean firstNamePresent =
+        applicant.getFirstName().isPresent()
+            || (hasPath(firstPath) && readString(firstPath).isPresent());
+    if (!overwrite && firstNamePresent) {
+      return;
     }
-    if (middleName != null && !hasPath(WellKnownPaths.APPLICANT_MIDDLE_NAME)) {
-      putString(WellKnownPaths.APPLICANT_MIDDLE_NAME, middleName);
+    applicant.setFirstName(firstName);
+    // Empty string will remove it from the model
+    applicant.setMiddleName(middleName.orElse(""));
+    applicant.setLastName(lastName.orElse(""));
+
+    putString(firstPath, firstName);
+    if (middleName.isPresent()) {
+      putString(middlePath, middleName.get());
+    } else {
+      if (hasPath(middlePath)) {
+        getDocumentContext().delete(middlePath.toString());
+      }
     }
-    if (lastName != null && !hasPath(WellKnownPaths.APPLICANT_LAST_NAME)) {
-      putString(WellKnownPaths.APPLICANT_LAST_NAME, lastName);
+    if (lastName.isPresent()) {
+      putString(lastPath, lastName.get());
+    } else {
+      if (hasPath(lastPath)) {
+        getDocumentContext().delete(lastPath.toString());
+      }
     }
   }
 
@@ -178,37 +289,17 @@ public class ApplicantData extends CfJsonDocumentContext {
     return getFailedUpdates().containsKey(path);
   }
 
-  public Optional<LocalDate> getDateOfBirth() {
-    Path dobPath = WellKnownPaths.APPLICANT_DOB;
-    if (!hasPath(dobPath)) {
-      return getDeprecatedDateOfBirth();
-    }
-    return readDate(dobPath);
-  }
-
-  public Optional<LocalDate> getDeprecatedDateOfBirth() {
-    return readDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED);
-  }
-
-  public void setDateOfBirth(String dateOfBirth) {
-    Path deprecatedDobPath = WellKnownPaths.APPLICANT_DOB_DEPRECATED;
-    if (hasPath(deprecatedDobPath)) {
-      putDate(deprecatedDobPath, dateOfBirth);
-    } else {
-      putDate(WellKnownPaths.APPLICANT_DOB, dateOfBirth);
-    }
-  }
-
   /**
    * Returns `true` if the answers in `other` match the answers in the current object. Ignores
    * `updated_at` timestamps when comparing answers.
    */
   public boolean isDuplicateOf(ApplicantData other) {
     // Copy data and clear fields not required for comparison.
-    ApplicantData thisApplicantData = new ApplicantData(this.preferredLocale, this.asJsonString());
+    ApplicantData thisApplicantData =
+        new ApplicantData(this.preferredLocale, this.asJsonString(), this.applicant);
     clearFieldsNotRequiredForComparison(thisApplicantData);
     ApplicantData otherApplicantData =
-        new ApplicantData(other.preferredLocale, other.asJsonString());
+        new ApplicantData(other.preferredLocale, other.asJsonString(), other.applicant);
     clearFieldsNotRequiredForComparison(otherApplicantData);
 
     return thisApplicantData.asJsonString().equals(otherApplicantData.asJsonString());
@@ -223,5 +314,9 @@ public class ApplicantData extends CfJsonDocumentContext {
     } catch (PathNotFoundException unused) {
       // Metadata may be missing in unit tests. No harm, no foul.
     }
+  }
+
+  public Optional<LocalDate> getDeprecatedDateOfBirth() {
+    return readDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED);
   }
 }

@@ -343,8 +343,18 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickConfirmAddress() {
+    await this.page.getByRole('button', {name: 'Confirm address'}).click()
+    await waitForPageJsLoad(this.page)
+  }
+
   async clickEdit() {
     await this.page.click('text="Edit"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickGoBackAndEdit() {
+    await this.page.getByRole('button', {name: 'Go back and edit'}).click()
     await waitForPageJsLoad(this.page)
   }
 
@@ -536,32 +546,34 @@ export class ApplicantQuestions {
   }
 
   async validateHeader(lang: string) {
-    expect(await this.page.getAttribute('html', 'lang')).toEqual(lang)
+    await expect(this.page.locator('html')).toHaveAttribute('lang', lang)
     expect(await this.page.innerHTML('head')).toContain(
       '<meta name="viewport" content="width=device-width, initial-scale=1">',
     )
+  }
+
+  async validateQuestionIsOnPage(questionText: string) {
+    await expect(
+      this.page.locator('.cf-applicant-question-text'),
+    ).toContainText(questionText)
   }
 
   async validatePreviouslyAnsweredText(questionText: string) {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(
-      await questionLocator
-        .locator('.cf-applicant-question-previously-answered')
-        .isVisible(),
-    ).toEqual(true)
+    await expect(
+      questionLocator.locator('.cf-applicant-question-previously-answered'),
+    ).toBeVisible()
   }
 
   async validateNoPreviouslyAnsweredText(questionText: string) {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(
-      await questionLocator
-        .locator('.cf-applicant-question-previously-answered')
-        .isVisible(),
-    ).toEqual(false)
+    await expect(
+      questionLocator.locator('.cf-applicant-question-previously-answered'),
+    ).toBeHidden()
   }
 
   async seeStaticQuestion(questionText: string) {
@@ -601,7 +613,7 @@ export class ApplicantQuestions {
     )
   }
 
-  async clickGoBackAndEdit() {
+  async clickStayAndFixAnswers() {
     await this.page.click('button:has-text("Stay and fix your answers")')
   }
 }

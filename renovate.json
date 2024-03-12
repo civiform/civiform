@@ -1,5 +1,5 @@
 {
-  "extends": ["config:base"],
+  "extends": ["config:recommended"],
   "labels": ["dependencies"],
   "docker-compose": {
     "fileMatch": [
@@ -38,10 +38,14 @@
     },
     {
       "groupName": "playwright",
-      "matchPackagePrefixes": ["playwright", "mcr.microsoft.com/playwright"]
+      "matchPackagePrefixes": [
+        "playwright",
+        "@playwright/test",
+        "mcr.microsoft.com/playwright"
+      ]
     },
     {
-      "matchPaths": [
+      "matchFileNames": [
         ".github/workflows/**",
         "browser-test/**",
         "env-var-docs/**",

@@ -51,7 +51,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     versionRepository = instanceOf(VersionRepository.class);
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     when(mockSettingsManifest.getIntakeFormEnabled(any())).thenReturn(true);
-    when(mockSettingsManifest.getProgramCardImages(any())).thenReturn(false);
+    when(mockSettingsManifest.getProgramCardImages()).thenReturn(false);
 
     controller =
         new AdminProgramController(
@@ -179,7 +179,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void create_programImagesEnabled_redirectsToProgramImage() {
-    when(mockSettingsManifest.getProgramCardImages(any())).thenReturn(true);
+    when(mockSettingsManifest.getProgramCardImages()).thenReturn(true);
 
     RequestBuilder requestBuilder =
         addCSRFToken(
@@ -591,7 +591,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void update_statusEdit_redirectsToProgramEditBlocks() throws ProgramNotFoundException {
-    when(mockSettingsManifest.getProgramCardImages(any())).thenReturn(true);
+    when(mockSettingsManifest.getProgramCardImages()).thenReturn(true);
 
     ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
     RequestBuilder requestBuilder =
@@ -625,7 +625,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   @Test
   public void update_statusCreationEdit_programImagesDisabled_redirectsToProgramEditBlocks()
       throws ProgramNotFoundException {
-    when(mockSettingsManifest.getProgramCardImages(any())).thenReturn(false);
+    when(mockSettingsManifest.getProgramCardImages()).thenReturn(false);
 
     ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
     RequestBuilder requestBuilder =
@@ -661,7 +661,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   @Test
   public void update_statusCreation_programImagesEnabled_redirectsToProgramImage()
       throws ProgramNotFoundException {
-    when(mockSettingsManifest.getProgramCardImages(any())).thenReturn(true);
+    when(mockSettingsManifest.getProgramCardImages()).thenReturn(true);
 
     ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
     RequestBuilder requestBuilder =
@@ -697,7 +697,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   @Test
   public void update_statusCreationEdit_programImagesEnabled_redirectsToProgramImage()
       throws ProgramNotFoundException {
-    when(mockSettingsManifest.getProgramCardImages(any())).thenReturn(true);
+    when(mockSettingsManifest.getProgramCardImages()).thenReturn(true);
 
     ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
     RequestBuilder requestBuilder =

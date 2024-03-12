@@ -184,10 +184,13 @@ public final class AccountRepository {
           throw new EmailAddressExistsException();
         }
         account.setEmailAddress(email);
+        applicant.setEmailAddress(email);
       }
       account.setTiNote(tiNote);
       applicant.getApplicantData().setPhoneNumber(phoneNumber);
-      applicant.getApplicantData().updateUserName(firstName, middleName, lastName);
+      applicant
+          .getApplicantData()
+          .setUserName(firstName, Optional.ofNullable(middleName), Optional.ofNullable(lastName));
       applicant.getApplicantData().setDateOfBirth(newDob);
       account.save();
       applicant.save();
@@ -344,8 +347,12 @@ public final class AccountRepository {
     ApplicantModel applicant = new ApplicantModel();
     applicant.setAccount(newAccount);
     ApplicantData applicantData = applicant.getApplicantData();
-    applicantData.setUserName(form.getFirstName(), form.getMiddleName(), form.getLastName());
+    applicantData.setUserName(
+        form.getFirstName(),
+        Optional.ofNullable(form.getMiddleName()),
+        Optional.ofNullable(form.getLastName()));
     applicantData.setDateOfBirth(form.getDob());
+    applicant.setEmailAddress(form.getEmailAddress());
     applicant.save();
   }
 

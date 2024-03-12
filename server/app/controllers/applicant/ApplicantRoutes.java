@@ -169,6 +169,24 @@ public final class ApplicantRoutes {
   }
 
   /**
+   * Returns the route to the block specified by {@code blockId}.
+   *
+   * @param inReview true if the applicant is reviewing their application answers and false if
+   *     they're filling out the application step-by-step. See {@link #edit} and {@link #review} for
+   *     more details.
+   */
+  public Call blockEditOrBlockReview(
+      CiviFormProfile profile, long applicantId, long programId, String blockId, boolean inReview) {
+    if (inReview) {
+      return blockReview(
+          profile, applicantId, programId, blockId, /* questionName= */ Optional.empty());
+    } else {
+      return blockEdit(
+          profile, applicantId, programId, blockId, /* questionName= */ Optional.empty());
+    }
+  }
+
+  /**
    * Returns the route corresponding to the applicant confirm address action.
    *
    * @param profile - Profile corresponding to the logged-in user (applicant or TI).

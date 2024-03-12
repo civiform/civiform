@@ -7,7 +7,6 @@ import com.google.inject.Inject;
 import j2html.tags.specialized.ImgTag;
 import java.util.Locale;
 import java.util.Optional;
-import play.mvc.Http;
 import services.cloud.PublicFileNameFormatter;
 import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
@@ -35,11 +34,8 @@ public final class ProgramImageUtils {
    *     card we show to applicants and false if this image will be shown on its own.
    */
   public Optional<ImgTag> createProgramImage(
-      Http.Request request,
-      ProgramDefinition program,
-      Locale preferredLocale,
-      boolean isWithinProgramCard) {
-    if (!settingsManifest.getProgramCardImages(request)) {
+      ProgramDefinition program, Locale preferredLocale, boolean isWithinProgramCard) {
+    if (!settingsManifest.getProgramCardImages()) {
       return Optional.empty();
     }
     if (program.summaryImageFileKey().isEmpty()) {
