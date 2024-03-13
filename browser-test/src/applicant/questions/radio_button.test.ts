@@ -1,6 +1,8 @@
 import {test, expect} from '@playwright/test'
 import {
   createTestContext,
+  disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -32,6 +34,11 @@ test.describe('Radio button question for applicant flow', () => {
       )
 
       await logout(page)
+    })
+
+    test.beforeEach(async () => {
+      const {page} = ctx
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
     test('Updates options in preview', async () => {
@@ -98,11 +105,12 @@ test.describe('Radio button question for applicant flow', () => {
       {tag: ['@northstar']},
       async () => {
         const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
         await applicantQuestions.applyProgram(programName)
 
         await validateScreenshot(
           page,
-          'radio-button',
+          'radio-button-north-star',
           /* fullPage= */ true,
           /* mobileScreenshot= */ true,
         )
