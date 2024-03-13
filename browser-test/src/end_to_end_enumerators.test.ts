@@ -416,6 +416,7 @@ test.describe('End to end enumerator test', () => {
     // Click previous and see name question
     await applicantQuestions.clickPrevious()
     await applicantQuestions.checkNameQuestionValue('Porky', 'Pig')
+
     await logout(page)
   })
 
