@@ -93,10 +93,7 @@ public final class DateConverter {
 
   /**
    * Formats an {@link Instant} to a date and time in the local time zone in the ISO 8601 format for
-   * the purpose of API responses.
-   * Examples:
-   *  2011-12-03T10:15:30+01:00
-   *  2011-12-03T09:15:30Z
+   * the purpose of API responses. Examples: 2011-12-03T10:15:30+01:00 2011-12-03T09:15:30Z
    */
   public String renderDateTimeIso8601ExtendedOffset(Instant time) {
     ZonedDateTime dateTime = time.atZone(zoneId);
