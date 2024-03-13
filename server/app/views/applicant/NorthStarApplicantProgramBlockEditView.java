@@ -36,12 +36,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
     return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
   }
 
-<<<<<<< HEAD
-  private String getFormAction(ApplicationBaseViewParams params) {
-=======
-  private String getFormAction(
-      ApplicationBaseView.Params params, ApplicantRequestedAction nextAction) {
->>>>>>> 5e4f3ccbd (update links to be buttons to save data)
+  private String getFormAction(ApplicationBaseViewParams params, ApplicantRequestedAction nextAction) {
     return applicantRoutes
         .updateBlock(
             params.profile(),
