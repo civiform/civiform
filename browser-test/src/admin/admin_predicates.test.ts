@@ -11,7 +11,6 @@ import {
   validateAccessibility,
   validateScreenshot,
   validateToastMessage,
-  waitForPageJsLoad,
 } from '../support'
 
 test.describe('create and edit predicates', () => {
@@ -1218,8 +1217,7 @@ test.describe('create and edit predicates', () => {
       // Validate that ineligible page is accessible.
       await validateAccessibility(page)
 
-      await page.click('text="Go back and edit"')
-      await waitForPageJsLoad(page)
+      await applicantQuestions.clickGoBackAndEditOnIneligiblePage(page)
       await validateScreenshot(page, 'review-page-has-ineligible-banner')
       await validateToastMessage(page, 'may not qualify')
 
