@@ -1,5 +1,5 @@
 /** The preview controller is responsible for updating question preview text in the question builder. */
-import {assertNotNull, formatText} from './util'
+import {assertNotNull, formatText, formatTextHtml} from './util'
 
 class PreviewController {
   private static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea'
@@ -175,18 +175,24 @@ class PreviewController {
     previewQuestionOptionContainer: HTMLElement
     previewOptionTemplate: HTMLElement
   }) {
+
+    // Gets the input elements from the Question Settings section
+    // And maps to an array of just the values from the inputs
     const configuredOptions = Array.from(
       questionSettings.querySelectorAll(
         `${PreviewController.QUESTION_MULTI_OPTION_SELECTOR} ${PreviewController.QUESTION_MULTI_OPTION_INPUT_FIELD_SELECTOR} input`,
       ),
     ).map((el) => {
+      console.log(el)
       return (el as HTMLInputElement).value
     })
+    console.log(configuredOptions)
     if (configuredOptions.length === 0) {
       configuredOptions.push(PreviewController.DEFAULT_OPTION_TEXT)
     }
 
     // Reset the option list in the preview.
+    // Remove all of the existing options in the preview
     Array.from(
       previewQuestionOptionContainer.querySelectorAll(
         PreviewController.QUESTION_MULTI_OPTION_SELECTOR,
@@ -196,6 +202,7 @@ class PreviewController {
     })
 
     for (const configuredOption of configuredOptions) {
+      // what is the previewOptionTemplate?
       const newPreviewOption = previewOptionTemplate.cloneNode(
         true,
       ) as HTMLElement
@@ -205,20 +212,19 @@ class PreviewController {
         PreviewController.QUESTION_MULTI_OPTION_VALUE_CLASS,
       )
         ? newPreviewOption
+        // Otherwise select the thing that has that class on it
         : assertNotNull(
             newPreviewOption.querySelector<HTMLElement>(
               `.${PreviewController.QUESTION_MULTI_OPTION_VALUE_CLASS}`,
             ),
           )
-          console.log(formatText(configuredOption))
 
-      optionText.innerText = configuredOption
-      // I don't understand how optionText is being used. like do we need it?
-      // console.log("configured option")
-      // console.log(typeof configuredOption)
-      // console.log("optionText")
-      // console.log(optionText.innerHTML)
-      // optionText.innerHTML = formatText(configuredOption)
+      // Objects in javascript are passed by value so editing optionText.innerText
+      // modifies newPreviewOption
+      optionText.innerHTML = formatText(configuredOption)
+      console.log(formatText(configuredOption))
+
+
       previewQuestionOptionContainer.appendChild(newPreviewOption)
     }
   }
@@ -228,7 +234,8 @@ class PreviewController {
     const questionType = document.querySelector('.cf-question-type')
     const useAdvancedFormatting = questionType
     if (useAdvancedFormatting) {
-      const contentElement = formatText(text)
+      // Strip the <body> tag off of the returned HTML
+      const contentElement = assertNotNull(formatTextHtml(text).firstElementChild)
       contentElement.classList.add('pr-16')
 
       const contentParent = document.querySelector(
@@ -252,7 +259,8 @@ class PreviewController {
     )
     const useAdvancedFormatting = questionHelpText
     if (useAdvancedFormatting) {
-      const contentElement = formatText(helpText)
+      // Strip the <body> tag off of the returned HTML
+      const contentElement = assertNotNull(formatTextHtml(helpText).firstElementChild)
       const contentParent = document.querySelector(
         PreviewController.QUESTION_HELP_TEXT_SELECTOR,
       )
