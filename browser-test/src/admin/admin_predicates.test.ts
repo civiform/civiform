@@ -11,6 +11,7 @@ import {
   validateAccessibility,
   validateScreenshot,
   validateToastMessage,
+  waitForPageJsLoad,
 } from '../support'
 
 test.describe('create and edit predicates', () => {
@@ -1216,18 +1217,23 @@ test.describe('create and edit predicates', () => {
       )
       // Validate that ineligible page is accessible.
       await validateAccessibility(page)
-      await page.goBack()
 
-      await applicantQuestions.clickReview()
+      await page.click('text="Go back and edit"')
+      await waitForPageJsLoad(page)
       await validateScreenshot(page, 'review-page-has-ineligible-banner')
       await validateToastMessage(page, 'may not qualify')
-      await page.goBack()
 
+      await applicantQuestions.editQuestionFromReviewPage(
+        'checkbox question text',
+      )
       await applicantQuestions.answerCheckboxQuestion(['cat'])
       await applicantQuestions.clickNext()
 
-      // We should now be on the summary page and no banner should show.
-      await validateScreenshot(page, 'summary-page-no-eligible-banner')
+      // We should now be on the review page with a completed form and no banner should show.
+      await validateScreenshot(
+        page,
+        'review-page-no-ineligible-banner-completed',
+      )
       await validateToastMessage(page, '')
       await applicantQuestions.submitFromReviewPage()
     })

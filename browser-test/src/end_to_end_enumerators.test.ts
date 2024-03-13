@@ -369,6 +369,7 @@ test.describe('End to end enumerator test', () => {
 
   test('Applicant can navigate to previous blocks', async () => {
     const {page, applicantQuestions} = ctx
+    await enableFeatureFlag(page, 'save_on_all_actions')
     await applicantQuestions.applyProgram(programName)
 
     // Fill in name question
@@ -396,6 +397,7 @@ test.describe('End to end enumerator test', () => {
     // Check previous navigation works
     // Click previous and see number question
     await applicantQuestions.clickPrevious()
+    await applicantQuestions.clickPreviousWithoutSaving()
     await applicantQuestions.checkNumberQuestionValue('100')
 
     // Click previous and see enumerator question
