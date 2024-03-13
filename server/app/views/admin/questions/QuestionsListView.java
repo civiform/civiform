@@ -165,7 +165,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .sorted(
                 Comparator.<QuestionCardData, Boolean>comparing(
                         card ->
-                            settingsManifest.getUniversalQuestions(request)
+                            settingsManifest.getUniversalQuestions()
                                 ? getDisplayQuestion(card).isUniversal()
                                 : true)
                     .thenComparing(
@@ -190,7 +190,7 @@ public final class QuestionsListView extends BaseHtmlView {
       if (isQuestionPendingDeletion(card, activeAndDraftQuestions)) {
         archivedQuestionRows.add(rowAndModals.getLeft());
       } else if (getDisplayQuestion(card).isUniversal()
-          && settingsManifest.getUniversalQuestions(request)) {
+          && settingsManifest.getUniversalQuestions()) {
         universalQuestionRows.add(rowAndModals.getLeft());
       } else {
         nonArchivedQuestionRows.add(rowAndModals.getLeft());
@@ -320,7 +320,7 @@ public final class QuestionsListView extends BaseHtmlView {
                 "border",
                 ReferenceClasses.ADMIN_QUESTION_TABLE_ROW)
             .condWith(
-                settingsManifest.getUniversalQuestions(request)
+                settingsManifest.getUniversalQuestions()
                     && getDisplayQuestion(cardData).isUniversal(),
                 ViewUtils.makeUniversalBadge(latestDefinition, "mt-4"))
             .with(row)

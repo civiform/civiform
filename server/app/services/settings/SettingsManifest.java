@@ -875,8 +875,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * intended to be used by all programs and will appear at the top of the question bank with a
    * badge denoting them as universal.
    */
-  public boolean getUniversalQuestions(RequestHeader request) {
-    return getBool("UNIVERSAL_QUESTIONS", request);
+  public boolean getUniversalQuestions() {
+    return getBool("UNIVERSAL_QUESTIONS");
   }
 
   /**
@@ -1857,7 +1857,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " universal.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "PROGRAM_CARD_IMAGES",
                       "Enables images on program cards, both for admins to upload them and for"

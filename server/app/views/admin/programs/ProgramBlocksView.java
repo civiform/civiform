@@ -213,8 +213,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   programDefinition,
                   blockDefinition,
                   csrfTag,
-                  ProgramQuestionBank.shouldShowQuestionBank(request),
-                  request))
+                  ProgramQuestionBank.shouldShowQuestionBank(request)))
           .addMainContent(addFormEndpoints(csrfTag, programDefinition.id(), blockId))
           .addModals(blockDescriptionEditModal, blockDeleteScreenModal);
     }
@@ -708,7 +707,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 "rounded-md",
                 StyleUtils.hover("text-gray-800", "bg-gray-100"));
     ret.condWith(
-        settingsManifest.getUniversalQuestions(request)
+        settingsManifest.getUniversalQuestions()
             && !malformedQuestionDefinition
             && questionDefinition.isUniversal(),
         ViewUtils.makeUniversalBadge(questionDefinition, "mt-2", "mb-4"));
@@ -1081,8 +1080,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       InputTag csrfTag,
-      ProgramQuestionBank.Visibility questionBankVisibility,
-      Request request) {
+      ProgramQuestionBank.Visibility questionBankVisibility) {
     String addQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.create(
                 program.id(), blockDefinition.id())
@@ -1105,8 +1103,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .build(),
             programBlockValidationFactory);
     return qb.getContainer(
-        questionBankVisibility,
-        /* showUniversal= */ settingsManifest.getUniversalQuestions(request));
+        questionBankVisibility, /* showUniversal= */ settingsManifest.getUniversalQuestions());
   }
 
   /** Creates a modal, which allows the admin to confirm that they want to delete a block. */
