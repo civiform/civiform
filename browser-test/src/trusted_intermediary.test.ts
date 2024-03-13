@@ -1033,4 +1033,22 @@ test.describe('Trusted intermediaries', () => {
       )
     })
   })
+  test.describe('organization members table', () => {
+    test('shows name, email and account status', async () => {
+      const {page, tiDashboard} = ctx
+      await loginAsTrustedIntermediary(page)
+      await tiDashboard.gotoTIDashboardPage(page)
+      await waitForPageJsLoad(page)
+
+      await validateScreenshot(
+        page.getByTestId('org-members-table'),
+        'org-members-table',
+      )
+
+      // Verifying the column headers
+      expect(page.getByTestId('org-members-name')).not.toBeNull()
+      expect(page.getByTestId('org-members-email')).not.toBeNull()
+      expect(page.getByTestId('org-members-status')).not.toBeNull()
+    })
+  })
 })
