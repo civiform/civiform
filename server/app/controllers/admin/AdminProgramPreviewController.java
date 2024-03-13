@@ -70,7 +70,7 @@ public final class AdminProgramPreviewController extends CiviFormController {
     ReadOnlyQuestionService roQuestionService =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
     PdfExporter.InMemoryPdf pdf =
-        pdfExporterService.generateProgramPreview(program, roQuestionService.getAllQuestions());
+        pdfExporterService.generateProgramPreviewPdf(program, roQuestionService.getAllQuestions());
     return ok(pdf.getByteArray())
         .as("application/pdf")
         .withHeader(

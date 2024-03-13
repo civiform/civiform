@@ -38,11 +38,17 @@ public final class PdfExporterService {
     return pdf;
   }
 
-  public PdfExporter.InMemoryPdf generateProgramPreview(
+  /**
+   * Creates a returns a PDF containing all the blocks and questions in the given {@code
+   * programDefinition}.
+   *
+   * <p>Used for admins to see their current program setup.
+   */
+  public PdfExporter.InMemoryPdf generateProgramPreviewPdf(
       ProgramDefinition programDefinition, ImmutableList<QuestionDefinition> allQuestions) {
     PdfExporter.InMemoryPdf pdf;
     try {
-      pdf = pdfExporter.export(programDefinition, allQuestions);
+      pdf = pdfExporter.exportProgram(programDefinition, allQuestions);
     } catch (DocumentException | IOException | TranslationNotFoundException e) {
       throw new RuntimeException(e);
     }

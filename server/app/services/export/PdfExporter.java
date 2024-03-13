@@ -53,6 +53,8 @@ public final class PdfExporter {
   private final String baseUrl;
   private final DateConverter dateConverter;
 
+  // A set of fonts that approximate various heading and text sizes to easily create visual
+  // hierarchy in the PDF.
   private static final Font H1_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 30);
   private static final Font H2_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
   private static final Font H3_FONT = FontFactory.getFont(FontFactory.HELVETICA, 16);
@@ -64,8 +66,8 @@ public final class PdfExporter {
 
   /**
    * Similar to {@link views.admin.programs.ProgramBlocksView#INDENTATION_FACTOR_INCREASE_ON_LEVEL}:
-   * for each level of enumerator question, indent those questions so it's easier to understand
-   * which questions are part of enumerators.
+   * For each level of enumerator question, add another layer of indentation so it's easier to
+   * understand which questions are part of enumerators.
    */
   private static final int INDENTATION_PER_LEVEL = 25;
 
@@ -252,16 +254,22 @@ public final class PdfExporter {
     return byteArrayOutputStream.toByteArray();
   }
 
-  public InMemoryPdf export(
+  /**
+   * Generates a byte array containing all the values present in the List of AnswerData using
+   * itextPDF. This function creates the output document in memory as a byte[] and is part of the
+   * inMemoryPDF object. The InMemoryPdf object is passed back to the AdminController Class to
+   * generate the required PDF.
+   */
+  public InMemoryPdf exportProgram(
       ProgramDefinition programDefinition, ImmutableList<QuestionDefinition> allQuestions)
       throws DocumentException, IOException, TranslationNotFoundException {
     LocalDateTime timeCreated = nowProvider.get();
     String filename = String.format("%s-%s.pdf", programDefinition.adminName(), timeCreated);
-    byte[] bytes = buildProgramPreviewPDF(programDefinition, allQuestions, timeCreated);
+    byte[] bytes = buildProgramPdf(programDefinition, allQuestions, timeCreated);
     return new InMemoryPdf(bytes, filename);
   }
 
-  private byte[] buildProgramPreviewPDF(
+  private byte[] buildProgramPdf(
       ProgramDefinition programDefinition,
       ImmutableList<QuestionDefinition> allQuestions,
       LocalDateTime timeCreated)
@@ -300,9 +308,11 @@ public final class PdfExporter {
   /**
    * Renders the given block in the PDF.
    *
+   * @param allQuestions a list of all questions in the question bank. Used for displaying
+   *     predicates correctly.
    * @param indentationLevel the level of indentation. Should be 0 for most questions, 1 for
    *     questions nested under an enumerator, 2 for doubly-nested enumerator questions, etc. Should
-   *     be multiplied by {@link INDENTATION_PER_LEVEL} when adding indentation.
+   *     be multiplied by {@link INDENTATION_PER_LEVEL} when adding text into the PDF.
    */
   private void renderBlock(
       Document document,
@@ -314,22 +324,25 @@ public final class PdfExporter {
     document.add(Chunk.NEWLINE);
     LineSeparator ls = new LineSeparator();
     ls.setAlignment(Element.ALIGN_RIGHT);
-    // Approximately indent the line separate by subtracting 5% of its width per level of
+    // Approximately indent the line separator by subtracting 5% of its width per level of
     // indentation.
     ls.setPercentage(100 - (indentationLevel * 5));
     document.add(ls);
     document.add(Chunk.NEWLINE);
 
-    document.add(p(block.name(), H2_FONT, indentationLevel));
-    document.add(p("Admin description: " + block.description(), SMALL_GRAY_FONT, indentationLevel));
+    // Block-level information
+    document.add(text(block.name(), H2_FONT, indentationLevel));
+    document.add(
+        text("Admin description: " + block.description(), SMALL_GRAY_FONT, indentationLevel));
     document.add(Chunk.NEWLINE);
 
+    // Visibility & eligibility information
     if (block.visibilityPredicate().isPresent()) {
-      renderExistingPredicate(
+      renderPredicate(
           document, block.visibilityPredicate().get(), block, allQuestions, indentationLevel);
     }
     if (block.eligibilityDefinition().isPresent()) {
-      renderExistingPredicate(
+      renderPredicate(
           document,
           block.eligibilityDefinition().get().predicate(),
           block,
@@ -338,47 +351,51 @@ public final class PdfExporter {
     }
 
     for (int i = 0; i < block.getQuestionCount(); i++) {
+      // Question-level information
       QuestionDefinition question = block.getQuestionDefinition(i);
-      document.add(p(question.getQuestionText().getDefault(), H3_FONT, indentationLevel));
+      document.add(text(question.getQuestionText().getDefault(), H3_FONT, indentationLevel));
       if (!question.getQuestionHelpText().isEmpty()) {
         document.add(
-            p(question.getQuestionHelpText().getDefault(), PARAGRAPH_FONT, indentationLevel));
+            text(question.getQuestionHelpText().getDefault(), PARAGRAPH_FONT, indentationLevel));
       }
-      document.add(p("Admin name: " + question.getName(), SMALL_GRAY_FONT, indentationLevel));
+      document.add(text("Admin name: " + question.getName(), SMALL_GRAY_FONT, indentationLevel));
       document.add(
-          p("Admin description: " + question.getDescription(), SMALL_GRAY_FONT, indentationLevel));
+          text(
+              "Admin description: " + question.getDescription(),
+              SMALL_GRAY_FONT,
+              indentationLevel));
       document.add(
-          p(
+          text(
               "Question type: " + question.getQuestionType().name(),
               SMALL_GRAY_FONT,
               indentationLevel));
 
-      // If a question offers options, print them
+      // If a question offers options, put those options in the PDF
       if (question.getQuestionType().isMultiOptionType()) {
         MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) question;
-        List list = new List();
-        list.setIndentationLeft(indentationLevel * INDENTATION_PER_LEVEL);
+        List list = createList(indentationLevel);
         for (QuestionOption option : multiOption.getOptions()) {
           list.add(new ListItem(option.optionText().getDefault()));
         }
         document.add(list);
       } else if (question.getQuestionType() != QuestionType.STATIC) {
-        // Otherwise, as long as the question needs input, print an empty box area showing that
-        // input is needed
-        document.add(p("[                     ]", PARAGRAPH_FONT, indentationLevel));
+        // Otherwise, just print an empty box area to show that input is needed.
+        // (Static questions don't require input, so exclude static questions
+        // from this part.)
+        document.add(text("[                     ]", PARAGRAPH_FONT, indentationLevel));
       }
       document.add(Chunk.NEWLINE);
     }
 
     if (block.isEnumerator()) {
-      // Indent the blocks related to the enumerator so it's clear they're related
       for (BlockDefinition subBlock : program.getBlockDefinitionsForEnumerator(block.id())) {
+        // Indent the blocks related to the enumerator so it's clear they're related
         renderBlock(document, program, subBlock, allQuestions, indentationLevel + 1);
       }
     }
   }
 
-  private void renderExistingPredicate(
+  private void renderPredicate(
       Document document,
       PredicateDefinition predicate,
       BlockDefinition block,
@@ -388,10 +405,9 @@ public final class PdfExporter {
     ReadablePredicate readablePredicate =
         PredicateUtils.getReadablePredicateDescription(block.name(), predicate, allQuestions);
 
-    document.add(p(readablePredicate.heading(), PREDICATE_FONT, indentationLevel));
+    document.add(text(readablePredicate.heading(), PREDICATE_FONT, indentationLevel));
     if (readablePredicate.conditionList().isPresent()) {
-      List list = new List();
-      list.setIndentationLeft(indentationLevel * INDENTATION_PER_LEVEL);
+      List list = createList(indentationLevel);
       for (String condition : readablePredicate.conditionList().get()) {
         list.add(new ListItem(condition, PREDICATE_FONT));
       }
@@ -401,10 +417,16 @@ public final class PdfExporter {
   }
 
   /** Gets a paragraph with the given text, font, and indentation level. */
-  private static Paragraph p(String text, Font font, int indentationLevel) {
+  private static Paragraph text(String text, Font font, int indentationLevel) {
     Paragraph paragraph = new Paragraph(text, font);
     paragraph.setIndentationLeft(indentationLevel * INDENTATION_PER_LEVEL);
     return paragraph;
+  }
+
+  private static List createList(int indentationLevel) {
+    List list = new List();
+    list.setIndentationLeft(indentationLevel * INDENTATION_PER_LEVEL);
+    return list;
   }
 
   public static final class InMemoryPdf {
