@@ -178,7 +178,7 @@ public final class JsonExporter {
     jsonApplication.putString(Path.create("language"), applicationExportData.languageTag());
     jsonApplication.putString(
         Path.create("create_time"),
-        dateConverter.renderDateTimeDataOnly(applicationExportData.createTime()));
+        dateConverter.renderDateTimeIso8601ExtendedOffset(applicationExportData.createTime()));
     jsonApplication.putString(
         Path.create("submitter_type"), applicationExportData.submitterType().toString());
     jsonApplication.putString(Path.create("ti_email"), applicationExportData.tiEmail());
@@ -189,7 +189,7 @@ public final class JsonExporter {
         .ifPresentOrElse(
             submitTime ->
                 jsonApplication.putString(
-                    submitTimePath, dateConverter.renderDateTimeDataOnly(submitTime)),
+                    submitTimePath, dateConverter.renderDateTimeIso8601ExtendedOffset(submitTime)),
             () -> jsonApplication.putNull(submitTimePath));
     jsonApplication.putString(
         Path.create("revision_state"), applicationExportData.revisionState().toString());

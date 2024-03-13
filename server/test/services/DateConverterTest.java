@@ -57,9 +57,10 @@ public class DateConverterTest {
   }
 
   @Test
-  public void renderDateTime_isCorrect() {
+  public void renderDateTimeHumanReadable_isCorrect() {
     Instant instant = Instant.parse("2022-04-09T03:07:05.00Z");
-    assertThat(dateConverter.renderDateTime(instant)).isEqualTo("2022/04/09 at 03:07 AM UTC");
+    assertThat(dateConverter.renderDateTimeHumanReadable(instant))
+        .isEqualTo("2022/04/09 at 03:07 AM UTC");
   }
 
   @Test
@@ -67,6 +68,13 @@ public class DateConverterTest {
     Instant instant = Instant.parse("2022-04-09T03:07:03.00Z");
     assertThat(dateConverter.renderDateTimeDataOnly(instant))
         .isEqualTo("2022/04/09 03:07:03 AM UTC");
+  }
+
+  @Test
+  public void renderDateTimeIso8601ExtendedOffset_isCorrect() {
+    Instant instant = Instant.parse("2022-04-09T03:07:03.00Z");
+    assertThat(dateConverter.renderDateTimeIso8601ExtendedOffset(instant))
+        .isEqualTo("2022-04-09T03:07:03Z");
   }
 
   @Test

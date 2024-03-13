@@ -131,7 +131,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
     DivTag statsDiv =
         div()
             .with(
-                p("Created " + dateConverter.renderDateTime(apiKey.getCreateTime()))
+                p("Created " + dateConverter.renderDateTimeHumanReadable(apiKey.getCreateTime()))
                     .withClasses(ReferenceClasses.BT_DATE),
                 p("Created by " + apiKey.getCreatedBy())
                     .withClasses(ReferenceClasses.BT_API_KEY_CREATED_BY),
