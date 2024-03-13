@@ -60,11 +60,13 @@ public final class AdminProgramPreviewController extends CiviFormController {
     }
   }
 
+  /**
+   * Creates and downloads a PDF for the given program. The PDF will contain all the blocks and the
+   * questions in each block.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result pdfPreview(Request request, long programId) throws ProgramNotFoundException {
-    // Copied from AdminApplicationController
     ProgramDefinition program = programService.getFullProgramDefinition(programId);
-
     ReadOnlyQuestionService roQuestionService =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
     PdfExporter.InMemoryPdf pdf =

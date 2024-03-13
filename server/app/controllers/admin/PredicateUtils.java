@@ -8,7 +8,7 @@ import services.question.types.QuestionDefinition;
 
 /** Utility methods for working with predicates on the admin side. */
 public final class PredicateUtils {
-    /** Returns the predicate in a human-readable form for admins. */
+  /** Returns the predicate in a human-readable form for admins. */
   public static ReadablePredicate getReadablePredicateDescription(
       String blockName,
       PredicateDefinition predicate,
@@ -34,8 +34,7 @@ public final class PredicateUtils {
               andNodes.stream()
                   .map(andNode -> andNode.getAndNode().toDisplayString(questionDefinitions))
                   .collect(ImmutableList.toImmutableList());
-
-          return ReadablePredicate.create(heading, Optional.of(bullets));
+          return ReadablePredicate.create(heading, Optional.of(conditionList));
         }
       default:
         throw new IllegalStateException(
