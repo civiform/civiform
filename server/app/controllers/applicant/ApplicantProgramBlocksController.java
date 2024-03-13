@@ -56,7 +56,7 @@ import services.program.ProgramService;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
-import views.ApplicationBaseView;
+import views.ApplicationBaseViewParams;
 import views.applicant.AddressCorrectionBlockView;
 import views.applicant.ApplicantFileUploadRenderer;
 import views.applicant.ApplicantProgramBlockEditView;
@@ -373,7 +373,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
               if (block.isPresent()) {
                 ApplicantPersonalInfo personalInfo = applicantStage.toCompletableFuture().join();
-                ApplicationBaseView.Params applicationParams =
+                ApplicationBaseViewParams applicationParams =
                     buildApplicationBaseViewParams(
                         request,
                         applicantId,
@@ -456,7 +456,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               if (block.isPresent()) {
                 ApplicantPersonalInfo personalInfo = applicantStage.toCompletableFuture().join();
                 CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
-                ApplicationBaseView.Params applicationParams =
+                ApplicationBaseViewParams applicationParams =
                     applicationBaseViewParamsBuilder(
                             request,
                             applicantId,
@@ -758,7 +758,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       }
       return supplyAsync(
           () -> {
-            ApplicationBaseView.Params applicationParams =
+            ApplicationBaseViewParams applicationParams =
                 buildApplicationBaseViewParams(
                     request,
                     applicantId,
@@ -962,7 +962,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
-  private ApplicationBaseView.Params.Builder applicationBaseViewParamsBuilder(
+  private ApplicationBaseViewParams.Builder applicationBaseViewParamsBuilder(
       Request request,
       long applicantId,
       long programId,
@@ -975,7 +975,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Optional<String> questionName,
       ApplicantRoutes applicantRoutes,
       CiviFormProfile profile) {
-    return ApplicationBaseView.Params.builder()
+    return ApplicationBaseViewParams.builder()
         .setRequest(request)
         .setMessages(messagesApi.preferred(request))
         .setApplicantId(applicantId)
@@ -995,7 +995,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setProfile(profile);
   }
 
-  private ApplicationBaseView.Params buildApplicationBaseViewParams(
+  private ApplicationBaseViewParams buildApplicationBaseViewParams(
       Request request,
       long applicantId,
       long programId,
