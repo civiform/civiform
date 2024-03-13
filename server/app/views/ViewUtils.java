@@ -417,7 +417,6 @@ public final class ViewUtils {
    * @param body The HTML element that will be the main content of the modal.
    * @param elementIdPrefix The prefix for the HTML element ids.
    * @param headerText The header text for the modal.
-   * @param linkButtonText The text that will be on the button that opens the modal.
    * @param hasFooter A boolean value that determines whether to include a footer with action
    *     buttons. If the main content has a form, the buttons will already be included with the
    *     form, so no need for the footer.
@@ -440,13 +439,13 @@ public final class ViewUtils {
 
     DivTag modalContent =
         div()
-            .withClass("usa-modal")
+            .withClasses("usa-modal","usa-modal--lg")
             .withId(modalId)
             .attr("aria-labelledby", headingId)
             .attr("aria-describedby", descriptionId)
             .with(
                 div()
-                    .withClass("usa-modal__content")
+                    .withClasses("usa-modal__content")
                     .with(
                         div()
                             .withClasses("mx-4", "usa-modal__main")
