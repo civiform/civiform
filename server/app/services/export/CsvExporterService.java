@@ -25,7 +25,7 @@ import javax.inject.Inject;
 import models.ApplicationModel;
 import models.QuestionTag;
 import play.libs.F;
-import play.mvc.Http;
+import play.mvc.Http.Request;
 import repository.ExportServiceRepository;
 import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
@@ -89,7 +89,7 @@ public final class CsvExporterService {
 
   /** Return a string containing a CSV of all applications at all versions of particular program. */
   public String getProgramAllVersionsCsv(
-      long programId, SubmittedApplicationFilter filters, Http.Request request)
+      long programId, SubmittedApplicationFilter filters, Request request)
       throws ProgramNotFoundException {
     ImmutableList<ProgramDefinition> allProgramVersions =
         programService.getAllVersionsFullProgramDefinition(programId).stream()

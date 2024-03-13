@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
 import play.libs.F;
-import play.mvc.Http;
+import play.mvc.Http.Request;
 import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
@@ -339,7 +339,7 @@ public final class ProgramRepository {
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
       SubmittedApplicationFilter filters,
-      Http.Request request) {
+      Request request) {
     ExpressionList<ApplicationModel> query =
         database
             .find(ApplicationModel.class)

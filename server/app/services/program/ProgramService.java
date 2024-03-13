@@ -35,7 +35,7 @@ import modules.MainModule;
 import org.apache.commons.lang3.StringUtils;
 import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
-import play.mvc.Http;
+import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ProgramRepository;
 import repository.SubmittedApplicationFilter;
@@ -1683,7 +1683,7 @@ public final class ProgramService {
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
       SubmittedApplicationFilter filters,
-      Http.Request request) {
+      Request request) {
     return programRepository.getApplicationsForAllProgramVersions(
         programId, paginationSpecEither, filters, request);
   }
