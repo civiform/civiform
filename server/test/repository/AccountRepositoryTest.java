@@ -384,11 +384,19 @@ public class AccountRepositoryTest extends ResetPostgres {
     applicantData.putDate(WellKnownPaths.APPLICANT_DOB, "2305-07-13");
     applicantTiClient.save();
 
-    // Applicant with an account email address and no well known path data
+    // Applicant with an account email address and no primary applicant info email
     ApplicantModel applicantAccountEmail = savePlainApplicant();
     AccountModel account = applicantAccountEmail.getAccount();
     account.setEmailAddress("picard@starfleet.com");
     account.save();
+
+    // Applicant with both an account email and primary applicant info email
+    ApplicantModel applicantPaiEmail = savePlainApplicant();
+    applicantPaiEmail.setEmailAddress("picard@starfleet.com");
+    AccountModel accountPaiEmail = applicantPaiEmail.getAccount();
+    accountPaiEmail.setEmailAddress("enterprise@starfleet.com");
+    accountPaiEmail.save();
+    applicantPaiEmail.save();
 
     // Applicant with no well known path data or account email address
     ApplicantModel applicantNoData = savePlainApplicant();
@@ -398,6 +406,7 @@ public class AccountRepositoryTest extends ResetPostgres {
     assertThat(applicants)
         .containsOnly(applicantFirstName, applicantDob, applicantTiClient, applicantAccountEmail);
     assertThat(applicants).doesNotContain(applicantNoData);
+    assertThat(applicants).doesNotContain(applicantPaiEmail);
   }
 
   @Test
