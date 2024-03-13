@@ -17,7 +17,6 @@ public class ClientIpResolverTest {
 
   @Test
   public void resolveClientIp_direct() {
-    when(MOCK_SETTINGS_MANIFEST.getNumTrustedProxies()).thenReturn(Optional.of(1));
     when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("DIRECT"));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
