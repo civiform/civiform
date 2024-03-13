@@ -24,15 +24,24 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
 
   public String render(Request request, ApplicationBaseViewParams applicationParams) {
     ThymeleafModule.PlayThymeleafContext context = createThymeleafContext(request);
-    context.setVariable("formAction", getFormAction(applicationParams));
-    context.setVariable("previousUrl", getPreviousUrl(applicationParams));
-    context.setVariable("reviewUrl", getReviewUrl(applicationParams));
+    context.setVariable(
+        "submitFormAction", getFormAction(applicationParams, ApplicantRequestedAction.NEXT_BLOCK));
+    context.setVariable(
+        "previousFormAction",
+        getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
+    context.setVariable(
+        "reviewFormAction", getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicationParams", applicationParams);
     return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
   }
 
+<<<<<<< HEAD
   private String getFormAction(ApplicationBaseViewParams params) {
+=======
+  private String getFormAction(
+      ApplicationBaseView.Params params, ApplicantRequestedAction nextAction) {
+>>>>>>> 5e4f3ccbd (update links to be buttons to save data)
     return applicantRoutes
         .updateBlock(
             params.profile(),
@@ -40,22 +49,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
             params.programId(),
             params.block().getId(),
             params.inReview(),
-            ApplicantRequestedAction.NEXT_BLOCK)
-        .url();
-  }
-
-  private String getReviewUrl(ApplicationBaseView.Params params) {
-    return applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
-  }
-
-  private String getPreviousUrl(ApplicationBaseView.Params params) {
-    return applicantRoutes
-        .blockPreviousOrReview(
-            params.profile(),
-            params.applicantId(),
-            params.programId(),
-            /* currentBlockIndex= */ params.blockIndex(),
-            params.inReview())
+            nextAction)
         .url();
   }
 }
