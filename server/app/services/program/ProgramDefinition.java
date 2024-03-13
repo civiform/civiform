@@ -717,6 +717,21 @@ public abstract class ProgramDefinition {
     return this.programType() == ProgramType.COMMON_INTAKE_FORM;
   }
 
+  /**
+   * Get a list of {@link QuestionDefinition} in the program that are marked with
+   * PrimaryApplicantInfo tags. Requires a fully hydrated ProgramDefinition with all questions.
+   *
+   * @return List of questions in program with Primary Applicant Info tags.
+   */
+  public ImmutableList<QuestionDefinition> getQuestionsWithPrimaryApplicantInfoTags() {
+    return blockDefinitions().stream()
+        .map(BlockDefinition::programQuestionDefinitions)
+        .flatMap(ImmutableList::stream)
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .filter(question -> !question.getPrimaryApplicantInfoTags().isEmpty())
+        .collect(toImmutableList());
+  }
+
   @AutoValue.Builder
   public abstract static class Builder {
 
