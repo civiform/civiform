@@ -858,6 +858,7 @@ test.describe('create and edit predicates', () => {
 
     test('every eligibility right hand type evaluates correctly', async () => {
       const {page, adminPrograms, applicantQuestions, adminPredicates} = ctx
+      await enableFeatureFlag(page, 'save_on_all_actions')
 
       await loginAsAdmin(page)
 
@@ -1131,6 +1132,7 @@ test.describe('create and edit predicates', () => {
       await validateToastMessage(page, 'may qualify')
 
       await applicantQuestions.clickReview()
+      await applicantQuestions.clickReviewWithoutSaving()
       await validateScreenshot(page, 'review-page-no-ineligible-banner')
       await validateToastMessage(page, '')
       await applicantQuestions.clickContinue()
@@ -1214,18 +1216,22 @@ test.describe('create and edit predicates', () => {
       )
       // Validate that ineligible page is accessible.
       await validateAccessibility(page)
-      await page.goBack()
 
-      await applicantQuestions.clickReview()
+      await applicantQuestions.clickGoBackAndEditOnIneligiblePage(page)
       await validateScreenshot(page, 'review-page-has-ineligible-banner')
       await validateToastMessage(page, 'may not qualify')
-      await page.goBack()
 
+      await applicantQuestions.editQuestionFromReviewPage(
+        'checkbox question text',
+      )
       await applicantQuestions.answerCheckboxQuestion(['cat'])
       await applicantQuestions.clickNext()
 
-      // We should now be on the summary page and no banner should show.
-      await validateScreenshot(page, 'summary-page-no-eligible-banner')
+      // We should now be on the review page with a completed form and no banner should show.
+      await validateScreenshot(
+        page,
+        'review-page-no-ineligible-banner-completed',
+      )
       await validateToastMessage(page, '')
       await applicantQuestions.submitFromReviewPage()
     })

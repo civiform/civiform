@@ -470,6 +470,11 @@ export class ApplicantQuestions {
     expect(await this.page.innerText('h2')).toContain('you may not qualify')
   }
 
+  async clickGoBackAndEditOnIneligiblePage() {
+    await this.page.click('text="Go back and edit"')
+    await waitForPageJsLoad(this.page)
+  }
+
   async expectDuplicatesPage() {
     expect(await this.page.innerText('h2')).toContain(
       'There are no changes to save',
