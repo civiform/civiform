@@ -1050,5 +1050,32 @@ test.describe('Trusted intermediaries', () => {
       expect(page.getByTestId('org-members-email')).not.toBeNull()
       expect(page.getByTestId('org-members-status')).not.toBeNull()
     })
+    test('displays multiple rows when there are several TIs in the group', async () => {
+      const {page, tiDashboard, adminTiGroups} = ctx
+      await loginAsAdmin(page)
+      await adminTiGroups.gotoAdminTIPage()
+      await adminTiGroups.fillInGroupBasics('TI group', 'test group')
+      await waitForPageJsLoad(page)
+      await adminTiGroups.expectGroupExist('TI group')
+
+      await adminTiGroups.editGroup('TI group')
+
+      // Note that these emails will be replaced by 'fake-email@example.com'
+      // to normalize the table contents (see src/support/index.ts).
+      await adminTiGroups.addGroupMember('testti2@test.com')
+      await adminTiGroups.addGroupMember('testti3@test.com')
+      await adminTiGroups.addGroupMember('testti4@test.com')
+
+      await logout(page)
+
+      await loginAsTrustedIntermediary(page)
+      await tiDashboard.gotoTIDashboardPage(page)
+      await waitForPageJsLoad(page)
+
+      await validateScreenshot(
+        page.getByTestId('org-members-table'),
+        'org-members-table-many',
+      )
+    })
   })
 })
