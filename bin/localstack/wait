@@ -22,7 +22,7 @@ healthy() {
     ("${1}" == *'"ses": "available"'* || "${1}" == *'"ses": "running"'*) ]]
 }
 
-readonly HEALTH_URL="${localstack_endpoint}/health"
+readonly HEALTH_URL="${localstack_endpoint}/_localstack/health"
 
 until healthy "$(curl --silent --fail --max-time 2 "${HEALTH_URL}")"; do
   if (("$(date +%s)" > "${DEADLINE}")); then
