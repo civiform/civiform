@@ -365,37 +365,39 @@ public class AccountRepositoryTest extends ResetPostgres {
   @Test
   public void findApplicantsNeedingPrimaryApplicantInfoDataMigration() {
     // First name only
-    ApplicantModel applicant = savePlainApplicant();
-    applicant.getApplicantData().putString(WellKnownPaths.APPLICANT_FIRST_NAME, "Jean");
-    applicant.save();
+    ApplicantModel applicantFirstName = savePlainApplicant();
+    applicantFirstName.getApplicantData().putString(WellKnownPaths.APPLICANT_FIRST_NAME, "Jean");
+    applicantFirstName.save();
 
     // DOB only (using preseeded question)
-    applicant = savePlainApplicant();
-    applicant.getApplicantData().putString(WellKnownPaths.APPLICANT_DOB, "1999-01-11");
-    applicant.save();
+    ApplicantModel applicantDob = savePlainApplicant();
+    applicantDob.getApplicantData().putString(WellKnownPaths.APPLICANT_DOB, "1999-01-11");
+    applicantDob.save();
 
     // All the things a TI client has (except optional email address)
-    applicant = savePlainApplicant();
-    ApplicantData applicantData = applicant.getApplicantData();
+    ApplicantModel applicantTiClient = savePlainApplicant();
+    ApplicantData applicantData = applicantTiClient.getApplicantData();
     applicantData.putString(WellKnownPaths.APPLICANT_FIRST_NAME, "Jean");
     applicantData.putString(WellKnownPaths.APPLICANT_MIDDLE_NAME, "Luc");
     applicantData.putString(WellKnownPaths.APPLICANT_LAST_NAME, "Picard");
     applicantData.putString(WellKnownPaths.APPLICANT_PHONE_NUMBER, "5038234000");
     applicantData.putDate(WellKnownPaths.APPLICANT_DOB, "2305-07-13");
-    applicant.save();
+    applicantTiClient.save();
 
     // Applicant with an account email address and no well known path data
-    applicant = savePlainApplicant();
-    AccountModel account = applicant.getAccount();
+    ApplicantModel applicantAccountEmail = savePlainApplicant();
+    AccountModel account = applicantAccountEmail.getAccount();
     account.setEmailAddress("picard@starfleet.com");
     account.save();
 
     // Applicant with no well known path data or account email address
-    savePlainApplicant();
+    ApplicantModel applicantNoData = savePlainApplicant();
 
     List<ApplicantModel> applicants =
         repo.findApplicantsNeedingPrimaryApplicantInfoDataMigration().findList();
-    assertThat(applicants.size()).isEqualTo(4);
+    assertThat(applicants)
+        .containsOnly(applicantFirstName, applicantDob, applicantTiClient, applicantAccountEmail);
+    assertThat(applicants).doesNotContain(applicantNoData);
   }
 
   @Test
