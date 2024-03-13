@@ -17,7 +17,6 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
-import play.mvc.Http;
 import play.mvc.Http.Request;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
@@ -55,17 +54,13 @@ public final class ProgramCardFactory {
       statusDiv =
           statusDiv.with(
               renderProgramRow(
-                  request,
-                  cardData.profile(),
-                  /* isActive= */ false,
-                  cardData.draftProgram().get()));
+                  cardData.profile(), /* isActive= */ false, cardData.draftProgram().get()));
     }
 
     if (cardData.activeProgram().isPresent()) {
       statusDiv =
           statusDiv.with(
               renderProgramRow(
-                  request,
                   cardData.profile(),
                   /* isActive= */ true,
                   cardData.activeProgram().get(),
@@ -121,7 +116,6 @@ public final class ProgramCardFactory {
   }
 
   private DivTag renderProgramRow(
-      Http.Request request,
       Optional<CiviFormProfile> profile,
       boolean isActive,
       ProgramCardData.ProgramRow programRow,
@@ -153,8 +147,7 @@ public final class ProgramCardFactory {
             StyleUtils.responsiveXLarge("ml-8"));
 
     boolean shouldShowUniversalQuestionsCount =
-        settingsManifest.getUniversalQuestions(request)
-            && programRow.universalQuestionsText().isPresent();
+        settingsManifest.getUniversalQuestions() && programRow.universalQuestionsText().isPresent();
 
     return div()
         .withClasses(

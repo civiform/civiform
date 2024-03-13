@@ -739,7 +739,7 @@
         "type": "bool"
       },
       "UNIVERSAL_QUESTIONS": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enables setting and displaying the universal question state on questions. These questions are intended to be used by all programs and will appear at the top of the question bank with a badge denoting them as universal.",
         "type": "bool"
       },
