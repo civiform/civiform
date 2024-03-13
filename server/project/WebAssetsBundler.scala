@@ -43,14 +43,13 @@ object WebAssetsBundler extends AutoPlugin {
   object autoImport {
     // bundleWebAssets is the entry point of this plugin. It is a task
     // which is called by sbt-web when it prepares assets. This task
-    // receives a seq of all assets (images, css, TS files), compiles TS and
+    // receives a seq of all assets (images, css, TS files, Sass), compiles TS and
     // Sass files and returns seq of all input assets plus newly compiled JS
     // and CSS files.
     //
     // This is task declaration. Implementation is below.
-    val bundleWebAssets = taskKey[Pipeline.Stage](
-      "Uses Webpack to compile and bundle TypeScript and the USWDS Sass."
-    )
+    val bundleWebAssets =
+      taskKey[Pipeline.Stage]("Uses Webpack to compile and bundle TypeScript, custom Sass files, and the USWDS Sass.")
   }
   import autoImport._
 
@@ -60,12 +59,8 @@ object WebAssetsBundler extends AutoPlugin {
       // targetDir will contain compiled JS and CSS files.
       val targetDir = new File(webTarget.value, "dist")
       val cacheDir = new File(streamsVal.cacheDirectory, "run")
-      val compiledFiles: Seq[File] = recompileIfTypescriptFilesChanged(
-        inputFiles,
-        targetDir,
-        cacheDir,
-        streamsVal.log
-      )
+      val compiledFiles: Seq[File] =
+        recompileIfFilesChanged(inputFiles, targetDir, cacheDir, streamsVal.log)
       // transform compiled JS and CSS files to PathMapping and adds "dist" as
       // part of the file name.  That way, the bundled files will be added in
       // /assets/dist/ in final output.
@@ -76,10 +71,10 @@ object WebAssetsBundler extends AutoPlugin {
     }
   )
 
-  /** Given list of all assets (css, image, TS files) figures out whether any TS
-    * files have been changed and recompiles them. If no files have been changed
-    * assumes JS and CSS files have been compiled at earlier iterations and
-    * returns them.
+  /** Given list of all assets (css, image, TS, Sass files) figures out whether
+    * any TS or Sass files have been changed and recompiles them. If no files
+    * have been changed assumes JS and CSS files have been compiled at earlier
+    * iterations and returns them.
     *
     * @param inputFiles
     *   All assets files passed by sbt-web.
@@ -92,7 +87,7 @@ object WebAssetsBundler extends AutoPlugin {
     * @return
     *   Seq of compiled JS and CSS files and sourcemaps.
     */
-  def recompileIfTypescriptFilesChanged(
+  def recompileIfFilesChanged(
     inputFiles: Seq[PathMapping],
     targetDir: File,
     cacheDir: File,
@@ -104,16 +99,16 @@ object WebAssetsBundler extends AutoPlugin {
         OpInputHash.hashString(f.getCanonicalPath + f.lastModified)
       )
     // we only watch for changes in TS files.
-    val tsFiles = inputFiles map { p => p._1 } filter { f =>
-      f.getName.endsWith(".ts")
+    val changedFiles = inputFiles map { p => p._1 } filter { f =>
+      f.getName.endsWith(".ts") || f.getName.endsWith(".scss")
     }
     // we are using sbt-web syncIncremental function. It's somewhat complicated. For our
-    // use case we just want to see if any of TS files changed and if so - rerun Webpack
+    // use case we just want to see if any of TS or Sass files changed and if so - rerun Webpack
     // bundling.
     val (_, compiledFiles) =
-      incremental.syncIncremental(cacheDir, tsFiles)({ modifiedFiles =>
+      incremental.syncIncremental(cacheDir, changedFiles)({ modifiedFiles =>
         if (modifiedFiles.nonEmpty || !targetDir.exists()) {
-          log.info("Typescript files changed. Recompiling...")
+          log.info("Typescript and/or Sass files changed. Recompiling...")
           runWebpack(targetDir, log)
         }
         val compiledFiles: Seq[File] = targetDir.listFiles()
