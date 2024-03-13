@@ -30,7 +30,7 @@ def get_batch_number():
 
 # Gets a list of all the test files in the browser-test directory.
 def get_all_test_files():
-    test_files = glob.glob('browser-test/src/*.test.ts')
+    test_files = glob.glob('browser-test/src/**/*.test.ts', recursive=True)
     test_files = [file.replace("browser-test/", "") for file in test_files]
     test_files.sort()
     return test_files

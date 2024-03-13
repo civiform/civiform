@@ -7,6 +7,7 @@ import com.google.common.base.Preconditions;
 import controllers.BadRequestException;
 import controllers.CiviFormController;
 import java.util.Locale;
+import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import org.pac4j.play.java.Secure;
@@ -56,23 +57,21 @@ public final class AdminReportingController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public Result show(Http.Request request, String programSlug) {
-    String programName =
-        programService
-            .getActiveFullProgramDefinitionAsync(programSlug)
-            .toCompletableFuture()
-            .join()
-            .adminName();
-
-    return ok(
-        adminReportingShowView
-            .get()
-            .render(
-                request,
-                getCiviFormProfile(request),
-                programSlug,
-                programName,
-                reportingService.getMonthlyStats()));
+  public CompletionStage<Result> show(Http.Request request, String programSlug) {
+    return programService
+        .getActiveFullProgramDefinitionAsync(programSlug)
+        .thenApply(
+            programDefinition ->
+                ok(
+                    adminReportingShowView
+                        .get()
+                        .render(
+                            request,
+                            getCiviFormProfile(request),
+                            programSlug,
+                            programDefinition.adminName(),
+                            programDefinition.localizedName().getDefault(),
+                            reportingService.getMonthlyStats())));
   }
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)

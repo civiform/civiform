@@ -6,8 +6,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.Transaction;
+import io.ebean.annotation.TxIsolation;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import models.LifecycleStage;
 import models.Models;
+import models.PersistedDurableJobModel;
 import models.VersionModel;
 import play.cache.AsyncCacheApi;
 import play.cache.NamedCache;
@@ -39,6 +46,7 @@ public class DevDatabaseSeedController extends Controller {
   private final AsyncCacheApi programCache;
   private final AsyncCacheApi programDefCache;
   private final AsyncCacheApi versionsByProgramCache;
+  private final Clock clock;
 
   @Inject
   public DevDatabaseSeedController(
@@ -49,6 +57,7 @@ public class DevDatabaseSeedController extends Controller {
       SettingsService settingsService,
       DeploymentType deploymentType,
       SettingsManifest settingsManifest,
+      Clock clock,
       @NamedCache("version-questions") AsyncCacheApi questionsByVersionCache,
       @NamedCache("version-programs") AsyncCacheApi programsByVersionCache,
       @NamedCache("program") AsyncCacheApi programCache,
@@ -67,6 +76,7 @@ public class DevDatabaseSeedController extends Controller {
     this.programCache = checkNotNull(programCache);
     this.programDefCache = checkNotNull(programDefCache);
     this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
+    this.clock = checkNotNull(clock);
   }
 
   /**
@@ -112,6 +122,21 @@ public class DevDatabaseSeedController extends Controller {
     devDatabaseSeedTask.insertComprehensiveSampleProgram(createdSampleQuestions);
     return redirect(routes.DevDatabaseSeedController.index().url())
         .flashing("success", "The database has been seeded");
+  }
+
+  public Result runDurableJob(Request request) throws InterruptedException {
+    String jobName = request.body().asFormUrlEncoded().get("durableJobSelect")[0];
+    // I think there's currently a bug where the job runner interprets the timestamps as local
+    // times rather than UTC. So set it to yesterday to ensure it runs.
+    Instant runTime =
+        LocalDateTime.now(clock)
+            .minus(1, ChronoUnit.DAYS)
+            .toInstant(clock.getZone().getRules().getOffset(Instant.now()));
+    PersistedDurableJobModel job = new PersistedDurableJobModel(jobName, runTime);
+    Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE);
+    job.save(transaction);
+    transaction.commit();
+    return ok(String.format("Added one-time run of %s", jobName));
   }
 
   /** Remove all content from the program and question tables. */

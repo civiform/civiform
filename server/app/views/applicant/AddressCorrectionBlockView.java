@@ -126,6 +126,11 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
         .with(div(messages.at(instructions.getKeyName())).withClass("mb-8"));
 
     boolean anySuggestions = suggestions.size() > 0;
+    // If the address question is part of determining eligibility, then the address *must* get
+    // corrected. We need the address's latitude and longitude values from ESRI to determine if
+    // the address is eligible, and we only get the lat/long values via address correction. We
+    // can't let the user choose their original, non-corrected address because then we won't have
+    // the lat/long values to determine eligibility.
     if (!isEligibilityEnabled) {
       form.with(
           div()

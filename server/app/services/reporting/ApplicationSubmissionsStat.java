@@ -14,6 +14,7 @@ public abstract class ApplicationSubmissionsStat {
 
   public static ApplicationSubmissionsStat create(
       String programName,
+      String enUSLocalizedProgramName,
       Optional<Timestamp> timestamp,
       long applicationCount,
       double submissionDurationSeconds25p,
@@ -22,6 +23,7 @@ public abstract class ApplicationSubmissionsStat {
       double submissionDurationSeconds99p) {
     return new AutoValue_ApplicationSubmissionsStat(
         programName,
+        enUSLocalizedProgramName,
         timestamp,
         applicationCount,
         submissionDurationSeconds25p,
@@ -32,6 +34,9 @@ public abstract class ApplicationSubmissionsStat {
 
   /** The name of the program the applications were submitted for. */
   public abstract String programName();
+
+  /** The localized name of the program the applications were submitted for. */
+  public abstract String enUSLocalizedProgramName();
 
   /** A timestamp representing the month they were submitted. */
   public abstract Optional<Timestamp> timestamp();
@@ -53,6 +58,7 @@ public abstract class ApplicationSubmissionsStat {
 
   static final class Aggregator {
     private final String programName;
+    private final String enUSLocalizedProgramName;
     private final Optional<Timestamp> timestamp;
     private long count = 0;
     private double p25WithWeights = 0;
@@ -60,13 +66,15 @@ public abstract class ApplicationSubmissionsStat {
     private double p75WithWeights = 0;
     private double p99WithWeights = 0;
 
-    Aggregator(String programName, Timestamp timestamp) {
+    Aggregator(String programName, String enUSLocalizedProgramName, Timestamp timestamp) {
       this.programName = Preconditions.checkNotNull(programName);
+      this.enUSLocalizedProgramName = Preconditions.checkNotNull(enUSLocalizedProgramName);
       this.timestamp = Optional.of(Preconditions.checkNotNull(timestamp));
     }
 
-    Aggregator(String programName) {
+    Aggregator(String programName, String enUSLocalizedProgramName) {
       this.programName = Preconditions.checkNotNull(programName);
+      this.enUSLocalizedProgramName = Preconditions.checkNotNull(enUSLocalizedProgramName);
       this.timestamp = Optional.empty();
     }
 
@@ -81,6 +89,7 @@ public abstract class ApplicationSubmissionsStat {
     ApplicationSubmissionsStat getAggregateStat() {
       return ApplicationSubmissionsStat.create(
           programName,
+          enUSLocalizedProgramName,
           timestamp,
           count,
           p25WithWeights / count,
