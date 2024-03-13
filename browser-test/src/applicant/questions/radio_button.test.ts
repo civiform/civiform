@@ -93,6 +93,22 @@ test.describe('Radio button question for applicant flow', () => {
       await validateScreenshot(page, 'radio-button-errors')
     })
 
+    test(
+      'validate screenshot with north star flag enabled',
+      {tag: ['@northstar']},
+      async () => {
+        const {page, applicantQuestions} = ctx
+        await applicantQuestions.applyProgram(programName)
+
+        await validateScreenshot(
+          page,
+          'radio-button',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      },
+    )
+
     test('with selection submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
