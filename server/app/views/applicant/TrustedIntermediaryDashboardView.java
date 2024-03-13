@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.hr;
 import static j2html.TagCreator.input;
@@ -65,9 +66,7 @@ import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.ToastMessage;
-import views.style.BaseStyles;
 import views.style.ReferenceClasses;
-import views.style.StyleUtils;
 
 /** Renders a page for a trusted intermediary to manage their clients. */
 public class TrustedIntermediaryDashboardView extends BaseHtmlView {
@@ -113,10 +112,10 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 renderSearchForm(request, searchParameters, messages),
                 renderTIClientsList(
                     managedAccounts, searchParameters, page, totalPageCount, messages),
-                hr().withClasses("mt-6"),
-                renderSubHeader(messages.at(MessageKey.TITLE_ORG_MEMBERS.getKeyName()))
-                    .withClass("my-4"),
-                renderTIMembersTable(tiGroup).withClass("pt-2"))
+                hr().withClasses("my-6"),
+                renderSubHeader(messages.at(MessageKey.HEADER_ACCT_SETTING.getKeyName())),
+                h3(messages.at(MessageKey.TITLE_ORG_MEMBERS.getKeyName())).withClass("mt-8"),
+                renderTIMembersTable(tiGroup, messages))
             .addMainStyles("px-20", "max-w-screen-xl");
 
     Http.Flash flash = request.flash();
@@ -206,11 +205,12 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                     Optional.of(pageNumber))));
   }
 
-  private DivTag renderTIMembersTable(TrustedIntermediaryGroupModel tiGroup) {
+  private DivTag renderTIMembersTable(TrustedIntermediaryGroupModel tiGroup, Messages messages) {
     return div(
         table()
-            .withClasses("border", "border-gray-300", "shadow-md", "w-3/4")
-            .with(renderGroupTableHeader())
+            .withData("testid", "org-members-table")
+            .withClasses("usa-table", "usa-table--striped", "w-5/6")
+            .with(renderGroupTableHeader(messages))
             .with(
                 tbody(
                     each(
@@ -284,12 +284,9 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   private TrTag renderTIRow(AccountModel ti) {
-    return tr().withClasses(
-            ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
-            "border-b",
-            "border-gray-300",
-            StyleUtils.even("bg-gray-100"))
-        .with(renderInfoCell(ti))
+    return tr().withClass(ReferenceClasses.ADMIN_QUESTION_TABLE_ROW)
+        .with(renderNameCell(ti))
+        .with(renderEmailCell(ti))
         .with(renderStatusCell(ti));
   }
 
@@ -455,14 +452,16 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         .url()));
   }
 
-  private TdTag renderInfoCell(AccountModel ti) {
+  private TdTag renderNameCell(AccountModel ti) {
+    return td(ti.getApplicantName());
+  }
+
+  private TdTag renderEmailCell(AccountModel ti) {
     String emailField = ti.getEmailAddress();
     if (Strings.isNullOrEmpty(emailField)) {
       emailField = "(no email address)";
     }
-    return td().with(div(ti.getApplicantName()).withClasses("font-semibold"))
-        .with(div(emailField).withClasses("text-xs", ReferenceClasses.BT_EMAIL))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES);
+    return td(emailField).withClasses(ReferenceClasses.BT_EMAIL);
   }
 
   private TdTag renderStatusCell(AccountModel ti) {
@@ -470,14 +469,25 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     if (ti.ownedApplicantIds().isEmpty()) {
       accountStatus = "Not yet signed in.";
     }
-    return td().with(div(accountStatus).withClasses("font-semibold"))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES);
+    return td(accountStatus);
   }
 
-  private TheadTag renderGroupTableHeader() {
+  private TheadTag renderGroupTableHeader(Messages messages) {
     return thead(
-        tr().withClasses("border-b", "bg-gray-200", "text-left")
-            .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/3"))
-            .with(th("Status").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/4")));
+        tr().with(
+                th(messages.at(MessageKey.NAME_LABEL.getKeyName()))
+                    .withScope("col")
+                    .withData("testid", "org-members-name")
+                    .withClass("w-1/3"))
+            .with(
+                th(messages.at(MessageKey.EMAIL_LABEL.getKeyName()))
+                    .withScope("col")
+                    .withData("testid", "org-members-email")
+                    .withClass("w-2/5"))
+            .with(
+                th(messages.at(MessageKey.ACCT_STATUS_LABEL.getKeyName()))
+                    .withScope("col")
+                    .withData("testid", "org-members-status")
+                    .withClass("w-1/5")));
   }
 }
