@@ -38,7 +38,10 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
+
+import play.i18n.Messages;
 import services.DateConverter;
+import services.MessageKey;
 import services.question.types.QuestionDefinition;
 import views.components.ButtonStyles;
 import views.components.Icons;
@@ -515,16 +518,17 @@ public final class ViewUtils {
    * @param yearValue The default value which should appear in the "Year" input field
    * @param legend The label string for the date fields
    * @param showError Whether an error message should appear
+   * @param messages the localized {@link Messages}
    * @return ContainerTag
    */
   public static FieldsetTag makeMemorableDate(
-      String dayValue, String monthValue, String yearValue, String legend, boolean showError) {
+      String dayValue, String monthValue, String yearValue, String legend, boolean showError, Messages messages) {
     FieldsetTag dateFieldset =
         fieldset()
             .withClass("usa-fieldset")
             .with(
                 legend(legend).withClass("usa-legend"),
-                span("For example: January 28 1986").withClass("usa-hint").withId("mdHint"),
+                span(messages.at(MessageKey.DOB_EXAMPLE.getKeyName())).withClass("usa-hint").withId("mdHint"),
                 div()
                     .condWith(showError, span("Error: Please enter month, day and year."))
                     .withClasses("text-red-600 text-xs")
