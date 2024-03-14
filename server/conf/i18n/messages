@@ -232,7 +232,6 @@ title.orgMembers=Organization members
 # Toast message top of the page when viewing an application
 toast.viewApplication=You are applying for {0}. Are you trying to apply for a different client?
 
-
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
 #------------------------------------------------------------------------#
