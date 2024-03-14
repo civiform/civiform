@@ -14,7 +14,7 @@
         <div class="usa-checkbox"
             th:each="option,iterator: ${multiSelectQuestion.getOptions()}"
             th:with="inputId='checkbox-' + ${question.getContextualizedPath()} + '-' + ${option.id()}">
-          <!-- TODO(ghyde): Add autofocus attribute as appropriate -->
+          <!-- TODO(#6903): Add autofocus attribute as appropriate -->
           <input
             class="usa-checkbox__input usa-checkbox__input--tile"
             th:id="${inputId}"

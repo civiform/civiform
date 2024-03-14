@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html>
     <head th:replace="~{applicant/ApplicantBaseFragment :: pageHeader}"></head>
-    <!-- TODO: This data attribute is waited for in screenshot tests. Update once we have modal dialogs -->
+    <!-- TODO(#6902): This data attribute is waited for in screenshot tests. Update once we have modal dialogs -->
     <body data-load-modal="true">
         <div>
             <form id="cf-block-form" th:action="${formAction}" method="POST">
                 <input hidden th:value="${csrfToken}" name="csrfToken">
                 <div th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"></div>
 
-                <!-- TODO: Implement the rest of the page surrounding the questions -->
                 <div th:each="question: ${applicantQuestions}">
                     <div th:replace="~{applicant/ApplicantQuestionFragment :: applicant-question(${question})}"></div>
                 </div>

@@ -10,7 +10,7 @@
         <th:block th:if="${!question.isOptional()}">
           <span class="usa-hint--required"> *</span>
         </th:block>
-      </legend>
+    </legend>
 
       <!-- Question help text -->
       <div th:id="${questionId} + '-description'" th:text="${question.getQuestionHelpText()}"></div>
