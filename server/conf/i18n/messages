@@ -215,6 +215,8 @@ label.year=Year
 label.unnamedUser=Unnamed user
 
 link.edit=Edit
+# Link to select a new client in the toast message when viewing an application
+link.selectNewClient=Select a new client
 
 # This is the header above the list of clients and the client search.
 title.allClients=All Clients
@@ -226,6 +228,10 @@ title.displayingMultiClients=Displaying {0} clients
 title.displayingOneClient=Displaying 1 client
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=Organization members
+
+# Toast message top of the page when viewing an application
+toast.viewApplication=You are applying for {0}. Are you trying to apply for a different client?
+
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
