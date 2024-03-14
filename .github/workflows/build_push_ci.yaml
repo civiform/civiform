@@ -102,7 +102,7 @@ jobs:
           fetch-depth: 0
 
       - id: file_changes
-        uses: tj-actions/changed-files@v42
+        uses: tj-actions/changed-files@v43
         with:
           json: 'true'
         if: ${{ github.event_name != 'workflow_dispatch' }}
