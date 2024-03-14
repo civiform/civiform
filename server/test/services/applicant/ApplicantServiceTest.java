@@ -1574,7 +1574,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder()
-                    .setEmail("test@example.com")
+                    .setEmail(ImmutableSet.of("test@example.com"))
                     .setName("World, Hello")
                     .build()));
   }
@@ -1589,7 +1589,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
-                Representation.builder().setEmail("test@example.com").build()));
+                Representation.builder().setEmail(ImmutableSet.of("test@example.com")).build()));
   }
 
   @Test
@@ -1604,7 +1604,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder()
-                    .setEmail("test@example.com")
+                    .setEmail(ImmutableSet.of("test@example.com"))
                     .setName("Last, First")
                     .build()));
   }
@@ -1621,7 +1621,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder()
-                    .setEmail("test@example.com")
+                    .setEmail(ImmutableSet.of("test@example.com"))
                     .setName("First Second Third Fourth")
                     .build()));
   }
@@ -1634,7 +1634,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.save();
 
     assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
-        .isEqualTo(ApplicantPersonalInfo.ofGuestUser());
+        .isEqualTo(ApplicantPersonalInfo.ofGuestUser(Representation.builder().build()));
   }
 
   @Test
@@ -1654,7 +1654,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void getPersonalInfo_invalidApplicantId_defaultsToGuest() {
     assertThat(subject.getPersonalInfo(9999L).toCompletableFuture().join())
-        .isEqualTo(ApplicantPersonalInfo.ofGuestUser());
+        .isEqualTo(ApplicantPersonalInfo.ofGuestUser(Representation.builder().build()));
   }
 
   private ApplicantModel createTestApplicant() {
