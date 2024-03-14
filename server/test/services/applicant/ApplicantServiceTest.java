@@ -1627,6 +1627,53 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void getPersonalInfo_applicantWithMultipleDifferentEmails() {
+    ApplicantModel applicant = resourceCreator.insertApplicant();
+    applicant.setEmailAddress("me@example.com");
+    AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
+    applicant.setAccount(account);
+    applicant.save();
+
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
+        .isEqualTo(
+            ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder()
+                    .setEmail(ImmutableSet.of("test@example.com", "me@example.com"))
+                    .build()));
+  }
+
+  @Test
+  public void getPersonalInfo_applicantWithRepeatEmails() {
+    ApplicantModel applicant = resourceCreator.insertApplicant();
+    applicant.setEmailAddress("test@example.com");
+    AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
+    applicant.setAccount(account);
+    applicant.save();
+
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
+        .isEqualTo(
+            ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder().setEmail(ImmutableSet.of("test@example.com")).build()));
+  }
+
+  @Test
+  public void getPersonalInfo_emailIsSetForGuestUser() {
+    ApplicantModel applicant = resourceCreator.insertApplicant();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setEmailAddress("test@example.com");
+    applicant.save();
+
+    assertThat(
+            subject
+                .getPersonalInfo(applicant.id)
+                .toCompletableFuture()
+                .join()) // why is this empty?
+        .isEqualTo(
+            ApplicantPersonalInfo.ofGuestUser(
+                Representation.builder().setEmail(ImmutableSet.of("test@example.com")).build()));
+  }
+
+  @Test
   public void getPersonalInfo_applicantNoAuthorityId_isGuest() {
     ApplicantModel applicant = resourceCreator.insertApplicant();
     AccountModel account = resourceCreator.insertAccount();

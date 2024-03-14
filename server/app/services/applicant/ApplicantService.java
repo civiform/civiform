@@ -861,27 +861,30 @@ public final class ApplicantService {
                   applicant.isPresent()
                       && applicant.get().getAccount().getManagedByGroup().isPresent();
 
+              if (applicant.isPresent()) {
+                Optional<String> name = applicant.get().getApplicantData().getApplicantName();
+                if (name.isPresent() && !Strings.isNullOrEmpty(name.get())) {
+                  builder.setName(name.get());
+                }
+
+                String accountEmailAddress = applicant.get().getAccount().getEmailAddress();
+                Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
+                ImmutableSet.Builder<String> emailAddressesBuilder = ImmutableSet.builder();
+                if (!Strings.isNullOrEmpty(accountEmailAddress)) {
+                  emailAddressesBuilder.add(accountEmailAddress);
+                }
+                applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));
+                ImmutableSet<String> emailAddresses = emailAddressesBuilder.build();
+                if (!emailAddresses.isEmpty()) {
+                  builder.setEmail(emailAddresses);
+                }
+              }
+
               if (!hasAuthorityId && !isManagedByTi) {
                 // The authority ID is the source of truth for whether a user is logged in. However,
                 // if they were created by a TI, we skip this return and return later on with a more
                 // specific oneof value.
                 return ApplicantPersonalInfo.ofGuestUser(builder.build());
-              }
-
-              Optional<String> name = applicant.get().getApplicantData().getApplicantName();
-              if (name.isPresent() && !Strings.isNullOrEmpty(name.get())) {
-                builder.setName(name.get());
-              }
-              String accountEmailAddress = applicant.get().getAccount().getEmailAddress();
-              Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
-              ImmutableSet.Builder<String> emailAddressesBuilder = ImmutableSet.builder();
-              if (!Strings.isNullOrEmpty(accountEmailAddress)) {
-                emailAddressesBuilder.add(accountEmailAddress);
-              }
-              applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));
-              ImmutableSet<String> emailAddresses = emailAddressesBuilder.build();
-              if (!emailAddresses.isEmpty()) {
-                builder.setEmail(emailAddresses);
               }
 
               if (hasAuthorityId) {
