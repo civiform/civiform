@@ -12,7 +12,7 @@ import services.CfJsonDocumentContext;
 import services.IdentifierBasedPaginationSpec;
 import services.Path;
 
-public class JsonExporterTest extends AbstractExporterTest {
+public class JsonExporterServiceTest extends AbstractExporterTest {
 
   // TODO(#5257): Refactor testAllQuestionTypesWithoutEnumerators() and
   // testQuestionTypesWithEnumerators()
@@ -27,7 +27,7 @@ public class JsonExporterTest extends AbstractExporterTest {
     createFakeProgram();
     createFakeApplications();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -108,7 +108,7 @@ public class JsonExporterTest extends AbstractExporterTest {
     createFakeProgram();
     createFakeApplications();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -125,7 +125,7 @@ public class JsonExporterTest extends AbstractExporterTest {
   @Test
   public void testQuestionTypesWithEnumerators() throws Exception {
     createFakeProgramWithEnumeratorAndAnswerQuestions();
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -188,7 +188,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         .byTrustedIntermediary("ti@trusted_intermediaries.org", "TIs Inc.")
         .submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -208,7 +208,7 @@ public class JsonExporterTest extends AbstractExporterTest {
     var fakeProgram = new FakeProgramBuilder().build();
     new FakeApplicationFiller(fakeProgram).submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -232,7 +232,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         .answerAddressQuestion("12345 E South St", "Apt 8i", "CityVille Township", "OR", "54321")
         .submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -257,7 +257,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         new FakeProgramBuilder().withQuestion(testQuestionBank.applicantAddress()).build();
     new FakeApplicationFiller(fakeProgram).submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -288,7 +288,7 @@ public class JsonExporterTest extends AbstractExporterTest {
                 ))
         .submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -313,7 +313,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         new FakeProgramBuilder().withQuestion(testQuestionBank.applicantKitchenTools()).build();
     new FakeApplicationFiller(fakeProgram).submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -338,7 +338,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         new FakeProgramBuilder().withQuestion(testQuestionBank.applicantMonthlyIncome()).build();
     new FakeApplicationFiller(fakeProgram).answerCurrencyQuestion("5,444.33").submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -363,7 +363,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         new FakeProgramBuilder().withQuestion(testQuestionBank.applicantMonthlyIncome()).build();
     new FakeApplicationFiller(fakeProgram).submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -388,7 +388,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         new FakeProgramBuilder().withQuestion(testQuestionBank.applicantDate()).build();
     new FakeApplicationFiller(fakeProgram).answerDateQuestion("2015-10-21").submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -413,7 +413,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         new FakeProgramBuilder().withQuestion(testQuestionBank.applicantDate()).build();
     new FakeApplicationFiller(fakeProgram).submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -438,7 +438,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         new FakeProgramBuilder().withQuestion(testQuestionBank.applicantIceCream()).build();
     new FakeApplicationFiller(fakeProgram).answerDropdownQuestion(2L /* strawberry */).submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -463,7 +463,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         new FakeProgramBuilder().withQuestion(testQuestionBank.applicantIceCream()).build();
     new FakeApplicationFiller(fakeProgram).submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -490,7 +490,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         .answerEmailQuestion("chell@aperturescience.com")
         .submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -515,7 +515,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         new FakeProgramBuilder().withQuestion(testQuestionBank.applicantEmail()).build();
     new FakeApplicationFiller(fakeProgram).submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -540,7 +540,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         new FakeProgramBuilder().withQuestion(testQuestionBank.applicantJugglingNumber()).build();
     new FakeApplicationFiller(fakeProgram).answerNumberQuestion(42).submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -565,7 +565,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         new FakeProgramBuilder().withQuestion(testQuestionBank.applicantJugglingNumber()).build();
     new FakeApplicationFiller(fakeProgram).submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -590,7 +590,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         new FakeProgramBuilder().withQuestion(testQuestionBank.applicantPhone()).build();
     new FakeApplicationFiller(fakeProgram).answerPhoneQuestion("US", "(555) 867-5309").submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -615,7 +615,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         new FakeProgramBuilder().withQuestion(testQuestionBank.applicantPhone()).build();
     new FakeApplicationFiller(fakeProgram).submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -640,7 +640,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         new FakeProgramBuilder().withQuestion(testQuestionBank.applicantSeason()).build();
     new FakeApplicationFiller(fakeProgram).answerRadioButtonQuestion(3L /* summer */).submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -665,7 +665,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         new FakeProgramBuilder().withQuestion(testQuestionBank.applicantSeason()).build();
     new FakeApplicationFiller(fakeProgram).submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -690,7 +690,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         new FakeProgramBuilder().withHouseholdMembersEnumeratorQuestion().build();
     new FakeApplicationFiller(fakeProgram).answerEnumeratorQuestion(ImmutableList.of()).submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -720,7 +720,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         .answerRepeatedTextQuestion("carly rae", "stars")
         .submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -760,7 +760,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         .answerEnumeratorQuestion(ImmutableList.of("carly rae", "tswift"))
         .submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -802,7 +802,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         .answerEnumeratorQuestion(ImmutableList.of("carly rae", "tswift"))
         .submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -855,7 +855,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         .answerNestedEnumeratorQuestion("tswift", ImmutableList.of("performer", "composer"))
         .submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -936,7 +936,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         .answerNestedRepeatedNumberQuestion("tswift", "composer", 14)
         .submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -1005,7 +1005,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         new FakeProgramBuilder().withDateQuestionWithVisibilityPredicateOnTextQuestion().build();
     new FakeApplicationFiller(fakeProgram).answerTextQuestion("red").submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -1036,7 +1036,7 @@ public class JsonExporterTest extends AbstractExporterTest {
     var fakeProgram = new FakeProgramBuilder().build();
     new FakeApplicationFiller(fakeProgram).submit();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(
@@ -1054,7 +1054,7 @@ public class JsonExporterTest extends AbstractExporterTest {
     var fakeProgram = new FakeProgramBuilder().build();
     new FakeApplicationFiller(fakeProgram).submit().markObsolete();
 
-    JsonExporter exporter = instanceOf(JsonExporter.class);
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
     String resultJsonString =
         exporter.export(

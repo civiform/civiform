@@ -28,14 +28,14 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
   }
 
   @Test
-  public void generatePdf() throws IOException {
+  public void generateApplicationPdf() throws IOException {
     PdfExporterService service = instanceOf(PdfExporterService.class);
 
     String applicantName = "name-unavailable";
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationOne.id);
     PdfExporter.InMemoryPdf result =
-        service.generatePdf(applicationOne, /* showEligibilityText= */ true, false);
+        service.generateApplicationPdf(applicationOne, /* showEligibilityText= */ true, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 

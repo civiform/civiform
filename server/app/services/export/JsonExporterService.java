@@ -33,7 +33,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramService;
 
 /** Exports all applications for a given program as JSON. */
-public final class JsonExporter {
+public final class JsonExporterService {
 
   private final ApplicantService applicantService;
   private final ProgramService programService;
@@ -42,7 +42,7 @@ public final class JsonExporter {
   private static final String EMPTY_VALUE = "";
 
   @Inject
-  JsonExporter(
+  JsonExporterService(
       ApplicantService applicantService,
       ProgramService programService,
       DateConverter dateConverter,
@@ -301,7 +301,7 @@ public final class JsonExporter {
     public abstract ImmutableMap<Path, Optional<?>> applicationEntries();
 
     static Builder builder() {
-      return new AutoValue_JsonExporter_ApplicationExportData.Builder();
+      return new AutoValue_JsonExporterService_ApplicationExportData.Builder();
     }
 
     @AutoValue.Builder
