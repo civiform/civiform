@@ -24,13 +24,20 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
 
   public String render(Request request, ApplicationBaseViewParams applicationParams) {
     ThymeleafModule.PlayThymeleafContext context = createThymeleafContext(request);
-    context.setVariable("formAction", getFormAction(applicationParams));
+    context.setVariable(
+        "submitFormAction", getFormAction(applicationParams, ApplicantRequestedAction.NEXT_BLOCK));
+    context.setVariable(
+        "previousFormAction",
+        getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
+    context.setVariable(
+        "reviewFormAction", getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
-    context.setVariable("applicantQuestions", applicationParams.block().getQuestions());
+    context.setVariable("applicationParams", applicationParams);
     return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
   }
 
-  private String getFormAction(ApplicationBaseViewParams params) {
+  private String getFormAction(
+      ApplicationBaseViewParams params, ApplicantRequestedAction nextAction) {
     return applicantRoutes
         .updateBlock(
             params.profile(),
@@ -38,7 +45,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
             params.programId(),
             params.block().getId(),
             params.inReview(),
-            ApplicantRequestedAction.NEXT_BLOCK)
+            nextAction)
         .url();
   }
 }
