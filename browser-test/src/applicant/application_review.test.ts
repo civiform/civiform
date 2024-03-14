@@ -10,6 +10,7 @@ import {
   testUserDisplayName,
   waitForPageJsLoad,
   validateScreenshot,
+  enableFeatureFlag, endSession
 } from '../support'
 
 test.describe('Program admin review of submitted applications', () => {
@@ -424,4 +425,87 @@ test.describe('Program admin review of submitted applications', () => {
 
     await logout(page)
   })
+  test.only('Application search using Personal Applicant Info works', async() => {
+    const {page, adminQuestions, adminPrograms, applicantQuestions, browser} = ctx
+
+  // turn PAI flag on
+  enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
+  await loginAsAdmin(page)
+  // add program 
+  const programName = 'Test program'
+  // add PAI questions
+  // name
+  // email
+  // phone
+  await adminQuestions.addNameQuestion({questionName: 'Name', universal: true, primaryApplicantInfo: true})
+  await adminQuestions.addEmailQuestion({questionName: 'Email', universal: true, primaryApplicantInfo: true})
+  await adminQuestions.addPhoneQuestion({questionName: 'Phone', universal: true, primaryApplicantInfo: true})
+  await adminPrograms.addAndPublishProgramWithQuestions(['Name', 'Email', 'Phone'], programName)
+  logout(page)
+
+  // apply as an applicant to the program three times
+  await applicantQuestions.applyProgram(programName)
+  await applicantQuestions.answerNameQuestion('oneFirst', 'oneLast', 'oneMiddle')
+  await applicantQuestions.answerEmailQuestion('one@email.com')
+  await applicantQuestions.answerPhoneQuestion('4152321234')
+  await applicantQuestions.clickNext()
+  await applicantQuestions.submitFromReviewPage()
+  // this is messing up. there must be someway we have to click that button.
+    await page.click('text=End session')
+
+  await applicantQuestions.applyProgram(programName)
+  await applicantQuestions.answerNameQuestion('twoFirst', 'twoLast', 'twoMiddle')
+  await applicantQuestions.answerEmailQuestion('two@email.com')
+  await applicantQuestions.answerPhoneQuestion('4153231234')
+  await applicantQuestions.clickNext()
+  await applicantQuestions.submitFromReviewPage()
+    await page.click('text=End session')
+
+  await applicantQuestions.applyProgram(programName)
+  await applicantQuestions.answerNameQuestion('threeFirst', 'threeLast', 'threeMiddle')
+  await applicantQuestions.answerEmailQuestion('three@email.com')
+  await applicantQuestions.answerPhoneQuestion('5102321234')
+  await applicantQuestions.clickNext()
+  await applicantQuestions.submitFromReviewPage()
+    await page.click('text=End session')
+
+  // log in as program admin
+  await loginAsProgramAdmin(page)
+  // look at applications for that program
+  await adminPrograms.viewApplications(programName)
+
+  // validate screenshot
+  await validateScreenshot(page, 'applications-unfiltered-pai')
+
+  // search by name and validate expected text on page
+  const applyFilters = true
+  // await adminPrograms.filterProgramApplications({searchFragment: 'one'})
+  // await validateScreenshot(page, 'rocky-filtered-apps')
+
+  // const csvContentNameSearch = await adminPrograms.getCsv(applyFilters)
+  // expect(csvContentNameSearch).toContain('oneFirst')
+  // expect(csvContentNameSearch).not.toContain('twoFirst')
+  // expect(csvContentNameSearch).not.toContain('threeFirst')  
+
+  // search by email and validate expected text on page
+  await adminPrograms.filterProgramApplications({searchFragment: 'email'})
+    await validateScreenshot(page, 'rocky-filtered-apps')
+  const csvContentEmailSearch = await adminPrograms.getCsv(applyFilters)  
+  expect(csvContentEmailSearch).toContain('one@email.com')
+  expect(csvContentEmailSearch).toContain('two@email.com')
+  expect(csvContentEmailSearch).toContain('three@email.com')  
+
+  // search by phone and validate expected text on page
+  await adminPrograms.filterProgramApplications({searchFragment: '415'})
+  const csvContentPhoneSearch = await adminPrograms.getCsv(applyFilters)  
+  expect(csvContentPhoneSearch).toContain('oneFirst')
+  expect(csvContentPhoneSearch).toContain('twoFirst')
+  expect(csvContentPhoneSearch).not.toContain('threeFirst')  
+
+
+  })
+
+
+
+
 })
