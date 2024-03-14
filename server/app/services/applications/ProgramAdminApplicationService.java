@@ -130,16 +130,19 @@ public final class ProgramAdminApplicationService {
       // Notify the applicant.
       ApplicantPersonalInfo personalInfo =
           applicantService.getPersonalInfo(applicant.id).toCompletableFuture().join();
-      Optional<String> applicantEmail =
+      Optional<ImmutableSet<String>> applicantEmail =
           personalInfo.getType() == ApplicantType.LOGGED_IN
               ? personalInfo.loggedIn().email()
-              : Optional.empty();
+              : personalInfo.getType() == ApplicantType.TI_PARTIALLY_CREATED
+                  ? personalInfo.tiPartiallyCreated().email()
+                  : personalInfo.guest().email();
       if (applicantEmail.isPresent()) {
-        sendApplicantEmail(
-            programRepository.getShallowProgramDefinition(program),
-            applicant,
-            statusDef,
-            applicantEmail);
+        applicantEmail
+            .get()
+            .forEach(
+                email ->
+                    sendApplicantEmail(
+                        program.getProgramDefinition(), applicant, statusDef, Optional.of(email)));
       } else {
         // An email was requested to be sent but the applicant doesn't have one.
         throw new AccountHasNoEmailException(applicant.getAccount().id);

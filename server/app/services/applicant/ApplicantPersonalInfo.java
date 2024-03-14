@@ -7,6 +7,7 @@ import com.google.auto.value.AutoValue;
 import java.util.Optional;
 import play.i18n.Messages;
 import services.MessageKey;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Represents a human-readable label for an applicant, such as the one that is displayed on the
@@ -36,8 +37,8 @@ public abstract class ApplicantPersonalInfo {
 
         if (representation.name().isPresent()) {
           return representation.name().get();
-        } else if (representation.email().isPresent()) {
-          return representation.email().get();
+        } else if (!representation.email().map(ImmutableSet::isEmpty).orElse(true)) {
+          return representation.email().get().iterator().next();
         }
 
         // Fall through
@@ -49,14 +50,14 @@ public abstract class ApplicantPersonalInfo {
     }
   }
 
-  public abstract void guest();
+  public abstract Representation guest();
 
   public abstract Representation loggedIn();
 
   public abstract Representation tiPartiallyCreated();
 
-  public static ApplicantPersonalInfo ofGuestUser() {
-    return AutoOneOf_ApplicantPersonalInfo.guest();
+  public static ApplicantPersonalInfo ofGuestUser(Representation representation) {
+    return AutoOneOf_ApplicantPersonalInfo.guest(representation);
   }
 
   public static ApplicantPersonalInfo ofLoggedInUser(Representation representation) {
@@ -71,7 +72,9 @@ public abstract class ApplicantPersonalInfo {
   public abstract static class Representation {
     public abstract Optional<String> name();
 
-    public abstract Optional<String> email();
+    // May contain both the account email as well as the answer to
+    // an email question.
+    public abstract Optional<ImmutableSet<String>> email();
 
     public static Builder builder() {
       return new AutoValue_ApplicantPersonalInfo_Representation.Builder();
@@ -83,7 +86,7 @@ public abstract class ApplicantPersonalInfo {
 
       public abstract Builder setName(Optional<String> name);
 
-      public abstract Builder setEmail(String email);
+      public abstract Builder setEmail(ImmutableSet<String> email);
 
       public abstract Representation build();
     }

@@ -85,13 +85,14 @@ public final class PreventDuplicateSubmissionView extends ApplicationBaseView {
             .addMainContent(h1(title).withClasses("sr-only"), content);
     Optional<String> applicantName =
         roApplicantProgramService.getApplicantData().getApplicantName();
+    Representation.Builder representationBuilder = Representation.builder();
 
     return layout.renderWithNav(
         request,
         applicantName.isPresent()
             ? ApplicantPersonalInfo.ofLoggedInUser(
-                Representation.builder().setName(applicantName).build())
-            : ApplicantPersonalInfo.ofGuestUser(),
+                representationBuilder.setName(applicantName).build())
+            : ApplicantPersonalInfo.ofGuestUser(representationBuilder.build()),
         messages,
         bundle,
         applicantId);

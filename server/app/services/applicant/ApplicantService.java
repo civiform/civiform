@@ -60,6 +60,7 @@ import services.PhoneValidationResult;
 import services.PhoneValidationUtils;
 import services.applicant.ApplicantPersonalInfo.ApplicantType;
 import services.applicant.ApplicantPersonalInfo.Representation;
+import services.applicant.ApplicantService.UpdateMetadata;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
@@ -587,24 +588,33 @@ public final class ApplicantService {
                       .orElse(CompletableFuture.completedFuture(null));
 
               ApplicantPersonalInfo applicantPersonalInfo = applicantLabelFuture.join();
-              Optional<String> applicantEmail =
+              Optional<ImmutableSet<String>> applicantEmails =
                   applicantPersonalInfo.getType() == ApplicantType.LOGGED_IN
                       ? applicantPersonalInfo.loggedIn().email()
-                      : Optional.empty();
+                      : applicantPersonalInfo.getType() == ApplicantType.TI_PARTIALLY_CREATED
+                      ? applicantPersonalInfo.tiPartiallyCreated().email()
+                      : applicantPersonalInfo.guest().email();
 
-              CompletableFuture<Void> notifyApplicantFuture =
-                  applicantEmail
-                      .map(
-                          email ->
-                              notifyApplicant(
+                            CompletableFuture<Void> notifyApplicantFuture;
+              if (applicantEmails.isEmpty() || applicantEmails.get().isEmpty()) {
+                notifyApplicantFuture = CompletableFuture.completedFuture(null);
+              } else {
+                ImmutableList<CompletableFuture<Void>> futures =
+                    applicantEmails.get().stream()
+                        .map(
+                            email -> {
+                              return notifyApplicant(
                                       applicantId,
                                       application.id,
                                       email,
                                       programDefinition,
                                       maybeDefaultStatus)
-                                  .toCompletableFuture())
-                      .orElse(CompletableFuture.completedFuture(null));
-
+                                  .toCompletableFuture();
+                                })
+                            .collect(ImmutableList.toImmutableList());
+                    notifyApplicantFuture =
+                        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+                  }
               return CompletableFuture.allOf(
                       updateStatusFuture,
                       notifyProgramAdminsFuture,
@@ -842,6 +852,9 @@ public final class ApplicantService {
         .lookupApplicant(applicantId)
         .thenApplyAsync(
             applicant -> {
+
+              Representation.Builder builder = Representation.builder();
+
               boolean hasAuthorityId =
                   applicant.isPresent()
                       && !Strings.isNullOrEmpty(applicant.get().getAccount().getAuthorityId());
@@ -853,18 +866,24 @@ public final class ApplicantService {
                 // The authority ID is the source of truth for whether a user is logged in. However,
                 // if they were created by a TI, we skip this return and return later on with a more
                 // specific oneof value.
-                return ApplicantPersonalInfo.ofGuestUser();
+                return ApplicantPersonalInfo.ofGuestUser(builder.build());
               }
 
-              Representation.Builder builder = Representation.builder();
 
               Optional<String> name = applicant.get().getApplicantData().getApplicantName();
               if (name.isPresent() && !Strings.isNullOrEmpty(name.get())) {
                 builder.setName(name.get());
               }
-              String emailAddress = applicant.get().getAccount().getEmailAddress();
-              if (!Strings.isNullOrEmpty(emailAddress)) {
-                builder.setEmail(emailAddress);
+              String accountEmailAddress = applicant.get().getAccount().getEmailAddress();
+              Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
+              ImmutableSet.Builder<String> emailAddressesBuilder = ImmutableSet.builder();
+              if (!Strings.isNullOrEmpty(accountEmailAddress)) {
+                emailAddressesBuilder.add(accountEmailAddress);
+              }
+              applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));
+              ImmutableSet<String> emailAddresses = emailAddressesBuilder.build();
+              if (!emailAddresses.isEmpty()) {
+                builder.setEmail(emailAddresses);
               }
 
               if (hasAuthorityId) {
