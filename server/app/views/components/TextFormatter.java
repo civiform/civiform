@@ -33,12 +33,28 @@ public final class TextFormatter {
   /** Passes provided text through Markdown formatter. */
   public static ImmutableList<DomContent> formatText(
       String text, boolean preserveEmptyLines, boolean addRequiredIndicator) {
-
     ImmutableList.Builder<DomContent> builder = new ImmutableList.Builder<DomContent>();
+    builder.add(rawHtml(formatTextToSanitizedHTML(text, preserveEmptyLines, addRequiredIndicator)));
+    return builder.build();
+  }
 
+  /**
+   * Passes provided text through Markdown formatter, returning a String with the sanitized HTML.
+   * This is used by Thymeleaf to render Static Text questions.
+   */
+  public static String formatTextToSanitizedHTMLWithAriaLabel(
+      String text, boolean preserveEmptyLines, boolean addRequiredIndicator, String ariaLabel) {
+    CIVIFORM_MARKDOWN.setAriaLabel(ariaLabel);
+    return formatTextToSanitizedHTML(text, preserveEmptyLines, addRequiredIndicator);
+  }
+
+  /** Passes provided text through Markdown formatter, generating an HTML String */
+  private static String formatTextToSanitizedHTML(
+      String text, boolean preserveEmptyLines, boolean addRequiredIndicator) {
     if (preserveEmptyLines) {
       text = preserveEmptyLines(text);
     }
+
     String markdownText = CIVIFORM_MARKDOWN.render(text);
     markdownText = addIconToLinks(markdownText);
     markdownText = addTextSize(markdownText);
@@ -46,8 +62,7 @@ public final class TextFormatter {
       markdownText = addRequiredIndicator(markdownText);
     }
 
-    builder.add(rawHtml(sanitizeHtml(markdownText)));
-    return builder.build();
+    return sanitizeHtml(markdownText);
   }
 
   /** Used for testing */
