@@ -41,8 +41,10 @@ abstract class ProgramBaseView extends BaseHtmlView {
     EDIT_PROGRAM_IMAGE,
     /** Redirects to previewing this program as an applicant. */
     PREVIEW_AS_APPLICANT,
-    // TODO
-    PDF_PREVIEW,
+    /**
+     * Downloads a PDF preview of the current program version, with all of its blocks and questions.
+     */
+    DOWNLOAD_PDF_PREVIEW,
   }
 
   /**
@@ -153,9 +155,9 @@ abstract class ProgramBaseView extends BaseHtmlView {
             ViewUtils.makeSvgTextButton("Preview as applicant", Icons.VIEW)
                 .withClasses(HEADER_BUTTON_STYLES),
             routes.AdminProgramPreviewController.preview(programDefinition.id()).url());
-      case PDF_PREVIEW:
+      case DOWNLOAD_PDF_PREVIEW:
         return asRedirectElement(
-            ViewUtils.makeSvgTextButton("PDF Preview", Icons.DOWNLOAD)
+            ViewUtils.makeSvgTextButton("Download PDF preview", Icons.DOWNLOAD)
                 .withClasses(HEADER_BUTTON_STYLES),
             routes.AdminProgramPreviewController.pdfPreview(programDefinition.id()).url());
       default:
