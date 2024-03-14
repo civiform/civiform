@@ -306,10 +306,7 @@ public class QuestionDefinitionTest {
     QuestionDefinition question = builder.setEnumeratorId(Optional.of(1L)).build();
 
     assertThat(question.validate())
-        .containsOnly(
-            CiviFormError.of(
-                "Repeated questions must reference '$this' in the text and help text (if"
-                    + " present)"));
+        .containsOnly(CiviFormError.of("Repeated questions must reference '$this' in the text"));
   }
 
   @Test
@@ -320,18 +317,50 @@ public class QuestionDefinitionTest {
         builder
             .setQuestionText(
                 LocalizedStrings.of(
-                    Locale.US, "$this is present", Locale.FRANCE, "$this is also present"))
+                    Locale.US, "$this is present", Locale.FRANCE, "this is not present"))
             .setQuestionHelpText(
                 LocalizedStrings.of(
-                    Locale.US, "$this is present", Locale.FRANCE, "this is not present"))
+                    Locale.US, "$this is present", Locale.FRANCE, "$this is also present"))
             .setEnumeratorId(Optional.of(1L))
             .build();
 
     assertThat(question.validate())
-        .containsOnly(
-            CiviFormError.of(
-                "Repeated questions must reference '$this' in the text and help text (if"
-                    + " present)"));
+        .containsOnly(CiviFormError.of("Repeated questions must reference '$this' in the text"));
+  }
+
+  @Test
+  public void validate_withRepeatedQuestion_withHelpTextThatDoesHaveFormatString_returnsNoErrors()
+      throws Exception {
+    QuestionDefinition question =
+        builder
+            .setQuestionText(
+                LocalizedStrings.of(
+                    Locale.US, "$this is present", Locale.FRANCE, "$this is present"))
+            .setQuestionHelpText(
+                LocalizedStrings.of(
+                    Locale.US, "$this is present", Locale.FRANCE, "$this is present"))
+            .setEnumeratorId(Optional.of(1L))
+            .build();
+
+    assertThat(question.validate()).isEmpty();
+  }
+
+  @Test
+  public void
+      validate_withRepeatedQuestion_withHelpTextThatDoesNotHaveFormatString_returnsNoErrors()
+          throws Exception {
+    QuestionDefinition question =
+        builder
+            .setQuestionText(
+                LocalizedStrings.of(
+                    Locale.US, "$this is present", Locale.FRANCE, "$this is present"))
+            .setQuestionHelpText(
+                LocalizedStrings.of(
+                    Locale.US, "this is not present", Locale.FRANCE, "this is not present"))
+            .setEnumeratorId(Optional.of(1L))
+            .build();
+
+    assertThat(question.validate()).isEmpty();
   }
 
   @Test

@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableList;
 import controllers.dev.seeding.routes;
+import durablejobs.DurableJobName;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -29,6 +30,7 @@ import services.question.types.QuestionDefinition;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.components.SelectWithLabel;
 
 /**
  * Renders a page for a developer to seed the database. This is only available in non-prod
@@ -100,6 +102,7 @@ public class DatabaseSeedView extends BaseHtmlView {
                     .with(createSeedSection(request))
                     .with(createCachingSection(request))
                     .with(createIconsSection())
+                    .with(createDurableJobsSection(request))
                     .with(createHomeSection()));
 
     HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(content);
@@ -146,6 +149,40 @@ public class DatabaseSeedView extends BaseHtmlView {
                 routes.DevDatabaseSeedController.clearCache().url()));
   }
 
+  private SectionTag createDurableJobsSection(Request request) {
+    ImmutableList<SelectWithLabel.OptionValue> options =
+        ImmutableList.copyOf(DurableJobName.values()).stream()
+            .map(
+                val ->
+                    SelectWithLabel.OptionValue.builder()
+                        .setLabel(val.toString())
+                        .setValue(val.toString())
+                        .build())
+            .collect(ImmutableList.toImmutableList());
+
+    FormTag formTag =
+        form()
+            .with(makeCsrfTokenInputTag(request))
+            .with(
+                submitButton("run-durable-job", "Run job")
+                    .withClasses("w-full")
+                    .withId("run-durable-job-button"))
+            .withMethod("post")
+            .withAction(routes.DevDatabaseSeedController.runDurableJob().url())
+            .with(
+                new SelectWithLabel()
+                    .setId("durable-job-select")
+                    .setFieldName("durableJobSelect")
+                    .setLabelText("Choose job to run once")
+                    .setOptions(options)
+                    .setValue(options.get(0).label())
+                    .getSelectTag());
+    return section()
+        .with(h2("Durable Jobs"))
+        .withClasses("flex", "flex-col", "gap-4", "border", "border-black", "p-4")
+        .with(formTag);
+  }
+
   private SectionTag createIconsSection() {
     return section()
         .with(h2("Icons").withClass("text-2xl"))
@@ -173,7 +210,7 @@ public class DatabaseSeedView extends BaseHtmlView {
         .with(
             submitButton(buttonId, buttonText)
                 .withClasses("w-full")
-                .withCondClass(danger, "bg-red-600 hover:bg-red-700"))
+                .withCondClass(danger, "bg-red-600 hover:bg-red-700 w-full"))
         .withMethod("post")
         .withAction(url);
   }

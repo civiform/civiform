@@ -875,16 +875,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * intended to be used by all programs and will appear at the top of the question bank with a
    * badge denoting them as universal.
    */
-  public boolean getUniversalQuestions(RequestHeader request) {
-    return getBool("UNIVERSAL_QUESTIONS", request);
+  public boolean getUniversalQuestions() {
+    return getBool("UNIVERSAL_QUESTIONS");
   }
 
   /**
    * Enables images on program cards, both for admins to upload them and for applicants to view
    * them.
    */
-  public boolean getProgramCardImages(RequestHeader request) {
-    return getBool("PROGRAM_CARD_IMAGES", request);
+  public boolean getProgramCardImages() {
+    return getBool("PROGRAM_CARD_IMAGES");
   }
 
   /**
@@ -901,6 +901,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getSaveOnAllActions(RequestHeader request) {
     return getBool("SAVE_ON_ALL_ACTIONS", request);
+  }
+
+  /** Enables showing new UI with an updated user experience in Applicant flows */
+  public boolean getNorthStarApplicantUi(RequestHeader request) {
+    return getBool("NORTH_STAR_APPLICANT_UI", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -1852,14 +1857,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " universal.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "PROGRAM_CARD_IMAGES",
                       "Enables images on program cards, both for admins to upload them and for"
                           + " applicants to view them.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE",
                       "Add programs cards to the confirmation screen that an applicant sees after"
@@ -1872,6 +1877,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "(NOT FOR PRODUCTION USE) Save an applicant's answers when they take any"
                           + " action ('Review'/'Previous'/'Save and next') instead of only saving"
                           + " on 'Save and next'.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "NORTH_STAR_APPLICANT_UI",
+                      "Enables showing new UI with an updated user experience in Applicant flows",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),

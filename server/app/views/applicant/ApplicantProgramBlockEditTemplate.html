@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <head th:replace="~{applicant/ApplicantBaseFragment :: pageHeader}"></head>
+    <body>
+        <div>
+            <form id="cf-block-form" th:action="${formAction}" method="POST">
+                <input hidden th:value="${csrfToken}" name="csrfToken">
+                <div th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"></div>
+            </form>
+        </div>
+        <footer th:replace="~{applicant/ApplicantBaseFragment :: pageFooter}"></footer>
+    </body>
+</html>

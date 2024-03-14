@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.stream.IntStream;
-import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
@@ -160,7 +159,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     ArrayList<ProgramHeaderButton> headerButtons =
         new ArrayList<>(
             getEditHeaderButtons(
-                request, settingsManifest, /* isEditingAllowed= */ viewAllowsEditingProgram()));
+                settingsManifest, /* isEditingAllowed= */ viewAllowsEditingProgram()));
     headerButtons.add(ProgramHeaderButton.PREVIEW_AS_APPLICANT);
 
     HtmlBundle htmlBundle =
@@ -214,8 +213,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   programDefinition,
                   blockDefinition,
                   csrfTag,
-                  ProgramQuestionBank.shouldShowQuestionBank(request),
-                  request))
+                  ProgramQuestionBank.shouldShowQuestionBank(request)))
           .addMainContent(addFormEndpoints(csrfTag, programDefinition.id(), blockId))
           .addModals(blockDescriptionEditModal, blockDeleteScreenModal);
     }
@@ -239,9 +237,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
    *     only allows editing if a program is in draft mode.)
    */
   private ImmutableList<ProgramHeaderButton> getEditHeaderButtons(
-      Http.Request request, SettingsManifest settingsManifest, boolean isEditingAllowed) {
+      SettingsManifest settingsManifest, boolean isEditingAllowed) {
     if (isEditingAllowed) {
-      if (settingsManifest.getProgramCardImages(request)) {
+      if (settingsManifest.getProgramCardImages()) {
         return ImmutableList.of(
             ProgramHeaderButton.EDIT_PROGRAM_DETAILS, ProgramHeaderButton.EDIT_PROGRAM_IMAGE);
       } else {
@@ -709,7 +707,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 "rounded-md",
                 StyleUtils.hover("text-gray-800", "bg-gray-100"));
     ret.condWith(
-        settingsManifest.getUniversalQuestions(request)
+        settingsManifest.getUniversalQuestions()
             && !malformedQuestionDefinition
             && questionDefinition.isUniversal(),
         ViewUtils.makeUniversalBadge(questionDefinition, "mt-2", "mb-4"));
@@ -932,13 +930,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     DivTag ret =
         div()
             .withClasses(
-                "flex",
-                "gap-2",
-                "items-center",
-                "text-gray-400",
-                "font-medium",
-                "bg-transparent",
-                "rounded-full")
+                "flex", "gap-2", "items-center", "text-gray-400", "font-medium", "rounded-full")
             .with(p(label));
     return ret;
   }
@@ -1088,8 +1080,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       InputTag csrfTag,
-      ProgramQuestionBank.Visibility questionBankVisibility,
-      Request request) {
+      ProgramQuestionBank.Visibility questionBankVisibility) {
     String addQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.create(
                 program.id(), blockDefinition.id())
@@ -1112,8 +1103,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .build(),
             programBlockValidationFactory);
     return qb.getContainer(
-        questionBankVisibility,
-        /* showUniversal= */ settingsManifest.getUniversalQuestions(request));
+        questionBankVisibility, /* showUniversal= */ settingsManifest.getUniversalQuestions());
   }
 
   /** Creates a modal, which allows the admin to confirm that they want to delete a block. */

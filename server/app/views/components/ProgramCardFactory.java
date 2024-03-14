@@ -17,7 +17,6 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
-import play.mvc.Http;
 import play.mvc.Http.Request;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
@@ -55,17 +54,13 @@ public final class ProgramCardFactory {
       statusDiv =
           statusDiv.with(
               renderProgramRow(
-                  request,
-                  cardData.profile(),
-                  /* isActive= */ false,
-                  cardData.draftProgram().get()));
+                  cardData.profile(), /* isActive= */ false, cardData.draftProgram().get()));
     }
 
     if (cardData.activeProgram().isPresent()) {
       statusDiv =
           statusDiv.with(
               renderProgramRow(
-                  request,
                   cardData.profile(),
                   /* isActive= */ true,
                   cardData.activeProgram().get(),
@@ -121,7 +116,6 @@ public final class ProgramCardFactory {
   }
 
   private DivTag renderProgramRow(
-      Http.Request request,
       Optional<CiviFormProfile> profile,
       boolean isActive,
       ProgramCardData.ProgramRow programRow,
@@ -153,8 +147,7 @@ public final class ProgramCardFactory {
             StyleUtils.responsiveXLarge("ml-8"));
 
     boolean shouldShowUniversalQuestionsCount =
-        settingsManifest.getUniversalQuestions(request)
-            && programRow.universalQuestionsText().isPresent();
+        settingsManifest.getUniversalQuestions() && programRow.universalQuestionsText().isPresent();
 
     return div()
         .withClasses(
@@ -164,7 +157,7 @@ public final class ProgramCardFactory {
             StyleUtils.hover("bg-gray-100"),
             StyleUtils.joinStyles(extraStyles))
         .with(
-            createImageIcon(program, request, profile),
+            createImageIcon(program, profile),
             badge,
             div()
                 .withClasses("ml-4", StyleUtils.responsiveXLarge("ml-10"))
@@ -215,9 +208,8 @@ public final class ProgramCardFactory {
     return cardData.activeProgram().get().program();
   }
 
-  private DivTag createImageIcon(
-      ProgramDefinition program, Http.Request request, Optional<CiviFormProfile> profile) {
-    if (!settingsManifest.getProgramCardImages(request)) {
+  private DivTag createImageIcon(ProgramDefinition program, Optional<CiviFormProfile> profile) {
+    if (!settingsManifest.getProgramCardImages()) {
       // If the program card images feature isn't enabled, don't make any changes to the admin page.
       return div();
     }
@@ -230,7 +222,7 @@ public final class ProgramCardFactory {
 
     Optional<ImgTag> image =
         programImageUtils.createProgramImage(
-            request, program, Locale.getDefault(), /* isWithinProgramCard= */ false);
+            program, Locale.getDefault(), /* isWithinProgramCard= */ false);
     if (image.isPresent()) {
       return div().withClasses("w-16", "h-9").with(image.get());
     } else {

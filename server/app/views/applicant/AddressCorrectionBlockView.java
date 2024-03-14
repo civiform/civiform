@@ -32,6 +32,7 @@ import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
 import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
+import views.ApplicationBaseViewParams;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
 import views.components.Icons;
@@ -60,7 +61,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   }
 
   public Content render(
-      Params params,
+      ApplicationBaseViewParams params,
       Messages messages,
       AddressSuggestionGroup addressSuggestionGroup,
       ApplicantRequestedAction applicantRequestedAction,
@@ -102,7 +103,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   }
 
   private FormTag renderForm(
-      Params params,
+      ApplicationBaseViewParams params,
       Messages messages,
       Address addressAsEntered,
       ImmutableList<AddressSuggestion> suggestions,
@@ -126,6 +127,11 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
         .with(div(messages.at(instructions.getKeyName())).withClass("mb-8"));
 
     boolean anySuggestions = suggestions.size() > 0;
+    // If the address question is part of determining eligibility, then the address *must* get
+    // corrected. We need the address's latitude and longitude values from ESRI to determine if
+    // the address is eligible, and we only get the lat/long values via address correction. We
+    // can't let the user choose their original, non-corrected address because then we won't have
+    // the lat/long values to determine eligibility.
     if (!isEligibilityEnabled) {
       form.with(
           div()
@@ -256,7 +262,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   }
 
   private DivTag renderBottomNavButtons(
-      Params params, ApplicantRequestedAction applicantRequestedAction) {
+      ApplicationBaseViewParams params, ApplicantRequestedAction applicantRequestedAction) {
     DivTag bottomNavButtonsContainer = div().withClasses(ApplicantStyles.APPLICATION_NAV_BAR);
 
     // If the SAVE_ON_ALL_ACTIONS flag is on, the address correction screen becomes an intermediate
@@ -302,17 +308,19 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
         .with(renderNextButton(params));
   }
 
-  private ButtonTag renderNextButton(Params params) {
+  private ButtonTag renderNextButton(ApplicationBaseViewParams params) {
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .withClasses(ButtonStyles.SOLID_BLUE)
         .withId("cf-block-submit");
   }
 
-  private DomContent renderAddressCorrectionSpecificPreviousButton(Params params) {
+  private DomContent renderAddressCorrectionSpecificPreviousButton(
+      ApplicationBaseViewParams params) {
     if (!settingsManifest.getSaveOnAllActions(params.request())) {
       // Set the block index to the next block, so that the renderPreviousButton
       // method will render the correct block.
-      Params newParams = params.toBuilder().setBlockIndex(params.blockIndex() + 1).build();
+      ApplicationBaseViewParams newParams =
+          params.toBuilder().setBlockIndex(params.blockIndex() + 1).build();
       return renderOldPreviousButton(newParams);
     }
     // In the new previous button, ApplicantProgramBlocksController will handle adjusting the block
@@ -322,7 +330,8 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
         settingsManifest, params, getFormAction(params, ApplicantRequestedAction.PREVIOUS_BLOCK));
   }
 
-  private String getFormAction(Params params, ApplicantRequestedAction applicantRequestedAction) {
+  private String getFormAction(
+      ApplicationBaseViewParams params, ApplicantRequestedAction applicantRequestedAction) {
     return applicantRoutes
         .confirmAddress(
             params.profile(),

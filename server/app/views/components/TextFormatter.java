@@ -124,7 +124,7 @@ public final class TextFormatter {
                 "stroke-width",
                 "aria-label",
                 "aria-hidden",
-                "viewbox",
+                "viewBox", // <--- This is for SVGs and it **IS** case-sensitive
                 "d")
             .globally()
             .toFactory();

@@ -2,13 +2,16 @@ package views.admin.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.em;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.join;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
+import static j2html.TagCreator.strong;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -220,7 +223,7 @@ public final class QuestionEditView extends BaseHtmlView {
     HtmlBundle htmlBundle =
         layout.getBundle(request).setTitle(title).addMainContent(formContent, previewContent);
 
-    if (settingsManifest.getUniversalQuestions(request) && modal.isPresent()) {
+    if (settingsManifest.getUniversalQuestions() && modal.isPresent()) {
       htmlBundle.addModals(modal.get());
     }
     return layout.render(htmlBundle);
@@ -320,7 +323,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 id, questionForm.getQuestionType().toString())
             .url());
 
-    if (settingsManifest.getUniversalQuestions(request)) {
+    if (settingsManifest.getUniversalQuestions()) {
       formTag.with(unsetUniversalModal.getButton());
     } else {
       formTag.with(submitButton("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE));
@@ -344,7 +347,9 @@ public final class QuestionEditView extends BaseHtmlView {
                             .attr("form", "full-edit-form")
                             .withClasses(ButtonStyles.SOLID_BLUE),
                         button("Cancel")
-                            .withClasses(ButtonStyles.LINK_STYLE, ReferenceClasses.MODAL_CLOSE))
+                            .withClasses(
+                                ButtonStyles.LINK_STYLE_WITH_TRANSPARENCY,
+                                ReferenceClasses.MODAL_CLOSE))
                     .withClasses("flex", "flex-col", StyleUtils.responsiveMedium("flex-row")));
     return Modal.builder()
         .setModalId("confirm-question-updates-modal")
@@ -435,7 +440,7 @@ public final class QuestionEditView extends BaseHtmlView {
     if (questionConfig.isPresent()) {
       questionSettingsContentBuilder.add(questionConfig.get());
     }
-    if (settingsManifest.getUniversalQuestions(request)) {
+    if (settingsManifest.getUniversalQuestions()) {
       questionSettingsContentBuilder.add(buildUniversalQuestion(questionForm));
     }
     if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)
@@ -668,22 +673,38 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private DivTag repeatedQuestionInformation() {
-    return div("By selecting an enumerator, you are creating a repeated question - a question that"
-            + " is asked for each repeated entity enumerated by the applicant. Please"
-            + " reference the applicant-defined repeated entity name to give the applicant"
-            + " context on which repeated entity they are answering the question for by"
-            + " using \"$this\" in the question's text and help text. To reference the"
-            + " repeated entities containing this one, use \"$this.parent\","
-            + " \"this.parent.parent\", etc.")
+    return div()
+        .with(
+            p(
+                "By selecting an enumerator, you are creating a repeated question - a question that"
+                    + " is asked for each repeated entity enumerated by the applicant."),
+            p(
+                join(
+                    "Please reference the applicant-defined repeated entity name to give the"
+                        + " applicant context on which repeated entity they are answering the"
+                        + " question for by using ",
+                    em("\"$this\""),
+                    "in the ",
+                    strong("question's text"),
+                    " and optionally the ",
+                    strong("help text. "))),
+            p(
+                join(
+                    "To reference the repeated entities containing this one, use ",
+                    em("\"$this.parent\""),
+                    ", ",
+                    em("\"$this.parent.parent\""),
+                    ", etc.")))
         .withId("repeated-question-information")
         .withClasses(
             "hidden",
-            "text-blue-500",
+            "text-blue-600",
             "text-sm",
             "p-2",
             "font-mono",
             "border-4",
-            "border-blue-400");
+            "border-blue-400",
+            "space-y-4");
   }
 
   private DivTag administrativeNameField(String adminName, boolean editExistingQuestion) {

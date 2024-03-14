@@ -13,6 +13,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import io.ebean.DB;
+import io.ebean.Database;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
@@ -115,6 +117,7 @@ public final class ApplicantService {
   private final ServiceAreaUpdateResolver serviceAreaUpdateResolver;
   private final EsriClient esriClient;
   private final MessagesApi messagesApi;
+  private final Database database;
 
   @Inject
   public ApplicantService(
@@ -157,6 +160,7 @@ public final class ApplicantService {
     this.stagingApplicantNotificationMailingList =
         checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
     this.esriClient = checkNotNull(esriClient);
+    this.database = DB.getDefault();
   }
 
   /** Create a new {@link ApplicantModel}. */
@@ -451,6 +455,83 @@ public final class ApplicantService {
         new ApplicationEventModel(application, /* creator= */ Optional.empty(), details));
   }
 
+  /**
+   * Saves the answers to the applicantion's Primary Applicant Info questions into the Primary
+   * Applicant Info columns in the applicants table. If the application is empty, nothing is saved.
+   *
+   * @param optionalApplication The application being submitted
+   * @return A CompletionStage returning the application with the Primary Applicant Info columns
+   *     updated on the applicant model.
+   */
+  CompletionStage<Optional<ApplicationModel>> savePrimaryApplicantInfoAnswers(
+      Optional<ApplicationModel> optionalApplication) {
+    if (optionalApplication.isEmpty()) {
+      return CompletableFuture.completedFuture(optionalApplication);
+    }
+    ApplicationModel application = optionalApplication.get();
+    ProgramModel applicationProgram = application.getProgram();
+    ApplicantModel applicant = application.getApplicant();
+    ApplicantData applicantData = application.getApplicantData();
+    return programService
+        .getFullProgramDefinition(applicationProgram)
+        .thenComposeAsync(
+            programDefinition -> {
+              database.beginTransaction();
+              programDefinition
+                  .getQuestionsWithPrimaryApplicantInfoTags()
+                  .forEach(
+                      question -> {
+                        Path path = Path.create("applicant").join(question.getQuestionNameKey());
+                        question
+                            .getPrimaryApplicantInfoTags()
+                            .forEach(
+                                tag -> {
+                                  switch (tag) {
+                                    case APPLICANT_NAME:
+                                      applicant.setFirstName(
+                                          applicantData
+                                              .readString(path.join(Scalar.FIRST_NAME))
+                                              .orElseThrow());
+                                      // Middle name is optional
+                                      applicant.setMiddleName(
+                                          applicantData
+                                              .readString(path.join(Scalar.MIDDLE_NAME))
+                                              .orElse(""));
+                                      applicant.setLastName(
+                                          applicantData
+                                              .readString(path.join(Scalar.LAST_NAME))
+                                              .orElseThrow());
+                                      break;
+                                    case APPLICANT_EMAIL:
+                                      applicant.setEmailAddress(
+                                          applicantData
+                                              .readString(path.join(Scalar.EMAIL))
+                                              .orElseThrow());
+                                      break;
+                                    case APPLICANT_PHONE:
+                                      // Country code is set automatically by setPhoneNumber
+                                      applicant.setPhoneNumber(
+                                          applicantData
+                                              .readString(path.join(Scalar.PHONE_NUMBER))
+                                              .orElseThrow());
+                                      break;
+                                    case APPLICANT_DOB:
+                                      applicant.setDateOfBirth(
+                                          applicantData
+                                              .readDate(path.join(Scalar.DATE))
+                                              .orElseThrow());
+                                      break;
+                                    default:
+                                      break;
+                                  }
+                                });
+                      });
+              applicant.save();
+              database.commitTransaction();
+              return CompletableFuture.completedFuture(optionalApplication);
+            });
+  }
+
   @VisibleForTesting
   CompletionStage<ApplicationModel> submitApplication(
       long applicantId, long programId, Optional<String> tiSubmitterEmail) {
@@ -459,6 +540,9 @@ public final class ApplicantService {
     CompletableFuture<Optional<ApplicationModel>> applicationFuture =
         applicationRepository
             .submitApplication(applicantId, programId, tiSubmitterEmail)
+            .thenComposeAsync(
+                application -> savePrimaryApplicantInfoAnswers(application),
+                httpExecutionContext.current())
             .toCompletableFuture();
     return CompletableFuture.allOf(applicantLabelFuture, applicationFuture)
         .thenComposeAsync(
@@ -486,7 +570,8 @@ public final class ApplicantService {
               CompletableFuture<Void> notifyProgramAdminsFuture =
                   CompletableFuture.runAsync(
                       () ->
-                          notifyProgramAdmins(applicantId, programId, application.id, programName));
+                          notifyProgramAdmins(applicantId, programId, application.id, programName),
+                      httpExecutionContext.current());
 
               CompletableFuture<Void> notifyTiSubmitterFuture =
                   tiSubmitterEmail
@@ -695,7 +780,8 @@ public final class ApplicantService {
               } else {
                 amazonSESClient.send(tiEmail, subject, message);
               }
-            })
+            },
+            httpExecutionContext.current())
         .toCompletableFuture();
   }
 

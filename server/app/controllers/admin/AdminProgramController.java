@@ -152,8 +152,7 @@ public final class AdminProgramController extends CiviFormController {
       return ok(newOneView.render(request, programData, message));
     }
 
-    return getSaveProgramDetailsRedirect(
-        request, result.getResult().id(), ProgramEditStatus.CREATION);
+    return getSaveProgramDetailsRedirect(result.getResult().id(), ProgramEditStatus.CREATION);
   }
 
   /**
@@ -282,7 +281,7 @@ public final class AdminProgramController extends CiviFormController {
         programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
         settingsManifest.getIntakeFormEnabled(request),
         ImmutableList.copyOf(programData.getTiGroups()));
-    return getSaveProgramDetailsRedirect(request, programId, programEditStatus);
+    return getSaveProgramDetailsRedirect(programId, programEditStatus);
   }
 
   /** Returns an HTML page containing a form to edit program-level settings. */
@@ -314,8 +313,8 @@ public final class AdminProgramController extends CiviFormController {
 
   /** Returns where admins should be taken to after saving program detail edits. */
   private Result getSaveProgramDetailsRedirect(
-      Request request, long programId, ProgramEditStatus programEditStatus) {
-    if (settingsManifest.getProgramCardImages(request)
+      long programId, ProgramEditStatus programEditStatus) {
+    if (settingsManifest.getProgramCardImages()
         && (programEditStatus == ProgramEditStatus.CREATION
             || programEditStatus == ProgramEditStatus.CREATION_EDIT)) {
       // While creating a new program, we want to direct admins to also add a program image.

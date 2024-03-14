@@ -64,8 +64,9 @@ public class AdminReportingShowView extends BaseHtmlView {
       CiviFormProfile profile,
       String programSlug,
       String programName,
+      String enUSLocalizedProgramName,
       ReportingService.MonthlyStats monthlyStats) {
-    var title = String.format("%s reporting", programName);
+    var title = String.format("%s reporting", enUSLocalizedProgramName);
 
     DivTag headerDiv =
         div()

@@ -91,7 +91,7 @@ public final class PdfExporter {
   private String getSubmitTime(Instant submitTime) {
     return submitTime == null
         ? "Application submitted without submission time marked."
-        : dateConverter.renderDateTime(submitTime);
+        : dateConverter.renderDateTimeHumanReadable(submitTime);
   }
 
   private byte[] buildPDF(

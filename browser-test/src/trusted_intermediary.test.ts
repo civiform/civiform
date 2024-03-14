@@ -688,7 +688,9 @@ test.describe('Trusted intermediaries', () => {
     // Create a program with 1 question.
     const program1 = 'Test program 1'
     const program2 = 'Test program 2'
+    const program3 = 'Test program 3'
     const emailQuestionId = 'ti-email-question'
+    const numberQuestionId = 'ti-number-question'
 
     test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms, tiDashboard} = ctx
@@ -698,9 +700,13 @@ test.describe('Trusted intermediaries', () => {
         questionName: emailQuestionId,
       })
 
+      await adminQuestions.addNumberQuestion({
+        questionName: numberQuestionId,
+      })
+
       // Create program 1
       await adminPrograms.addProgram(program1)
-      await adminPrograms.editProgramBlock(program1, 'first description', [
+      await adminPrograms.editProgramBlock(program1, 'description', [
         emailQuestionId,
       ])
 
@@ -709,12 +715,21 @@ test.describe('Trusted intermediaries', () => {
 
       // Create program 2
       await adminPrograms.addProgram(program2)
-      await adminPrograms.editProgramBlock(program2, 'first description', [
+      await adminPrograms.editProgramBlock(program2, 'description', [
         emailQuestionId,
       ])
 
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishProgram(program2)
+
+      // Create program 3
+      await adminPrograms.addProgram(program3)
+      await adminPrograms.editProgramBlock(program3, 'description', [
+        numberQuestionId,
+      ])
+
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(program3)
 
       await logout(page)
 
@@ -758,6 +773,23 @@ test.describe('Trusted intermediaries', () => {
       await applicantQuestions.clickSubmit()
 
       await tiDashboard.gotoTIDashboardPage(page)
+      await tiDashboard.expectClientContainsNumberOfApplications('2')
+      await tiDashboard.expectClientContainsProgramNames([
+        'Test program 1',
+        'Test program 2',
+      ])
+
+      // Start application to third program, but don't submit
+      await tiDashboard.clickOnViewApplications()
+
+      await applicantQuestions.clickApplyProgramButton(program3)
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.answerNumberQuestion('1')
+      await applicantQuestions.clickNext()
+
+      await tiDashboard.gotoTIDashboardPage(page)
+
+      // Should only show submitted applications
       await tiDashboard.expectClientContainsNumberOfApplications('2')
       await tiDashboard.expectClientContainsProgramNames([
         'Test program 1',
@@ -998,6 +1030,51 @@ test.describe('Trusted intermediaries', () => {
       await validateScreenshot(
         page.locator('.usa-pagination'),
         'ti-pagination-ellipses-left',
+      )
+    })
+  })
+  test.describe('organization members table', () => {
+    test('shows name, email and account status', async () => {
+      const {page, tiDashboard} = ctx
+      await loginAsTrustedIntermediary(page)
+      await tiDashboard.gotoTIDashboardPage(page)
+      await waitForPageJsLoad(page)
+
+      await validateScreenshot(
+        page.getByTestId('org-members-table'),
+        'org-members-table',
+      )
+
+      // Verifying the column headers
+      expect(page.getByTestId('org-members-name')).not.toBeNull()
+      expect(page.getByTestId('org-members-email')).not.toBeNull()
+      expect(page.getByTestId('org-members-status')).not.toBeNull()
+    })
+    test('displays multiple rows when there are several TIs in the group', async () => {
+      const {page, tiDashboard, adminTiGroups} = ctx
+      await loginAsAdmin(page)
+      await adminTiGroups.gotoAdminTIPage()
+      await adminTiGroups.fillInGroupBasics('TI group', 'test group')
+      await waitForPageJsLoad(page)
+      await adminTiGroups.expectGroupExist('TI group')
+
+      await adminTiGroups.editGroup('TI group')
+
+      // Note that these emails will be replaced by 'fake-email@example.com'
+      // to normalize the table contents (see src/support/index.ts).
+      await adminTiGroups.addGroupMember('testti2@test.com')
+      await adminTiGroups.addGroupMember('testti3@test.com')
+      await adminTiGroups.addGroupMember('testti4@test.com')
+
+      await logout(page)
+
+      await loginAsTrustedIntermediary(page)
+      await tiDashboard.gotoTIDashboardPage(page)
+      await waitForPageJsLoad(page)
+
+      await validateScreenshot(
+        page.getByTestId('org-members-table'),
+        'org-members-table-many',
       )
     })
   })
