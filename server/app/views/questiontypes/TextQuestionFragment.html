@@ -1,2 +1,16 @@
-<div th:fragment="text (question)">
+<div th:fragment="text (question)" th:with="textQuestion=${question.createTextQuestion()}, questionId=${#strings.randomAlphanumeric(8)}">
+    <!-- Title and Help Text -->
+    <div th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpText(${question}, ${questionId})}"></div>
+
+    <!-- Display errors -->
+    <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${textQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
+    
+    <input type="text"
+        class="usa-input"
+        th:aria-describedby="${questionId} + '-description'"
+        maxlength="10000"
+        th:name="${textQuestion.getTextPath()}"
+        th:value="${textQuestion.getTextValue().orElse('')}"
+        th:aria-required="${!question.isOptional()}"
+        th:aria-invalid="${!textQuestion.getValidationErrors().isEmpty()}">
 </div>
