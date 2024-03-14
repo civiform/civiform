@@ -22,8 +22,8 @@ public class PredicateUtilsTest {
             PredicateExpressionNode.create(
                 LeafOperationExpressionNode.create(
                     /* questionId= */ 1000,
-                    Scalar.DATE,
-                    Operator.IS_ON_OR_BEFORE,
+                    Scalar.NUMBER,
+                    Operator.GREATER_THAN_OR_EQUAL_TO,
                     PredicateValue.of(1000L))),
             PredicateAction.SHOW_BLOCK);
 
@@ -31,10 +31,8 @@ public class PredicateUtilsTest {
         PredicateUtils.getReadablePredicateDescription(
             "My Test Block", predicate, ImmutableList.of());
 
-    assertThat(readablePredicate.heading()).contains("My Test Block");
-    assertThat(readablePredicate.heading()).contains("is shown if");
-    assertThat(readablePredicate.heading()).contains("is on or earlier than");
-
+    assertThat(readablePredicate.heading())
+        .isEqualTo("My Test Block is shown if number is greater than or equal to 1000");
     assertThat(readablePredicate.conditionList()).isEmpty();
   }
 
@@ -45,14 +43,14 @@ public class PredicateUtilsTest {
             PredicateExpressionNode.create(
                 LeafOperationExpressionNode.create(
                     /* questionId= */ 1000,
-                    Scalar.DATE,
-                    Operator.IS_ON_OR_BEFORE,
-                    PredicateValue.of(1000L))),
+                    Scalar.CITY,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("Phoenix"))),
             PredicateExpressionNode.create(
                 LeafOperationExpressionNode.create(
                     /* questionId= */ 1001,
                     Scalar.NUMBER,
-                    Operator.EQUAL_TO,
+                    Operator.LESS_THAN,
                     PredicateValue.of(4))),
             PredicateExpressionNode.create(
                 LeafOperationExpressionNode.create(
@@ -72,11 +70,10 @@ public class PredicateUtilsTest {
         PredicateUtils.getReadablePredicateDescription(
             "My Test Block", predicate, ImmutableList.of());
 
-    assertThat(readablePredicate.heading()).contains("My Test Block is hidden if");
-    assertThat(readablePredicate.heading()).contains("is on or earlier than");
-    assertThat(readablePredicate.heading()).contains("is equal to 4");
-    assertThat(readablePredicate.heading()).contains("is not equal to \"hello\"");
-
+    assertThat(readablePredicate.heading())
+        .isEqualTo(
+            "My Test Block is hidden if city is equal to \"Phoenix\" and number is less than 4 and"
+                + " text is not equal to \"hello\"");
     assertThat(readablePredicate.conditionList()).isEmpty();
   }
 
@@ -125,17 +122,12 @@ public class PredicateUtilsTest {
         PredicateUtils.getReadablePredicateDescription(
             "My Test Block", predicate, ImmutableList.of());
 
-    // Verify the heading has some introductory text, but not any predicate text
-    assertThat(readablePredicate.heading()).contains("My Test Block is eligible if any of:");
-    assertThat(readablePredicate.heading()).doesNotContain("is equal to 4");
-    assertThat(readablePredicate.heading()).doesNotContain("is equal to 5");
-
-    // Verify there's 1 condition item per AND statement
+    assertThat(readablePredicate.heading()).isEqualTo("My Test Block is eligible if any of:");
     assertThat(readablePredicate.conditionList()).isPresent();
     assertThat(readablePredicate.conditionList().get().size()).isEqualTo(2);
-    assertThat(readablePredicate.conditionList().get().get(0)).contains("is equal to 4");
-    assertThat(readablePredicate.conditionList().get().get(0)).contains("is equal to \"four\"");
-    assertThat(readablePredicate.conditionList().get().get(1)).contains("is equal to 5");
-    assertThat(readablePredicate.conditionList().get().get(1)).contains("is equal to \"five\"");
+    assertThat(readablePredicate.conditionList().get().get(0))
+        .isEqualTo("number is equal to 4 and text is equal to \"four\"");
+    assertThat(readablePredicate.conditionList().get().get(1))
+        .isEqualTo("number is equal to 5 and text is equal to \"five\"");
   }
 }
