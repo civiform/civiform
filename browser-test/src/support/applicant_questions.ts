@@ -621,4 +621,21 @@ export class ApplicantQuestions {
   async clickStayAndFixAnswers() {
     await this.page.click('button:has-text("Stay and fix your answers")')
   }
+
+  async completeApplicationWithPaiQuestions(
+    programName: string,
+    firstName: string,
+    middleName: string,
+    lastName: string,
+    email: string,
+    phone: string,
+  ) {
+    await this.applyProgram(programName)
+    await this.answerNameQuestion(firstName, lastName, middleName)
+    await this.answerEmailQuestion(email)
+    await this.answerPhoneQuestion(phone)
+    await this.clickNext()
+    await this.submitFromReviewPage()
+    await this.page.click('text=End session')
+  }
 }
