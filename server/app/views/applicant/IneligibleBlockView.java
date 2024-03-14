@@ -142,7 +142,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
     Optional<String> applicantName =
         roApplicantProgramService.getApplicantData().getApplicantName();
     Representation.Builder representationBuilder = Representation.builder();
-    
+
     return layout.renderWithNav(
         request,
         applicantName.isPresent()

@@ -592,10 +592,10 @@ public final class ApplicantService {
                   applicantPersonalInfo.getType() == ApplicantType.LOGGED_IN
                       ? applicantPersonalInfo.loggedIn().email()
                       : applicantPersonalInfo.getType() == ApplicantType.TI_PARTIALLY_CREATED
-                      ? applicantPersonalInfo.tiPartiallyCreated().email()
-                      : applicantPersonalInfo.guest().email();
+                          ? applicantPersonalInfo.tiPartiallyCreated().email()
+                          : applicantPersonalInfo.guest().email();
 
-                            CompletableFuture<Void> notifyApplicantFuture;
+              CompletableFuture<Void> notifyApplicantFuture;
               if (applicantEmails.isEmpty() || applicantEmails.get().isEmpty()) {
                 notifyApplicantFuture = CompletableFuture.completedFuture(null);
               } else {
@@ -610,11 +610,11 @@ public final class ApplicantService {
                                       programDefinition,
                                       maybeDefaultStatus)
                                   .toCompletableFuture();
-                                })
-                            .collect(ImmutableList.toImmutableList());
-                    notifyApplicantFuture =
-                        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-                  }
+                            })
+                        .collect(ImmutableList.toImmutableList());
+                notifyApplicantFuture =
+                    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+              }
               return CompletableFuture.allOf(
                       updateStatusFuture,
                       notifyProgramAdminsFuture,
@@ -852,7 +852,6 @@ public final class ApplicantService {
         .lookupApplicant(applicantId)
         .thenApplyAsync(
             applicant -> {
-
               Representation.Builder builder = Representation.builder();
 
               boolean hasAuthorityId =
@@ -868,7 +867,6 @@ public final class ApplicantService {
                 // specific oneof value.
                 return ApplicantPersonalInfo.ofGuestUser(builder.build());
               }
-
 
               Optional<String> name = applicant.get().getApplicantData().getApplicantName();
               if (name.isPresent() && !Strings.isNullOrEmpty(name.get())) {

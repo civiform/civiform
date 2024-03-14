@@ -441,11 +441,12 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
     String emailString = "";
     if (optionalAccountEmail.isEmpty() && optionalApplicantEmail.isPresent()) {
-        emailString = optionalApplicantEmail.orElse("");
-    } else if (optionalApplicantEmail.isEmpty() || optionalAccountEmail.get().equals(optionalApplicantEmail.get())) {
-        emailString = optionalAccountEmail.orElse("");
+      emailString = optionalApplicantEmail.orElse("");
+    } else if (optionalApplicantEmail.isEmpty()
+        || optionalAccountEmail.get().equals(optionalApplicantEmail.get())) {
+      emailString = optionalAccountEmail.orElse("");
     } else {
-        emailString = optionalAccountEmail.get() + " and " + optionalApplicantEmail.get();
+      emailString = optionalAccountEmail.get() + " and " + optionalApplicantEmail.get();
     }
     return label()
         .with(

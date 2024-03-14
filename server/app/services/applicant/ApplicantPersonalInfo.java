@@ -4,10 +4,10 @@ import static services.applicant.ApplicantPersonalInfo.ApplicantType.LOGGED_IN;
 
 import com.google.auto.value.AutoOneOf;
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import play.i18n.Messages;
 import services.MessageKey;
-import com.google.common.collect.ImmutableSet;
 
 /**
  * Represents a human-readable label for an applicant, such as the one that is displayed on the
