@@ -62,7 +62,6 @@ test.describe('Text question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-
     test(
       'validate screenshot with north star flag enabled',
       {tag: ['@northstar']},
@@ -70,7 +69,7 @@ test.describe('Text question for applicant flow', () => {
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'north_star_applicant_ui')
         await applicantQuestions.applyProgram(programName)
-  
+
         await validateScreenshot(
           page,
           'text-north-star',
@@ -79,7 +78,7 @@ test.describe('Text question for applicant flow', () => {
         )
       },
     )
-  
+
     test(
       'validate screenshot with errors with north star flag enabled',
       {tag: ['@northstar']},
@@ -88,7 +87,7 @@ test.describe('Text question for applicant flow', () => {
         await enableFeatureFlag(page, 'north_star_applicant_ui')
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.clickContinue()
-  
+
         await validateScreenshot(
           page,
           'text-errors-north-star',
@@ -295,5 +294,5 @@ test.describe('Text question for applicant flow', () => {
 
       await validateAccessibility(page)
     })
-})
+  })
 })
