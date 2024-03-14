@@ -51,11 +51,11 @@ public final class PdfExporter {
 
   /**
    * Generates a byte array containing all the values present in the List of AnswerData using
-   * itextPDF.This function creates the output document in memory as a byte[] and is part of the
+   * itextPDF. This function creates the output document in memory as a byte[] and is part of the
    * inMemoryPDF object. The InMemoryPdf object is passed back to the AdminController Class to
    * generate the required PDF.
    */
-  public InMemoryPdf export(
+  public InMemoryPdf exportApplication(
       ApplicationModel application, boolean showEligibilityText, boolean includeHiddenBlocks)
       throws DocumentException, IOException {
     ReadOnlyApplicantProgramService roApplicantService =
@@ -77,7 +77,7 @@ public final class PdfExporter {
     String applicantNameWithApplicationId = String.format("%s (%d)", applicantName, application.id);
     String filename = String.format("%s-%s.pdf", applicantNameWithApplicationId, nowProvider.get());
     byte[] bytes =
-        buildPDF(
+        buildApplicationPdf(
             answersOnlyActive,
             answersOnlyHidden,
             applicantNameWithApplicationId,
@@ -94,7 +94,7 @@ public final class PdfExporter {
         : dateConverter.renderDateTimeHumanReadable(submitTime);
   }
 
-  private byte[] buildPDF(
+  private byte[] buildApplicationPdf(
       ImmutableList<AnswerData> answersOnlyActive,
       ImmutableList<AnswerData> answersOnlyHidden,
       String applicantNameWithApplicationId,
