@@ -53,41 +53,6 @@ test.describe('Text question for applicant flow', () => {
       await validateScreenshot(page, 'text-errors')
     })
 
-    test(
-      'validate screenshot with north star flag enabled',
-      {tag: ['@northstar']},
-      async () => {
-        const {page, applicantQuestions} = ctx
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-        await applicantQuestions.applyProgram(programName)
-
-        await validateScreenshot(
-          page,
-          'text-north-star',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
-      },
-    )
-
-    test(
-      'validate screenshot with errors with north star flag enabled',
-      {tag: ['@northstar']},
-      async () => {
-        const {page, applicantQuestions} = ctx
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-        await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.clickContinue()
-
-        await validateScreenshot(
-          page,
-          'text-errors-north-star',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
-      },
-    )
-
     test('with text submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
@@ -96,6 +61,42 @@ test.describe('Text question for applicant flow', () => {
 
       await applicantQuestions.submitFromReviewPage()
     })
+
+
+    test(
+      'validate screenshot with north star flag enabled',
+      {tag: ['@northstar']},
+      async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+        await applicantQuestions.applyProgram(programName)
+  
+        await validateScreenshot(
+          page,
+          'text-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      },
+    )
+  
+    test(
+      'validate screenshot with errors with north star flag enabled',
+      {tag: ['@northstar']},
+      async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.clickContinue()
+  
+        await validateScreenshot(
+          page,
+          'text-errors-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      },
+    )
 
     test('with empty text does not submit', async () => {
       const {page, applicantQuestions} = ctx
@@ -294,5 +295,5 @@ test.describe('Text question for applicant flow', () => {
 
       await validateAccessibility(page)
     })
-  })
+})
 })
