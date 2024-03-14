@@ -185,7 +185,7 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="CIVIFORM_URL" elementType="Argument">
             <stringProp name="Argument.name">CIVIFORM_URL</stringProp>
-            <stringProp name="Argument.value">staging-aws.civiform.dev</stringProp>
+            <stringProp name="Argument.value">${__P(CIVIFORM_URL,staging-aws.civiform.dev)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="PROGRAM_ID" elementType="Argument">
