@@ -31,7 +31,7 @@ jobs:
         uses: QAInsights/PerfAction@v5.6.2
         with:
           test-plan-path: load-test/${{ github.event.inputs.test_to_run }}.jmx
-          args: "-JciviformUrl=a11y-testing.civiform.dev"
+          args: '"-J" "civiformUrl=a11y-testing.civiform.dev"'
           results-file: result.csv
       - name: Upload Results
         uses: actions/upload-artifact@v4
