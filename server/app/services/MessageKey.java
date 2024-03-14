@@ -165,7 +165,7 @@ public enum MessageKey {
   GUEST_INDICATOR("header.guestIndicator"),
   HEADER_ACCT_SETTING("header.acctSettings"),
   HEADER_CLIENT_LIST("header.clientList"),
-  HEADER_SEARCH("header.search=Search"),
+  HEADER_SEARCH("header.search"),
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),
   ID_VALIDATION_TOO_LONG("validation.idTooLong"),
   ID_VALIDATION_TOO_SHORT("validation.idTooShort"),
