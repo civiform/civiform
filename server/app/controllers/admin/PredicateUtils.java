@@ -19,18 +19,17 @@ public final class PredicateUtils {
             /* heading= */ predicate.toDisplayString(blockName, questionDefinitions),
             /* conditionList= */ Optional.empty());
       case OR_OF_SINGLE_LAYER_ANDS:
+        String headingPrefix = blockName + " is " + predicate.action().toDisplayString();
         ImmutableList<PredicateExpressionNode> andNodes =
             predicate.rootNode().getOrNode().children();
         if (andNodes.size() == 1) {
           return ReadablePredicate.create(
-              /* heading= */ blockName
-                  + " is "
-                  + predicate.action().toDisplayString()
+              /* heading= */ headingPrefix
                   + " "
                   + andNodes.get(0).getAndNode().toDisplayString(questionDefinitions),
               /* conditionList= */ Optional.empty());
         } else {
-          String heading = blockName + " is " + predicate.action().toDisplayString() + " any of:";
+          String heading = headingPrefix + " any of:";
           ImmutableList<String> conditionList =
               andNodes.stream()
                   .map(andNode -> andNode.getAndNode().toDisplayString(questionDefinitions))
