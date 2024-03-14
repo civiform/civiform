@@ -8,6 +8,18 @@ on:
         default: main
         required: true
 
+      civiform_url:
+        description: 'The url to run the load tests for. Defaults to staging-aws.civiform.dev'
+        default: staging-aws.civiform.dev
+
+      output_file_type:
+        description: 'The type of the file to output. Defaults to jtl'
+        type: choice
+        default: jtl
+        options:
+        - jtl
+        - csv
+
       test_to_run:
         description: 'The load test to run from load-test/'
         type: choice
@@ -31,11 +43,11 @@ jobs:
         uses: QAInsights/PerfAction@v5.6.2
         with:
           test-plan-path: load-test/${{ github.event.inputs.test_to_run }}.jmx
-          args: -JciviformUrl=a11y-testing.civiform.dev
-          results-file: result.csv
+          args: -JciviformUrl=${{ github.event.inputs.civiform_url }}
+          results-file: result.${{ github.event.inputs.output_file_type }}
       - name: Upload Results
         uses: actions/upload-artifact@v4
         with:
           name: jmeter-results
-          path: result.csv
+          path: result.${{ github.event.inputs.output_file_type }}
           if-no-files-found: error
