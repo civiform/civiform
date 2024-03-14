@@ -156,7 +156,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .addMainContent(contentDiv)
             .addModals(demographicsCsvModal);
 
-    if (settingsManifest.getUniversalQuestions(request)) {
+    if (settingsManifest.getUniversalQuestions()) {
       publishSingleProgramModals.stream()
           .forEach(
               (modal) -> {
@@ -345,7 +345,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                                     sortedDraftPrograms,
                                     program ->
                                         renderPublishModalProgramItem(
-                                            program, universalQuestionIds, request)))),
+                                            program, universalQuestionIds)))),
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_QUESTION)
                     .with(
@@ -386,7 +386,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private LiTag renderPublishModalProgramItem(
-      ProgramDefinition program, ImmutableList<Long> universalQuestionIds, Http.Request request) {
+      ProgramDefinition program, ImmutableList<Long> universalQuestionIds) {
     String visibilityText = " ";
     switch (program.displayMode()) {
       case HIDDEN_IN_INDEX:
@@ -402,7 +402,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     Optional<String> maybeUniversalQuestionsText =
         generateUniversalQuestionText(program, universalQuestionIds);
     boolean shouldShowUniversalQuestionsCount =
-        settingsManifest.getUniversalQuestions(request) && maybeUniversalQuestionsText.isPresent();
+        settingsManifest.getUniversalQuestions() && maybeUniversalQuestionsText.isPresent();
 
     return li().with(
             span(program.localizedName().getDefault()).withClasses("font-medium"),
@@ -453,7 +453,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (draftProgram.isPresent()) {
       List<ButtonTag> draftRowActions = Lists.newArrayList();
       List<ButtonTag> draftRowExtraActions = Lists.newArrayList();
-      if (settingsManifest.getUniversalQuestions(request)) {
+      if (settingsManifest.getUniversalQuestions()) {
         // Add the trigger button belonging to the modal that matches each draft program
         publishSingleProgramModals.stream()
             .forEach(

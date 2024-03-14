@@ -429,7 +429,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   private SpanTag renderSubmitTime(ApplicationModel application) {
     try {
-      return span().withText(dateConverter.renderDateTime(application.getSubmitTime()));
+      return span()
+          .withText(dateConverter.renderDateTimeHumanReadable(application.getSubmitTime()));
     } catch (NullPointerException e) {
       log.error("Application {} submitted without submission time marked.", application.id);
       return span();

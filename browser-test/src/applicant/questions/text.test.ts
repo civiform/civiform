@@ -112,8 +112,8 @@ test.describe('Text question for applicant flow', () => {
 
       // Go back to question and ensure that "Review" button is also clickable
       // via Enter.
-      await page.click('a:has-text("Edit")')
-      await page.focus('a:has-text("Review")')
+      await applicantQuestions.clickEdit()
+      await page.focus('text="Review"')
       await page.keyboard.press('Enter')
       await applicantQuestions.expectReviewPage()
     })

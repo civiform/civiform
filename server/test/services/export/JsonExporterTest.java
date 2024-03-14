@@ -118,8 +118,8 @@ public class JsonExporterTest extends AbstractExporterTest {
             Helpers.fakeRequest().build());
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
-    resultAsserter.assertValueAtPath("$[0].create_time", "2022/04/09 3:07:02 AM PDT");
-    resultAsserter.assertValueAtPath("$[0].submit_time", "2022/12/09 2:30:30 AM PST");
+    resultAsserter.assertValueAtPath("$[0].create_time", "2022-04-09T03:07:02-07:00");
+    resultAsserter.assertValueAtPath("$[0].submit_time", "2022-12-09T02:30:30-08:00");
   }
 
   @Test

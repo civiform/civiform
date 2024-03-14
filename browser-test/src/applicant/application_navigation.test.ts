@@ -84,16 +84,20 @@ test.describe('Applicant navigation flow', () => {
 
     test.describe('previous button', () => {
       test('clicking previous on first block goes to summary page', async () => {
-        const {applicantQuestions} = ctx
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'save_on_all_actions')
         await applicantQuestions.applyProgram(programName)
+
         await applicantQuestions.clickPrevious()
+        await applicantQuestions.clickPreviousWithoutSaving()
 
         // Assert that we're on the preview page.
         await applicantQuestions.expectReviewPage()
       })
 
       test('clicking previous on later blocks goes to previous blocks', async () => {
-        const {applicantQuestions} = ctx
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'save_on_all_actions')
         await applicantQuestions.applyProgram(programName)
 
         // Fill out the first block and click next
@@ -116,6 +120,7 @@ test.describe('Applicant navigation flow', () => {
 
         // Click previous and see previous page with address
         await applicantQuestions.clickPrevious()
+        await applicantQuestions.clickPreviousWithoutSaving()
         await applicantQuestions.checkAddressQuestionValue(
           '1234 St',
           'Unit B',

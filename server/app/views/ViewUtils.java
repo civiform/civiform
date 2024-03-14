@@ -222,7 +222,8 @@ public final class ViewUtils {
    * @return Tag containing rendered time.
    */
   public PTag renderEditOnText(String prefix, Optional<Instant> time) {
-    String formattedUpdateTime = time.map(dateConverter::renderDateTime).orElse("unknown");
+    String formattedUpdateTime =
+        time.map(dateConverter::renderDateTimeHumanReadable).orElse("unknown");
     String formattedUpdateDate = time.map(dateConverter::renderDate).orElse("unknown");
     return p().with(
             span(prefix),

@@ -272,8 +272,8 @@ public class CsvExporterTest extends AbstractExporterTest {
         CSVParser.parse(exporterService.getDemographicsCsv(TimeFilter.EMPTY), DEFAULT_FORMAT);
     CSVRecord firstApplicationRecord = parser.getRecords().get(0);
 
-    assertThat(firstApplicationRecord.get("Create Time")).isEqualTo("2022/04/09 3:07:02 AM PDT");
-    assertThat(firstApplicationRecord.get("Submit Time")).isEqualTo("2022/12/09 2:30:30 AM PST");
+    assertThat(firstApplicationRecord.get("Create Time")).isEqualTo("2022/04/09 03:07:02 AM PDT");
+    assertThat(firstApplicationRecord.get("Submit Time")).isEqualTo("2022/12/09 02:30:30 AM PST");
   }
 
   @Test

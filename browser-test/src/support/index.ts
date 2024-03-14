@@ -665,7 +665,7 @@ export const extractEmailsForRecipient = async function (
     throw new Error('Unsupported call to extractEmailsForRecipient')
   }
   const originalPageUrl = page.url()
-  await page.goto(`${LOCALSTACK_URL}/_localstack/ses`)
+  await page.goto(`${LOCALSTACK_URL}/_aws/ses`)
   const responseJson = JSON.parse(
     await page.innerText('body'),
   ) as LocalstackSesResponse

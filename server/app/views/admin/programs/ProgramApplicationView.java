@@ -451,7 +451,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     String submitTime =
         application.getSubmitTime() == null
             ? "Application submitted without submission time marked."
-            : dateConverter.renderDateTime(application.getSubmitTime());
+            : dateConverter.renderDateTimeHumanReadable(application.getSubmitTime());
     return span().withText(submitTime);
   }
 }

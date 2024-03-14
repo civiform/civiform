@@ -32,6 +32,7 @@ import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.StorageUploadRequest;
 import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
+import views.ApplicationBaseViewParams;
 import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.fileupload.FileUploadViewStrategy;
@@ -144,7 +145,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
    * @return a container tag with the submit view
    */
   public DivTag renderFileUploadBlock(
-      Params params, ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
+      ApplicationBaseViewParams params,
+      ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
     String onSuccessRedirectUrl =
         params.baseUrl()
             + applicantRoutes
@@ -223,7 +225,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
    *
    * <p>See {@link #renderDeleteAndContinueFileUploadForms}.
    */
-  private Optional<ButtonTag> maybeRenderSkipOrDeleteButton(Params params) {
+  private Optional<ButtonTag> maybeRenderSkipOrDeleteButton(ApplicationBaseViewParams params) {
     if (hasAtLeastOneRequiredQuestion(params)) {
       // If the file question is required, skip or delete is not allowed.
       return Optional.empty();
@@ -248,7 +250,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
    *
    * <p>See {@link #renderDeleteAndContinueFileUploadForms}.
    */
-  private Optional<ButtonTag> maybeRenderContinueButton(Params params) {
+  private Optional<ButtonTag> maybeRenderContinueButton(ApplicationBaseViewParams params) {
     if (!hasUploadedFile(params)) {
       return Optional.empty();
     }
@@ -271,7 +273,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
    * applicant re-submits a form without changing their answer. Continue form is only used when an
    * existing file (and file key) is present.
    */
-  private DivTag renderDeleteAndContinueFileUploadForms(Params params) {
+  private DivTag renderDeleteAndContinueFileUploadForms(ApplicationBaseViewParams params) {
     String formAction =
         applicantRoutes
             .updateBlock(
@@ -311,7 +313,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     return div(continueForm, deleteForm).withClasses("hidden");
   }
 
-  private ButtonTag renderOldNextButton(Params params) {
+  private ButtonTag renderOldNextButton(ApplicationBaseViewParams params) {
     String styles = ButtonStyles.SOLID_BLUE;
     if (hasUploadedFile(params)) {
       styles = ButtonStyles.OUTLINED_TRANSPARENT;
@@ -332,18 +334,18 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     return FileUploadQuestionRenderer.renderFileKeyField(question, params, true);
   }
 
-  private boolean hasUploadedFile(Params params) {
+  private boolean hasUploadedFile(ApplicationBaseViewParams params) {
     return params.block().getQuestions().stream()
         .map(ApplicantQuestion::createFileUploadQuestion)
         .map(FileUploadQuestion::getFileKeyValue)
         .anyMatch(Optional::isPresent);
   }
 
-  private boolean hasAtLeastOneRequiredQuestion(Params params) {
+  private boolean hasAtLeastOneRequiredQuestion(ApplicationBaseViewParams params) {
     return params.block().getQuestions().stream().anyMatch(question -> !question.isOptional());
   }
 
-  private DivTag renderFileUploadBottomNavButtons(Params params) {
+  private DivTag renderFileUploadBottomNavButtons(ApplicationBaseViewParams params) {
     Optional<ButtonTag> maybeContinueButton = maybeRenderContinueButton(params);
     Optional<ButtonTag> maybeSkipOrDeleteButton = maybeRenderSkipOrDeleteButton(params);
     DivTag ret =
@@ -361,7 +363,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     return ret;
   }
 
-  private DomContent renderButton(Params params, ApplicantRequestedAction action) {
+  private DomContent renderButton(
+      ApplicationBaseViewParams params, ApplicantRequestedAction action) {
     if (!settingsManifest.getSaveOnAllActions(params.request())) {
       switch (action) {
         case NEXT_BLOCK:
