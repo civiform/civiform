@@ -70,6 +70,24 @@ test.describe('Text question for applicant flow', () => {
       },
     )
 
+    test(
+      'validate screenshot with errors with north star flag enabled',
+      {tag: ['@northstar']},
+      async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.clickContinue()
+
+        await validateScreenshot(
+          page,
+          'text-errors-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      },
+    )
+
     test('with text submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
