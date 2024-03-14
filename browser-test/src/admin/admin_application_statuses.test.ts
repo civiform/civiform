@@ -289,7 +289,7 @@ test.describe('view program statuses', () => {
             expect(emailsAfter.length).toEqual(emailsBefore.length + 1)
             const sentEmail = emailsAfter[emailsAfter.length - 1]
             expect(sentEmail.Subject).toEqual(
-              `An update on your application ${programWithStatusesName}`,
+              `[Test Message] An update on your application ${programWithStatusesName}`,
             )
             expect(sentEmail.Body.text_part).toContain(emailBody)
           }
