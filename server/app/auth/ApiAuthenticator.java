@@ -14,6 +14,7 @@ import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.exception.BadCredentialsException;
+import org.pac4j.play.PlayWebContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.apikey.ApiKeyService;
@@ -97,7 +98,7 @@ public class ApiAuthenticator implements Authenticator {
       throwUnauthorized(context, "API key is expired: " + keyId);
     }
 
-    String resolvedIp = clientIpResolver.resolveClientIp(context);
+    String resolvedIp = clientIpResolver.resolveClientIp((PlayWebContext) context);
     if (!isAllowedIp(apiKey, resolvedIp)) {
       throwUnauthorized(
           context,
@@ -129,7 +130,7 @@ public class ApiAuthenticator implements Authenticator {
                 + " \"%s\", CLIENT_IP_TYPE: \"%s\", cause: \"%s\")",
             context.getPath(),
             context.getRemoteAddr(),
-            context.getRequestHeader("X-Forwarded-For").orElse(""),
+            context.getRequestHeader(ClientIpResolver.X_FORWARDED_FOR).orElse(""),
             clientIpResolver.getClientIpType().toString(),
             cause));
 
