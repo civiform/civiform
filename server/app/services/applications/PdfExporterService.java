@@ -17,11 +17,17 @@ public final class PdfExporterService {
     this.pdfExporter = checkNotNull(pdfExporter);
   }
 
-  public PdfExporter.InMemoryPdf generatePdf(
+  /**
+   * Creates and returns a PDF containing the answers submitted in the given {@code application}.
+   *
+   * <p>Used for applicants to download a copy of their submitted application and for program admins
+   * to review applications.
+   */
+  public PdfExporter.InMemoryPdf generateApplicationPdf(
       ApplicationModel application, boolean showEligibilityText, boolean includeHiddenBlocks) {
     PdfExporter.InMemoryPdf pdf;
     try {
-      pdf = pdfExporter.export(application, showEligibilityText, includeHiddenBlocks);
+      pdf = pdfExporter.exportApplication(application, showEligibilityText, includeHiddenBlocks);
     } catch (DocumentException | IOException e) {
       throw new RuntimeException(e);
     }

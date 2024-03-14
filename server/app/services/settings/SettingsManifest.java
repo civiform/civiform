@@ -703,6 +703,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * The count of reverse proxies between the internet and the server. In typical deployments, this
+   * value is 1.
+   */
+  public Optional<Integer> getNumTrustedProxies() {
+    return getInt("NUM_TRUSTED_PROXIES");
+  }
+
+  /**
    * If enabled, allows server Prometheus metrics to be retrieved via the '/metrics' URL path.  If
    * disabled, '/metrics' returns a 404.
    */
@@ -1975,5 +1983,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       /* isRequired= */ false,
                       SettingType.ENUM,
                       SettingMode.ADMIN_READABLE,
-                      ImmutableList.of("DIRECT", "FORWARDED")))));
+                      ImmutableList.of("DIRECT", "FORWARDED")),
+                  SettingDescription.create(
+                      "NUM_TRUSTED_PROXIES",
+                      "The count of reverse proxies between the internet and the server. In typical"
+                          + " deployments, this value is 1.",
+                      /* isRequired= */ false,
+                      SettingType.INT,
+                      SettingMode.ADMIN_READABLE))));
 }

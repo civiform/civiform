@@ -600,6 +600,11 @@
     "type": "string",
     "values": ["DIRECT", "FORWARDED"]
   },
+  "NUM_TRUSTED_PROXIES": {
+    "mode": "ADMIN_READABLE",
+    "description": "The count of reverse proxies between the internet and the server. In typical deployments, this value is 1.",
+    "type": "int"
+  },
   "Observability": {
     "group_description": "Configuration options for CiviForm observability features.",
     "members": {
