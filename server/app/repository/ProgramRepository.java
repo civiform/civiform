@@ -366,10 +366,8 @@ public final class ProgramRepository {
     if (filters.searchNameFragment().isPresent() && !filters.searchNameFragment().get().isBlank()) {
       String search = filters.searchNameFragment().get().trim();
       if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
-        System.out.println("searching using PAI");
         query = searchUsingPrimaryApplicantInfo(search, query);
       } else {
-        System.out.println("searching using WKP");
         query = searchUsingWellKnownPaths(search, query);
       }
     }

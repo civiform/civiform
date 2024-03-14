@@ -10,7 +10,7 @@ import {
   testUserDisplayName,
   waitForPageJsLoad,
   validateScreenshot,
-  enableFeatureFlag, endSession
+  enableFeatureFlag,
 } from '../support'
 
 test.describe('Program admin review of submitted applications', () => {
@@ -425,87 +425,86 @@ test.describe('Program admin review of submitted applications', () => {
 
     await logout(page)
   })
-  test.only('Application search using Personal Applicant Info works', async() => {
-    const {page, adminQuestions, adminPrograms, applicantQuestions, browser} = ctx
 
-  // turn PAI flag on
-  enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
-  await loginAsAdmin(page)
-  // add program 
-  const programName = 'Test program'
-  // add PAI questions
-  // name
-  // email
-  // phone
-  await adminQuestions.addNameQuestion({questionName: 'Name', universal: true, primaryApplicantInfo: true})
-  await adminQuestions.addEmailQuestion({questionName: 'Email', universal: true, primaryApplicantInfo: true})
-  await adminQuestions.addPhoneQuestion({questionName: 'Phone', universal: true, primaryApplicantInfo: true})
-  await adminPrograms.addAndPublishProgramWithQuestions(['Name', 'Email', 'Phone'], programName)
-  logout(page)
+  test('Application search using Personal Applicant Info works', async () => {
+    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
-  // apply as an applicant to the program three times
-  await applicantQuestions.applyProgram(programName)
-  await applicantQuestions.answerNameQuestion('oneFirst', 'oneLast', 'oneMiddle')
-  await applicantQuestions.answerEmailQuestion('one@email.com')
-  await applicantQuestions.answerPhoneQuestion('4152321234')
-  await applicantQuestions.clickNext()
-  await applicantQuestions.submitFromReviewPage()
-  // this is messing up. there must be someway we have to click that button.
-    await page.click('text=End session')
+    await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
+    // Login as an admin and create a program with three PAI questions
+    await loginAsAdmin(page)
+    const programName = 'Test program'
+    await adminQuestions.addNameQuestion({
+      questionName: 'Name',
+      universal: true,
+      primaryApplicantInfo: true,
+    })
+    await adminQuestions.addEmailQuestion({
+      questionName: 'Email',
+      universal: true,
+      primaryApplicantInfo: true,
+    })
+    await adminQuestions.addPhoneQuestion({
+      questionName: 'Phone',
+      universal: true,
+      primaryApplicantInfo: true,
+    })
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['Name', 'Email', 'Phone'],
+      programName,
+    )
+    await logout(page)
 
-  await applicantQuestions.applyProgram(programName)
-  await applicantQuestions.answerNameQuestion('twoFirst', 'twoLast', 'twoMiddle')
-  await applicantQuestions.answerEmailQuestion('two@email.com')
-  await applicantQuestions.answerPhoneQuestion('4153231234')
-  await applicantQuestions.clickNext()
-  await applicantQuestions.submitFromReviewPage()
-    await page.click('text=End session')
+    // apply to the program as three different applicants so we have three applications to search
+    await applicantQuestions.completeApplicationWithPaiQuestions(
+      programName,
+      'oneFirst',
+      'oneMiddle',
+      'oneLast',
+      'one@email.com',
+      '4152321234',
+    )
+    await applicantQuestions.completeApplicationWithPaiQuestions(
+      programName,
+      'twoFirst',
+      'twoMiddle',
+      'twoLast',
+      'two@email.com',
+      '4153231234',
+    )
+    await applicantQuestions.completeApplicationWithPaiQuestions(
+      programName,
+      'threeFirst',
+      'threeMiddle',
+      'threeLast',
+      'three@email.com',
+      '5102321234',
+    )
 
-  await applicantQuestions.applyProgram(programName)
-  await applicantQuestions.answerNameQuestion('threeFirst', 'threeLast', 'threeMiddle')
-  await applicantQuestions.answerEmailQuestion('three@email.com')
-  await applicantQuestions.answerPhoneQuestion('5102321234')
-  await applicantQuestions.clickNext()
-  await applicantQuestions.submitFromReviewPage()
-    await page.click('text=End session')
+    // login as a Program Admin to search the applications
+    await loginAsProgramAdmin(page)
+    await adminPrograms.viewApplications(programName)
+    await validateScreenshot(page, 'applications-unfiltered-pai')
 
-  // log in as program admin
-  await loginAsProgramAdmin(page)
-  // look at applications for that program
-  await adminPrograms.viewApplications(programName)
+    // search by name and validate expected applications are returned
+    const applyFilters = true
+    await adminPrograms.filterProgramApplications({searchFragment: 'one'})
+    const csvContentNameSearch = await adminPrograms.getCsv(applyFilters)
+    expect(csvContentNameSearch).toContain('oneFirst')
+    expect(csvContentNameSearch).not.toContain('twoFirst')
+    expect(csvContentNameSearch).not.toContain('threeFirst')
 
-  // validate screenshot
-  await validateScreenshot(page, 'applications-unfiltered-pai')
+    // search by email and validate expected applications are returned
+    await adminPrograms.filterProgramApplications({searchFragment: 'email'})
+    const csvContentEmailSearch = await adminPrograms.getCsv(applyFilters)
+    expect(csvContentEmailSearch).toContain('one@email.com')
+    expect(csvContentEmailSearch).toContain('two@email.com')
+    expect(csvContentEmailSearch).toContain('three@email.com')
 
-  // search by name and validate expected text on page
-  const applyFilters = true
-  // await adminPrograms.filterProgramApplications({searchFragment: 'one'})
-  // await validateScreenshot(page, 'rocky-filtered-apps')
-
-  // const csvContentNameSearch = await adminPrograms.getCsv(applyFilters)
-  // expect(csvContentNameSearch).toContain('oneFirst')
-  // expect(csvContentNameSearch).not.toContain('twoFirst')
-  // expect(csvContentNameSearch).not.toContain('threeFirst')  
-
-  // search by email and validate expected text on page
-  await adminPrograms.filterProgramApplications({searchFragment: 'email'})
-    await validateScreenshot(page, 'rocky-filtered-apps')
-  const csvContentEmailSearch = await adminPrograms.getCsv(applyFilters)  
-  expect(csvContentEmailSearch).toContain('one@email.com')
-  expect(csvContentEmailSearch).toContain('two@email.com')
-  expect(csvContentEmailSearch).toContain('three@email.com')  
-
-  // search by phone and validate expected text on page
-  await adminPrograms.filterProgramApplications({searchFragment: '415'})
-  const csvContentPhoneSearch = await adminPrograms.getCsv(applyFilters)  
-  expect(csvContentPhoneSearch).toContain('oneFirst')
-  expect(csvContentPhoneSearch).toContain('twoFirst')
-  expect(csvContentPhoneSearch).not.toContain('threeFirst')  
-
-
+    // search by phone and validate expected applications are returned
+    await adminPrograms.filterProgramApplications({searchFragment: '415'})
+    const csvContentPhoneSearch = await adminPrograms.getCsv(applyFilters)
+    expect(csvContentPhoneSearch).toContain('oneFirst')
+    expect(csvContentPhoneSearch).toContain('twoFirst')
+    expect(csvContentPhoneSearch).not.toContain('threeFirst')
   })
-
-
-
-
 })
