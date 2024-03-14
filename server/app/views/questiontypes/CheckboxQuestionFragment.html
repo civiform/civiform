@@ -1,0 +1,29 @@
+<div th:fragment="checkbox (question)" th:with="questionId=${#strings.randomAlphanumeric(8)}" th:id="${questionId}">
+    <fieldset class="usa-fieldset" th:aria-describedby="${questionId} + '-description'" th:with="multiSelectQuestion=${question.createMultiSelectQuestion()}">
+        <!-- Title and Help Text -->
+        <div th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpText(${question}, ${questionId})}"></div>
+
+        <!-- Display errors -->
+        <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${multiSelectQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
+
+        <!-- Hidden input that we have checked to allow clearing data from a multi-select question -->
+        <input type="checkbox" class="hidden" value=""
+            th:name="${multiSelectQuestion.getSelectionPathAsArray()}"
+            checked/>
+        <!-- Render each checkbox option -->
+        <div class="usa-checkbox"
+            th:each="option,iterator: ${multiSelectQuestion.getOptions()}"
+            th:with="inputId='checkbox-' + ${question.getContextualizedPath()} + '-' + ${option.id()}">
+          <!-- TODO(#6903): Add autofocus attribute as appropriate -->
+          <input
+            class="usa-checkbox__input usa-checkbox__input--tile"
+            th:id="${inputId}"
+            th:value="${option.id()}"
+            th:name="${multiSelectQuestion.getSelectionPathAsArray()}"
+            th:checked="${multiSelectQuestion.optionIsSelected(option)}"
+            type="checkbox"
+            th:aria-required="${!question.isOptional()}"/>
+          <label class="usa-checkbox__label" th:for="${inputId}" th:text="${option.optionText()}"></label>
+        </div>
+    </fieldset>
+</div>
