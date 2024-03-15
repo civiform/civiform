@@ -8,7 +8,7 @@ import static j2html.TagCreator.hr;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.ti.routes;
-import forms.EditTiClientInfoForm;
+import forms.TiClientInfoForm;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -21,6 +21,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.AccountRepository;
 import services.DateConverter;
+import services.MessageKey;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
 import services.ti.TrustedIntermediaryService;
@@ -54,12 +55,12 @@ public class EditTiClientView extends BaseHtmlView {
       ApplicantPersonalInfo personalInfo,
       Http.Request request,
       Messages messages,
-      Optional<Long> accountId,
-      Optional<Long> currentTisAccountId,
-      Optional<Form<EditTiClientInfoForm>> editTiClientInfoForm) {
-
-    if (currentTisAccountId.isEmpty()) {
-      HtmlBundle bundle =
+      Optional<Long> accountIdToEdit,
+      Long applicantIdOfTi,
+      Optional<Form<TiClientInfoForm>> tiClientInfoForm) {
+    HtmlBundle bundle;
+    if (!accountIdToEdit.isEmpty()) {
+      bundle =
           layout
               .getBundle(request)
               .setTitle("Edit client info")
@@ -70,14 +71,14 @@ public class EditTiClientView extends BaseHtmlView {
                   renderBackLink(),
                   requiredFieldsExplanationContent(),
                   renderEditClientForm(
-                      accountRepository.lookupAccount(accountId.get()).get(),
+                      accountRepository.lookupAccount(accountIdToEdit.get()).get(),
                       request,
-                      editTiClientInfoForm,
+                      tiClientInfoForm,
                       messages))
               .addMainStyles("px-20", "max-w-screen-xl");
-      return layout.renderWithNav(request, personalInfo, messages, bundle, accountId.get());
+
     } else {
-      HtmlBundle bundle =
+      bundle =
           layout
               .getBundle(request)
               .setTitle("Add new client")
@@ -87,11 +88,10 @@ public class EditTiClientView extends BaseHtmlView {
                   renderSubHeader("Add client").withId("add-client").withClass("my-4"),
                   renderBackLink(),
                   requiredFieldsExplanationContent(),
-                  renderAddClientForm(tiGroup, request, editTiClientInfoForm, messages))
+                  renderAddClientForm(tiGroup, request, tiClientInfoForm, messages))
               .addMainStyles("px-20", "max-w-screen-xl");
-      return layout.renderWithNav(
-          request, personalInfo, messages, bundle, currentTisAccountId.get());
     }
+    return layout.renderWithNav(request, personalInfo, messages, bundle, applicantIdOfTi);
   }
 
   private ATag renderBackLink() {
@@ -111,19 +111,19 @@ public class EditTiClientView extends BaseHtmlView {
   private DivTag renderAddClientForm(
       TrustedIntermediaryGroupModel tiGroup,
       Http.Request request,
-      Optional<Form<EditTiClientInfoForm>> form,
+      Optional<Form<TiClientInfoForm>> form,
       Messages messages) {
     FormTag formTag =
         form()
             .withId("add-ti")
             .withMethod("POST")
-            .withAction(routes.TrustedIntermediaryController.addApplicant(tiGroup.id).url());
+            .withAction(routes.TrustedIntermediaryController.addClient(tiGroup.id).url());
     FieldWithLabel firstNameField =
         setStateIfPresent(
             FieldWithLabel.input()
-                .setId("add-first-name-input")
+                .setId("first-name-input")
                 .setFieldName("firstName")
-                .setLabelText("First name")
+                .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
                 .setRequired(true)
                 .setValue(""),
             form,
@@ -133,9 +133,12 @@ public class EditTiClientView extends BaseHtmlView {
     FieldWithLabel middleNameField =
         setStateIfPresent(
             FieldWithLabel.input()
-                .setId("add-middle-name-input")
+                .setId("middle-name-input")
                 .setFieldName("middleName")
-                .setLabelText("Middle name")
+                .setLabelText(
+                    messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName())
+                        + " "
+                        + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
                 .setValue(""),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_MIDDLE_NAME,
@@ -143,9 +146,9 @@ public class EditTiClientView extends BaseHtmlView {
     FieldWithLabel lastNameField =
         setStateIfPresent(
             FieldWithLabel.input()
-                .setId("add-last-name-input")
+                .setId("last-name-input")
                 .setFieldName("lastName")
-                .setLabelText("Last name")
+                .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
                 .setRequired(true)
                 .setValue(""),
             form,
@@ -154,7 +157,7 @@ public class EditTiClientView extends BaseHtmlView {
     FieldWithLabel phoneNumberField =
         setStateIfPresent(
             FieldWithLabel.input()
-                .setId("add-phone-number-input")
+                .setId("phone-number-input")
                 .setPlaceholderText("(xxx) xxx-xxxx")
                 .setAttribute("inputmode", "tel")
                 .setFieldName("phoneNumber")
@@ -167,9 +170,10 @@ public class EditTiClientView extends BaseHtmlView {
     FieldWithLabel emailField =
         setStateIfPresent(
             FieldWithLabel.input()
-                .setId("add-email-input")
+                .setId("email-input")
                 .setFieldName("emailAddress")
-                .setLabelText("Email address")
+                .setLabelText(
+                    "Email address " + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
                 .setToolTipIcon(Icons.INFO)
                 .setToolTipText(
                     "Add an email address for your client to receive status updates about their"
@@ -183,9 +187,9 @@ public class EditTiClientView extends BaseHtmlView {
     FieldWithLabel dateOfBirthField =
         setStateIfPresent(
             FieldWithLabel.date()
-                .setId("add-date-of-birth-input")
+                .setId("date-of-birth-input")
                 .setFieldName("dob")
-                .setLabelText("Date of birth")
+                .setLabelText(messages.at(MessageKey.DOB_LABEL.getKeyName()))
                 .setRequired(true)
                 .setValue(""),
             form,
@@ -194,7 +198,7 @@ public class EditTiClientView extends BaseHtmlView {
     FieldWithLabel tiNoteField =
         setStateIfPresent(
             FieldWithLabel.textArea()
-                .setId("add-ti-note-input")
+                .setId("ti-note-input")
                 .setFieldName("tiNote")
                 .setLabelText("Notes")
                 .setValue(""),
@@ -230,20 +234,20 @@ public class EditTiClientView extends BaseHtmlView {
   private DivTag renderEditClientForm(
       AccountModel account,
       Http.Request request,
-      Optional<Form<EditTiClientInfoForm>> form,
+      Optional<Form<TiClientInfoForm>> form,
       Messages messages) {
     ApplicantData applicantData = account.newestApplicant().get().getApplicantData();
     FormTag formTag =
         form()
             .withId("edit-ti")
             .withMethod("POST")
-            .withAction(routes.TrustedIntermediaryController.updateClientInfo(account.id).url());
+            .withAction(routes.TrustedIntermediaryController.editClient(account.id).url());
     FieldWithLabel firstNameField =
         setStateIfPresent(
             FieldWithLabel.input()
                 .setId("edit-first-name-input")
                 .setFieldName("firstName")
-                .setLabelText("First name")
+                .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
                 .setRequired(true)
                 .setValue(applicantData.getApplicantFirstName()),
             form,
@@ -255,7 +259,10 @@ public class EditTiClientView extends BaseHtmlView {
             FieldWithLabel.input()
                 .setId("edit-middle-name-input")
                 .setFieldName("middleName")
-                .setLabelText("Middle name")
+                .setLabelText(
+                    messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName())
+                        + " "
+                        + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
                 .setValue(applicantData.getApplicantMiddleName()),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_MIDDLE_NAME,
@@ -265,7 +272,7 @@ public class EditTiClientView extends BaseHtmlView {
             FieldWithLabel.input()
                 .setId("edit-last-name-input")
                 .setFieldName("lastName")
-                .setLabelText("Last name")
+                .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
                 .setRequired(true)
                 .setValue(applicantData.getApplicantLastName()),
             form,
@@ -289,7 +296,8 @@ public class EditTiClientView extends BaseHtmlView {
             FieldWithLabel.input()
                 .setId("edit-email-input")
                 .setFieldName("emailAddress")
-                .setLabelText("Email address")
+                .setLabelText(
+                    "Email address " + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
                 .setToolTipIcon(Icons.INFO)
                 .setToolTipText(
                     "Add an email address for your client to receive status updates about their"
@@ -305,7 +313,7 @@ public class EditTiClientView extends BaseHtmlView {
             FieldWithLabel.date()
                 .setId("edit-date-of-birth-input")
                 .setFieldName("dob")
-                .setLabelText("Date of birth")
+                .setLabelText(messages.at(MessageKey.DOB_LABEL.getKeyName()))
                 .setRequired(true)
                 .setValue(
                     applicantData
@@ -353,14 +361,14 @@ public class EditTiClientView extends BaseHtmlView {
 
   private FieldWithLabel setStateIfPresent(
       FieldWithLabel field,
-      Optional<Form<EditTiClientInfoForm>> maybeForm,
+      Optional<Form<TiClientInfoForm>> maybeForm,
       String key,
       Messages messages) {
     if (maybeForm.isEmpty()) {
       return field;
     }
 
-    EditTiClientInfoForm form = maybeForm.get().value().get();
+    TiClientInfoForm form = maybeForm.get().value().get();
     switch (key) {
       case TrustedIntermediaryService.FORM_FIELD_NAME_FIRST_NAME:
         field.setValue(form.getFirstName());

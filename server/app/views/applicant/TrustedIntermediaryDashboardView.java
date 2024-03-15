@@ -100,12 +100,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setTitle("CiviForm")
             .addMainContent(
                 renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
-                // button("Add new Clients"),
-                // hr(),
-                // renderSubHeader("Add Client").withId("add-client").withClass("my-4"),
-                // requiredFieldsExplanationContent(),
-                // renderAddNewForm(tiGroup, request, messages),
-                renderAddNewClientButton(messages, tiGroup.id),
+                renderAddNewClientButton(messages, tiGroup.id).withClasses("flex", "mr-4", "gap-2"),
                 hr().withClasses("mt-6"),
                 renderSubHeader(messages.at(MessageKey.TITLE_ALL_CLIENTS.getKeyName()))
                     .withClass("my-4"),
@@ -420,7 +415,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return new LinkElement()
         .setId("edit-client")
         .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
-        .setHref(controllers.ti.routes.TrustedIntermediaryController.editClient(accountId).url())
+        .setHref(
+            controllers.ti.routes.TrustedIntermediaryController.showEditClientForm(accountId).url())
         .asAnchorText();
   }
 

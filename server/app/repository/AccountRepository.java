@@ -12,7 +12,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import durablejobs.jobs.FixApplicantDobDataPathJob;
-import forms.EditTiClientInfoForm;
+import forms.TiClientInfoForm;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Query;
@@ -334,7 +334,7 @@ public final class AccountRepository {
    * @throws EmailAddressExistsException if the provided email address already exists.
    */
   public void createNewApplicantForTrustedIntermediaryGroup(
-      EditTiClientInfoForm form, TrustedIntermediaryGroupModel tiGroup) {
+      TiClientInfoForm form, TrustedIntermediaryGroupModel tiGroup) {
     AccountModel newAccount = new AccountModel();
     if (!Strings.isNullOrEmpty(form.getEmailAddress())) {
       if (lookupAccountByEmail(form.getEmailAddress()).isPresent()) {
