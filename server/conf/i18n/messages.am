@@ -70,15 +70,15 @@ modal.errorSaving.review.title=በዚህ ገጽ ላይ ያሉ ጥያቄዎች �
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
 modal.errorSaving.previous.title=በዚህ ገጽ ላይ ያሉ ጥያቄዎች አልተሟሉም። አሁንም ትተው መሄድ እና ወደ ቀድሞው ገጽ መሄድ ይፈልጋሉ?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?
+modal.errorSaving.review.content=ባስገቡት መረጃ ላይ አንዳንድ ስህተቶች አሉ። መቆየት እና መልሶችዎን ማስተካከል ወይስ መልሶችዎን ሳያስቀምጡ ወደ ግምገማ ገጹ መሄድን ይፈልጋሉ?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the previous question page without saving your answers?
+modal.errorSaving.previous.content=ባስገቡት መረጃ ላይ አንዳንድ ስህተቶች አሉ። መቆየት እና መልሶችዎን ማስተካከል ወይስ መልሶችዎን ሳያስቀምጡ ወደ ቀድሞው የጥያቄ ገጽ መሄድን ይፈልጋሉ?
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=Continue to review page without saving
+modal.errorSaving.review.noSaveButton=ሳያስቀምጡ ገጹን መገምገምዎን ይቀጥሉ
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=Continue to previous questions without saving
+modal.errorSaving.previous.noSaveButton=ሳያስቀምጡ ወደ ቀደሙት ጥያቄዎች ይቀጥሉ
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=Stay and fix your answers
+modal.errorSaving.stayAndFixButton=ይቆዩ እና መልሶችዎን ያስተካክሉ
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -290,7 +290,7 @@ content.commonIntakeNoMatchingPrograms=ቅድመ-ማጣሪያው እርስዎ �
 content.commonIntakeNoMatchingProgramsTi=ቅድመ-ማጣሪያው ደንበኛዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለፕሮግራሞች ማመልከት ይችላሉ። ወይም ተጨማሪ ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
 content.commonIntakeNoMatchingProgramsNextStep=እንዲሁም የእርስዎን ምላሾች ለማርትዕ ወደ ቀዳሚው ገጽ መመለስ ይችላሉ።
 # A header above a list of other programs the applicant might be interested in applying to.
-content.otherProgramsToApplyFor=Other programs you might be interested in
+content.otherProgramsToApplyFor=ሊወዱዋቸው የሚችሏቸው ሌሎች ፕሮግራሞች
 button.downloadPdf=PDF አውርድ
 button.applyToPrograms=ለፕሮግራሞች ያመልክቱ
 
@@ -451,7 +451,7 @@ validation.textTooShort=ቢያንስ {0} ቁምፊዎችን መያዝ አለበ�
 
 adminValidation.multiOptionEmpty=ባለብዙ አማራጭ ጥያቄዎች ባዶ አማራጮች ሊኖሯቸው አይችሉም።
 # An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
-adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
+adminValidation.multiOptionAdminError=የአስተዳዳሪ ስሞች ፊደሎችን፣ ቁጥሮችን፣ የሥር መስመሮችን እና ዳሾችንን ብቻ ነው ሊይዙ የሚችሉት።
 
 #----------------------------------#
 # ERRORS - various error messages  #
