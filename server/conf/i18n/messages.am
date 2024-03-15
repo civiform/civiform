@@ -125,6 +125,9 @@ banner.clientInfoUpdated=የደንበኛ መረጃ በተሳካ ሁኔታ ተዘ
 banner.clientAcctDeleted=የ«{0}» ደንበኛ መለያ በተሳካ ሁኔታ ተሰርዟል።
 # Message when a user successfully creates a client account.
 banner.newClientCreated=አዲስ ደንበኛ በተሳካ ሁኔታ ተፈጥሯል።
+# Banner at the top of the page with the name of the client substituted in when viewing an application.
+banner.viewApplication=You are applying for {0}. Are you trying to apply for a different client?
+
 
 # Button that allows a user to add a client to the CiviForm system.
 button.addNewClient=አዲስ ደንበኛ አክሉ
@@ -152,13 +155,21 @@ button.select=ይምረጡ
 button.startApp=ማመልከቻ ይጀምሩ
 # Button to view the applications belonging to an applicant.
 button.viewApplications=መተግበሪያዎችን ይመልከቱ
+# Button to view and add clients
+button.viewAndAddClients=View and add clients
 
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=አዲሱ ደንበኛዎ {0} ወደ ደንበኛዎ ዝርዝር ውስጥ ተጨምሯል። አሁን ለዚህ ደንበኛ ማመልከቻዎችን ማስገባት መጀመር ይችላሉ።
+# The tooltip of the email input field.
+content.emailTooltip=Add an email address for your client to receive status updates about their application automatically. Without an email, you or your community-based organization will be responsible for communicating updates to your client.
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted={0} ማመልከቻዎች ገብተዋል
+# Shows that a single application has been submitted on behalf of the client.
+content.oneAppSubmitted=1 application submitted
 # Some explanation text on the confirmation modal when deleting a client.
 content.warning=ለዚህ ደንበኛ የቀረቡ ማመልከቻዎች የሉም፣ ስለዚህ ምንም ማመልከቻዎች አይጠፉም።
+# Shows there is no email address connected to the account.
+content.noEmailAddress=(no email address)
 # Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=የዚህን ደንበኛ መለያ መሰረዝ እንደሚፈልጉ እርግጠኛ ነዎት?
 
@@ -166,9 +177,11 @@ dialog.deleteConfirmation=የዚህን ደንበኛ መለያ መሰረዝ እ�
 header.acctSettings=የመለያ ቅንብሮች
 # Tab label for getting to the client list page
 header.clientList=የደንበኛ ዝርዝር
+# Label for search
+header.search=Search
 
 # A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last login XX-XX-XXXX".
-label.acctStatus=የመለያ ሁኔታ
+label.acctStatus=Account status
 # Label above the phone number for each client on the client list.
 label.contactInfo=የእውቂያ መረጃ
 # The label above the input field for the day of the client birth date. i.e. 12 for November 12
@@ -179,6 +192,12 @@ label.dob=የልደት ቀን
 label.dobExample=ለምሳሌ፦ ጃንዋሪ 28፣ 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=ኢሜይል
+# Validation error message below date of birth input when the TI clicks on save without filling out the field.
+label.errorDOB=Error: Date of birth required
+# Validation error message below first name input when the TI clicks on save without filling out the field.
+label.errorFirstName=Error: First name required
+# Validation error message below last name input when the TI clicks on save without filling out the field.
+label.errorLastName=Error: Last name required
 # The label above the dropdown select field for the month of the client birth date.
 label.month=ወር
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -195,8 +214,12 @@ label.searchByDob=በልደት ቀን ይፈልጉ
 label.searchByName=በስም(ዎች) ይፈልጉ
 # The label above the input field for the year of the client birth date.
 label.year=ዓመት
+# Label showing the user when there is no name
+label.unnamedUser=Unnamed user
 
 link.edit=አርትዕ
+# Link to change the client that the trusted intermediary is applying for.
+link.selectNewClient=Select a new client
 
 # This is the header above the list of clients and the client search.
 title.allClients=ሁሉም ደንበኞች
@@ -302,15 +325,15 @@ title.verifyAddress=አድራሻን ያረጋግጡ
 
 content.foundSimilarAddress=የሰጡትን አድራሻ ማረጋገጥ አልቻልንም ነገር ግን የሆነ ተመሳሳይ ነገር አግኝተናል።
 # Heading for showing the user the address they provided earlier
-content.addressEntered=የገባ አድራሻ፦
+content.addressEntered=Address you entered:
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=የተጠቆመው አድራሻ፦
 content.suggestedAddresses=የተጠቆሙ አድራሻዎች፦
 
 # Title on address correction dialog when no address is found.
-title.noValidAddress=ምንም የሚሠሩ አድራሻዎች አልተገኙም
-content.noValidAddress=የሰጡትን አድራሻ ማረጋገጥ አልቻልንም። እባክዎ ለመቀጠል አድራሻዎን ያርትዑ።
+title.noValidAddress=No valid address found
+content.noValidAddress=We could not verify the address that you provided. Please edit your address to continue.
 
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
@@ -373,9 +396,9 @@ placeholder.entityName={0} ስም
 #---------------------------------------------------------------------------------#
 
 validation.fileRequired=እባክዎ ፋይል ይምረጡ።
-button.chooseFile=ፋይል ይምረጡ
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
+button.chooseFile=ፋይል ይምረጡ
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
