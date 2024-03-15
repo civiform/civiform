@@ -254,8 +254,7 @@ public class ProgramBuilder {
    */
   public BlockBuilder withBlock() {
     long blockId = Long.valueOf(numBlocks.incrementAndGet());
-    return BlockBuilder.newBlock(
-        this, blockId, "Screen " + blockId, "description for screen " + blockId, Optional.empty());
+    return BlockBuilder.newBlock(this, blockId, "", "", Optional.empty());
   }
 
   /** Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with empty description. */

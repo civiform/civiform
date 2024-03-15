@@ -227,8 +227,13 @@ public abstract class AbstractExporterTest extends ResetPostgres {
 
   protected void createFakeProgram() {
     ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram("Fake Program");
-    fakeQuestions.forEach(
-        question -> fakeProgram.withBlock().withRequiredQuestion(question).build());
+    for (int i = 0; i < fakeQuestions.size(); i++) {
+      int screenNumber = i + 1;
+      fakeProgram
+          .withBlock("Screen " + screenNumber, "description for screen " + screenNumber)
+          .withRequiredQuestion(fakeQuestions.get(i))
+          .build();
+    }
     fakeProgram.withStatusDefinitions(
         new StatusDefinitions()
             .setStatuses(
@@ -367,7 +372,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     fakeProgramWithEligibility =
         ProgramBuilder.newActiveProgram()
             .withName("Fake Program With Enumerator")
-            .withBlock()
+            .withBlock("Screen 1")
             .withRequiredQuestions(nameQuestion, colorQuestion)
             .withEligibilityDefinition(colorEligibilityDefinition)
             .build();
