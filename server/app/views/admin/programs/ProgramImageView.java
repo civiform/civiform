@@ -51,6 +51,7 @@ import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ToastMessage;
 import views.fileupload.FileUploadViewStrategy;
+import views.style.BaseStyles;
 import views.style.StyleUtils;
 
 /** A view for admins to update the image associated with a particular program. */
@@ -111,6 +112,13 @@ public final class ProgramImageView extends BaseHtmlView {
     DivTag mainContent = div().withClass("mx-20");
 
     H1Tag titleContainer = renderHeader(PAGE_TITLE);
+    DivTag descriptionRequiredAlert =
+        ViewUtils.makeAlertSlim(
+            "Note: Image description is required before uploading an image.",
+            /* hidden= */ false, /* classes=... */
+            BaseStyles.ALERT_INFO,
+            "mb-1",
+            "mt-1");
 
     DivTag formsContainer = div();
     Modal deleteImageModal = createDeleteImageModal(request, programDefinition, editStatus);
@@ -133,7 +141,7 @@ public final class ProgramImageView extends BaseHtmlView {
     formsAndCurrentCardContainer.with(formsContainer);
     formsAndCurrentCardContainer.with(renderCurrentProgramCard(request, programDefinition));
 
-    mainContent.with(titleContainer, formsAndCurrentCardContainer);
+    mainContent.with(titleContainer, descriptionRequiredAlert, formsAndCurrentCardContainer);
 
     HtmlBundle htmlBundle =
         layout
@@ -226,9 +234,6 @@ public final class ProgramImageView extends BaseHtmlView {
                         .setPlaceholderText("Colorful fruits and vegetables in bins")
                         .setValue(form.value().get().getSummaryImageDescription())
                         .getInputTag()))
-        .with(
-            p("Note: Image description is required before uploading an image.")
-                .withClasses("mb-1", "mt-1"))
         .with(buttonsDiv);
   }
 
