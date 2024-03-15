@@ -125,6 +125,9 @@ banner.clientInfoUpdated=Se actualizó la información del cliente correctamente
 banner.clientAcctDeleted=Se borró la cuenta de cliente de "{0}" correctamente.
 # Message when a user successfully creates a client account.
 banner.newClientCreated=Se creó un cliente nuevo correctamente.
+# Banner at the top of the page with the name of the client substituted in when viewing an application.
+banner.viewApplication=You are applying for {0}. Are you trying to apply for a different client?
+
 
 # Button that allows a user to add a client to the CiviForm system.
 button.addNewClient=Agregar cliente nuevo
@@ -152,13 +155,21 @@ button.select=Seleccionar
 button.startApp=Comenzar una solicitud
 # Button to view the applications belonging to an applicant.
 button.viewApplications=Ver solicitudes
+# Button to view and add clients
+button.viewAndAddClients=View and add clients
 
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=Se agregó tu cliente nuevo {0} a tu lista de clientes. Ahora puedes comenzar a enviar solicitudes para este cliente.
+# The tooltip of the email input field.
+content.emailTooltip=Add an email address for your client to receive status updates about their application automatically. Without an email, you or your community-based organization will be responsible for communicating updates to your client.
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted={0} solicitudes enviadas
+# Shows that a single application has been submitted on behalf of the client.
+content.oneAppSubmitted=1 application submitted
 # Some explanation text on the confirmation modal when deleting a client.
 content.warning=No se enviaron solicitudes para este cliente, por lo que no se perderá ninguna.
+# Shows there is no email address connected to the account.
+content.noEmailAddress=(no email address)
 # Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=¿Seguro que quieres borrar la cuenta de este cliente?
 
@@ -166,9 +177,11 @@ dialog.deleteConfirmation=¿Seguro que quieres borrar la cuenta de este cliente?
 header.acctSettings=Configuración de la cuenta
 # Tab label for getting to the client list page
 header.clientList=Lista de clientes
+# Label for search
+header.search=Search
 
 # A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last login XX-XX-XXXX".
-label.acctStatus=Estado de la cuenta
+label.acctStatus=Account status
 # Label above the phone number for each client on the client list.
 label.contactInfo=Información de contacto
 # The label above the input field for the day of the client birth date. i.e. 12 for November 12
@@ -179,6 +192,12 @@ label.dob=Fecha de nacimiento
 label.dobExample=Por ejemplo: 28 de enero de 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=Correo electrónico
+# Validation error message below date of birth input when the TI clicks on save without filling out the field.
+label.errorDOB=Error: Date of birth required
+# Validation error message below first name input when the TI clicks on save without filling out the field.
+label.errorFirstName=Error: First name required
+# Validation error message below last name input when the TI clicks on save without filling out the field.
+label.errorLastName=Error: Last name required
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Mes
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -195,8 +214,12 @@ label.searchByDob=Buscar por fecha de nacimiento
 label.searchByName=Buscar por nombre(s)
 # The label above the input field for the year of the client birth date.
 label.year=Año
+# Label showing the user when there is no name
+label.unnamedUser=Unnamed user
 
 link.edit=Editar
+# Link to change the client that the trusted intermediary is applying for.
+link.selectNewClient=Select a new client
 
 # This is the header above the list of clients and the client search.
 title.allClients=Todos los clientes
@@ -302,15 +325,15 @@ title.verifyAddress=Verifica la dirección
 
 content.foundSimilarAddress=No pudimos verificar la dirección que proporcionaste, pero encontramos resultados similares.
 # Heading for showing the user the address they provided earlier
-content.addressEntered=Dirección ingresada:
+content.addressEntered=Address you entered:
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=Dirección sugerida:
 content.suggestedAddresses=Direcciones sugeridas:
 
 # Title on address correction dialog when no address is found.
-title.noValidAddress=No se encontró ninguna dirección válida
-content.noValidAddress=No pudimos verificar la dirección que proporcionaste. Para continuar, edita la dirección
+title.noValidAddress=No valid address found
+content.noValidAddress=We could not verify the address that you provided. Please edit your address to continue.
 
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
@@ -373,9 +396,9 @@ placeholder.entityName=Nombre de {0}
 #---------------------------------------------------------------------------------#
 
 validation.fileRequired=Elige un archivo.
-button.chooseFile=Elegir archivo
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
+button.chooseFile=Elegir archivo
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
