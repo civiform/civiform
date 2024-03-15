@@ -213,8 +213,8 @@ public final class ProgramImageView extends BaseHtmlView {
         .with(
             ViewUtils.makeAlertSlim(
                 "Note: Image description is required before uploading an image.",
-                /* hidden= */ false, /* classes=... */
-                BaseStyles.ALERT_INFO,
+                /* hidden= */ false,
+                /* classes=... */ BaseStyles.ALERT_INFO,
                 "mb-2"))
         .with(
             form()
