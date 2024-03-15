@@ -70,15 +70,15 @@ modal.errorSaving.review.title=Bạn chưa trả lời hết các câu hỏi tr�
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
 modal.errorSaving.previous.title=Bạn chưa trả lời hết các câu hỏi trên trang này. Bạn vẫn muốn rời đi và quay lại trang trước?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?
+modal.errorSaving.review.content=Đã xảy ra một số lỗi với thông tin bạn đã điền. Bạn muốn tiếp tục chỉnh sửa câu trả lời hay chuyển đến trang đánh giá mà không lưu câu trả lời?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the previous question page without saving your answers?
+modal.errorSaving.previous.content=Đã xảy ra một số lỗi với thông tin bạn đã điền. Bạn muốn tiếp tục chỉnh sửa câu trả lời hay chuyển đến trang câu hỏi trước đó mà không lưu câu trả lời?
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=Continue to review page without saving
+modal.errorSaving.review.noSaveButton=Tiếp tục chuyển đến trang đánh giá mà không lưu
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=Continue to previous questions without saving
+modal.errorSaving.previous.noSaveButton=Tiếp tục chuyển đến trang câu hỏi trước đó mà không lưu
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=Stay and fix your answers
+modal.errorSaving.stayAndFixButton=Tiếp tục chỉnh sửa câu trả lời
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -290,7 +290,7 @@ content.commonIntakeNoMatchingPrograms=Trình sàng lọc sơ bộ không thể 
 content.commonIntakeNoMatchingProgramsTi=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà khách hàng của bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký tham gia chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
 content.commonIntakeNoMatchingProgramsNextStep=Bạn cũng có thể quay lại trang trước để chỉnh sửa câu trả lời của mình.
 # A header above a list of other programs the applicant might be interested in applying to.
-content.otherProgramsToApplyFor=Other programs you might be interested in
+content.otherProgramsToApplyFor=Các chương trình khác bạn có thể quan tâm
 button.downloadPdf=Tải bản PDF xuống
 button.applyToPrograms=Đăng ký chương trình
 
@@ -451,7 +451,7 @@ validation.textTooShort=Phải có ít nhất {0} ký tự.
 
 adminValidation.multiOptionEmpty=Không được để lựa chọn trống trong câu hỏi có nhiều lựa chọn.
 # An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
-adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
+adminValidation.multiOptionAdminError=Tên của quản trị viên chỉ có thể chứa chữ cái viết thường, số, dấu gạch dưới và dấu gạch ngang.
 
 #----------------------------------#
 # ERRORS - various error messages  #
