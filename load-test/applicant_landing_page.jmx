@@ -30,7 +30,7 @@
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${CIVIFORM_URL}</stringProp>
+          <stringProp name="HTTPSampler.domain">${civiformUrl}</stringProp>
           <stringProp name="HTTPSampler.port"></stringProp>
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
@@ -55,9 +55,9 @@
       </hashTree>
       <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
         <collectionProp name="Arguments.arguments">
-          <elementProp name="CIVIFORM_URL" elementType="Argument">
-            <stringProp name="Argument.name">CIVIFORM_URL</stringProp>
-            <stringProp name="Argument.value">staging-aws.civiform.dev</stringProp>
+          <elementProp name="civiformUrl" elementType="Argument">
+            <stringProp name="Argument.name">civiformUrl</stringProp>
+            <stringProp name="Argument.value">${__P(civiformUrl,staging-aws.civiform.dev)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
