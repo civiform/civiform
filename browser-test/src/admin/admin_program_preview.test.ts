@@ -95,7 +95,7 @@ test.describe('admin program preview', () => {
     const pdfFile = await adminPrograms.getProgramPdf()
 
     expect(pdfFile.length).toBeGreaterThan(1)
-    // {@link services.export.PdfExporterTest.java} has tests that verify the PDF contents.
+    // The java services.export.PdfExporterTest class has tests that verify the PDF contents.
     // This browser test just ensures a file is downloaded when the button is clicked.
   })
 
@@ -115,7 +115,7 @@ test.describe('admin program preview', () => {
     const pdfFile = await adminPrograms.getProgramPdf()
 
     expect(pdfFile.length).toBeGreaterThan(1)
-    // {@link services.export.PdfExporterTest.java} has tests that verify the PDF contents.
+    // The java services.export.PdfExporterTest class has tests that verify the PDF contents.
     // This browser test just ensures a file is downloaded when the button is clicked.
   })
 })

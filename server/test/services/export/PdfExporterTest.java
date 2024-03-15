@@ -224,6 +224,7 @@ public class PdfExporterTest extends AbstractExporterTest {
         service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
 
     List<String> linesFromPdf = getPdfLines(result);
+    assertThat(linesFromPdf).isNotEmpty();
     assertThat(linesFromPdf.get(0)).isEqualTo(programDef.localizedName().getDefault());
     assertThat(linesFromPdf.get(1)).isEqualTo("Admin name: " + programDef.adminName());
     assertThat(linesFromPdf.get(2))

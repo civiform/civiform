@@ -21,7 +21,6 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
-import services.question.ReadOnlyQuestionService;
 
 /** Controller for admins previewing a program as an applicant. */
 public final class AdminProgramPreviewController extends CiviFormController {
@@ -65,16 +64,22 @@ public final class AdminProgramPreviewController extends CiviFormController {
    * questions in each block.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result pdfPreview(Request request, long programId) throws ProgramNotFoundException {
+  public CompletionStage<Result> pdfPreview(Request request, long programId)
+      throws ProgramNotFoundException {
     ProgramDefinition program = programService.getFullProgramDefinition(programId);
-    ReadOnlyQuestionService roQuestionService =
-        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
-    PdfExporter.InMemoryPdf pdf =
-        pdfExporterService.generateProgramPreviewPdf(program, roQuestionService.getAllQuestions());
-    return ok(pdf.getByteArray())
-        .as("application/pdf")
-        .withHeader(
-            "Content-Disposition", String.format("attachment; filename=\"%s\"", pdf.getFileName()));
+    return questionService
+        .getReadOnlyQuestionService()
+        .thenApplyAsync(
+            roQuestionService -> {
+              PdfExporter.InMemoryPdf pdf =
+                  pdfExporterService.generateProgramPreviewPdf(
+                      program, roQuestionService.getAllQuestions());
+              return ok(pdf.getByteArray())
+                  .as("application/pdf")
+                  .withHeader(
+                      "Content-Disposition",
+                      String.format("attachment; filename=\"%s\"", pdf.getFileName()));
+            });
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)

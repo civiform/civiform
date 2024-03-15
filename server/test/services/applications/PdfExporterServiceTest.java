@@ -82,6 +82,7 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
             fakeProgram.getProgramDefinition(), getFakeQuestionDefinitions());
 
     List<String> linesFromPdf = getPdfLines(result);
+    assertThat(linesFromPdf).isNotEmpty();
     assertThat(linesFromPdf.get(0))
         .isEqualTo(fakeProgram.getProgramDefinition().localizedName().getDefault());
     // More assertions about the PDF content will be in PdfExporterTest, since PdfExporter is the

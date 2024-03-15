@@ -301,9 +301,15 @@ public final class PdfExporter {
             document, programDefinition, block, allQuestions, /* indentationLevel= */ 0);
       }
     } finally {
-      document.close();
-      writer.close();
-      byteArrayOutputStream.close();
+      if (document != null) {
+        document.close();
+      }
+      if (writer != null) {
+        writer.close();
+      }
+      if (byteArrayOutputStream != null) {
+        byteArrayOutputStream.close();
+      }
     }
     return byteArrayOutputStream.toByteArray();
   }
@@ -380,9 +386,10 @@ public final class PdfExporter {
         }
         document.add(list);
       } else if (question.getQuestionType() != QuestionType.STATIC) {
-        // Otherwise, just print an empty box area to show that input is needed.
-        // (Static questions don't require input, so exclude static questions
-        // from this part.)
+        // For questions without options, print an empty box area to indicate
+        // that the user will write in a custom answer to the question.
+        // (Static questions don't require answers from users, so don't add the empty box area for
+        // static questions.)
         document.add(text("[                     ]", PARAGRAPH_FONT, indentationLevel));
       }
       document.add(Chunk.NEWLINE);
