@@ -70,15 +70,15 @@ modal.errorSaving.review.title=您尚未答完這個頁面的問題。仍要離�
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
 modal.errorSaving.previous.title=您尚未答完這個頁面的問題。仍要離開並返回上一頁嗎？
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?
+modal.errorSaving.review.content=您填寫的資訊有誤。要留在這個頁面並修正回答，還是不儲存回答，直接前往確認頁面？
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the previous question page without saving your answers?
+modal.errorSaving.previous.content=您填寫的資訊有誤。要留在這個頁面並修正回答，還是不儲存回答，直接返回上一個問題頁面？
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=Continue to review page without saving
+modal.errorSaving.review.noSaveButton=不儲存回答，繼續前往確認頁面
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=Continue to previous questions without saving
+modal.errorSaving.previous.noSaveButton=不儲存回答，返回上一個問題頁面
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=Stay and fix your answers
+modal.errorSaving.stayAndFixButton=留在這個頁面並修正回答
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -290,7 +290,7 @@ content.commonIntakeNoMatchingPrograms=預先篩選工具目前找不到您可�
 content.commonIntakeNoMatchingProgramsTi=預先篩選工具目前找不到您的客戶可能有資格參加的計畫。不過，您隨時可以點選「申請參加計畫」提出計畫申請，或是前往「{0}」查看其他計畫
 content.commonIntakeNoMatchingProgramsNextStep=您也可以返回上一頁編輯回答。
 # A header above a list of other programs the applicant might be interested in applying to.
-content.otherProgramsToApplyFor=Other programs you might be interested in
+content.otherProgramsToApplyFor=您可能會感興趣的其他計畫
 button.downloadPdf=下載 PDF
 button.applyToPrograms=申請參加計畫
 
@@ -451,7 +451,7 @@ validation.textTooShort=長度不可少於 {0} 個字元。
 
 adminValidation.multiOptionEmpty=多選題不得留空。
 # An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
-adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
+adminValidation.multiOptionAdminError=管理員名稱只能使用小寫英文字母、數字、底線和破折號。
 
 #----------------------------------#
 # ERRORS - various error messages  #
