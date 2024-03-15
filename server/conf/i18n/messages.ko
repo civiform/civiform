@@ -70,15 +70,15 @@ modal.errorSaving.review.title=이 페이지의 질문이 완료되지 않았습
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
 modal.errorSaving.previous.title=이 페이지의 질문이 완료되지 않았습니다. 그래도 페이지에서 나가 이전 페이지로 이동하시겠습니까?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?
+modal.errorSaving.review.content=입력하신 정보에 일부 오류가 있습니다. 계속 머물며 답변을 수정하시겠습니까? 아니면 답변을 저장하지 않고 검토 페이지로 이동하시겠습니까?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the previous question page without saving your answers?
+modal.errorSaving.previous.content=입력하신 정보에 일부 오류가 있습니다. 계속 머물며 답변을 수정하시겠습니까? 아니면 답변을 저장하지 않고 이전 질문 페이지로 이동하시겠습니까?
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=Continue to review page without saving
+modal.errorSaving.review.noSaveButton=저장하지 않고 검토 페이지로 이동
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=Continue to previous questions without saving
+modal.errorSaving.previous.noSaveButton=저장하지 않고 이전 질문으로 이동
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=Stay and fix your answers
+modal.errorSaving.stayAndFixButton=계속 머물며 답변 수정
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -290,7 +290,7 @@ content.commonIntakeNoMatchingPrograms=이번에는 사전 선별 과정에서 �
 content.commonIntakeNoMatchingProgramsTi=이번에는 사전 선별 과정에서 고객이 자격 요건에 해당될 수 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 프로그램을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 다른 프로그램을 확인해 보세요.
 content.commonIntakeNoMatchingProgramsNextStep=이전 페이지로 돌아가 응답을 수정할 수도 있습니다.
 # A header above a list of other programs the applicant might be interested in applying to.
-content.otherProgramsToApplyFor=Other programs you might be interested in
+content.otherProgramsToApplyFor=관심 있을 만한 다른 프로그램
 button.downloadPdf=PDF 다운로드
 button.applyToPrograms=프로그램 신청
 
@@ -451,7 +451,7 @@ validation.textTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
 
 adminValidation.multiOptionEmpty=객관식 질문의 옵션은 비워둘 수 없습니다.
 # An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
-adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
+adminValidation.multiOptionAdminError=관리자 이름에는 소문자, 숫자, 밑줄, 대시만 포함할 수 있습니다.
 
 #----------------------------------#
 # ERRORS - various error messages  #
