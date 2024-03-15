@@ -68,7 +68,11 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
   public void pdfPreview_draft_okAndHasPdf() throws ProgramNotFoundException {
     ProgramModel program = resourceCreator().insertDraftProgram("draft program");
 
-    Result result = controller.pdfPreview(Helpers.fakeRequest().build(), program.id);
+    Result result =
+        controller
+            .pdfPreview(Helpers.fakeRequest().build(), program.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType().get()).isEqualTo("application/pdf");
@@ -81,7 +85,11 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
   public void pdfPreview_active_okAndHasPdf() throws ProgramNotFoundException {
     ProgramModel program = resourceCreator().insertActiveProgram("active program");
 
-    Result result = controller.pdfPreview(Helpers.fakeRequest().build(), program.id);
+    Result result =
+        controller
+            .pdfPreview(Helpers.fakeRequest().build(), program.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType().get()).isEqualTo("application/pdf");
