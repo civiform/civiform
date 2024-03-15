@@ -125,6 +125,9 @@ banner.clientInfoUpdated=Đã cập nhật thành công thông tin khách hàng.
 banner.clientAcctDeleted=Đã xoá thành công tài khoản khách hàng của "{0}".
 # Message when a user successfully creates a client account.
 banner.newClientCreated=Đã tạo thành công hồ sơ khách hàng mới.
+# Banner at the top of the page with the name of the client substituted in when viewing an application.
+banner.viewApplication=You are applying for {0}. Are you trying to apply for a different client?
+
 
 # Button that allows a user to add a client to the CiviForm system.
 button.addNewClient=Thêm khách hàng mới
@@ -152,13 +155,21 @@ button.select=Chọn
 button.startApp=Bắt đầu đơn đăng ký
 # Button to view the applications belonging to an applicant.
 button.viewApplications=Xem các đơn đăng ký
+# Button to view and add clients
+button.viewAndAddClients=View and add clients
 
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=Khách hàng mới {0} đã được thêm vào danh sách khách hàng của bạn. Bây giờ bạn có thể bắt đầu gửi đơn đăng ký cho khách hàng này.
+# The tooltip of the email input field.
+content.emailTooltip=Add an email address for your client to receive status updates about their application automatically. Without an email, you or your community-based organization will be responsible for communicating updates to your client.
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted=Đã gửi {0} đơn đăng ký
+# Shows that a single application has been submitted on behalf of the client.
+content.oneAppSubmitted=1 application submitted
 # Some explanation text on the confirmation modal when deleting a client.
 content.warning=Không có đơn đăng ký nào được gửi cho khách hàng này nên sẽ không có đơn đăng ký nào bị mất.
+# Shows there is no email address connected to the account.
+content.noEmailAddress=(no email address)
 # Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=Bạn có chắc chắn muốn xoá tài khoản của khách hàng này không?
 
@@ -166,9 +177,11 @@ dialog.deleteConfirmation=Bạn có chắc chắn muốn xoá tài khoản của
 header.acctSettings=Cài đặt tài khoản
 # Tab label for getting to the client list page
 header.clientList=Danh sách khách hàng
+# Label for search
+header.search=Search
 
 # A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last login XX-XX-XXXX".
-label.acctStatus=Trạng thái tài khoản
+label.acctStatus=Account status
 # Label above the phone number for each client on the client list.
 label.contactInfo=Thông tin liên hệ
 # The label above the input field for the day of the client birth date. i.e. 12 for November 12
@@ -179,6 +192,12 @@ label.dob=Ngày sinh
 label.dobExample=Ví dụ: Ngày 28 tháng 1 năm 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=Email
+# Validation error message below date of birth input when the TI clicks on save without filling out the field.
+label.errorDOB=Error: Date of birth required
+# Validation error message below first name input when the TI clicks on save without filling out the field.
+label.errorFirstName=Error: First name required
+# Validation error message below last name input when the TI clicks on save without filling out the field.
+label.errorLastName=Error: Last name required
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Tháng
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -195,8 +214,12 @@ label.searchByDob=Tìm theo ngày sinh
 label.searchByName=Tìm theo tên
 # The label above the input field for the year of the client birth date.
 label.year=Năm
+# Label showing the user when there is no name
+label.unnamedUser=Unnamed user
 
 link.edit=Chỉnh sửa
+# Link to change the client that the trusted intermediary is applying for.
+link.selectNewClient=Select a new client
 
 # This is the header above the list of clients and the client search.
 title.allClients=Tất cả khách hàng
@@ -302,15 +325,15 @@ title.verifyAddress=Xác minh địa chỉ
 
 content.foundSimilarAddress=Chúng tôi không thể xác minh địa chỉ do bạn cung cấp nhưng đã tìm thấy địa chỉ tương tự.
 # Heading for showing the user the address they provided earlier
-content.addressEntered=Địa chỉ đã nhập:
+content.addressEntered=Address you entered:
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=Địa chỉ được đề xuất:
 content.suggestedAddresses=Các địa chỉ được đề xuất:
 
 # Title on address correction dialog when no address is found.
-title.noValidAddress=Không tìm thấy địa chỉ hợp lệ
-content.noValidAddress=Chúng tôi không thể xác minh địa chỉ do bạn cung cấp. Vui lòng chỉnh sửa địa chỉ của bạn để tiếp tục.
+title.noValidAddress=No valid address found
+content.noValidAddress=We could not verify the address that you provided. Please edit your address to continue.
 
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
@@ -373,9 +396,9 @@ placeholder.entityName=Tên {0}
 #---------------------------------------------------------------------------------#
 
 validation.fileRequired=Vui lòng chọn một tệp.
-button.chooseFile=Chọn tệp
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
+button.chooseFile=Chọn tệp
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
