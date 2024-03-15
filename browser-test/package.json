@@ -13,7 +13,7 @@
     "@typescript-eslint/eslint-plugin": "7.2.0",
     "@typescript-eslint/parser": "7.2.0",
     "axe-core": "4.8.4",
-    "axios": "1.6.7",
+    "axios": "1.6.8",
     "eslint": "8.57.0",
     "glob": "10.3.10",
     "eslint-plugin-playwright": "1.5.2",
