@@ -112,13 +112,6 @@ public final class ProgramImageView extends BaseHtmlView {
     DivTag mainContent = div().withClass("mx-20");
 
     H1Tag titleContainer = renderHeader(PAGE_TITLE);
-    DivTag descriptionRequiredAlert =
-        ViewUtils.makeAlertSlim(
-            "Note: Image description is required before uploading an image.",
-            /* hidden= */ false, /* classes=... */
-            BaseStyles.ALERT_INFO,
-            "mb-1",
-            "mt-1");
 
     DivTag formsContainer = div();
     Modal deleteImageModal = createDeleteImageModal(request, programDefinition, editStatus);
@@ -141,7 +134,7 @@ public final class ProgramImageView extends BaseHtmlView {
     formsAndCurrentCardContainer.with(formsContainer);
     formsAndCurrentCardContainer.with(renderCurrentProgramCard(request, programDefinition));
 
-    mainContent.with(titleContainer, descriptionRequiredAlert, formsAndCurrentCardContainer);
+    mainContent.with(titleContainer, formsAndCurrentCardContainer);
 
     HtmlBundle htmlBundle =
         layout
@@ -217,6 +210,12 @@ public final class ProgramImageView extends BaseHtmlView {
     manageTranslationsButton.ifPresent(buttonsDiv::with);
 
     return div()
+        .with(
+            ViewUtils.makeAlertSlim(
+                "Note: Image description is required before uploading an image.",
+                /* hidden= */ false, /* classes=... */
+                BaseStyles.ALERT_INFO,
+                "mb-2"))
         .with(
             form()
                 .withId(IMAGE_DESCRIPTION_FORM_ID)
