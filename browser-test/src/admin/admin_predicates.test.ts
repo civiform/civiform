@@ -858,6 +858,7 @@ test.describe('create and edit predicates', () => {
 
     test('every eligibility right hand type evaluates correctly', async () => {
       const {page, adminPrograms, applicantQuestions, adminPredicates} = ctx
+      await enableFeatureFlag(page, 'save_on_all_actions')
 
       await loginAsAdmin(page)
 
@@ -1131,6 +1132,7 @@ test.describe('create and edit predicates', () => {
       await validateToastMessage(page, 'may qualify')
 
       await applicantQuestions.clickReview()
+      await applicantQuestions.clickReviewWithoutSaving()
       await validateScreenshot(page, 'review-page-no-ineligible-banner')
       await validateToastMessage(page, '')
       await applicantQuestions.clickContinue()
@@ -1208,26 +1210,91 @@ test.describe('create and edit predicates', () => {
         'checkbox question text',
       )
       await applicantQuestions.expectIneligibleQuestionsCount(1)
+
+      await applicantQuestions.clickGoBackAndEditOnIneligiblePage(page)
+      await validateScreenshot(page, 'review-page-has-ineligible-banner')
+      await validateToastMessage(page, 'may not qualify')
+
+      await applicantQuestions.editQuestionFromReviewPage(
+        'checkbox question text',
+      )
+      await applicantQuestions.answerCheckboxQuestion(['cat'])
+      await applicantQuestions.clickNext()
+
+      // We should now be on the review page with a completed form and no banner should show.
+      await validateScreenshot(
+        page,
+        'review-page-no-ineligible-banner-completed',
+      )
+      await validateToastMessage(page, '')
+      await applicantQuestions.submitFromReviewPage()
+    })
+
+    test('multiple questions ineligible', async () => {
+      const {page, adminPrograms, adminPredicates, applicantQuestions} = ctx
+      await loginAsAdmin(page)
+      const programName = 'Multiple ineligible program'
+      await adminPrograms.addProgram(programName)
+
+      // Name predicate
+      await adminPrograms.editProgramBlock(programName, 'name', [
+        'single-string',
+      ])
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+      )
+      await adminPredicates.addPredicate(
+        'single-string',
+        /* action= */ null,
+        'first name',
+        'is not equal to',
+        'hidden',
+      )
+
+      // Currency predicate
+      await adminPrograms.addProgramBlock(programName, 'currency', [
+        'predicate-currency',
+      ])
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 2',
+      )
+      await adminPredicates.addPredicate(
+        'predicate-currency',
+        /* action= */ null,
+        'currency',
+        'is greater than',
+        '100.01',
+      )
+
+      await adminPrograms.publishProgram(programName)
+      await logout(page)
+
+      await loginAsTestUser(page)
+      await applicantQuestions.applyProgram(programName)
+
+      // 'Hidden' name is ineligible
+      await applicantQuestions.answerNameQuestion('hidden', 'next', 'screen')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+      await applicantQuestions.expectIneligibleQuestionsCount(1)
+      await applicantQuestions.clickGoBackAndEditOnIneligiblePage(page)
+
+      // Less than or equal to 100.01 is ineligible
+      await applicantQuestions.answerQuestionFromReviewPage(
+        'currency question text',
+      )
+      await applicantQuestions.answerCurrencyQuestion('100.01')
+      await applicantQuestions.clickNext()
+
+      await applicantQuestions.expectIneligiblePage()
+      await applicantQuestions.expectIneligibleQuestionsCount(2)
+      await validateAccessibility(page)
       await validateScreenshot(
         page,
         'ineligible-multiple-eligibility-questions',
       )
-      // Validate that ineligible page is accessible.
-      await validateAccessibility(page)
-      await page.goBack()
-
-      await applicantQuestions.clickReview()
-      await validateScreenshot(page, 'review-page-has-ineligible-banner')
-      await validateToastMessage(page, 'may not qualify')
-      await page.goBack()
-
-      await applicantQuestions.answerCheckboxQuestion(['cat'])
-      await applicantQuestions.clickNext()
-
-      // We should now be on the summary page and no banner should show.
-      await validateScreenshot(page, 'summary-page-no-eligible-banner')
-      await validateToastMessage(page, '')
-      await applicantQuestions.submitFromReviewPage()
     })
   })
 })

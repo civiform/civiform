@@ -223,7 +223,7 @@ public final class QuestionEditView extends BaseHtmlView {
     HtmlBundle htmlBundle =
         layout.getBundle(request).setTitle(title).addMainContent(formContent, previewContent);
 
-    if (settingsManifest.getUniversalQuestions(request) && modal.isPresent()) {
+    if (settingsManifest.getUniversalQuestions() && modal.isPresent()) {
       htmlBundle.addModals(modal.get());
     }
     return layout.render(htmlBundle);
@@ -323,7 +323,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 id, questionForm.getQuestionType().toString())
             .url());
 
-    if (settingsManifest.getUniversalQuestions(request)) {
+    if (settingsManifest.getUniversalQuestions()) {
       formTag.with(unsetUniversalModal.getButton());
     } else {
       formTag.with(submitButton("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE));
@@ -440,7 +440,7 @@ public final class QuestionEditView extends BaseHtmlView {
     if (questionConfig.isPresent()) {
       questionSettingsContentBuilder.add(questionConfig.get());
     }
-    if (settingsManifest.getUniversalQuestions(request)) {
+    if (settingsManifest.getUniversalQuestions()) {
       questionSettingsContentBuilder.add(buildUniversalQuestion(questionForm));
     }
     if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)

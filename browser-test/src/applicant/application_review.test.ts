@@ -10,6 +10,7 @@ import {
   testUserDisplayName,
   waitForPageJsLoad,
   validateScreenshot,
+  enableFeatureFlag,
 } from '../support'
 
 test.describe('Program admin review of submitted applications', () => {
@@ -280,7 +281,7 @@ test.describe('Program admin review of submitted applications', () => {
       await validateScreenshot(page, 'reporting-page')
     }
 
-    await page.click(`text=${programName.replaceAll(' ', '-').toLowerCase()}`)
+    await page.getByRole('link', {name: programName}).click()
 
     if (isHermeticTestEnvironment()) {
       await validateScreenshot(page, 'program-specific-reporting-page')
@@ -423,5 +424,87 @@ test.describe('Program admin review of submitted applications', () => {
     await validateScreenshot(page, 'applications-unfiltered')
 
     await logout(page)
+  })
+
+  test('Application search using Personal Applicant Info works', async () => {
+    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
+
+    await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
+    // Login as an admin and create a program with three PAI questions
+    await loginAsAdmin(page)
+    const programName = 'Test program'
+    await adminQuestions.addNameQuestion({
+      questionName: 'Name',
+      universal: true,
+      primaryApplicantInfo: true,
+    })
+    await adminQuestions.addEmailQuestion({
+      questionName: 'Email',
+      universal: true,
+      primaryApplicantInfo: true,
+    })
+    await adminQuestions.addPhoneQuestion({
+      questionName: 'Phone',
+      universal: true,
+      primaryApplicantInfo: true,
+    })
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['Name', 'Email', 'Phone'],
+      programName,
+    )
+    await logout(page)
+
+    // apply to the program as three different applicants so we have three applications to search
+    await applicantQuestions.completeApplicationWithPaiQuestions(
+      programName,
+      'oneFirst',
+      'oneMiddle',
+      'oneLast',
+      'one@email.com',
+      '4152321234',
+    )
+    await applicantQuestions.completeApplicationWithPaiQuestions(
+      programName,
+      'twoFirst',
+      'twoMiddle',
+      'twoLast',
+      'two@email.com',
+      '4153231234',
+    )
+    await applicantQuestions.completeApplicationWithPaiQuestions(
+      programName,
+      'threeFirst',
+      'threeMiddle',
+      'threeLast',
+      'three@email.com',
+      '5102321234',
+    )
+
+    // login as a Program Admin to search the applications
+    await loginAsProgramAdmin(page)
+    await adminPrograms.viewApplications(programName)
+    await validateScreenshot(page, 'applications-unfiltered-pai')
+
+    // search by name and validate expected applications are returned
+    const applyFilters = true
+    await adminPrograms.filterProgramApplications({searchFragment: 'one'})
+    const csvContentNameSearch = await adminPrograms.getCsv(applyFilters)
+    expect(csvContentNameSearch).toContain('oneFirst')
+    expect(csvContentNameSearch).not.toContain('twoFirst')
+    expect(csvContentNameSearch).not.toContain('threeFirst')
+
+    // search by email and validate expected applications are returned
+    await adminPrograms.filterProgramApplications({searchFragment: 'email'})
+    const csvContentEmailSearch = await adminPrograms.getCsv(applyFilters)
+    expect(csvContentEmailSearch).toContain('one@email.com')
+    expect(csvContentEmailSearch).toContain('two@email.com')
+    expect(csvContentEmailSearch).toContain('three@email.com')
+
+    // search by phone and validate expected applications are returned
+    await adminPrograms.filterProgramApplications({searchFragment: '415'})
+    const csvContentPhoneSearch = await adminPrograms.getCsv(applyFilters)
+    expect(csvContentPhoneSearch).toContain('oneFirst')
+    expect(csvContentPhoneSearch).toContain('twoFirst')
+    expect(csvContentPhoneSearch).not.toContain('threeFirst')
   })
 })

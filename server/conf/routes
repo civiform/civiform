@@ -243,6 +243,7 @@ POST    /dev/seedPrograms                controllers.dev.seeding.DevDatabaseSeed
 POST    /dev/seed/clear                  controllers.dev.seeding.DevDatabaseSeedController.clear()
 POST    /dev/seed/clearCache             controllers.dev.seeding.DevDatabaseSeedController.clearCache()
 GET     /dev/icons                       controllers.dev.IconsController.index(request: Request)
+POST    /dev/runDurableJob               controllers.dev.seeding.DevDatabaseSeedController.runDurableJob(request: Request)
 
 # Change feature flags.
 GET     /dev/feature/:flag/disable     controllers.dev.FeatureFlagOverrideController.disable(request: Request, flag: String)

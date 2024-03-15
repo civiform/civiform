@@ -470,6 +470,11 @@ export class ApplicantQuestions {
     expect(await this.page.innerText('h2')).toContain('you may not qualify')
   }
 
+  async clickGoBackAndEditOnIneligiblePage() {
+    await this.page.click('text="Go back and edit"')
+    await waitForPageJsLoad(this.page)
+  }
+
   async expectDuplicatesPage() {
     expect(await this.page.innerText('h2')).toContain(
       'There are no changes to save',
@@ -615,5 +620,22 @@ export class ApplicantQuestions {
 
   async clickStayAndFixAnswers() {
     await this.page.click('button:has-text("Stay and fix your answers")')
+  }
+
+  async completeApplicationWithPaiQuestions(
+    programName: string,
+    firstName: string,
+    middleName: string,
+    lastName: string,
+    email: string,
+    phone: string,
+  ) {
+    await this.applyProgram(programName)
+    await this.answerNameQuestion(firstName, lastName, middleName)
+    await this.answerEmailQuestion(email)
+    await this.answerPhoneQuestion(phone)
+    await this.clickNext()
+    await this.submitFromReviewPage()
+    await this.page.click('text=End session')
   }
 }

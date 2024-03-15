@@ -1,6 +1,9 @@
 import {test, expect} from '@playwright/test'
+import {Page} from 'playwright'
 import {
   createTestContext,
+  disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
   validateAccessibility,
   validateScreenshot,
@@ -56,9 +59,32 @@ test.describe('Static text question for applicant flow', () => {
 
   test('parses markdown', async () => {
     const {page, applicantQuestions} = ctx
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
     await applicantQuestions.applyProgram(programName)
     await validateScreenshot(page, 'markdown-text')
 
+    await verifyMarkdownHtml(page)
+  })
+
+  test(
+    'parses markdown with north star enabled',
+    {tag: ['@northstar']},
+    async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+      await applicantQuestions.applyProgram(programName)
+      await validateScreenshot(
+        page,
+        'markdown-text-north-star',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
+
+      await verifyMarkdownHtml(page)
+    },
+  )
+
+  async function verifyMarkdownHtml(page: Page) {
     expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
       '<p>Hello, I am some static text!<br>',
     )
@@ -77,5 +103,5 @@ test.describe('Static text question for applicant flow', () => {
     expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
       '<strong>Last line of content should be bold</strong>',
     )
-  })
+  }
 })

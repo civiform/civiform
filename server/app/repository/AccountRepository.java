@@ -13,6 +13,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import durablejobs.jobs.FixApplicantDobDataPathJob;
 import forms.TiClientInfoForm;
+import durablejobs.jobs.MigratePrimaryApplicantInfoJob;
+import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Query;
@@ -463,6 +465,21 @@ public final class AccountRepository {
             + " temp_json_table.parsed_object#>'{applicant,applicant_date_of_birth}' IS NOT NULL"
             + " AND temp_json_table.parsed_object#>'{applicant,applicant_date_of_birth,date}' IS"
             + " NULL";
+    return database.findNative(ApplicantModel.class, sql);
+  }
+
+  /**
+   * For use in {@link MigratePrimaryApplicantInfoJob}. Will return all applicants that have data in
+   * well known paths.
+   */
+  public Query<ApplicantModel> findApplicantsNeedingPrimaryApplicantInfoDataMigration() {
+    String sql =
+        "WITH temp AS (SELECT * , ((object#>>'{}')::jsonb)::json AS parsed FROM applicants) SELECT"
+            + " temp.* FROM temp LEFT JOIN accounts ON accounts.id = temp.account_id WHERE"
+            + " (temp.parsed#>'{applicant,name}' IS NOT NULL) OR (temp.email_address IS NULL and"
+            + " accounts.email_address IS NOT NULL) OR"
+            + " (temp.parsed#>'{applicant,applicant_phone_number}' IS NOT NULL) OR"
+            + " (temp.parsed#>'{applicant,applicant_date_of_birth}' IS NOT NULL)";
     return database.findNative(ApplicantModel.class, sql);
   }
 

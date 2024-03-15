@@ -11,7 +11,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import services.DeploymentType;
 import services.Path;
-import services.export.JsonExporter.ApplicationExportData;
+import services.export.JsonExporterService.ApplicationExportData;
 import services.export.enums.RevisionState;
 import services.export.enums.SubmitterType;
 import services.program.ProgramDefinition;
@@ -23,7 +23,7 @@ public final class ProgramJsonSampler {
 
   private final QuestionJsonSampler.Factory questionJsonSamplerFactory;
   private final ApiPayloadWrapper apiPayloadWrapper;
-  private final JsonExporter jsonExporter;
+  private final JsonExporterService jsonExporterService;
   private final DeploymentType deploymentType;
   private static final String EMPTY_VALUE = "";
 
@@ -31,11 +31,11 @@ public final class ProgramJsonSampler {
   ProgramJsonSampler(
       QuestionJsonSampler.Factory questionJsonSamplerFactory,
       ApiPayloadWrapper apiPayloadWrapper,
-      JsonExporter jsonExporter,
+      JsonExporterService jsonExporterService,
       DeploymentType deploymentType) {
     this.questionJsonSamplerFactory = questionJsonSamplerFactory;
     this.apiPayloadWrapper = apiPayloadWrapper;
-    this.jsonExporter = jsonExporter;
+    this.jsonExporterService = jsonExporterService;
     this.deploymentType = deploymentType;
   }
 
@@ -80,7 +80,7 @@ public final class ProgramJsonSampler {
     }
 
     return apiPayloadWrapper.wrapPayload(
-        jsonExporter
+        jsonExporterService
             .convertApplicationExportDataToJsonArray(ImmutableList.of(jsonExportData.build()))
             .jsonString(),
         /* paginationTokenPayload= */ Optional.empty());

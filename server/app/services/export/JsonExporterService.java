@@ -16,6 +16,7 @@ import models.LifecycleStage;
 import models.TrustedIntermediaryGroupModel;
 import org.apache.commons.lang3.NotImplementedException;
 import play.libs.F;
+import play.mvc.Http.Request;
 import repository.SubmittedApplicationFilter;
 import services.CfJsonDocumentContext;
 import services.DateConverter;
@@ -32,7 +33,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramService;
 
 /** Exports all applications for a given program as JSON. */
-public final class JsonExporter {
+public final class JsonExporterService {
 
   private final ApplicantService applicantService;
   private final ProgramService programService;
@@ -41,7 +42,7 @@ public final class JsonExporter {
   private static final String EMPTY_VALUE = "";
 
   @Inject
-  JsonExporter(
+  JsonExporterService(
       ApplicantService applicantService,
       ProgramService programService,
       DateConverter dateConverter,
@@ -64,10 +65,11 @@ public final class JsonExporter {
   public String export(
       ProgramDefinition programDefinition,
       IdentifierBasedPaginationSpec<Long> paginationSpec,
-      SubmittedApplicationFilter filters) {
+      SubmittedApplicationFilter filters,
+      Request request) {
     PaginationResult<ApplicationModel> paginationResult =
         programService.getSubmittedProgramApplicationsAllVersions(
-            programDefinition.id(), F.Either.Left(paginationSpec), filters);
+            programDefinition.id(), F.Either.Left(paginationSpec), filters, request);
 
     return exportPage(programDefinition, paginationResult);
   }
@@ -178,7 +180,7 @@ public final class JsonExporter {
     jsonApplication.putString(Path.create("language"), applicationExportData.languageTag());
     jsonApplication.putString(
         Path.create("create_time"),
-        dateConverter.renderDateTimeDataOnly(applicationExportData.createTime()));
+        dateConverter.renderDateTimeIso8601ExtendedOffset(applicationExportData.createTime()));
     jsonApplication.putString(
         Path.create("submitter_type"), applicationExportData.submitterType().toString());
     jsonApplication.putString(Path.create("ti_email"), applicationExportData.tiEmail());
@@ -189,7 +191,7 @@ public final class JsonExporter {
         .ifPresentOrElse(
             submitTime ->
                 jsonApplication.putString(
-                    submitTimePath, dateConverter.renderDateTimeDataOnly(submitTime)),
+                    submitTimePath, dateConverter.renderDateTimeIso8601ExtendedOffset(submitTime)),
             () -> jsonApplication.putNull(submitTimePath));
     jsonApplication.putString(
         Path.create("revision_state"), applicationExportData.revisionState().toString());
@@ -299,7 +301,7 @@ public final class JsonExporter {
     public abstract ImmutableMap<Path, Optional<?>> applicationEntries();
 
     static Builder builder() {
-      return new AutoValue_JsonExporter_ApplicationExportData.Builder();
+      return new AutoValue_JsonExporterService_ApplicationExportData.Builder();
     }
 
     @AutoValue.Builder

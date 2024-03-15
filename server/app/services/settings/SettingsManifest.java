@@ -703,6 +703,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * The count of reverse proxies between the internet and the server. In typical deployments, this
+   * value is 1.
+   */
+  public Optional<Integer> getNumTrustedProxies() {
+    return getInt("NUM_TRUSTED_PROXIES");
+  }
+
+  /**
    * If enabled, allows server Prometheus metrics to be retrieved via the '/metrics' URL path.  If
    * disabled, '/metrics' returns a 404.
    */
@@ -875,8 +883,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * intended to be used by all programs and will appear at the top of the question bank with a
    * badge denoting them as universal.
    */
-  public boolean getUniversalQuestions(RequestHeader request) {
-    return getBool("UNIVERSAL_QUESTIONS", request);
+  public boolean getUniversalQuestions() {
+    return getBool("UNIVERSAL_QUESTIONS");
   }
 
   /**
@@ -1857,7 +1865,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " universal.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "PROGRAM_CARD_IMAGES",
                       "Enables images on program cards, both for admins to upload them and for"
@@ -1975,5 +1983,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       /* isRequired= */ false,
                       SettingType.ENUM,
                       SettingMode.ADMIN_READABLE,
-                      ImmutableList.of("DIRECT", "FORWARDED")))));
+                      ImmutableList.of("DIRECT", "FORWARDED")),
+                  SettingDescription.create(
+                      "NUM_TRUSTED_PROXIES",
+                      "The count of reverse proxies between the internet and the server. In typical"
+                          + " deployments, this value is 1.",
+                      /* isRequired= */ false,
+                      SettingType.INT,
+                      SettingMode.ADMIN_READABLE))));
 }
