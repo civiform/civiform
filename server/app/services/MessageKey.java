@@ -42,7 +42,7 @@ public enum MessageKey {
   BANNER_HTTPS_SECTION_CONTENT("banner.httpsSectionContent"),
   BANNER_LINK("banner.link"),
   BANNER_TITLE("banner.title"),
-  BANNER_VIEW_APPLICATIONS("banner.viewApplication"),
+  BANNER_VIEW_APPLICATION("banner.viewApplication"),
   BUTTON_ADD_NEW_CLIENT("button.addNewClient"),
   BUTTON_APPLY("button.apply"),
   BUTTON_APPLY_TO_PROGRAMS("button.applyToPrograms"),

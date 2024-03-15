@@ -161,7 +161,7 @@ button.viewAndAddClients=View and add clients
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=Your new client {0} has been added to your client list. You can now begin submitting applications for this client.
 # The tooltip of the email input field.
-content.emailTooltip=Add an email address for your client to receive status updates about their application automatically. Without an email, you or your community-based organization will be responsible for communicating updates to your client
+content.emailTooltip=Add an email address for your client to receive status updates about their application automatically. Without an email, you or your community-based organization will be responsible for communicating updates to your client.
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted={0} applications submitted
 # Shows that a single application has been submitted on behalf of the client.
