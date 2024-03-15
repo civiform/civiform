@@ -1081,6 +1081,19 @@ export class AdminPrograms {
     }
     return readFileSync(path, 'utf8')
   }
+
+  async getProgramPdf() {
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.getByRole('button', {name: 'Download PDF preview'}).click(),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+    return readFileSync(path, 'utf8')
+  }
+
   async getCsv(applyFilters: boolean) {
     await clickAndWaitForModal(this.page, 'download-program-applications-modal')
     if (applyFilters) {
@@ -1192,19 +1205,5 @@ export class AdminPrograms {
   async isPaginationVisibleForApplicationList(): Promise<boolean> {
     const applicationListDiv = this.page.getByTestId('application-list')
     return applicationListDiv.locator('.usa-pagination').isVisible()
-  }
-
-  async getProgramPdf() {
-    const [downloadEvent] = await Promise.all([
-      this.page.waitForEvent('download'),
-       this.page
-         .getByRole('button', { name: 'Download PDF preview' })
-         .click(),
-    ])
-    const path = await downloadEvent.path()
-    if (path === null) {
-      throw new Error('download failed')
-    }
-    return readFileSync(path, 'utf8')
   }
 }
