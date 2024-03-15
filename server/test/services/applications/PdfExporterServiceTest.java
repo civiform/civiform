@@ -2,6 +2,7 @@ package services.applications;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static services.export.PdfExporterTest.APPLICATION_ONE_STRING;
+import static services.export.PdfExporterTest.getPdfLines;
 
 import com.google.common.base.Splitter;
 import com.itextpdf.text.pdf.PdfArray;
@@ -70,5 +71,20 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
     for (int lineNum = 4; lineNum < linesFromPDF.size(); lineNum++) {
       assertThat(linesFromPDF.get(lineNum)).isEqualTo(linesFromStaticString.get(lineNum));
     }
+  }
+
+  @Test
+  public void generateProgramPreviewPdf() throws IOException {
+    PdfExporterService service = instanceOf(PdfExporterService.class);
+
+    PdfExporter.InMemoryPdf result =
+        service.generateProgramPreviewPdf(
+            fakeProgram.getProgramDefinition(), getFakeQuestionDefinitions());
+
+    List<String> linesFromPdf = getPdfLines(result);
+    assertThat(linesFromPdf.get(0))
+        .isEqualTo(fakeProgram.getProgramDefinition().localizedName().getDefault());
+    // More assertions about the PDF content will be in PdfExporterTest, since PdfExporter is the
+    // class that actually builds the PDF.
   }
 }

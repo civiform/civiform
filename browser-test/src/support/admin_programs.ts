@@ -1068,7 +1068,7 @@ export class AdminPrograms {
 
     return JSON.parse(readFileSync(path, 'utf8')) as DownloadedApplication[]
   }
-  async getPdf() {
+  async getApplicationPdf() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.applicationFrameLocator()
@@ -1192,5 +1192,20 @@ export class AdminPrograms {
   async isPaginationVisibleForApplicationList(): Promise<boolean> {
     const applicationListDiv = this.page.getByTestId('application-list')
     return applicationListDiv.locator('.usa-pagination').isVisible()
+  }
+
+  async getProgramPdf() {
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.click('button:has-text("Download PDF preview")'),
+      // this.applicationFrameLocator()
+      //   .getByRole('button', { name: 'Download PDF preview' })
+      //   .click(),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+    return readFileSync(path, 'utf8')
   }
 }

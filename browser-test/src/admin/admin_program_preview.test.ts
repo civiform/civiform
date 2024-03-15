@@ -1,4 +1,4 @@
-import {test} from '@playwright/test'
+import {expect, test} from '@playwright/test'
 import {
   createTestContext,
   loginAsAdmin,
@@ -78,5 +78,44 @@ test.describe('admin program preview', () => {
     await page.click('a:has-text("Back to admin view")')
 
     await adminPrograms.expectProgramBlockEditPage(programName)
+  })
+
+  test('download pdf preview of draft program', async () => {
+    const {page, adminPrograms, adminQuestions} = ctx
+    await loginAsAdmin(page)
+
+    await adminQuestions.addEmailQuestion({questionName: 'email-q'})
+    const programName = 'Example Draft Program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName, 'description', [
+      'email-q',
+    ])
+    await adminPrograms.gotoEditDraftProgramPage(programName)
+
+    const pdfFile = await adminPrograms.getProgramPdf()
+
+    expect(pdfFile.length).toBeGreaterThan(1)
+    // {@link services.export.PdfExporterTest.java} has tests that verify the PDF contents.
+    // This browser test just ensures a PDF is downloaded when the button is clicked.
+  })
+
+  test('download pdf preview of active program', async () => {
+    const {page, adminPrograms, adminQuestions} = ctx
+    await loginAsAdmin(page)
+
+    await adminQuestions.addEmailQuestion({questionName: 'email-q'})
+    const programName = 'Example Active Program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName, 'description', [
+      'email-q',
+    ])
+    await adminPrograms.publishProgram(programName)
+    await adminPrograms.gotoViewActiveProgramPage(programName)
+
+    const pdfFile = await adminPrograms.getProgramPdf()
+
+    expect(pdfFile.length).toBeGreaterThan(1)
+    // {@link services.export.PdfExporterTest.java} has tests that verify the PDF contents.
+    // This browser test just ensures a PDF is downloaded when the button is clicked.
   })
 })

@@ -255,10 +255,12 @@ public final class PdfExporter {
   }
 
   /**
-   * Generates a byte array containing all the values present in the List of AnswerData using
-   * itextPDF. This function creates the output document in memory as a byte[] and is part of the
-   * inMemoryPDF object. The InMemoryPdf object is passed back to the AdminController Class to
-   * generate the required PDF.
+   * Generates a byte array containing all the blocks and questions in {@code programDefinition}.
+   * This function creates the output document in memory as a byte[] and is part of the inMemoryPDF
+   * object.
+   *
+   * @param allQuestions a list of all questions in the question bank. Used for displaying
+   *     predicates correctly.
    */
   public InMemoryPdf exportProgram(
       ProgramDefinition programDefinition, ImmutableList<QuestionDefinition> allQuestions)
@@ -295,7 +297,8 @@ public final class PdfExporter {
               SMALL_GRAY_FONT));
 
       for (BlockDefinition block : programDefinition.getNonRepeatedBlockDefinitions()) {
-        renderBlock(document, programDefinition, block, allQuestions, /* indentationLevel= */ 0);
+        renderProgramBlock(
+            document, programDefinition, block, allQuestions, /* indentationLevel= */ 0);
       }
     } finally {
       document.close();
@@ -306,15 +309,13 @@ public final class PdfExporter {
   }
 
   /**
-   * Renders the given block in the PDF.
+   * Renders the given block in the program preview PDF.
    *
-   * @param allQuestions a list of all questions in the question bank. Used for displaying
-   *     predicates correctly.
    * @param indentationLevel the level of indentation. Should be 0 for most questions, 1 for
    *     questions nested under an enumerator, 2 for doubly-nested enumerator questions, etc. Should
-   *     be multiplied by {@link INDENTATION_PER_LEVEL} when adding text into the PDF.
+   *     be multiplied by {@code INDENTATION_PER_LEVEL} when adding text into the PDF.
    */
-  private void renderBlock(
+  private void renderProgramBlock(
       Document document,
       ProgramDefinition program,
       BlockDefinition block,
@@ -390,7 +391,7 @@ public final class PdfExporter {
     if (block.isEnumerator()) {
       for (BlockDefinition subBlock : program.getBlockDefinitionsForEnumerator(block.id())) {
         // Indent the blocks related to the enumerator so it's clear they're related
-        renderBlock(document, program, subBlock, allQuestions, indentationLevel + 1);
+        renderProgramBlock(document, program, subBlock, allQuestions, indentationLevel + 1);
       }
     }
   }
