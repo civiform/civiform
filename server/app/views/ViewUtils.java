@@ -38,7 +38,6 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
-import play.i18n.Messages;
 import services.DateConverter;
 import services.question.types.QuestionDefinition;
 import views.components.ButtonStyles;
@@ -517,7 +516,6 @@ public final class ViewUtils {
    * @param yearValue The default value which should appear in the "Year" input field
    * @param legend The label string for the date fields
    * @param showError Whether an error message should appear
-   * @param messages the localized {@link Messages}
    * @return ContainerTag
    */
   public static FieldsetTag makeMemorableDate(
