@@ -451,7 +451,7 @@ public final class ViewUtils {
                     .withClasses("usa-modal__content")
                     .with(
                         div()
-                            .withClasses("mx-4", "usa-modal__main")
+                            .withClasses("m-6","usa-modal-lg__main")
                             .with(h2(headerText).withClass("usa-modal__heading").withId(headingId))
                             .with(
                                 div()

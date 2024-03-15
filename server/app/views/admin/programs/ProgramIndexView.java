@@ -319,14 +319,14 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     DivTag publishAllModalContent =
         div()
-            .withClasses("flex-row", "space-y-6", "w-800")
+            .withClasses("flex-col", "space-y-6")
             .with(
                 ViewUtils.makeAlert(
                     "Due to the nature of shared questions and versioning, all questions and"
                         + " programs will need to be published together.",
                     /* hidden= */ false,
                     /* title= */ Optional.of("All draft questions in programs will be published."),
-                    BaseStyles.ALERT_WARNING),
+                    BaseStyles.ALERT_WARNING, "w-800"),
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_PROGRAM, "w-full")
                     .with(
