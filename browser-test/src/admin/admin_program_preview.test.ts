@@ -96,7 +96,7 @@ test.describe('admin program preview', () => {
 
     expect(pdfFile.length).toBeGreaterThan(1)
     // {@link services.export.PdfExporterTest.java} has tests that verify the PDF contents.
-    // This browser test just ensures a PDF is downloaded when the button is clicked.
+    // This browser test just ensures a file is downloaded when the button is clicked.
   })
 
   test('download pdf preview of active program', async () => {
@@ -116,6 +116,6 @@ test.describe('admin program preview', () => {
 
     expect(pdfFile.length).toBeGreaterThan(1)
     // {@link services.export.PdfExporterTest.java} has tests that verify the PDF contents.
-    // This browser test just ensures a PDF is downloaded when the button is clicked.
+    // This browser test just ensures a file is downloaded when the button is clicked.
   })
 })

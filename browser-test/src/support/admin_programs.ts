@@ -1197,10 +1197,9 @@ export class AdminPrograms {
   async getProgramPdf() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.click('button:has-text("Download PDF preview")'),
-      // this.applicationFrameLocator()
-      //   .getByRole('button', { name: 'Download PDF preview' })
-      //   .click(),
+       this.page
+         .getByRole('button', { name: 'Download PDF preview' })
+         .click(),
     ])
     const path = await downloadEvent.path()
     if (path === null) {
