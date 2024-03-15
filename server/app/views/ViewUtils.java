@@ -421,6 +421,7 @@ public final class ViewUtils {
    * @param hasFooter A boolean value that determines whether to include a footer with action
    *     buttons. If the main content has a form, the buttons will already be included with the
    *     form, so no need for the footer.
+   * @param triggeringButton The button that triggers the modal.
    * @param firstButtonText Text for the first footer button.
    * @param secondButtonText Text for the second footer button.
    * @return DivTag containing the button that opens the modal and the modal itself.
