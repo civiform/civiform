@@ -125,7 +125,7 @@ banner.clientInfoUpdated=Client info has been successfully updated.
 banner.clientAcctDeleted=The client account for "{0}" has been successfully deleted.
 # Message when a user successfully creates a client account.
 banner.newClientCreated=New client successfully created.
-# Banner at the top of the page when viewing an application
+# Banner at the top of the page with the name of the client substituted in when viewing an application.
 banner.viewApplication=You are applying for {0}. Are you trying to apply for a different client?
 
 
