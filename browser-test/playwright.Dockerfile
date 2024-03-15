@@ -10,7 +10,7 @@ RUN apt-get update -y && \
     apt-get remove -y --purge cmdtest && \
     apt-get update && \
     # Install the packages
-    apt-get install -y nodejs && \
+    apt-get install -y nodejs fonts-ubuntu && \
     # Smoke tests
     node --version && \
     npm --version && \
