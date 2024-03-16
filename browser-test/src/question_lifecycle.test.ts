@@ -11,7 +11,7 @@ import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
 
 test.describe('normal question lifecycle', {tag: ['@migrated']}, () => {
-  test('sample question seeding works', async ({page, adminQuestions} ) => {
+  test('sample question seeding works', async ({page, adminQuestions}) => {
     await dropTables(page)
     await seedQuestions(page)
 
@@ -27,7 +27,11 @@ test.describe('normal question lifecycle', {tag: ['@migrated']}, () => {
   // Run create-update-publish test for each question type individually to keep
   // test duration reasonable.
   for (const type of Object.values(QuestionType)) {
-    test(`${type} question: create, update, publish, create a new version, and update`, async ({page, adminQuestions, adminPrograms}) => {
+    test(`${type} question: create, update, publish, create a new version, and update`, async ({
+      page,
+      adminQuestions,
+      adminPrograms,
+    }) => {
       await loginAsAdmin(page)
 
       const questionName = `qlc-${type}`
@@ -98,7 +102,10 @@ test.describe('normal question lifecycle', {tag: ['@migrated']}, () => {
     })
   }
 
-  test('allows re-ordering options in dropdown question', async ({page, adminQuestions}) => {
+  test('allows re-ordering options in dropdown question', async ({
+    page,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     const options = [
@@ -178,7 +185,10 @@ test.describe('normal question lifecycle', {tag: ['@migrated']}, () => {
     expect(await adminNames[4].inputValue()).toContain('option4_admin')
   })
 
-  test('shows markdown format correctly in the preview when creating a new question', async ({page, adminQuestions}) => {
+  test('shows markdown format correctly in the preview when creating a new question', async ({
+    page,
+    adminQuestions,
+  }) => {
     const questionName = 'markdown formatted question'
 
     await loginAsAdmin(page)
@@ -205,7 +215,10 @@ test.describe('normal question lifecycle', {tag: ['@migrated']}, () => {
     await validateScreenshot(page, 'question-with-markdown-formatted-preview')
   })
 
-  test('shows error when creating a dropdown question and admin left an option field blank', async ({page, adminQuestions} ) => {
+  test('shows error when creating a dropdown question and admin left an option field blank', async ({
+    page,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     const options = [
@@ -234,7 +247,10 @@ test.describe('normal question lifecycle', {tag: ['@migrated']}, () => {
     await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast()
   })
 
-  test('shows error when creating a radio question and admin left an option field blank', async ({page, adminQuestions}) => {
+  test('shows error when creating a radio question and admin left an option field blank', async ({
+    page,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     const options = [
@@ -262,7 +278,10 @@ test.describe('normal question lifecycle', {tag: ['@migrated']}, () => {
     await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast()
   })
 
-  test('shows error when updating a dropdown question and admin left an option field blank', async ({page, adminQuestions}) => {
+  test('shows error when updating a dropdown question and admin left an option field blank', async ({
+    page,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     const options = [
@@ -286,7 +305,10 @@ test.describe('normal question lifecycle', {tag: ['@migrated']}, () => {
     await adminQuestions.expectMultiOptionInvalidOptionAdminError(options, [2])
   })
 
-  test('shows error when updating a radio question and admin left an option field blank', async ({page, adminQuestions}) => {
+  test('shows error when updating a radio question and admin left an option field blank', async ({
+    page,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     const options = [
@@ -312,7 +334,10 @@ test.describe('normal question lifecycle', {tag: ['@migrated']}, () => {
     await adminQuestions.expectMultiOptionInvalidOptionAdminError(options, [2])
   })
 
-  test('shows error when updating a radio question and admin left an adminName field blank', async ({page, adminQuestions}) => {
+  test('shows error when updating a radio question and admin left an adminName field blank', async ({
+    page,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     const options = [
@@ -341,7 +366,10 @@ test.describe('normal question lifecycle', {tag: ['@migrated']}, () => {
     await adminQuestions.expectMultiOptionInvalidOptionAdminError(options, [2])
   })
 
-  test('shows error when updating a radio question and admin used invalid characters in the admin name', async ({page, adminQuestions}) => {
+  test('shows error when updating a radio question and admin used invalid characters in the admin name', async ({
+    page,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     const options = [
@@ -436,7 +464,10 @@ test.describe('normal question lifecycle', {tag: ['@migrated']}, () => {
     ).toBeTruthy()
   })
 
-  test('shows the "Remove from universal questions" confirmation modal in the right circumstances and navigation works', async ({page, adminQuestions}) => {
+  test('shows the "Remove from universal questions" confirmation modal in the right circumstances and navigation works', async ({
+    page,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
     const questionName = 'text question'
     await adminQuestions.addTextQuestion({questionName})
@@ -469,7 +500,11 @@ test.describe('normal question lifecycle', {tag: ['@migrated']}, () => {
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
   })
 
-  test('redirects to draft question when trying to edit original question', async ({page, adminQuestions, adminPrograms} ) => {
+  test('redirects to draft question when trying to edit original question', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     await adminQuestions.gotoAdminQuestionsPage()
@@ -496,7 +531,10 @@ test.describe('normal question lifecycle', {tag: ['@migrated']}, () => {
     )
   })
 
-  test('shows preview of formatted question name when creating a new question', async ({page, adminQuestions}) => {
+  test('shows preview of formatted question name when creating a new question', async ({
+    page,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
     await adminQuestions.gotoAdminQuestionsPage()
     await page.click('#create-question-button')

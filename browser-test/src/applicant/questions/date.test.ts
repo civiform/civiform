@@ -32,14 +32,19 @@ test.describe('Date question for applicant flow', {tag: ['@migrated']}, () => {
       await validateScreenshot(page, 'date')
     })
 
-    test('validate screenshot with errors', async ({page, applicantQuestions}) => {
+    test('validate screenshot with errors', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
       await validateScreenshot(page, 'date-errors')
     })
 
-    test('with filled in date submits successfully', async ({applicantQuestions} ) => {
+    test('with filled in date submits successfully', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDateQuestion('2022-05-02')
       await applicantQuestions.clickNext()
@@ -47,7 +52,10 @@ test.describe('Date question for applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with no answer does not submit', async ({page, applicantQuestions}) => {
+    test('with no answer does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       // Click next without selecting anything.
       await applicantQuestions.clickNext()
@@ -63,7 +71,7 @@ test.describe('Date question for applicant flow', {tag: ['@migrated']}, () => {
   test.describe('multiple date questions', () => {
     const programName = 'Test program for multiple date questions'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms} ) => {
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       // beforeAll
       await loginAsAdmin(page)
 
@@ -84,7 +92,9 @@ test.describe('Date question for applicant flow', {tag: ['@migrated']}, () => {
       // beforeEach
     })
 
-    test('with valid dates submits successfully', async ({applicantQuestions} ) => {
+    test('with valid dates submits successfully', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDateQuestion('2022-07-04', 0)
       await applicantQuestions.answerDateQuestion('1990-10-10', 1)
@@ -93,7 +103,9 @@ test.describe('Date question for applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with unanswered optional question submits successfully', async ({applicantQuestions} ) => {
+    test('with unanswered optional question submits successfully', async ({
+      applicantQuestions,
+    }) => {
       // Only answer second question.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDateQuestion('1990-10-10', 1)
@@ -102,7 +114,10 @@ test.describe('Date question for applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('has no accessiblity violations', async ({page, applicantQuestions}) => {
+    test('has no accessiblity violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)

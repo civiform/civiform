@@ -9,7 +9,6 @@ import {
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Program list page.', {tag: ['@migrated']}, () => {
-
   test('view draft program', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
@@ -29,7 +28,10 @@ test.describe('Program list page.', {tag: ['@migrated']}, () => {
     await validateScreenshot(page, 'program-list-one-active-program')
   })
 
-  test('view program with active and draft versions', async ({page, adminPrograms}) => {
+  test('view program with active and draft versions', async ({
+    page,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Test program'
@@ -42,7 +44,10 @@ test.describe('Program list page.', {tag: ['@migrated']}, () => {
     await validateScreenshot(page, 'program-list-active-and-draft-versions')
   })
 
-  test('sorts by last updated, preferring draft over active', async ({page, adminPrograms}) => {
+  test('sorts by last updated, preferring draft over active', async ({
+    page,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     const programOne = 'List test program one'
@@ -72,7 +77,10 @@ test.describe('Program list page.', {tag: ['@migrated']}, () => {
     ])
   })
 
-  test('shows which program is the common intake when enabled', async ({page, adminPrograms}) => {
+  test('shows which program is the common intake when enabled', async ({
+    page,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'intake_form_enabled')
 
@@ -93,7 +101,11 @@ test.describe('Program list page.', {tag: ['@migrated']}, () => {
     await validateScreenshot(page, 'intake-form-indicator')
   })
 
-  test('shows information about universal questions when the flag is enabled and at least one universal question is set', async ({page, adminPrograms, adminQuestions}) => {
+  test('shows information about universal questions when the flag is enabled and at least one universal question is set', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     // Create a program and question that is not universal
@@ -167,7 +179,11 @@ test.describe('Program list page.', {tag: ['@migrated']}, () => {
     await adminPrograms.expectActiveProgram(programOne)
   })
 
-  test('publishing a single program shows a modal with conditional warning about universal questions', async ({page, adminPrograms, adminQuestions}) => {
+  test('publishing a single program shows a modal with conditional warning about universal questions', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     // Create a program and question that is not universal
@@ -229,7 +245,11 @@ test.describe('Program list page.', {tag: ['@migrated']}, () => {
     await adminPrograms.expectActiveProgram(programOne)
   })
 
-  test('program list has current image', async ({page, adminPrograms, adminProgramImage}) => {
+  test('program list has current image', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Images Flag On Program'
@@ -255,7 +275,11 @@ test.describe('Program list page.', {tag: ['@migrated']}, () => {
     await validateScreenshot(page, 'program-list-no-image')
   })
 
-  test('program list with new image in draft', async ({page, adminPrograms, adminProgramImage}) => {
+  test('program list with new image in draft', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+  }) => {
     await loginAsAdmin(page)
 
     // Start the program as having no image
@@ -279,7 +303,11 @@ test.describe('Program list page.', {tag: ['@migrated']}, () => {
   // This test is flaky in staging prober tests, so only run it locally and on
   // GitHub actions. See issue #6624 for more details.
   if (isLocalDevEnvironment()) {
-    test('program list with different active and draft image', async ({page, adminPrograms, adminProgramImage}) => {
+    test('program list with different active and draft image', async ({
+      page,
+      adminPrograms,
+      adminProgramImage,
+    }) => {
       await loginAsAdmin(page)
 
       const programName = 'Different Images Program'
@@ -305,7 +333,11 @@ test.describe('Program list page.', {tag: ['@migrated']}, () => {
     })
   }
 
-  test('program list with same active and draft image', async ({page, adminPrograms, adminProgramImage}) => {
+  test('program list with same active and draft image', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Same Image Program'

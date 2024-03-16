@@ -2,7 +2,11 @@ import {test, expect} from '../fixtures/custom_fixture'
 import {loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('Managing API keys', {tag: ['@migrated']}, () => {
-  test('Creates, views and retires new API key', async ({page, adminApiKeys, adminPrograms}) => {
+  test('Creates, views and retires new API key', async ({
+    page,
+    adminApiKeys,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Api using program'

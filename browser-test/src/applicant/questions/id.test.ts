@@ -10,7 +10,7 @@ test.describe('Id question for applicant flow', {tag: ['@migrated']}, () => {
   test.describe('single id question', () => {
     const programName = 'Test program for single id'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms} ) => {
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       // beforeAll
       // As admin, create program with single id question.
       await loginAsAdmin(page)
@@ -36,7 +36,10 @@ test.describe('Id question for applicant flow', {tag: ['@migrated']}, () => {
       await validateScreenshot(page, 'id')
     })
 
-    test('validate screenshot with errors', async ({page, applicantQuestions}) => {
+    test('validate screenshot with errors', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
@@ -51,7 +54,10 @@ test.describe('Id question for applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with empty id does not submit', async ({page, applicantQuestions}) => {
+    test('with empty id does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       // Click next without inputting anything
@@ -63,7 +69,10 @@ test.describe('Id question for applicant flow', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('with too short id does not submit', async ({page, applicantQuestions}) => {
+    test('with too short id does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('123')
       await applicantQuestions.clickNext()
@@ -74,7 +83,10 @@ test.describe('Id question for applicant flow', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('with too long id does not submit', async ({page, applicantQuestions}) => {
+    test('with too long id does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('123456')
       await applicantQuestions.clickNext()
@@ -85,7 +97,10 @@ test.describe('Id question for applicant flow', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('with non-numeric characters does not submit', async ({page, applicantQuestions}) => {
+    test('with non-numeric characters does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('abcde')
       await applicantQuestions.clickNext()
@@ -125,7 +140,9 @@ test.describe('Id question for applicant flow', {tag: ['@migrated']}, () => {
       // beforeEach
     })
 
-    test('with both id inputs submits successfully', async ({applicantQuestions} ) => {
+    test('with both id inputs submits successfully', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('12345', 0)
       await applicantQuestions.answerIdQuestion('67890', 1)
@@ -134,7 +151,9 @@ test.describe('Id question for applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with unanswered optional question submits successfully', async ({applicantQuestions} ) => {
+    test('with unanswered optional question submits successfully', async ({
+      applicantQuestions,
+    }) => {
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('67890', 1)
@@ -143,7 +162,10 @@ test.describe('Id question for applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with first invalid does not submit', async ({page, applicantQuestions} ) => {
+    test('with first invalid does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('abcde', 0)
       await applicantQuestions.answerIdQuestion('67890', 1)
@@ -155,7 +177,10 @@ test.describe('Id question for applicant flow', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('with second invalid does not submit', async ({page, applicantQuestions} ) => {
+    test('with second invalid does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('67890', 0)
       await applicantQuestions.answerIdQuestion('abcde', 1)
@@ -167,7 +192,10 @@ test.describe('Id question for applicant flow', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('has no accessiblity violations', async ({page, applicantQuestions} ) => {
+    test('has no accessiblity violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)

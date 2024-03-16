@@ -1,9 +1,5 @@
 import {test} from '../fixtures/custom_fixture'
-import {
-  loginAsAdmin,
-  validateScreenshot,
-  AdminSettings,
-} from '../support'
+import {loginAsAdmin, validateScreenshot, AdminSettings} from '../support'
 
 test.describe('Managing system-wide settings', {tag: ['@migrated']}, () => {
   test('Displays the settings page', async ({page}) => {
@@ -37,7 +33,7 @@ test.describe('Managing system-wide settings', {tag: ['@migrated']}, () => {
     await validateScreenshot(page, 'admin-settings-page-narrow')
   })
 
-  test('Updates settings on save', async ({page} ) => {
+  test('Updates settings on save', async ({page}) => {
     await loginAsAdmin(page)
 
     const adminSettings = new AdminSettings(page)

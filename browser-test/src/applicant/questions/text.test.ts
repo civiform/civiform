@@ -10,7 +10,7 @@ test.describe('Text question for applicant flow', {tag: ['@migrated']}, () => {
   test.describe('single text question', () => {
     const programName = 'Test program for single text q'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms} ) => {
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       // beforeAll
       // As admin, create program with a free form text question.
       await loginAsAdmin(page)
@@ -36,7 +36,10 @@ test.describe('Text question for applicant flow', {tag: ['@migrated']}, () => {
       await validateScreenshot(page, 'text')
     })
 
-    test('validate screenshot with errors', async ({page, applicantQuestions}) => {
+    test('validate screenshot with errors', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
@@ -51,7 +54,10 @@ test.describe('Text question for applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with empty text does not submit', async ({page, applicantQuestions}) => {
+    test('with empty text does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       // Click next without inputting anything
@@ -63,7 +69,10 @@ test.describe('Text question for applicant flow', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('with too short text does not submit', async ({page, applicantQuestions}) => {
+    test('with too short text does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('hi')
       await applicantQuestions.clickNext()
@@ -74,7 +83,10 @@ test.describe('Text question for applicant flow', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('with too long text does not submit', async ({page, applicantQuestions}) => {
+    test('with too long text does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion(
         'A long string that exceeds the character limit',
@@ -87,7 +99,10 @@ test.describe('Text question for applicant flow', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('hitting enter on text does not trigger submission', async ({page, applicantQuestions}) => {
+    test('hitting enter on text does not trigger submission', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
 
@@ -134,7 +149,10 @@ test.describe('Text question for applicant flow', {tag: ['@migrated']}, () => {
       // beforeEach
     })
 
-    test('text that is too long is cut off at 10k characters', async ({page, applicantQuestions}) => {
+    test('text that is too long is cut off at 10k characters', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       let largeString = ''
       for (let i = 0; i < 1000; i++) {
@@ -189,7 +207,9 @@ test.describe('Text question for applicant flow', {tag: ['@migrated']}, () => {
       // beforeEach
     })
 
-    test('with both selections submits successfully', async ({applicantQuestions}) => {
+    test('with both selections submits successfully', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
       await applicantQuestions.answerTextQuestion('You love CiviForm!', 1)
@@ -198,7 +218,9 @@ test.describe('Text question for applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with unanswered optional question submits successfully', async ({applicantQuestions}) => {
+    test('with unanswered optional question submits successfully', async ({
+      applicantQuestions,
+    }) => {
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('You love CiviForm!', 1)
@@ -207,7 +229,10 @@ test.describe('Text question for applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with first invalid does not submit', async ({page, applicantQuestions}) => {
+    test('with first invalid does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion(
         'A long string that exceeds the character limit',
@@ -222,7 +247,10 @@ test.describe('Text question for applicant flow', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('with second invalid does not submit', async ({page, applicantQuestions}) => {
+    test('with second invalid does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
       await applicantQuestions.answerTextQuestion(
@@ -237,7 +265,10 @@ test.describe('Text question for applicant flow', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('has no accessiblity violations', async ({page, applicantQuestions}) => {
+    test('has no accessiblity violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)

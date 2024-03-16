@@ -15,7 +15,11 @@ test.describe('Viewing API docs', {tag: ['@migrated']}, () => {
     await seedPrograms(page)
   })
 
-  test('Views active API docs', async ( {page, adminPrograms, adminQuestions}) => {
+  test('Views active API docs', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+  }) => {
     // TODO: fix the problem with these test on probers
     // https://github.com/civiform/civiform/issues/6158
     if (isHermeticTestEnvironment()) {
@@ -50,7 +54,11 @@ test.describe('Viewing API docs', {tag: ['@migrated']}, () => {
     }
   })
 
-  test('Views active API docs without logging in', async ( {page, adminPrograms, context}) => {
+  test('Views active API docs without logging in', async ({
+    page,
+    adminPrograms,
+    context,
+  }) => {
     await page.goto(BASE_URL)
     await loginAsAdmin(page)
 
@@ -99,7 +107,10 @@ test.describe('Viewing API docs', {tag: ['@migrated']}, () => {
     }
   })
 
-  test('Shows error on draft API docs when no draft available', async ({page, adminPrograms}) => {
+  test('Shows error on draft API docs when no draft available', async ({
+    page,
+    adminPrograms,
+  }) => {
     if (isHermeticTestEnvironment()) {
       await page.goto(BASE_URL)
       await loginAsAdmin(page)
@@ -115,7 +126,7 @@ test.describe('Viewing API docs', {tag: ['@migrated']}, () => {
     }
   })
 
-  test('Opens help accordion with a click', async ({page, adminPrograms} ) => {
+  test('Opens help accordion with a click', async ({page, adminPrograms}) => {
     await page.goto(BASE_URL)
     await loginAsAdmin(page)
     await adminPrograms.publishAllDrafts()

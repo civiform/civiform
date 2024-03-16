@@ -6,7 +6,6 @@ import {
 } from './support'
 
 test.describe('Header', {tag: ['@migrated']}, () => {
-
   test('Not logged in, guest mode enabled', async ({page}) => {
     await validateScreenshot(
       page.getByRole('navigation'),
@@ -32,7 +31,9 @@ test.describe('Header', {tag: ['@migrated']}, () => {
     )
   })
 
-  test('Government banner expands when clicked and closes when clicked again', async ({page}) => {
+  test('Government banner expands when clicked and closes when clicked again', async ({
+    page,
+  }) => {
     // The banner is initially closed
     await expect(page.locator('.usa-banner__content')).toBeHidden()
     // Click to expand the banner

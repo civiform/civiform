@@ -6,158 +6,188 @@ import {
   validateScreenshot,
 } from '../../support'
 
-test.describe('Number question for applicant flow', {tag: ['@migrated']}, () => {
-  const numberInputError = 'div.cf-question-number-error'
+test.describe(
+  'Number question for applicant flow',
+  {tag: ['@migrated']},
+  () => {
+    const numberInputError = 'div.cf-question-number-error'
 
-  test.describe('single number question', () => {
-    const programName = 'Test program for single number'
+    test.describe('single number question', () => {
+      const programName = 'Test program for single number'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      // beforeAll
-      // As admin, create program with single number question.
-      await loginAsAdmin(page)
+      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+        // beforeAll
+        // As admin, create program with single number question.
+        await loginAsAdmin(page)
 
-      await adminQuestions.addNumberQuestion({
-        questionName: 'fave-number-q',
+        await adminQuestions.addNumberQuestion({
+          questionName: 'fave-number-q',
+        })
+        await adminPrograms.addAndPublishProgramWithQuestions(
+          ['fave-number-q'],
+          programName,
+        )
+
+        await logout(page)
+
+        // beforeEach
       })
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['fave-number-q'],
-        programName,
-      )
 
-      await logout(page)
+      test('validate screenshot', async ({page, applicantQuestions}) => {
+        await applicantQuestions.applyProgram(programName)
 
-      // beforeEach
-    })
+        await validateScreenshot(page, 'number')
+      })
 
-    test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-
-      await validateScreenshot(page, 'number')
-    })
-
-    test('validate screenshot with errors', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickNext()
-
-      await validateScreenshot(page, 'number-errors')
-    })
-
-    test('with valid number submits successfully', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerNumberQuestion('8')
-      await applicantQuestions.clickNext()
-
-      await applicantQuestions.submitFromReviewPage()
-    })
-
-    test('with no input does not submit', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-      // Leave field blank.
-      await applicantQuestions.clickNext()
-
-      const numberId = '.cf-question-number'
-      expect(await page.innerText(numberId)).toContain(
-        'This question is required.',
-      )
-    })
-
-    test('with non-numeric inputs does not submit', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-      const testValues = ['12e3', '12E3', '-123', '1.23']
-
-      for (const testValue of testValues) {
-        await applicantQuestions.answerNumberQuestion(testValue)
+      test('validate screenshot with errors', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.clickNext()
 
-        await expect(page.locator(numberInputError)).toBeVisible()
-        await applicantQuestions.answerNumberQuestion('')
-      }
-    })
-  })
-
-  test.describe('multiple number questions', () => {
-    const programName = 'Test program for multiple numbers'
-
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      // beforeAll
-      await loginAsAdmin(page)
-
-      await adminQuestions.addNumberQuestion({
-        questionName: 'my-number-q',
-      })
-      await adminQuestions.addNumberQuestion({
-        questionName: 'your-number-q',
+        await validateScreenshot(page, 'number-errors')
       })
 
-      await adminPrograms.addProgram(programName)
-      await adminPrograms.editProgramBlockWithOptional(
-        programName,
-        'Optional question block',
-        ['my-number-q'],
-        'your-number-q', // optional
-      )
-      await adminPrograms.publishAllDrafts()
+      test('with valid number submits successfully', async ({
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerNumberQuestion('8')
+        await applicantQuestions.clickNext()
 
-      await logout(page)
-      
-      // beforeEach
+        await applicantQuestions.submitFromReviewPage()
+      })
+
+      test('with no input does not submit', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+        // Leave field blank.
+        await applicantQuestions.clickNext()
+
+        const numberId = '.cf-question-number'
+        expect(await page.innerText(numberId)).toContain(
+          'This question is required.',
+        )
+      })
+
+      test('with non-numeric inputs does not submit', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+        const testValues = ['12e3', '12E3', '-123', '1.23']
+
+        for (const testValue of testValues) {
+          await applicantQuestions.answerNumberQuestion(testValue)
+          await applicantQuestions.clickNext()
+
+          await expect(page.locator(numberInputError)).toBeVisible()
+          await applicantQuestions.answerNumberQuestion('')
+        }
+      })
     })
 
-    test('with valid numbers submits successfully', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerNumberQuestion('100', 0)
-      await applicantQuestions.answerNumberQuestion('33', 1)
-      await applicantQuestions.clickNext()
+    test.describe('multiple number questions', () => {
+      const programName = 'Test program for multiple numbers'
 
-      await applicantQuestions.submitFromReviewPage()
+      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+        // beforeAll
+        await loginAsAdmin(page)
+
+        await adminQuestions.addNumberQuestion({
+          questionName: 'my-number-q',
+        })
+        await adminQuestions.addNumberQuestion({
+          questionName: 'your-number-q',
+        })
+
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.editProgramBlockWithOptional(
+          programName,
+          'Optional question block',
+          ['my-number-q'],
+          'your-number-q', // optional
+        )
+        await adminPrograms.publishAllDrafts()
+
+        await logout(page)
+
+        // beforeEach
+      })
+
+      test('with valid numbers submits successfully', async ({
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerNumberQuestion('100', 0)
+        await applicantQuestions.answerNumberQuestion('33', 1)
+        await applicantQuestions.clickNext()
+
+        await applicantQuestions.submitFromReviewPage()
+      })
+
+      test('with unanswered optional question submits successfully', async ({
+        applicantQuestions,
+      }) => {
+        // Only answer required question.
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerNumberQuestion('33', 1)
+        await applicantQuestions.clickNext()
+
+        await applicantQuestions.submitFromReviewPage()
+      })
+
+      test('with first invalid does not submit', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerNumberQuestion('-10', 0)
+        await applicantQuestions.answerNumberQuestion('33', 1)
+        await applicantQuestions.clickNext()
+
+        // Fix me! ESLint: playwright/prefer-web-first-assertions
+        // Directly switching to the best practice method fails
+        // because of a locator stict mode violation. That is it
+        // returns multiple elements.
+        //
+        // Recommended prefer-web-first-assertions fix:
+        //   await expect(page.locator(numberInputError)).toBeVisible()
+        expect(await page.isHidden(numberInputError)).toEqual(false)
+      })
+
+      test('with second invalid does not submit', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerNumberQuestion('10', 0)
+        await applicantQuestions.answerNumberQuestion('-5', 1)
+        await applicantQuestions.clickNext()
+
+        // Fix me! ESLint: playwright/prefer-web-first-assertions
+        // Directly switching to the best practice method fails
+        // because of a locator stict mode violation. That is it
+        // returns multiple elements.
+        //
+        // Recommended prefer-web-first-assertions fix:
+        //   await expect(page.locator(numberInputError + ' >> nth=1')).toBeVisible()
+        expect(await page.isHidden(numberInputError + ' >> nth=1')).toEqual(
+          false,
+        )
+      })
+
+      test('has no accessiblity violations', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await validateAccessibility(page)
+      })
     })
-
-    test('with unanswered optional question submits successfully', async ({applicantQuestions}) => {
-      // Only answer required question.
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerNumberQuestion('33', 1)
-      await applicantQuestions.clickNext()
-
-      await applicantQuestions.submitFromReviewPage()
-    })
-
-    test('with first invalid does not submit', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerNumberQuestion('-10', 0)
-      await applicantQuestions.answerNumberQuestion('33', 1)
-      await applicantQuestions.clickNext()
-
-      // Fix me! ESLint: playwright/prefer-web-first-assertions
-      // Directly switching to the best practice method fails
-      // because of a locator stict mode violation. That is it
-      // returns multiple elements.
-      //
-      // Recommended prefer-web-first-assertions fix:
-      //   await expect(page.locator(numberInputError)).toBeVisible()
-      expect(await page.isHidden(numberInputError)).toEqual(false)
-    })
-
-    test('with second invalid does not submit', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerNumberQuestion('10', 0)
-      await applicantQuestions.answerNumberQuestion('-5', 1)
-      await applicantQuestions.clickNext()
-
-      // Fix me! ESLint: playwright/prefer-web-first-assertions
-      // Directly switching to the best practice method fails
-      // because of a locator stict mode violation. That is it
-      // returns multiple elements.
-      //
-      // Recommended prefer-web-first-assertions fix:
-      //   await expect(page.locator(numberInputError + ' >> nth=1')).toBeVisible()
-      expect(await page.isHidden(numberInputError + ' >> nth=1')).toEqual(false)
-    })
-
-    test('has no accessiblity violations', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-
-      await validateAccessibility(page)
-    })
-  })
-})
+  },
+)

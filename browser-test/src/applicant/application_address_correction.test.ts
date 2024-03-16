@@ -12,7 +12,7 @@ import {
 /** Tests for the address correction view and navigation to and from that view. */
 test.describe('address correction', {tag: ['@migrated']}, () => {
   test.slow()
-  
+
   const multiBlockMultiAddressProgram =
     'Address correction multi-block, multi-address program'
   const singleBlockMultiAddressProgram =
@@ -118,7 +118,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
   })
 
   if (isLocalDevEnvironment()) {
-    test('can correct address multi-block, multi-address program (save flag off)', async ({page, applicantQuestions}) => {
+    test('can correct address multi-block, multi-address program (save flag off)', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await disableFeatureFlag(page, 'save_on_all_actions')
       await applicantQuestions.applyProgram(multiBlockMultiAddressProgram)
@@ -153,7 +156,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
       await logout(page)
     })
 
-    test('can correct address multi-block, multi-address program (save flag on)', async ({page, applicantQuestions}) => {
+    test('can correct address multi-block, multi-address program (save flag on)', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await enableFeatureFlag(page, 'save_on_all_actions')
       await applicantQuestions.applyProgram(multiBlockMultiAddressProgram)
@@ -188,7 +194,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
       await logout(page)
     })
 
-    test('can correct address single-block, multi-address program (save flag off)', async ({page, applicantQuestions}) => {
+    test('can correct address single-block, multi-address program (save flag off)', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await disableFeatureFlag(page, 'save_on_all_actions')
       await applicantQuestions.applyProgram(singleBlockMultiAddressProgram)
@@ -221,7 +230,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
       await logout(page)
     })
 
-    test('can correct address single-block, multi-address program (save flag on)', async ({page, applicantQuestions}) => {
+    test('can correct address single-block, multi-address program (save flag on)', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await enableFeatureFlag(page, 'save_on_all_actions')
       await applicantQuestions.applyProgram(singleBlockMultiAddressProgram)
@@ -258,7 +270,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
       await logout(page)
     })
 
-    test('can correct address single-block, single-address program (save flag off)', async ({page, applicantQuestions}) => {
+    test('can correct address single-block, single-address program (save flag off)', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await disableFeatureFlag(page, 'save_on_all_actions')
       await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
@@ -293,7 +308,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
       await logout(page)
     })
 
-    test('can correct address single-block, single-address program (save flag on)', async ({page, applicantQuestions}) => {
+    test('can correct address single-block, single-address program (save flag on)', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await enableFeatureFlag(page, 'save_on_all_actions')
       await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
@@ -327,7 +345,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
       await logout(page)
     })
 
-    test('prompts user to edit if no suggestions are returned (save flag off)', async ({page, applicantQuestions}) => {
+    test('prompts user to edit if no suggestions are returned (save flag off)', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await disableFeatureFlag(page, 'save_on_all_actions')
       await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
@@ -357,7 +378,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
       await logout(page)
     })
 
-    test('prompts user to edit if no suggestions are returned (save flag on)', async ({page, applicantQuestions}) => {
+    test('prompts user to edit if no suggestions are returned (save flag on)', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await enableFeatureFlag(page, 'save_on_all_actions')
       await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
@@ -387,7 +411,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
       await logout(page)
     })
 
-    test('prompts user to edit if an error is returned from the Esri service (save flag off)', async ({page, applicantQuestions}) => {
+    test('prompts user to edit if an error is returned from the Esri service (save flag off)', async ({
+      page,
+      applicantQuestions,
+    }) => {
       // This is currently the same as when no suggestions are returned.
       // We may change this later.
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
@@ -421,7 +448,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
       await logout(page)
     })
 
-    test('prompts user to edit if an error is returned from the Esri service (save flag on)', async ({page, applicantQuestions}) => {
+    test('prompts user to edit if an error is returned from the Esri service (save flag on)', async ({
+      page,
+      applicantQuestions,
+    }) => {
       // This is currently the same as when no suggestions are returned.
       // We may change this later.
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
@@ -455,7 +485,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
       await logout(page)
     })
 
-    test('skips address correction screen if address exactly matches suggestions (save flag off)', async ({page, applicantQuestions}) => {
+    test('skips address correction screen if address exactly matches suggestions (save flag off)', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await disableFeatureFlag(page, 'save_on_all_actions')
 
@@ -475,7 +508,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
       await logout(page)
     })
 
-    test('skips address correction screen if address exactly matches suggestions (save flag on)', async ({page, applicantQuestions}) => {
+    test('skips address correction screen if address exactly matches suggestions (save flag on)', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await enableFeatureFlag(page, 'save_on_all_actions')
 
@@ -495,7 +531,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
       await logout(page)
     })
 
-    test('clicking previous on address correction page takes you back to address entry page', async ({page, applicantQuestions}) => {
+    test('clicking previous on address correction page takes you back to address entry page', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await disableFeatureFlag(page, 'save_on_all_actions')
 
@@ -519,7 +558,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
       await logout(page)
     })
 
-    test('clicking previous on address correction page does not save selection', async ({page, applicantQuestions}) => {
+    test('clicking previous on address correction page does not save selection', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await disableFeatureFlag(page, 'save_on_all_actions')
 
@@ -552,7 +594,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
       await logout(page)
     })
 
-    test('clicking review on address correction page does not save selection', async ({page, applicantQuestions}) => {
+    test('clicking review on address correction page does not save selection', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
       await disableFeatureFlag(page, 'save_on_all_actions')
 
@@ -594,7 +639,7 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
       const addressQuestionText = 'Test address question'
       const numberQuestionText = 'Test number question'
 
-      test.beforeEach(async ({page, adminQuestions, adminPrograms} ) => {
+      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'esri_address_correction_enabled')
         await enableFeatureFlag(page, 'save_on_all_actions')
@@ -651,7 +696,9 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
       })
 
       test.describe('previous button', () => {
-        test('clicking previous on page with address question redirects to address correction (no suggestions)', async ({applicantQuestions} ) => {
+        test('clicking previous on page with address question redirects to address correction (no suggestions)', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -670,8 +717,9 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
           await applicantQuestions.expectVerifyAddressPage(false)
         })
 
-        test('clicking previous on page with address question redirects to address correction (has suggestions)', async ({applicantQuestions}) => {
-
+        test('clicking previous on page with address question redirects to address correction (has suggestions)', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -690,8 +738,9 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
           await applicantQuestions.expectVerifyAddressPage(true)
         })
 
-        test('address correction page saves original address when selected and redirects to previous', async ({applicantQuestions}) => {
-
+        test('address correction page saves original address when selected and redirects to previous', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -722,7 +771,9 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
           )
         })
 
-        test('address correction page saves suggested address when selected and redirects to previous', async ({applicantQuestions}) => {
+        test('address correction page saves suggested address when selected and redirects to previous', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -754,7 +805,9 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
           )
         })
 
-        test('address correction page saves original address when no suggestions offered and redirects to previous', async ({applicantQuestions}) => {
+        test('address correction page saves original address when no suggestions offered and redirects to previous', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -782,7 +835,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
           )
         })
 
-        test('clicking previous saves address and goes to previous block if the user enters an address that exactly matches suggestions', async ({page, applicantQuestions}) => {
+        test('clicking previous saves address and goes to previous block if the user enters an address that exactly matches suggestions', async ({
+          page,
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -814,7 +870,9 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
       })
 
       test.describe('review button', () => {
-        test('clicking review on page with address question redirects to address correction (no suggestions)', async ({applicantQuestions}) => {
+        test('clicking review on page with address question redirects to address correction (no suggestions)', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -833,7 +891,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
           await applicantQuestions.expectVerifyAddressPage(false)
         })
 
-        test('clicking review on page with address question redirects to address correction (has suggestions)', async ({page, applicantQuestions}) => {
+        test('clicking review on page with address question redirects to address correction (has suggestions)', async ({
+          page,
+          applicantQuestions,
+        }) => {
           await enableFeatureFlag(page, 'esri_address_correction_enabled')
           await enableFeatureFlag(page, 'save_on_all_actions')
 
@@ -851,7 +912,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
           await applicantQuestions.expectVerifyAddressPage(true)
         })
 
-        test('address correction page saves original address when selected and redirects to review', async ({page, applicantQuestions}) => {
+        test('address correction page saves original address when selected and redirects to review', async ({
+          page,
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -882,7 +946,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
           await logout(page)
         })
 
-        test('address correction page saves suggested address when selected and redirects to review', async ({page, applicantQuestions}) => {
+        test('address correction page saves suggested address when selected and redirects to review', async ({
+          page,
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -914,7 +981,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
           await logout(page)
         })
 
-        test('address correction page saves original address when no suggestions offered and redirects to review', async ({page, applicantQuestions}) => {
+        test('address correction page saves original address when no suggestions offered and redirects to review', async ({
+          page,
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -942,7 +1012,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
           await logout(page)
         })
 
-        test('clicking review saves address and goes to review page if the user enters an address that exactly matches suggestions', async ({page, applicantQuestions}) => {
+        test('clicking review saves address and goes to review page if the user enters an address that exactly matches suggestions', async ({
+          page,
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -971,7 +1044,9 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
       })
 
       test.describe('save & next button', () => {
-        test('clicking next on page with address question redirects to address correction (no suggestions)', async ({applicantQuestions}) => {
+        test('clicking next on page with address question redirects to address correction (no suggestions)', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -990,7 +1065,9 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
           await applicantQuestions.expectVerifyAddressPage(false)
         })
 
-        test('clicking next on page with address question redirects to address correction (has suggestions)', async ({applicantQuestions}) => {
+        test('clicking next on page with address question redirects to address correction (has suggestions)', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -1009,7 +1086,9 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
           await applicantQuestions.expectVerifyAddressPage(true)
         })
 
-        test('address correction page saves original address when selected and redirects to next', async ({applicantQuestions}) => {
+        test('address correction page saves original address when selected and redirects to next', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -1039,7 +1118,9 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
           )
         })
 
-        test('address correction page saves suggested address when selected and redirects to next', async ({applicantQuestions}) => {
+        test('address correction page saves suggested address when selected and redirects to next', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -1071,7 +1152,9 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
           )
         })
 
-        test('address correction page saves original address when no suggestions offered and redirects to next', async ({applicantQuestions}) => {
+        test('address correction page saves original address when no suggestions offered and redirects to next', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -1099,7 +1182,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
           )
         })
 
-        test('clicking next saves address and goes to next block if the user enters an address that exactly matches suggestions', async ({page, applicantQuestions}) => {
+        test('clicking next saves address and goes to next block if the user enters an address that exactly matches suggestions', async ({
+          page,
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -1131,7 +1217,9 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
       })
 
       test.describe('go back and edit button', () => {
-        test('clicking go back and edit on address correction goes back to page with address question', async ({applicantQuestions}) => {
+        test('clicking go back and edit on address correction goes back to page with address question', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -1152,7 +1240,9 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
           await applicantQuestions.validateQuestionIsOnPage(addressQuestionText)
         })
 
-        test('go back and edit does not save address selection', async ({applicantQuestions}) => {
+        test('go back and edit does not save address selection', async ({
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
           await applicantQuestions.answerQuestionFromReviewPage(
             addressQuestionText,
@@ -1191,7 +1281,10 @@ test.describe('address correction', {tag: ['@migrated']}, () => {
     })
   }
 
-  test('address correction page does not show if feature is disabled', async ({page, applicantQuestions}) => {
+  test('address correction page does not show if feature is disabled', async ({
+    page,
+    applicantQuestions,
+  }) => {
     await disableFeatureFlag(page, 'esri_address_correction_enabled')
     await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 

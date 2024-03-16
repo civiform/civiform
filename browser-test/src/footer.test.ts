@@ -21,7 +21,7 @@ test.describe('the footer', {tag: ['@migrated']}, () => {
     test('has civiform version', async ({page}) => {
       await enableFeatureFlag(page, 'show_civiform_image_tag_on_landing_page')
       await validateScreenshot(page.locator('footer'), 'footer-with-version')
-      await validateAccessibility(page)     
+      await validateAccessibility(page)
 
       expect(await page.textContent('html')).toContain('CiviForm version:')
     })

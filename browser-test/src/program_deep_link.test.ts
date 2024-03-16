@@ -53,7 +53,10 @@ test.describe('navigating to a deep link', {tag: ['@migrated']}, () => {
     )
   })
 
-  test('takes guests and logged in users through the flow correctly', async ({page, applicantQuestions}) => {
+  test('takes guests and logged in users through the flow correctly', async ({
+    page,
+    applicantQuestions,
+  }) => {
     // Exercise guest path
     // Act
     await gotoEndpoint(page, '/programs/test-deep-link')
@@ -73,7 +76,11 @@ test.describe('navigating to a deep link', {tag: ['@migrated']}, () => {
     await applicantQuestions.validateQuestionIsOnPage(questionText)
   })
 
-  test('Non-logged in user should get redirected to the program page and not an error', async ({page, context, applicantQuestions}) => {
+  test('Non-logged in user should get redirected to the program page and not an error', async ({
+    page,
+    context,
+    applicantQuestions,
+  }) => {
     await logout(page)
     await context.clearCookies()
     await gotoEndpoint(page, '/programs/test-deep-link')
@@ -87,7 +94,11 @@ test.describe('navigating to a deep link', {tag: ['@migrated']}, () => {
     await logout(page)
   })
 
-  test('Logging in to an existing account after opening a deep link in a new browser session', async ({page, context, applicantQuestions}) => {
+  test('Logging in to an existing account after opening a deep link in a new browser session', async ({
+    page,
+    context,
+    applicantQuestions,
+  }) => {
     // Log in and log out to establish the test user in the database.
     await loginAsTestUser(page)
     await logout(page)
@@ -104,7 +115,10 @@ test.describe('navigating to a deep link', {tag: ['@migrated']}, () => {
     await logout(page)
   })
 
-  test('Going to a deep link does not retain redirect in session', async ({page, context}) => {
+  test('Going to a deep link does not retain redirect in session', async ({
+    page,
+    context,
+  }) => {
     await context.clearCookies()
 
     // Go to a deep link

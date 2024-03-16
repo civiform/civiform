@@ -3,7 +3,7 @@
   "main": "index.js",
   "license": "Apache-2.0",
   "scripts": {
-    "test": "npx playwright test --grep-invert @migrated ",
+    "test": "npx playwright test --grep @migrated ",
     "probe": "npx playwright test"
   },
   "devDependencies": {

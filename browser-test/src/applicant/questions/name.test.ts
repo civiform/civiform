@@ -35,14 +35,20 @@ test.describe('name applicant flow', {tag: ['@migrated']}, () => {
       await validateScreenshot(page, 'name')
     })
 
-    test('validate screenshot with errors', async ({page, applicantQuestions}) => {
+    test('validate screenshot with errors', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
       await validateScreenshot(page, 'name-errors')
     })
 
-    test('does not show errors initially', async ({page, applicantQuestions}) => {
+    test('does not show errors initially', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '')
       let error = await page.$(`${NAME_FIRST}-error`)
@@ -59,7 +65,10 @@ test.describe('name applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with empty name does not submit', async ({page, applicantQuestions}) => {
+    test('with empty name does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '')
       await applicantQuestions.clickNext()
@@ -103,7 +112,10 @@ test.describe('name applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with first invalid does not submit', async ({page, applicantQuestions}) => {
+    test('with first invalid does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '', 0)
       await applicantQuestions.answerNameQuestion('Chuckie', 'Finster', '', 1)
@@ -122,7 +134,10 @@ test.describe('name applicant flow', {tag: ['@migrated']}, () => {
       expect(await error?.isHidden()).toEqual(true)
     })
 
-    test('with second invalid does not submit', async ({page, applicantQuestions}) => {
+    test('with second invalid does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 0)
       await applicantQuestions.answerNameQuestion('', '', '', 1)
@@ -141,7 +156,10 @@ test.describe('name applicant flow', {tag: ['@migrated']}, () => {
       expect(await error?.isHidden()).toEqual(false)
     })
 
-    test('has no accessiblity violations', async ({page, applicantQuestions} ) => {
+    test('has no accessiblity violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
@@ -176,7 +194,9 @@ test.describe('name applicant flow', {tag: ['@migrated']}, () => {
       // beforeEach
     })
 
-    test('with valid required name does submit', async ({applicantQuestions}) => {
+    test('with valid required name does submit', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 1)
       await applicantQuestions.clickNext()
@@ -184,7 +204,10 @@ test.describe('name applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with invalid optional name does not submit', async ({page, applicantQuestions}) => {
+    test('with invalid optional name does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', '', '', 0)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 1)

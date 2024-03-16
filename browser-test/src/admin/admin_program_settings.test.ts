@@ -8,7 +8,6 @@ import {
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe('program settings', {tag: ['@migrated']}, () => {
-
   test('program settings page', async ({page, adminPrograms}) => {
     await enableFeatureFlag(page, 'intake_form_enabled')
 
@@ -32,7 +31,10 @@ test.describe('program settings', {tag: ['@migrated']}, () => {
     await validateScreenshot(page, 'nongating-eligibility')
   })
 
-  test('program index shows settings in dropdown', async ({page, adminPrograms}) => {
+  test('program index shows settings in dropdown', async ({
+    page,
+    adminPrograms,
+  }) => {
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsAdmin(page)
@@ -64,7 +66,10 @@ test.describe('program settings', {tag: ['@migrated']}, () => {
     ).toBeVisible()
   })
 
-  test('back button on program settings page navigates correctly', async ({page, adminPrograms}) => {
+  test('back button on program settings page navigates correctly', async ({
+    page,
+    adminPrograms,
+  }) => {
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsAdmin(page)
@@ -90,7 +95,10 @@ test.describe('program settings', {tag: ['@migrated']}, () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  test('program index hides settings in dropdown for common intake form', async ({page, adminPrograms}) => {
+  test('program index hides settings in dropdown for common intake form', async ({
+    page,
+    adminPrograms,
+  }) => {
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsAdmin(page)

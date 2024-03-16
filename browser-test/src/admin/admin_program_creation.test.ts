@@ -11,7 +11,11 @@ import {dismissModal, waitForAnyModal} from '../support/wait'
 import {Page} from 'playwright'
 
 test.describe('program creation', {tag: ['@migrated']}, () => {
-  test('create program page with images flag off', async ({page, adminPrograms, adminProgramImage} ) => {
+  test('create program page with images flag off', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Apc program'
@@ -35,7 +39,11 @@ test.describe('program creation', {tag: ['@migrated']}, () => {
     await adminProgramImage.expectProgramImagePage()
   })
 
-  test('create program then go back prevents URL edits', async ( {page, adminPrograms, adminProgramImage}) => {
+  test('create program then go back prevents URL edits', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Apc program'
@@ -65,7 +73,11 @@ test.describe('program creation', {tag: ['@migrated']}, () => {
     expect(await page.locator('#program-name-input').count()).toEqual(0)
   })
 
-  test('create program then go back can still go forward', async ({page, adminPrograms, adminProgramImage} ) => {
+  test('create program then go back can still go forward', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Apc program'
@@ -91,7 +103,10 @@ test.describe('program creation', {tag: ['@migrated']}, () => {
     await validateScreenshot(page, 'program-description-page')
   })
 
-  test('program details page redirects to block page', async ({page, adminPrograms}) => {
+  test('program details page redirects to block page', async ({
+    page,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Program Name'
@@ -102,7 +117,10 @@ test.describe('program creation', {tag: ['@migrated']}, () => {
     await adminPrograms.expectProgramBlockEditPage()
   })
 
-  test('shows correct formatting during question creation', async ({page, adminQuestions}) => {
+  test('shows correct formatting during question creation', async ({
+    page,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     await adminQuestions.createStaticQuestion({
@@ -122,7 +140,11 @@ test.describe('program creation', {tag: ['@migrated']}, () => {
     )
   })
 
-  test('create program and search for questions', async ({page, adminQuestions, adminPrograms}) => {
+  test('create program and search for questions', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     await adminQuestions.addAddressQuestion({
@@ -165,7 +187,11 @@ test.describe('program creation', {tag: ['@migrated']}, () => {
     )
   })
 
-  test('create program with enumerator and repeated questions', async ({page, adminQuestions, adminPrograms}) => {
+  test('create program with enumerator and repeated questions', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     await adminQuestions.addAddressQuestion({questionName: 'apc-address'})
@@ -227,7 +253,11 @@ test.describe('program creation', {tag: ['@migrated']}, () => {
     )
   })
 
-  test('create program with address and address correction feature enabled', async ({page, adminQuestions, adminPrograms} ) => {
+  test('create program with address and address correction feature enabled', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
@@ -267,7 +297,11 @@ test.describe('program creation', {tag: ['@migrated']}, () => {
     ).not.toContain('Address correction')
   })
 
-  test('create program with multiple address questions, address correction feature enabled, and can only enable correction on one address', async ({page, adminQuestions, adminPrograms} ) => {
+  test('create program with multiple address questions, address correction feature enabled, and can only enable correction on one address', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     const helpText =
       'This screen already contains a question with address correction enabled'
 
@@ -353,7 +387,11 @@ test.describe('program creation', {tag: ['@migrated']}, () => {
     ).not.toContain('Address correction')
   })
 
-  test('create program with address and address correction feature disabled', async ({page, adminQuestions, adminPrograms} ) => {
+  test('create program with address and address correction feature disabled', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
     await disableFeatureFlag(page, 'esri_address_correction_enabled')
 
@@ -374,7 +412,11 @@ test.describe('program creation', {tag: ['@migrated']}, () => {
     await expect(addressCorrectionInput).toHaveValue('false')
   })
 
-  test('change questions order within block', async ({page, adminQuestions, adminPrograms}) => {
+  test('change questions order within block', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     const color = 'favorite-color'
@@ -417,7 +459,11 @@ test.describe('program creation', {tag: ['@migrated']}, () => {
     await validateScreenshot(page, 'program-creation')
   })
 
-  test('create question from question bank', async ({page, adminQuestions, adminPrograms}) => {
+  test('create question from question bank', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
     const programName = 'Apc program 3'
     await adminPrograms.addProgram(programName)
@@ -478,7 +524,11 @@ test.describe('program creation', {tag: ['@migrated']}, () => {
     ])
   })
 
-  test('all questions shown on question bank before filtering, then filters based on different attributes correctly', async ({page, adminQuestions, adminPrograms}) => {
+  test('all questions shown on question bank before filtering, then filters based on different attributes correctly', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
     await adminQuestions.addTextQuestion({
       questionName: 'q-f',
@@ -658,7 +708,10 @@ test.describe('program creation', {tag: ['@migrated']}, () => {
     await adminPrograms.gotoEditDraftProgramPage(programName)
   })
 
-  test('correctly renders delete screen confirmation modal', async ({page, adminPrograms}) => {
+  test('correctly renders delete screen confirmation modal', async ({
+    page,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     await adminPrograms.launchDeleteScreenModal()
@@ -682,7 +735,10 @@ test.describe('program creation', {tag: ['@migrated']}, () => {
     }
   }
 
-  test('create common intake form with intake form feature enabled', async ({page, adminPrograms}) => {
+  test('create common intake form with intake form feature enabled', async ({
+    page,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'intake_form_enabled')
 
@@ -708,7 +764,10 @@ test.describe('program creation', {tag: ['@migrated']}, () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  test('correctly renders common intake form change confirmation modal', async ({page, adminPrograms}) => {
+  test('correctly renders common intake form change confirmation modal', async ({
+    page,
+    adminPrograms,
+  }) => {
     await enableFeatureFlag(page, 'intake_form_enabled')
     await loginAsAdmin(page)
 
@@ -756,7 +815,10 @@ test.describe('program creation', {tag: ['@migrated']}, () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  test('regular program has eligibility conditions', async ({page, adminPrograms} ) => {
+  test('regular program has eligibility conditions', async ({
+    page,
+    adminPrograms,
+  }) => {
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsAdmin(page)
@@ -774,7 +836,10 @@ test.describe('program creation', {tag: ['@migrated']}, () => {
     expect(await page.innerText('main')).toContain('Eligibility')
   })
 
-  test('common intake form does not have eligibility conditions', async ({page, adminPrograms}) => {
+  test('common intake form does not have eligibility conditions', async ({
+    page,
+    adminPrograms,
+  }) => {
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsAdmin(page)
@@ -792,7 +857,11 @@ test.describe('program creation', {tag: ['@migrated']}, () => {
     expect(await page.innerText('main')).not.toContain('Eligibility')
   })
 
-  test('create program with universal questions', async ({page, adminQuestions, adminPrograms}) => {
+  test('create program with universal questions', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     await adminQuestions.addAddressQuestion({

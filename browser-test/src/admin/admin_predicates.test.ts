@@ -12,7 +12,9 @@ import {
   validateToastMessage,
 } from '../support'
 
-test.describe('create and edit predicates', () => {
+test.describe('create and edit predicates', {tag: ['@migrated']}, () => {
+  test.slow()
+
   test('add a hide predicate', async ({
     page,
     adminQuestions,
@@ -20,7 +22,6 @@ test.describe('create and edit predicates', () => {
     applicantQuestions,
     adminPredicates,
   }) => {
-
     await loginAsAdmin(page)
 
     // Add a program with two screens
@@ -208,7 +209,6 @@ test.describe('create and edit predicates', () => {
     applicantQuestions,
     adminPredicates,
   }) => {
-
     await loginAsAdmin(page)
 
     // Add a program with two screens
@@ -352,7 +352,12 @@ test.describe('create and edit predicates', () => {
 
   // TODO(https://github.com/civiform/civiform/issues/4167): Enable integration testing of ESRI functionality
   if (isHermeticTestEnvironment()) {
-    test('add a service area validation predicate', async ({page, adminQuestions, adminPrograms, adminPredicates} ) => {
+    test('add a service area validation predicate', async ({
+      page,
+      adminQuestions,
+      adminPrograms,
+      adminPredicates,
+    }) => {
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
@@ -398,7 +403,7 @@ test.describe('create and edit predicates', () => {
   }
 
   test.describe('test predicates', () => {
-    test.beforeEach(async ( {page, adminQuestions} ) => {
+    test.beforeEach(async ({page, adminQuestions}) => {
       await loginAsAdmin(page)
 
       // DATE, STRING, LONG, LIST_OF_STRINGS, LIST_OF_LONGS
@@ -439,7 +444,11 @@ test.describe('create and edit predicates', () => {
       await logout(page)
     })
 
-    test('eligibility multiple values and multiple questions', async ({page, adminPrograms, adminPredicates}) => {
+    test('eligibility multiple values and multiple questions', async ({
+      page,
+      adminPrograms,
+      adminPredicates,
+    }) => {
       await loginAsAdmin(page)
 
       const programName = 'Test multiple question and value predicate config'
@@ -537,7 +546,11 @@ test.describe('create and edit predicates', () => {
       )
     })
 
-    test('visibility multiple values and multiple questions', async ({page, adminPrograms, adminPredicates} ) => {
+    test('visibility multiple values and multiple questions', async ({
+      page,
+      adminPrograms,
+      adminPredicates,
+    }) => {
       await loginAsAdmin(page)
 
       const programName = 'Test multiple question and value predicate config'
@@ -616,7 +629,12 @@ test.describe('create and edit predicates', () => {
       )
     })
 
-    test('every visibility right hand type evaluates correctly', async ({page, adminPrograms, applicantQuestions, adminPredicates}) => {
+    test('every visibility right hand type evaluates correctly', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+      adminPredicates,
+    }) => {
       await loginAsAdmin(page)
 
       const programName = 'Test all visibility predicate types'
@@ -840,7 +858,14 @@ test.describe('create and edit predicates', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('every eligibility right hand type evaluates correctly', async ( {page, adminPrograms, applicantQuestions, adminPredicates}) => {
+    test('every eligibility right hand type evaluates correctly', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+      adminPredicates,
+    }) => {
+      // This test is extra slow. Give it 60 seconds to finish
+      test.setTimeout(60000)
       await enableFeatureFlag(page, 'save_on_all_actions')
 
       await loginAsAdmin(page)
@@ -1213,7 +1238,12 @@ test.describe('create and edit predicates', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('multiple questions ineligible', async ({page, adminPrograms, adminPredicates, applicantQuestions}) => {
+    test('multiple questions ineligible', async ({
+      page,
+      adminPrograms,
+      adminPredicates,
+      applicantQuestions,
+    }) => {
       await loginAsAdmin(page)
       const programName = 'Multiple ineligible program'
       await adminPrograms.addProgram(programName)

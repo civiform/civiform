@@ -12,490 +12,531 @@ import {
   enableFeatureFlag,
 } from '../support'
 
-test.describe('Program admin review of submitted applications', {tag: ['@migrated']}, () => {
-  test.slow()
+test.describe(
+  'Program admin review of submitted applications',
+  {tag: ['@migrated']},
+  () => {
+    test.slow()
 
-  test('all major steps', async ({page, adminQuestions, adminPrograms, applicantQuestions}) => {
-    await loginAsAdmin(page)
+    test('all major steps', async ({
+      page,
+      adminQuestions,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      // Add extra time for this test to finish
+      test.setTimeout(60000)
 
-    await adminQuestions.addDateQuestion({questionName: 'date-q'})
-    await adminQuestions.addEmailQuestion({questionName: 'email-q'})
-    await adminQuestions.addDropdownQuestion({
-      questionName: 'ice-cream-q',
-      options: [
-        {adminName: 'chocolate_admin', text: 'chocolate'},
-        {adminName: 'banana_admin', text: 'banana'},
-        {adminName: 'black_raspberry_admin', text: 'black raspberry'},
-      ],
-    })
-    await adminQuestions.addCheckboxQuestion({
-      questionName: 'favorite-trees-q',
-      options: [
-        {adminName: 'oak_admin', text: 'oak'},
-        {adminName: 'maple_admin', text: 'maple'},
-        {adminName: 'pine_admin', text: 'pine'},
-        {adminName: 'cherry_admin', text: 'cherry'},
-      ],
-    })
-    await adminQuestions.addCheckboxQuestion({
-      questionName: 'favorite-rats-q',
-      options: [
-        {adminName: 'sewage_admin', text: 'sewage'},
-        {adminName: 'laboratory_admin', text: 'laboratory'},
-        {adminName: 'bubonic_admin', text: 'bubonic'},
-        {adminName: 'giant_admin', text: 'giant'},
-      ],
-    })
-    await adminQuestions.addCheckboxQuestion({
-      questionName: 'scared-of-q',
-      options: [
-        {adminName: 'dog_admin', text: 'dogs'},
-        {adminName: 'bee_admin', text: 'bees'},
-        {adminName: 'spider_admin', text: 'spiders'},
-        {adminName: 'dark_admin', text: 'the dark'},
-        {adminName: 'clown_admin', text: 'clowns'},
-      ],
-    })
-    await adminQuestions.addCurrencyQuestion({
-      questionName: 'monthly-income-q',
-    })
-    await adminQuestions.addAddressQuestion({questionName: 'address-q'})
-    await adminQuestions.addFileUploadQuestion({
-      questionName: 'fileupload-q',
-    })
-    await adminQuestions.addNameQuestion({questionName: 'name-q'})
-    await adminQuestions.addNumberQuestion({questionName: 'number-q'})
-    await adminQuestions.addTextQuestion({questionName: 'text-q'})
-    await adminQuestions.addRadioButtonQuestion({
-      questionName: 'radio-q',
-      options: [
-        {adminName: 'one_admin', text: 'one'},
-        {adminName: 'two_admin', text: 'two'},
-        {adminName: 'three_admin', text: 'three'},
-      ],
-    })
-    await adminQuestions.addStaticQuestion({questionName: 'first-static-q'})
-    await adminQuestions.addStaticQuestion({questionName: 'second-static-q'})
+      await loginAsAdmin(page)
 
-    const programName = 'A shiny new program'
-    await adminPrograms.addProgram(programName)
+      await adminQuestions.addDateQuestion({questionName: 'date-q'})
+      await adminQuestions.addEmailQuestion({questionName: 'email-q'})
+      await adminQuestions.addDropdownQuestion({
+        questionName: 'ice-cream-q',
+        options: [
+          {adminName: 'chocolate_admin', text: 'chocolate'},
+          {adminName: 'banana_admin', text: 'banana'},
+          {adminName: 'black_raspberry_admin', text: 'black raspberry'},
+        ],
+      })
+      await adminQuestions.addCheckboxQuestion({
+        questionName: 'favorite-trees-q',
+        options: [
+          {adminName: 'oak_admin', text: 'oak'},
+          {adminName: 'maple_admin', text: 'maple'},
+          {adminName: 'pine_admin', text: 'pine'},
+          {adminName: 'cherry_admin', text: 'cherry'},
+        ],
+      })
+      await adminQuestions.addCheckboxQuestion({
+        questionName: 'favorite-rats-q',
+        options: [
+          {adminName: 'sewage_admin', text: 'sewage'},
+          {adminName: 'laboratory_admin', text: 'laboratory'},
+          {adminName: 'bubonic_admin', text: 'bubonic'},
+          {adminName: 'giant_admin', text: 'giant'},
+        ],
+      })
+      await adminQuestions.addCheckboxQuestion({
+        questionName: 'scared-of-q',
+        options: [
+          {adminName: 'dog_admin', text: 'dogs'},
+          {adminName: 'bee_admin', text: 'bees'},
+          {adminName: 'spider_admin', text: 'spiders'},
+          {adminName: 'dark_admin', text: 'the dark'},
+          {adminName: 'clown_admin', text: 'clowns'},
+        ],
+      })
+      await adminQuestions.addCurrencyQuestion({
+        questionName: 'monthly-income-q',
+      })
+      await adminQuestions.addAddressQuestion({questionName: 'address-q'})
+      await adminQuestions.addFileUploadQuestion({
+        questionName: 'fileupload-q',
+      })
+      await adminQuestions.addNameQuestion({questionName: 'name-q'})
+      await adminQuestions.addNumberQuestion({questionName: 'number-q'})
+      await adminQuestions.addTextQuestion({questionName: 'text-q'})
+      await adminQuestions.addRadioButtonQuestion({
+        questionName: 'radio-q',
+        options: [
+          {adminName: 'one_admin', text: 'one'},
+          {adminName: 'two_admin', text: 'two'},
+          {adminName: 'three_admin', text: 'three'},
+        ],
+      })
+      await adminQuestions.addStaticQuestion({questionName: 'first-static-q'})
+      await adminQuestions.addStaticQuestion({questionName: 'second-static-q'})
 
-    await adminPrograms.editProgramBlock(programName, 'block description', [
-      'date-q',
-      'address-q',
-      'name-q',
-      'radio-q',
-      'email-q',
-    ])
-    await adminPrograms.addProgramBlock(programName, 'another description', [
-      'ice-cream-q',
-      'favorite-trees-q',
-      'number-q',
-      'text-q',
-    ])
-    await adminPrograms.addProgramBlock(programName, 'third description', [
-      'fileupload-q',
-    ])
-    await adminPrograms.addProgramBlock(programName, 'fourth description', [
-      'scared-of-q',
-      'favorite-rats-q',
-      'first-static-q',
-    ])
-    await adminPrograms.addProgramBlock(programName, 'fifth description', [
-      'second-static-q',
-      'monthly-income-q',
-    ])
+      const programName = 'A shiny new program'
+      await adminPrograms.addProgram(programName)
 
-    // Intentionally add an empty block to ensure that empty blocks do not
-    // prevent applicants from being able to submit applications.
-    await adminPrograms.addProgramBlock(programName, 'empty block')
+      await adminPrograms.editProgramBlock(programName, 'block description', [
+        'date-q',
+        'address-q',
+        'name-q',
+        'radio-q',
+        'email-q',
+      ])
+      await adminPrograms.addProgramBlock(programName, 'another description', [
+        'ice-cream-q',
+        'favorite-trees-q',
+        'number-q',
+        'text-q',
+      ])
+      await adminPrograms.addProgramBlock(programName, 'third description', [
+        'fileupload-q',
+      ])
+      await adminPrograms.addProgramBlock(programName, 'fourth description', [
+        'scared-of-q',
+        'favorite-rats-q',
+        'first-static-q',
+      ])
+      await adminPrograms.addProgramBlock(programName, 'fifth description', [
+        'second-static-q',
+        'monthly-income-q',
+      ])
 
-    await adminPrograms.gotoAdminProgramsPage()
-    await adminPrograms.expectDraftProgram(programName)
+      // Intentionally add an empty block to ensure that empty blocks do not
+      // prevent applicants from being able to submit applications.
+      await adminPrograms.addProgramBlock(programName, 'empty block')
 
-    await adminPrograms.publishProgram(programName)
-    await adminPrograms.expectActiveProgram(programName)
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.expectDraftProgram(programName)
 
-    await adminQuestions.expectActiveQuestionExist('ice-cream-q')
-    await adminQuestions.expectActiveQuestionExist('favorite-trees-q')
-    await adminQuestions.expectActiveQuestionExist('favorite-rats-q')
-    await adminQuestions.expectActiveQuestionExist('scared-of-q')
-    await adminQuestions.expectActiveQuestionExist('address-q')
-    await adminQuestions.expectActiveQuestionExist('name-q')
-    await adminQuestions.expectActiveQuestionExist('date-q')
-    await adminQuestions.expectActiveQuestionExist('number-q')
-    await adminQuestions.expectActiveQuestionExist('text-q')
-    await adminQuestions.expectActiveQuestionExist('radio-q')
-    await adminQuestions.expectActiveQuestionExist('email-q')
-    await adminQuestions.expectActiveQuestionExist('first-static-q')
-    await adminQuestions.expectActiveQuestionExist('second-static-q')
-    await adminQuestions.expectActiveQuestionExist('monthly-income-q')
+      await adminPrograms.publishProgram(programName)
+      await adminPrograms.expectActiveProgram(programName)
 
-    await adminQuestions.goToViewQuestionPage('date-q')
+      await adminQuestions.expectActiveQuestionExist('ice-cream-q')
+      await adminQuestions.expectActiveQuestionExist('favorite-trees-q')
+      await adminQuestions.expectActiveQuestionExist('favorite-rats-q')
+      await adminQuestions.expectActiveQuestionExist('scared-of-q')
+      await adminQuestions.expectActiveQuestionExist('address-q')
+      await adminQuestions.expectActiveQuestionExist('name-q')
+      await adminQuestions.expectActiveQuestionExist('date-q')
+      await adminQuestions.expectActiveQuestionExist('number-q')
+      await adminQuestions.expectActiveQuestionExist('text-q')
+      await adminQuestions.expectActiveQuestionExist('radio-q')
+      await adminQuestions.expectActiveQuestionExist('email-q')
+      await adminQuestions.expectActiveQuestionExist('first-static-q')
+      await adminQuestions.expectActiveQuestionExist('second-static-q')
+      await adminQuestions.expectActiveQuestionExist('monthly-income-q')
 
-    await logout(page)
-    await loginAsTestUser(page)
-    await applicantQuestions.validateHeader('en-US')
+      await adminQuestions.goToViewQuestionPage('date-q')
 
-    // fill 1st application block.
-    await applicantQuestions.applyProgram(programName)
-    await applicantQuestions.answerAddressQuestion('', '', '', '', '')
-    await applicantQuestions.answerNameQuestion('', '', '')
-    await applicantQuestions.answerRadioButtonQuestion('two')
-    await applicantQuestions.answerDateQuestion('2021-05-10')
-    await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-    await applicantQuestions.clickNext()
+      await logout(page)
+      await loginAsTestUser(page)
+      await applicantQuestions.validateHeader('en-US')
 
-    // Application doesn't progress because of name and address question errors.
-    // Verify that address error messages are visible.
-    await expect(page.locator('.cf-address-street-1-error:visible')).toHaveText(
-      'Error: Please enter valid street name and number.',
-    )
-    await expect(page.locator('.cf-address-city-error:visible')).toHaveText(
-      'Error: Please enter city.',
-    )
-    await expect(page.locator('.cf-address-state-error:visible')).toHaveText(
-      'Error: Please enter state.',
-    )
-    await expect(page.locator('.cf-address-zip-error:visible')).toHaveText(
-      'Error: Please enter valid 5-digit ZIP code.',
-    )
-    await expect(page.locator('.cf-name-first-error:visible')).toHaveText(
-      'Error: Please enter your first name.',
-    )
-    await expect(page.locator('.cf-name-last-error:visible')).toHaveText(
-      'Error: Please enter your last name.',
-    )
-
-    // Fix the address and name questions and submit.
-    await applicantQuestions.answerNameQuestion('Queen', 'Hearts', 'of')
-    await applicantQuestions.answerAddressQuestion(
-      '1234 St',
-      'Unit B',
-      'Sim',
-      'WA',
-      '54321',
-    )
-    await applicantQuestions.clickNext()
-
-    // fill 2nd application block.
-    await applicantQuestions.answerDropdownQuestion('banana')
-    await applicantQuestions.answerCheckboxQuestion(['cherry', 'pine'])
-    await applicantQuestions.answerNumberQuestion('42')
-    await applicantQuestions.answerTextQuestion('some text')
-    await applicantQuestions.clickNext()
-
-    // fill 3rd application block.
-    await applicantQuestions.answerFileUploadQuestion('file key')
-    await applicantQuestions.clickNext()
-
-    // fill 4th application block.
-    await applicantQuestions.answerCheckboxQuestion(['clowns'])
-    await applicantQuestions.answerCheckboxQuestion(['sewage'])
-    await applicantQuestions.seeStaticQuestion('static question text')
-    await applicantQuestions.clickNext()
-
-    // verify we can see static question on 5th block.
-    await applicantQuestions.seeStaticQuestion('static question text')
-    await applicantQuestions.answerCurrencyQuestion('1234.56')
-    await applicantQuestions.clickNext()
-
-    // submit
-    await applicantQuestions.submitFromReviewPage()
-
-    await logout(page)
-    await loginAsProgramAdmin(page)
-
-    await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
-    await adminPrograms.expectApplicationAnswers(
-      'Screen 1',
-      'address-q',
-      '1234 St',
-    )
-    await adminPrograms.expectApplicationAnswers('Screen 1', 'name-q', 'Queen')
-
-    // TODO: display the string values of selects instead of integer IDs
-    // https://github.com/seattle-uat/civiform/issues/778
-    await adminPrograms.expectApplicationAnswers('Screen 1', 'radio-q', '2')
-    await adminPrograms.expectApplicationAnswers(
-      'Screen 1',
-      'date-q',
-      '05/10/2021',
-    )
-    await adminPrograms.expectApplicationAnswers(
-      'Screen 1',
-      'email-q',
-      'test1@gmail.com',
-    )
-
-    await adminPrograms.expectApplicationAnswers('Screen 2', 'ice-cream-q', '2')
-    await adminPrograms.expectApplicationAnswers(
-      'Screen 2',
-      'favorite-trees-q',
-      'pine; cherry',
-    )
-
-    await adminPrograms.expectApplicationAnswers('Screen 2', 'number-q', '42')
-    await adminPrograms.expectApplicationAnswers(
-      'Screen 2',
-      'text-q',
-      'some text',
-    )
-    await adminPrograms.expectApplicationAnswerLinks('Screen 3', 'fileupload-q')
-
-    await logout(page)
-    await loginAsAdmin(page)
-    await adminQuestions.createNewVersion('favorite-trees-q')
-    await adminQuestions.gotoQuestionEditPage('favorite-trees-q')
-    await page.click(
-      '#question-settings .multi-option-question-field-remove-button',
-    )
-    await page.click('text=Update')
-    await adminPrograms.publishProgram(programName)
-
-    await logout(page)
-    await loginAsProgramAdmin(page)
-
-    await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
-    await adminPrograms.expectApplicationAnswers(
-      'Screen 2',
-      'favorite-trees-q',
-      'pine; cherry',
-    )
-    // Expect CF logo to route ProgramAdmins back to their homepage
-    await page.click('text=CF')
-    await waitForPageJsLoad(page)
-
-    await validateScreenshot(page, 'applications-page')
-
-    await page.click('text=Reporting')
-
-    // The reporting page is not deterministic outside the hermetic testing environment
-    // so don't validate the screenshot for it when running staging probers.
-    if (isHermeticTestEnvironment()) {
-      await validateScreenshot(page, 'reporting-page')
-    }
-
-    await page.getByRole('link', {name: programName}).click()
-
-    if (isHermeticTestEnvironment()) {
-      await validateScreenshot(page, 'program-specific-reporting-page')
-    }
-
-    // Validate the views for CF and program admins.
-    await logout(page)
-    await loginAsCiviformAndProgramAdmin(page)
-
-    await page.click(
-      adminPrograms.withinProgramCardSelector(
-        programName,
-        'Active',
-        '.cf-with-dropdown',
-      ),
-    )
-    await page.click(
-      adminPrograms.withinProgramCardSelector(
-        programName,
-        'ACTIVE',
-        'button :text("Applications")',
-      ),
-    )
-    await waitForPageJsLoad(page)
-    await validateScreenshot(page, 'cf-admin-applications-page')
-
-    if (isHermeticTestEnvironment()) {
-      await page.click('text=Reporting')
-      await waitForPageJsLoad(page)
-      await validateScreenshot(page, 'cf-admin-reporting-page')
-    }
-  })
-
-  test('program applications listed most recent first', async ({page, adminQuestions, adminPrograms, applicantQuestions}) => {
-    // Create a simple one question program application.
-    await loginAsAdmin(page)
-
-    await adminQuestions.addTextQuestion({questionName: 'fruit-text-q'})
-    const programName = 'Fruit program'
-    await adminPrograms.addAndPublishProgramWithQuestions(
-      ['fruit-text-q'],
-      programName,
-    )
-
-    await logout(page)
-
-    // Submit applications from different users.
-    const answers = ['apple', 'banana', 'cherry', 'durian']
-    for (const answer of answers) {
+      // fill 1st application block.
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerTextQuestion(answer)
+      await applicantQuestions.answerAddressQuestion('', '', '', '', '')
+      await applicantQuestions.answerNameQuestion('', '', '')
+      await applicantQuestions.answerRadioButtonQuestion('two')
+      await applicantQuestions.answerDateQuestion('2021-05-10')
+      await applicantQuestions.answerEmailQuestion('test1@gmail.com')
       await applicantQuestions.clickNext()
+
+      // Application doesn't progress because of name and address question errors.
+      // Verify that address error messages are visible.
+      await expect(
+        page.locator('.cf-address-street-1-error:visible'),
+      ).toHaveText('Error: Please enter valid street name and number.')
+      await expect(page.locator('.cf-address-city-error:visible')).toHaveText(
+        'Error: Please enter city.',
+      )
+      await expect(page.locator('.cf-address-state-error:visible')).toHaveText(
+        'Error: Please enter state.',
+      )
+      await expect(page.locator('.cf-address-zip-error:visible')).toHaveText(
+        'Error: Please enter valid 5-digit ZIP code.',
+      )
+      await expect(page.locator('.cf-name-first-error:visible')).toHaveText(
+        'Error: Please enter your first name.',
+      )
+      await expect(page.locator('.cf-name-last-error:visible')).toHaveText(
+        'Error: Please enter your last name.',
+      )
+
+      // Fix the address and name questions and submit.
+      await applicantQuestions.answerNameQuestion('Queen', 'Hearts', 'of')
+      await applicantQuestions.answerAddressQuestion(
+        '1234 St',
+        'Unit B',
+        'Sim',
+        'WA',
+        '54321',
+      )
+      await applicantQuestions.clickNext()
+
+      // fill 2nd application block.
+      await applicantQuestions.answerDropdownQuestion('banana')
+      await applicantQuestions.answerCheckboxQuestion(['cherry', 'pine'])
+      await applicantQuestions.answerNumberQuestion('42')
+      await applicantQuestions.answerTextQuestion('some text')
+      await applicantQuestions.clickNext()
+
+      // fill 3rd application block.
+      await applicantQuestions.answerFileUploadQuestion('file key')
+      await applicantQuestions.clickNext()
+
+      // fill 4th application block.
+      await applicantQuestions.answerCheckboxQuestion(['clowns'])
+      await applicantQuestions.answerCheckboxQuestion(['sewage'])
+      await applicantQuestions.seeStaticQuestion('static question text')
+      await applicantQuestions.clickNext()
+
+      // verify we can see static question on 5th block.
+      await applicantQuestions.seeStaticQuestion('static question text')
+      await applicantQuestions.answerCurrencyQuestion('1234.56')
+      await applicantQuestions.clickNext()
+
+      // submit
       await applicantQuestions.submitFromReviewPage()
 
       await logout(page)
-    }
+      await loginAsProgramAdmin(page)
 
-    // Expect applications to be presented in reverse chronological order to program admin.
-    await loginAsProgramAdmin(page)
-
-    await adminPrograms.viewApplications(programName)
-    for (let i = 0; i < answers.length; i++) {
-      await page.click(
-        `:nth-match(.cf-admin-application-card, ${i + 1}) a:text("View")`,
-      )
-      await adminPrograms.waitForApplicationFrame()
-
-      // TODO(https://github.com/seattle-uat/civiform/issues/2018):
-      //   make this more robust so an explicit wait time is not needed.
-      await page.waitForTimeout(2000)
-
+      await adminPrograms.viewApplications(programName)
+      await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
       await adminPrograms.expectApplicationAnswers(
         'Screen 1',
-        'fruit-text-q',
-        answers[answers.length - i - 1],
+        'address-q',
+        '1234 St',
       )
-    }
-  })
+      await adminPrograms.expectApplicationAnswers(
+        'Screen 1',
+        'name-q',
+        'Queen',
+      )
 
-  test('program application filters cleared', async ( {page, adminQuestions, adminPrograms, applicantQuestions}) => {
-    const noApplyFilters = false
-    const applyFilters = true
+      // TODO: display the string values of selects instead of integer IDs
+      // https://github.com/seattle-uat/civiform/issues/778
+      await adminPrograms.expectApplicationAnswers('Screen 1', 'radio-q', '2')
+      await adminPrograms.expectApplicationAnswers(
+        'Screen 1',
+        'date-q',
+        '05/10/2021',
+      )
+      await adminPrograms.expectApplicationAnswers(
+        'Screen 1',
+        'email-q',
+        'test1@gmail.com',
+      )
 
-    await loginAsAdmin(page)
+      await adminPrograms.expectApplicationAnswers(
+        'Screen 2',
+        'ice-cream-q',
+        '2',
+      )
+      await adminPrograms.expectApplicationAnswers(
+        'Screen 2',
+        'favorite-trees-q',
+        'pine; cherry',
+      )
 
-    const programName = 'Test program'
-    await adminQuestions.addNameQuestion({questionName: 'Name'})
-    await adminPrograms.addAndPublishProgramWithQuestions(['Name'], programName)
+      await adminPrograms.expectApplicationAnswers('Screen 2', 'number-q', '42')
+      await adminPrograms.expectApplicationAnswers(
+        'Screen 2',
+        'text-q',
+        'some text',
+      )
+      await adminPrograms.expectApplicationAnswerLinks(
+        'Screen 3',
+        'fileupload-q',
+      )
 
-    await logout(page)
-    await loginAsTestUser(page)
-    await applicantQuestions.applyProgram(programName)
+      await logout(page)
+      await loginAsAdmin(page)
+      await adminQuestions.createNewVersion('favorite-trees-q')
+      await adminQuestions.gotoQuestionEditPage('favorite-trees-q')
+      await page.click(
+        '#question-settings .multi-option-question-field-remove-button',
+      )
+      await page.click('text=Update')
+      await adminPrograms.publishProgram(programName)
 
-    // Applicant fills out first application block.
-    await applicantQuestions.answerNameQuestion('sarah', 'smith')
-    await applicantQuestions.clickNext()
+      await logout(page)
+      await loginAsProgramAdmin(page)
 
-    // Applicant submits answers from review page.
-    await applicantQuestions.submitFromReviewPage()
+      await adminPrograms.viewApplications(programName)
+      await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+      await adminPrograms.expectApplicationAnswers(
+        'Screen 2',
+        'favorite-trees-q',
+        'pine; cherry',
+      )
+      // Expect CF logo to route ProgramAdmins back to their homepage
+      await page.click('text=CF')
+      await waitForPageJsLoad(page)
 
-    await logout(page)
-    await loginAsProgramAdmin(page)
+      await validateScreenshot(page, 'applications-page')
 
-    await adminPrograms.viewApplications(programName)
-    const csvContent = await adminPrograms.getCsv(noApplyFilters)
-    expect(csvContent).toContain('sarah,,smith')
+      await page.click('text=Reporting')
 
-    await logout(page)
+      // The reporting page is not deterministic outside the hermetic testing environment
+      // so don't validate the screenshot for it when running staging probers.
+      if (isHermeticTestEnvironment()) {
+        await validateScreenshot(page, 'reporting-page')
+      }
 
-    // Apply to the program again, this time a different user
-    await applicantQuestions.applyProgram(programName)
-    await applicantQuestions.answerNameQuestion('Gus', 'Guest')
-    await applicantQuestions.clickNext()
-    await applicantQuestions.submitFromReviewPage()
-    await applicantQuestions.returnToProgramsFromSubmissionPage()
+      await page.getByRole('link', {name: programName}).click()
 
-    // View applications as program admin
-    await loginAsProgramAdmin(page)
-    await adminPrograms.viewApplications(programName)
-    const postEditCsvContent = await adminPrograms.getCsv(noApplyFilters)
-    expect(postEditCsvContent).toContain('sarah,,smith')
-    expect(postEditCsvContent).toContain('Gus,,Guest')
+      if (isHermeticTestEnvironment()) {
+        await validateScreenshot(page, 'program-specific-reporting-page')
+      }
 
-    // Finds a partial text match on applicant name, case insensitive.
-    await adminPrograms.filterProgramApplications({searchFragment: 'SARA'})
-    const filteredCsvContent = await adminPrograms.getCsv(applyFilters)
-    expect(filteredCsvContent).toContain('sarah,,smith')
-    expect(filteredCsvContent).not.toContain('Gus,,Guest')
-    await validateScreenshot(page, 'applications-filtered')
+      // Validate the views for CF and program admins.
+      await logout(page)
+      await loginAsCiviformAndProgramAdmin(page)
 
-    // Clear filters
-    await adminPrograms.clearFilterProgramApplications()
-    const unfilteredCsvContent = await adminPrograms.getCsv(applyFilters)
-    expect(unfilteredCsvContent).toContain('sarah,,smith')
-    expect(unfilteredCsvContent).toContain('Gus,,Guest')
-    await validateScreenshot(page, 'applications-unfiltered')
+      await page.click(
+        adminPrograms.withinProgramCardSelector(
+          programName,
+          'Active',
+          '.cf-with-dropdown',
+        ),
+      )
+      await page.click(
+        adminPrograms.withinProgramCardSelector(
+          programName,
+          'ACTIVE',
+          'button :text("Applications")',
+        ),
+      )
+      await waitForPageJsLoad(page)
+      await validateScreenshot(page, 'cf-admin-applications-page')
 
-    await logout(page)
-  })
-
-  test('Application search using Personal Applicant Info works', async ({page, adminQuestions, adminPrograms, applicantQuestions}) => {
-    await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
-    // Login as an admin and create a program with three PAI questions
-    await loginAsAdmin(page)
-    const programName = 'Test program'
-    await adminQuestions.addNameQuestion({
-      questionName: 'Name',
-      universal: true,
-      primaryApplicantInfo: true,
+      if (isHermeticTestEnvironment()) {
+        await page.click('text=Reporting')
+        await waitForPageJsLoad(page)
+        await validateScreenshot(page, 'cf-admin-reporting-page')
+      }
     })
-    await adminQuestions.addEmailQuestion({
-      questionName: 'Email',
-      universal: true,
-      primaryApplicantInfo: true,
+
+    test('program applications listed most recent first', async ({
+      page,
+      adminQuestions,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      // Create a simple one question program application.
+      await loginAsAdmin(page)
+
+      await adminQuestions.addTextQuestion({questionName: 'fruit-text-q'})
+      const programName = 'Fruit program'
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        ['fruit-text-q'],
+        programName,
+      )
+
+      await logout(page)
+
+      // Submit applications from different users.
+      const answers = ['apple', 'banana', 'cherry', 'durian']
+      for (const answer of answers) {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerTextQuestion(answer)
+        await applicantQuestions.clickNext()
+        await applicantQuestions.submitFromReviewPage()
+
+        await logout(page)
+      }
+
+      // Expect applications to be presented in reverse chronological order to program admin.
+      await loginAsProgramAdmin(page)
+
+      await adminPrograms.viewApplications(programName)
+      for (let i = 0; i < answers.length; i++) {
+        await page.click(
+          `:nth-match(.cf-admin-application-card, ${i + 1}) a:text("View")`,
+        )
+        await adminPrograms.waitForApplicationFrame()
+
+        // TODO(https://github.com/seattle-uat/civiform/issues/2018):
+        //   make this more robust so an explicit wait time is not needed.
+        await page.waitForTimeout(2000)
+
+        await adminPrograms.expectApplicationAnswers(
+          'Screen 1',
+          'fruit-text-q',
+          answers[answers.length - i - 1],
+        )
+      }
     })
-    await adminQuestions.addPhoneQuestion({
-      questionName: 'Phone',
-      universal: true,
-      primaryApplicantInfo: true,
+
+    test('program application filters cleared', async ({
+      page,
+      adminQuestions,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const noApplyFilters = false
+      const applyFilters = true
+
+      await loginAsAdmin(page)
+
+      const programName = 'Test program'
+      await adminQuestions.addNameQuestion({questionName: 'Name'})
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        ['Name'],
+        programName,
+      )
+
+      await logout(page)
+      await loginAsTestUser(page)
+      await applicantQuestions.applyProgram(programName)
+
+      // Applicant fills out first application block.
+      await applicantQuestions.answerNameQuestion('sarah', 'smith')
+      await applicantQuestions.clickNext()
+
+      // Applicant submits answers from review page.
+      await applicantQuestions.submitFromReviewPage()
+
+      await logout(page)
+      await loginAsProgramAdmin(page)
+
+      await adminPrograms.viewApplications(programName)
+      const csvContent = await adminPrograms.getCsv(noApplyFilters)
+      expect(csvContent).toContain('sarah,,smith')
+
+      await logout(page)
+
+      // Apply to the program again, this time a different user
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerNameQuestion('Gus', 'Guest')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.returnToProgramsFromSubmissionPage()
+
+      // View applications as program admin
+      await loginAsProgramAdmin(page)
+      await adminPrograms.viewApplications(programName)
+      const postEditCsvContent = await adminPrograms.getCsv(noApplyFilters)
+      expect(postEditCsvContent).toContain('sarah,,smith')
+      expect(postEditCsvContent).toContain('Gus,,Guest')
+
+      // Finds a partial text match on applicant name, case insensitive.
+      await adminPrograms.filterProgramApplications({searchFragment: 'SARA'})
+      const filteredCsvContent = await adminPrograms.getCsv(applyFilters)
+      expect(filteredCsvContent).toContain('sarah,,smith')
+      expect(filteredCsvContent).not.toContain('Gus,,Guest')
+      await validateScreenshot(page, 'applications-filtered')
+
+      // Clear filters
+      await adminPrograms.clearFilterProgramApplications()
+      const unfilteredCsvContent = await adminPrograms.getCsv(applyFilters)
+      expect(unfilteredCsvContent).toContain('sarah,,smith')
+      expect(unfilteredCsvContent).toContain('Gus,,Guest')
+      await validateScreenshot(page, 'applications-unfiltered')
+
+      await logout(page)
     })
-    await adminPrograms.addAndPublishProgramWithQuestions(
-      ['Name', 'Email', 'Phone'],
-      programName,
-    )
-    await logout(page)
 
-    // apply to the program as three different applicants so we have three applications to search
-    await applicantQuestions.completeApplicationWithPaiQuestions(
-      programName,
-      'oneFirst',
-      'oneMiddle',
-      'oneLast',
-      'one@email.com',
-      '4152321234',
-    )
-    await applicantQuestions.completeApplicationWithPaiQuestions(
-      programName,
-      'twoFirst',
-      'twoMiddle',
-      'twoLast',
-      'two@email.com',
-      '4153231234',
-    )
-    await applicantQuestions.completeApplicationWithPaiQuestions(
-      programName,
-      'threeFirst',
-      'threeMiddle',
-      'threeLast',
-      'three@email.com',
-      '5102321234',
-    )
+    test('Application search using Personal Applicant Info works', async ({
+      page,
+      adminQuestions,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
+      // Login as an admin and create a program with three PAI questions
+      await loginAsAdmin(page)
+      const programName = 'Test program'
+      await adminQuestions.addNameQuestion({
+        questionName: 'Name',
+        universal: true,
+        primaryApplicantInfo: true,
+      })
+      await adminQuestions.addEmailQuestion({
+        questionName: 'Email',
+        universal: true,
+        primaryApplicantInfo: true,
+      })
+      await adminQuestions.addPhoneQuestion({
+        questionName: 'Phone',
+        universal: true,
+        primaryApplicantInfo: true,
+      })
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        ['Name', 'Email', 'Phone'],
+        programName,
+      )
+      await logout(page)
 
-    // login as a Program Admin to search the applications
-    await loginAsProgramAdmin(page)
-    await adminPrograms.viewApplications(programName)
-    await validateScreenshot(page, 'applications-unfiltered-pai')
+      // apply to the program as three different applicants so we have three applications to search
+      await applicantQuestions.completeApplicationWithPaiQuestions(
+        programName,
+        'oneFirst',
+        'oneMiddle',
+        'oneLast',
+        'one@email.com',
+        '4152321234',
+      )
+      await applicantQuestions.completeApplicationWithPaiQuestions(
+        programName,
+        'twoFirst',
+        'twoMiddle',
+        'twoLast',
+        'two@email.com',
+        '4153231234',
+      )
+      await applicantQuestions.completeApplicationWithPaiQuestions(
+        programName,
+        'threeFirst',
+        'threeMiddle',
+        'threeLast',
+        'three@email.com',
+        '5102321234',
+      )
 
-    // search by name and validate expected applications are returned
-    const applyFilters = true
-    await adminPrograms.filterProgramApplications({searchFragment: 'one'})
-    const csvContentNameSearch = await adminPrograms.getCsv(applyFilters)
-    expect(csvContentNameSearch).toContain('oneFirst')
-    expect(csvContentNameSearch).not.toContain('twoFirst')
-    expect(csvContentNameSearch).not.toContain('threeFirst')
+      // login as a Program Admin to search the applications
+      await loginAsProgramAdmin(page)
+      await adminPrograms.viewApplications(programName)
+      await validateScreenshot(page, 'applications-unfiltered-pai')
 
-    // search by email and validate expected applications are returned
-    await adminPrograms.filterProgramApplications({searchFragment: 'email'})
-    const csvContentEmailSearch = await adminPrograms.getCsv(applyFilters)
-    expect(csvContentEmailSearch).toContain('one@email.com')
-    expect(csvContentEmailSearch).toContain('two@email.com')
-    expect(csvContentEmailSearch).toContain('three@email.com')
+      // search by name and validate expected applications are returned
+      const applyFilters = true
+      await adminPrograms.filterProgramApplications({searchFragment: 'one'})
+      const csvContentNameSearch = await adminPrograms.getCsv(applyFilters)
+      expect(csvContentNameSearch).toContain('oneFirst')
+      expect(csvContentNameSearch).not.toContain('twoFirst')
+      expect(csvContentNameSearch).not.toContain('threeFirst')
 
-    // search by phone and validate expected applications are returned
-    await adminPrograms.filterProgramApplications({searchFragment: '415'})
-    const csvContentPhoneSearch = await adminPrograms.getCsv(applyFilters)
-    expect(csvContentPhoneSearch).toContain('oneFirst')
-    expect(csvContentPhoneSearch).toContain('twoFirst')
-    expect(csvContentPhoneSearch).not.toContain('threeFirst')
-  })
-})
+      // search by email and validate expected applications are returned
+      await adminPrograms.filterProgramApplications({searchFragment: 'email'})
+      const csvContentEmailSearch = await adminPrograms.getCsv(applyFilters)
+      expect(csvContentEmailSearch).toContain('one@email.com')
+      expect(csvContentEmailSearch).toContain('two@email.com')
+      expect(csvContentEmailSearch).toContain('three@email.com')
+
+      // search by phone and validate expected applications are returned
+      await adminPrograms.filterProgramApplications({searchFragment: '415'})
+      const csvContentPhoneSearch = await adminPrograms.getCsv(applyFilters)
+      expect(csvContentPhoneSearch).toContain('oneFirst')
+      expect(csvContentPhoneSearch).toContain('twoFirst')
+      expect(csvContentPhoneSearch).not.toContain('threeFirst')
+    })
+  },
+)

@@ -10,7 +10,7 @@ test.describe('phone question for applicant flow', {tag: ['@migrated']}, () => {
   test.describe('single phone question', () => {
     const programName = 'Test program for single phone q'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms} ) => {
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       // beforeAll
       // As admin, create program with a free form text question.
       await loginAsAdmin(page)
@@ -34,14 +34,20 @@ test.describe('phone question for applicant flow', {tag: ['@migrated']}, () => {
       await validateScreenshot(page, 'phone')
     })
 
-    test('validate screenshot with errors', async ({page, applicantQuestions}) => {
+    test('validate screenshot with errors', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
       await validateScreenshot(page, 'phone-errors')
     })
 
-    test('with phone submits successfully', async ({page, applicantQuestions}) => {
+    test('with phone submits successfully', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('4256373270')
       await validateScreenshot(page, 'phone-format-usa')
@@ -50,7 +56,10 @@ test.describe('phone question for applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with canada phone submits successfully', async ({page, applicantQuestions}) => {
+    test('with canada phone submits successfully', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('2507274212')
 
@@ -60,7 +69,10 @@ test.describe('phone question for applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with empty phone does not submit', async ({page, applicantQuestions}) => {
+    test('with empty phone does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       // Click next without inputting anything
@@ -93,7 +105,10 @@ test.describe('phone question for applicant flow', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('invalid length of phone number when only valid characters are included', async ({page, applicantQuestions}) => {
+    test('invalid length of phone number when only valid characters are included', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('123###1212')
 
@@ -104,7 +119,10 @@ test.describe('phone question for applicant flow', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('invalid characters in phone numbers', async ({page, applicantQuestions}) => {
+    test('invalid characters in phone numbers', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('123###1212121')
 
@@ -115,7 +133,10 @@ test.describe('phone question for applicant flow', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('incorrect length of phone number', async ({page, applicantQuestions}) => {
+    test('incorrect length of phone number', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('615974')
 
@@ -126,7 +147,10 @@ test.describe('phone question for applicant flow', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('hitting enter on phone does not trigger submission', async ({page, applicantQuestions}) => {
+    test('hitting enter on phone does not trigger submission', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('2507274212.')
 
@@ -149,7 +173,10 @@ test.describe('phone question for applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.expectReviewPage()
     })
 
-    test('has no accessiblity violations', async ({page, applicantQuestions}) => {
+    test('has no accessiblity violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
@@ -184,7 +211,9 @@ test.describe('phone question for applicant flow', {tag: ['@migrated']}, () => {
       // beforeEach
     })
 
-    test('with both selections submits successfully', async ({applicantQuestions}) => {
+    test('with both selections submits successfully', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('2507274212', 0)
       await applicantQuestions.answerPhoneQuestion('4256373270', 1)
@@ -193,7 +222,9 @@ test.describe('phone question for applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with unanswered optional question submits successfully', async ({applicantQuestions}) => {
+    test('with unanswered optional question submits successfully', async ({
+      applicantQuestions,
+    }) => {
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('4256373270', 1)
@@ -202,7 +233,10 @@ test.describe('phone question for applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with first invalid does not submit', async ({page, applicantQuestions}) => {
+    test('with first invalid does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('1234567320', 0)
       await applicantQuestions.answerPhoneQuestion('4256373270', 1)
@@ -216,7 +250,10 @@ test.describe('phone question for applicant flow', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('with second invalid does not submit', async ({page, applicantQuestions}) => {
+    test('with second invalid does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('4256373270', 0)
       await applicantQuestions.answerPhoneQuestion('1234567320', 1)

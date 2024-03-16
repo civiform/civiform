@@ -8,7 +8,11 @@ import {
 } from '../support'
 
 test.describe('Admin question list', {tag: ['@migrated']}, () => {
-  test('sorts by last updated, preferring draft over active', async ({page, adminPrograms, adminQuestions} ) => {
+  test('sorts by last updated, preferring draft over active', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     const questionOnePublishedText = 'question list test question one'
@@ -81,7 +85,10 @@ test.describe('Admin question list', {tag: ['@migrated']}, () => {
     ])
   })
 
-  test('filters question list with search query', async ({page, adminQuestions}) => {
+  test('filters question list with search query', async ({
+    page,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
     await adminQuestions.addTextQuestion({
       questionName: 'q-f',
@@ -107,7 +114,11 @@ test.describe('Admin question list', {tag: ['@migrated']}, () => {
     ])
   })
 
-  test('sorts question list based on selection', async ({page, adminQuestions, adminPrograms}) => {
+  test('sorts question list based on selection', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
     // Set the questionText to the same as questionName to make validation easier since questionBankNames()
     // returns the questionText. The questionText is not actually used to sort.
@@ -154,7 +165,11 @@ test.describe('Admin question list', {tag: ['@migrated']}, () => {
     await validateScreenshot(page, 'questions-list-sort-dropdown-lastmodified')
   })
 
-  test('shows if questions are marked for archival', async ({page, adminQuestions, adminPrograms}) => {
+  test('shows if questions are marked for archival', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     const questionOne = 'question list test question one'
@@ -185,7 +200,11 @@ test.describe('Admin question list', {tag: ['@migrated']}, () => {
     await validateScreenshot(page, 'questions-list-with-archived-questions')
   })
 
-  test('does not sort archived questions', async ({page, adminQuestions, adminPrograms}) => {
+  test('does not sort archived questions', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     const questionOne = 'question list test question one'
@@ -229,7 +248,10 @@ test.describe('Admin question list', {tag: ['@migrated']}, () => {
     ])
   })
 
-  test('persists universal state and orders questions correctly', async ({page, adminQuestions}) => {
+  test('persists universal state and orders questions correctly', async ({
+    page,
+    adminQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     // Navigate to the new question page and ensure that the universal toggle is unset

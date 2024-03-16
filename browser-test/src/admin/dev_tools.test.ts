@@ -1,8 +1,5 @@
 import {test, expect} from '../fixtures/custom_fixture'
-import {
-  validateAccessibility,
-  validateScreenshot,
-} from '../support'
+import {validateAccessibility, validateScreenshot} from '../support'
 
 test.describe('developer tools', {tag: ['@migrated']}, () => {
   test('link shown in the header', async ({page}) => {

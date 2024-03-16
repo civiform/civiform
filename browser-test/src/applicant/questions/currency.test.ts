@@ -35,7 +35,10 @@ test.describe('currency applicant flow', {tag: ['@migrated']}, () => {
       await validateScreenshot(page, 'currency')
     })
 
-    test('validate screenshot with errors', async ({page, applicantQuestions}) => {
+    test('validate screenshot with errors', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
@@ -50,7 +53,10 @@ test.describe('currency applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with invalid currency does not submit', async ({page, applicantQuestions}) => {
+    test('with invalid currency does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error'
       // When there are no validation errors, the div still exists but is hidden.
@@ -102,7 +108,9 @@ test.describe('currency applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with unanswered optional question submits', async ({applicantQuestions}) => {
+    test('with unanswered optional question submits', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickNext()
@@ -110,7 +118,10 @@ test.describe('currency applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with first invalid does not submit', async ({page, applicantQuestions}) => {
+    test('with first invalid does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error >> nth=0'
       // When there are no validation errors, the div still exists but is hidden.
@@ -123,7 +134,10 @@ test.describe('currency applicant flow', {tag: ['@migrated']}, () => {
       await expect(page.locator(currencyError)).toBeVisible()
     })
 
-    test('with second invalid does not submit', async ({page, applicantQuestions}) => {
+    test('with second invalid does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error >> nth=1'
       // When there are no validation errors, the div still exists but is hidden.
@@ -136,7 +150,10 @@ test.describe('currency applicant flow', {tag: ['@migrated']}, () => {
       await expect(page.locator(currencyError)).toBeVisible()
     })
 
-    test('has no accessibility violations', async ({page, applicantQuestions}) => {
+    test('has no accessibility violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)

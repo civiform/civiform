@@ -37,14 +37,20 @@ test.describe('address applicant flow', {tag: ['@migrated']}, () => {
       await validateScreenshot(page, 'address')
     })
 
-    test('validate screenshot with errors', async ({page, applicantQuestions} ) => {
+    test('validate screenshot with errors', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
       await validateScreenshot(page, 'address-errors')
     })
 
-    test('does not show errors initially', async ({page, applicantQuestions} ) => {
+    test('does not show errors initially', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -77,7 +83,10 @@ test.describe('address applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with empty address does not submit', async ({page, applicantQuestions}) => {
+    test('with empty address does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion('', '', '', '', '')
       await applicantQuestions.clickNext()
@@ -92,7 +101,10 @@ test.describe('address applicant flow', {tag: ['@migrated']}, () => {
       await expect(error).toBeVisible()
     })
 
-    test('with invalid address does not submit', async ({page, applicantQuestions}) => {
+    test('with invalid address does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -151,7 +163,10 @@ test.describe('address applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with first invalid does not submit', async ({page, applicantQuestions}) => {
+    test('with first invalid does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion('', '', '', '', '', 0)
       await applicantQuestions.answerAddressQuestion(
@@ -185,7 +200,10 @@ test.describe('address applicant flow', {tag: ['@migrated']}, () => {
       await expect(error).toBeHidden()
     })
 
-    test('with second invalid does not submit', async ({page, applicantQuestions}) => {
+    test('with second invalid does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -219,7 +237,10 @@ test.describe('address applicant flow', {tag: ['@migrated']}, () => {
       await expect(error).toBeVisible()
     })
 
-    test('has no accessibility violations', async ({page, applicantQuestions}) => {
+    test('has no accessibility violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
@@ -251,7 +272,9 @@ test.describe('address applicant flow', {tag: ['@migrated']}, () => {
       await logout(page)
     })
 
-    test('with valid required address does submit', async ({applicantQuestions}) => {
+    test('with valid required address does submit', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -266,7 +289,10 @@ test.describe('address applicant flow', {tag: ['@migrated']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with invalid optional address does not submit', async ({page, applicantQuestions}) => {
+    test('with invalid optional address does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',

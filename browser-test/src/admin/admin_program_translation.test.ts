@@ -8,7 +8,11 @@ import {
 } from '../support'
 
 test.describe('Admin can manage translations', {tag: ['@migrated']}, () => {
-  test('creates a program without statuses and adds translation', async ({page, adminPrograms, adminTranslations} ) => {
+  test('creates a program without statuses and adds translation', async ({
+    page,
+    adminPrograms,
+    adminTranslations,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Program to be translated no statuses'
@@ -53,7 +57,12 @@ test.describe('Admin can manage translations', {tag: ['@migrated']}, () => {
     expect(cardText).toContain('Spanish description')
   })
 
-  test('creates a program with statuses and adds translations for program statuses', async ({page, adminPrograms, adminProgramStatuses, adminTranslations} ) => {
+  test('creates a program with statuses and adds translations for program statuses', async ({
+    page,
+    adminPrograms,
+    adminProgramStatuses,
+    adminTranslations,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Program to be translated with statuses'
@@ -144,7 +153,12 @@ test.describe('Admin can manage translations', {tag: ['@migrated']}, () => {
     })
   })
 
-  test('creates a program with summary image description and adds translations', async ({page, adminPrograms, adminProgramImage, adminTranslations} ) => {
+  test('creates a program with summary image description and adds translations', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+    adminTranslations,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Program with summary image description'
@@ -183,7 +197,12 @@ test.describe('Admin can manage translations', {tag: ['@migrated']}, () => {
     await adminTranslations.expectProgramImageDescriptionTranslation('')
   })
 
-  test('editing summary image description does not clobber translations', async ({page, adminPrograms, adminProgramImage, adminTranslations} ) => {
+  test('editing summary image description does not clobber translations', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+    adminTranslations,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Program with summary image description'
@@ -218,7 +237,12 @@ test.describe('Admin can manage translations', {tag: ['@migrated']}, () => {
     )
   })
 
-  test('deleting summary image description deletes all translations', async ({page, adminPrograms, adminProgramImage, adminTranslations} ) => {
+  test('deleting summary image description deletes all translations', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+    adminTranslations,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Program with summary image description'
@@ -252,12 +276,12 @@ test.describe('Admin can manage translations', {tag: ['@migrated']}, () => {
   })
 
   test('creates a question and adds translations', async ({
-      page,
-      adminPrograms,
-      adminQuestions,
-      adminTranslations,
-      applicantQuestions,
-    }) => {
+    page,
+    adminPrograms,
+    adminQuestions,
+    adminTranslations,
+    applicantQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     // Add a new question to be translated
@@ -383,7 +407,11 @@ test.describe('Admin can manage translations', {tag: ['@migrated']}, () => {
     expect(await page.innerText('main form')).toContain('family member')
   })
 
-  test('updating a question does not clobber translations', async ({page, adminQuestions, adminTranslations} ) => {
+  test('updating a question does not clobber translations', async ({
+    page,
+    adminQuestions,
+    adminTranslations,
+  }) => {
     await loginAsAdmin(page)
 
     // Add a new question.
@@ -409,7 +437,11 @@ test.describe('Admin can manage translations', {tag: ['@migrated']}, () => {
     )
   })
 
-  test('deleting help text in question edit view deletes all help text translations', async ({page, adminQuestions, adminTranslations} ) => {
+  test('deleting help text in question edit view deletes all help text translations', async ({
+    page,
+    adminQuestions,
+    adminTranslations,
+  }) => {
     await loginAsAdmin(page)
 
     // Add a new question with help text
@@ -447,7 +479,12 @@ test.describe('Admin can manage translations', {tag: ['@migrated']}, () => {
     expect(await page.inputValue('text=Question help text')).toEqual('')
   })
 
-  test('Applicant sees toast message warning translation is not complete', async ({page, adminQuestions, adminPrograms, applicantQuestions}) => {
+  test('Applicant sees toast message warning translation is not complete', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    applicantQuestions,
+  }) => {
     // Add a new program with one non-translated question
     await loginAsAdmin(page)
 

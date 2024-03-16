@@ -13,8 +13,11 @@ import {
   PrimaryApplicantInfoField,
 } from './support/admin_questions'
 
-test.describe('primary applicant info questions', () => {
-  test('shows primary applicant info toggles/alerts correctly when creating a new question, and tag is persisted', async ({page, adminQuestions}) => {
+test.describe('primary applicant info questions', {tag: ['@migrated']}, () => {
+  test('shows primary applicant info toggles/alerts correctly when creating a new question, and tag is persisted', async ({
+    page,
+    adminQuestions,
+  }) => {
     await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
 
     await loginAsAdmin(page)
@@ -80,7 +83,10 @@ test.describe('primary applicant info questions', () => {
     await adminQuestions.expectPrimaryApplicantInfoToggleValue(nameField, true)
   })
 
-  test('shows primary applicant info toggles/alerts correctly when editing an existing question, and tag is persisted', async ({page, adminQuestions} ) => {
+  test('shows primary applicant info toggles/alerts correctly when editing an existing question, and tag is persisted', async ({
+    page,
+    adminQuestions,
+  }) => {
     await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
 
     await loginAsAdmin(page)
@@ -187,7 +193,10 @@ test.describe('primary applicant info questions', () => {
     await adminQuestions.expectPrimaryApplicantInfoToggleValue(nameField, false)
   })
 
-  test('shows the alert when a different question has the primary applicant info tag', async ({page, adminQuestions}) => {
+  test('shows the alert when a different question has the primary applicant info tag', async ({
+    page,
+    adminQuestions,
+  }) => {
     await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
 
     await loginAsAdmin(page)
@@ -225,7 +234,12 @@ test.describe('primary applicant info questions', () => {
     )
   })
 
-  test('logging in does not overwrite name with OIDC-provided name', async ({page, adminQuestions, adminPrograms, applicantQuestions}) => {
+  test('logging in does not overwrite name with OIDC-provided name', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    applicantQuestions,
+  }) => {
     await loginAsAdmin(page)
 
     // For now, we use the preseeded question since we still fall back
@@ -252,7 +266,9 @@ test.describe('primary applicant info questions', () => {
     await loginAsProgramAdmin(page)
 
     await adminPrograms.viewApplications('test')
-    await expect(page.locator(adminPrograms.selectApplicationCardForApplicant('LaForge'))).toBeVisible()
+    await expect(
+      page.locator(adminPrograms.selectApplicationCardForApplicant('LaForge')),
+    ).toBeVisible()
 
     await logout(page)
     await loginAsTestUser(
@@ -265,6 +281,8 @@ test.describe('primary applicant info questions', () => {
     await loginAsProgramAdmin(page)
 
     await adminPrograms.viewApplications('test')
-    await expect(page.locator(adminPrograms.selectApplicationCardForApplicant('LaForge'))).toBeVisible()
+    await expect(
+      page.locator(adminPrograms.selectApplicationCardForApplicant('LaForge')),
+    ).toBeVisible()
   })
 })

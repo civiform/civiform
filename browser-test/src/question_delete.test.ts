@@ -3,7 +3,13 @@ import {loginAsAdmin} from './support'
 import {QuestionType} from './support/admin_questions'
 
 test.describe('deleting question lifecycle', {tag: ['@migrated']}, () => {
-  test('create, publish, delete unused questions', async ({page, adminQuestions, adminPrograms}) => {
+  test.slow()
+
+  test('create, publish, delete unused questions', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Deleting program'

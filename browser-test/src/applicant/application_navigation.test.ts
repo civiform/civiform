@@ -16,7 +16,7 @@ import {
 } from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
 
-test.describe('Applicant navigation flow', () => {
+test.describe('Applicant navigation flow', {tag: ['@migrated']}, () => {
   test.slow()
 
   test.describe('navigation with five blocks', () => {
@@ -25,10 +25,12 @@ test.describe('Applicant navigation flow', () => {
     const emailQuestionText = 'email question text'
     const addressQuestionText = 'address question text'
 
-    test.beforeEach(async ( {page, adminQuestions, adminPrograms, helpers}) => {
+    test.beforeEach(async ({page, adminQuestions, adminPrograms, helpers}) => {
       // beforeAll
       await loginAsAdmin(page)
-      await helpers.enableFeatureFlag('suggest_programs_on_application_confirmation_page')
+      await helpers.enableFeatureFlag(
+        'suggest_programs_on_application_confirmation_page',
+      )
 
       await adminQuestions.addDateQuestion({
         questionName: 'nav-date-q',
@@ -80,7 +82,15 @@ test.describe('Applicant navigation flow', () => {
     })
 
     test.describe('previous button', () => {
-      test('clicking previous on first block goes to summary page', async ({applicantQuestions}) => {
+      test.beforeEach(async ({page}) => {
+        await disableFeatureFlag(page, 'save_on_all_actions')
+      })
+
+      test('clicking previous on first block goes to summary page', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await enableFeatureFlag(page, 'save_on_all_actions')
         await applicantQuestions.applyProgram(programName)
 
         await applicantQuestions.clickPrevious()
@@ -90,7 +100,10 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.expectReviewPage()
       })
 
-      test('clicking previous on later blocks goes to previous blocks', async ({page, applicantQuestions}) => {
+      test('clicking previous on later blocks goes to previous blocks', async ({
+        page,
+        applicantQuestions,
+      }) => {
         await enableFeatureFlag(page, 'save_on_all_actions')
         await applicantQuestions.applyProgram(programName)
 
@@ -137,7 +150,10 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.expectReviewPage()
       })
 
-      test('clicking previous does not save when flag off', async ({page, applicantQuestions}) => {
+      test('clicking previous does not save when flag off', async ({
+        page,
+        applicantQuestions,
+      }) => {
         await loginAsAdmin(page)
         await disableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -157,7 +173,10 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('clicking previous with correct form shows previous page and saves answers', async ({page, applicantQuestions} ) => {
+      test('clicking previous with correct form shows previous page and saves answers', async ({
+        page,
+        applicantQuestions,
+      }) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -191,7 +210,10 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('clicking previous with missing answers shows modal', async ({page, applicantQuestions} ) => {
+      test('clicking previous with missing answers shows modal', async ({
+        page,
+        applicantQuestions,
+      }) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -207,7 +229,10 @@ test.describe('Applicant navigation flow', () => {
         await validateScreenshot(page, 'error-on-previous-modal')
       })
 
-      test('error on previous modal > click stay and fix > shows block', async ({page, applicantQuestions}) => {
+      test('error on previous modal > click stay and fix > shows block', async ({
+        page,
+        applicantQuestions,
+      }) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -243,7 +268,10 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('error on previous modal > click previous without saving > answers not saved', async ({page, applicantQuestions} ) => {
+      test('error on previous modal > click previous without saving > answers not saved', async ({
+        page,
+        applicantQuestions,
+      }) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -268,7 +296,10 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('error on previous modal > click previous without saving > shows previous block', async ({page, applicantQuestions} ) => {
+      test('error on previous modal > click previous without saving > shows previous block', async ({
+        page,
+        applicantQuestions,
+      }) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -295,7 +326,10 @@ test.describe('Applicant navigation flow', () => {
     })
 
     test.describe('review button', () => {
-      test('clicking review does not save when flag off', async ({page, applicantQuestions} ) => {
+      test('clicking review does not save when flag off', async ({
+        page,
+        applicantQuestions,
+      }) => {
         await loginAsAdmin(page)
         await disableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -315,7 +349,10 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('clicking review with correct form shows review page with saved answers', async ({page, applicantQuestions} ) => {
+      test('clicking review with correct form shows review page with saved answers', async ({
+        page,
+        applicantQuestions,
+      }) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -337,7 +374,10 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('clicking review with missing answers shows modal', async ({page, applicantQuestions} ) => {
+      test('clicking review with missing answers shows modal', async ({
+        page,
+        applicantQuestions,
+      }) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -353,7 +393,10 @@ test.describe('Applicant navigation flow', () => {
         await validateScreenshot(page, 'error-on-review-modal')
       })
 
-      test('error on review modal > click stay and fix > shows block', async ({page, applicantQuestions}) => {
+      test('error on review modal > click stay and fix > shows block', async ({
+        page,
+        applicantQuestions,
+      }) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -387,7 +430,10 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('error on review modal > click review without saving > shows review page without saved answers', async ({page, applicantQuestions} ) => {
+      test('error on review modal > click review without saving > shows review page without saved answers', async ({
+        page,
+        applicantQuestions,
+      }) => {
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
@@ -426,60 +472,6 @@ test.describe('Applicant navigation flow', () => {
       expect(popupURL).toMatch('https://www.usa.gov')
     })
 
-    test('verify program list page', async ({page, adminPrograms} ) => {
-      await loginAsAdmin(page)
-      // create second program that has an external link and markdown in the program description.
-      const programWithExternalLink = 'Program with external link'
-      const programDescriptionWithMarkdown =
-        '# Program description\n' +
-        'Some things to know:\n' +
-        '* Thing 1\n' +
-        '* Thing 2\n' +
-        '\n' +
-        'For more info go to our [website](https://www.example.com)\n'
-      await adminPrograms.addProgram(
-        programWithExternalLink,
-        programDescriptionWithMarkdown,
-        'https://external.com',
-      )
-      await adminPrograms.publishProgram(programWithExternalLink)
-      await logout(page)
-      // Verify we are on program list page.
-      expect(await page.innerText('h1')).toContain(
-        'Save time applying for programs and services',
-      )
-
-      const cardHtml = await page.innerHTML(
-        '.cf-application-card:has-text("' + programWithExternalLink + '")',
-      )
-      expect(cardHtml).toContain('https://external.com')
-
-      // Verify markdown was parsed correctly
-      // h1 set in markdown should be changed to h2
-      expect(cardHtml).toContain('<h2>Program description</h2>')
-      // lists are formatted correctly
-      expect(cardHtml).toContain(
-        '<ul class="list-disc mx-8"><li>Thing 1</li><li>Thing 2</li></ul>',
-      )
-      // text links are formatted correctly with an icon
-      expect(cardHtml).toContain(
-        '<a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" aria-label="opens in a new tab" rel="nofollow noopener noreferrer">website<svg',
-      )
-
-      // there shouldn't be any external Links
-      const cardText = await page.innerText(
-        '.cf-application-card:has-text("' + programWithExternalLink + '")',
-      )
-      expect(cardText).not.toContain('External site')
-      await validateAccessibility(page)
-      await validateScreenshot(
-        page,
-        'program-list-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
-    })
-
     test('verify program preview page', async ({page, applicantQuestions}) => {
       await applicantQuestions.clickApplyProgramButton(programName)
 
@@ -494,7 +486,11 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('can answer third question directly', async ({page, applicantQuestions}) => {
+    test('can answer third question directly', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await disableFeatureFlag(page, 'save_on_all_actions')
       await applicantQuestions.clickApplyProgramButton(programName)
       await applicantQuestions.answerQuestionFromReviewPage(
         'address question text',
@@ -564,216 +560,295 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('verify program submission page for guest', async ({page, applicantQuestions, helpers}) => {
-      await applicantQuestions.applyProgram(programName)
+    test.describe('with program suggestions', () => {
+      test.beforeEach(async ({page, adminPrograms}) => {
+        await loginAsAdmin(page)
+        // create second program that has an external link and markdown in the program description.
+        const programWithExternalLink = 'Program with external link'
+        const programDescriptionWithMarkdown =
+          '# Program description\n' +
+          'Some things to know:\n' +
+          '* Thing 1\n' +
+          '* Thing 2\n' +
+          '\n' +
+          'For more info go to our [website](https://www.example.com)\n'
+        await adminPrograms.addProgram(
+          programWithExternalLink,
+          programDescriptionWithMarkdown,
+          'https://external.com',
+        )
+        await adminPrograms.publishProgram(programWithExternalLink)
+        await logout(page)
+        // Verify we are on program list page.
+        expect(await page.innerText('h1')).toContain(
+          'Save time applying for programs and services',
+        )
 
-      // Fill out application and submit.
-      await applicantQuestions.answerDateQuestion('2021-11-01')
-      await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.clickNext()
-      await applicantQuestions.answerAddressQuestion(
-        '1234 St',
-        'Unit B',
-        'Sim',
-        'WA',
-        '54321',
-      )
-      await applicantQuestions.clickNext()
-      await applicantQuestions.answerRadioButtonQuestion('one')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.answerPhoneQuestion('4256373270')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.submitFromReviewPage()
+        const cardHtml = await page.innerHTML(
+          '.cf-application-card:has-text("' + programWithExternalLink + '")',
+        )
+        expect(cardHtml).toContain('https://external.com')
 
-      // Verify we are on program submission page.
-      expect(await page.innerText('h1')).toContain('Application confirmation')
-      expect(
-        await page.locator('.cf-application-id + div').textContent(),
-      ).toContain('This is the custom confirmation message with markdown')
-      await validateAccessibility(page)
-      await validateScreenshot(
-        page,
-        'program-submission-guest',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
+        // Verify markdown was parsed correctly
+        // h1 set in markdown should be changed to h2
+        expect(cardHtml).toContain('<h2>Program description</h2>')
+        // lists are formatted correctly
+        expect(cardHtml).toContain(
+          '<ul class="list-disc mx-8"><li>Thing 1</li><li>Thing 2</li></ul>',
+        )
+        // text links are formatted correctly with an icon
+        expect(cardHtml).toContain(
+          '<a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" aria-label="opens in a new tab" rel="nofollow noopener noreferrer">website<svg',
+        )
 
-      // Click the "Apply to another program" button while a guest, which triggers
-      // a modal to prompt the guest to login or create an account. Note that
-      // in this screenshot, the mouse ends up hovering on top of the first
-      // button in the new modal that appears, which is why it is highlighted.
-      await applicantQuestions.clickApplyToAnotherProgramButton()
-      await validateScreenshot(
-        page,
-        'program-submission-guest-login-prompt-modal',
-        /* fullPage= */ false,
-        /* mobileScreenshot= */ true,
-      )
-    })
-
-    test('verify program submission page for logged in user', async ({page, applicantQuestions}) => {
-      await loginAsTestUser(page)
-      await applicantQuestions.applyProgram(programName)
-
-      // Fill out application and submit.
-      await applicantQuestions.answerDateQuestion('2021-11-01')
-      await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.clickNext()
-      await applicantQuestions.answerAddressQuestion(
-        '1234 St',
-        'Unit B',
-        'Sim',
-        'WA',
-        '54321',
-      )
-      await applicantQuestions.clickNext()
-      await applicantQuestions.answerRadioButtonQuestion('one')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.answerPhoneQuestion('4256373270')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.submitFromReviewPage()
-
-      // Verify we are on program submission page.
-      expect(await page.innerText('h1')).toContain('Application confirmation')
-      expect(
-        await page.locator('.cf-application-id + div').textContent(),
-      ).toContain('This is the custom confirmation message with markdown')
-      await validateAccessibility(page)
-      await validateScreenshot(
-        page,
-        'program-submission-logged-in',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
-    })
-
-    test('verify program submission page for guest multiple programs', async ({page, applicantQuestions, adminPrograms}) => {
-
-      // Login as an admin and add a bunch of programs
-      await loginAsAdmin(page)
-      await adminPrograms.addProgram('program 1')
-      await adminPrograms.addProgram('program 2')
-      await adminPrograms.addProgram('program 3')
-      await adminPrograms.addProgram('program 4')
-      await adminPrograms.publishAllDrafts()
-      await logout(page)
-
-      // Fill out application as a guest and submit.
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerDateQuestion('2021-11-01')
-      await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.clickNext()
-      await applicantQuestions.answerAddressQuestion(
-        '1234 St',
-        'Unit B',
-        'Sim',
-        'WA',
-        '54321',
-      )
-      await applicantQuestions.clickNext()
-      await applicantQuestions.answerRadioButtonQuestion('one')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.answerPhoneQuestion('4256373270')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.submitFromReviewPage()
-
-      // Verify we are on program submission page.
-      expect(await page.innerText('h1')).toContain('Application confirmation')
-      await validateAccessibility(page)
-      await validateScreenshot(
-        page,
-        'program-submission-guest-multiple-programs',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
-    })
-
-    test('shows error with incomplete submission', async ({page, applicantQuestions}) => {
-      await applicantQuestions.clickApplyProgramButton(programName)
-
-      // The UI correctly won't let us submit because the application isn't complete.
-      // To fake submitting an incomplete application add a submit button and click it.
-      // Note the form already triggers for the submit action.
-      // A clearer way to set this up would be to have two browser contexts but that isn't doable in our setup.
-      await page.evaluate(() => {
-        const buttonEl = document.createElement('button')
-        buttonEl.id = 'test-form-submit'
-        buttonEl.type = 'submit'
-        const formEl = document.querySelector('.cf-debounced-form')!
-        formEl.appendChild(buttonEl)
+        // there shouldn't be any external Links
+        const cardText = await page.innerText(
+          '.cf-application-card:has-text("' + programWithExternalLink + '")',
+        )
+        expect(cardText).not.toContain('External site')
       })
-      const submitButton = page.locator('#test-form-submit')
-      await submitButton.click()
 
-      await validateToastMessage(
+      test('verify program list page', async ({page}) => {
+        await validateAccessibility(page)
+        await validateScreenshot(
+          page,
+          'program-list-page',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      test('verify program submission page for guest', async ({
         page,
-        "Error: There's been an update to the application",
-      )
-      await validateScreenshot(
+        applicantQuestions,
+        helpers,
+      }) => {
+        await helpers.disableFeatureFlag('save_on_all_actions')
+        await helpers.enableFeatureFlag(
+          'suggest_programs_on_application_confirmation_page',
+        )
+        await applicantQuestions.applyProgram(programName)
+
+        // Fill out application and submit.
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.clickNext()
+        await applicantQuestions.answerAddressQuestion(
+          '1234 St',
+          'Unit B',
+          'Sim',
+          'WA',
+          '54321',
+        )
+        await applicantQuestions.clickNext()
+        await applicantQuestions.answerRadioButtonQuestion('one')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.answerPhoneQuestion('4256373270')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.submitFromReviewPage()
+
+        // Verify we are on program submission page.
+        expect(await page.innerText('h1')).toContain('Application confirmation')
+        expect(
+          await page.locator('.cf-application-id + div').textContent(),
+        ).toContain('This is the custom confirmation message with markdown')
+        await validateAccessibility(page)
+        await validateScreenshot(
+          page,
+          'program-submission-guest',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+
+        // Click the "Apply to another program" button while a guest, which triggers
+        // a modal to prompt the guest to login or create an account. Note that
+        // in this screenshot, the mouse ends up hovering on top of the first
+        // button in the new modal that appears, which is why it is highlighted.
+        await applicantQuestions.clickApplyToAnotherProgramButton()
+        await validateScreenshot(
+          page,
+          'program-submission-guest-login-prompt-modal',
+          /* fullPage= */ false,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      test('verify program submission page for logged in user', async ({
         page,
-        'program-out-of-date',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
-    })
+        applicantQuestions,
+      }) => {
+        await loginAsTestUser(page)
+        await applicantQuestions.applyProgram(programName)
 
-    test('shows "no changes" page when a duplicate application is submitted', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
+        // Fill out application and submit.
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.clickNext()
+        await applicantQuestions.answerAddressQuestion(
+          '1234 St',
+          'Unit B',
+          'Sim',
+          'WA',
+          '54321',
+        )
+        await applicantQuestions.clickNext()
+        await applicantQuestions.answerRadioButtonQuestion('one')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.answerPhoneQuestion('4256373270')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.submitFromReviewPage()
 
-      // Fill out application and submit.
-      await applicantQuestions.answerDateQuestion('2021-11-01')
-      await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.clickNext()
-      await applicantQuestions.answerAddressQuestion(
-        '1234 St',
-        'Unit B',
-        'Sim',
-        'WA',
-        '54321',
-      )
-      await applicantQuestions.clickNext()
-      await applicantQuestions.answerRadioButtonQuestion('one')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.answerPhoneQuestion('4256373270')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.submitFromReviewPage()
+        // Verify we are on program submission page.
+        expect(await page.innerText('h1')).toContain('Application confirmation')
+        expect(
+          await page.locator('.cf-application-id + div').textContent(),
+        ).toContain('This is the custom confirmation message with markdown')
+        await validateAccessibility(page)
+        await validateScreenshot(
+          page,
+          'program-submission-logged-in',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
 
-      // Submit the application again without editing it
-      await applicantQuestions.returnToProgramsFromSubmissionPage()
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage()
-
-      // See the duplicate submissions page
-      await applicantQuestions.expectDuplicatesPage()
-      await validateScreenshot(
+      test('verify program submission page for guest multiple programs', async ({
         page,
-        'duplicate-submission-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
-      await validateAccessibility(page)
+        applicantQuestions,
+        adminPrograms,
+      }) => {
+        // Login as an admin and add a bunch of programs
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram('program 1')
+        await adminPrograms.addProgram('program 2')
+        await adminPrograms.addProgram('program 3')
+        await adminPrograms.addProgram('program 4')
+        await adminPrograms.publishAllDrafts()
+        await logout(page)
 
-      // Click the "Continue editing" button to return to the review page
-      await page.click('#continue-editing-button')
-      await applicantQuestions.expectReviewPage()
-      await applicantQuestions.clickEdit()
+        // Fill out application as a guest and submit.
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.clickNext()
+        await applicantQuestions.answerAddressQuestion(
+          '1234 St',
+          'Unit B',
+          'Sim',
+          'WA',
+          '54321',
+        )
+        await applicantQuestions.clickNext()
+        await applicantQuestions.answerRadioButtonQuestion('one')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.answerPhoneQuestion('4256373270')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.submitFromReviewPage()
 
-      // Edit the application but insert the same values as before and submit.
-      await applicantQuestions.answerDateQuestion('2021-11-01')
-      await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.submitFromReviewPage()
+        // Verify we are on program submission page.
+        expect(await page.innerText('h1')).toContain('Application confirmation')
+        await validateAccessibility(page)
+        await validateScreenshot(
+          page,
+          'program-submission-guest-multiple-programs',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
 
-      // See the duplicate submissions page
-      await applicantQuestions.expectDuplicatesPage()
+      test('shows error with incomplete submission', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.clickApplyProgramButton(programName)
 
-      // Click the "Exit application" link to return to the programs page
-      await page.click('text="Exit application"')
-      await applicantQuestions.expectProgramsPage()
+        // The UI correctly won't let us submit because the application isn't complete.
+        // To fake submitting an incomplete application add a submit button and click it.
+        // Note the form already triggers for the submit action.
+        // A clearer way to set this up would be to have two browser contexts but that isn't doable in our setup.
+        await page.evaluate(() => {
+          const buttonEl = document.createElement('button')
+          buttonEl.id = 'test-form-submit'
+          buttonEl.type = 'submit'
+          const formEl = document.querySelector('.cf-debounced-form')!
+          formEl.appendChild(buttonEl)
+        })
+        const submitButton = page.locator('#test-form-submit')
+        await submitButton.click()
+
+        await validateToastMessage(
+          page,
+          "Error: There's been an update to the application",
+        )
+        await validateScreenshot(
+          page,
+          'program-out-of-date',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      test('shows "no changes" page when a duplicate application is submitted', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        // Fill out application and submit.
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.clickNext()
+        await applicantQuestions.answerAddressQuestion(
+          '1234 St',
+          'Unit B',
+          'Sim',
+          'WA',
+          '54321',
+        )
+        await applicantQuestions.clickNext()
+        await applicantQuestions.answerRadioButtonQuestion('one')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.answerPhoneQuestion('4256373270')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.submitFromReviewPage()
+
+        // Submit the application again without editing it
+        await applicantQuestions.returnToProgramsFromSubmissionPage()
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.submitFromReviewPage()
+
+        // See the duplicate submissions page
+        await applicantQuestions.expectDuplicatesPage()
+        await validateScreenshot(
+          page,
+          'duplicate-submission-page',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+        await validateAccessibility(page)
+
+        // Click the "Continue editing" button to return to the review page
+        await page.click('#continue-editing-button')
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.clickEdit()
+
+        // Edit the application but insert the same values as before and submit.
+        await applicantQuestions.answerDateQuestion('2021-11-01')
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.submitFromReviewPage()
+
+        // See the duplicate submissions page
+        await applicantQuestions.expectDuplicatesPage()
+
+        // Click the "Exit application" link to return to the programs page
+        await page.click('text="Exit application"')
+        await applicantQuestions.expectProgramsPage()
+      })
     })
   })
 
@@ -787,62 +862,67 @@ test.describe('Applicant navigation flow', () => {
     // TODO(#4509): Once we can create different test users, change this to
     // test.beforeAll and use different users for each test, instead of wiping the
     // db after each test.
-    test.beforeEach(async ({page, adminQuestions, adminPredicates, adminPrograms}) => {
-      // beforeAll
+    test.beforeEach(
+      async ({page, adminQuestions, adminPredicates, adminPrograms}) => {
+        // beforeAll
 
-      // beforeEach
-      await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'intake_form_enabled')
+        // beforeEach
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'intake_form_enabled')
 
-      // Add questions
-      await adminQuestions.addNumberQuestion({
-        questionName: eligibilityQuestionId,
-      })
+        // Add questions
+        await adminQuestions.addNumberQuestion({
+          questionName: eligibilityQuestionId,
+        })
 
-      // Set up common intake form
-      await adminPrograms.addProgram(
-        commonIntakeProgramName,
-        'program description',
-        'https://usa.gov',
-        ProgramVisibility.PUBLIC,
-        'admin description',
-        /* isCommonIntake= */ true,
-      )
+        // Set up common intake form
+        await adminPrograms.addProgram(
+          commonIntakeProgramName,
+          'program description',
+          'https://usa.gov',
+          ProgramVisibility.PUBLIC,
+          'admin description',
+          /* isCommonIntake= */ true,
+        )
 
-      await adminPrograms.editProgramBlock(
-        commonIntakeProgramName,
-        'first description',
-        [eligibilityQuestionId],
-      )
+        await adminPrograms.editProgramBlock(
+          commonIntakeProgramName,
+          'first description',
+          [eligibilityQuestionId],
+        )
 
-      // Set up another program
-      await adminPrograms.addProgram(secondProgramName)
+        // Set up another program
+        await adminPrograms.addProgram(secondProgramName)
 
-      await adminPrograms.editProgramBlock(
-        secondProgramName,
-        'first description',
-        [eligibilityQuestionId],
-      )
+        await adminPrograms.editProgramBlock(
+          secondProgramName,
+          'first description',
+          [eligibilityQuestionId],
+        )
 
-      await adminPrograms.goToEditBlockEligibilityPredicatePage(
-        secondProgramName,
-        'Screen 1',
-      )
-      await adminPredicates.addPredicate(
-        'nav-predicate-number-q',
-        /* action= */ null,
-        'number',
-        'is equal to',
-        secondProgramCorrectAnswer,
-      )
+        await adminPrograms.goToEditBlockEligibilityPredicatePage(
+          secondProgramName,
+          'Screen 1',
+        )
+        await adminPredicates.addPredicate(
+          'nav-predicate-number-q',
+          /* action= */ null,
+          'number',
+          'is equal to',
+          secondProgramCorrectAnswer,
+        )
 
-      await adminPrograms.publishAllDrafts()
-      // TODO(#4509): Once this is a test.beforeAll(), it'll automatically go back
-      // to the home page when it's done and we can remove this line.
-      await logout(page)
-    })
+        await adminPrograms.publishAllDrafts()
+        // TODO(#4509): Once this is a test.beforeAll(), it'll automatically go back
+        // to the home page when it's done and we can remove this line.
+        await logout(page)
+      },
+    )
 
-    test('does not show eligible programs or upsell on confirmation page when no programs are eligible and signed in', async ({page, applicantQuestions}) => {
+    test('does not show eligible programs or upsell on confirmation page when no programs are eligible and signed in', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'intake_form_enabled')
 
       await loginAsTestUser(page)
@@ -868,7 +948,10 @@ test.describe('Applicant navigation flow', () => {
       await validateAccessibility(page)
     })
 
-    test('shows eligible programs and no upsell on confirmation page when programs are eligible and signed in', async ({page, applicantQuestions}) => {
+    test('shows eligible programs and no upsell on confirmation page when programs are eligible and signed in', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'intake_form_enabled')
 
       await loginAsTestUser(page)
@@ -894,7 +977,10 @@ test.describe('Applicant navigation flow', () => {
       await validateAccessibility(page)
     })
 
-    test('does not show eligible programs and shows upsell on confirmation page when no programs are eligible and a guest user', async ({page, applicantQuestions}) => {
+    test('does not show eligible programs and shows upsell on confirmation page when no programs are eligible and a guest user', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'intake_form_enabled')
 
       // Fill out common intake form, with non-eligible response
@@ -919,7 +1005,10 @@ test.describe('Applicant navigation flow', () => {
       await validateAccessibility(page)
     })
 
-    test('shows eligible programs and upsell on confirmation page when programs are eligible and a guest user', async ({page, applicantQuestions}) => {
+    test('shows eligible programs and upsell on confirmation page when programs are eligible and a guest user', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'intake_form_enabled')
 
       // Fill out common intake form, with eligible response
@@ -952,7 +1041,10 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('shows intake form as submitted after completion', async ({page, applicantQuestions}) => {
+    test('shows intake form as submitted after completion', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'intake_form_enabled')
 
       // Fill out common intake form, with eligible response
@@ -978,7 +1070,11 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('does not show eligible programs and shows TI text on confirmation page when no programs are eligible and a TI', async ({page, tiDashboard, applicantQuestions}) => {
+    test('does not show eligible programs and shows TI text on confirmation page when no programs are eligible and a TI', async ({
+      page,
+      tiDashboard,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'intake_form_enabled')
 
       // Create trusted intermediary client
@@ -1017,7 +1113,11 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('shows eligible programs and TI text on confirmation page when programs are eligible and a TI', async ({page, tiDashboard, applicantQuestions}) => {
+    test('shows eligible programs and TI text on confirmation page when programs are eligible and a TI', async ({
+      page,
+      tiDashboard,
+      applicantQuestions,
+    }) => {
       await enableFeatureFlag(page, 'intake_form_enabled')
 
       // Create trusted intermediary client
@@ -1061,49 +1161,54 @@ test.describe('Applicant navigation flow', () => {
     const fullProgramName = 'Test program for eligibility navigation flows'
     const eligibilityQuestionId = 'nav-predicate-number-q'
 
-    test.beforeEach(async ({page, adminQuestions, adminPredicates, adminPrograms}) => {
-      // beforeAll
-      await loginAsAdmin(page)
+    test.beforeEach(
+      async ({page, adminQuestions, adminPredicates, adminPrograms}) => {
+        // beforeAll
+        await loginAsAdmin(page)
 
-      await adminQuestions.addNumberQuestion({
-        questionName: eligibilityQuestionId,
-      })
-      await adminQuestions.addEmailQuestion({
-        questionName: 'nav-predicate-email-q',
-      })
+        await adminQuestions.addNumberQuestion({
+          questionName: eligibilityQuestionId,
+        })
+        await adminQuestions.addEmailQuestion({
+          questionName: 'nav-predicate-email-q',
+        })
 
-      // Add the full program.
-      await adminPrograms.addProgram(fullProgramName)
-      await adminPrograms.editProgramBlock(
-        fullProgramName,
-        'first description',
-        ['nav-predicate-number-q'],
-      )
-      await adminPrograms.goToEditBlockEligibilityPredicatePage(
-        fullProgramName,
-        'Screen 1',
-      )
-      await adminPredicates.addPredicate(
-        'nav-predicate-number-q',
-        /* action= */ null,
-        'number',
-        'is equal to',
-        '5',
-      )
+        // Add the full program.
+        await adminPrograms.addProgram(fullProgramName)
+        await adminPrograms.editProgramBlock(
+          fullProgramName,
+          'first description',
+          ['nav-predicate-number-q'],
+        )
+        await adminPrograms.goToEditBlockEligibilityPredicatePage(
+          fullProgramName,
+          'Screen 1',
+        )
+        await adminPredicates.addPredicate(
+          'nav-predicate-number-q',
+          /* action= */ null,
+          'number',
+          'is equal to',
+          '5',
+        )
 
-      await adminPrograms.addProgramBlock(
-        fullProgramName,
-        'second description',
-        ['nav-predicate-email-q'],
-      )
+        await adminPrograms.addProgramBlock(
+          fullProgramName,
+          'second description',
+          ['nav-predicate-email-q'],
+        )
 
-      await adminPrograms.gotoAdminProgramsPage()
-      await adminPrograms.publishProgram(fullProgramName)
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.publishProgram(fullProgramName)
 
-      // beforeEach
-    })
+        await logout(page)
+        // beforeEach
+      },
+    )
 
-    test('does not show Not Eligible when there is no answer', async ({applicantQuestions}) => {
+    test('does not show Not Eligible when there is no answer', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
       await applicantQuestions.expectQuestionHasNoEligibilityIndicator(
@@ -1111,7 +1216,10 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('shows not eligible with ineligible answer', async ({page, applicantQuestions} ) => {
+    test('shows not eligible with ineligible answer', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(fullProgramName)
 
       // Fill out application and submit.
@@ -1140,7 +1248,10 @@ test.describe('Applicant navigation flow', () => {
       await validateAccessibility(page)
     })
 
-    test('shows may be eligible with an eligible answer', async ({page, applicantQuestions}) => {
+    test('shows may be eligible with an eligible answer', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(fullProgramName)
 
       // Fill out application and without submitting.
@@ -1180,7 +1291,11 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('shows not eligible with ineligible answer from another application', async ({page, adminPrograms, applicantQuestions}) => {
+    test('shows not eligible with ineligible answer from another application', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
       const overlappingOneQProgramName =
         'Test program with one overlapping question for eligibility navigation flows'
 
@@ -1228,7 +1343,9 @@ test.describe('Applicant navigation flow', () => {
       await validateAccessibility(page)
     })
 
-    test('shows not eligible upon submit with ineligible answer', async ({applicantQuestions}) => {
+    test('shows not eligible upon submit with ineligible answer', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(fullProgramName)
 
       // Fill out application and submit.
@@ -1257,7 +1374,9 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.expectIneligiblePage()
     })
 
-    test('shows not eligible upon submit with ineligible answer with gating eligibility', async ({applicantQuestions}) => {
+    test('shows not eligible upon submit with ineligible answer with gating eligibility', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(fullProgramName)
 
       // Fill out application and submit.
@@ -1339,7 +1458,11 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('shows may be eligible with nongating eligibility', async ({page, adminPrograms, applicantQuestions}) => {
+    test('shows may be eligible with nongating eligibility', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
       await loginAsAdmin(page)
       await adminPrograms.createNewVersion(fullProgramName)
       await adminPrograms.setProgramEligibilityToNongating(fullProgramName)
@@ -1360,7 +1483,11 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('does not show not eligible with nongating eligibility', async ({page, adminPrograms, applicantQuestions}) => {
+    test('does not show not eligible with nongating eligibility', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
       await loginAsAdmin(page)
       await adminPrograms.createNewVersion(fullProgramName)
       await adminPrograms.setProgramEligibilityToNongating(fullProgramName)
@@ -1398,102 +1525,109 @@ test.describe('Applicant navigation flow', () => {
       const screen2 = 'Screen 2'
       const screen3 = 'Screen 3'
 
-      test.beforeEach(async ({page, adminQuestions, adminPrograms, adminPredicates} ) => {
-        // beforeAll
-        await loginAsAdmin(page)
-        await enableFeatureFlag(page, 'esri_address_correction_enabled')
-        await enableFeatureFlag(
-          page,
-          'esri_address_service_area_validation_enabled',
-        )
+      test.beforeEach(
+        async ({page, adminQuestions, adminPrograms, adminPredicates}) => {
+          // beforeAll
+          await loginAsAdmin(page)
+          await enableFeatureFlag(page, 'esri_address_correction_enabled')
+          await enableFeatureFlag(
+            page,
+            'esri_address_service_area_validation_enabled',
+          )
 
-        // Create Questions
-        await adminQuestions.addAddressQuestion({
-          questionName: questionAddress,
-          questionText: questionAddress,
-        })
-
-        await adminQuestions.addTextQuestion({
-          questionName: questionText1,
-          questionText: questionText1,
-        })
-
-        await adminQuestions.addTextQuestion({
-          questionName: questionText2,
-          questionText: questionText2,
-        })
-
-        // Create Program
-        await adminPrograms.addProgram(programName)
-
-        // Attach questions to program
-        await adminPrograms.editProgramBlock(programName, screen1, [
-          questionAddress,
-        ])
-
-        await adminPrograms.addProgramBlock(programName, screen2, [
-          questionText1,
-        ])
-
-        await adminPrograms.addProgramBlock(programName, screen3, [
-          questionText2,
-        ])
-
-        await adminPrograms.goToBlockInProgram(programName, screen1)
-
-        await adminPrograms.clickAddressCorrectionToggleByName(questionAddress)
-
-        const addressCorrectionInput =
-          adminPrograms.getAddressCorrectionToggleByName(questionAddress)
-
-        await expect(addressCorrectionInput).toHaveValue('true')
-
-        // Set thing to soft eligibilty
-        await adminPrograms.toggleEligibilityGating()
-
-        // Add address eligibility predicate
-        await adminPrograms.goToEditBlockEligibilityPredicatePage(
-          programName,
-          screen1,
-        )
-
-        await adminPredicates.addPredicates([
-          {
+          // Create Questions
+          await adminQuestions.addAddressQuestion({
             questionName: questionAddress,
-            scalar: 'service_area',
-            operator: 'in service area',
-            values: ['Seattle'],
-          },
-        ])
+            questionText: questionAddress,
+          })
 
-        // Add the address visibility predicate
-        await adminPrograms.goToBlockInProgram(programName, screen2)
+          await adminQuestions.addTextQuestion({
+            questionName: questionText1,
+            questionText: questionText1,
+          })
 
-        await adminPrograms.goToEditBlockVisibilityPredicatePage(
-          programName,
-          screen2,
-        )
+          await adminQuestions.addTextQuestion({
+            questionName: questionText2,
+            questionText: questionText2,
+          })
 
-        await adminPredicates.addPredicates([
-          {
-            questionName: questionAddress,
-            action: 'shown if',
-            scalar: 'service_area',
-            operator: 'in service area',
-            values: ['Seattle'],
-          },
-        ])
+          // Create Program
+          await adminPrograms.addProgram(programName)
 
-        // Publish Program
-        await adminPrograms.gotoAdminProgramsPage()
-        await adminPrograms.publishProgram(programName)
+          // Attach questions to program
+          await adminPrograms.editProgramBlock(programName, screen1, [
+            questionAddress,
+          ])
 
-        await logout(page)
+          await adminPrograms.addProgramBlock(programName, screen2, [
+            questionText1,
+          ])
 
-        // beforeEach
-      })
+          await adminPrograms.addProgramBlock(programName, screen3, [
+            questionText2,
+          ])
 
-      test('when address is eligible show hidden screen', async ({page, applicantQuestions}) => {
+          await adminPrograms.goToBlockInProgram(programName, screen1)
+
+          await adminPrograms.clickAddressCorrectionToggleByName(
+            questionAddress,
+          )
+
+          const addressCorrectionInput =
+            adminPrograms.getAddressCorrectionToggleByName(questionAddress)
+
+          await expect(addressCorrectionInput).toHaveValue('true')
+
+          // Set thing to soft eligibilty
+          await adminPrograms.toggleEligibilityGating()
+
+          // Add address eligibility predicate
+          await adminPrograms.goToEditBlockEligibilityPredicatePage(
+            programName,
+            screen1,
+          )
+
+          await adminPredicates.addPredicates([
+            {
+              questionName: questionAddress,
+              scalar: 'service_area',
+              operator: 'in service area',
+              values: ['Seattle'],
+            },
+          ])
+
+          // Add the address visibility predicate
+          await adminPrograms.goToBlockInProgram(programName, screen2)
+
+          await adminPrograms.goToEditBlockVisibilityPredicatePage(
+            programName,
+            screen2,
+          )
+
+          await adminPredicates.addPredicates([
+            {
+              questionName: questionAddress,
+              action: 'shown if',
+              scalar: 'service_area',
+              operator: 'in service area',
+              values: ['Seattle'],
+            },
+          ])
+
+          // Publish Program
+          await adminPrograms.gotoAdminProgramsPage()
+          await adminPrograms.publishProgram(programName)
+
+          await logout(page)
+
+          // beforeEach
+        },
+      )
+
+      test('when address is eligible show hidden screen', async ({
+        page,
+        applicantQuestions,
+      }) => {
         await disableFeatureFlag(page, 'save_on_all_actions')
 
         await applicantQuestions.applyProgram(programName)
@@ -1525,7 +1659,12 @@ test.describe('Applicant navigation flow', () => {
         await logout(page)
       })
 
-      test('when address is not eligible do not show hidden screen', async ({page, applicantQuestions}) => {
+      test('when address is not eligible do not show hidden screen', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await disableFeatureFlag(page, 'save_on_all_actions')
+
         await applicantQuestions.applyProgram(programName)
 
         // Fill out application and submit.

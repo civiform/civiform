@@ -19,7 +19,11 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
   })
 
   test.describe('back button', () => {
-    test('back button redirects to block page if came from block page', async ({page, adminPrograms, adminProgramImage} ) => {
+    test('back button redirects to block page if came from block page', async ({
+      page,
+      adminPrograms,
+      adminProgramImage,
+    }) => {
       await loginAsAdmin(page)
 
       const programName = 'program name'
@@ -33,7 +37,11 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       await adminPrograms.expectProgramBlockEditPage()
     })
 
-    test('back button redirects to details page if came from create program page', async ({page, adminPrograms, adminProgramImage}) => {
+    test('back button redirects to details page if came from create program page', async ({
+      page,
+      adminPrograms,
+      adminProgramImage,
+    }) => {
       await loginAsAdmin(page)
 
       // After creating a program, admin should be redirected to the program images page
@@ -48,7 +56,11 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       await adminPrograms.expectProgramEditPage(programName)
     })
 
-    test('back button preserves location after interaction', async ( {page, adminPrograms, adminProgramImage}) => {
+    test('back button preserves location after interaction', async ({
+      page,
+      adminPrograms,
+      adminProgramImage,
+    }) => {
       await loginAsAdmin(page)
 
       const programName = 'Back Test Program'
@@ -70,7 +82,11 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
   })
 
   test.describe('continue button', () => {
-    test('continue button shows if from program creation page', async ({page, adminPrograms, adminProgramImage}) => {
+    test('continue button shows if from program creation page', async ({
+      page,
+      adminPrograms,
+      adminProgramImage,
+    }) => {
       await loginAsAdmin(page)
 
       const programName = 'Back Test Program'
@@ -81,7 +97,11 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       await validateScreenshot(page, 'program-image-with-continue')
     })
 
-    test('continue button redirects to program blocks page', async ({page, adminPrograms, adminProgramImage}) => {
+    test('continue button redirects to program blocks page', async ({
+      page,
+      adminPrograms,
+      adminProgramImage,
+    }) => {
       await loginAsAdmin(page)
 
       const programName = 'Back Test Program'
@@ -94,7 +114,11 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       await adminPrograms.expectProgramBlockEditPage()
     })
 
-    test('continue button hides if from edit program image page', async ( {page, adminPrograms, adminProgramImage}) => {
+    test('continue button hides if from edit program image page', async ({
+      page,
+      adminPrograms,
+      adminProgramImage,
+    }) => {
       await loginAsAdmin(page)
 
       const programName = 'program name'
@@ -110,7 +134,7 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
   test.describe('description', () => {
     const programName = 'Test program'
 
-    test.beforeEach(async ( {page, adminPrograms} ) => {
+    test.beforeEach(async ({page, adminPrograms}) => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
       await adminPrograms.goToProgramImagePage(programName)
@@ -137,7 +161,7 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       await validateScreenshot(page, 'program-image-with-description')
     })
 
-    test('updates existing description', async ({page, adminProgramImage} ) => {
+    test('updates existing description', async ({page, adminProgramImage}) => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
@@ -157,7 +181,10 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('removes description with empty', async ( {page, adminProgramImage}) => {
+    test('removes description with empty', async ({
+      page,
+      adminProgramImage,
+    }) => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
@@ -173,7 +200,10 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('removes description with blank', async ({page, adminProgramImage}) => {
+    test('removes description with blank', async ({
+      page,
+      adminProgramImage,
+    }) => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
@@ -192,7 +222,10 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('does not remove description if image present (description set to empty)', async ({page, adminProgramImage}) => {
+    test('does not remove description if image present (description set to empty)', async ({
+      page,
+      adminProgramImage,
+    }) => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Original description',
       )
@@ -209,7 +242,10 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('does not remove description if image present (description set to blank)', async ({page, adminProgramImage}) => {
+    test('does not remove description if image present (description set to blank)', async ({
+      page,
+      adminProgramImage,
+    }) => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Original description',
       )
@@ -226,7 +262,9 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       )
     })
 
-    test('can remove description after deleting image', async ({adminProgramImage} ) => {
+    test('can remove description after deleting image', async ({
+      adminProgramImage,
+    }) => {
       // Set a description and image
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Original description',
@@ -255,7 +293,9 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       await adminProgramImage.expectDisabledImageDescriptionSubmit()
     })
 
-    test('disables submit button when no text change', async ({adminProgramImage}) => {
+    test('disables submit button when no text change', async ({
+      adminProgramImage,
+    }) => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
@@ -281,7 +321,9 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       await adminProgramImage.expectEnabledImageDescriptionSubmit()
     })
 
-    test('enables submit button when text removed', async ({adminProgramImage}) => {
+    test('enables submit button when text removed', async ({
+      adminProgramImage,
+    }) => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
@@ -293,14 +335,18 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       await adminProgramImage.expectEnabledImageDescriptionSubmit()
     })
 
-    test('disables translation button when no description', async ({adminProgramImage}) => {
+    test('disables translation button when no description', async ({
+      adminProgramImage,
+    }) => {
       await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectDescriptionIs('')
 
       await adminProgramImage.expectDisabledTranslationButton()
     })
 
-    test('enables translation button when description exists', async ({adminProgramImage}) => {
+    test('enables translation button when description exists', async ({
+      adminProgramImage,
+    }) => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
@@ -309,7 +355,10 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       await adminProgramImage.expectEnabledTranslationButton()
     })
 
-    test('translation button redirects to translations page', async ({adminPrograms, adminProgramImage} ) => {
+    test('translation button redirects to translations page', async ({
+      adminPrograms,
+      adminProgramImage,
+    }) => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
@@ -323,7 +372,7 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
   test.describe('image file upload', () => {
     const programName = 'Test program'
 
-    test.beforeEach(async ( {page, adminPrograms}) => {
+    test.beforeEach(async ({page, adminPrograms}) => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
       await adminPrograms.goToProgramImagePage(programName)
@@ -340,7 +389,10 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       await expect(lastFormInput).toHaveAttribute('type', 'file')
     })
 
-    test('shows uploaded image before submitting', async ({page, adminProgramImage}) => {
+    test('shows uploaded image before submitting', async ({
+      page,
+      adminProgramImage,
+    }) => {
       await adminProgramImage.setImageFile(
         'src/assets/program-summary-image-wide.png',
       )
@@ -348,7 +400,9 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       await validateScreenshot(page, 'program-image-with-image-before-save')
     })
 
-    test('prevents image upload when no description', async ({adminProgramImage} ) => {
+    test('prevents image upload when no description', async ({
+      adminProgramImage,
+    }) => {
       await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectDescriptionIs('')
 
@@ -356,7 +410,9 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       await adminProgramImage.expectDisabledImageFileUploadSubmit()
     })
 
-    test('disables submit button when no image', async ({adminProgramImage} ) => {
+    test('disables submit button when no image', async ({
+      adminProgramImage,
+    }) => {
       // The submit button will also be disabled if there's no description,
       // which we don't want to test here. So, set a description to rule
       // that out.
@@ -367,7 +423,9 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       await adminProgramImage.expectDisabledImageFileUploadSubmit()
     })
 
-    test('disables submit button when too large image', async ({adminProgramImage} ) => {
+    test('disables submit button when too large image', async ({
+      adminProgramImage,
+    }) => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
@@ -379,7 +437,9 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       await adminProgramImage.expectDisabledImageFileUploadSubmit()
     })
 
-    test('enables submit button when small enough image', async ({adminProgramImage} ) => {
+    test('enables submit button when small enough image', async ({
+      adminProgramImage,
+    }) => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
@@ -391,7 +451,9 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       await adminProgramImage.expectEnabledImageFileUploadSubmit()
     })
 
-    test('disables submit button when image removed', async ({adminProgramImage} ) => {
+    test('disables submit button when image removed', async ({
+      adminProgramImage,
+    }) => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
@@ -405,7 +467,10 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       await adminProgramImage.expectDisabledImageFileUploadSubmit()
     })
 
-    test('shows error when too large image', async ({page, adminProgramImage} ) => {
+    test('shows error when too large image', async ({
+      page,
+      adminProgramImage,
+    }) => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
@@ -419,7 +484,9 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       await validateScreenshot(page, 'program-image-with-too-large-error')
     })
 
-    test('hides error when too large image replaced with smaller image', async ({adminProgramImage} ) => {
+    test('hides error when too large image replaced with smaller image', async ({
+      adminProgramImage,
+    }) => {
       await adminProgramImage.setImageDescriptionAndSubmit(
         'Fake image description',
       )
@@ -436,8 +503,7 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       await adminProgramImage.expectTooLargeErrorHidden()
     })
 
-    test('adds new image', async ({page, adminProgramImage} ) => {
-
+    test('adds new image', async ({page, adminProgramImage}) => {
       await adminProgramImage.expectNoImagePreview()
       await adminProgramImage.setImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
@@ -453,8 +519,7 @@ test.describe('Admin can manage program image', {tag: ['@migrated']}, () => {
       await adminProgramImage.expectImagePreview()
     })
 
-    test('deletes existing image', async ({page, adminProgramImage} ) => {
-
+    test('deletes existing image', async ({page, adminProgramImage}) => {
       await adminProgramImage.setImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
       )

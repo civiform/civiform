@@ -2,7 +2,10 @@ import {test} from '../fixtures/custom_fixture'
 import {loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('manage program admins', {tag: ['@migrated']}, () => {
-  test('does not add a program admin that does not exist', async ({page, adminPrograms}) => {
+  test('does not add a program admin that does not exist', async ({
+    page,
+    adminPrograms,
+  }) => {
     await loginAsAdmin(page)
 
     const programName = 'Add program admins'

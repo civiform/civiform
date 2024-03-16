@@ -41,9 +41,9 @@ export class AdminApiKeys {
     return await this.page.innerText('#api-key-credentials')
   }
 
-  async callCheckAuth(credentials: string){
-    return await this.request.get('/api/v1/checkAuth',{
-      headers: {Authorization: 'Basic ' + credentials}
+  async callCheckAuth(credentials: string) {
+    return await this.request.get('/api/v1/checkAuth', {
+      headers: {Authorization: 'Basic ' + credentials},
     })
   }
 

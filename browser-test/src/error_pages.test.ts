@@ -1,8 +1,5 @@
 import {test} from './fixtures/custom_fixture'
-import {
-  gotoEndpoint,
-  selectApplicantLanguage,
-} from './support'
+import {gotoEndpoint, selectApplicantLanguage} from './support'
 
 test.describe('error pages', {tag: ['@migrated']}, () => {
   test('404 page', async ({page, notFoundPage}) => {

@@ -11,7 +11,7 @@ import {
 import {TEST_USER_AUTH_STRATEGY} from './support/config'
 
 test.describe('applicant auth', {tag: ['@migrated']}, () => {
-  test('applicant can login', async ({page} ) => {
+  test('applicant can login', async ({page}) => {
     await loginAsTestUser(page)
     await validateScreenshot(page, 'logged-in')
 
@@ -21,7 +21,7 @@ test.describe('applicant auth', {tag: ['@migrated']}, () => {
     expect(await page.textContent('html')).toContain('Logout')
   })
 
-  test('applicant can login as guest', async ({page} ) => {
+  test('applicant can login as guest', async ({page}) => {
     await validateScreenshot(page, 'logged-in-guest')
     expect(await page.textContent('html')).toContain("You're a guest user.")
     expect(await page.textContent('html')).toContain('End session')
@@ -31,7 +31,7 @@ test.describe('applicant auth', {tag: ['@migrated']}, () => {
   // logout. AWS staging uses Auth0 which doesn't. And Seattle staging uses
   // IDCS which at the moment doesn't have central logout enabled.
   if (TEST_USER_AUTH_STRATEGY === AuthStrategy.FAKE_OIDC) {
-    test('applicant can confirm central provider logout', async ({page} ) => {
+    test('applicant can confirm central provider logout', async ({page}) => {
       await loginAsTestUser(page)
       expect(await page.textContent('html')).toContain(
         `Logged in as ${testUserDisplayName()}`,
@@ -71,7 +71,9 @@ test.describe('applicant auth', {tag: ['@migrated']}, () => {
     expect(await page.textContent('html')).toContain('Find programs')
   })
 
-  test('toast is shown when either guest or logged-in user end their session', async ({page}) => {
+  test('toast is shown when either guest or logged-in user end their session', async ({
+    page,
+  }) => {
     await logout(page, /* closeToast=*/ false)
     await validateScreenshot(page, 'guest-just-ended-session')
     await validateAccessibility(page)
@@ -82,7 +84,11 @@ test.describe('applicant auth', {tag: ['@migrated']}, () => {
     await validateAccessibility(page)
   })
 
-  test('guest login followed by auth login stores submitted applications', async ({page, adminPrograms, applicantQuestions}) => {
+  test('guest login followed by auth login stores submitted applications', async ({
+    page,
+    adminPrograms,
+    applicantQuestions,
+  }) => {
     await loginAsAdmin(page)
     const programName = 'Test program'
     await adminPrograms.addProgram(programName)

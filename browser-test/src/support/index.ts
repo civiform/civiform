@@ -94,8 +94,14 @@ export const gotoEndpoint = async (page: Page, endpoint = '') => {
 }
 
 export const dismissToast = async (page: Page) => {
-  await page.locator('#toast-container div:text("x")').click()
-  await waitForPageJsLoad(page)
+  const toastsToClose = page.locator('#toast-container div:text("x")')
+
+  for (let i = 0; i < (await toastsToClose.count()); i++) {
+    await toastsToClose.nth(i).click()
+  }
+
+  // await page.locator('#toast-container div:text("x")').click()
+  // await waitForPageJsLoad(page)
 }
 
 export const logout = async (page: Page, closeToast = true) => {
@@ -117,7 +123,9 @@ export const logout = async (page: Page, closeToast = true) => {
   // for the final destination URL (the programs index page), to make tests reliable.
   await page.waitForURL('**/programs')
   await validateToastMessage(page, 'Your session has ended.')
-  if (closeToast) await dismissToast(page)
+  if (closeToast) {
+    await dismissToast(page)
+  }
 }
 
 export const loginAsAdmin = async (page: Page) => {
@@ -500,7 +508,6 @@ export const expectDisabled = async (page: Page, locator: string) => {
   expect(await page.getAttribute(locator, 'disabled')).not.toBeNull()
 }
 
-
 // https://playwright.dev/docs/videos
 // Docs state that videos are only saved upon
 // closing the returned context. In practice,
@@ -509,14 +516,16 @@ export const expectDisabled = async (page: Page, locator: string) => {
 // context is possible, but likely not necessary
 // until it causes a problem. In practice, this
 // will only be used when debugging failures.
-export const setVideoName = async (context: BrowserContext, useMobile = false) => {
+export const setVideoName = async (
+  context: BrowserContext,
+  useMobile = false,
+) => {
   if (process.env.RECORD_VIDEO) {
-
     const contextOptions: BrowserContextOptions = {
       ...(useMobile ? devices['Pixel 5'] : {}),
       acceptDownloads: true,
     }
-  
+
     const dirs = ['tmp/videos']
     const testPath = test.info().file
 
