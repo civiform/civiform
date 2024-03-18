@@ -24,28 +24,28 @@ lazy val root = (project in file("."))
       javaWs,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.9.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.16.1",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.16.1",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.16.1",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.17.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.17.0",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.0",
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
       "org.thymeleaf" % "thymeleaf" % "3.1.2.RELEASE",
-      "org.commonmark" % "commonmark" % "0.21.0",
-      "org.commonmark" % "commonmark-ext-autolink" % "0.21.0",
+      "org.commonmark" % "commonmark" % "0.22.0",
+      "org.commonmark" % "commonmark-ext-autolink" % "0.22.0",
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20220608.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.24.13",
-      "software.amazon.awssdk" % "ses" % "2.24.13",
+      "software.amazon.awssdk" % "s3" % "2.25.11",
+      "software.amazon.awssdk" % "ses" % "2.25.11",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.11.2",
+      "com.azure" % "azure-identity" % "1.11.4",
       "com.azure" % "azure-storage-blob" % "12.25.2",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.7.2",
+      "org.postgresql" % "postgresql" % "42.7.3",
       "com.h2database" % "h2" % "2.2.224" % Test,
 
       // Metrics collection and export for Prometheus
@@ -60,7 +60,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.25.3" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "33.0.0-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.1.0-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
@@ -70,13 +70,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "11.1.0-PLAY2.8",
-      "org.pac4j" % "pac4j-core" % "5.7.2",
+      "org.pac4j" % "pac4j-core" % "5.7.3",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "5.7.2",
+      "org.pac4j" % "pac4j-http" % "5.7.3",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "5.7.2",
+      "org.pac4j" % "pac4j-oidc" % "5.7.3",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "5.7.2",
+      "org.pac4j" % "pac4j-saml" % "5.7.3",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
@@ -86,7 +86,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value" % "1.10.4",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.25.0",
+      "com.google.errorprone" % "error_prone_core" % "2.26.1",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.10.0",
@@ -95,7 +95,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.31",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.32",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.6",
@@ -108,7 +108,7 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.4.8"
+      "ch.qos.logback" % "logback-classic" % "1.5.3"
     ),
     javacOptions ++= {
       val defaultCompilerOptions = Seq(
@@ -238,9 +238,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.16.1",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.16.1",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.16.1"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.17.0",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.17.0",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.17.0"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.
