@@ -9,7 +9,9 @@
         <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
 
         <!-- Render each radio button option -->
-        <div class="usa-radio" th:each="option,iterator: ${singleSelectQuestion.getOptions()}" th:with="inputId=${#strings.randomAlphanumeric(8)}">
+        <div class="usa-radio"
+             th:each="option,iterator: ${singleSelectQuestion.getOptions()}"
+             th:with="inputId=${#strings.randomAlphanumeric(8)}">
           <!-- TODO(#6903): Add autofocus attribute as appropriate -->
           <input
           class="usa-radio__input usa-radio__input--tile"
