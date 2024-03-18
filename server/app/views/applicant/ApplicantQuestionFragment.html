@@ -4,7 +4,9 @@
         <th:block th:case="'Checkbox'">
             <div th:replace="~{questiontypes/CheckboxQuestionFragment :: checkbox(${question})}"></div>
         </th:block>
-
+        <th:block th:case="'Number'">
+            <div th:replace="~{questiontypes/NumberQuestionFragment :: number(${question})}"></div>
+        </th:block>
         <th:block th:case="'Static Text'">
             <div th:replace="~{questiontypes/StaticTextQuestionFragment :: static-text(${question})}"></div>
         </th:block>

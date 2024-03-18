@@ -1,6 +1,8 @@
 import {test, expect} from '@playwright/test'
 import {
   createTestContext,
+  disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -30,6 +32,11 @@ test.describe('Number question for applicant flow', () => {
       await logout(page)
     })
 
+    test.beforeEach(async () => {
+      const {page} = ctx
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
     test('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
@@ -43,6 +50,14 @@ test.describe('Number question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       await validateScreenshot(page, 'number-errors')
+    })
+
+    test('validate screenshot with north star flag enabled', async () => {
+      const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+      await validateScreenshot(page, 'number-north-star')
     })
 
     test('with valid number submits successfully', async () => {
