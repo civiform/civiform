@@ -1,0 +1,43 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-dockerfile
+{
+	"name": "Basic setup",
+	// "build": {
+	// 	// Sets the run context to one level up instead of the .devcontainer folder.
+	// 	"context": "..",
+	// 	// Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
+	// 	"dockerfile": "../Dockerfile"
+	// },
+	// "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+	// "dockerComposeFile": "../docker-compose.dev.yml",
+	"workspaceFolder": "../server",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-azuretools.vscode-docker"
+			]
+		}
+	},
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+		// Enable running docker in docker
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/sshd:1": {},
+		"ghcr.io/devcontainers/features/github-cli:1": {}
+	},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	"forwardPorts": [9000]
+
+
+	// Uncomment the next line to run commands after the container is created.
+	// "onCreateCommand": "./prebuild.sh",
+	// "postCreateCommand": "chown -R ${env:CODESPACE_USER} ./public/stylesheets" 
+	// "postCreateCommand": "sudo chmod 1777 ./public/stylesheets",
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as an existing user other than the container default. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}
