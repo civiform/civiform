@@ -17,19 +17,7 @@ test.describe('Number question for applicant flow', () => {
     const programName = 'Test program for single number'
 
     test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
-      // As admin, create program with single number question.
-      await loginAsAdmin(page)
-
-      await adminQuestions.addNumberQuestion({
-        questionName: 'fave-number-q',
-      })
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['fave-number-q'],
-        programName,
-      )
-
-      await logout(page)
+      setUpForSingleQuestion(programName);\
     })
 
     test.beforeEach(async () => {
@@ -183,4 +171,41 @@ test.describe('Number question for applicant flow', () => {
       await validateAccessibility(page)
     })
   })
+
+  test.describe('single number question with North Star flag enabled', () => {
+    const programName = 'Test program for single number'
+
+    test.beforeAll(async () => {
+      setUpForSingleQuestion(programName);
+    })
+
+    test.beforeEach(async () => {
+      const {page} = ctx
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
+    test('validate screenshot', async () => {
+      const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+
+      await validateScreenshot(page, 'number-north-star')
+    })
+
+  })
+
+  async function setUpForSingleQuestion(programName: string) {
+    const {page, adminQuestions, adminPrograms} = ctx
+    // As admin, create program with single number question.
+    await loginAsAdmin(page)
+
+    await adminQuestions.addNumberQuestion({
+      questionName: 'fave-number-q',
+    })
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['fave-number-q'],
+      programName,
+    )
+
+    await logout(page)
+  }
 })
