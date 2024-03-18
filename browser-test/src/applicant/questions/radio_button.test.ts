@@ -108,12 +108,24 @@ test.describe('Radio button question for applicant flow', () => {
         await enableFeatureFlag(page, 'north_star_applicant_ui')
         await applicantQuestions.applyProgram(programName)
 
-        await validateScreenshot(
-          page,
-          'radio-button-north-star',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
+        await test.step('Screenshot', async () => {
+          await validateScreenshot(
+            page,
+            'radio-button-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+
+        await test.step('Screenshot with errors', async () => {
+          await applicantQuestions.clickContinue()
+          await validateScreenshot(
+            page,
+            'radio-button-errors-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
       },
     )
 
