@@ -467,7 +467,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
             // Check by default when visible.
             sendEmailInput.isChecked(),
             span("Notify "),
-            span(applicantNameWithApplicationId).withClass("font-semibold"),
+            span(applicantNameWithApplicationId)
+                .withClasses("font-semibold", ReferenceClasses.BT_APPLICATION_ID),
             span(" of this change at "),
             span(emailString).withClass("font-semibold"));
   }
