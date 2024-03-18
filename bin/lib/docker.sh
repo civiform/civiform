@@ -264,7 +264,7 @@ function docker::check_disk_space() {
   # summing up a list of things that might have some overlap, but it's
   # close enough for detecting if we're close to running out of space.
   settings_json="${HOME}/Library/Group Containers/group.com.docker/settings.json"
-  if [[ -f "${settings_json}" ]]; then
+  if [[ -f "${settings_json}" && "$(uname -s)" == "Darwin" ]]; then
     max_size=$(jq '.diskSizeMiB' "$settings_json" | awk '{print $1 * 1024 * 1024}')
     used=0
     while IFS= read -r size; do
@@ -279,10 +279,10 @@ function docker::check_disk_space() {
     done < <(docker system df --format '{{.Size}}')
     percentage_used=$(awk -v used="$used" -v max_size="$max_size" 'BEGIN {printf "%.0f", (used / max_size * 100)}')
     if [[ $percentage_used -gt 90 ]]; then
-      echo "Warning: Docker is nearly out of disk space. Current usage estimate: ${percentage_used}%. Would you like to run 'docker system prune' to free up space? [Y/n] "
+      echo "Warning: Docker is nearly out of disk space. Current usage estimate: ${percentage_used}%. Would you like to run 'docker image prune' to free up space? [Y/n] "
       read answer
       if [[ "${answer}" =~ ^([Yy]|[yY][eE][sS])$ ]] || [[ -z "${answer}" ]]; then
-        docker system prune -f
+        docker image prune -f
       fi
     fi
   fi
