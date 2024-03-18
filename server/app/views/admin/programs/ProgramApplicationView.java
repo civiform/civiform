@@ -32,13 +32,14 @@ import java.util.OptionalLong;
 import models.ApplicationModel;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
-import play.mvc.Http;
+import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.DateConverter;
 import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.Block;
 import services.program.StatusDefinitions;
+import services.settings.SettingsManifest;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -66,13 +67,18 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
   private final Messages enUsMessages;
   private final DateConverter dateConverter;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramApplicationView(
-      BaseHtmlLayout layout, @EnUsLang Messages enUsMessages, DateConverter dateConverter) {
+      BaseHtmlLayout layout,
+      @EnUsLang Messages enUsMessages,
+      DateConverter dateConverter,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layout);
     this.enUsMessages = checkNotNull(enUsMessages);
     this.dateConverter = checkNotNull(dateConverter);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -85,7 +91,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       StatusDefinitions statusDefinitions,
       Optional<String> noteMaybe,
       Boolean hasEligibilityEnabled,
-      Http.Request request) {
+      Request request) {
     String title = "Program application view";
     ListMultimap<Block, AnswerData> blockToAnswers = ArrayListMultimap.create();
     for (AnswerData answer : answers) {
@@ -106,7 +112,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         programName,
                         application,
                         applicantNameWithApplicationId,
-                        status))
+                        status,
+                        request))
             .collect(ImmutableList.toImmutableList());
     Modal updateNoteModal = renderUpdateNoteConfirmationModal(programId, application, noteMaybe);
 
@@ -337,7 +344,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
       String programName,
       ApplicationModel application,
       String applicantNameWithApplicationId,
-      StatusDefinitions.Status status) {
+      StatusDefinitions.Status status,
+      Request request) {
     // The previous status as it should be displayed and passed as data in the
     // update.
     String previousStatusDisplay = application.getLatestStatus().orElse("Unset");
@@ -385,7 +393,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                             .withValue(previousStatusData))
                     .with(
                         renderStatusUpdateConfirmationModalEmailSection(
-                            applicantNameWithApplicationId, application, status)),
+                            applicantNameWithApplicationId, application, status, request)),
                 div()
                     .withClasses("flex", "mt-5", "space-x-2")
                     .with(
@@ -411,12 +419,20 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private DomContent renderStatusUpdateConfirmationModalEmailSection(
       String applicantNameWithApplicationId,
       ApplicationModel application,
-      StatusDefinitions.Status status) {
+      StatusDefinitions.Status status,
+      Request request) {
     InputTag sendEmailInput =
         input().withType("checkbox").withName(SEND_EMAIL).withClasses(BaseStyles.CHECKBOX);
     Optional<String> optionalAccountEmail =
         Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
-    Optional<String> optionalApplicantEmail = application.getApplicant().getEmailAddress();
+    Optional<String> optionalApplicantEmail = Optional.empty();
+
+    boolean emptyEmails = optionalAccountEmail.isEmpty();
+    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
+      optionalApplicantEmail = application.getApplicant().getEmailAddress();
+      emptyEmails = emptyEmails && optionalApplicantEmail.isEmpty();
+    }
+
     if (status.localizedEmailBodyText().isEmpty()) {
       return div()
           .with(
@@ -428,7 +444,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                           " will not receive an email because there is no email content set for"
                               + " this status. Connect with your CiviForm Admin to add an email to"
                               + " this status.")));
-    } else if (optionalAccountEmail.isEmpty() && optionalApplicantEmail.isEmpty()) {
+    } else if (emptyEmails) {
       return div()
           .with(
               sendEmailInput.isHidden(),
@@ -440,14 +456,12 @@ public final class ProgramApplicationView extends BaseHtmlView {
     }
 
     String emailString = "";
-    if (optionalAccountEmail.isEmpty() && optionalApplicantEmail.isPresent()) {
-      emailString = optionalApplicantEmail.orElse("");
-    } else if (optionalApplicantEmail.isEmpty()
-        || optionalAccountEmail.get().equals(optionalApplicantEmail.get())) {
-      emailString = optionalAccountEmail.orElse("");
+    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
+      emailString = generateEmailString(optionalAccountEmail, optionalApplicantEmail);
     } else {
-      emailString = optionalAccountEmail.get() + " and " + optionalApplicantEmail.get();
+      emailString = optionalAccountEmail.orElse("");
     }
+
     return label()
         .with(
             // Check by default when visible.
@@ -456,6 +470,18 @@ public final class ProgramApplicationView extends BaseHtmlView {
             span(applicantNameWithApplicationId).withClass("font-semibold"),
             span(" of this change at "),
             span(emailString).withClass("font-semibold"));
+  }
+
+  private String generateEmailString(
+      Optional<String> optionalAccountEmail, Optional<String> optionalApplicantEmail) {
+    if (optionalAccountEmail.isEmpty() && optionalApplicantEmail.isPresent()) {
+      return optionalApplicantEmail.orElse("");
+    } else if (optionalApplicantEmail.isEmpty()
+        || optionalAccountEmail.get().equals(optionalApplicantEmail.get())) {
+      return optionalAccountEmail.orElse("");
+    } else {
+      return optionalAccountEmail.get() + " and " + optionalApplicantEmail.get();
+    }
   }
 
   private SpanTag renderSubmitTime(ApplicationModel application) {

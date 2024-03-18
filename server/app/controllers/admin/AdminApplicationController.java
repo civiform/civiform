@@ -404,7 +404,8 @@ public final class AdminApplicationController extends CiviFormController {
             .setStatusText(newStatus)
             .setEmailSent(sendEmail)
             .build(),
-        profileUtils.currentUserProfile(request).get().getAccount().join());
+        profileUtils.currentUserProfile(request).get().getAccount().join(),
+        request);
     // Only allow relative URLs to ensure that we redirect to the same domain.
     String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
     return redirect(redirectUrl).flashing("success", "Application status updated");

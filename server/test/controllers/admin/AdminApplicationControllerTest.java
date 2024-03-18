@@ -347,6 +347,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateStatus_outOfDateCurrentStatus_fails() throws Exception {
     // Setup
+    Request blankRequest = addCSRFToken(Helpers.fakeRequest()).build();
     AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
     ProgramModel program =
@@ -362,7 +363,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             .setStatusText(APPROVED_STATUS.statusText())
             .setEmailSent(false)
             .build(),
-        adminAccount);
+        adminAccount,
+        blankRequest);
 
     Request request =
         addCSRFToken(

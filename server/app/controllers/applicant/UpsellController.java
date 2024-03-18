@@ -98,7 +98,7 @@ public final class UpsellController extends CiviFormController {
             .toCompletableFuture();
 
     CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
-        applicantService.getPersonalInfo(applicantId).toCompletableFuture();
+        applicantService.getPersonalInfo(applicantId, request).toCompletableFuture();
 
     CompletableFuture<AccountModel> account =
         applicantPersonalInfo

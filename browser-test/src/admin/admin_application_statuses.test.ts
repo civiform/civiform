@@ -191,7 +191,12 @@ test.describe('view program statuses', () => {
 
       test('when no email is configured for the status, a warning is shown', async () => {
         const {adminPrograms} = ctx
-        await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
+        const modal =
+          await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
+        // test this -- i think this is when there's no email content?
+        expect(await modal.innerText()).toContain(
+          'will not receive an email because there is no email content set for this status. Connect with your CiviForm Admin to add an email to this status',
+        )
         await dismissModal(adminPrograms.applicationFrame())
       })
 
@@ -264,6 +269,7 @@ test.describe('view program statuses', () => {
           }
         })
 
+        // extend this to test both cases
         test('checkbox is checked by default and email is sent', async () => {
           const {page, adminPrograms} = ctx
           const emailsBefore = supportsEmailInspection()
@@ -284,7 +290,7 @@ test.describe('view program statuses', () => {
           if (supportsEmailInspection()) {
             const emailsAfter = await extractEmailsForRecipient(
               page,
-              testUserDisplayName(),
+              testUserDisplayName(), // is TEST_USER_DISPLAY_NAME an empty string?
             )
             expect(emailsAfter.length).toEqual(emailsBefore.length + 1)
             const sentEmail = emailsAfter[emailsAfter.length - 1]

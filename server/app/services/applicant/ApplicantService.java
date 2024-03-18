@@ -44,6 +44,7 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
+import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
@@ -87,6 +88,7 @@ import services.program.StatusDefinitions;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
+import services.settings.SettingsManifest;
 import views.applicant.AddressCorrectionBlockView;
 
 /**
@@ -119,6 +121,7 @@ public final class ApplicantService {
   private final EsriClient esriClient;
   private final MessagesApi messagesApi;
   private final Database database;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantService(
@@ -137,7 +140,8 @@ public final class ApplicantService {
       DeploymentType deploymentType,
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      SettingsManifest settingsManifest) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.accountRepository = checkNotNull(accountRepository);
@@ -151,6 +155,7 @@ public final class ApplicantService {
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.serviceAreaUpdateResolver = checkNotNull(serviceAreaUpdateResolver);
     this.messagesApi = checkNotNull(messagesApi);
+    this.settingsManifest = checkNotNull(settingsManifest);
 
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.isStaging = checkNotNull(deploymentType).isStaging();
@@ -406,7 +411,7 @@ public final class ApplicantService {
    *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
   public CompletionStage<ApplicationModel> submitApplication(
-      long applicantId, long programId, CiviFormProfile submitterProfile) {
+      long applicantId, long programId, CiviFormProfile submitterProfile, Request request) {
     if (submitterProfile.isTrustedIntermediary()) {
       return getReadOnlyApplicantProgramService(applicantId, programId)
           .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
@@ -416,7 +421,8 @@ public final class ApplicantService {
                   submitApplication(
                       applicantId,
                       programId,
-                      /* tiSubmitterEmail= */ Optional.of(account.getEmailAddress())),
+                      /* tiSubmitterEmail= */ Optional.of(account.getEmailAddress()),
+                      request),
               httpExecutionContext.current());
     }
 
@@ -425,7 +431,7 @@ public final class ApplicantService {
         .thenCompose(
             v ->
                 submitApplication(
-                    applicantId, programId, /* tiSubmitterEmail= */ Optional.empty()));
+                    applicantId, programId, /* tiSubmitterEmail= */ Optional.empty(), request));
   }
 
   /**
@@ -535,9 +541,9 @@ public final class ApplicantService {
 
   @VisibleForTesting
   CompletionStage<ApplicationModel> submitApplication(
-      long applicantId, long programId, Optional<String> tiSubmitterEmail) {
+      long applicantId, long programId, Optional<String> tiSubmitterEmail, Request request) {
     CompletableFuture<ApplicantPersonalInfo> applicantLabelFuture =
-        getPersonalInfo(applicantId).toCompletableFuture();
+        getPersonalInfo(applicantId, request).toCompletableFuture();
     CompletableFuture<Optional<ApplicationModel>> applicationFuture =
         applicationRepository
             .submitApplication(applicantId, programId, tiSubmitterEmail)
@@ -847,7 +853,7 @@ public final class ApplicantService {
   /**
    * Returns an ApplicantPersonalInfo, which represents some contact/display info for an applicant.
    */
-  public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId) {
+  public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId, Request request) {
     return accountRepository
         .lookupApplicant(applicantId)
         .thenApplyAsync(
@@ -868,12 +874,17 @@ public final class ApplicantService {
                 }
 
                 String accountEmailAddress = applicant.get().getAccount().getEmailAddress();
-                Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
                 ImmutableSet.Builder<String> emailAddressesBuilder = ImmutableSet.builder();
                 if (!Strings.isNullOrEmpty(accountEmailAddress)) {
                   emailAddressesBuilder.add(accountEmailAddress);
                 }
-                applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));
+
+                // wrap this in a check for the feature flag
+                if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
+                  Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
+                  applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));
+                }
+
                 ImmutableSet<String> emailAddresses = emailAddressesBuilder.build();
                 if (!emailAddresses.isEmpty()) {
                   builder.setEmail(emailAddresses);
