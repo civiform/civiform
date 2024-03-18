@@ -21,6 +21,7 @@ GET     /admin/programs                                         controllers.admi
 GET     /admin/programs/new                                     controllers.admin.AdminProgramController.newOne(request: Request)
 GET     /admin/programs/:programId/edit/:editStatus                         controllers.admin.AdminProgramController.edit(request: Request, programId: Long, editStatus: String)
 GET     /admin/programs/:programId/preview                      controllers.admin.AdminProgramPreviewController.preview(request: Request, programId: Long)
+GET     /admin/programs/:programId/pdfPreview                   controllers.admin.AdminProgramPreviewController.pdfPreview(request: Request, programId: Long)
 GET     /admin/programs/:programId/back                         controllers.admin.AdminProgramPreviewController.back(request: Request, programId: Long)
 GET     /admin/programs/:programId/settings/edit                controllers.admin.AdminProgramController.editProgramSettings(request: Request, programId: Long)
 POST    /admin/programs/:programId/newVersion                   controllers.admin.AdminProgramController.newVersionFrom(request: Request, programId: Long)

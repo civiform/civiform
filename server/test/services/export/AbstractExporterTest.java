@@ -33,6 +33,7 @@ import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionAnswerer;
 import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
@@ -218,11 +219,21 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             .collect(ImmutableList.toImmutableList());
   }
 
+  protected ImmutableList<QuestionDefinition> getFakeQuestionDefinitions() {
+    return fakeQuestions.stream()
+        .map(QuestionModel::getQuestionDefinition)
+        .collect(ImmutableList.toImmutableList());
+  }
+
   protected void createFakeProgram() {
-    ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram();
-    fakeProgram.withName("Fake Program");
-    fakeQuestions.forEach(
-        question -> fakeProgram.withBlock().withRequiredQuestion(question).build());
+    ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram("Fake Program");
+    for (int i = 0; i < fakeQuestions.size(); i++) {
+      int screenNumber = i + 1;
+      fakeProgram
+          .withBlock("Screen " + screenNumber, "description for screen " + screenNumber)
+          .withRequiredQuestion(fakeQuestions.get(i))
+          .build();
+    }
     fakeProgram.withStatusDefinitions(
         new StatusDefinitions()
             .setStatuses(
@@ -312,9 +323,9 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     fakeProgramWithVisibility =
         ProgramBuilder.newActiveProgram()
             .withName("Fake Program")
-            .withBlock()
+            .withBlock("Screen 1")
             .withRequiredQuestion(colorQuestion)
-            .withBlock()
+            .withBlock("Screen 2")
             .withRequiredQuestion(nameQuestion)
             .withVisibilityPredicate(colorPredicate)
             .build();
@@ -354,14 +365,14 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             PredicateExpressionNode.create(
                 LeafOperationExpressionNode.create(
                     colorQuestion.id, Scalar.TEXT, Operator.EQUAL_TO, PredicateValue.of("blue"))),
-            PredicateAction.HIDE_BLOCK);
+            PredicateAction.ELIGIBLE_BLOCK);
     EligibilityDefinition colorEligibilityDefinition =
         EligibilityDefinition.builder().setPredicate(colorPredicate).build();
 
     fakeProgramWithEligibility =
         ProgramBuilder.newActiveProgram()
             .withName("Fake Program With Enumerator")
-            .withBlock()
+            .withBlock("Screen 1")
             .withRequiredQuestions(nameQuestion, colorQuestion)
             .withEligibilityDefinition(colorEligibilityDefinition)
             .build();
