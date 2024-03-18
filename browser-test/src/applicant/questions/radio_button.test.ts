@@ -16,24 +16,7 @@ test.describe('Radio button question for applicant flow', () => {
     const programName = 'Test program for single radio button'
 
     test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
-      // As admin, create program with radio button question.
-      await loginAsAdmin(page)
-
-      await adminQuestions.addRadioButtonQuestion({
-        questionName: 'ice-cream-radio-q',
-        options: [
-          {adminName: 'matcha_admin', text: 'matcha'},
-          {adminName: 'strawberry_admin', text: 'strawberry'},
-          {adminName: 'vanilla_admin', text: 'vanilla'},
-        ],
-      })
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['ice-cream-radio-q'],
-        programName,
-      )
-
-      await logout(page)
+      await setUpForSingleQuestion(programName)
     })
 
     test.beforeEach(async () => {
@@ -194,24 +177,7 @@ test.describe('Radio button question for applicant flow', () => {
     const programName = 'Test program for single radio button'
 
     test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
-      // As admin, create program with radio button question.
-      await loginAsAdmin(page)
-
-      await adminQuestions.addRadioButtonQuestion({
-        questionName: 'ice-cream-radio-q',
-        options: [
-          {adminName: 'matcha_admin', text: 'matcha'},
-          {adminName: 'strawberry_admin', text: 'strawberry'},
-          {adminName: 'vanilla_admin', text: 'vanilla'},
-        ],
-      })
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['ice-cream-radio-q'],
-        programName,
-      )
-
-      await logout(page)
+      await setUpForSingleQuestion(programName)
     })
 
     test.beforeEach(async () => {
@@ -248,4 +214,25 @@ test.describe('Radio button question for applicant flow', () => {
       },
     )
   })
+
+  async function setUpForSingleQuestion(programName: string) {
+    const {page, adminQuestions, adminPrograms} = ctx
+    // As admin, create program with radio button question.
+    await loginAsAdmin(page)
+
+    await adminQuestions.addRadioButtonQuestion({
+      questionName: 'ice-cream-radio-q',
+      options: [
+        {adminName: 'matcha_admin', text: 'matcha'},
+        {adminName: 'strawberry_admin', text: 'strawberry'},
+        {adminName: 'vanilla_admin', text: 'vanilla'},
+      ],
+    })
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['ice-cream-radio-q'],
+      programName,
+    )
+
+    await logout(page)
+  }
 })
