@@ -8,5 +8,8 @@
         <th:block th:case="'Static Text'">
             <div th:replace="~{questiontypes/StaticTextQuestionFragment :: static-text(${question})}"></div>
         </th:block>
+        <th:block th:case="'Text'">
+            <div th:replace="~{questiontypes/TextQuestionFragment :: text(${question})}"></div>
+        </th:block>
     </th:block>
 </div>

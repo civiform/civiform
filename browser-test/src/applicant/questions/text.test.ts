@@ -1,6 +1,8 @@
 import {test, expect} from '@playwright/test'
 import {
   createTestContext,
+  disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -31,6 +33,11 @@ test.describe('Text question for applicant flow', () => {
       await logout(page)
     })
 
+    test.beforeEach(async () => {
+      const {page} = ctx
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
     test('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
@@ -54,6 +61,41 @@ test.describe('Text question for applicant flow', () => {
 
       await applicantQuestions.submitFromReviewPage()
     })
+
+    test(
+      'validate screenshot with north star flag enabled',
+      {tag: ['@northstar']},
+      async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+        await applicantQuestions.applyProgram(programName)
+
+        await validateScreenshot(
+          page,
+          'text-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      },
+    )
+
+    test(
+      'validate screenshot with errors with north star flag enabled',
+      {tag: ['@northstar']},
+      async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.clickContinue()
+
+        await validateScreenshot(
+          page,
+          'text-errors-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      },
+    )
 
     test('with empty text does not submit', async () => {
       const {page, applicantQuestions} = ctx
