@@ -256,3 +256,48 @@ function docker::dev_and_test_server_sbt_command() {
   # -Dsbt.offline tells sbt to run in "offline" mode and not re-download dependancies.
   docker exec -it $server_container_name ./entrypoint.sh -jvm-debug "$server_container_ip:$1" -Dsbt.offline $2
 }
+
+function docker::check_disk_space() {
+  # TODO: Figure out the right way to do this on Linux.
+  # Should be easier because it uses the actual file system.
+  # Note that this is not really accurate for MacOS because it's
+  # summing up a list of things that might have some overlap, but it's
+  # close enough for detecting if we're close to running out of space.
+  settings_json="${HOME}/Library/Group Containers/group.com.docker/settings.json"
+  if [[ -f "${settings_json}" ]]; then
+    max_size=$(jq '.diskSizeMiB' "$settings_json" | awk '{print $1 * 1024 * 1024}')
+    used=0
+    while IFS= read -r size; do
+      # Extract size and unit from the size string
+      if [[ $size =~ ([0-9.]+)([A-Z]+) ]]; then
+        size_value="${BASH_REMATCH[1]}"
+        unit="${BASH_REMATCH[2]}"
+        bytes=$(convert_to_bytes $size_value $unit)
+        # Accumulate using awk to handle large sums and floating-point values
+        used=$(echo $used $bytes | awk '{print $1 + $2}')
+      fi
+    done < <(docker system df --format '{{.Size}}')
+    percentage_used=$(awk -v used="$used" -v max_size="$max_size" 'BEGIN {printf "%.0f", (used / max_size * 100)}')
+    if [[ $percentage_used -gt 90 ]]; then
+      echo "Warning: Docker is nearly out of disk space. Current usage estimate: ${percentage_used}%. Would you like to run 'docker system prune' to free up space? [Y/n] "
+      read answer
+      if [[ "${answer}" =~ ^([Yy]|[yY][eE][sS])$ ]] || [[ -z "${answer}" ]]; then
+        docker system prune -f
+      fi
+    fi
+  fi
+}
+
+# Uses awk in order to do floating point math
+function convert_to_bytes() {
+  local size=$1
+  local unit=$2
+  echo | awk -v size="$size" -v unit="$unit" '{
+        if (unit == "KB") size *= 1024;
+        else if (unit == "MB") size *= 1024^2;
+        else if (unit == "GB") size *= 1024^3;
+        else if (unit == "B") size = size;
+        else {print "Unknown unit: " unit; exit 1}
+        print size;
+    }'
+}
