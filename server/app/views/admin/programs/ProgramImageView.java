@@ -51,6 +51,7 @@ import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ToastMessage;
 import views.fileupload.FileUploadViewStrategy;
+import views.style.BaseStyles;
 import views.style.StyleUtils;
 
 /** A view for admins to update the image associated with a particular program. */
@@ -210,6 +211,12 @@ public final class ProgramImageView extends BaseHtmlView {
 
     return div()
         .with(
+            ViewUtils.makeAlertSlim(
+                "Note: Image description is required before uploading an image.",
+                /* hidden= */ false,
+                /* classes=... */ BaseStyles.ALERT_INFO,
+                "mb-2"))
+        .with(
             form()
                 .withId(IMAGE_DESCRIPTION_FORM_ID)
                 .withMethod("POST")
@@ -226,9 +233,6 @@ public final class ProgramImageView extends BaseHtmlView {
                         .setPlaceholderText("Colorful fruits and vegetables in bins")
                         .setValue(form.value().get().getSummaryImageDescription())
                         .getInputTag()))
-        .with(
-            p("Note: Image description is required before uploading an image.")
-                .withClasses("mb-1", "mt-1"))
         .with(buttonsDiv);
   }
 
