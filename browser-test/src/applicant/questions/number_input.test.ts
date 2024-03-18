@@ -17,7 +17,7 @@ test.describe('Number question for applicant flow', () => {
     const programName = 'Test program for single number'
 
     test.beforeAll(async () => {
-      await setUpForSingleQuestion(programName);
+      await setUpForSingleQuestion(programName)
     })
 
     test.beforeEach(async () => {
@@ -39,7 +39,7 @@ test.describe('Number question for applicant flow', () => {
 
       await validateScreenshot(page, 'number-errors')
     })
-    
+
     test('with valid number submits successfully', async () => {
       const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
@@ -168,7 +168,7 @@ test.describe('Number question for applicant flow', () => {
     const programName = 'Test program for single number'
 
     test.beforeAll(async () => {
-      await setUpForSingleQuestion(programName);
+      await setUpForSingleQuestion(programName)
     })
 
     test.beforeEach(async () => {
