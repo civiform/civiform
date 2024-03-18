@@ -1,5 +1,7 @@
 <div th:fragment="radio (question)" th:with="questionId=${#strings.randomAlphanumeric(8)}" th:id="${questionId}">
-    <fieldset class="usa-fieldset" th:aria-describedby="${questionId} + '-description'" th:with="singleSelectQuestion=${question.createSingleSelectQuestion()}">
+    <fieldset class="usa-fieldset"
+              th:aria-describedby="${questionId} + '-description'"
+              th:with="singleSelectQuestion=${question.createSingleSelectQuestion()}">
         <!-- Title and Help Text -->
         <div th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpText(${question}, ${questionId})}"></div>
 
@@ -8,7 +10,7 @@
 
         <!-- Render each radio button option -->
         <div class="usa-radio" th:each="option,iterator: ${singleSelectQuestion.getOptions()}" th:with="inputId=${#strings.randomAlphanumeric(8)}">
-          <!-- TODO(ghyde): Add autofocus attribute as appropriate -->
+          <!-- TODO(#6903): Add autofocus attribute as appropriate -->
           <input
           class="usa-radio__input usa-radio__input--tile"
             th:id="${inputId}"
