@@ -1,24 +1,14 @@
-import {test} from '@playwright/test'
-import {
-  createTestContext,
-  gotoEndpoint,
-  NotFoundPage,
-  selectApplicantLanguage,
-} from './support'
+import {test} from './fixtures/custom_fixture'
+import {gotoEndpoint, selectApplicantLanguage} from './support'
 
-test.describe('error pages', () => {
-  const ctx = createTestContext()
-  test('404 page', async () => {
-    const {page} = ctx
-
-    const notFound = new NotFoundPage(ctx)
-
-    await notFound.gotoNonExistentPage(page)
-    await notFound.checkPageHeader()
+test.describe('error pages', {tag: ['@migrated']}, () => {
+  test('404 page', async ({page, notFoundPage}) => {
+    await notFoundPage.gotoNonExistentPage(page)
+    await notFoundPage.checkPageHeader()
 
     await gotoEndpoint(page, '/')
     await selectApplicantLanguage(page, 'Español')
-    await notFound.gotoNonExistentPage(page)
-    await notFound.checkPageHeader('es-US')
+    await notFoundPage.gotoNonExistentPage(page)
+    await notFoundPage.checkPageHeader('es-US')
   })
 })

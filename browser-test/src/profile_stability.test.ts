@@ -1,10 +1,8 @@
-import {test, expect} from '@playwright/test'
-import {createTestContext, isHermeticTestEnvironment} from './support'
+import {test, expect} from './fixtures/custom_fixture'
+import {isHermeticTestEnvironment} from './support'
 import {BASE_URL, FROZEN_PLAY_SESSION_COOKIE_VALUE} from './support/config'
 
-test.describe('user HTTP sessions', () => {
-  const ctx = createTestContext()
-
+test.describe('user HTTP sessions', {tag: ['@migrated']}, () => {
   interface Profile {
     id: string
     roles: string[]
@@ -15,7 +13,7 @@ test.describe('user HTTP sessions', () => {
   // is recognized and properly deserialized by the server.
   //
   // This guards against changes that unexpectedly affect serialization.
-  test('recognizes the profile from a frozen cookie', async () => {
+  test('recognizes the profile from a frozen cookie', async ({page}) => {
     // Play encrypts cookies with the server secret:
     // https://www.playframework.com/documentation/2.8.x/ApplicationSecret
     //
@@ -35,10 +33,10 @@ test.describe('user HTTP sessions', () => {
         path: '/',
       }
 
-      await ctx.page.context().addCookies([frozenCookie])
-      await ctx.page.goto(BASE_URL + '/dev/profile')
+      await page.context().addCookies([frozenCookie])
+      await page.goto(BASE_URL + '/dev/profile')
 
-      const content = await ctx.page.content()
+      const content = await page.content()
       // Pull out the JSON from the page using multiline matching.
       const matches = content.match(/{.*}/s)
 

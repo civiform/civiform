@@ -1,15 +1,16 @@
 import {expect} from '@playwright/test'
 import {Page} from 'playwright'
 import {BASE_URL} from './config'
-import {TestContext} from './index'
+import {BrowserErrorWatcher} from './browser_error_watcher'
 
 export class NotFoundPage {
   private static NON_EXISTENT_PATH = 'ezbezzdebashiboozook'
-  public ctx: TestContext
+  public page!: Page
 
-  constructor(ctx: TestContext) {
-    this.ctx = ctx
-    ctx.browserErrorWatcher.ignoreErrorsFromUrl(
+  constructor(page: Page) {
+    this.page = page
+    const browserErrorWatcher = new BrowserErrorWatcher(page)
+    browserErrorWatcher.ignoreErrorsFromUrl(
       new RegExp(NotFoundPage.NON_EXISTENT_PATH),
     )
   }
@@ -20,11 +21,11 @@ export class NotFoundPage {
 
   async checkPageHeader(lang = 'en-US') {
     if (lang === 'es-US') {
-      expect(await this.ctx.page.innerText('h1')).toContain(
+      await expect(this.page.locator('h1')).toHaveText(
         'No Pudimos encontrar la página que intentó visitar',
       )
     } else {
-      expect(await this.ctx.page.innerText('h1')).toContain(
+      await expect(this.page.locator('h1')).toHaveText(
         'We were unable to find the page you tried to visit',
       )
     }
