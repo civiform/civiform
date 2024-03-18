@@ -17,7 +17,7 @@ test.describe('Number question for applicant flow', () => {
     const programName = 'Test program for single number'
 
     test.beforeAll(async () => {
-      setUpForSingleQuestion(programName);\
+      await setUpForSingleQuestion(programName);
     })
 
     test.beforeEach(async () => {
@@ -176,7 +176,7 @@ test.describe('Number question for applicant flow', () => {
     const programName = 'Test program for single number'
 
     test.beforeAll(async () => {
-      setUpForSingleQuestion(programName);
+      await setUpForSingleQuestion(programName);
     })
 
     test.beforeEach(async () => {
@@ -188,9 +188,25 @@ test.describe('Number question for applicant flow', () => {
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(page, 'number-north-star')
-    })
+      await test.step('Screenshot without errors', async () => {
+        await validateScreenshot(
+          page,
+          'number-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
 
+      await test.step('Screenshot with errors', async () => {
+        await applicantQuestions.clickContinue()
+        await validateScreenshot(
+          page,
+          'number-errors-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+    })
   })
 
   async function setUpForSingleQuestion(programName: string) {
