@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import forms.ProgramForm;
-import forms.ProgramSettingsForm;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.ProgramModel;
@@ -33,7 +32,6 @@ import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
 import views.admin.programs.ProgramNewOneView;
-import views.admin.programs.ProgramSettingsEditView;
 import views.components.ToastMessage;
 
 /** Controller for handling methods for admins managing program definitions. */
@@ -44,7 +42,6 @@ public final class AdminProgramController extends CiviFormController {
   private final ProgramIndexView listView;
   private final ProgramNewOneView newOneView;
   private final ProgramMetaDataEditView editView;
-  private final ProgramSettingsEditView programSettingsEditView;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
   private final SettingsManifest settingsManifest;
@@ -56,7 +53,6 @@ public final class AdminProgramController extends CiviFormController {
       ProgramIndexView listView,
       ProgramNewOneView newOneView,
       ProgramMetaDataEditView editView,
-      ProgramSettingsEditView programSettingsEditView,
       VersionRepository versionRepository,
       ProfileUtils profileUtils,
       FormFactory formFactory,
@@ -68,7 +64,6 @@ public final class AdminProgramController extends CiviFormController {
     this.listView = checkNotNull(listView);
     this.newOneView = checkNotNull(newOneView);
     this.editView = checkNotNull(editView);
-    this.programSettingsEditView = checkNotNull(programSettingsEditView);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
     this.settingsManifest = settingsManifest;
@@ -144,6 +139,7 @@ public final class AdminProgramController extends CiviFormController {
                 ? ProgramType.COMMON_INTAKE_FORM
                 : ProgramType.DEFAULT,
             settingsManifest.getIntakeFormEnabled(request),
+            programData.getEligibilityIsGating(),
             ImmutableList.copyOf(programData.getTiGroups()));
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
@@ -231,6 +227,8 @@ public final class AdminProgramController extends CiviFormController {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm programData = programForm.bindFromRequest(request).get();
 
+    System.out.println("#update, programForm.elig=" + programData.getEligibilityIsGating());
+
     // a null element gets added as we always have a hidden
     // option as part of the checkbox display
     while (programData.getTiGroups().remove(null)) {}
@@ -279,36 +277,10 @@ public final class AdminProgramController extends CiviFormController {
         programData.getExternalLink(),
         programData.getDisplayMode(),
         programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
-        settingsManifest.getIntakeFormEnabled(request),
+        /* isIntakeFormFeatureEnabled= */ settingsManifest.getIntakeFormEnabled(request),
+        /* eligibilityIsGating= */ programData.getEligibilityIsGating(),
         ImmutableList.copyOf(programData.getTiGroups()));
     return getSaveProgramDetailsRedirect(programId, programEditStatus);
-  }
-
-  /** Returns an HTML page containing a form to edit program-level settings. */
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result editProgramSettings(Request request, Long programId)
-      throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getFullProgramDefinition(programId);
-    requestChecker.throwIfProgramNotDraft(programId);
-    return ok(programSettingsEditView.render(request, program));
-  }
-
-  /** POST endpoint for editing whether or not eligibility is gating for a specific program. */
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result setEligibilityIsGating(Request request, long programId) {
-    requestChecker.throwIfProgramNotDraft(programId);
-
-    ProgramSettingsForm programSettingsForm =
-        formFactory.form(ProgramSettingsForm.class).bindFromRequest(request).get();
-
-    try {
-      programService.setEligibilityIsGating(
-          programId, programSettingsForm.getEligibilityIsGating());
-    } catch (ProgramNotFoundException e) {
-      return notFound(String.format("Program ID %d not found.", programId));
-    }
-
-    return redirect(controllers.admin.routes.AdminProgramController.editProgramSettings(programId));
   }
 
   /** Returns where admins should be taken to after saving program detail edits. */

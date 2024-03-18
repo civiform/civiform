@@ -46,7 +46,6 @@ import views.style.StyleUtils;
  * field is disabled, since it cannot be edited once set.
  */
 abstract class ProgramFormBuilder extends BaseHtmlView {
-
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
   private final AccountRepository accountRepository;
@@ -73,6 +72,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getLocalizedConfirmationMessage(),
         program.getDisplayMode(),
         program.getIsCommonIntakeForm(),
+        program.getEligibilityIsGating(),
         programEditStatus,
         program.getTiGroups());
   }
@@ -90,6 +90,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.localizedConfirmationMessage().getDefault(),
         program.displayMode().getValue(),
         program.programType().equals(ProgramType.COMMON_INTAKE_FORM),
+        program.eligibilityIsGating(),
         programEditStatus,
         new ArrayList<>(program.acls().getTiProgramViewAcls()));
   }
@@ -104,6 +105,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       String confirmationSceen,
       String displayMode,
       Boolean isCommonIntakeForm,
+      boolean eligibilityIsGating,
       ProgramEditStatus programEditStatus,
       List<Long> selectedTi) {
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
@@ -181,7 +183,38 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(DisplayMode.SELECT_TI.getValue())
             .setChecked(displayMode.equals(DisplayMode.SELECT_TI.getValue()))
             .getRadioTag(),
-        showTiSelectionList(selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())),
+        showTiSelectionList(selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())));
+
+    formTag.with(
+        // TODO(#2618): Consider using helpers for grouping related radio controls.
+        fieldset()
+            .with(
+                legend("Program eligibility gating")
+                    .withClass(BaseStyles.INPUT_LABEL)
+                    .with(ViewUtils.requiredQuestionIndicator())
+                    .with(p("(Not applicable if this program is the pre-screener)")),
+                FieldWithLabel.radio()
+                    .setId("program-eligibility-gating-true")
+                    .setFieldName("eligibilityIsGating")
+                    .setAriaRequired(true)
+                    .setLabelText(
+                        "Eligibility criteria blocks submission (applicants must meet all"
+                            + " eligibility criteria in order to submit an application)")
+                    .setValue(String.valueOf(true))
+                    .setChecked(eligibilityIsGating)
+                    .getRadioTag(),
+                FieldWithLabel.radio()
+                    .setId("program-eligibility-gating-false")
+                    .setFieldName("eligibilityIsGating")
+                    .setAriaRequired(true)
+                    .setLabelText(
+                        "Eligibility criteria does not block submission (applicants can submit"
+                            + " applications even if the eligibility criteria are not met")
+                    .setValue(String.valueOf(false))
+                    .setChecked(!eligibilityIsGating)
+                    .getRadioTag()));
+
+    formTag.with(
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
             .setFieldName("adminDescription")

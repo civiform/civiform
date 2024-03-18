@@ -41,6 +41,11 @@ export enum ProgramVisibility {
   SELECT_TI = 'Visible to selected trusted intermediaries only',
 }
 
+export enum Eligibility {
+  IS_GATING = 'Eligibility criteria blocks submission',
+  IS_NOT_GATING = 'Eligibility criteria does not block submission',
+}
+
 function slugify(value: string): string {
   return value
     .toLowerCase()
@@ -125,6 +130,7 @@ export class AdminPrograms {
       '\n' +
       '\n' +
       'This link should be autodetected: https://www.example.com\n',
+    eligibility = Eligibility.IS_GATING,
     submitNewProgram = true,
   ) {
     await this.gotoAdminProgramsPage()
@@ -148,6 +154,8 @@ export class AdminPrograms {
       await validateScreenshot(this.page, screenshotname)
       await this.page.check(`label:has-text("${selectedTI}")`)
     }
+
+    await this.page.check(`label:has-text("${eligibility}")`)
 
     if (isCommonIntake && this.getCommonIntakeFormToggle != null) {
       await this.clickCommonIntakeFormToggle()
@@ -331,29 +339,10 @@ export class AdminPrograms {
     await this.expectManageProgramAdminsPage()
   }
 
-  async gotoProgramSettingsPage(programName: string) {
-    await this.gotoAdminProgramsPage()
-    await this.expectDraftProgram(programName)
-
-    await this.page.click(
-      this.withinProgramCardSelector(programName, 'Draft', '.cf-with-dropdown'),
-    )
-    await this.page.click(
-      this.withinProgramCardSelector(programName, 'Draft', ':text("Settings")'),
-    )
-
-    await waitForPageJsLoad(this.page)
-    await this.expectProgramSettingsPage()
-  }
-
-  async setProgramEligibilityToNongating(programName: string) {
-    await this.gotoProgramSettingsPage(programName)
-    const nonGatingEligibilityValue = await this.page
-      .locator('input[name=eligibilityIsGating]')
-      .inputValue()
-    if (nonGatingEligibilityValue == 'false') {
-      await this.page.locator('#eligibility-toggle').click()
-    }
+  async setProgramEligibility(programName: string, eligibility: Eligibility) {
+    await this.goToEditProgramDetailsPage(programName)
+    await this.page.check(`label:has-text("${eligibility}")`)
+    await this.submitProgramDetailsEdits()
   }
 
   async gotoEditDraftProgramPage(programName: string) {
@@ -422,7 +411,7 @@ export class AdminPrograms {
     await this.expectEditEligibilityPredicatePage(blockName)
   }
 
-  async goToProgramDescriptionPage(programName: string) {
+  async goToEditProgramDetailsPage(programName: string) {
     await this.gotoEditDraftProgramPage(programName)
     await this.page.click('button:has-text("Edit program details")')
     await waitForPageJsLoad(this.page)
@@ -1192,14 +1181,6 @@ export class AdminPrograms {
 
   async clickCommonIntakeFormToggle() {
     await this.page.click('input[name=isCommonIntakeForm]')
-  }
-
-  async toggleEligibilityGating() {
-    await this.page.getByTestId('goto-program-settings-link').click()
-    await this.page.waitForLoadState()
-    await this.page.click('#eligibility-toggle')
-    await this.page.getByText('Back').click()
-    await this.page.waitForLoadState()
   }
 
   async isPaginationVisibleForApplicationList(): Promise<boolean> {

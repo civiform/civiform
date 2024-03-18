@@ -7,7 +7,7 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
-import {ProgramVisibility} from '../support/admin_programs'
+import {Eligibility, ProgramVisibility} from '../support/admin_programs'
 import {dismissModal, waitForAnyModal} from '../support/wait'
 import {Page} from 'playwright'
 
@@ -28,6 +28,7 @@ test.describe('program creation', () => {
       /* isCommonIntake= */ false,
       'selectedTI',
       'confirmationMessage',
+      Eligibility.IS_GATING,
       /* submitNewProgram= */ false,
     )
     await adminPrograms.expectProgramDetailsSaveAndContinueButton()
@@ -53,6 +54,7 @@ test.describe('program creation', () => {
       /* isCommonIntake= */ false,
       'selectedTI',
       'confirmationMessage',
+      Eligibility.IS_GATING,
       /* submitNewProgram= */ false,
     )
 
@@ -95,7 +97,7 @@ test.describe('program creation', () => {
     await loginAsAdmin(page)
     const programName = 'Apc program'
     await adminPrograms.addProgram(programName)
-    await adminPrograms.goToProgramDescriptionPage(programName)
+    await adminPrograms.goToEditProgramDetailsPage(programName)
     await validateScreenshot(page, 'program-description-page')
   })
 
@@ -105,7 +107,7 @@ test.describe('program creation', () => {
 
     const programName = 'Program Name'
     await adminPrograms.addProgram(programName)
-    await adminPrograms.goToProgramDescriptionPage(programName)
+    await adminPrograms.goToEditProgramDetailsPage(programName)
     await adminPrograms.submitProgramDetailsEdits()
 
     await adminPrograms.expectProgramBlockEditPage()
@@ -722,7 +724,7 @@ test.describe('program creation', () => {
 
     const programName = 'Apc program'
     await adminPrograms.addProgram(programName)
-    await adminPrograms.goToProgramDescriptionPage(programName)
+    await adminPrograms.goToEditProgramDetailsPage(programName)
 
     await validateScreenshot(
       page,
@@ -761,7 +763,7 @@ test.describe('program creation', () => {
     const programName = 'Apc program'
     await adminPrograms.addProgram(programName)
 
-    await adminPrograms.goToProgramDescriptionPage(programName)
+    await adminPrograms.goToEditProgramDetailsPage(programName)
     await adminPrograms.clickCommonIntakeFormToggle()
     await page.fill('#program-external-link-input', 'badlink')
     await page.click('#program-update-button')

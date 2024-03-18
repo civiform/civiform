@@ -300,6 +300,7 @@ public final class ProgramService {
    *     changed to {@link services.program.ProgramType#DEFAULT}, creating a new draft of it if
    *     necessary.
    * @param isIntakeFormFeatureEnabled whether or not the common intake form feature is enabled.
+   * @param eligibilityIsGating TODO
    * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
    * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
    *     failed
@@ -314,6 +315,7 @@ public final class ProgramService {
       String displayMode,
       ProgramType programType,
       Boolean isIntakeFormFeatureEnabled,
+      boolean eligibilityIsGating,
       ImmutableList<Long> tiGroups) {
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForCreate(
@@ -354,6 +356,7 @@ public final class ProgramService {
             ImmutableList.of(emptyBlock),
             versionRepository.getDraftVersionOrCreate(),
             programType,
+            eligibilityIsGating,
             programAcls);
 
     return ErrorAnd.of(
@@ -424,6 +427,7 @@ public final class ProgramService {
    *     that program's ProgramType will be changed to {@link ProgramType#DEFAULT}, creating a new
    *     draft of it if necessary.
    * @param isIntakeFormFeatureEnabled whether or not the common intake for feature is enabled.
+   * @param eligibilityIsGating TODO
    * @param tiGroups the TI Orgs having visibility to the program for SELECT_TI display_mode
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
    *     failed
@@ -440,6 +444,7 @@ public final class ProgramService {
       String displayMode,
       ProgramType programType,
       Boolean isIntakeFormFeatureEnabled,
+      boolean eligibilityIsGating,
       ImmutableList<Long> tiGroups)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
@@ -482,6 +487,7 @@ public final class ProgramService {
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
             .setProgramType(programType)
+            .setEligibilityIsGating(eligibilityIsGating)
             .setAcls(new ProgramAcls(new HashSet<>(tiGroups)))
             .build()
             .toProgram();

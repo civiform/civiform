@@ -473,10 +473,6 @@ public final class ProgramIndexView extends BaseHtmlView {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
       draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
-      Optional<ButtonTag> maybeSettingsLink = maybeRenderSettingsLink(draftProgram.get());
-      if (maybeSettingsLink.isPresent()) {
-        draftRowExtraActions.add(maybeSettingsLink.get());
-      }
       draftRow =
           Optional.of(
               ProgramCardFactory.ProgramCardData.ProgramRow.builder()
@@ -657,17 +653,5 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withId("manage-program-admin-link-" + program.id())
             .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
     return asRedirectElement(button, adminLink);
-  }
-
-  private Optional<ButtonTag> maybeRenderSettingsLink(ProgramDefinition program) {
-    if (program.isCommonIntakeForm()) {
-      return Optional.empty();
-    }
-    String linkDestination = routes.AdminProgramController.editProgramSettings(program.id()).url();
-    ButtonTag button =
-        makeSvgTextButton("Settings", Icons.SETTINGS)
-            .withId("edit-settings-link-" + program.id())
-            .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
-    return Optional.of(asRedirectElement(button, linkDestination));
   }
 }
