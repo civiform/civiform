@@ -190,7 +190,6 @@ test.describe('Radio button question for applicant flow', () => {
       {tag: ['@northstar']},
       async () => {
         const {page, applicantQuestions} = ctx
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
         await applicantQuestions.applyProgram(programName)
 
         await test.step('Screenshot without errors', async () => {
