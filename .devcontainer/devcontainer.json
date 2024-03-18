@@ -10,7 +10,6 @@
 	// },
 	// "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
 	// "dockerComposeFile": "../docker-compose.dev.yml",
-	"workspaceFolder": "../server",
 	"customizations": {
 		"vscode": {
 			"extensions": [
