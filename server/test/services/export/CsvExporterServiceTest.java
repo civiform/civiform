@@ -37,7 +37,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
-public class CsvExporterTest extends AbstractExporterTest {
+public class CsvExporterServiceTest extends AbstractExporterTest {
 
   private static final CSVFormat DEFAULT_FORMAT = CSVFormat.DEFAULT.builder().setHeader().build();
   private static final String SECRET_SALT = "super secret";
@@ -68,8 +68,10 @@ public class CsvExporterTest extends AbstractExporterTest {
   public void programCsv_TestNotAnOptionAtProgramVersionInCheckBoxExport() throws Exception {
     createFakeQuestions();
     var fakeProgram =
-        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantKitchenTools()).build();
-    new FakeApplicationFiller(fakeProgram)
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.applicantKitchenTools())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram)
         .answerCheckboxQuestion(
             ImmutableList.of(
                 2L, // "pepper_grinder"
@@ -426,8 +428,8 @@ public class CsvExporterTest extends AbstractExporterTest {
 
   @Test
   public void getProgramCsv_whenSubmitterIsTi_TiFieldsAreSet() throws Exception {
-    var fakeProgram = new FakeProgramBuilder().build();
-    new FakeApplicationFiller(fakeProgram)
+    var fakeProgram = FakeProgramBuilder.newActiveProgram().build();
+    FakeApplicationFiller.newFillerFor(fakeProgram)
         .byTrustedIntermediary("ti@trusted_intermediaries.org", "TIs Inc.")
         .submit();
 
@@ -442,8 +444,8 @@ public class CsvExporterTest extends AbstractExporterTest {
 
   @Test
   public void getProgramCsv_whenSubmitterIsApplicant_TiFieldsAreNotSet() throws Exception {
-    var fakeProgram = new FakeProgramBuilder().build();
-    new FakeApplicationFiller(fakeProgram).submit();
+    var fakeProgram = FakeProgramBuilder.newActiveProgram().build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).submit();
 
     CSVParser parser =
         CSVParser.parse(exporterService.getProgramCsv(fakeProgram.id), DEFAULT_FORMAT);
@@ -456,8 +458,8 @@ public class CsvExporterTest extends AbstractExporterTest {
 
   @Test
   public void getDemographicsCsv_whenSubmitterIsTi_TiFieldsAreSet() throws Exception {
-    var fakeProgram = new FakeProgramBuilder().build();
-    new FakeApplicationFiller(fakeProgram)
+    var fakeProgram = FakeProgramBuilder.newActiveProgram().build();
+    FakeApplicationFiller.newFillerFor(fakeProgram)
         .byTrustedIntermediary("ti@trusted_intermediaries.org", "TIs Inc.")
         .submit();
 
@@ -480,8 +482,8 @@ public class CsvExporterTest extends AbstractExporterTest {
 
   @Test
   public void getDemographicsCsv_whenSubmitterIsApplicant_TiFieldsAreNotSet() throws Exception {
-    var fakeProgram = new FakeProgramBuilder().build();
-    new FakeApplicationFiller(fakeProgram).submit();
+    var fakeProgram = FakeProgramBuilder.newActiveProgram().build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).submit();
 
     CSVParser parser =
         CSVParser.parse(exporterService.getDemographicsCsv(TimeFilter.EMPTY), DEFAULT_FORMAT);
