@@ -265,7 +265,7 @@ function docker::check_disk_space() {
   # close enough for detecting if we're close to running out of space.
   settings_json="${HOME}/Library/Group Containers/group.com.docker/settings.json"
   if [[ -f "${settings_json}" && "$(uname -s)" == "Darwin" ]]; then
-    max_size=$(jq '.diskSizeMiB' "$settings_json" | awk '{print $1 * 1024 * 1024}')
+    max_size=$(jq '.diskSizeMiB * 1024 * 1024' "$settings_json")
     used=0
     while IFS= read -r size; do
       # Extract size and unit from the size string
