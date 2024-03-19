@@ -58,39 +58,30 @@ public class EditTiClientView extends BaseHtmlView {
       Optional<Long> accountIdToEdit,
       Long applicantIdOfTi,
       Optional<Form<TiClientInfoForm>> tiClientInfoForm) {
-    HtmlBundle bundle;
-    if (!accountIdToEdit.isEmpty()) {
-      bundle =
-          layout
-              .getBundle(request)
-              .setTitle("Edit client info")
-              .addMainContent(
-                  renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
-                  hr(),
-                  renderSubHeader("Edit client").withId("edit-client").withClass("my-4"),
-                  renderBackLink(),
-                  requiredFieldsExplanationContent(),
-                  renderEditClientForm(
-                      accountRepository.lookupAccount(accountIdToEdit.get()).get(),
-                      request,
-                      tiClientInfoForm,
-                      messages))
-              .addMainStyles("px-20", "max-w-screen-xl");
-
-    } else {
-      bundle =
-          layout
-              .getBundle(request)
-              .setTitle("Add new client")
-              .addMainContent(
-                  renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
-                  hr(),
-                  renderSubHeader("Add client").withId("add-client").withClass("my-4"),
-                  renderBackLink(),
-                  requiredFieldsExplanationContent(),
-                  renderAddClientForm(tiGroup, request, tiClientInfoForm, messages))
-              .addMainStyles("px-20", "max-w-screen-xl");
+    Optional<AccountModel> mayBeAccountModel = Optional.empty();
+    String title = "Add new Client";
+    String pageHeader = "Add client";
+    String pageId = "add-client";
+    if (accountIdToEdit.isPresent()) {
+      mayBeAccountModel = Optional.of(accountRepository.lookupAccount(accountIdToEdit.get()).get());
+      title = "Edit client information";
+      pageHeader = "Edit client";
+      pageId = "edit-client";
     }
+    HtmlBundle bundle =
+        layout
+            .getBundle(request)
+            .setTitle(title)
+            .addMainContent(
+                renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
+                hr(),
+                renderSubHeader(pageHeader).withId(pageId).withClass("my-4"),
+                renderBackLink(),
+                requiredFieldsExplanationContent(),
+                renderAddOrEditClientForm(
+                    tiGroup, mayBeAccountModel, request, tiClientInfoForm, messages))
+            .addMainStyles("px-20", "max-w-screen-xl");
+
     return layout.renderWithNav(request, personalInfo, messages, bundle, applicantIdOfTi);
   }
 
@@ -108,16 +99,31 @@ public class EditTiClientView extends BaseHtmlView {
     return link.asAnchorText();
   }
 
-  private DivTag renderAddClientForm(
+  private DivTag renderAddOrEditClientForm(
       TrustedIntermediaryGroupModel tiGroup,
+      Optional<AccountModel> mayBeAccount,
       Http.Request request,
       Optional<Form<TiClientInfoForm>> form,
       Messages messages) {
-    FormTag formTag =
-        form()
-            .withId("add-ti")
-            .withMethod("POST")
-            .withAction(routes.TrustedIntermediaryController.addClient(tiGroup.id).url());
+    Optional<ApplicantData> mayBeApplicantData = Optional.empty();
+    FormTag formTag;
+    if (mayBeAccount.isPresent()) {
+      mayBeApplicantData =
+          Optional.of(mayBeAccount.get().newestApplicant().get().getApplicantData());
+
+      formTag =
+          form()
+              .withId("edit-ti")
+              .withMethod("POST")
+              .withAction(
+                  routes.TrustedIntermediaryController.editClient(mayBeAccount.get().id).url());
+    } else {
+      formTag =
+          form()
+              .withId("add-ti")
+              .withMethod("POST")
+              .withAction(routes.TrustedIntermediaryController.addClient(tiGroup.id).url());
+    }
     FieldWithLabel firstNameField =
         setStateIfPresent(
             FieldWithLabel.input()
@@ -125,7 +131,7 @@ public class EditTiClientView extends BaseHtmlView {
                 .setFieldName("firstName")
                 .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
                 .setRequired(true)
-                .setValue(""),
+                .setValue(setDefaultFirstName(mayBeApplicantData)),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_FIRST_NAME,
             messages);
@@ -139,7 +145,7 @@ public class EditTiClientView extends BaseHtmlView {
                     messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName())
                         + " "
                         + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
-                .setValue(""),
+                .setValue(setDefaultMiddleName(mayBeApplicantData)),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_MIDDLE_NAME,
             messages);
@@ -150,7 +156,7 @@ public class EditTiClientView extends BaseHtmlView {
                 .setFieldName("lastName")
                 .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
                 .setRequired(true)
-                .setValue(""),
+                .setValue(setDefaultLastName(mayBeApplicantData)),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_LAST_NAME,
             messages);
@@ -162,14 +168,14 @@ public class EditTiClientView extends BaseHtmlView {
                 .setAttribute("inputmode", "tel")
                 .setFieldName("phoneNumber")
                 .setLabelText("Phone number")
-                .setValue(""),
+                .setValue(setDefaultPhone(mayBeApplicantData)),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_PHONE,
             messages);
 
     FieldWithLabel emailField =
         setStateIfPresent(
-            FieldWithLabel.input()
+            FieldWithLabel.email()
                 .setId("email-input")
                 .setFieldName("emailAddress")
                 .setLabelText(
@@ -180,7 +186,7 @@ public class EditTiClientView extends BaseHtmlView {
                         + " application automatically. Without an email, you or your"
                         + " community-based organization will be responsible for communicating"
                         + " updates to your client.")
-                .setValue(""),
+                .setValue(setDefaultEmail(mayBeAccount)),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_EMAIL_ADDRESS,
             messages);
@@ -191,7 +197,7 @@ public class EditTiClientView extends BaseHtmlView {
                 .setFieldName("dob")
                 .setLabelText(messages.at(MessageKey.DOB_LABEL.getKeyName()))
                 .setRequired(true)
-                .setValue(""),
+                .setValue(getDefaultDob(mayBeApplicantData)),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_DOB,
             messages);
@@ -201,7 +207,7 @@ public class EditTiClientView extends BaseHtmlView {
                 .setId("ti-note-input")
                 .setFieldName("tiNote")
                 .setLabelText("Notes")
-                .setValue(""),
+                .setValue(setDefaultTiNotes(mayBeAccount)),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_TI_NOTES,
             messages);
@@ -231,132 +237,46 @@ public class EditTiClientView extends BaseHtmlView {
                 .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6"));
   }
 
-  private DivTag renderEditClientForm(
-      AccountModel account,
-      Http.Request request,
-      Optional<Form<TiClientInfoForm>> form,
-      Messages messages) {
-    ApplicantData applicantData = account.newestApplicant().get().getApplicantData();
-    FormTag formTag =
-        form()
-            .withId("edit-ti")
-            .withMethod("POST")
-            .withAction(routes.TrustedIntermediaryController.editClient(account.id).url());
-    FieldWithLabel firstNameField =
-        setStateIfPresent(
-            FieldWithLabel.input()
-                .setId("edit-first-name-input")
-                .setFieldName("firstName")
-                .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
-                .setRequired(true)
-                .setValue(applicantData.getApplicantFirstName()),
-            form,
-            TrustedIntermediaryService.FORM_FIELD_NAME_FIRST_NAME,
-            messages);
+  private String getDefaultDob(Optional<ApplicantData> mayBeApplicantData) {
+    return mayBeApplicantData.isPresent()
+        ? mayBeApplicantData
+            .get()
+            .getDateOfBirth()
+            .map(this.dateConverter::formatIso8601Date)
+            .orElse("")
+        : "";
+  }
 
-    FieldWithLabel middleNameField =
-        setStateIfPresent(
-            FieldWithLabel.input()
-                .setId("edit-middle-name-input")
-                .setFieldName("middleName")
-                .setLabelText(
-                    messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName())
-                        + " "
-                        + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
-                .setValue(applicantData.getApplicantMiddleName()),
-            form,
-            TrustedIntermediaryService.FORM_FIELD_NAME_MIDDLE_NAME,
-            messages);
-    FieldWithLabel lastNameField =
-        setStateIfPresent(
-            FieldWithLabel.input()
-                .setId("edit-last-name-input")
-                .setFieldName("lastName")
-                .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
-                .setRequired(true)
-                .setValue(applicantData.getApplicantLastName()),
-            form,
-            TrustedIntermediaryService.FORM_FIELD_NAME_LAST_NAME,
-            messages);
-    FieldWithLabel phoneNumberField =
-        setStateIfPresent(
-            FieldWithLabel.input()
-                .setId("edit-phone-number-input")
-                .setPlaceholderText("(xxx) xxx-xxxx")
-                .setAttribute("inputmode", "tel")
-                .setFieldName("phoneNumber")
-                .setLabelText("Phone number")
-                .setValue(applicantData.getPhoneNumber().orElse("")),
-            form,
-            TrustedIntermediaryService.FORM_FIELD_NAME_PHONE,
-            messages);
+  private Optional<String> setDefaultPhone(Optional<ApplicantData> mayBeApplicantData) {
+    return mayBeApplicantData.isPresent()
+        ? mayBeApplicantData.get().getPhoneNumber()
+        : Optional.empty();
+  }
 
-    FieldWithLabel emailField =
-        setStateIfPresent(
-            FieldWithLabel.input()
-                .setId("edit-email-input")
-                .setFieldName("emailAddress")
-                .setLabelText(
-                    "Email address " + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
-                .setToolTipIcon(Icons.INFO)
-                .setToolTipText(
-                    "Add an email address for your client to receive status updates about their"
-                        + " application automatically. Without an email, you or your"
-                        + " community-based organization will be responsible for communicating"
-                        + " updates to your client.")
-                .setValue(account.getEmailAddress()),
-            form,
-            TrustedIntermediaryService.FORM_FIELD_NAME_EMAIL_ADDRESS,
-            messages);
-    FieldWithLabel dateOfBirthField =
-        setStateIfPresent(
-            FieldWithLabel.date()
-                .setId("edit-date-of-birth-input")
-                .setFieldName("dob")
-                .setLabelText(messages.at(MessageKey.DOB_LABEL.getKeyName()))
-                .setRequired(true)
-                .setValue(
-                    applicantData
-                        .getDateOfBirth()
-                        .map(this.dateConverter::formatIso8601Date)
-                        .orElse("")),
-            form,
-            TrustedIntermediaryService.FORM_FIELD_NAME_DOB,
-            messages);
-    FieldWithLabel tiNoteField =
-        setStateIfPresent(
-            FieldWithLabel.textArea()
-                .setId("edit-ti-note-input")
-                .setFieldName("tiNote")
-                .setLabelText("Notes")
-                .setValue(account.getTiNote()),
-            form,
-            TrustedIntermediaryService.FORM_FIELD_NAME_TI_NOTES,
-            messages);
-    String cancelUrl =
-        baseUrl
-            + controllers.ti.routes.TrustedIntermediaryController.dashboard(
-                    /* nameQuery= */ Optional.empty(),
-                    /* dayQuery= */ Optional.empty(),
-                    /* monthQuery= */ Optional.empty(),
-                    /* yearQuery= */ Optional.empty(),
-                    /* page= */ Optional.of(1))
-                .url();
-    return div()
-        .with(
-            formTag
-                .with(
-                    firstNameField.getInputTag(),
-                    middleNameField.getInputTag(),
-                    lastNameField.getInputTag(),
-                    phoneNumberField.getInputTag(),
-                    emailField.getEmailTag(),
-                    dateOfBirthField.getDateTag(),
-                    tiNoteField.getTextareaTag(),
-                    makeCsrfTokenInputTag(request),
-                    submitButton("Save").withClasses("ml-2", "mb-6"),
-                    asRedirectElement(button("Cancel").withClasses("m-2"), cancelUrl))
-                .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6"));
+  private String setDefaultEmail(Optional<AccountModel> mayBeAccount) {
+    return mayBeAccount.isPresent() ? mayBeAccount.get().getEmailAddress() : "";
+  }
+
+  private String setDefaultTiNotes(Optional<AccountModel> mayBeAccount) {
+    return mayBeAccount.isPresent() ? mayBeAccount.get().getTiNote() : "";
+  }
+
+  private Optional<String> setDefaultMiddleName(Optional<ApplicantData> mayBeApplicantData) {
+    return mayBeApplicantData.isPresent()
+        ? mayBeApplicantData.get().getApplicantMiddleName()
+        : Optional.empty();
+  }
+
+  private Optional<String> setDefaultLastName(Optional<ApplicantData> mayBeApplicantData) {
+    return mayBeApplicantData.isPresent()
+        ? mayBeApplicantData.get().getApplicantLastName()
+        : Optional.empty();
+  }
+
+  private Optional<String> setDefaultFirstName(Optional<ApplicantData> mayBeApplicantData) {
+    return mayBeApplicantData.isPresent()
+        ? mayBeApplicantData.get().getApplicantFirstName()
+        : Optional.empty();
   }
 
   private FieldWithLabel setStateIfPresent(

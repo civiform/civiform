@@ -25,24 +25,32 @@ export class TIDashboard {
   }
 
   async createClient(client: ClientInformation) {
-    await this.page.fill('label:has-text("Email address")', client.emailAddress)
-    await this.page.fill('label:has-text("First name")', client.firstName)
-    await this.page.fill('label:has-text("Middle name")', client.middleName)
-    await this.page.fill('label:has-text("Last name")', client.lastName)
-    await this.page.fill('label:has-text("Date of birth")', client.dobDate)
-    await this.page.click('text="Add"')
+    await this.page.getByRole('button', {name: 'Add new client'}).click()
+    await waitForPageJsLoad(this.page)
+    await this.page.fill('#email-input', client.emailAddress)
+    await this.page.fill('#first-name-input', client.firstName)
+    await this.page.fill('#middle-name-input', client.middleName)
+    await this.page.fill('#last-name-input', client.lastName)
+    await this.page.fill('#date-of-birth-input', client.dobDate)
+    if (client.notes != undefined && client.phoneNumber != undefined) {
+      await this.page.fill('#ti-note-input', client.notes)
+      await this.page.fill('#phone-number-input', client.phoneNumber)
+    }
+
+    await this.page.getByRole('button', {name: 'Save'}).click()
+    await waitForPageJsLoad(this.page)
   }
 
   async createMultipleClients(nameBase: string, copies: number) {
     for (let i = 1; i <= copies; i++) {
-      await this.page.fill(
-        'label:has-text("Email Address")',
-        nameBase + i + '@test.com',
-      )
-      await this.page.fill('label:has-text("First Name")', nameBase + i)
-      await this.page.fill('label:has-text("Last Name")', 'last')
-      await this.page.fill('label:has-text("Date Of Birth")', '2021-05-10')
-      await this.page.click('text="Add"')
+      await this.page.getByRole('button', {name: 'Add new client'}).click()
+      await waitForPageJsLoad(this.page)
+      await this.page.fill('#email-input', nameBase + i + '@test.com')
+      await this.page.fill('#first-name-input', nameBase + i)
+      await this.page.fill('#last-name-input', 'last')
+      await this.page.fill('#date-of-birth-input', '2021-05-10')
+      await this.page.getByRole('button', {name: 'Save'}).click()
+      await waitForPageJsLoad(this.page)
     }
   }
 
@@ -54,7 +62,7 @@ export class TIDashboard {
       .click()
     await waitForPageJsLoad(this.page)
     await this.page.waitForSelector('h2:has-text("Edit client")')
-    await this.page.fill('#edit-email-input', newEmail)
+    await this.page.fill('#email-input', newEmail)
     await this.page.click('text="Save"')
     await waitForPageJsLoad(this.page)
   }
@@ -71,8 +79,8 @@ export class TIDashboard {
       .click()
     await waitForPageJsLoad(this.page)
     await this.page.waitForSelector('h2:has-text("Edit client")')
-    await this.page.fill('#edit-phone-number-input', phone)
-    await this.page.fill('#edit-ti-note-input', tiNote)
+    await this.page.fill('#phone-number-input', phone)
+    await this.page.fill('#ti-note-input', tiNote)
     await this.page.click('text="Save"')
     await waitForPageJsLoad(this.page)
   }
@@ -85,16 +93,12 @@ export class TIDashboard {
       .click()
     await waitForPageJsLoad(this.page)
     await this.page.waitForSelector('h2:has-text("Edit client")')
-    await this.page.fill('#edit-date-of-birth-input', newDobDate)
+    await this.page.fill('#date-of-birth-input', newDobDate)
     await this.page.click('text="Save"')
     await waitForPageJsLoad(this.page)
   }
 
-  async expectEditFormContainsTiNoteAndPhone(
-    client: ClientInformation,
-    tiNote: string,
-    phone: string,
-  ) {
+  async expectEditFormContainsTiNoteAndPhone(client: ClientInformation) {
     await this.page
       .getByRole('listitem')
       .filter({hasText: client.emailAddress})
@@ -102,22 +106,19 @@ export class TIDashboard {
       .click()
     await waitForPageJsLoad(this.page)
     await this.page.waitForSelector('h2:has-text("Edit client")')
-    const text = await this.page.innerHTML('#edit-ti')
-    expect(text).toContain(phone)
-    expect(text).toContain(tiNote)
+    expect(await this.page.textContent('html')).toContain(client.phoneNumber)
+    expect(await this.page.textContent('html')).toContain(client.notes)
   }
 
   async expectDashboardClientContainsTiNoteAndFormattedPhone(
     client: ClientInformation,
-    tiNote: string,
-    phone: string,
   ) {
     const cardContainer = this.page.locator(
       `.usa-card__container:has-text("${client.lastName}, ${client.firstName}")`,
     )
     const cardText = await cardContainer.innerText()
-    expect(cardText).toContain(tiNote)
-    expect(cardText).toContain(phone) // This should be in (xxx) xxx-xxxx format.
+    expect(cardText).toContain(client.notes)
+    expect(cardText).toContain(client.phoneNumber) // This should be in (xxx) xxx-xxxx format.
   }
 
   async expectDashboardContainClient(client: ClientInformation) {
