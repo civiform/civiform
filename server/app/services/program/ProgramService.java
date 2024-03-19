@@ -424,7 +424,9 @@ public final class ProgramService {
    *     applicant submits their application
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
-   * @param eligibilityIsGating TODO
+   * @param eligibilityIsGating true if an applicant must meet all eligibility criteria in order to
+   *     submit an application, and false if an application can submit an application even if they
+   *     don't meet some/all of the eligibility criteria.
    * @param programType ProgramType for this Program. If this is set to COMMON_INTAKE_FORM and there
    *     is already another active or draft program with {@link ProgramType#COMMON_INTAKE_FORM},
    *     that program's ProgramType will be changed to {@link ProgramType#DEFAULT}, creating a new

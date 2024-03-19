@@ -354,6 +354,48 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void createProgram_eligibilityIsGating_true() {
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition(
+            "name-one",
+            "description",
+            "display name",
+            "display description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
+            ProgramType.COMMON_INTAKE_FORM,
+            /* isIntakeFormFeatureEnabled= */ false,
+            ImmutableList.copyOf(new ArrayList<>()));
+
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.isError()).isFalse();
+    assertThat(result.getResult().eligibilityIsGating()).isTrue();
+  }
+
+  @Test
+  public void createProgram_eligibilityIsGating_false() {
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition(
+            "name-one",
+            "description",
+            "display name",
+            "display description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ false,
+            ProgramType.COMMON_INTAKE_FORM,
+            /* isIntakeFormFeatureEnabled= */ false,
+            ImmutableList.copyOf(new ArrayList<>()));
+
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.isError()).isFalse();
+    assertThat(result.getResult().eligibilityIsGating()).isFalse();
+  }
+
+  @Test
   public void createProgram_intakeFormDisabled() {
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(

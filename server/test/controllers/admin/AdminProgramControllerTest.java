@@ -254,7 +254,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void create_eligibilityIsGatingFalse() {
+  public void create_eligibilityIsGating_false() {
     RequestBuilder requestBuilder =
         addCSRFToken(
             requestBuilderWithSettings()
@@ -290,7 +290,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void create_eligibilityIsGatingTrue() {
+  public void create_eligibilityIsGating_true() {
     RequestBuilder requestBuilder =
         addCSRFToken(
             requestBuilderWithSettings()

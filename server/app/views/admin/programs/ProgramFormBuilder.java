@@ -47,6 +47,7 @@ import views.style.StyleUtils;
  */
 abstract class ProgramFormBuilder extends BaseHtmlView {
   private static final String ELIGIBILITY_IS_GATING_FIELD_NAME = "eligibilityIsGating";
+
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
   private final AccountRepository accountRepository;
