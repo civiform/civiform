@@ -265,7 +265,8 @@ test.describe('name applicant flow', () => {
             /* mobileScreenshot= */ true,
           )
         })
-      })
+      },
+    )
   })
 
   async function setUpSingleRequiredQuestion(programName: string) {
