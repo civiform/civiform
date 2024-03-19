@@ -135,11 +135,11 @@ public final class AdminProgramController extends CiviFormController {
             programData.getLocalizedConfirmationMessage(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
+            programData.getEligibilityIsGating(),
             programData.getIsCommonIntakeForm()
                 ? ProgramType.COMMON_INTAKE_FORM
                 : ProgramType.DEFAULT,
             settingsManifest.getIntakeFormEnabled(request),
-            programData.getEligibilityIsGating(),
             ImmutableList.copyOf(programData.getTiGroups()));
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
@@ -227,8 +227,6 @@ public final class AdminProgramController extends CiviFormController {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm programData = programForm.bindFromRequest(request).get();
 
-    System.out.println("#update, programForm.elig=" + programData.getEligibilityIsGating());
-
     // a null element gets added as we always have a hidden
     // option as part of the checkbox display
     while (programData.getTiGroups().remove(null)) {}
@@ -276,9 +274,9 @@ public final class AdminProgramController extends CiviFormController {
         programData.getLocalizedConfirmationMessage(),
         programData.getExternalLink(),
         programData.getDisplayMode(),
+        programData.getEligibilityIsGating(),
         programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
-        /* isIntakeFormFeatureEnabled= */ settingsManifest.getIntakeFormEnabled(request),
-        /* eligibilityIsGating= */ programData.getEligibilityIsGating(),
+        settingsManifest.getIntakeFormEnabled(request),
         ImmutableList.copyOf(programData.getTiGroups()));
     return getSaveProgramDetailsRedirect(programId, programEditStatus);
   }

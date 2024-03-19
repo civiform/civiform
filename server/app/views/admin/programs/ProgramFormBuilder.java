@@ -46,6 +46,7 @@ import views.style.StyleUtils;
  * field is disabled, since it cannot be edited once set.
  */
 abstract class ProgramFormBuilder extends BaseHtmlView {
+  private static final String ELIGIBILITY_IS_GATING_FIELD_NAME = "eligibilityIsGating";
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
   private final AccountRepository accountRepository;
@@ -71,8 +72,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getExternalLink(),
         program.getLocalizedConfirmationMessage(),
         program.getDisplayMode(),
-        program.getIsCommonIntakeForm(),
         program.getEligibilityIsGating(),
+        program.getIsCommonIntakeForm(),
         programEditStatus,
         program.getTiGroups());
   }
@@ -89,8 +90,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.externalLink(),
         program.localizedConfirmationMessage().getDefault(),
         program.displayMode().getValue(),
-        program.programType().equals(ProgramType.COMMON_INTAKE_FORM),
         program.eligibilityIsGating(),
+        program.programType().equals(ProgramType.COMMON_INTAKE_FORM),
         programEditStatus,
         new ArrayList<>(program.acls().getTiProgramViewAcls()));
   }
@@ -104,8 +105,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       String externalLink,
       String confirmationSceen,
       String displayMode,
-      Boolean isCommonIntakeForm,
       boolean eligibilityIsGating,
+      Boolean isCommonIntakeForm,
       ProgramEditStatus programEditStatus,
       List<Long> selectedTi) {
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
@@ -194,8 +195,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .with(ViewUtils.requiredQuestionIndicator())
                     .with(p("(Not applicable if this program is the pre-screener)")),
                 FieldWithLabel.radio()
-                    .setId("program-eligibility-gating-true")
-                    .setFieldName("eligibilityIsGating")
+                    .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
                     .setAriaRequired(true)
                     .setLabelText(
                         "Eligibility criteria blocks submission (applicants must meet all"
@@ -204,12 +204,11 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setChecked(eligibilityIsGating)
                     .getRadioTag(),
                 FieldWithLabel.radio()
-                    .setId("program-eligibility-gating-false")
-                    .setFieldName("eligibilityIsGating")
+                    .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
                     .setAriaRequired(true)
                     .setLabelText(
                         "Eligibility criteria does not block submission (applicants can submit"
-                            + " applications even if the eligibility criteria are not met")
+                            + " applications even if the eligibility criteria are not met)")
                     .setValue(String.valueOf(false))
                     .setChecked(!eligibilityIsGating)
                     .getRadioTag()));

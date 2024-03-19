@@ -221,6 +221,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             ImmutableList.of(),
             draftVersion,
             ProgramType.DEFAULT,
+            /* eligibilityIsGating= */ true,
             new ProgramAcls());
     draftOne.save();
 
@@ -236,6 +237,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             ImmutableList.of(),
             draftVersion,
             ProgramType.DEFAULT,
+            /* eligibilityIsGating= */ true,
             new ProgramAcls());
 
     var throwableAssert = assertThatThrownBy(() -> draftTwo.save());
@@ -257,6 +259,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             ImmutableList.of(),
             versionRepo.getDraftVersionOrCreate(),
             ProgramType.DEFAULT,
+            /* eligibilityIsGating= */ true,
             new ProgramAcls());
     ProgramModel withId = repo.insertProgramSync(program);
 

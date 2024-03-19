@@ -162,9 +162,9 @@ public final class DevDatabaseSeedTask {
               /* defaultConfirmationMessage= */ "",
               /* externalLink= */ "https://github.com/civiform/civiform",
               DisplayMode.PUBLIC.getValue(),
+              /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
               /* isIntakeFormFeatureEnabled= */ false,
-              /* eligibilityIsGating= */ true,
               ImmutableList.copyOf(new ArrayList<>()));
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
@@ -204,9 +204,9 @@ public final class DevDatabaseSeedTask {
               /* defaultConfirmationMessage= */ "",
               "https://github.com/civiform/civiform",
               DisplayMode.PUBLIC.getValue(),
+              /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
               /* isIntakeFormFeatureEnabled= */ false,
-              /* eligibilityIsGating= */ true,
               ImmutableList.copyOf(new ArrayList<>()));
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());

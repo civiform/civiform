@@ -155,7 +155,7 @@ export class AdminPrograms {
       await this.page.check(`label:has-text("${selectedTI}")`)
     }
 
-    await this.page.check(`label:has-text("${eligibility}")`)
+    await this.chooseEligibility(eligibility)
 
     if (isCommonIntake && this.getCommonIntakeFormToggle != null) {
       await this.clickCommonIntakeFormToggle()
@@ -340,9 +340,21 @@ export class AdminPrograms {
   }
 
   async setProgramEligibility(programName: string, eligibility: Eligibility) {
-    await this.goToEditProgramDetailsPage(programName)
-    await this.page.check(`label:has-text("${eligibility}")`)
+    await this.goToProgramDescriptionPage(programName)
+    await this.chooseEligibility(eligibility)
     await this.submitProgramDetailsEdits()
+  }
+
+  async chooseEligibility(eligibility: Eligibility) {
+    await this.page.check(`label:has-text("${eligibility}")`)
+  }
+
+  getEligibilityIsGatingInput() {
+    return this.page.locator(`label:has-text("${Eligibility.IS_GATING}")`)
+  }
+
+  getEligibilityIsNotGatingInput() {
+    return this.page.locator(`label:has-text("${Eligibility.IS_NOT_GATING}")`)
   }
 
   async gotoEditDraftProgramPage(programName: string) {
@@ -411,7 +423,7 @@ export class AdminPrograms {
     await this.expectEditEligibilityPredicatePage(blockName)
   }
 
-  async goToEditProgramDetailsPage(programName: string) {
+  async goToProgramDescriptionPage(programName: string) {
     await this.gotoEditDraftProgramPage(programName)
     await this.page.click('button:has-text("Edit program details")')
     await waitForPageJsLoad(this.page)
