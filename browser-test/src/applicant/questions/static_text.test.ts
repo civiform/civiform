@@ -78,22 +78,18 @@ test.describe('Static text question for applicant flow', () => {
       await enableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
-    test(
-      'parses markdown',
-      {tag: ['@northstar']},
-      async () => {
-        const {page, applicantQuestions} = ctx
-        await applicantQuestions.applyProgram(programName)
-        await validateScreenshot(
-          page,
-          'markdown-text-north-star',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
+    test('parses markdown', {tag: ['@northstar']}, async () => {
+      const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+      await validateScreenshot(
+        page,
+        'markdown-text-north-star',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
 
-        await verifyMarkdownHtml(page)
-      },
-    )
+      await verifyMarkdownHtml(page)
+    })
   })
 
   async function verifyMarkdownHtml(page: Page) {
