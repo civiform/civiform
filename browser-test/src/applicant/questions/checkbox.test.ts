@@ -16,27 +16,7 @@ test.describe('Checkbox question for applicant flow', () => {
     const programName = 'Test program for single checkbox'
 
     test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
-      // As admin, create program with single checkbox question.
-      await loginAsAdmin(page)
-
-      await adminQuestions.addCheckboxQuestion({
-        questionName: 'checkbox-color-q',
-        options: [
-          {adminName: 'red_admin', text: 'red'},
-          {adminName: 'green_admin', text: 'green'},
-          {adminName: 'orange_admin', text: 'orange'},
-          {adminName: 'blue_admin', text: 'blue'},
-        ],
-        minNum: 1,
-        maxNum: 2,
-      })
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['checkbox-color-q'],
-        programName,
-      )
-
-      await logout(page)
+      await setUpForSingleQuestion(programName)
     })
 
     test.beforeEach(async () => {
@@ -102,23 +82,6 @@ test.describe('Checkbox question for applicant flow', () => {
 
       await validateScreenshot(page, 'checkbox-errors')
     })
-
-    test(
-      'validate screenshot with north star flag enabled',
-      {tag: ['@northstar']},
-      async () => {
-        const {page, applicantQuestions} = ctx
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-        await applicantQuestions.applyProgram(programName)
-
-        await validateScreenshot(
-          page,
-          'checkbox-north-star',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
-      },
-    )
 
     test('with single checked box submits successfully', async () => {
       const {applicantQuestions} = ctx
@@ -276,4 +239,69 @@ test.describe('Checkbox question for applicant flow', () => {
       await validateAccessibility(page)
     })
   })
+
+  test.describe('single checkbox question with north star flag enabled', () => {
+    const programName = 'Test program for single checkbox'
+
+    test.beforeAll(async () => {
+      await setUpForSingleQuestion(programName)
+    })
+
+    test.beforeEach(async () => {
+      const {page} = ctx
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
+    test(
+      'validate screenshot with north star flag enabled',
+      {tag: ['@northstar']},
+      async () => {
+        const {page, applicantQuestions} = ctx
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('Screenshot without errors', async () => {
+          await validateScreenshot(
+            page,
+            'checkbox-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+
+        await test.step('Screenshot with errors', async () => {
+          await applicantQuestions.clickContinue()
+          await validateScreenshot(
+            page,
+            'checkbox-errors-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+      },
+    )
+  })
+
+  async function setUpForSingleQuestion(programName: string) {
+    const {page, adminQuestions, adminPrograms} = ctx
+    // As admin, create program with single checkbox question.
+    await loginAsAdmin(page)
+
+    await adminQuestions.addCheckboxQuestion({
+      questionName: 'checkbox-color-q',
+      options: [
+        {adminName: 'red_admin', text: 'red'},
+        {adminName: 'green_admin', text: 'green'},
+        {adminName: 'orange_admin', text: 'orange'},
+        {adminName: 'blue_admin', text: 'blue'},
+      ],
+      minNum: 1,
+      maxNum: 2,
+    })
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['checkbox-color-q'],
+      programName,
+    )
+
+    await logout(page)
+  }
 })
