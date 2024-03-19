@@ -1,17 +1,31 @@
-<th:block th:fragment="validationErrors (validationErrors)">
+<th:block th:fragment="validationErrors(validationErrors)">
     <div th:each="error: ${validationErrors}" th:text="#{${error.key.getKeyName()}(${error.args})}"></div>
 </th:block>
 
-<th:block th:fragment="titleAndHelpText (question, questionId)">
+<th:block th:fragment="titleAndHelpTextMultipleInput(question, questionId)">
     <!-- Question title -->
     <legend class="usa-legend">
-        <span th:text="${question.getQuestionText()}"></span>
-        <!-- Required asterisk -->
-        <th:block th:if="${!question.isOptional()}">
-          <span class="usa-hint--required"> *</span>
-        </th:block>
+      <div th:replace="~{questiontypes/QuestionBaseFragment :: titleContent(${question})}"></div>
     </legend>
 
       <!-- Question help text -->
       <div th:id="${questionId} + '-description'" th:text="${question.getQuestionHelpText()}"></div>
+</th:block>
+
+<th:block th:fragment="titleAndHelpTextSingleInput(question, questionId, inputId)">
+    <!-- Question title -->
+    <label class="usa-label" th:for="${inputId}">
+      <div th:replace="~{questiontypes/QuestionBaseFragment :: titleContent(${question})}"></div>
+    </label>
+
+      <!-- Question help text -->
+      <div th:id="${questionId} + '-description'" th:text="${question.getQuestionHelpText()}"></div>
+</th:block>
+
+<th:block th:fragment="titleContent(question)">
+  <span th:text="${question.getQuestionText()}"></span>
+  <!-- Required asterisk -->
+  <th:block th:if="${!question.isOptional()}">
+    <span class="usa-hint--required"> *</span>
+  </th:block>
 </th:block>
