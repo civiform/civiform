@@ -130,6 +130,9 @@ GET     /admin/apiKeys/new                          controllers.admin.AdminApiKe
 POST    /admin/apiKeys                              controllers.admin.AdminApiKeysController.create(request: Request)
 POST    /admin/apiKeys/:apiKeyId/retire             controllers.admin.AdminApiKeysController.retire(request: Request, apiKeyId: Long)
 
+# Admin import and export
+GET    /admin/importExport       controllers.admin.AdminImportExportController.index(request: Request)
+
 # Admin settings
 GET      /admin/settings                             controllers.admin.AdminSettingsController.index(request: Request)
 POST     /admin/settings                             controllers.admin.AdminSettingsController.update(request: Request)

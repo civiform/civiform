@@ -46,7 +46,8 @@ public final class AdminLayout extends BaseHtmlLayout {
     REPORTING,
     API_KEYS,
     SETTINGS,
-    API_DOCS
+    API_DOCS,
+    IMPORT_EXPORT,
   }
 
   private final NavPage activeNavPage;
@@ -148,6 +149,7 @@ public final class AdminLayout extends BaseHtmlLayout {
     String apiKeysLink = controllers.admin.routes.AdminApiKeysController.index().url();
     String apiDocsLink = controllers.api.routes.ApiDocsController.index().url();
     String reportingLink = controllers.admin.routes.AdminReportingController.index().url();
+    String importExportLink = controllers.admin.routes.AdminImportExportController.index().url();
     String settingsLink = controllers.admin.routes.AdminSettingsController.index().url();
 
     String activeNavStyle =
@@ -193,6 +195,12 @@ public final class AdminLayout extends BaseHtmlLayout {
         headerLink(
             "API docs", apiDocsLink, NavPage.API_DOCS.equals(activeNavPage) ? activeNavStyle : "");
 
+    ATag importExportHeaderLink =
+        headerLink(
+            "Import & export",
+            importExportLink,
+            NavPage.IMPORT_EXPORT.equals(activeNavPage) ? activeNavStyle : "");
+
     switch (primaryAdminType) {
       case CIVI_FORM_ADMIN:
         {
@@ -203,7 +211,8 @@ public final class AdminLayout extends BaseHtmlLayout {
               .with(reportingHeaderLink)
               .with(apiKeysHeaderLink)
               .condWith(
-                  getSettingsManifest().getApiGeneratedDocsEnabled(request), apiDocsHeaderLink);
+                  getSettingsManifest().getApiGeneratedDocsEnabled(request), apiDocsHeaderLink)
+              .with(importExportHeaderLink);
           break;
         }
       case PROGRAM_ADMIN:
