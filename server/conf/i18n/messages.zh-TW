@@ -170,6 +170,12 @@ content.oneAppSubmitted=1 application submitted
 content.warning=這個客戶沒有任何申請書提交記錄，因此不會遺失任何申請書。
 # Shows there is no email address connected to the account.
 content.noEmailAddress=(no email address)
+# The status of an organization member when they have been enrolled but have never logged into CiviForm.
+content.notLoggedIn=Not yet logged in
+# The status of an organization member when they have logged in but haven't applied on behalf of a client.
+content.noApplications=Logged in, no applications submitted
+# The status of an organization member showing the date of the last application that they submitted for a client.
+content.lastApplicationDate=Last submitted application on {0}
 # Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=確定要刪除這個客戶的帳戶嗎？
 
@@ -180,7 +186,7 @@ header.clientList=客戶清單
 # Label for search
 header.search=Search
 
-# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last login XX-XX-XXXX".
+# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
 label.acctStatus=Account status
 # Label above the phone number for each client on the client list.
 label.contactInfo=聯絡資訊
