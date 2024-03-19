@@ -1,4 +1,4 @@
-<div th:fragment="number (question)"
+<div th:fragment="number(question)"
     th:with="numberQuestion=${question.createNumberQuestion()},
              questionId=${#strings.randomAlphanumeric(8)},
              inputId=${#strings.randomAlphanumeric(8)}"

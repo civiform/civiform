@@ -1,4 +1,4 @@
-<div th:fragment="checkbox (question)" th:with="questionId=${#strings.randomAlphanumeric(8)}" th:id="${questionId}">
+<div th:fragment="checkbox(question)" th:with="questionId=${#strings.randomAlphanumeric(8)}" th:id="${questionId}">
     <fieldset class="usa-fieldset" th:aria-describedby="${questionId} + '-description'" th:with="multiSelectQuestion=${question.createMultiSelectQuestion()}">
         <!-- Title and Help Text -->
         <div th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"></div>

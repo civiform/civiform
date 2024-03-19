@@ -1,8 +1,8 @@
-<th:block th:fragment="validationErrors (validationErrors)">
+<th:block th:fragment="validationErrors(validationErrors)">
     <div th:each="error: ${validationErrors}" th:text="#{${error.key.getKeyName()}(${error.args})}"></div>
 </th:block>
 
-<th:block th:fragment="titleAndHelpTextMultipleInput (question, questionId)">
+<th:block th:fragment="titleAndHelpTextMultipleInput(question, questionId)">
     <!-- Question title -->
     <legend class="usa-legend">
       <div th:replace="~{questiontypes/QuestionBaseFragment :: titleContent(${question})}"></div>
@@ -12,7 +12,7 @@
       <div th:id="${questionId} + '-description'" th:text="${question.getQuestionHelpText()}"></div>
 </th:block>
 
-<th:block th:fragment="titleAndHelpTextSingleInput (question, questionId, inputId)">
+<th:block th:fragment="titleAndHelpTextSingleInput(question, questionId, inputId)">
     <!-- Question title -->
     <label class="usa-label" th:for="${inputId}">
       <div th:replace="~{questiontypes/QuestionBaseFragment :: titleContent(${question})}"></div>
@@ -22,7 +22,7 @@
       <div th:id="${questionId} + '-description'" th:text="${question.getQuestionHelpText()}"></div>
 </th:block>
 
-<th:block th:fragment="titleContent (question)">
+<th:block th:fragment="titleContent(question)">
   <span th:text="${question.getQuestionText()}"></span>
   <!-- Required asterisk -->
   <th:block th:if="${!question.isOptional()}">
