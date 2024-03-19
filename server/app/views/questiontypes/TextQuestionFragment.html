@@ -10,6 +10,7 @@
     <input type="text"
         class="usa-input"
         maxlength="10000"
+        th:id="${questionId}"
         th:name="${textQuestion.getTextPath()}"
         th:value="${textQuestion.getTextValue().orElse('')}"
         th:aria-describedby="${questionId} + '-description'"
