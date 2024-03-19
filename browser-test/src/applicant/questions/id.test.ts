@@ -182,7 +182,7 @@ test.describe('Id question for applicant flow', () => {
     const programName = 'Test program for single id'
 
     test.beforeAll(async () => {
-      await setUpForSingleInput(programName);
+      await setUpForSingleInput(programName)
     })
 
     test.beforeEach(async () => {
@@ -229,10 +229,7 @@ test.describe('Id question for applicant flow', () => {
       minNum: 5,
       maxNum: 5,
     })
-    await adminPrograms.addAndPublishProgramWithQuestions(
-      ['id-q'],
-      programName,
-    )
+    await adminPrograms.addAndPublishProgramWithQuestions(['id-q'], programName)
 
     await logout(page)
   }
