@@ -12,6 +12,7 @@ import {
   extractEmailsForRecipient,
   validateScreenshot,
   enableFeatureFlag,
+  disableFeatureFlag,
 } from '../support'
 
 test.describe('view program statuses', () => {
@@ -303,187 +304,6 @@ test.describe('view program statuses', () => {
       })
     })
 
-    test.describe('email status updates work correctly with PAI flag on', () => {
-      test.beforeAll(async () => {
-        const {page, adminPrograms, adminQuestions} = ctx
-        await enableFeatureFlag(
-          page,
-          'primary_applicant_info_questions_enabled',
-        )
-        await loginAsAdmin(page)
-        await adminQuestions.addEmailQuestion({
-          questionName: 'Email',
-          universal: true,
-          primaryApplicantInfo: true,
-        })
-        await adminPrograms.editProgram(programWithStatusesName)
-
-        await adminPrograms.editProgramBlock(
-          programWithStatusesName,
-          'block description',
-          ['Email'],
-        )
-        await adminPrograms.publishAllDrafts()
-        await logout(page)
-      })
-      test.beforeEach(async () => {
-        const {page} = ctx
-        // override beforeEach behavior that logs in the Program Admin
-        await logout(page)
-      })
-      test('email shows up for guest user that has answered the PAI email question and email is sent', async () => {
-        const {page, applicantQuestions, adminPrograms} = ctx
-        const guestEmail = 'guestemail@example.com'
-
-        await applicantQuestions.applyProgram(programWithStatusesName)
-        await applicantQuestions.answerEmailQuestion(guestEmail)
-        await applicantQuestions.clickNext()
-        await applicantQuestions.submitFromReviewPage()
-        await logout(page)
-
-        await loginAsProgramAdmin(page)
-        await adminPrograms.viewApplications(programWithStatusesName)
-        await adminPrograms.viewApplicationForApplicant('Guest')
-
-        const emailsBefore = supportsEmailInspection()
-          ? await extractEmailsForRecipient(page, guestEmail)
-          : []
-        const modal =
-          await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
-        const notifyCheckbox = await modal.$('input[type=checkbox]')
-        if (!notifyCheckbox) {
-          throw new Error('Expected a checkbox input')
-        }
-        expect(await notifyCheckbox.isChecked()).toBe(true)
-        await validateScreenshot(page, 'guest-email-program-status')
-        expect(await modal.innerText()).toContain(
-          ' of this change at ' + guestEmail,
-        )
-        await adminPrograms.confirmStatusUpdateModal(modal)
-        expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
-        await adminPrograms.expectUpdateStatusToast()
-
-        if (supportsEmailInspection()) {
-          const emailsAfter = await extractEmailsForRecipient(page, guestEmail)
-          expect(emailsAfter.length).toEqual(emailsBefore.length + 1)
-          const sentEmail = emailsAfter[emailsAfter.length - 1]
-          expect(sentEmail.Subject).toEqual(
-            `An update on your application ${programWithStatusesName}`,
-          )
-          expect(sentEmail.Body.text_part).toContain(emailBody)
-        }
-      })
-      test('both emails show up for a logged in user that has answered the PAI email question with a different email and two emails are sent', async () => {
-        const {page, applicantQuestions, adminPrograms} = ctx
-        const otherTestUserEmail = 'other@example.com'
-
-        await loginAsTestUser(page)
-        await applicantQuestions.applyProgram(programWithStatusesName)
-        await applicantQuestions.answerEmailQuestion(otherTestUserEmail)
-        await applicantQuestions.clickNext()
-        await applicantQuestions.submitFromReviewPage()
-        await logout(page)
-
-        await loginAsProgramAdmin(page)
-        await adminPrograms.viewApplications(programWithStatusesName)
-        await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
-
-        const emailsBeforeAccountEmail = supportsEmailInspection()
-          ? await extractEmailsForRecipient(page, testUserDisplayName())
-          : []
-        const emailsBeforeApplicantEmail = supportsEmailInspection()
-          ? await extractEmailsForRecipient(page, otherTestUserEmail)
-          : []
-
-        const modal =
-          await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
-
-        await validateScreenshot(page, 'two-emails-program-status')
-        expect(await modal.innerText()).toContain(
-          ' of this change at ' +
-            testUserDisplayName() +
-            ' and ' +
-            otherTestUserEmail,
-        )
-        await adminPrograms.confirmStatusUpdateModal(modal)
-        expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
-        await adminPrograms.expectUpdateStatusToast()
-
-        if (supportsEmailInspection()) {
-          const emailsAfterAccountEmail = await extractEmailsForRecipient(
-            page,
-            testUserDisplayName(),
-          )
-          expect(emailsAfterAccountEmail.length).toEqual(
-            emailsBeforeAccountEmail.length + 1,
-          )
-          const sentEmailAccountEmail =
-            emailsAfterAccountEmail[emailsAfterAccountEmail.length - 1]
-          expect(sentEmailAccountEmail.Subject).toEqual(
-            `An update on your application ${programWithStatusesName}`,
-          )
-          expect(sentEmailAccountEmail.Body.text_part).toContain(emailBody)
-
-          const emailsAfterApplicantEmail = await extractEmailsForRecipient(
-            page,
-            otherTestUserEmail,
-          )
-          expect(emailsAfterApplicantEmail.length).toEqual(
-            emailsBeforeApplicantEmail.length + 1,
-          )
-          const sentEmailApplicantEmail =
-            emailsAfterApplicantEmail[emailsAfterApplicantEmail.length - 1]
-          expect(sentEmailApplicantEmail.Subject).toEqual(
-            `An update on your application ${programWithStatusesName}`,
-          )
-          expect(sentEmailApplicantEmail.Body.text_part).toContain(emailBody)
-        }
-      })
-      test('only one email shows up up for a logged in user that has answered the PAI email question when the emails are the same and only one email is sent', async () => {
-        const {page, applicantQuestions, adminPrograms} = ctx
-
-        await loginAsTestUser(page)
-        await applicantQuestions.applyProgram(programWithStatusesName)
-        await applicantQuestions.answerEmailQuestion(testUserDisplayName())
-        await applicantQuestions.clickNext()
-        await applicantQuestions.submitFromReviewPage()
-        await logout(page)
-
-        await loginAsProgramAdmin(page)
-        await adminPrograms.viewApplications(programWithStatusesName)
-        await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
-
-        const emailsBefore = supportsEmailInspection()
-          ? await extractEmailsForRecipient(page, testUserDisplayName())
-          : []
-
-        const modal =
-          await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
-
-        await validateScreenshot(page, 'one-email-program-status')
-        expect(await modal.innerText()).toContain(
-          ' of this change at ' + testUserDisplayName(),
-        )
-        expect(await modal.innerText()).not.toContain(' and ')
-        await adminPrograms.confirmStatusUpdateModal(modal)
-        expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
-        await adminPrograms.expectUpdateStatusToast()
-
-        if (supportsEmailInspection()) {
-          const emailsAfter = await extractEmailsForRecipient(
-            page,
-            testUserDisplayName(),
-          )
-          expect(emailsAfter.length).toEqual(emailsBefore.length + 1)
-          const sentEmail = emailsAfter[emailsAfter.length - 1]
-          expect(sentEmail.Subject).toEqual(
-            `An update on your application ${programWithStatusesName}`,
-          )
-          expect(sentEmail.Body.text_part).toContain(emailBody)
-        }
-      })
-    })
-
     test('allows editing a note and preserves the selected application', async () => {
       const {adminPrograms} = ctx
       await adminPrograms.editNote('Some note content')
@@ -545,6 +365,194 @@ test.describe('view program statuses', () => {
       await adminPrograms.viewApplicationForApplicant('Guest')
 
       expect(await adminPrograms.getNoteContent()).toBe(noteText)
+    })
+
+    test.describe('email status updates work correctly with PAI flag on', () => {
+      test.beforeAll(async () => {
+        const {page, adminPrograms, adminQuestions} = ctx
+        await enableFeatureFlag(
+          page,
+          'primary_applicant_info_questions_enabled',
+        )
+        await loginAsAdmin(page)
+        await adminQuestions.addEmailQuestion({
+          questionName: 'Email',
+          universal: true,
+          primaryApplicantInfo: true,
+        })
+        await adminPrograms.editProgram(programWithStatusesName)
+
+        await adminPrograms.editProgramBlock(
+          programWithStatusesName,
+          'block description',
+          ['Email'],
+        )
+        await adminPrograms.publishAllDrafts()
+        await logout(page)
+      })
+      test.beforeEach(async () => {
+        const {page} = ctx
+        // override the beforeEach behavior above that logs in the Program Admin
+        await logout(page)
+      })
+      test.afterAll(async () => {
+        const {page} = ctx
+        await disableFeatureFlag(
+          page,
+          'primary_applicant_info_questions_enabled',
+        )
+      })
+      test('email shows up for guest user that has answered the PAI email question and email is sent', async () => {
+        const {page, applicantQuestions, adminPrograms} = ctx
+        const guestEmail = 'guestemail@example.com'
+
+        await applicantQuestions.applyProgram(programWithStatusesName)
+        await applicantQuestions.answerEmailQuestion(guestEmail)
+        await applicantQuestions.clickNext()
+        await applicantQuestions.submitFromReviewPage()
+        await logout(page)
+
+        await loginAsProgramAdmin(page)
+        await adminPrograms.viewApplications(programWithStatusesName)
+        await adminPrograms.viewApplicationForApplicant('Guest')
+
+        const emailsBefore = supportsEmailInspection()
+          ? await extractEmailsForRecipient(page, guestEmail)
+          : []
+        const modal =
+          await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
+        const notifyCheckbox = await modal.$('input[type=checkbox]')
+        if (!notifyCheckbox) {
+          throw new Error('Expected a checkbox input')
+        }
+        expect(await notifyCheckbox.isChecked()).toBe(true)
+        await validateScreenshot(page, 'guest-email-program-status')
+        expect(await modal.innerText()).toContain(
+          ' of this change at ' + guestEmail,
+        )
+        await adminPrograms.confirmStatusUpdateModal(modal)
+        expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
+        await adminPrograms.expectUpdateStatusToast()
+
+        if (supportsEmailInspection()) {
+          const emailsAfter = await extractEmailsForRecipient(page, guestEmail)
+          expect(emailsAfter.length).toEqual(emailsBefore.length + 1)
+          const sentEmail = emailsAfter[emailsAfter.length - 1]
+          expect(sentEmail.Subject).toEqual(
+            `[Test Message] An update on your application ${programWithStatusesName}`,
+          )
+          expect(sentEmail.Body.text_part).toContain(emailBody)
+        }
+      })
+      test('both emails show up for a logged in user that has answered the PAI email question with a different email and two emails are sent', async () => {
+        const {page, applicantQuestions, adminPrograms} = ctx
+        const otherTestUserEmail = 'other@example.com'
+
+        await loginAsTestUser(page)
+        await applicantQuestions.applyProgram(programWithStatusesName)
+        await applicantQuestions.answerEmailQuestion(otherTestUserEmail)
+        await applicantQuestions.clickNext()
+        await applicantQuestions.submitFromReviewPage()
+        await logout(page)
+
+        await loginAsProgramAdmin(page)
+        await adminPrograms.viewApplications(programWithStatusesName)
+        await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+
+        const emailsBeforeAccountEmail = supportsEmailInspection()
+          ? await extractEmailsForRecipient(page, testUserDisplayName())
+          : []
+        const emailsBeforeApplicantEmail = supportsEmailInspection()
+          ? await extractEmailsForRecipient(page, otherTestUserEmail)
+          : []
+
+        const modal =
+          await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
+
+        await validateScreenshot(page, 'two-emails-program-status')
+        expect(await modal.innerText()).toContain(
+          ' of this change at ' +
+            testUserDisplayName() +
+            ' and ' +
+            otherTestUserEmail,
+        )
+        await adminPrograms.confirmStatusUpdateModal(modal)
+        expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
+        await adminPrograms.expectUpdateStatusToast()
+
+        if (supportsEmailInspection()) {
+          const emailsAfterAccountEmail = await extractEmailsForRecipient(
+            page,
+            testUserDisplayName(),
+          )
+          expect(emailsAfterAccountEmail.length).toEqual(
+            emailsBeforeAccountEmail.length + 1,
+          )
+          const sentEmailAccountEmail =
+            emailsAfterAccountEmail[emailsAfterAccountEmail.length - 1]
+          expect(sentEmailAccountEmail.Subject).toEqual(
+            `[Test Message] An update on your application ${programWithStatusesName}`,
+          )
+          expect(sentEmailAccountEmail.Body.text_part).toContain(emailBody)
+
+          const emailsAfterApplicantEmail = await extractEmailsForRecipient(
+            page,
+            otherTestUserEmail,
+          )
+          expect(emailsAfterApplicantEmail.length).toEqual(
+            emailsBeforeApplicantEmail.length + 1,
+          )
+          const sentEmailApplicantEmail =
+            emailsAfterApplicantEmail[emailsAfterApplicantEmail.length - 1]
+          expect(sentEmailApplicantEmail.Subject).toEqual(
+            `[Test Message] An update on your application ${programWithStatusesName}`,
+          )
+          expect(sentEmailApplicantEmail.Body.text_part).toContain(emailBody)
+        }
+      })
+      test('only one email shows up up for a logged in user that has answered the PAI email question when the emails are the same and only one email is sent', async () => {
+        const {page, applicantQuestions, adminPrograms} = ctx
+
+        await loginAsTestUser(page)
+        await applicantQuestions.applyProgram(programWithStatusesName)
+        await applicantQuestions.answerEmailQuestion(testUserDisplayName())
+        await applicantQuestions.clickNext()
+        await applicantQuestions.submitFromReviewPage()
+        await logout(page)
+
+        await loginAsProgramAdmin(page)
+        await adminPrograms.viewApplications(programWithStatusesName)
+        await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+
+        const emailsBefore = supportsEmailInspection()
+          ? await extractEmailsForRecipient(page, testUserDisplayName())
+          : []
+
+        const modal =
+          await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
+
+        await validateScreenshot(page, 'one-email-program-status')
+        expect(await modal.innerText()).toContain(
+          ' of this change at ' + testUserDisplayName(),
+        )
+        expect(await modal.innerText()).not.toContain(' and ')
+        await adminPrograms.confirmStatusUpdateModal(modal)
+        expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
+        await adminPrograms.expectUpdateStatusToast()
+
+        if (supportsEmailInspection()) {
+          const emailsAfter = await extractEmailsForRecipient(
+            page,
+            testUserDisplayName(),
+          )
+          expect(emailsAfter.length).toEqual(emailsBefore.length + 1)
+          const sentEmail = emailsAfter[emailsAfter.length - 1]
+          expect(sentEmail.Subject).toEqual(
+            `[Test Message] An update on your application ${programWithStatusesName}`,
+          )
+          expect(sentEmail.Body.text_part).toContain(emailBody)
+        }
+      })
     })
   })
 
