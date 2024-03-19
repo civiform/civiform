@@ -1,0 +1,22 @@
+<div th:fragment="number (question)"
+     th:with="numberQuestion=${question.createNumberQuestion()}, questionId=${#strings.randomAlphanumeric(8)}">
+    <!-- Title and Help Text -->
+    <div th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpText(${question}, ${questionId})}"></div>
+
+    <!-- Display errors -->
+    <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${numberQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
+    
+    <input th:with="value=${numberQuestion.getNumberValue().isPresent() ? numberQuestion.getNumberValue().get(): null},
+                    min=${numberQuestion.getQuestionDefinition().getMin().isPresent() ? numberQuestion.getQuestionDefinition().getMin().getAsLong() : null},
+                    max=${numberQuestion.getQuestionDefinition().getMax().isPresent() ? numberQuestion.getQuestionDefinition().getMax().getAsLong() : null}"
+        type="number"
+        class="usa-input"
+        inputmode="decimal"
+        th:name="${numberQuestion.getNumberPath()}"
+        th:value="${value}"
+        th:min="${min}"
+        th:max="${max}"
+        th:aria-describedby="${questionId} + '-description'"
+        th:aria-required="${!question.isOptional()}"
+        th:aria-invalid="${!numberQuestion.getValidationErrors().isEmpty()}">
+</div>
