@@ -21,6 +21,9 @@ import services.question.types.DateQuestionDefinition;
 public final class DateQuestion extends Question {
 
   private Optional<LocalDate> dateValue;
+  private Optional<Long> dayOfMonthValue;
+  private Optional<Long> monthValue;
+  private Optional<Long> yearValue;
 
   DateQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
@@ -85,24 +88,14 @@ public final class DateQuestion extends Question {
     return applicantQuestion.getContextualizedPath().join(Scalar.DATE);
   }
 
-<<<<<<< HEAD
-  public Path getMonthPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.MONTH);
-  }
-
-=======
->>>>>>> 17274e733 (Use memorable date. more to come)
   public Path getYearPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.YEAR);
   }
 
-<<<<<<< HEAD
-=======
   public Path getMonthPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.MONTH);
   }
 
->>>>>>> 17274e733 (Use memorable date. more to come)
   public Path getDayPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.DAY);
   }
