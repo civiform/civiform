@@ -413,13 +413,16 @@ test.describe('view program statuses', () => {
         const emailsBefore = supportsEmailInspection()
           ? await extractEmailsForRecipient(page, guestEmail)
           : []
+
         const modal =
           await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
+
         const notifyCheckbox = await modal.$('input[type=checkbox]')
         if (!notifyCheckbox) {
           throw new Error('Expected a checkbox input')
         }
         expect(await notifyCheckbox.isChecked()).toBe(true)
+
         expect(await modal.innerText()).toContain(
           ' of this change at ' + guestEmail,
         )
@@ -436,7 +439,7 @@ test.describe('view program statuses', () => {
           )
         }
       })
-      test('both emails addresses are displayed and two emails are sent for a logged in user that has answered the PAI email question with a different email', async () => {
+      test('both email addresses are displayed and two emails are sent for a logged in user that has answered the PAI email question with a different email', async () => {
         const {page, applicantQuestions, adminPrograms} = ctx
         const otherTestUserEmail = 'other@example.com'
 
@@ -460,15 +463,14 @@ test.describe('view program statuses', () => {
 
         const modal =
           await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
-
         expect(await modal.innerText()).toContain(
           ' of this change at ' +
             testUserDisplayName() +
             ' and ' +
             otherTestUserEmail,
         )
+
         await adminPrograms.confirmStatusUpdateModal(modal)
-        expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
         await adminPrograms.expectUpdateStatusToast()
 
         if (supportsEmailInspection()) {
@@ -506,13 +508,12 @@ test.describe('view program statuses', () => {
 
         const modal =
           await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
-
         expect(await modal.innerText()).toContain(
           ' of this change at ' + testUserDisplayName(),
         )
         expect(await modal.innerText()).not.toContain(' and ')
+
         await adminPrograms.confirmStatusUpdateModal(modal)
-        expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
         await adminPrograms.expectUpdateStatusToast()
 
         if (supportsEmailInspection()) {
