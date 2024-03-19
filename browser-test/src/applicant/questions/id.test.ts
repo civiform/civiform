@@ -1,6 +1,8 @@
 import {test, expect} from '@playwright/test'
 import {
   createTestContext,
+  disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -14,21 +16,12 @@ test.describe('Id question for applicant flow', () => {
     const programName = 'Test program for single id'
 
     test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
-      // As admin, create program with single id question.
-      await loginAsAdmin(page)
+      await setUpForSingleInput(programName)
+    })
 
-      await adminQuestions.addIdQuestion({
-        questionName: 'id-q',
-        minNum: 5,
-        maxNum: 5,
-      })
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['id-q'],
-        programName,
-      )
-
-      await logout(page)
+    test.beforeEach(async () => {
+      const {page} = ctx
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
     test('validate screenshot', async () => {
@@ -184,4 +177,63 @@ test.describe('Id question for applicant flow', () => {
       await validateAccessibility(page)
     })
   })
+
+  test.describe('single id question with north star flag enabled', () => {
+    const programName = 'Test program for single id'
+
+    test.beforeAll(async () => {
+      await setUpForSingleInput(programName);
+    })
+
+    test.beforeEach(async () => {
+      const {page} = ctx
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
+    test(
+      'validate screenshot with north star flag enabled',
+      {tag: ['@northstar']},
+      async () => {
+        const {page, applicantQuestions} = ctx
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('Screenshot without errors', async () => {
+          await validateScreenshot(
+            page,
+            'id-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+
+        await test.step('Screenshot with errors', async () => {
+          await applicantQuestions.clickContinue()
+          await validateScreenshot(
+            page,
+            'id-errors-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+      },
+    )
+  })
+
+  async function setUpForSingleInput(programName: string) {
+    const {page, adminQuestions, adminPrograms} = ctx
+    // As admin, create program with single id question.
+    await loginAsAdmin(page)
+
+    await adminQuestions.addIdQuestion({
+      questionName: 'id-q',
+      minNum: 5,
+      maxNum: 5,
+    })
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['id-q'],
+      programName,
+    )
+
+    await logout(page)
+  }
 })
