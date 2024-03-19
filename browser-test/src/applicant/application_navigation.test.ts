@@ -1521,7 +1521,6 @@ test.describe('Applicant navigation flow', () => {
 
         await expect(addressCorrectionInput).toHaveValue('true')
 
-        // Set program to soft eligibility
         await adminPrograms.setProgramEligibility(
           programName,
           Eligibility.IS_NOT_GATING,

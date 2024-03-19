@@ -194,7 +194,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 legend("Program eligibility gating")
                     .withClass(BaseStyles.INPUT_LABEL)
                     .with(ViewUtils.requiredQuestionIndicator())
-                    .with(p("(Not applicable if this program is the pre-screener)")),
+                    .condWith(
+                        settingsManifest.getIntakeFormEnabled(request),
+                        p("(Not applicable if this program is the pre-screener)")),
                 FieldWithLabel.radio()
                     .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
                     .setAriaRequired(true)
