@@ -42,8 +42,8 @@ export enum ProgramVisibility {
 }
 
 export enum Eligibility {
-  IS_GATING = 'Eligibility criteria blocks submission',
-  IS_NOT_GATING = 'Eligibility criteria does not block submission',
+  IS_GATING = 'Residents can only submit applications if they meet all the eligibility requirements',
+  IS_NOT_GATING = "Residents can submit applications even if they don't meet eligibility requirements",
 }
 
 function slugify(value: string): string {

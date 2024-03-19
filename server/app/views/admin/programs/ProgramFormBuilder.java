@@ -201,8 +201,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
                     .setAriaRequired(true)
                     .setLabelText(
-                        "Eligibility criteria blocks submission (applicants must meet all"
-                            + " eligibility criteria in order to submit an application)")
+                        "Residents can only submit applications if they meet all the eligibility"
+                            + " requirements")
                     .setValue(String.valueOf(true))
                     .setChecked(eligibilityIsGating)
                     .getRadioTag(),
@@ -210,8 +210,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
                     .setAriaRequired(true)
                     .setLabelText(
-                        "Eligibility criteria does not block submission (applicants can submit"
-                            + " applications even if the eligibility criteria are not met)")
+                        "Residents can submit applications even if they don't meet eligibility"
+                            + " requirements")
                     .setValue(String.valueOf(false))
                     .setChecked(!eligibilityIsGating)
                     .getRadioTag()));
