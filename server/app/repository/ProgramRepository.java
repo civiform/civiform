@@ -346,8 +346,6 @@ public final class ProgramRepository {
             .setLabel("ApplicationModel.findList")
             .setProfileLocation(
                 queryProfileLocationBuilder.create("getApplicationsForAllProgramVersions"))
-            .fetch("program")
-            .fetch("applicant")
             .fetch("applicant.account.managedByGroup")
             .orderBy("id desc")
             .where()
