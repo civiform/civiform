@@ -73,7 +73,7 @@ public final class AdminImportExportView extends BaseHtmlView {
 
     return mainDiv.with(
         form()
-            .withMethod("POST")
+            .withMethod("GET")
             .withAction(routes.AdminImportExportController.exportPrograms().url())
             .with(makeCsrfTokenInputTag(request), fields)
             .with(submitButton("Export programs").withClass(ButtonStyles.SOLID_BLUE)));
