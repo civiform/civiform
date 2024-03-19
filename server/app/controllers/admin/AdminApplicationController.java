@@ -48,7 +48,7 @@ import services.applications.PdfExporterService;
 import services.applications.ProgramAdminApplicationService;
 import services.applications.StatusEmailNotFoundException;
 import services.export.CsvExporterService;
-import services.export.JsonExporter;
+import services.export.JsonExporterService;
 import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -74,7 +74,7 @@ public final class AdminApplicationController extends CiviFormController {
   private final ProgramService programService;
   private final CsvExporterService exporterService;
   private final FormFactory formFactory;
-  private final JsonExporter jsonExporter;
+  private final JsonExporterService jsonExporterService;
   private final Provider<LocalDateTime> nowProvider;
   private final MessagesApi messagesApi;
   private final DateConverter dateConverter;
@@ -85,7 +85,7 @@ public final class AdminApplicationController extends CiviFormController {
       ApplicantService applicantService,
       CsvExporterService csvExporterService,
       FormFactory formFactory,
-      JsonExporter jsonExporter,
+      JsonExporterService jsonExporterService,
       PdfExporterService pdfExporterService,
       ProgramApplicationListView applicationListView,
       ProgramApplicationView applicationView,
@@ -104,7 +104,7 @@ public final class AdminApplicationController extends CiviFormController {
     this.nowProvider = checkNotNull(nowProvider);
     this.exporterService = checkNotNull(csvExporterService);
     this.formFactory = checkNotNull(formFactory);
-    this.jsonExporter = checkNotNull(jsonExporter);
+    this.jsonExporterService = checkNotNull(jsonExporterService);
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.messagesApi = checkNotNull(messagesApi);
     this.dateConverter = checkNotNull(dateConverter);
@@ -147,9 +147,8 @@ public final class AdminApplicationController extends CiviFormController {
 
     String filename = String.format("%s-%s.json", program.adminName(), nowProvider.get());
     String json =
-        jsonExporter.export(
-            program, IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG, filters);
-
+        jsonExporterService.export(
+            program, IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG, filters, request);
     return ok(json)
         .as(Http.MimeTypes.JSON)
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
@@ -184,7 +183,7 @@ public final class AdminApplicationController extends CiviFormController {
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
-      String csv = exporterService.getProgramAllVersionsCsv(programId, filters);
+      String csv = exporterService.getProgramAllVersionsCsv(programId, filters, request);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(
@@ -270,7 +269,7 @@ public final class AdminApplicationController extends CiviFormController {
     }
     ApplicationModel application = applicationMaybe.get();
     PdfExporter.InMemoryPdf pdf =
-        pdfExporterService.generatePdf(
+        pdfExporterService.generateApplicationPdf(
             application, /* showEligibilityText= */ true, /* includeHiddenBlocks= */ true);
     return ok(pdf.getByteArray())
         .as("application/pdf")
@@ -501,7 +500,7 @@ public final class AdminApplicationController extends CiviFormController {
     var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
     PaginationResult<ApplicationModel> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
-            programId, F.Either.Right(paginationSpec), filters);
+            programId, F.Either.Right(paginationSpec), filters, request);
 
     CiviFormProfile profile = getCiviFormProfile(request);
     return ok(

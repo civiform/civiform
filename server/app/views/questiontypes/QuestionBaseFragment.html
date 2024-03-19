@@ -1,0 +1,17 @@
+<th:block th:fragment="validationErrors (validationErrors)">
+    <div th:each="error: ${validationErrors}" th:text="#{${error.key.getKeyName()}(${error.args})}"></div>
+</th:block>
+
+<th:block th:fragment="titleAndHelpText (question, questionId)">
+    <!-- Question title -->
+    <legend class="usa-legend">
+        <span th:text="${question.getQuestionText()}"></span>
+        <!-- Required asterisk -->
+        <th:block th:if="${!question.isOptional()}">
+          <span class="usa-hint--required"> *</span>
+        </th:block>
+    </legend>
+
+      <!-- Question help text -->
+      <div th:id="${questionId} + '-description'" th:text="${question.getQuestionHelpText()}"></div>
+</th:block>

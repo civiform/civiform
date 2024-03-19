@@ -54,12 +54,14 @@ public final class SimpleEmail {
           .register();
 
   private final String sender;
+  private final Environment environment;
   private final Client client;
 
   @Inject
   public SimpleEmail(
       AwsRegion region, Config config, Environment environment, ApplicationLifecycle appLifecycle) {
     this.sender = checkNotNull(config).getString(AWS_SES_SENDER_CONF_PATH);
+    this.environment = checkNotNull(environment);
 
     if (environment.isDev()) {
       client = new LocalStackClient(region, config);
@@ -85,6 +87,19 @@ public final class SimpleEmail {
       return;
     }
     Histogram.Timer timer = EMAIL_EXECUTION_TIME.startTimer();
+
+    // Add some messaging to non-prod emails to make it easier to
+    // tell that it's not a prod notification.
+    if (!environment.isProd()) {
+      subject = String.format("[Test Message] %s", subject);
+      bodyText =
+          String.format(
+              "This email was generated from our test server.\n\n"
+                  + "If you didn't expect this message please disregard.\n\n"
+                  + "***************************************************\n\n\n"
+                  + "%s",
+              bodyText);
+    }
 
     try {
       Destination destination =

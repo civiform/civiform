@@ -2,6 +2,7 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 
 import controllers.WithMockedProfiles;
@@ -11,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Result;
 import play.test.Helpers;
+import services.program.ProgramNotFoundException;
 
 public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
 
@@ -18,6 +20,7 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
 
   @Before
   public void setup() {
+    resetDatabase();
     controller = instanceOf(AdminProgramPreviewController.class);
   }
 
@@ -59,5 +62,39 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation())
         .hasValue(
             controllers.admin.routes.AdminProgramBlocksController.readOnlyIndex(program.id).url());
+  }
+
+  @Test
+  public void pdfPreview_draft_okAndHasPdf() throws ProgramNotFoundException {
+    ProgramModel program = resourceCreator().insertDraftProgram("draft program");
+
+    Result result =
+        controller
+            .pdfPreview(Helpers.fakeRequest().build(), program.id)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType().get()).isEqualTo("application/pdf");
+    assertThat(result.header("Content-Disposition")).isPresent();
+    assertThat(result.header("Content-Disposition").get())
+        .startsWith("attachment; filename=\"draft program");
+  }
+
+  @Test
+  public void pdfPreview_active_okAndHasPdf() throws ProgramNotFoundException {
+    ProgramModel program = resourceCreator().insertActiveProgram("active program");
+
+    Result result =
+        controller
+            .pdfPreview(Helpers.fakeRequest().build(), program.id)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType().get()).isEqualTo("application/pdf");
+    assertThat(result.header("Content-Disposition")).isPresent();
+    assertThat(result.header("Content-Disposition").get())
+        .startsWith("attachment; filename=\"active program");
   }
 }

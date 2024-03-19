@@ -161,6 +161,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             getEditHeaderButtons(
                 settingsManifest, /* isEditingAllowed= */ viewAllowsEditingProgram()));
     headerButtons.add(ProgramHeaderButton.PREVIEW_AS_APPLICANT);
+    headerButtons.add(ProgramHeaderButton.DOWNLOAD_PDF_PREVIEW);
 
     HtmlBundle htmlBundle =
         layout

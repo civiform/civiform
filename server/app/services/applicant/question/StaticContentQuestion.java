@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
+import views.components.TextFormatter;
 
 /**
  * Represents a static content question in the context of a specific applicant.
@@ -38,5 +39,13 @@ public final class StaticContentQuestion extends Question {
   @Override
   public ImmutableList<Path> getAllPaths() {
     return ImmutableList.of();
+  }
+
+  public String getFormattedTextForRendering(String ariaLabel) {
+    return TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+        applicantQuestion.getQuestionText(),
+        /* preserveEmptyLines= */ true,
+        /* addRequiredIndicator= */ false,
+        ariaLabel);
   }
 }

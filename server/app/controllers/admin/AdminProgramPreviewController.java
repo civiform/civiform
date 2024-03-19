@@ -15,18 +15,33 @@ import play.mvc.Call;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
+import services.applications.PdfExporterService;
+import services.export.PdfExporter;
+import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
+import services.question.QuestionService;
 
 /** Controller for admins previewing a program as an applicant. */
 public final class AdminProgramPreviewController extends CiviFormController {
   private final ApplicantRoutes applicantRoutes;
+  private final PdfExporterService pdfExporterService;
+  private final ProgramService programService;
+  private final QuestionService questionService;
 
   @Inject
   public AdminProgramPreviewController(
+      PdfExporterService pdfExporterService,
       ProfileUtils profileUtils,
+      ProgramService programService,
+      QuestionService questionService,
       VersionRepository versionRepository,
       ApplicantRoutes applicantRoutes) {
     super(profileUtils, versionRepository);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.pdfExporterService = checkNotNull(pdfExporterService);
+    this.programService = checkNotNull(programService);
+    this.questionService = checkNotNull(questionService);
   }
 
   /**
@@ -42,6 +57,29 @@ public final class AdminProgramPreviewController extends CiviFormController {
     } catch (ExecutionException | InterruptedException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * Creates and downloads a PDF for the given program. The PDF will contain all the blocks and the
+   * questions in each block.
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public CompletionStage<Result> pdfPreview(Request request, long programId)
+      throws ProgramNotFoundException {
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
+    return questionService
+        .getReadOnlyQuestionService()
+        .thenApplyAsync(
+            roQuestionService -> {
+              PdfExporter.InMemoryPdf pdf =
+                  pdfExporterService.generateProgramPreviewPdf(
+                      program, roQuestionService.getAllQuestions());
+              return ok(pdf.getByteArray())
+                  .as("application/pdf")
+                  .withHeader(
+                      "Content-Disposition",
+                      String.format("attachment; filename=\"%s\"", pdf.getFileName()));
+            });
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)

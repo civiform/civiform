@@ -1,0 +1,7 @@
+<div th:fragment="static-text (question)">
+    <div class="cf-question-static" th:with="ariaLabel=#{link.opensNewTabSr}">
+        <div class="cf-applicant-question-text mb-2 font-bold text-xl"
+             th:utext="${question.getQuestion().getFormattedTextForRendering(ariaLabel)}">
+        </div>
+    </div>
+</div>

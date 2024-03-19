@@ -8,6 +8,8 @@ import static j2html.TagCreator.ul;
 import static views.style.AdminStyles.HEADER_BUTTON_STYLES;
 
 import com.google.common.collect.ImmutableList;
+import controllers.admin.PredicateUtils;
+import controllers.admin.ReadablePredicate;
 import controllers.admin.routes;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -16,7 +18,6 @@ import java.util.List;
 import play.mvc.Http;
 import services.program.ProgramDefinition;
 import services.program.predicate.PredicateDefinition;
-import services.program.predicate.PredicateExpressionNode;
 import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.ViewUtils;
@@ -40,6 +41,10 @@ abstract class ProgramBaseView extends BaseHtmlView {
     EDIT_PROGRAM_IMAGE,
     /** Redirects to previewing this program as an applicant. */
     PREVIEW_AS_APPLICANT,
+    /**
+     * Downloads a PDF preview of the current program version, with all of its blocks and questions.
+     */
+    DOWNLOAD_PDF_PREVIEW,
   }
 
   /**
@@ -109,41 +114,18 @@ abstract class ProgramBaseView extends BaseHtmlView {
                 "items-center",
                 StyleUtils.hover("text-gray-800", "bg-gray-100"));
 
-    if (predicateDefinition
-        .predicateFormat()
-        .equals(PredicateDefinition.PredicateFormat.SINGLE_QUESTION)) {
-      return container.with(
-          text(predicateDefinition.toDisplayString(blockName, questionDefinitions)));
-    } else if (!predicateDefinition
-        .predicateFormat()
-        .equals(PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS)) {
-      throw new IllegalArgumentException(
-          String.format(
-              "Predicate type %s is unsupported.", predicateDefinition.predicateFormat()));
+    ReadablePredicate readablePredicate =
+        PredicateUtils.getReadablePredicateDescription(
+            blockName, predicateDefinition, questionDefinitions);
+
+    container.with(text(readablePredicate.heading()));
+    if (readablePredicate.conditionList().isPresent()) {
+      UlTag conditionList = ul().withClasses("list-disc", "ml-4", "mb-4");
+      readablePredicate.conditionList().get().stream()
+          .forEach(condition -> conditionList.with(li(condition)));
+      container.with(conditionList);
     }
-
-    ImmutableList<PredicateExpressionNode> andNodes =
-        predicateDefinition.rootNode().getOrNode().children();
-
-    if (andNodes.size() == 1) {
-      return container.with(
-          text(
-              blockName
-                  + " is "
-                  + predicateDefinition.action().toDisplayString()
-                  + " "
-                  + andNodes.get(0).getAndNode().toDisplayString(questionDefinitions)));
-    }
-
-    container.with(
-        text(blockName + " is " + predicateDefinition.action().toDisplayString() + " any of:"));
-    UlTag conditionList = ul().withClasses("list-disc", "ml-4", "mb-4");
-
-    andNodes.stream()
-        .map(PredicateExpressionNode::getAndNode)
-        .forEach(andNode -> conditionList.with(li(andNode.toDisplayString(questionDefinitions))));
-
-    return container.with(conditionList);
+    return container;
   }
 
   private ButtonTag renderHeaderButton(
@@ -173,6 +155,11 @@ abstract class ProgramBaseView extends BaseHtmlView {
             ViewUtils.makeSvgTextButton("Preview as applicant", Icons.VIEW)
                 .withClasses(HEADER_BUTTON_STYLES),
             routes.AdminProgramPreviewController.preview(programDefinition.id()).url());
+      case DOWNLOAD_PDF_PREVIEW:
+        return asRedirectElement(
+            ViewUtils.makeSvgTextButton("Download PDF preview", Icons.DOWNLOAD)
+                .withClasses(HEADER_BUTTON_STYLES),
+            routes.AdminProgramPreviewController.pdfPreview(programDefinition.id()).url());
       default:
         throw new IllegalStateException("All header buttons handled");
     }

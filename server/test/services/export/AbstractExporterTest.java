@@ -37,6 +37,7 @@ import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionAnswerer;
 import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
@@ -224,11 +225,21 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             .collect(ImmutableList.toImmutableList());
   }
 
+  protected ImmutableList<QuestionDefinition> getFakeQuestionDefinitions() {
+    return fakeQuestions.stream()
+        .map(QuestionModel::getQuestionDefinition)
+        .collect(ImmutableList.toImmutableList());
+  }
+
   protected void createFakeProgram() {
-    ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram();
-    fakeProgram.withName("Fake Program");
-    fakeQuestions.forEach(
-        question -> fakeProgram.withBlock().withRequiredQuestion(question).build());
+    ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram("Fake Program");
+    for (int i = 0; i < fakeQuestions.size(); i++) {
+      int screenNumber = i + 1;
+      fakeProgram
+          .withBlock("Screen " + screenNumber, "description for screen " + screenNumber)
+          .withRequiredQuestion(fakeQuestions.get(i))
+          .build();
+    }
     fakeProgram.withStatusDefinitions(
         new StatusDefinitions()
             .setStatuses(
@@ -318,9 +329,9 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     fakeProgramWithVisibility =
         ProgramBuilder.newActiveProgram()
             .withName("Fake Program")
-            .withBlock()
+            .withBlock("Screen 1")
             .withRequiredQuestion(colorQuestion)
-            .withBlock()
+            .withBlock("Screen 2")
             .withRequiredQuestion(nameQuestion)
             .withVisibilityPredicate(colorPredicate)
             .build();
@@ -360,14 +371,14 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             PredicateExpressionNode.create(
                 LeafOperationExpressionNode.create(
                     colorQuestion.id, Scalar.TEXT, Operator.EQUAL_TO, PredicateValue.of("blue"))),
-            PredicateAction.HIDE_BLOCK);
+            PredicateAction.ELIGIBLE_BLOCK);
     EligibilityDefinition colorEligibilityDefinition =
         EligibilityDefinition.builder().setPredicate(colorPredicate).build();
 
     fakeProgramWithEligibility =
         ProgramBuilder.newActiveProgram()
             .withName("Fake Program With Enumerator")
-            .withBlock()
+            .withBlock("Screen 1")
             .withRequiredQuestions(nameQuestion, colorQuestion)
             .withEligibilityDefinition(colorEligibilityDefinition)
             .build();
@@ -572,19 +583,21 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   }
 
   /** A Builder to build a fake program */
-  class FakeProgramBuilder {
+  static class FakeProgramBuilder {
     ProgramBuilder fakeProgramBuilder;
     boolean addEnumeratorQuestion = false;
     boolean addNestedEnumeratorQuestion = false;
 
-    FakeProgramBuilder() {
-      fakeProgramBuilder = ProgramBuilder.newActiveProgram().withName("Fake Program");
+    private FakeProgramBuilder(String name) {
+      fakeProgramBuilder = ProgramBuilder.newActiveProgram(name);
     }
 
-    FakeProgramBuilder withAllQuestionTypes() {
-      fakeQuestions.forEach(
-          question -> fakeProgramBuilder.withBlock().withRequiredQuestion(question).build());
-      return this;
+    static FakeProgramBuilder newActiveProgram() {
+      return newActiveProgram("Fake Program");
+    }
+
+    static FakeProgramBuilder newActiveProgram(String name) {
+      return new FakeProgramBuilder(name);
     }
 
     FakeProgramBuilder withQuestion(QuestionModel question) {
@@ -664,20 +677,24 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     Optional<AccountModel> trustedIntermediary = Optional.empty();
     ApplicationModel application;
 
-    public FakeApplicationFiller(ProgramModel program) {
+    private FakeApplicationFiller(ProgramModel program) {
       this.program = program;
       this.applicant = resourceCreator.insertApplicantWithAccount();
       this.admin = resourceCreator.insertAccount();
     }
 
-    public FakeApplicationFiller byTrustedIntermediary(String tiEmail, String tiOrganization) {
+    static FakeApplicationFiller newFillerFor(ProgramModel program) {
+      return new FakeApplicationFiller(program);
+    }
+
+    FakeApplicationFiller byTrustedIntermediary(String tiEmail, String tiOrganization) {
       var tiGroup = resourceCreator.insertTiGroup(tiOrganization);
       this.trustedIntermediary = Optional.of(resourceCreator.insertAccountWithEmail(tiEmail));
       this.applicant.getAccount().setManagedByGroup(tiGroup).save();
       return this;
     }
 
-    public FakeApplicationFiller answerAddressQuestion(
+    FakeApplicationFiller answerAddressQuestion(
         String street, String line2, String city, String state, String zip) {
       Path answerPath =
           testQuestionBank
@@ -691,7 +708,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    public FakeApplicationFiller answerCheckboxQuestion(ImmutableList<Long> optionIds) {
+    FakeApplicationFiller answerCheckboxQuestion(ImmutableList<Long> optionIds) {
       Path answerPath =
           testQuestionBank
               .applicantKitchenTools()
@@ -706,7 +723,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    public FakeApplicationFiller answerCurrencyQuestion(String answer) {
+    FakeApplicationFiller answerCurrencyQuestion(String answer) {
       Path answerPath =
           testQuestionBank
               .applicantMonthlyIncome()
@@ -718,7 +735,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    public FakeApplicationFiller answerDateQuestion(String answer) {
+    FakeApplicationFiller answerDateQuestion(String answer) {
       Path answerPath =
           testQuestionBank
               .applicantDate()
@@ -730,7 +747,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    public FakeApplicationFiller answerDropdownQuestion(Long optionId) {
+    FakeApplicationFiller answerDropdownQuestion(Long optionId) {
       Path answerPath =
           testQuestionBank
               .applicantIceCream()
@@ -743,7 +760,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    public FakeApplicationFiller answerRadioButtonQuestion(Long optionId) {
+    FakeApplicationFiller answerRadioButtonQuestion(Long optionId) {
       Path answerPath =
           testQuestionBank
               .applicantSeason()
@@ -756,7 +773,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    public FakeApplicationFiller answerEmailQuestion(String answer) {
+    FakeApplicationFiller answerEmailQuestion(String answer) {
       Path answerPath =
           testQuestionBank
               .applicantEmail()
@@ -768,7 +785,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    public FakeApplicationFiller answerTextQuestion(String answer) {
+    FakeApplicationFiller answerTextQuestion(String answer) {
       Path answerPath =
           testQuestionBank
               .applicantFavoriteColor()
@@ -780,7 +797,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    public FakeApplicationFiller answerRepeatedTextQuestion(String entityName, String answer) {
+    FakeApplicationFiller answerRepeatedTextQuestion(String entityName, String answer) {
       var repeatedEntities =
           RepeatedEntity.createRepeatedEntities(
               (EnumeratorQuestionDefinition)
@@ -799,7 +816,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    public FakeApplicationFiller answerNestedRepeatedNumberQuestion(
+    FakeApplicationFiller answerNestedRepeatedNumberQuestion(
         String parentEntityName, String entityName, long answer) {
       var repeatedEntities =
           RepeatedEntity.createRepeatedEntities(
@@ -832,7 +849,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    public FakeApplicationFiller answerNumberQuestion(long answer) {
+    FakeApplicationFiller answerNumberQuestion(long answer) {
       Path answerPath =
           testQuestionBank
               .applicantJugglingNumber()
@@ -844,7 +861,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    public FakeApplicationFiller answerPhoneQuestion(String countryCode, String phoneNumber) {
+    FakeApplicationFiller answerPhoneQuestion(String countryCode, String phoneNumber) {
       Path answerPath =
           testQuestionBank
               .applicantPhone()
@@ -857,7 +874,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    public FakeApplicationFiller answerEnumeratorQuestion(ImmutableList<String> householdMembers) {
+    FakeApplicationFiller answerEnumeratorQuestion(ImmutableList<String> householdMembers) {
       Path answerPath =
           testQuestionBank
               .applicantHouseholdMembers()
@@ -870,7 +887,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    public FakeApplicationFiller answerNestedEnumeratorQuestion(
+    FakeApplicationFiller answerNestedEnumeratorQuestion(
         String parentEntityName, ImmutableList<String> jobNames) {
       var repeatedEntities =
           RepeatedEntity.createRepeatedEntities(
@@ -892,7 +909,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    public FakeApplicationFiller submit() {
+    FakeApplicationFiller submit() {
       application = new ApplicationModel(applicant, program, LifecycleStage.ACTIVE);
       application.setApplicantData(applicant.getApplicantData());
       trustedIntermediary.ifPresent(
@@ -908,7 +925,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    public FakeApplicationFiller markObsolete() {
+    FakeApplicationFiller markObsolete() {
       if (application == null) {
         throw new IllegalStateException(
             "Cannot mark an application as obsolete unless it has been submitted.");
