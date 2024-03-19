@@ -72,8 +72,7 @@ public abstract class ApplicantPersonalInfo {
   public abstract static class Representation {
     public abstract Optional<String> name();
 
-    // May contain both the account email as well as the answer to
-    // an email question.
+    // May contain the account email and/or the answer to an email question.
     public abstract Optional<ImmutableSet<String>> email();
 
     public static Builder builder() {

@@ -638,7 +638,7 @@ export const validateToastMessage = async (page: Page, value: string) => {
 type LocalstackSesResponse = {
   messages: LocalstackSesEmail[]
 }
-type LocalstackSesEmail = {
+export type LocalstackSesEmail = {
   Body: {
     html_part: string | null
     text_part: string | null

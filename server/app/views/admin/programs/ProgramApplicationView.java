@@ -423,11 +423,12 @@ public final class ProgramApplicationView extends BaseHtmlView {
       Request request) {
     InputTag sendEmailInput =
         input().withType("checkbox").withName(SEND_EMAIL).withClasses(BaseStyles.CHECKBOX);
+
     Optional<String> optionalAccountEmail =
         Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
     Optional<String> optionalApplicantEmail = Optional.empty();
-
     boolean emptyEmails = optionalAccountEmail.isEmpty();
+
     if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
       optionalApplicantEmail = application.getApplicant().getEmailAddress();
       emptyEmails = emptyEmails && optionalApplicantEmail.isEmpty();

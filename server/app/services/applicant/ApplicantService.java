@@ -879,7 +879,6 @@ public final class ApplicantService {
                   emailAddressesBuilder.add(accountEmailAddress);
                 }
 
-                // wrap this in a check for the feature flag
                 if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
                   Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
                   applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));

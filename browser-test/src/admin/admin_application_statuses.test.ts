@@ -270,7 +270,6 @@ test.describe('view program statuses', () => {
           }
         })
 
-        // extend this to test both cases
         test('checkbox is checked by default and email is sent', async () => {
           const {page, adminPrograms} = ctx
           const emailsBefore = supportsEmailInspection()
@@ -289,16 +288,12 @@ test.describe('view program statuses', () => {
           await adminPrograms.expectUpdateStatusToast()
 
           if (supportsEmailInspection()) {
-            const emailsAfter = await extractEmailsForRecipient(
-              page,
-              testUserDisplayName(), // testuser@example.com
+            await adminPrograms.expectEmailSent(
+              emailsBefore.length,
+              testUserDisplayName(),
+              emailBody,
+              programWithStatusesName,
             )
-            expect(emailsAfter.length).toEqual(emailsBefore.length + 1)
-            const sentEmail = emailsAfter[emailsAfter.length - 1]
-            expect(sentEmail.Subject).toEqual(
-              `[Test Message] An update on your application ${programWithStatusesName}`,
-            )
-            expect(sentEmail.Body.text_part).toContain(emailBody)
           }
         })
       })
@@ -381,7 +376,6 @@ test.describe('view program statuses', () => {
           primaryApplicantInfo: true,
         })
         await adminPrograms.editProgram(programWithStatusesName)
-
         await adminPrograms.editProgramBlock(
           programWithStatusesName,
           'block description',
@@ -392,7 +386,7 @@ test.describe('view program statuses', () => {
       })
       test.beforeEach(async () => {
         const {page} = ctx
-        // override the beforeEach behavior above that logs in the Program Admin
+        // Logout before each test so we can start from the homescreen as an applicant
         await logout(page)
       })
       test.afterAll(async () => {
@@ -402,7 +396,7 @@ test.describe('view program statuses', () => {
           'primary_applicant_info_questions_enabled',
         )
       })
-      test('email shows up for guest user that has answered the PAI email question and email is sent', async () => {
+      test('email is displayed and sent for guest user that has answered the PAI email question', async () => {
         const {page, applicantQuestions, adminPrograms} = ctx
         const guestEmail = 'guestemail@example.com'
 
@@ -426,7 +420,6 @@ test.describe('view program statuses', () => {
           throw new Error('Expected a checkbox input')
         }
         expect(await notifyCheckbox.isChecked()).toBe(true)
-        await validateScreenshot(page, 'guest-email-program-status')
         expect(await modal.innerText()).toContain(
           ' of this change at ' + guestEmail,
         )
@@ -435,16 +428,15 @@ test.describe('view program statuses', () => {
         await adminPrograms.expectUpdateStatusToast()
 
         if (supportsEmailInspection()) {
-          const emailsAfter = await extractEmailsForRecipient(page, guestEmail)
-          expect(emailsAfter.length).toEqual(emailsBefore.length + 1)
-          const sentEmail = emailsAfter[emailsAfter.length - 1]
-          expect(sentEmail.Subject).toEqual(
-            `[Test Message] An update on your application ${programWithStatusesName}`,
+          await adminPrograms.expectEmailSent(
+            emailsBefore.length,
+            guestEmail,
+            emailBody,
+            programWithStatusesName,
           )
-          expect(sentEmail.Body.text_part).toContain(emailBody)
         }
       })
-      test('both emails show up for a logged in user that has answered the PAI email question with a different email and two emails are sent', async () => {
+      test('both emails addresses are displayed and two emails are sent for a logged in user that has answered the PAI email question with a different email', async () => {
         const {page, applicantQuestions, adminPrograms} = ctx
         const otherTestUserEmail = 'other@example.com'
 
@@ -459,17 +451,16 @@ test.describe('view program statuses', () => {
         await adminPrograms.viewApplications(programWithStatusesName)
         await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
 
-        const emailsBeforeAccountEmail = supportsEmailInspection()
+        const acccountEmailsBefore = supportsEmailInspection()
           ? await extractEmailsForRecipient(page, testUserDisplayName())
           : []
-        const emailsBeforeApplicantEmail = supportsEmailInspection()
+        const applicantEmailsBefore = supportsEmailInspection()
           ? await extractEmailsForRecipient(page, otherTestUserEmail)
           : []
 
         const modal =
           await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
 
-        await validateScreenshot(page, 'two-emails-program-status')
         expect(await modal.innerText()).toContain(
           ' of this change at ' +
             testUserDisplayName() +
@@ -481,36 +472,21 @@ test.describe('view program statuses', () => {
         await adminPrograms.expectUpdateStatusToast()
 
         if (supportsEmailInspection()) {
-          const emailsAfterAccountEmail = await extractEmailsForRecipient(
-            page,
+          await adminPrograms.expectEmailSent(
+            acccountEmailsBefore.length,
             testUserDisplayName(),
+            emailBody,
+            programWithStatusesName,
           )
-          expect(emailsAfterAccountEmail.length).toEqual(
-            emailsBeforeAccountEmail.length + 1,
-          )
-          const sentEmailAccountEmail =
-            emailsAfterAccountEmail[emailsAfterAccountEmail.length - 1]
-          expect(sentEmailAccountEmail.Subject).toEqual(
-            `[Test Message] An update on your application ${programWithStatusesName}`,
-          )
-          expect(sentEmailAccountEmail.Body.text_part).toContain(emailBody)
-
-          const emailsAfterApplicantEmail = await extractEmailsForRecipient(
-            page,
+          await adminPrograms.expectEmailSent(
+            applicantEmailsBefore.length,
             otherTestUserEmail,
+            emailBody,
+            programWithStatusesName,
           )
-          expect(emailsAfterApplicantEmail.length).toEqual(
-            emailsBeforeApplicantEmail.length + 1,
-          )
-          const sentEmailApplicantEmail =
-            emailsAfterApplicantEmail[emailsAfterApplicantEmail.length - 1]
-          expect(sentEmailApplicantEmail.Subject).toEqual(
-            `[Test Message] An update on your application ${programWithStatusesName}`,
-          )
-          expect(sentEmailApplicantEmail.Body.text_part).toContain(emailBody)
         }
       })
-      test('only one email shows up up for a logged in user that has answered the PAI email question when the emails are the same and only one email is sent', async () => {
+      test('only one email is displayed and sent for a logged in user that has answered the PAI email question with the same email they used to login', async () => {
         const {page, applicantQuestions, adminPrograms} = ctx
 
         await loginAsTestUser(page)
@@ -531,7 +507,6 @@ test.describe('view program statuses', () => {
         const modal =
           await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
 
-        await validateScreenshot(page, 'one-email-program-status')
         expect(await modal.innerText()).toContain(
           ' of this change at ' + testUserDisplayName(),
         )
@@ -541,16 +516,12 @@ test.describe('view program statuses', () => {
         await adminPrograms.expectUpdateStatusToast()
 
         if (supportsEmailInspection()) {
-          const emailsAfter = await extractEmailsForRecipient(
-            page,
+          await adminPrograms.expectEmailSent(
+            emailsBefore.length,
             testUserDisplayName(),
+            emailBody,
+            programWithStatusesName,
           )
-          expect(emailsAfter.length).toEqual(emailsBefore.length + 1)
-          const sentEmail = emailsAfter[emailsAfter.length - 1]
-          expect(sentEmail.Subject).toEqual(
-            `[Test Message] An update on your application ${programWithStatusesName}`,
-          )
-          expect(sentEmail.Body.text_part).toContain(emailBody)
         }
       })
     })
