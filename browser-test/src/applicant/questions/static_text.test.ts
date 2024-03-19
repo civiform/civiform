@@ -43,35 +43,43 @@ test.describe('Static text question for applicant flow', () => {
     )
   })
 
-  test('displays static text', async () => {
-    const {applicantQuestions} = ctx
-    await applicantQuestions.applyProgram(programName)
+  test.describe('With north star flag disabled', () => {
+    test.beforeEach(async () => {
+      const {page} = ctx
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
+    })
 
-    await applicantQuestions.seeStaticQuestion(staticText)
-  })
+    test('displays static text', async () => {
+      const {applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
 
-  test('has no accessiblity violations', async () => {
-    const {page, applicantQuestions} = ctx
-    await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.seeStaticQuestion(staticText)
+    })
 
-    await validateAccessibility(page)
-  })
-
-  test('parses markdown', async () => {
-    const {page, applicantQuestions} = ctx
-    await disableFeatureFlag(page, 'north_star_applicant_ui')
-    await applicantQuestions.applyProgram(programName)
-    await validateScreenshot(page, 'markdown-text')
-
-    await verifyMarkdownHtml(page)
-  })
-
-  test(
-    'parses markdown with north star enabled',
-    {tag: ['@northstar']},
-    async () => {
+    test('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(page)
+    })
+
+    test('parses markdown', async () => {
+      const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+      await validateScreenshot(page, 'markdown-text')
+
+      await verifyMarkdownHtml(page)
+    })
+  })
+
+  test.describe('With north star flag enabled', () => {
+    test.beforeEach(async () => {
+      const {page} = ctx
       await enableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
+    test('parses markdown', {tag: ['@northstar']}, async () => {
+      const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await validateScreenshot(
         page,
@@ -81,8 +89,8 @@ test.describe('Static text question for applicant flow', () => {
       )
 
       await verifyMarkdownHtml(page)
-    },
-  )
+    })
+  })
 
   async function verifyMarkdownHtml(page: Page) {
     expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
