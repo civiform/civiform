@@ -65,7 +65,6 @@ test.describe('Static text question for applicant flow', () => {
 
     test('parses markdown', async () => {
       const {page, applicantQuestions} = ctx
-      await disableFeatureFlag(page, 'north_star_applicant_ui')
       await applicantQuestions.applyProgram(programName)
       await validateScreenshot(page, 'markdown-text')
 
@@ -80,7 +79,7 @@ test.describe('Static text question for applicant flow', () => {
     })
 
     test(
-      'parses markdown with north star enabled',
+      'parses markdown',
       {tag: ['@northstar']},
       async () => {
         const {page, applicantQuestions} = ctx

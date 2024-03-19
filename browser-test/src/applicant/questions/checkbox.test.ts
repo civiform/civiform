@@ -253,7 +253,7 @@ test.describe('Checkbox question for applicant flow', () => {
     })
 
     test(
-      'validate screenshot with north star flag enabled',
+      'validate screenshot',
       {tag: ['@northstar']},
       async () => {
         const {page, applicantQuestions} = ctx
