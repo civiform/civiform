@@ -24,6 +24,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.DeploymentType;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
@@ -39,11 +40,14 @@ import views.components.SelectWithLabel;
 public class DatabaseSeedView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
   private final ObjectMapper objectMapper;
+  private final DeploymentType deploymentType;
 
   @Inject
-  public DatabaseSeedView(BaseHtmlLayout layout, ObjectMapper objectMapper) {
+  public DatabaseSeedView(
+      BaseHtmlLayout layout, ObjectMapper objectMapper, DeploymentType deploymentType) {
     this.layout = checkNotNull(layout);
     this.objectMapper = checkNotNull(objectMapper);
+    this.deploymentType = checkNotNull(deploymentType);
     this.objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
   }
 
@@ -94,19 +98,27 @@ public class DatabaseSeedView extends BaseHtmlView {
     DivTag content =
         div()
             .withClasses("w-fit", "p-4")
-            .with(div(maybeFlash.orElse("")))
-            .with(h1(title).withClasses("text-3xl", "mb-1"))
+            .condWith(maybeFlash.isPresent(), div(maybeFlash.orElse("")))
+            .with(h1(title).withClasses("text-3xl", "mb-4"))
             .with(
                 div()
-                    .withClasses("flex", "flex-col", "gap-4")
+                    .withClasses("grid", "grid-cols-1", "md:grid-cols-2", "gap-4")
+                    .with(createHomeSection())
                     .with(createSeedSection(request))
+                    .with(createDurableJobsSection(request))
                     .with(createCachingSection(request))
                     .with(createIconsSection())
-                    .with(createDurableJobsSection(request))
-                    .with(createHomeSection()));
+                    .condWith(deploymentType.isDev(), createEmailSection()));
 
     HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(content);
     return layout.render(bundle);
+  }
+
+  private SectionTag createHomeSection() {
+    return section()
+        .withClasses("flex", "gap-4", "md:col-span-2")
+        .with(
+            createLink("\uD83C\uDFE0 Home page", controllers.routes.HomeController.index().url()));
   }
 
   private SectionTag createSeedSection(Request request) {
@@ -145,7 +157,7 @@ public class DatabaseSeedView extends BaseHtmlView {
             createForm(
                 request,
                 "clear-cache",
-                "Clear cache",
+                "\uD83D\uDCB5 Clear cache",
                 routes.DevDatabaseSeedController.clearCache().url()));
   }
 
@@ -178,24 +190,37 @@ public class DatabaseSeedView extends BaseHtmlView {
                     .setValue(options.get(0).label())
                     .getSelectTag());
     return section()
-        .with(h2("Durable Jobs"))
+        .with(h2("Durable Jobs").withClass("text-2xl"))
         .withClasses("flex", "flex-col", "gap-4", "border", "border-black", "p-4")
+        .with(p("Manually run the selected job"))
         .with(formTag);
   }
 
   private SectionTag createIconsSection() {
     return section()
         .with(h2("Icons").withClass("text-2xl"))
+        .with(p("See all the svg icons in CiviForm"))
         .withClasses("flex", "flex-col", "gap-4", "border", "border-black", "p-4")
         .with(
             createLink("View All SVG Icons", controllers.dev.routes.IconsController.index().url()));
   }
 
-  private SectionTag createHomeSection() {
+  private SectionTag createEmailSection() {
     return section()
-        .withClasses("flex", "flex-col", "gap-4", "p-4")
+        .with(h2("Localstack").withClass("text-2xl"))
+        .with(p("Open S3 or SES endpoints on localstack"))
+        .withClasses("flex", "flex-col", "gap-4", "border", "border-black", "p-4")
         .with(
-            createLink("\uD83C\uDFE0 Home page", controllers.routes.HomeController.index().url()));
+            createLink("✉\uFE0F View SES Emails", "http://localhost.localstack.cloud:4566/_aws/ses")
+                .withTarget("_blank"),
+            createLink(
+                    "\uD83D\uDCC1 S3 Private Bucket",
+                    "http://civiform-local-s3.localhost.localstack.cloud:4566/civiform-local-s3")
+                .withTarget("_blank"),
+            createLink(
+                    "\uD83D\uDCC1 S3 Public Bucket",
+                    "http://civiform-local-s3.localhost.localstack.cloud:4566/civiform-local-s3-public")
+                .withTarget("_blank"));
   }
 
   private FormTag createForm(Request request, String buttonId, String buttonText, String url) {
@@ -219,7 +244,8 @@ public class DatabaseSeedView extends BaseHtmlView {
     return a().withHref(url)
         .withText(buttonText)
         .withClasses(
-            "w-full",
+            "inline-block",
+            "min-w-48",
             "py-2",
             "text-center",
             "text-white",
