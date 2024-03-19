@@ -65,7 +65,8 @@ test.describe('Trusted intermediaries', () => {
 
     await page.getByRole('button', {name: 'Save'}).click()
     await validateScreenshot(page, 'dashboard-add-client-invalid-dob')
-    page.getByRole('button', {name: 'View and add clients'})
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardNotContainClient(client)
   })
 
@@ -164,6 +165,7 @@ test.describe('Trusted intermediaries', () => {
     await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardClientContainsTiNoteAndFormattedPhone(
       client,
+      '(425) 600-7121',
     )
     await tiDashboard.expectEditFormContainsTiNoteAndPhone(client)
     await validateScreenshot(page, 'edit-client-information-with-all-fields')
@@ -303,7 +305,8 @@ test.describe('Trusted intermediaries', () => {
 
     await page.getByRole('button', {name: 'Save'}).click()
     await validateScreenshot(page, 'dashboard-add-client-invalid-email')
-    page.getByRole('button', {name: 'View and add clients'})
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardNotContainClient(client)
   })
 

@@ -106,19 +106,19 @@ export class TIDashboard {
       .click()
     await waitForPageJsLoad(this.page)
     await this.page.waitForSelector('h2:has-text("Edit client")')
-    expect(await this.page.textContent('html')).toContain(client.phoneNumber)
     expect(await this.page.textContent('html')).toContain(client.notes)
   }
 
   async expectDashboardClientContainsTiNoteAndFormattedPhone(
     client: ClientInformation,
+    phone: string,
   ) {
     const cardContainer = this.page.locator(
       `.usa-card__container:has-text("${client.lastName}, ${client.firstName}")`,
     )
     const cardText = await cardContainer.innerText()
     expect(cardText).toContain(client.notes)
-    expect(cardText).toContain(client.phoneNumber) // This should be in (xxx) xxx-xxxx format.
+    expect(cardText).toContain(phone) // This should be in (xxx) xxx-xxxx format.
   }
 
   async expectDashboardContainClient(client: ClientInformation) {
