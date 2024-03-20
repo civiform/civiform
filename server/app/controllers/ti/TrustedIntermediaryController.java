@@ -143,7 +143,8 @@ public final class TrustedIntermediaryController {
             request,
             messagesApi.preferred(request),
             accountId,
-            /* editTiClientInfoForm= */ Optional.empty()));
+            /* editTiClientInfoForm= */ Optional.empty(),
+            /* isSuccessfulSave */ false));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -200,34 +201,20 @@ public final class TrustedIntermediaryController {
     form =
         tiService.updateClientInfo(
             form, trustedIntermediaryGroup.get(), id, messagesApi.preferred(request));
-    if (form.hasErrors()) {
-      return ok(
-          editTiClientView.render(
-              trustedIntermediaryGroup.get(),
-              ApplicantPersonalInfo.ofLoggedInUser(
-                  Representation.builder()
-                      .setName(
-                          form.value().get().getFirstName()
-                              + " "
-                              + form.value().get().getLastName())
-                      .build()),
-              request,
-              messagesApi.preferred(request),
-              id,
-              Optional.of(form)));
-    }
-    return redirect(
-            routes.TrustedIntermediaryController.dashboard(
-                /* nameQuery= */ Optional.empty(),
-                /* dayQuery= */ Optional.empty(),
-                /* monthQuery= */ Optional.empty(),
-                /* yearQuery= */ Optional.empty(),
-                /* page= */ Optional.of(1)))
-        .flashing(
-            "success",
-            String.format(
-                "Successfully updated client: %s %s",
-                form.value().get().getFirstName(), form.value().get().getLastName()));
+
+    return ok(
+        editTiClientView.render(
+            trustedIntermediaryGroup.get(),
+            ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder()
+                    .setName(
+                        form.value().get().getFirstName() + " " + form.value().get().getLastName())
+                    .build()),
+            request,
+            messagesApi.preferred(request),
+            id,
+            Optional.of(form),
+            /* isSuccessfulSave */ !form.hasErrors()));
   }
 
   private String getValidationErrors(List<ValidationError> errors) {
