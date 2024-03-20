@@ -1698,14 +1698,30 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.save();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    assertThat(
-            subject
-                .getPersonalInfo(applicant.id, request)
-                .toCompletableFuture()
-                .join()) // why is this empty?
+    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofGuestUser(
                 Representation.builder().setEmail(ImmutableSet.of("test@example.com")).build()));
+  }
+
+  @Test
+  public void getPersonalInfo_emailIsSetForTiClient() {
+    ApplicantModel applicant = resourceCreator.insertApplicant();
+    AccountModel account = resourceCreator.insertAccount();
+    TrustedIntermediaryGroupModel group = resourceCreator.insertTrustedIntermediaryGroup();
+    account.setManagedByGroup(group);
+    applicant.setAccount(account);
+    applicant.setEmailAddress("ticlient@example.com");
+    applicant.save();
+    account.save();
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+
+    assertThat(subject.getPersonalInfo(applicant.id, request).toCompletableFuture().join())
+        .isEqualTo(
+            ApplicantPersonalInfo.ofTiPartiallyCreated(
+                Representation.builder()
+                    .setEmail(ImmutableSet.of("ticlient@example.com"))
+                    .build()));
   }
 
   @Test

@@ -477,14 +477,12 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private String generateEmailString(
       Optional<String> optionalAccountEmail, Optional<String> optionalApplicantEmail) {
 
-    // Create a set of emails to remove duplicates.
-    ImmutableSet<String> emails =
-        ImmutableSet.of(optionalAccountEmail.orElse(""), optionalApplicantEmail.orElse(""));
-    if (emails.size() == 1) {
-      return emails.iterator().next();
-    } else {
-      return emails.stream().reduce((a, b) -> a + " and " + b).orElse("");
-    }
+    // Create a set to handle the case where both emails are the same.
+    ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+    optionalAccountEmail.ifPresent(builder::add);
+    optionalApplicantEmail.ifPresent(builder::add);
+    // Join the emails with " and " if there are two, otherwise just return the single email.
+    return String.join(" and ", builder.build());
   }
 
   private SpanTag renderSubmitTime(ApplicationModel application) {
