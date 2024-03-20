@@ -32,8 +32,10 @@ export class TIDashboard {
     await this.page.fill('#middle-name-input', client.middleName)
     await this.page.fill('#last-name-input', client.lastName)
     await this.page.fill('#date-of-birth-input', client.dobDate)
-    if (client.notes != undefined && client.phoneNumber != undefined) {
+    if (client.notes != undefined) {
       await this.page.fill('#ti-note-input', client.notes)
+    }
+    if (client.phoneNumber != undefined) {
       await this.page.fill('#phone-number-input', client.phoneNumber)
     }
 

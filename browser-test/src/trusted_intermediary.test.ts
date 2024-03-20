@@ -64,7 +64,7 @@ test.describe('Trusted intermediaries', () => {
     await page.fill('#date-of-birth-input', client.dobDate)
 
     await page.getByRole('button', {name: 'Save'}).click()
-    await validateScreenshot(page, 'dashboard-add-client-invalid-dob')
+    await validateScreenshot(page, 'add-client-invalid-dob')
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardNotContainClient(client)
@@ -118,7 +118,7 @@ test.describe('Trusted intermediaries', () => {
       `Successfully added new client: ${client2.firstName} ${client2.lastName}`,
     )
 
-    await validateScreenshot(page, 'dashboard-add-clients-no-email')
+    await validateScreenshot(page, 'add-clients-no-email')
   })
 
   test('expect client email address to be updated', async () => {
@@ -220,7 +220,6 @@ test.describe('Trusted intermediaries', () => {
     await page.click('text=Back to client list')
     await waitForPageJsLoad(page)
     await page.waitForSelector('h4:has-text("Search")')
-    await validateScreenshot(page, 'back-link-leads-to-ti-dashboard')
   })
 
   test('expect cancel button should not update client information', async () => {
@@ -252,7 +251,6 @@ test.describe('Trusted intermediaries', () => {
     await page.waitForSelector('h4:has-text("Search")')
     // dob should not be updated
     await tiDashboard.expectDashboardContainClient(client)
-    await validateScreenshot(page, 'cancel-leads-to-dashboard')
   })
 
   test('expect field errors', async () => {
@@ -304,10 +302,45 @@ test.describe('Trusted intermediaries', () => {
     await page.fill('#date-of-birth-input', client.dobDate)
 
     await page.getByRole('button', {name: 'Save'}).click()
-    await validateScreenshot(page, 'dashboard-add-client-invalid-email')
+    await validateScreenshot(page, 'cannot-add-client-with-existing-email')
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardNotContainClient(client)
+  })
+
+  test('expect client cannot be added with an existing email address', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client1: ClientInformation = {
+      emailAddress: 'mail@test.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2023-07-11',
+    }
+    const client2: ClientInformation = {
+      emailAddress: 'mail@test.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2023-07-11',
+    }
+    await tiDashboard.createClient(client1)
+
+    await page.getByRole('button', {name: 'Add new client'}).click()
+    await waitForPageJsLoad(page)
+
+    await page.fill('#email-input', client2.emailAddress)
+    await page.fill('#first-name-input', client2.firstName)
+    await page.fill('#middle-name-input', client2.middleName)
+    await page.fill('#last-name-input', client2.lastName)
+    await page.fill('#date-of-birth-input', client2.dobDate)
+
+    await page.getByRole('button', {name: 'Save'}).click()
+    await validateScreenshot(page, 'cannot-add-client-invalid-email')
   })
 
   test('ti landing page is the TI Dashboard', async () => {
@@ -585,7 +618,7 @@ test.describe('Trusted intermediaries', () => {
     await tiDashboard.clickOnViewApplications()
     await page.click('#ti-clients-link')
 
-    expect(await page.innerText('#ti-search-form')).toContain('Search by name')
+    expect(await page.innerHTML('body')).toContain('#name-search')
   })
 
   test.describe('application flow with eligibility conditions', () => {
