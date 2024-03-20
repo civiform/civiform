@@ -59,7 +59,6 @@ import services.MessageKey;
 import services.Path;
 import services.PhoneValidationResult;
 import services.PhoneValidationUtils;
-import services.applicant.ApplicantPersonalInfo.ApplicantType;
 import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.ApplicantService.UpdateMetadata;
 import services.applicant.exception.ApplicantNotFoundException;
@@ -594,12 +593,21 @@ public final class ApplicantService {
                       .orElse(CompletableFuture.completedFuture(null));
 
               ApplicantPersonalInfo applicantPersonalInfo = applicantLabelFuture.join();
-              Optional<ImmutableSet<String>> applicantEmails =
-                  applicantPersonalInfo.getType() == ApplicantType.LOGGED_IN
-                      ? applicantPersonalInfo.loggedIn().email()
-                      : applicantPersonalInfo.getType() == ApplicantType.TI_PARTIALLY_CREATED
-                          ? applicantPersonalInfo.tiPartiallyCreated().email()
-                          : applicantPersonalInfo.guest().email();
+
+              Optional<ImmutableSet<String>> applicantEmails;
+              switch (applicantPersonalInfo.getType()) {
+                case LOGGED_IN:
+                  applicantEmails = applicantPersonalInfo.loggedIn().email();
+                  break;
+                case TI_PARTIALLY_CREATED:
+                  applicantEmails = applicantPersonalInfo.tiPartiallyCreated().email();
+                  break;
+                case GUEST:
+                  applicantEmails = applicantPersonalInfo.guest().email();
+                  break;
+                default:
+                  applicantEmails = Optional.empty();
+              }
 
               CompletableFuture<Void> notifyApplicantFuture;
               if (applicantEmails.isEmpty() || applicantEmails.get().isEmpty()) {

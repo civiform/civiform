@@ -25,7 +25,6 @@ import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
-import services.applicant.ApplicantPersonalInfo.ApplicantType;
 import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.NoteEvent;
@@ -129,16 +128,24 @@ public final class ProgramAdminApplicationService {
             adminSubmitterEmail);
       }
       // Notify the applicant.
-      ApplicantPersonalInfo personalInfo =
+      ApplicantPersonalInfo applicantPersonalInfo =
           applicantService.getPersonalInfo(applicant.id, request).toCompletableFuture().join();
-      Optional<ImmutableSet<String>> applicantEmail =
-          personalInfo.getType() == ApplicantType.LOGGED_IN
-              ? personalInfo.loggedIn().email()
-              : personalInfo.getType() == ApplicantType.TI_PARTIALLY_CREATED
-                  ? personalInfo.tiPartiallyCreated().email()
-                  : personalInfo.guest().email();
-      if (applicantEmail.isPresent()) {
-        applicantEmail
+      Optional<ImmutableSet<String>> applicantEmails;
+      switch (applicantPersonalInfo.getType()) {
+        case LOGGED_IN:
+          applicantEmails = applicantPersonalInfo.loggedIn().email();
+          break;
+        case TI_PARTIALLY_CREATED:
+          applicantEmails = applicantPersonalInfo.tiPartiallyCreated().email();
+          break;
+        case GUEST:
+          applicantEmails = applicantPersonalInfo.guest().email();
+          break;
+        default:
+          applicantEmails = Optional.empty();
+      }
+      if (applicantEmails.isPresent()) {
+        applicantEmails
             .get()
             .forEach(
                 email ->

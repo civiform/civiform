@@ -9,14 +9,12 @@ import static j2html.TagCreator.p;
 import auth.CiviFormProfile;
 import controllers.applicant.ApplicantRoutes;
 import j2html.tags.specialized.DivTag;
-import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.MessageKey;
-import services.applicant.ApplicantPersonalInfo;
-import services.applicant.ApplicantPersonalInfo.Representation;
+import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
@@ -32,11 +30,14 @@ public final class PreventDuplicateSubmissionView extends ApplicationBaseView {
 
   private final ApplicantLayout layout;
   private final ApplicantRoutes applicantRoutes;
+  private final ApplicantService applicantService;
 
   @Inject
-  PreventDuplicateSubmissionView(ApplicantLayout layout, ApplicantRoutes applicantRoutes) {
+  PreventDuplicateSubmissionView(
+      ApplicantLayout layout, ApplicantRoutes applicantRoutes, ApplicantService applicantService) {
     this.layout = checkNotNull(layout);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.applicantService = checkNotNull(applicantService);
   }
 
   public Content render(
@@ -83,16 +84,10 @@ public final class PreventDuplicateSubmissionView extends ApplicationBaseView {
             .setTitle(title)
             .addMainStyles(ApplicantStyles.MAIN_APPLICANT_INFO)
             .addMainContent(h1(title).withClasses("sr-only"), content);
-    Optional<String> applicantName =
-        roApplicantProgramService.getApplicantData().getApplicantName();
-    Representation.Builder representationBuilder = Representation.builder();
 
     return layout.renderWithNav(
         request,
-        applicantName.isPresent()
-            ? ApplicantPersonalInfo.ofLoggedInUser(
-                representationBuilder.setName(applicantName).build())
-            : ApplicantPersonalInfo.ofGuestUser(representationBuilder.build()),
+        applicantService.getPersonalInfo(applicantId, request).toCompletableFuture().join(),
         messages,
         bundle,
         applicantId);

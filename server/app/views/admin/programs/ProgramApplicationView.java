@@ -16,6 +16,7 @@ import static j2html.TagCreator.span;
 import annotations.BindingAnnotations.EnUsLang;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
 import j2html.tags.DomContent;
@@ -426,11 +427,10 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
     Optional<String> optionalAccountEmail =
         Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
-    Optional<String> optionalApplicantEmail = Optional.empty();
+    Optional<String> optionalApplicantEmail = application.getApplicant().getEmailAddress();
     boolean emptyEmails = optionalAccountEmail.isEmpty();
 
     if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
-      optionalApplicantEmail = application.getApplicant().getEmailAddress();
       emptyEmails = emptyEmails && optionalApplicantEmail.isEmpty();
     }
 
@@ -476,13 +476,14 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
   private String generateEmailString(
       Optional<String> optionalAccountEmail, Optional<String> optionalApplicantEmail) {
-    if (optionalAccountEmail.isEmpty() && optionalApplicantEmail.isPresent()) {
-      return optionalApplicantEmail.orElse("");
-    } else if (optionalApplicantEmail.isEmpty()
-        || optionalAccountEmail.get().equals(optionalApplicantEmail.get())) {
-      return optionalAccountEmail.orElse("");
+
+    // Create a set of emails to remove duplicates.
+    ImmutableSet<String> emails =
+        ImmutableSet.of(optionalAccountEmail.orElse(""), optionalApplicantEmail.orElse(""));
+    if (emails.size() == 1) {
+      return emails.iterator().next();
     } else {
-      return optionalAccountEmail.get() + " and " + optionalApplicantEmail.get();
+      return emails.stream().reduce((a, b) -> a + " and " + b).orElse("");
     }
   }
 
