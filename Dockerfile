@@ -30,7 +30,7 @@ RUN set -o pipefail && \
   apk update && \
   apk add --upgrade apk-tools && \
   apk upgrade --available && \
-  apk add --no-cache --update bash wget npm git openssh ncurses
+  apk add --no-cache --update bash wget npm git
 
 # Install npm (node)
 RUN npm install -g npm
