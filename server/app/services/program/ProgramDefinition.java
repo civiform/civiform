@@ -4,6 +4,10 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import auth.ProgramAcls;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
@@ -32,6 +36,8 @@ import services.question.types.QuestionType;
 
 /** An immutable configuration of a program. */
 @AutoValue
+// @JsonSerialize(as = ProgramDefinition.class)
+@JsonDeserialize(builder = AutoValue_ProgramDefinition.Builder.class)
 public abstract class ProgramDefinition {
 
   // Lazy cache various computed values.
@@ -42,66 +48,121 @@ public abstract class ProgramDefinition {
     return new AutoValue_ProgramDefinition.Builder();
   }
 
+  // The @JsonProperty annotations here tell Jackson to export all those fields when serializing
+  // this class.
+  // The @JsonProperty annotations in the builder tell Jackson to import all those fields when
+  // deserializing this class.
+
   /** Unique identifier for a ProgramDefinition. */
+  @JsonProperty("id")
   public abstract long id();
 
   /**
    * Descriptive name of a Program, e.g. Car Tab Rebate Program. Different versions of the same
    * program are linked by their immutable name.
    */
+  @JsonProperty("adminName")
   public abstract String adminName();
 
   /** A description of this program for the admin's reference. */
+  @JsonProperty("adminDescription")
   public abstract String adminDescription();
 
   /** An external link to a page containing more details for this program. */
+  @JsonProperty("externalLink")
   public abstract String externalLink();
 
   /** The program's display mode. */
+  @JsonProperty("displayMode")
   public abstract DisplayMode displayMode();
 
   /**
    * Descriptive name of a Program, e.g. Car Tab Rebate Program, localized for each supported
    * locale.
    */
+  @JsonProperty("localizedName")
   public abstract LocalizedStrings localizedName();
 
   /** A human readable description of a Program, localized for each supported locale. */
+  @JsonProperty("localizedDescription")
   public abstract LocalizedStrings localizedDescription();
 
   /**
    * A custom message to be inserted into the confirmation screen for the Program, localized for
    * each supported locale.
    */
+  @JsonProperty("localizedConfirmationMessage")
   public abstract LocalizedStrings localizedConfirmationMessage();
 
   /** The list of {@link BlockDefinition}s that make up the program. */
+  @JsonProperty("blockDefinitions")
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
 
   /** The application review statuses available for the program. */
+  @JsonProperty("statusDefinitions")
   public abstract StatusDefinitions statusDefinitions();
 
   /** When was this program created. Could be null for older programs. */
+  @JsonIgnore
   public abstract Optional<Instant> createTime();
 
   /** When was this program last modified. Could be null for older programs. */
+  @JsonIgnore
   public abstract Optional<Instant> lastModifiedTime();
 
+  @JsonProperty("programType")
   public abstract ProgramType programType();
 
   /**
    * Whether or not eligibility criteria for this program blocks the application from being
    * submitted.
    */
+  @JsonProperty("eligibilityIsGating")
   public abstract Boolean eligibilityIsGating();
 
+  @JsonProperty("acls")
   public abstract ProgramAcls acls();
 
   /** A description of the program's summary image, used for alt text. */
+  @JsonProperty("localizedSummaryImageDescription")
   public abstract Optional<LocalizedStrings> localizedSummaryImageDescription();
 
   /** A key used to fetch the program's summary image from cloud storage. */
+  @JsonProperty("summaryImageFileKey") // TODO: Probably ignore
   public abstract Optional<String> summaryImageFileKey();
+
+  // TODO: Don't want to have to do this
+
+  /*
+    @JsonCreator
+    public static ProgramDefinition jsonCreator(
+            @JsonProperty("adminName") String adminName,
+            @JsonProperty("adminDescription") String adminDescription,
+    @JsonProperty("localizedName") LocalizedStrings localizedName,
+            @JsonProperty("localizedDescription") LocalizedStrings localizedDescription,
+  @JsonProperty("localizedConfirmationMessage") LocalizedStrings localizedConfirmationMessage
+            ) {
+      System.out.println("json creator, adminName=" + adminName);
+      return new AutoValue_ProgramDefinition.Builder()
+              .setId(0)
+              .setAdminName(adminName)
+              .setAdminDescription(adminDescription)
+              .setExternalLink("")
+              .setDisplayMode(DisplayMode.HIDDEN_IN_INDEX)
+              .setLocalizedName(localizedName)
+              .setLocalizedDescription(localizedDescription)
+              .setLocalizedConfirmationMessage(localizedConfirmationMessage)
+              .setBlockDefinitions(ImmutableList.of())
+              .setStatusDefinitions(new StatusDefinitions())
+              .setAcls(new ProgramAcls())
+              .setEligibilityIsGating(true)
+              .setProgramType(ProgramType.DEFAULT)
+              .build();
+
+
+    }
+
+     */
 
   /**
    * Returns a program definition with block definitions such that each enumerator block is
@@ -380,15 +441,6 @@ public abstract class ProgramDefinition {
   }
 
   /**
-   * Visible since the /dev/seed view uses Jackson's ObjectMapper to only have keys for explicit
-   * getters.
-   */
-  @VisibleForTesting
-  public String getAdminNameForTests() {
-    return adminName();
-  }
-
-  /**
    * Get all the {@link Locale}s this program fully supports. A program fully supports a locale if:
    *
    * <ul>
@@ -400,6 +452,7 @@ public abstract class ProgramDefinition {
    * @return an {@link ImmutableSet} of all {@link Locale}s that are fully supported for this
    *     program
    */
+  @JsonIgnore
   public ImmutableSet<Locale> getSupportedLocales() {
     ImmutableSet<ImmutableSet<Locale>> questionLocales =
         streamQuestionDefinitions()
@@ -475,12 +528,14 @@ public abstract class ProgramDefinition {
    * @return the last {@link BlockDefinition}
    * @throws ProgramNeedsABlockException if the program has no blocks
    */
+  @JsonIgnore
   public BlockDefinition getLastBlockDefinition() throws ProgramNeedsABlockException {
     return getBlockDefinitionByIndex(blockDefinitions().size() - 1)
         .orElseThrow(() -> new ProgramNeedsABlockException(id()));
   }
 
   /** Returns the max block definition id. */
+  @JsonIgnore
   public long getMaxBlockDefinitionId() {
     return blockDefinitions().stream()
         .map(BlockDefinition::id)
@@ -488,6 +543,7 @@ public abstract class ProgramDefinition {
         .orElseGet(() -> 0L);
   }
 
+  @JsonIgnore
   public int getBlockCount() {
     return blockDefinitions().size();
   }
@@ -496,6 +552,7 @@ public abstract class ProgramDefinition {
     return MainModule.SLUGIFIER.slugify(this.adminName());
   }
 
+  @JsonIgnore
   public int getQuestionCount() {
     return blockDefinitions().stream().mapToInt(BlockDefinition::getQuestionCount).sum();
   }
@@ -542,6 +599,7 @@ public abstract class ProgramDefinition {
   }
 
   /** Get non-repeated block definitions. */
+  @JsonIgnore
   public ImmutableList<BlockDefinition> getNonRepeatedBlockDefinitions() {
     return blockDefinitions().stream()
         .filter(blockDefinition -> blockDefinition.enumeratorId().isEmpty())
@@ -576,6 +634,7 @@ public abstract class ProgramDefinition {
   }
 
   /** Returns a list of the question IDs in a program. */
+  @JsonIgnore
   public ImmutableList<Long> getQuestionIdsInProgram() {
     return blockDefinitions().stream()
         .map(BlockDefinition::programQuestionDefinitions)
@@ -723,6 +782,7 @@ public abstract class ProgramDefinition {
    *
    * @return List of questions in program with Primary Applicant Info tags.
    */
+  @JsonIgnore
   public ImmutableList<QuestionDefinition> getQuestionsWithPrimaryApplicantInfoTags() {
     return blockDefinitions().stream()
         .map(BlockDefinition::programQuestionDefinitions)
@@ -733,27 +793,39 @@ public abstract class ProgramDefinition {
   }
 
   @AutoValue.Builder
+  @JsonPOJOBuilder
+  // @JsonPOJOBuilder(withPrefix = "") // https://github.com/google/auto/issues/138
   public abstract static class Builder {
 
+    @JsonProperty("id")
     public abstract Builder setId(long id);
 
+    @JsonProperty("adminName")
     public abstract Builder setAdminName(String adminName);
 
+    @JsonProperty("externalLink")
     public abstract Builder setExternalLink(String externalLink);
 
+    @JsonProperty("displayMode")
     public abstract Builder setDisplayMode(DisplayMode displayMode);
 
+    @JsonProperty("adminDescription")
     public abstract Builder setAdminDescription(String adminDescription);
 
+    @JsonProperty("localizedName")
     public abstract Builder setLocalizedName(LocalizedStrings localizedName);
 
+    @JsonProperty("localizedDescription")
     public abstract Builder setLocalizedDescription(LocalizedStrings localizedDescription);
 
+    @JsonProperty("localizedConfirmationMessage")
     public abstract Builder setLocalizedConfirmationMessage(
         LocalizedStrings localizedConfirmationMessage);
 
+    @JsonProperty("blockDefinitions")
     public abstract Builder setBlockDefinitions(ImmutableList<BlockDefinition> blockDefinitions);
 
+    @JsonProperty("statusDefinitions")
     public abstract Builder setStatusDefinitions(StatusDefinitions statusDefinitions);
 
     public abstract ImmutableList.Builder<BlockDefinition> blockDefinitionsBuilder();
@@ -768,10 +840,13 @@ public abstract class ProgramDefinition {
 
     public abstract Builder setLastModifiedTime(@Nullable Instant lastModifiedTime);
 
+    @JsonProperty("programType")
     public abstract Builder setProgramType(ProgramType programType);
 
+    @JsonProperty("eligibilityIsGating")
     public abstract Builder setEligibilityIsGating(Boolean eligibilityIsGating);
 
+    @JsonProperty("acls")
     public abstract Builder setAcls(ProgramAcls programAcls);
 
     public abstract Builder setLocalizedSummaryImageDescription(

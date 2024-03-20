@@ -47,7 +47,8 @@ public final class AdminLayout extends BaseHtmlLayout {
     API_KEYS,
     SETTINGS,
     API_DOCS,
-    IMPORT_EXPORT,
+    EXPORT,
+    IMPORT,
   }
 
   private final NavPage activeNavPage;
@@ -149,7 +150,9 @@ public final class AdminLayout extends BaseHtmlLayout {
     String apiKeysLink = controllers.admin.routes.AdminApiKeysController.index().url();
     String apiDocsLink = controllers.api.routes.ApiDocsController.index().url();
     String reportingLink = controllers.admin.routes.AdminReportingController.index().url();
-    String importExportLink = controllers.admin.routes.AdminImportExportController.index().url();
+    String exportLink = controllers.admin.routes.AdminImportExportController.export().url();
+    String importLink =
+        controllers.admin.routes.AdminImportExportController.importProgramsPage().url();
     String settingsLink = controllers.admin.routes.AdminSettingsController.index().url();
 
     String activeNavStyle =
@@ -195,11 +198,12 @@ public final class AdminLayout extends BaseHtmlLayout {
         headerLink(
             "API docs", apiDocsLink, NavPage.API_DOCS.equals(activeNavPage) ? activeNavStyle : "");
 
-    ATag importExportHeaderLink =
+    ATag exportHeaderLink =
         headerLink(
-            "Import & export",
-            importExportLink,
-            NavPage.IMPORT_EXPORT.equals(activeNavPage) ? activeNavStyle : "");
+            "Export", exportLink, NavPage.EXPORT.equals(activeNavPage) ? activeNavStyle : "");
+    ATag importHeaderLink =
+        headerLink(
+            "Import", importLink, NavPage.IMPORT.equals(activeNavPage) ? activeNavStyle : "");
 
     switch (primaryAdminType) {
       case CIVI_FORM_ADMIN:
@@ -212,7 +216,8 @@ public final class AdminLayout extends BaseHtmlLayout {
               .with(apiKeysHeaderLink)
               .condWith(
                   getSettingsManifest().getApiGeneratedDocsEnabled(request), apiDocsHeaderLink)
-              .with(importExportHeaderLink);
+              .with(exportHeaderLink)
+              .with(importHeaderLink);
           break;
         }
       case PROGRAM_ADMIN:

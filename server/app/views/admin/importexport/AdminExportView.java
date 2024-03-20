@@ -15,6 +15,7 @@ import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
@@ -26,15 +27,17 @@ import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 
-public final class AdminImportExportView extends BaseHtmlView {
+public final class AdminExportView extends BaseHtmlView {
   // TODO: Do the same as ProgramImageDescriptionForm
   private static final String PROGRAMS_FIELD_NAME = "programIds[]";
 
   private final AdminLayout layout;
+  private final MessagesApi messagesApi;
 
   @Inject
-  public AdminImportExportView(AdminLayoutFactory layoutFactory) {
-    this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.IMPORT_EXPORT);
+  public AdminExportView(AdminLayoutFactory layoutFactory, MessagesApi messagesApi) {
+    this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.EXPORT);
+    this.messagesApi = messagesApi;
   }
 
   public Content render(
