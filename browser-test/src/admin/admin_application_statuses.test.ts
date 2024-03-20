@@ -225,11 +225,11 @@ test.describe('view program statuses', () => {
           const modal =
             await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
           const notifyCheckbox = await modal.$('input[type=checkbox]')
-          if (!notifyCheckbox) {
-            throw new Error('Expected a checkbox input')
+          expect(notifyCheckbox).not.toBeNull()
+          if (notifyCheckbox) {
+            await notifyCheckbox.uncheck()
+            expect(await notifyCheckbox.isChecked()).toBe(false)
           }
-          await notifyCheckbox.uncheck()
-          expect(await notifyCheckbox.isChecked()).toBe(false)
           await adminPrograms.confirmStatusUpdateModal(modal)
           expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
           await adminPrograms.expectUpdateStatusToast()
@@ -251,10 +251,10 @@ test.describe('view program statuses', () => {
           const modal =
             await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
           const notifyCheckbox = await modal.$('input[type=checkbox]')
-          if (!notifyCheckbox) {
-            throw new Error('Expected a checkbox input')
+          expect(notifyCheckbox).not.toBeNull()
+          if (notifyCheckbox) {
+            expect(await notifyCheckbox.isChecked()).toBe(true)
           }
-          expect(await notifyCheckbox.isChecked()).toBe(true)
           expect(await modal.innerText()).toContain(' of this change at ')
           await adminPrograms.confirmStatusUpdateModal(modal)
           expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
@@ -728,11 +728,10 @@ test.describe('view program statuses', () => {
           await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
 
         const notifyCheckbox = await modal.$('input[type=checkbox]')
-        if (!notifyCheckbox) {
-          throw new Error('Expected a checkbox input')
+        expect(notifyCheckbox).not.toBeNull()
+        if (notifyCheckbox) {
+          expect(await notifyCheckbox.isChecked()).toBe(true)
         }
-        expect(await notifyCheckbox.isChecked()).toBe(true)
-
         expect(await modal.innerText()).toContain(
           ' of this change at ' + guestEmail,
         )
