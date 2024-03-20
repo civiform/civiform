@@ -12,11 +12,15 @@ import {
   extractEmailsForRecipient,
   validateScreenshot,
   enableFeatureFlag,
-  disableFeatureFlag,
 } from '../support'
 
 test.describe('view program statuses', () => {
   const ctx = createTestContext(/* clearDb= */ false)
+
+  const programWithStatusesName = 'Test program with statuses'
+  const noEmailStatusName = 'No email status'
+  const emailStatusName = 'Email status'
+  const emailBody = 'Some email content'
 
   test.describe('without program statuses', () => {
     const programWithoutStatusesName = 'Test program without statuses'
@@ -96,39 +100,8 @@ test.describe('view program statuses', () => {
   })
 
   test.describe('with program statuses', () => {
-    const programWithStatusesName = 'Test program with statuses'
-    const noEmailStatusName = 'No email status'
-    const emailStatusName = 'Email status'
-    const emailBody = 'Some email content'
-
     test.beforeAll(async () => {
-      const {page, adminPrograms, applicantQuestions, adminProgramStatuses} =
-        ctx
-      await loginAsAdmin(page)
-
-      // Add a program, no questions are needed.
-      await adminPrograms.addProgram(programWithStatusesName)
-      await adminPrograms.gotoDraftProgramManageStatusesPage(
-        programWithStatusesName,
-      )
-      await adminProgramStatuses.createStatus(noEmailStatusName)
-      await adminProgramStatuses.createStatus(emailStatusName, {
-        emailBody: emailBody,
-      })
-      await adminPrograms.publishProgram(programWithStatusesName)
-      await adminPrograms.expectActiveProgram(programWithStatusesName)
-      await logout(page)
-
-      // Submit an application as a guest.
-      await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
-      await applicantQuestions.submitFromReviewPage()
-      await logout(page)
-
-      // Submit an application as the logged in test user.
-      await loginAsTestUser(page)
-      await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
-      await applicantQuestions.submitFromReviewPage()
-      await logout(page)
+      await setupProgramsWithStatuses()
     })
 
     test.beforeEach(async () => {
@@ -360,171 +333,6 @@ test.describe('view program statuses', () => {
       await adminPrograms.viewApplicationForApplicant('Guest')
 
       expect(await adminPrograms.getNoteContent()).toBe(noteText)
-    })
-
-    test.describe('email status updates work correctly with PAI flag on', () => {
-      test.beforeAll(async () => {
-        const {page, adminPrograms, adminQuestions} = ctx
-        await enableFeatureFlag(
-          page,
-          'primary_applicant_info_questions_enabled',
-        )
-        await loginAsAdmin(page)
-        await adminQuestions.addEmailQuestion({
-          questionName: 'Email',
-          universal: true,
-          primaryApplicantInfo: true,
-        })
-        await adminPrograms.editProgram(programWithStatusesName)
-        await adminPrograms.editProgramBlock(
-          programWithStatusesName,
-          'block description',
-          ['Email'],
-        )
-        await adminPrograms.publishAllDrafts()
-        await logout(page)
-      })
-      test.beforeEach(async () => {
-        const {page} = ctx
-        // Logout before each test so we can start from the homescreen as an applicant
-        await logout(page)
-      })
-      test.afterAll(async () => {
-        const {page} = ctx
-        await disableFeatureFlag(
-          page,
-          'primary_applicant_info_questions_enabled',
-        )
-      })
-      test('email is displayed and sent for guest user that has answered the PAI email question', async () => {
-        const {page, applicantQuestions, adminPrograms} = ctx
-        const guestEmail = 'guestemail@example.com'
-
-        await applicantQuestions.applyProgram(programWithStatusesName)
-        await applicantQuestions.answerEmailQuestion(guestEmail)
-        await applicantQuestions.clickNext()
-        await applicantQuestions.submitFromReviewPage()
-        await logout(page)
-
-        await loginAsProgramAdmin(page)
-        await adminPrograms.viewApplications(programWithStatusesName)
-        await adminPrograms.viewApplicationForApplicant('Guest')
-
-        const emailsBefore = supportsEmailInspection()
-          ? await extractEmailsForRecipient(page, guestEmail)
-          : []
-
-        const modal =
-          await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
-
-        const notifyCheckbox = await modal.$('input[type=checkbox]')
-        if (!notifyCheckbox) {
-          throw new Error('Expected a checkbox input')
-        }
-        expect(await notifyCheckbox.isChecked()).toBe(true)
-
-        expect(await modal.innerText()).toContain(
-          ' of this change at ' + guestEmail,
-        )
-        await adminPrograms.confirmStatusUpdateModal(modal)
-        expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
-        await adminPrograms.expectUpdateStatusToast()
-
-        if (supportsEmailInspection()) {
-          await adminPrograms.expectEmailSent(
-            emailsBefore.length,
-            guestEmail,
-            emailBody,
-            programWithStatusesName,
-          )
-        }
-      })
-      test('both email addresses are displayed and two emails are sent for a logged in user that has answered the PAI email question with a different email', async () => {
-        const {page, applicantQuestions, adminPrograms} = ctx
-        const otherTestUserEmail = 'other@example.com'
-
-        await loginAsTestUser(page)
-        await applicantQuestions.applyProgram(programWithStatusesName)
-        await applicantQuestions.answerEmailQuestion(otherTestUserEmail)
-        await applicantQuestions.clickNext()
-        await applicantQuestions.submitFromReviewPage()
-        await logout(page)
-
-        await loginAsProgramAdmin(page)
-        await adminPrograms.viewApplications(programWithStatusesName)
-        await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
-
-        const acccountEmailsBefore = supportsEmailInspection()
-          ? await extractEmailsForRecipient(page, testUserDisplayName())
-          : []
-        const applicantEmailsBefore = supportsEmailInspection()
-          ? await extractEmailsForRecipient(page, otherTestUserEmail)
-          : []
-
-        const modal =
-          await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
-        expect(await modal.innerText()).toContain(
-          ' of this change at ' +
-            testUserDisplayName() +
-            ' and ' +
-            otherTestUserEmail,
-        )
-
-        await adminPrograms.confirmStatusUpdateModal(modal)
-        await adminPrograms.expectUpdateStatusToast()
-
-        if (supportsEmailInspection()) {
-          await adminPrograms.expectEmailSent(
-            acccountEmailsBefore.length,
-            testUserDisplayName(),
-            emailBody,
-            programWithStatusesName,
-          )
-          await adminPrograms.expectEmailSent(
-            applicantEmailsBefore.length,
-            otherTestUserEmail,
-            emailBody,
-            programWithStatusesName,
-          )
-        }
-      })
-      test('only one email is displayed and sent for a logged in user that has answered the PAI email question with the same email they used to login', async () => {
-        const {page, applicantQuestions, adminPrograms} = ctx
-
-        await loginAsTestUser(page)
-        await applicantQuestions.applyProgram(programWithStatusesName)
-        await applicantQuestions.answerEmailQuestion(testUserDisplayName())
-        await applicantQuestions.clickNext()
-        await applicantQuestions.submitFromReviewPage()
-        await logout(page)
-
-        await loginAsProgramAdmin(page)
-        await adminPrograms.viewApplications(programWithStatusesName)
-        await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
-
-        const emailsBefore = supportsEmailInspection()
-          ? await extractEmailsForRecipient(page, testUserDisplayName())
-          : []
-
-        const modal =
-          await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
-        expect(await modal.innerText()).toContain(
-          ' of this change at ' + testUserDisplayName(),
-        )
-        expect(await modal.innerText()).not.toContain(' and ')
-
-        await adminPrograms.confirmStatusUpdateModal(modal)
-        await adminPrograms.expectUpdateStatusToast()
-
-        if (supportsEmailInspection()) {
-          await adminPrograms.expectEmailSent(
-            emailsBefore.length,
-            testUserDisplayName(),
-            emailBody,
-            programWithStatusesName,
-          )
-        }
-      })
     })
   })
 
@@ -869,4 +677,218 @@ test.describe('view program statuses', () => {
       )
     })
   })
+  test.describe('email status updates work correctly with PAI flag on', () => {
+    const ctx = createTestContext(/* clearDb= */ true)
+    test.beforeEach(async () => {
+      const {page, adminPrograms, adminQuestions} = ctx
+      await setupProgramsWithStatuses()
+      await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
+      await loginAsAdmin(page)
+      await adminQuestions.addEmailQuestion({
+        questionName: 'Email',
+        universal: true,
+        primaryApplicantInfo: true,
+      })
+      await adminPrograms.editProgram(programWithStatusesName)
+      await adminPrograms.editProgramBlock(
+        programWithStatusesName,
+        'block description',
+        ['Email'],
+      )
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+    test('email is displayed and sent for guest user that has answered the PAI email question', async () => {
+      const {page, applicantQuestions, adminPrograms} = ctx
+      const guestEmail = 'guestemail@example.com'
+
+      await test.step('submit application as guest', async () => {
+        await applicantQuestions.applyProgram(programWithStatusesName)
+        await applicantQuestions.answerEmailQuestion(guestEmail)
+        await applicantQuestions.clickNext()
+        await applicantQuestions.submitFromReviewPage()
+        await logout(page)
+      })
+
+      await test.step('view submitted programs as a program admin', async () => {
+        await loginAsProgramAdmin(page)
+        await adminPrograms.viewApplications(programWithStatusesName)
+        await adminPrograms.viewApplicationForApplicant('Guest')
+      })
+
+      const emailsBefore =
+        await test.step('get count of emails before status change', async () => {
+          return supportsEmailInspection()
+            ? await extractEmailsForRecipient(page, guestEmail)
+            : []
+        })
+
+      await test.step('set new status and confirm change via modal', async () => {
+        const modal =
+          await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
+
+        const notifyCheckbox = await modal.$('input[type=checkbox]')
+        if (!notifyCheckbox) {
+          throw new Error('Expected a checkbox input')
+        }
+        expect(await notifyCheckbox.isChecked()).toBe(true)
+
+        expect(await modal.innerText()).toContain(
+          ' of this change at ' + guestEmail,
+        )
+        await adminPrograms.confirmStatusUpdateModal(modal)
+        expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
+        await adminPrograms.expectUpdateStatusToast()
+      })
+      await test.step('verify status update email was sent to applicant', async () => {
+        if (supportsEmailInspection()) {
+          await adminPrograms.expectEmailSent(
+            emailsBefore.length,
+            guestEmail,
+            emailBody,
+            programWithStatusesName,
+          )
+        }
+      })
+    })
+    test('both email addresses are displayed and two emails are sent for a logged in user that has answered the PAI email question with a different email', async () => {
+      const {page, applicantQuestions, adminPrograms} = ctx
+      const otherTestUserEmail = 'other@example.com'
+
+      await test.step('submit application as a logged in user with a different email address', async () => {
+        await loginAsTestUser(page)
+        await applicantQuestions.applyProgram(programWithStatusesName)
+        await applicantQuestions.answerEmailQuestion(otherTestUserEmail)
+        await applicantQuestions.clickNext()
+        await applicantQuestions.submitFromReviewPage()
+        await logout(page)
+      })
+
+      await test.step('view submitted programs as a program admin', async () => {
+        await loginAsProgramAdmin(page)
+        await adminPrograms.viewApplications(programWithStatusesName)
+        await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+      })
+
+      const [acccountEmailsBefore, applicantEmailsBefore] =
+        await test.step('get count of emails before status change', async () => {
+          const acccountEmailsBefore = supportsEmailInspection()
+            ? await extractEmailsForRecipient(page, testUserDisplayName())
+            : []
+          const applicantEmailsBefore = supportsEmailInspection()
+            ? await extractEmailsForRecipient(page, otherTestUserEmail)
+            : []
+          return [acccountEmailsBefore, applicantEmailsBefore]
+        })
+
+      await test.step('set new status and confirm change via modal', async () => {
+        const modal =
+          await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
+        expect(await modal.innerText()).toContain(
+          ' of this change at ' +
+            testUserDisplayName() +
+            ' and ' +
+            otherTestUserEmail,
+        )
+
+        await adminPrograms.confirmStatusUpdateModal(modal)
+        await adminPrograms.expectUpdateStatusToast()
+      })
+      await test.step('verify status update email was sent to both email addresses', async () => {
+        if (supportsEmailInspection()) {
+          await adminPrograms.expectEmailSent(
+            acccountEmailsBefore.length,
+            testUserDisplayName(),
+            emailBody,
+            programWithStatusesName,
+          )
+          await adminPrograms.expectEmailSent(
+            applicantEmailsBefore.length,
+            otherTestUserEmail,
+            emailBody,
+            programWithStatusesName,
+          )
+        }
+      })
+    })
+    test('only one email is displayed and sent for a logged in user that has answered the PAI email question with the same email they used to login', async () => {
+      const {page, applicantQuestions, adminPrograms} = ctx
+
+      await test.step('submit application as a logged in user with the same email address', async () => {
+        await loginAsTestUser(page)
+        await applicantQuestions.applyProgram(programWithStatusesName)
+        await applicantQuestions.answerEmailQuestion(testUserDisplayName())
+        await applicantQuestions.clickNext()
+        await applicantQuestions.submitFromReviewPage()
+        await logout(page)
+      })
+
+      await test.step('view submitted programs as a program admin', async () => {
+        await loginAsProgramAdmin(page)
+        await adminPrograms.viewApplications(programWithStatusesName)
+        await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+      })
+
+      const emailsBefore =
+        await test.step('get count of emails before status change', async () => {
+          return supportsEmailInspection()
+            ? await extractEmailsForRecipient(page, testUserDisplayName())
+            : []
+        })
+
+      await test.step('set new status and confirm change via modal', async () => {
+        const modal =
+          await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
+        expect(await modal.innerText()).toContain(
+          ' of this change at ' + testUserDisplayName(),
+        )
+        expect(await modal.innerText()).not.toContain(' and ')
+
+        await adminPrograms.confirmStatusUpdateModal(modal)
+        await adminPrograms.expectUpdateStatusToast()
+      })
+      await test.step('verify status update email was sent to the applicant', async () => {
+        if (supportsEmailInspection()) {
+          await adminPrograms.expectEmailSent(
+            emailsBefore.length,
+            testUserDisplayName(),
+            emailBody,
+            programWithStatusesName,
+          )
+        }
+      })
+    })
+  })
+
+  const setupProgramsWithStatuses = async () => {
+    const {page, adminPrograms, applicantQuestions, adminProgramStatuses} = ctx
+
+    await test.step('login as admin and create program with statuses', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programWithStatusesName)
+      await adminPrograms.gotoDraftProgramManageStatusesPage(
+        programWithStatusesName,
+      )
+      await adminProgramStatuses.createStatus(noEmailStatusName)
+      await adminProgramStatuses.createStatus(emailStatusName, {
+        emailBody: emailBody,
+      })
+      await adminPrograms.publishProgram(programWithStatusesName)
+      await adminPrograms.expectActiveProgram(programWithStatusesName)
+      await logout(page)
+    })
+
+    await test.step('submit an application as a guest', async () => {
+      await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
+      await applicantQuestions.submitFromReviewPage()
+      await logout(page)
+    })
+    
+    await test.step('submit an application as a logged in user', async () => {
+      await loginAsTestUser(page)
+      await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
+      await applicantQuestions.submitFromReviewPage()
+      await logout(page)
+    })
+  }
 })
