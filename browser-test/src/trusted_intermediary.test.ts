@@ -38,6 +38,11 @@ test.describe('Trusted intermediaries', () => {
       lastName: 'last',
       dobDate: '2021-12-12',
     }
+    await tiDashboard.expectSuccessAlert()
+    await validateScreenshot(page.locator('main'), 'edit-client-success-alert')
+
+    await page.click('#ti-dashboard-link')
+    await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardContainClient(updatedClient)
   })
 
@@ -133,6 +138,9 @@ test.describe('Trusted intermediaries', () => {
       lastName: 'last',
       dobDate: '2021-06-10',
     }
+
+    await page.click('#ti-dashboard-link')
+    await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardContainClient(updatedClient)
   })
 
@@ -153,6 +161,8 @@ test.describe('Trusted intermediaries', () => {
     await tiDashboard.createClient(client)
     await waitForPageJsLoad(page)
     await tiDashboard.updateClientTiNoteAndPhone(client, notes, phoneNumber)
+
+    await page.click('#ti-dashboard-link')
     await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardClientContainsTiNoteAndFormattedPhone(
       client,
@@ -182,6 +192,7 @@ test.describe('Trusted intermediaries', () => {
     await tiDashboard.createClient(client)
     await waitForPageJsLoad(page)
     await tiDashboard.updateClientEmailAddress(client, '')
+    await page.click('#ti-dashboard-link')
     await waitForPageJsLoad(page)
 
     const card = page.locator(
@@ -274,6 +285,8 @@ test.describe('Trusted intermediaries', () => {
     await page.waitForSelector('h2:has-text("Edit Client")')
     await page.fill('#edit-date-of-birth-input', '2027-12-20')
     await page.click('text="Save"')
+
+    await tiDashboard.expectSuccessAlertNotPresent()
     await validateScreenshot(page, 'edit-client-information-with-field-errors')
   })
 
