@@ -1,6 +1,7 @@
 import {test, expect} from '@playwright/test'
 import {
   createTestContext,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -148,5 +149,79 @@ test.describe('currency applicant flow', () => {
 
       await validateAccessibility(page)
     })
+  })
+
+  test.describe('single currency question with north star flag enabled', () => {
+    const programName = 'Test program for single currency'
+
+    test.beforeAll(async () => {
+      const {page, adminQuestions, adminPrograms} = ctx
+      await loginAsAdmin(page)
+
+      await adminQuestions.addCurrencyQuestion({questionName: 'currency-q'})
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        ['currency-q'],
+        programName,
+      )
+
+      await logout(page)
+    })
+
+    test.beforeEach(async () => {
+      const {page} = ctx
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
+    test('validate screenshot', {tag: ['@northstar']}, async () => {
+      const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+
+      await test.step('Screenshot without errors', async () => {
+        await validateScreenshot(
+          page,
+          'currency-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      await test.step('Screenshot with errors', async () => {
+        await applicantQuestions.clickContinue()
+        await validateScreenshot(
+          page,
+          'currency-errors-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+    })
+
+    test('with valid currency does submit', {tag: ['@northstar']}, async () => {
+      const {applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerCurrencyQuestion(validCurrency)
+      await applicantQuestions.clickNext()
+
+      await applicantQuestions.submitFromReviewPage()
+    })
+
+    test(
+      'with invalid currency does not submit',
+      {tag: ['@northstar']},
+      async () => {
+        const {page, applicantQuestions} = ctx
+        await applicantQuestions.applyProgram(programName)
+        const currencyError = '.cf-currency-value-error'
+        // When there are no validation errors, the div still exists but is hidden.
+        await expect(page.locator(currencyError)).toBeHidden()
+
+        // Input has not enough decimal points.
+        await applicantQuestions.answerCurrencyQuestion(invalidCurrency)
+        await applicantQuestions.clickNext()
+
+        // The block should be displayed still with the error shown.
+        await expect(page.locator(currencyError)).toBeVisible()
+      },
+    )
   })
 })
