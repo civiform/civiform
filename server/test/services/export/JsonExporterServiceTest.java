@@ -11,6 +11,11 @@ import repository.SubmittedApplicationFilter;
 import services.CfJsonDocumentContext;
 import services.IdentifierBasedPaginationSpec;
 import services.Path;
+import services.program.IllegalPredicateOrderingException;
+import services.program.ProgramDefinition;
+import services.program.ProgramNeedsABlockException;
+import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 
 public class JsonExporterServiceTest extends AbstractExporterTest {
 
@@ -1113,6 +1118,137 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
     resultAsserter.assertValueAtPath("$[0].revision_state", "OBSOLETE");
   }
 
+  @Test
+  public void export_whenQuestionIsAddedToProgram_itIsInResponseForAllApplications()
+      throws ProgramNotFoundException {
+    createFakeQuestions();
+    ProgramModel fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.applicantJugglingNumber())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).answerNumberQuestion(3).submit();
+
+    ProgramModel updatedFakeProgram =
+        FakeProgramBuilder.newDraftOf(fakeProgram)
+            .withQuestion(testQuestionBank.applicantEmail())
+            .build();
+    FakeApplicationFiller.newFillerFor(updatedFakeProgram)
+        .answerNumberQuestion(4)
+        .answerEmailQuestion("test@test.com")
+        .submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            updatedFakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY,
+            Helpers.fakeRequest().build());
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    // first application
+    resultAsserter.assertJsonAtApplicationPath(
+        1,
+        ".applicant_email_address",
+        "{\n" // comment to prevent fmt wrapping
+            + "  \"email\" : null,\n"
+            + "  \"question_type\" : \"EMAIL\"\n"
+            + "}");
+    resultAsserter.assertJsonAtApplicationPath(
+        1,
+        ".number_of_items_applicant_can_juggle",
+        "{\n" // comment to prevent fmt wrapping
+            + "  \"number\" : 3,\n"
+            + "  \"question_type\" : \"NUMBER\"\n"
+            + "}");
+
+    // second application
+    resultAsserter.assertJsonAtApplicationPath(
+        0,
+        ".applicant_email_address",
+        "{\n" // comment to prevent fmt wrapping
+            + "  \"email\" : \"test@test.com\",\n"
+            + "  \"question_type\" : \"EMAIL\"\n"
+            + "}");
+    resultAsserter.assertJsonAtApplicationPath(
+        0,
+        ".number_of_items_applicant_can_juggle",
+        "{\n" // comment to prevent fmt wrapping
+            + "  \"number\" : 4,\n"
+            + "  \"question_type\" : \"NUMBER\"\n"
+            + "}");
+  }
+
+  @Test
+  public void export_whenQuestionIsRemovedFromProgram_itIsStillInResponseForAllApplications()
+      throws ProgramNotFoundException,
+          ProgramNeedsABlockException,
+          IllegalPredicateOrderingException {
+    var programService = instanceOf(ProgramService.class);
+    createFakeQuestions();
+
+    ProgramModel fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.applicantJugglingNumber())
+            .withQuestion(testQuestionBank.applicantEmail())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram)
+        .answerNumberQuestion(3)
+        .answerEmailQuestion("test@test.com")
+        .submit();
+
+    ProgramModel updatedProgram =
+        FakeProgramBuilder.removeBlockWithQuestion(fakeProgram, testQuestionBank.applicantEmail())
+            .build();
+    FakeApplicationFiller.newFillerFor(updatedProgram).answerNumberQuestion(4).submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+    String resultJsonString =
+        exporter.export(
+            updatedProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY,
+            Helpers.fakeRequest().build());
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    // first application
+    resultAsserter.assertJsonAtApplicationPath(
+        1,
+        ".applicant_email_address",
+        "{\n" // comment to prevent fmt wrapping
+            + "  \"email\" : \"test@test.com\",\n"
+            + "  \"question_type\" : \"EMAIL\"\n"
+            + "}");
+    resultAsserter.assertJsonAtApplicationPath(
+        1,
+        ".number_of_items_applicant_can_juggle",
+        "{\n" // comment to prevent fmt wrapping
+            + "  \"number\" : 3,\n"
+            + "  \"question_type\" : \"NUMBER\"\n"
+            + "}");
+
+    // second application
+    resultAsserter.assertJsonAtApplicationPath(
+        0,
+        ".applicant_email_address",
+        "{\n" // comment to prevent fmt wrapping
+            + "  \"email\" : null,\n"
+            + "  \"question_type\" : \"EMAIL\"\n"
+            + "}");
+    resultAsserter.assertJsonAtApplicationPath(
+        0,
+        ".number_of_items_applicant_can_juggle",
+        "{\n" // comment to prevent fmt wrapping
+            + "  \"number\" : 4,\n"
+            + "  \"question_type\" : \"NUMBER\"\n"
+            + "}");
+
+    ImmutableList<ProgramDefinition> programDefinitionsForAllVersions =
+        programService.getAllVersionsFullProgramDefinition(fakeProgram.id);
+    assertThat(programDefinitionsForAllVersions).hasSize(2);
+  }
+
   private static class ResultAsserter {
     public final CfJsonDocumentContext resultJson;
 
@@ -1165,9 +1301,14 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
       assertThat(resultJson.hasNullValueAtPath(path)).isTrue();
     }
 
-    private void assertJsonAtApplicationPath(String innerPath, String prettyJson) {
-      Path path = Path.create("$[0].application" + innerPath);
+    private void assertJsonAtApplicationPath(
+        int resultNumber, String innerPath, String prettyJson) {
+      Path path = Path.create("$[" + resultNumber + "].application" + innerPath);
       assertThat(resultJson.asPrettyJsonString(path)).isEqualTo(prettyJson);
+    }
+
+    private void assertJsonAtApplicationPath(String innerPath, String prettyJson) {
+      assertJsonAtApplicationPath(0, innerPath, prettyJson);
     }
   }
 }

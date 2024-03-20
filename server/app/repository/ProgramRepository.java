@@ -348,6 +348,7 @@ public final class ProgramRepository {
                 queryProfileLocationBuilder.create("getApplicationsForAllProgramVersions"))
             .fetch("program")
             .fetch("applicant")
+            .fetch("applicant.account.managedByGroup")
             .orderBy("id desc")
             .where()
             .in("program_id", allProgramVersionsQuery(programId))

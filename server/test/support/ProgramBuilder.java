@@ -106,6 +106,17 @@ public class ProgramBuilder {
   }
 
   /**
+   * Wrap the provided {@link ProgramDefinition} in a {@link ProgramBuilder}.
+   *
+   * @param programDefinition the {@link ProgramDefinition} to create a {@link ProgramBuilder} for
+   * @return the {@link ProgramBuilder}.
+   */
+  public static ProgramBuilder newBuilderFor(ProgramDefinition programDefinition) {
+    ProgramDefinition.Builder builder = programDefinition.toBuilder();
+    return new ProgramBuilder(programDefinition.id(), builder);
+  }
+
+  /**
    * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in active state, with blank
    * description and name.
    */
