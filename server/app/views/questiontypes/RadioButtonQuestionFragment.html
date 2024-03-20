@@ -1,0 +1,27 @@
+<div th:fragment="radio(question)" th:with="questionId=${#strings.randomAlphanumeric(8)}" th:id="${questionId}">
+    <fieldset class="usa-fieldset"
+              th:aria-describedby="${questionId} + '-description'"
+              th:with="singleSelectQuestion=${question.createSingleSelectQuestion()}">
+        <!-- Title and Help Text -->
+        <div th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"></div>
+
+        <!-- Display errors -->
+        <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
+
+        <!-- Render each radio button option -->
+        <div class="usa-radio"
+             th:each="option,iterator: ${singleSelectQuestion.getOptions()}"
+             th:with="inputId=${#strings.randomAlphanumeric(8)}">
+          <!-- TODO(#6903): Add autofocus attribute as appropriate -->
+          <input
+          class="usa-radio__input usa-radio__input--tile"
+            th:id="${inputId}"
+            th:value="${option.id()}"
+            th:name="${singleSelectQuestion.getSelectionPath()}"
+            th:checked="${singleSelectQuestion.optionIsSelected(option)}"
+            type="radio"
+            th:aria-required="${!question.isOptional()}"/>
+          <label class="usa-radio__label" th:for="${inputId}" th:text="${option.optionText()}"></label>
+        </div>
+    </fieldset>
+</div>
