@@ -307,7 +307,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     settingsManifest.getEsriAddressServiceAreaValidationEnabled(request)),
             classLoaderExecutionContext.current())
         .thenComposeAsync(
-            roApplicantProgramService -> {
+            pair -> {
               removeAddressJsonFromSession(request);
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
               return renderErrorOrRedirectToRequestedPage(
@@ -319,7 +319,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicantStage.join(),
                   inReview,
                   applicantRequestedAction,
-                  roApplicantProgramService);
+                  pair.getLeft(),
+                  /* changesMade= */ true);
             },
             classLoaderExecutionContext.current())
         .exceptionally(
@@ -579,7 +580,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             },
             classLoaderExecutionContext.current())
         .thenComposeAsync(
-            (roApplicantProgramService) -> {
+            (pair) -> {
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
               return renderErrorOrRedirectToRequestedPage(
                   request,
@@ -590,7 +591,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicantStage.toCompletableFuture().join(),
                   inReview,
                   applicantRequestedActionWrapper.getAction(),
-                  roApplicantProgramService);
+                  pair.getLeft(),
+                  /* changesMade= */ true);
             },
             classLoaderExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
@@ -683,7 +685,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     settingsManifest.getEsriAddressServiceAreaValidationEnabled(request)),
             classLoaderExecutionContext.current())
         .thenComposeAsync(
-            roApplicantProgramService -> {
+            pair -> {
+              ReadOnlyApplicantProgramService roApplicantProgramService = pair.getLeft();
+              boolean changesMade = pair.getRight();
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
               return renderErrorOrRedirectToRequestedPage(
                   request,
@@ -694,7 +698,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicantStage.toCompletableFuture().join(),
                   inReview,
                   applicantRequestedActionWrapper.getAction(),
-                  roApplicantProgramService);
+                  roApplicantProgramService,
+                  changesMade);
             },
             classLoaderExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
@@ -730,6 +735,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *
    * @param applicantRequestedAction the page the applicant would like to see next if there are no
    *     errors with this block.
+   * @param changesMade true if the applicant changed any of their answers on the block and false if
+   *     the applicant previously had no answers and still has no answers.
    */
   private CompletionStage<Result> renderErrorOrRedirectToRequestedPage(
       Request request,
@@ -740,7 +747,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ApplicantPersonalInfo personalInfo,
       boolean inReview,
       ApplicantRequestedAction applicantRequestedAction,
-      ReadOnlyApplicantProgramService roApplicantProgramService) {
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      boolean changesMade) {
     Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getActiveBlock(blockId);
     if (thisBlockUpdatedMaybe.isEmpty()) {
       return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
@@ -748,6 +756,20 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     Block thisBlockUpdated = thisBlockUpdatedMaybe.get();
 
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
+
+    if (!changesMade) {
+      // If the applicant didn't make any changes, no need to validate. Just let
+      // them proceed to wherever they requested.
+      return getRequestedPage(
+          profile,
+          applicantId,
+          programId,
+          blockId,
+          inReview,
+          applicantRequestedAction,
+          roApplicantProgramService,
+          /* flashingMap= */ ImmutableMap.of());
+    }
 
     // Validation errors: re-render this block with errors and previously entered data.
     if (thisBlockUpdated.hasErrors()) {
@@ -846,7 +868,26 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       : MessageKey.TOAST_MAY_QUALIFY.getKeyName(),
                   roApplicantProgramService.getProgramTitle()));
     }
+    return getRequestedPage(
+        profile,
+        applicantId,
+        programId,
+        blockId,
+        inReview,
+        applicantRequestedAction,
+        roApplicantProgramService,
+        flashingMap);
+  }
 
+  private CompletionStage<Result> getRequestedPage(
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String blockId,
+      boolean inReview,
+      ApplicantRequestedAction applicantRequestedAction,
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      Map<String, String> flashingMap) {
     if (applicantRequestedAction == ApplicantRequestedAction.REVIEW_PAGE) {
       return supplyAsync(() -> redirect(applicantRoutes.review(profile, applicantId, programId)));
     }
