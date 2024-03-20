@@ -24,7 +24,7 @@ ENV PROJECT_LOC "${PROJECT_HOME}/${PROJECT_NAME}"
 
 COPY "${PROJECT_NAME}" "${PROJECT_LOC}"
 RUN cd "${PROJECT_LOC}" && \
-    npm install -g npm@8.5.1 && \
+    npm install -g npm && \
     npm install && \
     sbt update && \
     sbt dist && \
