@@ -883,7 +883,7 @@ test.describe('view program statuses', () => {
       await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
-    
+
     await test.step('submit an application as a logged in user', async () => {
       await loginAsTestUser(page)
       await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
