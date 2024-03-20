@@ -810,8 +810,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .join();
 
     assertThat(application.getApplicant()).isEqualTo(applicant);
-    assertThat(application.getProgram().getProgramDefinition().id())
-        .isEqualTo(programDefinition.id());
+    assertThat(application.getProgram().id).isEqualTo(programDefinition.id());
     assertThat(application.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     assertThat(application.getApplicantData().asJsonString()).contains("Alice", "Doe");
   }
@@ -918,7 +917,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     applicant.refresh();
     assertThat(application.getApplicant()).isEqualTo(applicant);
-    assertThat(application.getProgram().getProgramDefinition().id()).isEqualTo(progDef.id());
+    assertThat(application.getProgram().id).isEqualTo(progDef.id());
     assertThat(application.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     assertThat(applicant.getFirstName().get()).isEqualTo("Jean");
     assertThat(applicant.getMiddleName().get()).isEqualTo("Luc");
@@ -1032,14 +1031,12 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     oldApplication.refresh();
     assertThat(oldApplication.getApplicant()).isEqualTo(applicant);
-    assertThat(oldApplication.getProgram().getProgramDefinition().id())
-        .isEqualTo(programDefinition.id());
+    assertThat(oldApplication.getProgram().id).isEqualTo(programDefinition.id());
     assertThat(oldApplication.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
     assertThat(oldApplication.getApplicantData().asJsonString()).contains("Alice", "Doe");
 
     assertThat(newApplication.getApplicant()).isEqualTo(applicant);
-    assertThat(newApplication.getProgram().getProgramDefinition().id())
-        .isEqualTo(programDefinition.id());
+    assertThat(newApplication.getProgram().id).isEqualTo(programDefinition.id());
     assertThat(newApplication.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     assertThat(newApplication.getApplicantData().asJsonString()).contains("Bob", "Elisa");
   }
@@ -1423,8 +1420,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .join();
 
     assertThat(application.getApplicant()).isEqualTo(applicant);
-    assertThat(application.getProgram().getProgramDefinition().id())
-        .isEqualTo(programDefinition.id());
+    assertThat(application.getProgram().id).isEqualTo(programDefinition.id());
     assertThat(application.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
   }
 

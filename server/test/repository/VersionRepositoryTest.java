@@ -831,21 +831,17 @@ public class VersionRepositoryTest extends ResetPostgres {
   @Test
   public void testIsDraftProgram() {
     ProgramModel draftProgram = ProgramBuilder.newDraftProgram("draft program").build();
-    assertThat(versionRepository.isDraftProgram(draftProgram.getProgramDefinition().id()))
-        .isEqualTo(true);
+    assertThat(versionRepository.isDraftProgram(draftProgram.id)).isEqualTo(true);
     ProgramModel activeProgram = ProgramBuilder.newActiveProgram("active program").build();
-    assertThat(versionRepository.isDraftProgram(activeProgram.getProgramDefinition().id()))
-        .isEqualTo(false);
+    assertThat(versionRepository.isDraftProgram(activeProgram.id)).isEqualTo(false);
   }
 
   @Test
   public void testIsActiveProgram() {
     ProgramModel draftProgram = ProgramBuilder.newDraftProgram("draft program").build();
-    assertThat(versionRepository.isActiveProgram(draftProgram.getProgramDefinition().id()))
-        .isEqualTo(false);
+    assertThat(versionRepository.isActiveProgram(draftProgram.id)).isEqualTo(false);
     ProgramModel activeProgram = ProgramBuilder.newActiveProgram("active program").build();
-    assertThat(versionRepository.isActiveProgram(activeProgram.getProgramDefinition().id()))
-        .isEqualTo(true);
+    assertThat(versionRepository.isActiveProgram(activeProgram.id)).isEqualTo(true);
   }
 
   @Test
