@@ -108,16 +108,16 @@ public final class TrustedIntermediaryController {
 
     return ok(
         tiDashboardView.render(
-            trustedIntermediaryGroup.get(),
-            ApplicantPersonalInfo.ofLoggedInUser(
+            /* tiGroup= */ trustedIntermediaryGroup.get(),
+            /* personalInfo= */ ApplicantPersonalInfo.ofLoggedInUser(
                 Representation.builder().setName(applicantName).build()),
-            pageInfo.getPageItems(),
-            pageInfo.getPageCount(),
-            pageInfo.getPage(),
-            searchParameters,
-            request,
-            messagesApi.preferred(request),
-            civiformProfile.get().getApplicant().toCompletableFuture().join().id));
+            /* managedAccounts= */ pageInfo.getPageItems(),
+            /* totalPageCount= */ pageInfo.getPageCount(),
+            /* page= */ pageInfo.getPage(),
+            /* searchParameters= */ searchParameters,
+            /* request= */ request,
+            /* messages= */ messagesApi.preferred(request),
+            /* currentTisApplicantId= */ getTiApplicantIdFromCiviformProfile(civiformProfile)));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -145,12 +145,7 @@ public final class TrustedIntermediaryController {
             /* request= */ request,
             /* messages= */ messagesApi.preferred(request),
             /* accountIdToEdit= */ Optional.empty(),
-            /* applicantIdOfTi= */ civiformProfile
-                .get()
-                .getApplicant()
-                .toCompletableFuture()
-                .join()
-                .id,
+            /* applicantIdOfTi= */ getTiApplicantIdFromCiviformProfile(civiformProfile),
             /* tiClientInfoForm= */ Optional.empty()));
   }
 
@@ -174,12 +169,7 @@ public final class TrustedIntermediaryController {
             /* request= */ request,
             /* messages= */ messagesApi.preferred(request),
             /* accountIdToEdit= */ Optional.of(accountId),
-            /* applicantIdOfTi= */ civiformProfile
-                .get()
-                .getApplicant()
-                .toCompletableFuture()
-                .join()
-                .id,
+            /* applicantIdOfTi= */ getTiApplicantIdFromCiviformProfile(civiformProfile),
             /* tiClientInfoForm= */ Optional.empty()));
   }
 
@@ -216,12 +206,7 @@ public final class TrustedIntermediaryController {
               /* request= */ request,
               /* messages= */ messagesApi.preferred(request),
               /* accountIdToEdit= */ Optional.empty(),
-              /* applicantIdOfTi= */ civiformProfile
-                  .get()
-                  .getApplicant()
-                  .toCompletableFuture()
-                  .join()
-                  .id,
+              /* applicantIdOfTi= */ getTiApplicantIdFromCiviformProfile(civiformProfile),
               /* tiClientInfoForm= */ Optional.of(form)));
     }
     return redirect(
@@ -268,12 +253,7 @@ public final class TrustedIntermediaryController {
               /* request= */ request,
               /* messages= */ messagesApi.preferred(request),
               /* accountIdToEdit= */ Optional.of(id),
-              /* applicantIdOfTi= */ civiformProfile
-                  .get()
-                  .getApplicant()
-                  .toCompletableFuture()
-                  .join()
-                  .id,
+              /* applicantIdOfTi= */ getTiApplicantIdFromCiviformProfile(civiformProfile),
               /* tiClientInfoForm= */ Optional.of(form)));
     }
     return redirect(
@@ -288,5 +268,9 @@ public final class TrustedIntermediaryController {
             String.format(
                 "Successfully updated client: %s %s",
                 form.value().get().getFirstName(), form.value().get().getLastName()));
+  }
+
+  private Long getTiApplicantIdFromCiviformProfile(Optional<CiviFormProfile> civiformProfile) {
+    return civiformProfile.get().getApplicant().toCompletableFuture().join().id;
   }
 }
