@@ -16,7 +16,7 @@ test.describe('Id question for applicant flow', () => {
     const programName = 'Test program for single id'
 
     test.beforeAll(async () => {
-      await setUpForSingleInput(programName)
+      await setUpProgramWithSingleIdQuestion(programName)
     })
 
     test.beforeEach(async () => {
@@ -182,7 +182,7 @@ test.describe('Id question for applicant flow', () => {
     const programName = 'Test program for single id'
 
     test.beforeAll(async () => {
-      await setUpForSingleInput(programName)
+      await setUpProgramWithSingleIdQuestion(programName)
     })
 
     test.beforeEach(async () => {
@@ -219,7 +219,7 @@ test.describe('Id question for applicant flow', () => {
     )
   })
 
-  async function setUpForSingleInput(programName: string) {
+  async function setUpProgramWithSingleIdQuestion(programName: string) {
     const {page, adminQuestions, adminPrograms} = ctx
     // As admin, create program with single id question.
     await loginAsAdmin(page)

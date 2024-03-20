@@ -15,6 +15,7 @@
         th:id="${inputId}"
         th:name="${idQuestion.getIdPath()}"
         th:value="${idQuestion.getIdValue().orElse('')}"
+        maxlength="10000"
         th:aria-describedby="${questionId} + '-description'"
         th:aria-required="${!question.isOptional()}"
         th:aria-invalid="${!idQuestion.getValidationErrors().isEmpty()}">
