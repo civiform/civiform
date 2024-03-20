@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.DocumentContext;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,7 +27,6 @@ import services.Path;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.JsonPathProvider;
-import services.applicant.ReadOnlyApplicantProgramService;
 import services.export.enums.RevisionState;
 import services.export.enums.SubmitterType;
 import services.program.ProgramDefinition;
@@ -86,9 +86,12 @@ public final class JsonExporterService {
       ProgramDefinition programDefinition, PaginationResult<ApplicationModel> paginationResult) {
     ImmutableList<ApplicationModel> applications = paginationResult.getPageContents();
 
+    ImmutableList<ProgramDefinition> programDefinitionsForAllVersions =
+        programService.getAllVersionsFullProgramDefinition(programDefinition.id());
+
     DocumentContext jsonData =
         applications.stream()
-            .map(a -> buildApplicationExportData(a, programDefinition))
+            .map(a -> buildApplicationExportData(a, programDefinitionsForAllVersions))
             .collect(
                 Collectors.collectingAndThen(
                     ImmutableList.toImmutableList(),
@@ -115,15 +118,24 @@ public final class JsonExporterService {
   }
 
   private ApplicationExportData buildApplicationExportData(
-      ApplicationModel application, ProgramDefinition programDefinition) {
-    ReadOnlyApplicantProgramService roApplicantProgramService =
-        applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
+      ApplicationModel application,
+      ImmutableList<ProgramDefinition> programDefinitionsForAllVersions) {
 
-    ImmutableList<AnswerData> answerDataList =
-        roApplicantProgramService.getSummaryDataAllQuestions();
+    // Check the application for an answer for every question from every version
+    // of the program, storing one AnswerData for each unique question path.
+    // (Paths are immutable across versions of a question, so we only need to
+    // get the answer at each question path once and it's ok if it's not the
+    // newest version.)
+    Map<Path, AnswerData> answersToExport = new HashMap<>();
+    for (ProgramDefinition pd : programDefinitionsForAllVersions) {
+      applicantService
+          .getReadOnlyApplicantProgramService(application, pd)
+          .getSummaryDataAllQuestions()
+          .forEach(ad -> answersToExport.putIfAbsent(ad.contextualizedPath(), ad));
+    }
+
     ImmutableMap.Builder<Path, Optional<?>> entriesBuilder = ImmutableMap.builder();
-
-    for (AnswerData answerData : answerDataList) {
+    for (AnswerData answerData : answersToExport.values()) {
       // We suppress the unchecked warning because create() returns a genericized
       // QuestionJsonPresenter, but we ignore the generic's type so that we can get
       // the json entries for any Question in one line.
@@ -135,38 +147,35 @@ public final class JsonExporterService {
       entriesBuilder.putAll(questionEntries);
     }
 
-    ApplicationExportData applicationExportData =
-        ApplicationExportData.builder()
-            .setAdminName(application.getProgram().getProgramDefinition().adminName())
-            .setApplicantId(application.getApplicant().id)
-            .setApplicationId(application.id)
-            .setProgramId(programDefinition.id())
-            .setLanguageTag(
-                roApplicantProgramService.getApplicantData().preferredLocale().toLanguageTag())
-            .setCreateTime(application.getCreateTime())
-            // The field on the application is called `submitter_email`, but it's only ever used to
-            // store the TI's email, never the applicant's.
-            // TODO(#5325): Rename the `submitter_email` database field to `ti_email` and move the
-            // submitter_type logic upstream.
-            .setSubmitterType(
-                application.getSubmitterEmail().isPresent()
-                    ? SubmitterType.TRUSTED_INTERMEDIARY
-                    : SubmitterType.APPLICANT)
-            .setTiEmail(application.getSubmitterEmail().orElse(EMPTY_VALUE))
-            .setTiOrganization(
-                application
-                    .getApplicant()
-                    .getAccount()
-                    .getManagedByGroup()
-                    .map(TrustedIntermediaryGroupModel::getName)
-                    .orElse(EMPTY_VALUE))
-            .setSubmitTime(application.getSubmitTime())
-            .setStatus(application.getLatestStatus())
-            .setRevisionState(toRevisionState(application.getLifecycleStage()))
-            .addApplicationEntries(entriesBuilder.build())
-            .build();
-
-    return applicationExportData;
+    return ApplicationExportData.builder()
+        // the admin name is immutable across versions
+        .setAdminName(programDefinitionsForAllVersions.get(0).adminName())
+        .setApplicantId(application.getApplicant().id)
+        .setApplicationId(application.id)
+        .setProgramId(application.getProgram().id)
+        .setLanguageTag(application.getApplicantData().preferredLocale().toLanguageTag())
+        .setCreateTime(application.getCreateTime())
+        // The field on the application is called `submitter_email`, but it's only ever used to
+        // store the TI's email, never the applicant's.
+        // TODO(#5325): Rename the `submitter_email` database field to `ti_email` and move the
+        // submitter_type logic upstream.
+        .setSubmitterType(
+            application.getSubmitterEmail().isPresent()
+                ? SubmitterType.TRUSTED_INTERMEDIARY
+                : SubmitterType.APPLICANT)
+        .setTiEmail(application.getSubmitterEmail().orElse(EMPTY_VALUE))
+        .setTiOrganization(
+            application
+                .getApplicant()
+                .getAccount()
+                .getManagedByGroup()
+                .map(TrustedIntermediaryGroupModel::getName)
+                .orElse(EMPTY_VALUE))
+        .setSubmitTime(application.getSubmitTime())
+        .setStatus(application.getLatestStatus())
+        .setRevisionState(toRevisionState(application.getLifecycleStage()))
+        .addApplicationEntries(entriesBuilder.build())
+        .build();
   }
 
   private CfJsonDocumentContext convertExportDataToJson(

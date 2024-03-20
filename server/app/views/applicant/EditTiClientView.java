@@ -21,14 +21,17 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.AccountRepository;
 import services.DateConverter;
+import services.MessageKey;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
 import services.ti.TrustedIntermediaryService;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.style.BaseStyles;
 
 /** Renders a page for a trusted intermediary to edit a client */
 public class EditTiClientView extends BaseHtmlView {
@@ -55,7 +58,8 @@ public class EditTiClientView extends BaseHtmlView {
       Http.Request request,
       Messages messages,
       Long accountId,
-      Optional<Form<EditTiClientInfoForm>> editTiClientInfoForm) {
+      Optional<Form<EditTiClientInfoForm>> editTiClientInfoForm,
+      boolean isSuccessfulSave) {
 
     HtmlBundle bundle =
         layout
@@ -66,6 +70,9 @@ public class EditTiClientView extends BaseHtmlView {
                 hr(),
                 renderSubHeader("Edit client").withId("edit-client").withClass("my-4"),
                 renderBackLink(),
+                renderSuccessAlert(
+                    isSuccessfulSave,
+                    messages.at(MessageKey.BANNER_CLIENT_INFO_UPDATED.getKeyName())),
                 requiredFieldsExplanationContent(),
                 renderEditClientForm(
                     accountRepository.lookupAccount(accountId).get(),
@@ -86,8 +93,19 @@ public class EditTiClientView extends BaseHtmlView {
                     /* yearQuery= */ Optional.empty(),
                     /* page= */ Optional.of(1))
                 .url();
-    LinkElement link = new LinkElement().setHref(tiDashLink).setText("Back to client list");
+    LinkElement link =
+        new LinkElement()
+            .setHref(tiDashLink)
+            .setText("Back to client list")
+            .setId("ti-dashboard-link");
     return link.asAnchorText();
+  }
+
+  private DivTag renderSuccessAlert(boolean isSuccessfulSave, String text) {
+    if (!isSuccessfulSave) {
+      return div();
+    }
+    return ViewUtils.makeAlertSlim(text, false, BaseStyles.ALERT_SUCCESS, "mb-4", "w-3/5");
   }
 
   private DivTag renderEditClientForm(

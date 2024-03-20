@@ -27,6 +27,11 @@ import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.applications.ProgramAdminApplicationService;
 import services.program.EligibilityDefinition;
+import services.program.IllegalPredicateOrderingException;
+import services.program.ProgramDefinition;
+import services.program.ProgramNeedsABlockException;
+import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 import services.program.StatusDefinitions;
 import services.program.StatusDefinitions.Status;
 import services.program.predicate.LeafOperationExpressionNode;
@@ -55,6 +60,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   public static final Instant FAKE_SUBMIT_TIME = Instant.parse("2022-12-09T10:30:30.00Z");
 
   private ProgramAdminApplicationService programAdminApplicationService;
+  private static ProgramService programService;
 
   protected ProgramModel fakeProgramWithEnumerator;
   protected ProgramModel fakeProgramWithVisibility;
@@ -78,6 +84,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   @Before
   public void setup() {
     programAdminApplicationService = instanceOf(ProgramAdminApplicationService.class);
+    programService = instanceOf(ProgramService.class);
   }
 
   protected void answerQuestion(
@@ -592,12 +599,37 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       fakeProgramBuilder = ProgramBuilder.newActiveProgram(name);
     }
 
-    static FakeProgramBuilder newActiveProgram() {
-      return newActiveProgram("Fake Program");
+    private FakeProgramBuilder(ProgramBuilder builder) {
+      fakeProgramBuilder = builder;
     }
 
-    static FakeProgramBuilder newActiveProgram(String name) {
-      return new FakeProgramBuilder(name);
+    static FakeProgramBuilder newActiveProgram() {
+      return new FakeProgramBuilder("Fake Program");
+    }
+
+    static FakeProgramBuilder newDraftOf(ProgramModel program) throws ProgramNotFoundException {
+      ProgramDefinition draft = programService.newDraftOf(program.id);
+      return new FakeProgramBuilder(ProgramBuilder.newBuilderFor(draft));
+    }
+
+    static FakeProgramBuilder removeBlockWithQuestion(
+        ProgramModel program, QuestionModel questionToRemove)
+        throws ProgramNotFoundException,
+            ProgramNeedsABlockException,
+            IllegalPredicateOrderingException {
+      ProgramDefinition draft = programService.newDraftOf(program.id);
+      var blockToDelete =
+          draft.blockDefinitions().stream()
+              .filter(
+                  b ->
+                      b.programQuestionDefinitions().stream()
+                          .anyMatch(q -> q.id() == questionToRemove.id))
+              .findFirst()
+              .get()
+              .id();
+
+      ProgramDefinition draftWithoutBlock = programService.deleteBlock(draft.id(), blockToDelete);
+      return new FakeProgramBuilder(ProgramBuilder.newBuilderFor(draftWithoutBlock));
     }
 
     FakeProgramBuilder withQuestion(QuestionModel question) {

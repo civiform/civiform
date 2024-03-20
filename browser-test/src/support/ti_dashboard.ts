@@ -85,9 +85,17 @@ export class TIDashboard {
       .click()
     await waitForPageJsLoad(this.page)
     await this.page.waitForSelector('h2:has-text("Edit client")')
+
+    // The success alert should not be present before the form is submitted
+    await this.expectSuccessAlertNotPresent()
+
     await this.page.fill('#edit-date-of-birth-input', newDobDate)
     await this.page.click('text="Save"')
-    await waitForPageJsLoad(this.page)
+  }
+
+  async expectSuccessAlertNotPresent() {
+    const editElement = await this.page.innerHTML('main')
+    expect(editElement).not.toContain('.usa-alert--success')
   }
 
   async expectEditFormContainsTiNoteAndPhone(
@@ -182,6 +190,14 @@ export class TIDashboard {
 
     expect(toastContainer).toContain('bg-emerald-200')
     expect(toastContainer).toContain(successToastMessage)
+  }
+
+  async expectSuccessAlert() {
+    const alertContainer = await this.page.innerHTML('.usa-alert--success')
+
+    expect(alertContainer).toContain(
+      'Client info has been successfully updated.',
+    )
   }
 
   async expectIneligiblePage() {

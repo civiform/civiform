@@ -181,7 +181,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     Http.Request request2 = requestBuilder2.build();
     Result result2 = tiController.updateClientInfo(account.id, request2);
 
-    assertThat(result2.status()).isEqualTo(SEE_OTHER);
+    assertThat(result2.status()).isEqualTo(OK);
 
     assertThat(repo.lookupAccountByEmail("testUpdate@fake.com")).isEmpty();
     // assert email address

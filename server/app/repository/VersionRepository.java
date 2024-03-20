@@ -671,7 +671,7 @@ public final class VersionRepository {
                           .getQuestionIdsInProgram()
                           .stream()
                           .anyMatch(id -> missingQuestionIds.contains(id)))
-              .map(program -> programRepository.getShallowProgramDefinition(program).id())
+              .map(program -> program.id)
               .collect(ImmutableSet.toImmutableSet());
       throw new IllegalStateException(
           String.format(
