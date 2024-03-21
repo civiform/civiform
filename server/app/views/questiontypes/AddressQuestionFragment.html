@@ -7,6 +7,7 @@
     <!-- Display errors for the entire question -->
     <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
 
+    <!-- TODO(#7007): Use ErrorDisplayMode to determine whether to show field errors. -->
     <th:block th:with="inputId=${#strings.randomAlphanumeric(8)}">
       <label class="usa-label" th:for="${inputId}" th:text="#{label.street}"></label>
       <input class="usa-input"
@@ -26,7 +27,6 @@
           th:name="${addressQuestion.getLine2Path()}"
           th:value="${addressQuestion.getLine2Value().orElse('')}"
           th:aria-invalid="${!addressQuestion.getValidationErrors().isEmpty()}"
-          th:aria-required="${!question.isOptional()}"
           autocomplete="address-line2"/>
       <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(addressQuestion.getLine2Path())})}"></div>
     </th:block>
