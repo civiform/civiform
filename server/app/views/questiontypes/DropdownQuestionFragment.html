@@ -29,13 +29,11 @@
       th:selected="${!singleSelectQuestion.hasValue()}"
       th:text="#{placeholder.noDropdownSelection}"
     ></option>
-    <optgroup>
-      <option
-        th:each="option,iterator: ${singleSelectQuestion.getOptions()}"
-        th:value="${option.id()}"
-        th:text="${option.optionText()}"
-        th:selected="${singleSelectQuestion.optionIsSelected(option)}"
-      ></option>
-    </optgroup>
+    <option
+      th:each="option,iterator: ${singleSelectQuestion.getOptions()}"
+      th:value="${option.id()}"
+      th:text="${option.optionText()}"
+      th:selected="${singleSelectQuestion.optionIsSelected(option)}"
+    ></option>
   </select>
 </div>

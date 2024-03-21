@@ -165,7 +165,7 @@ test.describe('Dropdown question for applicant flow', () => {
     })
   })
 
-  test.describe('single dropdown questio with north star flag enabled', () => {
+  test.describe('single dropdown question with north star flag enabled', () => {
     const programName = 'Test program for single dropdown'
 
     test.beforeAll(async () => {
