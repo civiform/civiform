@@ -201,7 +201,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
                     .setAriaRequired(true)
                     .setLabelText(
-                        "Residents can only submit applications if they meet all the eligibility"
+                        "Only allow residents to submit applications if they meet all eligibility"
                             + " requirements")
                     .setValue(String.valueOf(true))
                     .setChecked(eligibilityIsGating)
@@ -210,7 +210,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
                     .setAriaRequired(true)
                     .setLabelText(
-                        "Residents can submit applications even if they don't meet eligibility"
+                        "Allow residents to submit applications even if they don't meet eligibility"
                             + " requirements")
                     .setValue(String.valueOf(false))
                     .setChecked(!eligibilityIsGating)
