@@ -129,8 +129,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
 
   private ButtonTag renderAddNewClientButton(Messages messages, Long tiGroupId) {
     String redirectUrl = routes.TrustedIntermediaryController.showAddClientForm(tiGroupId).url();
-    return BaseHtmlView.asRedirectElement(
-        button(messages.at(MessageKey.BUTTON_ADD_NEW_CLIENT.getKeyName())), redirectUrl);
+    return BaseHtmlView.redirectButton(
+        "add-new-client", messages.at(MessageKey.BUTTON_ADD_NEW_CLIENT.getKeyName()), redirectUrl);
   }
 
   private FormTag renderSearchForm(
