@@ -331,15 +331,15 @@ title.verifyAddress=ຢັ້ງຢືນທີ່ຢູ່
 
 content.foundSimilarAddress=ພວກເຮົາບໍ່ສາມາດຢັ້ງຢືນທີ່ຢູ່ທີ່ທ່ານລະບຸໄດ້, ແຕ່ພົບທີ່ຢູ່ທີ່ຄ້າຍຄືກັນ.
 # Heading for showing the user the address they provided earlier
-content.addressEntered=Address you entered:
+content.addressEntered=ທີ່ຢູ່ທີ່ທ່ານປ້ອນເຂົ້າ:
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=ທີ່ຢູ່ທີ່ແນະນຳ:
 content.suggestedAddresses=ທີ່ຢູ່ທີ່ແນະນຳ:
 
 # Title on address correction dialog when no address is found.
-title.noValidAddress=No valid address found
-content.noValidAddress=We could not verify the address that you provided. Please edit your address to continue.
+title.noValidAddress=ບໍ່ພົບທີ່ຢູ່ທີ່ຖືກຕ້ອງ
+content.noValidAddress=ພວກເຮົາບໍ່ສາມາດຢັ້ງຢືນທີ່ຢູ່ທີ່ທ່ານສະໜອງໃຫ້ໄດ້. ກະລຸນາແກ້ໄຂທີ່ຢູ່ຂອງທ່ານເພື່ອສືບຕໍ່.
 
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
@@ -349,15 +349,15 @@ content.noValidAddress=We could not verify the address that you provided. Please
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
-title.confirmAddress=Confirm your address
+title.confirmAddress=ຢືນຢັນທີ່ຢູ່ຂອງທ່ານ
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=We were not able to find your address.
+content.confirmAddressLine1=ພວກເຮົາບໍ່ພົບທີ່ຢູ່ຂອງທ່ານ.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
-content.foundSimilarAddressLine2=Please check your address for spelling or choose an option from the list provided.
+content.foundSimilarAddressLine2=ກະລຸນາກວດເບິ່ງການສະກົດຄຳທີ່ຢູ່ຂອງທ່ານ ຫຼື ເລືອກຕົວເລືອກຈາກລາຍຊື່ທີ່ສະໜອງໃຫ້.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
-content.noValidAddressLine2=Please check your address for spelling and edit to continue.
+content.noValidAddressLine2=ກະລຸນາກວດເບິ່ງການສະກົດຄຳທີ່ຢູ່ຂອງທ່ານ ແລະ ແກ້ໄຂມັນເພື່ອສືບຕໍ່.
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
-button.confirmAddress=Confirm address
+button.confirmAddress=ຢືນຢັນທີ່ຢູ່
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -392,7 +392,7 @@ button.addEntity=ເພີ່ມ {0}
 button.removeEntity=ລຶບ {0} ອອກ
 dialog.confirmDelete=ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບ {0} ນີ້ອອກ? ການປ່ຽນແປງນີ້ຈະຖືກບັນທຶກໄວ້ຫຼັງຈາກທ່ານຄລິກ "ຕໍ່ໄປ" ແລະ ຂໍ້ມູນທັງໝົດທີ່ກ່ຽວຂ້ອງກັບ {0} ນີ້ຈະສູນເສຍ.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
-dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
+dialog.confirmDeleteAllButtonsSave=ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບ {0} ນີ້ອອກ? ການປ່ຽນແປງນີ້ຈະຖືກບັນທຶກໄວ້ເມື່ອທ່ານຄລິກ "ກວດສອບ", "ກ່ອນໜ້າ" ຫຼື "ຕໍ່ໄປ" ແລະ ຂໍ້ມູນທັງໝົດທີ່ກ່ຽວຂ້ອງກັບ {0} ນີ້ຈະສູນເສຍ.
 validation.entityNameRequired=ກະລຸນາປ້ອນຄ່າສຳລັບແຕ່ລະແຖວ.
 validation.duplicateEntityName=ກະລຸນາປ້ອນຄ່າທີ່ບໍ່ຊ້ຳກັນສຳລັບແຕ່ລະແຖວ.
 placeholder.entityName=ຊື່ {0}
@@ -403,7 +403,7 @@ placeholder.entityName=ຊື່ {0}
 
 validation.fileRequired=ກະລຸນາເລືອກໄຟລ໌.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
-validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
+validation.fileTooLarge=ໄຟລ໌ຂອງທ່ານໃຫຍ່ເກີນໄປ. ກະລຸນາເລືອກໄຟລ໌ທີ່ນ້ອຍກວ່າ {0} MB.
 button.chooseFile=ເລືອກໄຟລ໌
 
 #---------------------------------------------------------------------#
