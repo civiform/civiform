@@ -1,5 +1,7 @@
 package services.question.types;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -25,6 +27,25 @@ import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
 
 /** Superclass for all question types. */
+// Needed for import/export -- TODO more
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = AddressQuestionDefinition.class, name = "address"),
+        @JsonSubTypes.Type(value = CurrencyQuestionDefinition.class, name = "currency"),
+        @JsonSubTypes.Type(value = DateQuestionDefinition.class, name = "date"),
+        @JsonSubTypes.Type(value = EmailQuestionDefinition.class, name = "email"),
+        @JsonSubTypes.Type(value = EnumeratorQuestionDefinition.class, name = "enumerator"),
+        @JsonSubTypes.Type(value = FileUploadQuestionDefinition.class, name = "fileupload"),
+        @JsonSubTypes.Type(value = IdQuestionDefinition.class, name = "id"),
+        @JsonSubTypes.Type(value = MultiOptionQuestionDefinition.class, name = "multioption"),
+        @JsonSubTypes.Type(value = NameQuestionDefinition.class, name = "name"),
+        @JsonSubTypes.Type(value = NumberQuestionDefinition.class, name = "number"),
+        @JsonSubTypes.Type(value = PhoneQuestionDefinition.class, name = "phone"),
+        @JsonSubTypes.Type(value = StaticContentQuestionDefinition.class, name = "static"),
+        @JsonSubTypes.Type(value = TextQuestionDefinition.class, name = "text"),
+})
 public abstract class QuestionDefinition {
 
   private QuestionDefinitionConfig config;

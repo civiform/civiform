@@ -145,7 +145,7 @@ public final class AdminImportExportController extends CiviFormController {
     String json =
         objectMapper
             .writerWithDefaultPrettyPrinter()
-            .writeValueAsString(new JsonExportingClass(programs));
+            .writeValueAsString(new JsonExportingClass(programs, questions));
 
     //  CfJsonDocumentContext jsonBuilder = new
     // CfJsonDocumentContext(JsonPathProvider.getJsonPath().parse("{}"));
@@ -235,14 +235,14 @@ public final class AdminImportExportController extends CiviFormController {
   public static final class JsonExportingClass {
     private List<ProgramDefinition> programs;
 
-    //  private List<QuestionDefinition> questions;
+      private List<QuestionDefinition> questions;
 
     @JsonCreator
     public JsonExportingClass(
         @JsonProperty("programs")
-            List<ProgramDefinition> programs /*, List<QuestionDefinition> questions*/) {
+            List<ProgramDefinition> programs , List<QuestionDefinition> questions) {
       this.programs = programs;
-      //  this.questions = questions;
+        this.questions = questions;
     }
 
     public List<ProgramDefinition> getPrograms() {
@@ -253,7 +253,6 @@ public final class AdminImportExportController extends CiviFormController {
       this.programs = programs;
     }
 
-    /*
     public List<QuestionDefinition> getQuestions() {
       return questions;
     }
@@ -261,8 +260,6 @@ public final class AdminImportExportController extends CiviFormController {
     public void setQuestions(List<QuestionDefinition> questions) {
       this.questions = questions;
     }
-
-     */
   }
 
   /*
