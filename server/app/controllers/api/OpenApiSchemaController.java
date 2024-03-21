@@ -92,13 +92,13 @@ public final class OpenApiSchemaController {
         case ACTIVE:
           ProgramDefinition activeProgramDefinition =
               programService
-                  .getActiveProgramDefinitionAsync(programSlug)
+                  .getActiveFullProgramDefinitionAsync(programSlug)
                   .toCompletableFuture()
                   .join();
           return Optional.of(activeProgramDefinition);
         case DRAFT:
           ProgramDefinition draftProgramDefinition =
-              programService.getDraftProgramDefinition(programSlug);
+              programService.getDraftFullProgramDefinition(programSlug);
           return Optional.of(draftProgramDefinition);
         default:
           return Optional.empty();
