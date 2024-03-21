@@ -4,6 +4,7 @@
   "name": "Codespace setup",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
 
+  // For details, see https://containers.dev/implementors/json_reference/#min-host-reqs
   "hostRequirements": {
     "memory": "6gb"
   },
@@ -27,11 +28,13 @@
       "settings": {
         "files.watcherExclude": {
           "**/target": true,
-          "**/.bloop": true
+          "**/.bloop": true,
+          "**/node_modules": true
         },
         "search.exclude": {
           "*/target": true,
-          "**/.bloop": true
+          "**/.bloop": true,
+          "**/node_modules": true
         },
         "java.configuration.updateBuildConfiguration": "automatic",
         "java.compile.nullAnalysis.mode": "disabled"
@@ -44,11 +47,14 @@
         "knisterpeter.vscode-github",
         "ms-azuretools.vscode-docker",
         "ms-ossdata.vscode-postgresql",
+        "ms-playwright.playwright",
+        "ms-vscode-remote.remote-containers",
         "redhat.vscode-yaml",
         "rvest.vs-code-prettier-eslint",
         "scala-lang.scala",
         "scalameta.metals",
-        "vscjava.vscode-java-pack"
+        "vscjava.vscode-java-pack",
+        "vscode-icons-team.vscode-icons"
       ]
     },
     "launch": {
