@@ -44,6 +44,7 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
+import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
@@ -58,8 +59,8 @@ import services.MessageKey;
 import services.Path;
 import services.PhoneValidationResult;
 import services.PhoneValidationUtils;
-import services.applicant.ApplicantPersonalInfo.ApplicantType;
 import services.applicant.ApplicantPersonalInfo.Representation;
+import services.applicant.ApplicantService.UpdateMetadata;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
@@ -86,6 +87,7 @@ import services.program.StatusDefinitions;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
+import services.settings.SettingsManifest;
 import views.applicant.AddressCorrectionBlockView;
 
 /**
@@ -118,6 +120,7 @@ public final class ApplicantService {
   private final EsriClient esriClient;
   private final MessagesApi messagesApi;
   private final Database database;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantService(
@@ -136,7 +139,8 @@ public final class ApplicantService {
       DeploymentType deploymentType,
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      SettingsManifest settingsManifest) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.accountRepository = checkNotNull(accountRepository);
@@ -150,6 +154,7 @@ public final class ApplicantService {
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.serviceAreaUpdateResolver = checkNotNull(serviceAreaUpdateResolver);
     this.messagesApi = checkNotNull(messagesApi);
+    this.settingsManifest = checkNotNull(settingsManifest);
 
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.isStaging = checkNotNull(deploymentType).isStaging();
@@ -405,7 +410,7 @@ public final class ApplicantService {
    *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
   public CompletionStage<ApplicationModel> submitApplication(
-      long applicantId, long programId, CiviFormProfile submitterProfile) {
+      long applicantId, long programId, CiviFormProfile submitterProfile, Request request) {
     if (submitterProfile.isTrustedIntermediary()) {
       return getReadOnlyApplicantProgramService(applicantId, programId)
           .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
@@ -415,7 +420,8 @@ public final class ApplicantService {
                   submitApplication(
                       applicantId,
                       programId,
-                      /* tiSubmitterEmail= */ Optional.of(account.getEmailAddress())),
+                      /* tiSubmitterEmail= */ Optional.of(account.getEmailAddress()),
+                      request),
               httpExecutionContext.current());
     }
 
@@ -424,7 +430,7 @@ public final class ApplicantService {
         .thenCompose(
             v ->
                 submitApplication(
-                    applicantId, programId, /* tiSubmitterEmail= */ Optional.empty()));
+                    applicantId, programId, /* tiSubmitterEmail= */ Optional.empty(), request));
   }
 
   /**
@@ -534,9 +540,9 @@ public final class ApplicantService {
 
   @VisibleForTesting
   CompletionStage<ApplicationModel> submitApplication(
-      long applicantId, long programId, Optional<String> tiSubmitterEmail) {
+      long applicantId, long programId, Optional<String> tiSubmitterEmail, Request request) {
     CompletableFuture<ApplicantPersonalInfo> applicantLabelFuture =
-        getPersonalInfo(applicantId).toCompletableFuture();
+        getPersonalInfo(applicantId, request).toCompletableFuture();
     CompletableFuture<Optional<ApplicationModel>> applicationFuture =
         applicationRepository
             .submitApplication(applicantId, programId, tiSubmitterEmail)
@@ -587,24 +593,29 @@ public final class ApplicantService {
                       .orElse(CompletableFuture.completedFuture(null));
 
               ApplicantPersonalInfo applicantPersonalInfo = applicantLabelFuture.join();
-              Optional<String> applicantEmail =
-                  applicantPersonalInfo.getType() == ApplicantType.LOGGED_IN
-                      ? applicantPersonalInfo.loggedIn().email()
-                      : Optional.empty();
+              Optional<ImmutableSet<String>> applicantEmails =
+                  getApplicantEmails(applicantPersonalInfo);
 
-              CompletableFuture<Void> notifyApplicantFuture =
-                  applicantEmail
-                      .map(
-                          email ->
-                              notifyApplicant(
+              CompletableFuture<Void> notifyApplicantFuture;
+              if (applicantEmails.isEmpty() || applicantEmails.get().isEmpty()) {
+                notifyApplicantFuture = CompletableFuture.completedFuture(null);
+              } else {
+                ImmutableList<CompletableFuture<Void>> futures =
+                    applicantEmails.get().stream()
+                        .map(
+                            email -> {
+                              return notifyApplicant(
                                       applicantId,
                                       application.id,
                                       email,
                                       programDefinition,
                                       maybeDefaultStatus)
-                                  .toCompletableFuture())
-                      .orElse(CompletableFuture.completedFuture(null));
-
+                                  .toCompletableFuture();
+                            })
+                        .collect(ImmutableList.toImmutableList());
+                notifyApplicantFuture =
+                    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+              }
               return CompletableFuture.allOf(
                       updateStatusFuture,
                       notifyProgramAdminsFuture,
@@ -614,6 +625,20 @@ public final class ApplicantService {
                   .thenApplyAsync((ignoreVoid) -> application, httpExecutionContext.current());
             },
             httpExecutionContext.current());
+  }
+
+  public Optional<ImmutableSet<String>> getApplicantEmails(
+      ApplicantPersonalInfo applicantPersonalInfo) {
+    switch (applicantPersonalInfo.getType()) {
+      case LOGGED_IN:
+        return applicantPersonalInfo.loggedIn().email();
+      case TI_PARTIALLY_CREATED:
+        return applicantPersonalInfo.tiPartiallyCreated().email();
+      case GUEST:
+        return applicantPersonalInfo.guest().email();
+      default:
+        return Optional.empty();
+    }
   }
 
   /**
@@ -837,11 +862,13 @@ public final class ApplicantService {
   /**
    * Returns an ApplicantPersonalInfo, which represents some contact/display info for an applicant.
    */
-  public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId) {
+  public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId, Request request) {
     return accountRepository
         .lookupApplicant(applicantId)
         .thenApplyAsync(
             applicant -> {
+              Representation.Builder builder = Representation.builder();
+
               boolean hasAuthorityId =
                   applicant.isPresent()
                       && !Strings.isNullOrEmpty(applicant.get().getAccount().getAuthorityId());
@@ -849,22 +876,34 @@ public final class ApplicantService {
                   applicant.isPresent()
                       && applicant.get().getAccount().getManagedByGroup().isPresent();
 
+              if (applicant.isPresent()) {
+                Optional<String> name = applicant.get().getApplicantData().getApplicantName();
+                if (name.isPresent() && !Strings.isNullOrEmpty(name.get())) {
+                  builder.setName(name.get());
+                }
+
+                String accountEmailAddress = applicant.get().getAccount().getEmailAddress();
+                ImmutableSet.Builder<String> emailAddressesBuilder = ImmutableSet.builder();
+                if (!Strings.isNullOrEmpty(accountEmailAddress)) {
+                  emailAddressesBuilder.add(accountEmailAddress);
+                }
+
+                if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
+                  Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
+                  applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));
+                }
+
+                ImmutableSet<String> emailAddresses = emailAddressesBuilder.build();
+                if (!emailAddresses.isEmpty()) {
+                  builder.setEmail(emailAddresses);
+                }
+              }
+
               if (!hasAuthorityId && !isManagedByTi) {
                 // The authority ID is the source of truth for whether a user is logged in. However,
                 // if they were created by a TI, we skip this return and return later on with a more
                 // specific oneof value.
-                return ApplicantPersonalInfo.ofGuestUser();
-              }
-
-              Representation.Builder builder = Representation.builder();
-
-              Optional<String> name = applicant.get().getApplicantData().getApplicantName();
-              if (name.isPresent() && !Strings.isNullOrEmpty(name.get())) {
-                builder.setName(name.get());
-              }
-              String emailAddress = applicant.get().getAccount().getEmailAddress();
-              if (!Strings.isNullOrEmpty(emailAddress)) {
-                builder.setEmail(emailAddress);
+                return ApplicantPersonalInfo.ofGuestUser(builder.build());
               }
 
               if (hasAuthorityId) {

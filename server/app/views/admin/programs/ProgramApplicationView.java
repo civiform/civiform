@@ -16,6 +16,7 @@ import static j2html.TagCreator.span;
 import annotations.BindingAnnotations.EnUsLang;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
 import j2html.tags.DomContent;
@@ -32,13 +33,14 @@ import java.util.OptionalLong;
 import models.ApplicationModel;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
-import play.mvc.Http;
+import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.DateConverter;
 import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.Block;
 import services.program.StatusDefinitions;
+import services.settings.SettingsManifest;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -66,13 +68,18 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
   private final Messages enUsMessages;
   private final DateConverter dateConverter;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramApplicationView(
-      BaseHtmlLayout layout, @EnUsLang Messages enUsMessages, DateConverter dateConverter) {
+      BaseHtmlLayout layout,
+      @EnUsLang Messages enUsMessages,
+      DateConverter dateConverter,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layout);
     this.enUsMessages = checkNotNull(enUsMessages);
     this.dateConverter = checkNotNull(dateConverter);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -85,7 +92,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       StatusDefinitions statusDefinitions,
       Optional<String> noteMaybe,
       Boolean hasEligibilityEnabled,
-      Http.Request request) {
+      Request request) {
     String title = "Program application view";
     ListMultimap<Block, AnswerData> blockToAnswers = ArrayListMultimap.create();
     for (AnswerData answer : answers) {
@@ -106,7 +113,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         programName,
                         application,
                         applicantNameWithApplicationId,
-                        status))
+                        status,
+                        request))
             .collect(ImmutableList.toImmutableList());
     Modal updateNoteModal = renderUpdateNoteConfirmationModal(programId, application, noteMaybe);
 
@@ -337,7 +345,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
       String programName,
       ApplicationModel application,
       String applicantNameWithApplicationId,
-      StatusDefinitions.Status status) {
+      StatusDefinitions.Status status,
+      Request request) {
     // The previous status as it should be displayed and passed as data in the
     // update.
     String previousStatusDisplay = application.getLatestStatus().orElse("Unset");
@@ -385,7 +394,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                             .withValue(previousStatusData))
                     .with(
                         renderStatusUpdateConfirmationModalEmailSection(
-                            applicantNameWithApplicationId, application, status)),
+                            applicantNameWithApplicationId, application, status, request)),
                 div()
                     .withClasses("flex", "mt-5", "space-x-2")
                     .with(
@@ -411,11 +420,20 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private DomContent renderStatusUpdateConfirmationModalEmailSection(
       String applicantNameWithApplicationId,
       ApplicationModel application,
-      StatusDefinitions.Status status) {
+      StatusDefinitions.Status status,
+      Request request) {
     InputTag sendEmailInput =
         input().withType("checkbox").withName(SEND_EMAIL).withClasses(BaseStyles.CHECKBOX);
-    Optional<String> maybeApplicantEmail =
+
+    Optional<String> optionalAccountEmail =
         Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
+    Optional<String> optionalApplicantEmail = application.getApplicant().getEmailAddress();
+    boolean emptyEmails = optionalAccountEmail.isEmpty();
+
+    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
+      emptyEmails = emptyEmails && optionalApplicantEmail.isEmpty();
+    }
+
     if (status.localizedEmailBodyText().isEmpty()) {
       return div()
           .with(
@@ -427,7 +445,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                           " will not receive an email because there is no email content set for"
                               + " this status. Connect with your CiviForm Admin to add an email to"
                               + " this status.")));
-    } else if (maybeApplicantEmail.isEmpty()) {
+    } else if (emptyEmails) {
       return div()
           .with(
               sendEmailInput.isHidden(),
@@ -437,14 +455,34 @@ public final class ProgramApplicationView extends BaseHtmlView {
                           " will not receive an email for this change since they have not provided"
                               + " an email address.")));
     }
+
+    String emailString = "";
+    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled(request)) {
+      emailString = generateEmailString(optionalAccountEmail, optionalApplicantEmail);
+    } else {
+      emailString = optionalAccountEmail.orElse("");
+    }
+
     return label()
         .with(
             // Check by default when visible.
             sendEmailInput.isChecked(),
             span("Notify "),
-            span(applicantNameWithApplicationId).withClass("font-semibold"),
+            span(applicantNameWithApplicationId)
+                .withClasses("font-semibold", ReferenceClasses.BT_APPLICATION_ID),
             span(" of this change at "),
-            span(maybeApplicantEmail.orElse("")).withClass("font-semibold"));
+            span(emailString).withClass("font-semibold"));
+  }
+
+  private String generateEmailString(
+      Optional<String> optionalAccountEmail, Optional<String> optionalApplicantEmail) {
+
+    // Create a set to handle the case where both emails are the same.
+    ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+    optionalAccountEmail.ifPresent(builder::add);
+    optionalApplicantEmail.ifPresent(builder::add);
+    // Join the emails with " and " if there are two, otherwise just return the single email.
+    return String.join(" and ", builder.build());
   }
 
   private SpanTag renderSubmitTime(ApplicationModel application) {
