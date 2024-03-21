@@ -300,6 +300,9 @@ public final class ProgramService {
    *     changed to {@link services.program.ProgramType#DEFAULT}, creating a new draft of it if
    *     necessary.
    * @param isIntakeFormFeatureEnabled whether or not the common intake form feature is enabled.
+   * @param eligibilityIsGating true if an applicant must meet all eligibility criteria in order to
+   *     submit an application, and false if an application can submit an application even if they
+   *     don't meet some/all of the eligibility criteria.
    * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
    * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
    *     failed
@@ -312,6 +315,7 @@ public final class ProgramService {
       String defaultConfirmationMessage,
       String externalLink,
       String displayMode,
+      boolean eligibilityIsGating,
       ProgramType programType,
       Boolean isIntakeFormFeatureEnabled,
       ImmutableList<Long> tiGroups) {
@@ -354,6 +358,7 @@ public final class ProgramService {
             ImmutableList.of(emptyBlock),
             versionRepository.getDraftVersionOrCreate(),
             programType,
+            eligibilityIsGating,
             programAcls);
 
     return ErrorAnd.of(
@@ -419,6 +424,9 @@ public final class ProgramService {
    *     applicant submits their application
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
+   * @param eligibilityIsGating true if an applicant must meet all eligibility criteria in order to
+   *     submit an application, and false if an application can submit an application even if they
+   *     don't meet some/all of the eligibility criteria.
    * @param programType ProgramType for this Program. If this is set to COMMON_INTAKE_FORM and there
    *     is already another active or draft program with {@link ProgramType#COMMON_INTAKE_FORM},
    *     that program's ProgramType will be changed to {@link ProgramType#DEFAULT}, creating a new
@@ -438,6 +446,7 @@ public final class ProgramService {
       String confirmationMessage,
       String externalLink,
       String displayMode,
+      boolean eligibilityIsGating,
       ProgramType programType,
       Boolean isIntakeFormFeatureEnabled,
       ImmutableList<Long> tiGroups)
@@ -482,6 +491,7 @@ public final class ProgramService {
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
             .setProgramType(programType)
+            .setEligibilityIsGating(eligibilityIsGating)
             .setAcls(new ProgramAcls(new HashSet<>(tiGroups)))
             .build()
             .toProgram();
@@ -896,21 +906,6 @@ public final class ProgramService {
     return IntStream.range(0, statuses.size())
         .boxed()
         .collect(ImmutableMap.toImmutableMap(i -> statuses.get(i).statusText(), i -> i));
-  }
-
-  /**
-   * Set a program's eligibility criteria to gating or non-gating.
-   *
-   * @param programId the ID of the program to update.
-   * @param gating boolean representing whether eligibility is gating or non-gating.
-   * @return the updated program definition
-   */
-  public ProgramDefinition setEligibilityIsGating(long programId, boolean gating)
-      throws ProgramNotFoundException {
-    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
-    programDefinition = programDefinition.toBuilder().setEligibilityIsGating(gating).build();
-    return programRepository.getShallowProgramDefinition(
-        programRepository.updateProgramSync(programDefinition.toProgram()));
   }
 
   /**

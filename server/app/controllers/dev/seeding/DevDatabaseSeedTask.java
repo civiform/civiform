@@ -162,6 +162,7 @@ public final class DevDatabaseSeedTask {
               /* defaultConfirmationMessage= */ "",
               /* externalLink= */ "https://github.com/civiform/civiform",
               DisplayMode.PUBLIC.getValue(),
+              /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
               /* isIntakeFormFeatureEnabled= */ false,
               ImmutableList.copyOf(new ArrayList<>()));
@@ -203,6 +204,7 @@ public final class DevDatabaseSeedTask {
               /* defaultConfirmationMessage= */ "",
               "https://github.com/civiform/civiform",
               DisplayMode.PUBLIC.getValue(),
+              /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
               /* isIntakeFormFeatureEnabled= */ false,
               ImmutableList.copyOf(new ArrayList<>()));
