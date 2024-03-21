@@ -187,7 +187,7 @@ header.clientList=Danh sách khách hàng
 header.search=Search
 
 # A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
-label.acctStatus=Trạng thái tài khoản
+label.acctStatus=Account status
 # Label above the phone number for each client on the client list.
 label.contactInfo=Thông tin liên hệ
 # The label above the input field for the day of the client birth date. i.e. 12 for November 12
@@ -235,6 +235,8 @@ title.createClient=Tạo hồ sơ khách hàng mới
 title.displayingMultiClients=Đang hiện {0} khách hàng
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=Đang hiện 1 khách hàng
+# This is the heading above an unfiltered list of clients.
+title.displayingAllClients=Displaying all clients
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=Thành viên của tổ chức
 
