@@ -18,16 +18,7 @@ test.describe('currency applicant flow', () => {
     const programName = 'Test program for single currency'
 
     test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
-      await loginAsAdmin(page)
-
-      await adminQuestions.addCurrencyQuestion({questionName: 'currency-q'})
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['currency-q'],
-        programName,
-      )
-
-      await logout(page)
+      await setUpSingleCurrencyQuestion(programName)
     })
 
     test('validate screenshot', async () => {
@@ -155,16 +146,7 @@ test.describe('currency applicant flow', () => {
     const programName = 'Test program for single currency'
 
     test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
-      await loginAsAdmin(page)
-
-      await adminQuestions.addCurrencyQuestion({questionName: 'currency-q'})
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['currency-q'],
-        programName,
-      )
-
-      await logout(page)
+      await setUpSingleCurrencyQuestion(programName)
     })
 
     test.beforeEach(async () => {
@@ -196,4 +178,17 @@ test.describe('currency applicant flow', () => {
       })
     })
   })
+
+  async function setUpSingleCurrencyQuestion(programName: string) {
+    const {page, adminQuestions, adminPrograms} = ctx
+    await loginAsAdmin(page)
+
+    await adminQuestions.addCurrencyQuestion({questionName: 'currency-q'})
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['currency-q'],
+      programName,
+    )
+
+    await logout(page)
+  }
 })
