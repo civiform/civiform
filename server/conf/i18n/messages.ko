@@ -331,15 +331,15 @@ title.verifyAddress=주소 확인
 
 content.foundSimilarAddress=제공된 주소를 확인할 수 없지만 비슷한 주소를 발견했습니다.
 # Heading for showing the user the address they provided earlier
-content.addressEntered=Address you entered:
+content.addressEntered=입력한 주소:
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=추천 주소:
 content.suggestedAddresses=추천 주소:
 
 # Title on address correction dialog when no address is found.
-title.noValidAddress=No valid address found
-content.noValidAddress=We could not verify the address that you provided. Please edit your address to continue.
+title.noValidAddress=유효한 주소를 찾을 수 없음
+content.noValidAddress=제공된 주소를 확인할 수 없습니다. 계속하려면 주소를 수정하세요.
 
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
@@ -349,15 +349,15 @@ content.noValidAddress=We could not verify the address that you provided. Please
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
-title.confirmAddress=Confirm your address
+title.confirmAddress=주소 확인
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=We were not able to find your address.
+content.confirmAddressLine1=주소를 찾을 수 없습니다.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
-content.foundSimilarAddressLine2=Please check your address for spelling or choose an option from the list provided.
+content.foundSimilarAddressLine2=주소의 철자를 확인하거나 제공된 목록에서 주소를 선택하세요.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
-content.noValidAddressLine2=Please check your address for spelling and edit to continue.
+content.noValidAddressLine2=계속하려면 주소의 철자를 확인하고 수정하세요.
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
-button.confirmAddress=Confirm address
+button.confirmAddress=주소 확인
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -392,7 +392,7 @@ button.addEntity={0} 추가
 button.removeEntity={0} 삭제
 dialog.confirmDelete=이 {0}을(를) 삭제하시겠습니까? '다음'을 클릭하면 이 변경사항이 저장되고 이 {0}에 연결된 모든 데이터가 손실됩니다.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
-dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
+dialog.confirmDeleteAllButtonsSave=이 {0} 항목을 삭제하시겠습니까? '검토, '이전' 또는 '다음'을 클릭하면 변경사항이 저장되며, {0}에 연결된 모든 데이터는 손실됩니다.
 validation.entityNameRequired=각 줄에 값을 입력하세요.
 validation.duplicateEntityName=각 줄에 고유한 값을 입력하세요.
 placeholder.entityName={0} 이름
@@ -403,7 +403,7 @@ placeholder.entityName={0} 이름
 
 validation.fileRequired=파일을 선택하세요.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
-validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
+validation.fileTooLarge=파일이 너무 큽니다. {0}MB 미만인 파일을 선택하세요.
 button.chooseFile=파일 선택
 
 #---------------------------------------------------------------------#
