@@ -1,0 +1,18 @@
+<div th:fragment="dropdown(question)"
+     th:with="dropdownQuestion=${question.createDropdownQuestion()},
+              questionId=${#strings.randomAlphanumeric(8)},
+              inputId=${#strings.randomAlphanumeric(8)}"
+     th:id="${questionId}">
+    <!-- Title and Help Text -->
+    <div th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"></div>
+
+    <!-- Display errors -->
+    <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${idQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
+    
+    <select class="usa-select" name="options" th:id="${inputId}">
+      <option value hidden selected th:text="#{placeholder.noDropdownSelection}"></option>
+      <option value="value1">Option A</option>
+      <option value="value2">Option B</option>
+      <option value="value3">Option C</option>
+    </select>
+</div>
