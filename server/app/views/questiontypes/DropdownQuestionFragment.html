@@ -1,27 +1,41 @@
-<div th:fragment="dropdown(question)"
-     th:with="singleSelectQuestion=${question.createSingleSelectQuestion()},
+<div
+  th:fragment="dropdown(question)"
+  th:with="singleSelectQuestion=${question.createSingleSelectQuestion()},
               questionId=${#strings.randomAlphanumeric(8)},
               inputId=${#strings.randomAlphanumeric(8)}"
-     th:id="${questionId}">
-    <!-- Title and Help Text -->
-    <div th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"></div>
+  th:id="${questionId}"
+>
+  <!-- Title and Help Text -->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
+  ></div>
 
-    <!-- Display errors -->
-    <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
-    
-    <select class="usa-select"
-        name="options"
-        th:id="${inputId}"
-        th:name="${singleSelectQuestion.getSelectionPath()}"
-        th:aria-required="${!question.isOptional()}"
-        th:aria-describedby="${questionId} + '-description'">
-      <option value hidden th:selected="${!singleSelectQuestion.hasValue()}" th:text="#{placeholder.noDropdownSelection}"></option>
-      <optgroup>
-        <option
-            th:each="option,iterator: ${singleSelectQuestion.getOptions()}"
-            th:value="${option.id()}"
-            th:text="${option.optionText()}"
-            th:selected="${singleSelectQuestion.optionIsSelected(option)}"></option>
-      </optgroup>
-    </select>
+  <!-- Display errors -->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+  ></div>
+
+  <select
+    class="usa-select"
+    name="options"
+    th:id="${inputId}"
+    th:name="${singleSelectQuestion.getSelectionPath()}"
+    th:aria-required="${!question.isOptional()}"
+    th:aria-describedby="${questionId} + '-description'"
+  >
+    <option
+      value
+      hidden
+      th:selected="${!singleSelectQuestion.hasValue()}"
+      th:text="#{placeholder.noDropdownSelection}"
+    ></option>
+    <optgroup>
+      <option
+        th:each="option,iterator: ${singleSelectQuestion.getOptions()}"
+        th:value="${option.id()}"
+        th:text="${option.optionText()}"
+        th:selected="${singleSelectQuestion.optionIsSelected(option)}"
+      ></option>
+    </optgroup>
+  </select>
 </div>
