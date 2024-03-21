@@ -9,8 +9,13 @@
     <!-- Display errors -->
     <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
     
-    <select class="usa-select" name="options" th:id="${inputId}" th:aria-required="${!question.isOptional()}" th:name="${singleSelectQuestion.getSelectionPath()}">
-      <option value hidden selected th:text="#{placeholder.noDropdownSelection}"></option>
+    <select class="usa-select"
+        name="options"
+        th:id="${inputId}"
+        th:name="${singleSelectQuestion.getSelectionPath()}"
+        th:aria-required="${!question.isOptional()}"
+        th:aria-describedby="${questionId} + '-description'">
+      <option value hidden th:selected="${!singleSelectQuestion.hasValue()}" th:text="#{placeholder.noDropdownSelection}"></option>
       <optgroup>
         <option
             th:each="option,iterator: ${singleSelectQuestion.getOptions()}"
