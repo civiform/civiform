@@ -331,15 +331,15 @@ title.verifyAddress=驗證地址
 
 content.foundSimilarAddress=我們無法驗證您提供的地址，但找到了類似的地址。
 # Heading for showing the user the address they provided earlier
-content.addressEntered=Address you entered:
+content.addressEntered=您輸入的地址：
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=建議的地址：
 content.suggestedAddresses=建議的地址：
 
 # Title on address correction dialog when no address is found.
-title.noValidAddress=No valid address found
-content.noValidAddress=We could not verify the address that you provided. Please edit your address to continue.
+title.noValidAddress=找不到有效的地址
+content.noValidAddress=我們無法驗證您提供的地址。如要繼續操作，請編輯地址。
 
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
@@ -349,15 +349,15 @@ content.noValidAddress=We could not verify the address that you provided. Please
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
-title.confirmAddress=Confirm your address
+title.confirmAddress=確認地址
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=We were not able to find your address.
+content.confirmAddressLine1=找不到您輸入的地址。
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
-content.foundSimilarAddressLine2=Please check your address for spelling or choose an option from the list provided.
+content.foundSimilarAddressLine2=請檢查地址的拼字是否正確無誤，或是從我們提供的清單中選擇其他地址。
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
-content.noValidAddressLine2=Please check your address for spelling and edit to continue.
+content.noValidAddressLine2=請檢查地址的拼字是否正確無誤。如果有誤，請編輯地址以便繼續操作。
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
-button.confirmAddress=Confirm address
+button.confirmAddress=確認地址
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -392,7 +392,7 @@ button.addEntity=新增「{0}」
 button.removeEntity=移除「{0}」
 dialog.confirmDelete=確定要移除此「{0}」嗎？點選「下一步」後，系統就會儲存變更並移除與此「{0}」相關的所有資料。
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
-dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
+dialog.confirmDeleteAllButtonsSave=確定要移除這個{0}嗎？點選「檢查」、「上一個」或「下一個」後，系統會儲存這項變更，且所有與這個{0}相關聯的資料將會遺失。
 validation.entityNameRequired=請每行輸入一個值。
 validation.duplicateEntityName=每行輸入的值不可重複。
 placeholder.entityName=「{0}」名稱
@@ -403,7 +403,7 @@ placeholder.entityName=「{0}」名稱
 
 validation.fileRequired=請選取檔案。
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
-validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
+validation.fileTooLarge=檔案過大，請選擇小於 {0} MB 的檔案。
 button.chooseFile=選擇檔案
 
 #---------------------------------------------------------------------#
