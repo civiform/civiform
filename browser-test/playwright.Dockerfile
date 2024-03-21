@@ -11,6 +11,8 @@ RUN apt-get update -y && \
     apt-get update && \
     # Install the packages
     apt-get install -y nodejs fonts-ubuntu && \
+    # Update npm
+    npm install -g npm && \
     # Smoke tests
     node --version && \
     npm --version && \

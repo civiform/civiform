@@ -70,15 +70,15 @@ modal.errorSaving.review.title=이 페이지의 질문이 완료되지 않았습
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
 modal.errorSaving.previous.title=이 페이지의 질문이 완료되지 않았습니다. 그래도 페이지에서 나가 이전 페이지로 이동하시겠습니까?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?
+modal.errorSaving.review.content=입력하신 정보에 일부 오류가 있습니다. 계속 머물며 답변을 수정하시겠습니까? 아니면 답변을 저장하지 않고 검토 페이지로 이동하시겠습니까?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the previous question page without saving your answers?
+modal.errorSaving.previous.content=입력하신 정보에 일부 오류가 있습니다. 계속 머물며 답변을 수정하시겠습니까? 아니면 답변을 저장하지 않고 이전 질문 페이지로 이동하시겠습니까?
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=Continue to review page without saving
+modal.errorSaving.review.noSaveButton=저장하지 않고 검토 페이지로 이동
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=Continue to previous questions without saving
+modal.errorSaving.previous.noSaveButton=저장하지 않고 이전 질문으로 이동
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=Stay and fix your answers
+modal.errorSaving.stayAndFixButton=계속 머물며 답변 수정
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -125,6 +125,9 @@ banner.clientInfoUpdated=클라이언트 정보를 업데이트했습니다.
 banner.clientAcctDeleted='{0}'의 클라이언트 계정이 삭제되었습니다.
 # Message when a user successfully creates a client account.
 banner.newClientCreated=새 클라이언트를 만들었습니다.
+# Banner at the top of the page with the name of the client substituted in when viewing an application.
+banner.viewApplication=You are applying for {0}. Are you trying to apply for a different client?
+
 
 # Button that allows a user to add a client to the CiviForm system.
 button.addNewClient=새 클라이언트 추가
@@ -152,13 +155,27 @@ button.select=선택
 button.startApp=애플리케이션 시작
 # Button to view the applications belonging to an applicant.
 button.viewApplications=애플리케이션 보기
+# Button to view and add clients
+button.viewAndAddClients=View and add clients
 
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=새 클라이언트({0})가 클라이언트 목록에 추가되었습니다. 이제 이 클라이언트에 대한 애플리케이션을 제출할 수 있습니다.
+# The tooltip of the email input field.
+content.emailTooltip=Add an email address for your client to receive status updates about their application automatically. Without an email, you or your community-based organization will be responsible for communicating updates to your client.
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted=애플리케이션 {0}개 제출됨
+# Shows that a single application has been submitted on behalf of the client.
+content.oneAppSubmitted=1 application submitted
 # Some explanation text on the confirmation modal when deleting a client.
 content.warning=이 클라이언트에 대해 제출된 애플리케이션이 없으므로 삭제되는 애플리케이션이 없습니다.
+# Shows there is no email address connected to the account.
+content.noEmailAddress=(no email address)
+# The status of an organization member when they have been enrolled but have never logged into CiviForm.
+content.notLoggedIn=Not yet logged in
+# The status of an organization member when they have logged in but haven't applied on behalf of a client.
+content.noApplications=Logged in, no applications submitted
+# The status of an organization member showing the date of the last application that they submitted for a client.
+content.lastApplicationDate=Last submitted application on {0}
 # Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=이 클라이언트의 계정을 삭제하시겠습니까?
 
@@ -166,8 +183,10 @@ dialog.deleteConfirmation=이 클라이언트의 계정을 삭제하시겠습니
 header.acctSettings=계정 설정
 # Tab label for getting to the client list page
 header.clientList=클라이언트 목록
+# Label for search
+header.search=Search
 
-# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last login XX-XX-XXXX".
+# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
 label.acctStatus=계정 상태
 # Label above the phone number for each client on the client list.
 label.contactInfo=연락처 정보
@@ -179,6 +198,12 @@ label.dob=생일
 label.dobExample=예: 1986년 1월 28일
 # Label above the "Email" column of the community-based organization members table.
 label.email=이메일
+# Validation error message below date of birth input when the TI clicks on save without filling out the field.
+label.errorDOB=Error: Date of birth required
+# Validation error message below first name input when the TI clicks on save without filling out the field.
+label.errorFirstName=Error: First name required
+# Validation error message below last name input when the TI clicks on save without filling out the field.
+label.errorLastName=Error: Last name required
 # The label above the dropdown select field for the month of the client birth date.
 label.month=월
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -195,8 +220,12 @@ label.searchByDob=생일로 검색
 label.searchByName=이름으로 검색
 # The label above the input field for the year of the client birth date.
 label.year=연도
+# Label showing the user when there is no name
+label.unnamedUser=Unnamed user
 
 link.edit=편집
+# Link to change the client that the trusted intermediary is applying for.
+link.selectNewClient=Select a new client
 
 # This is the header above the list of clients and the client search.
 title.allClients=모든 클라이언트
@@ -267,7 +296,7 @@ content.commonIntakeNoMatchingPrograms=이번에는 사전 선별 과정에서 �
 content.commonIntakeNoMatchingProgramsTi=이번에는 사전 선별 과정에서 고객이 자격 요건에 해당될 수 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 프로그램을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 다른 프로그램을 확인해 보세요.
 content.commonIntakeNoMatchingProgramsNextStep=이전 페이지로 돌아가 응답을 수정할 수도 있습니다.
 # A header above a list of other programs the applicant might be interested in applying to.
-content.otherProgramsToApplyFor=Other programs you might be interested in
+content.otherProgramsToApplyFor=관심 있을 만한 다른 프로그램
 button.downloadPdf=PDF 다운로드
 button.applyToPrograms=프로그램 신청
 
@@ -302,14 +331,14 @@ title.verifyAddress=주소 확인
 
 content.foundSimilarAddress=제공된 주소를 확인할 수 없지만 비슷한 주소를 발견했습니다.
 # Heading for showing the user the address they provided earlier
-content.addressEntered=입력된 주소:
+content.addressEntered=입력한 주소:
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=추천 주소:
 content.suggestedAddresses=추천 주소:
 
 # Title on address correction dialog when no address is found.
-title.noValidAddress=유효한 주소를 찾을 수 없습니다
+title.noValidAddress=유효한 주소를 찾을 수 없음
 content.noValidAddress=제공된 주소를 확인할 수 없습니다. 계속하려면 주소를 수정하세요.
 
 #-------------------------------------------------------------------------#
@@ -320,15 +349,15 @@ content.noValidAddress=제공된 주소를 확인할 수 없습니다. 계속하
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
-title.confirmAddress=Confirm your address
+title.confirmAddress=주소 확인
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=We were not able to find your address.
+content.confirmAddressLine1=주소를 찾을 수 없습니다.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
-content.foundSimilarAddressLine2=Please check your address for spelling or choose an option from the list provided.
+content.foundSimilarAddressLine2=주소의 철자를 확인하거나 제공된 목록에서 주소를 선택하세요.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
-content.noValidAddressLine2=Please check your address for spelling and edit to continue.
+content.noValidAddressLine2=계속하려면 주소의 철자를 확인하고 수정하세요.
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
-button.confirmAddress=Confirm address
+button.confirmAddress=주소 확인
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -363,7 +392,7 @@ button.addEntity={0} 추가
 button.removeEntity={0} 삭제
 dialog.confirmDelete=이 {0}을(를) 삭제하시겠습니까? '다음'을 클릭하면 이 변경사항이 저장되고 이 {0}에 연결된 모든 데이터가 손실됩니다.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
-dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
+dialog.confirmDeleteAllButtonsSave=이 {0} 항목을 삭제하시겠습니까? '검토, '이전' 또는 '다음'을 클릭하면 변경사항이 저장되며, {0}에 연결된 모든 데이터는 손실됩니다.
 validation.entityNameRequired=각 줄에 값을 입력하세요.
 validation.duplicateEntityName=각 줄에 고유한 값을 입력하세요.
 placeholder.entityName={0} 이름
@@ -373,9 +402,9 @@ placeholder.entityName={0} 이름
 #---------------------------------------------------------------------------------#
 
 validation.fileRequired=파일을 선택하세요.
-button.chooseFile=파일 선택
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
-validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
+validation.fileTooLarge=파일이 너무 큽니다. {0}MB 미만인 파일을 선택하세요.
+button.chooseFile=파일 선택
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
@@ -428,7 +457,7 @@ validation.textTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
 
 adminValidation.multiOptionEmpty=객관식 질문의 옵션은 비워둘 수 없습니다.
 # An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
-adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
+adminValidation.multiOptionAdminError=관리자 이름에는 소문자, 숫자, 밑줄, 대시만 포함할 수 있습니다.
 
 #----------------------------------#
 # ERRORS - various error messages  #

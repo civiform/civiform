@@ -15,15 +15,13 @@ import views.BaseHtmlView;
 import views.components.ButtonStyles;
 import views.components.Modal;
 import views.style.ReferenceClasses;
-import views.style.StyleUtils;
 
 /**
  * A helper class that creates a modal displayed to an applicant when the applicant clicked "Review"
  * on a block but had invalid answers.
  */
 public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
-  private static final String WITHOUT_SAVE_BUTTON_CLASSES =
-      StyleUtils.joinStyles(ButtonStyles.OUTLINED_TRANSPARENT, "mr-2");
+  private static final String WITHOUT_SAVE_BUTTON_CLASSES = ButtonStyles.OUTLINED_TRANSPARENT;
 
   @Inject
   public EditOrDiscardAnswersModalCreator() {}
@@ -88,7 +86,7 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
     return button(
             params.messages().at(MessageKey.MODAL_ERROR_SAVING_STAY_AND_FIX_BUTTON.getKeyName()))
         // Adding the MODAL_CLOSE class means that clicking the button will close the modal.
-        .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.SOLID_BLUE);
+        .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.SOLID_BLUE, "ml-2");
   }
 
   private ButtonTag renderReviewWithoutSavingButton(ApplicationBaseViewParams params) {

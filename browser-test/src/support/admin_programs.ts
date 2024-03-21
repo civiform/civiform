@@ -10,7 +10,7 @@ import {
 import {BASE_URL, TEST_CIVIC_ENTITY_SHORT_NAME} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
 import {AdminProgramImage} from './admin_program_image'
-import {validateScreenshot} from '.'
+import {validateScreenshot, extractEmailsForRecipient} from '.'
 
 /**
  * JSON object representing downloaded application. It can be retrieved by
@@ -1205,5 +1205,20 @@ export class AdminPrograms {
   async isPaginationVisibleForApplicationList(): Promise<boolean> {
     const applicationListDiv = this.page.getByTestId('application-list')
     return applicationListDiv.locator('.usa-pagination').isVisible()
+  }
+
+  async expectEmailSent(
+    numEmailsBefore: number,
+    userEmail: string,
+    emailBody: string,
+    programName: string,
+  ) {
+    const emailsAfter = await extractEmailsForRecipient(this.page, userEmail)
+    expect(emailsAfter.length).toEqual(numEmailsBefore + 1)
+    const sentEmail = emailsAfter[emailsAfter.length - 1]
+    expect(sentEmail.Subject).toEqual(
+      `[Test Message] An update on your application ${programName}`,
+    )
+    expect(sentEmail.Body.text_part).toContain(emailBody)
   }
 }

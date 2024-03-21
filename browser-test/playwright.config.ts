@@ -1,4 +1,5 @@
 import {defineConfig} from '@playwright/test'
+import {BASE_URL} from './src/support/config'
 
 // For details see: https://playwright.dev/docs/api/class-testconfig
 
@@ -27,6 +28,8 @@ export default defineConfig({
   use: {
     trace: 'on-first-retry',
     video: process.env.RECORD_VIDEO ? 'on-first-retry' : 'off',
+    // Fall back support config file until it is removed
+    baseURL: process.env.BASE_URL || BASE_URL, // 'http://civiform:9000'
   },
   reporter: [
     ['list', {printSteps: true}],
