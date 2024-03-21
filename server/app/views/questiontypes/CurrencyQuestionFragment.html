@@ -16,6 +16,7 @@
                                 currencyQuestion.getFailedUpdates().getOrDefault(currencyQuestion.getCurrencyPath(), '')}"
             class="usa-input"
             inputmode="decimal"
+            currency
             th:id="${inputId}"
             th:name="${currencyQuestion.getCurrencyPath()}"
             th:value="${value}"
