@@ -130,20 +130,8 @@ public final class ProgramAdminApplicationService {
       // Notify the applicant.
       ApplicantPersonalInfo applicantPersonalInfo =
           applicantService.getPersonalInfo(applicant.id, request).toCompletableFuture().join();
-      Optional<ImmutableSet<String>> applicantEmails;
-      switch (applicantPersonalInfo.getType()) {
-        case LOGGED_IN:
-          applicantEmails = applicantPersonalInfo.loggedIn().email();
-          break;
-        case TI_PARTIALLY_CREATED:
-          applicantEmails = applicantPersonalInfo.tiPartiallyCreated().email();
-          break;
-        case GUEST:
-          applicantEmails = applicantPersonalInfo.guest().email();
-          break;
-        default:
-          applicantEmails = Optional.empty();
-      }
+      Optional<ImmutableSet<String>> applicantEmails =
+          applicantService.getApplicantEmails(applicantPersonalInfo);
       if (applicantEmails.isPresent()) {
         applicantEmails
             .get()

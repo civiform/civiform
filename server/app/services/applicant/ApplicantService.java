@@ -593,21 +593,8 @@ public final class ApplicantService {
                       .orElse(CompletableFuture.completedFuture(null));
 
               ApplicantPersonalInfo applicantPersonalInfo = applicantLabelFuture.join();
-
-              Optional<ImmutableSet<String>> applicantEmails;
-              switch (applicantPersonalInfo.getType()) {
-                case LOGGED_IN:
-                  applicantEmails = applicantPersonalInfo.loggedIn().email();
-                  break;
-                case TI_PARTIALLY_CREATED:
-                  applicantEmails = applicantPersonalInfo.tiPartiallyCreated().email();
-                  break;
-                case GUEST:
-                  applicantEmails = applicantPersonalInfo.guest().email();
-                  break;
-                default:
-                  applicantEmails = Optional.empty();
-              }
+              Optional<ImmutableSet<String>> applicantEmails =
+                  getApplicantEmails(applicantPersonalInfo);
 
               CompletableFuture<Void> notifyApplicantFuture;
               if (applicantEmails.isEmpty() || applicantEmails.get().isEmpty()) {
@@ -638,6 +625,20 @@ public final class ApplicantService {
                   .thenApplyAsync((ignoreVoid) -> application, httpExecutionContext.current());
             },
             httpExecutionContext.current());
+  }
+
+  public Optional<ImmutableSet<String>> getApplicantEmails(
+      ApplicantPersonalInfo applicantPersonalInfo) {
+    switch (applicantPersonalInfo.getType()) {
+      case LOGGED_IN:
+        return applicantPersonalInfo.loggedIn().email();
+      case TI_PARTIALLY_CREATED:
+        return applicantPersonalInfo.tiPartiallyCreated().email();
+      case GUEST:
+        return applicantPersonalInfo.guest().email();
+      default:
+        return Optional.empty();
+    }
   }
 
   /**
