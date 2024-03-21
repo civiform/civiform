@@ -187,7 +187,7 @@ header.clientList=Listahan ng kliyente
 header.search=Search
 
 # A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
-label.acctStatus=Status ng Account
+label.acctStatus=Account status
 # Label above the phone number for each client on the client list.
 label.contactInfo=Impormasyon sa Pakikipag-ugnayan
 # The label above the input field for the day of the client birth date. i.e. 12 for November 12
@@ -235,6 +235,8 @@ title.createClient=Gumawa ng bagong kliyente
 title.displayingMultiClients=Nagpapakita ng {0} (na) kliyente
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=Nagpapakita ng 1 kliyente
+# This is the heading above an unfiltered list of clients.
+title.displayingAllClients=Displaying all clients
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=Mga miyembro ng organisasyon
 
