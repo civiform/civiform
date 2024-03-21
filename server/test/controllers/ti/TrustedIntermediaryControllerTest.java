@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
-import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 import static support.CfTestHelpers.requestBuilderWithSettings;
@@ -71,7 +70,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                 profileUtils.currentUserProfile(requestBuilder.build()).get())
             .get();
     Result result = tiController.addClient(trustedIntermediaryGroup.id, requestBuilder.build());
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(OK);
     Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail("sample3@fake.com").toCompletableFuture().join();
     AccountModel account = testApplicant.get().getAccount();
@@ -160,7 +159,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                 profileUtils.currentUserProfile(requestBuilder.build()).get())
             .get();
     Result result = tiController.addClient(trustedIntermediaryGroup.id, requestBuilder.build());
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(OK);
     Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail("testUpdate@fake.com").toCompletableFuture().join();
     AccountModel account = testApplicant.get().getAccount();
@@ -281,7 +280,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                 profileUtils.currentUserProfile(requestBuilder.build()).get())
             .get();
     Result result = tiController.addClient(trustedIntermediaryGroup.id, requestBuilder.build());
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(OK);
     Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail("sample2@fake.com").toCompletableFuture().join();
     assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
@@ -314,7 +313,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                 profileUtils.currentUserProfile(requestBuilder.build()).get())
             .get();
     Result result = tiController.addClient(trustedIntermediaryGroup.id, requestBuilder.build());
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(OK);
     Optional<ApplicantModel> testApplicant =
         repo.lookupApplicantByEmail(email).toCompletableFuture().join();
     assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
