@@ -177,33 +177,29 @@ test.describe('Dropdown question for applicant flow', () => {
       await enableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
-    test(
-      'validate screenshot',
-      {tag: ['@northstar']},
-      async () => {
-        const {page, applicantQuestions} = ctx
-        await applicantQuestions.applyProgram(programName)
+    test('validate screenshot', {tag: ['@northstar']}, async () => {
+      const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
 
-        await test.step('Screenshot without errors', async () => {
-          await validateScreenshot(
-            page,
-            'dropdown-north-star',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
-          )
-        })
+      await test.step('Screenshot without errors', async () => {
+        await validateScreenshot(
+          page,
+          'dropdown-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
 
-        await test.step('Screenshot with errors', async () => {
-          await applicantQuestions.clickContinue()
-          await validateScreenshot(
-            page,
-            'dropdown-errors-north-star',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
-          )
-        })
-      },
-    )
+      await test.step('Screenshot with errors', async () => {
+        await applicantQuestions.clickContinue()
+        await validateScreenshot(
+          page,
+          'dropdown-errors-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+    })
   })
 
   async function setUpSingleDropdownQuestion(programName: string) {
