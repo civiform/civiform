@@ -41,6 +41,9 @@ export class TIDashboard {
 
     await this.page.getByRole('button', {name: 'Save'}).click()
     await waitForPageJsLoad(this.page)
+    await this.expectSuccessAlertOnAddNewClient()
+    await this.gotoTIDashboardPage(this.page)
+    await waitForPageJsLoad(this.page)
   }
 
   async createMultipleClients(nameBase: string, copies: number) {
@@ -52,6 +55,9 @@ export class TIDashboard {
       await this.page.fill('#last-name-input', 'last')
       await this.page.fill('#date-of-birth-input', '2021-05-10')
       await this.page.getByRole('button', {name: 'Save'}).click()
+      await waitForPageJsLoad(this.page)
+      await this.expectSuccessAlertOnAddNewClient()
+      await this.gotoTIDashboardPage(this.page)
       await waitForPageJsLoad(this.page)
     }
   }
@@ -101,7 +107,7 @@ export class TIDashboard {
 
     await this.page.fill('#date-of-birth-input', newDobDate)
     await this.page.click('text="Save"')
-    await this.expectSuccessAlert()
+    await this.expectSuccessAlertOnUpdate()
   }
 
   async expectSuccessAlertNotPresent() {
@@ -196,12 +202,17 @@ export class TIDashboard {
     expect(toastContainer).toContain(successToastMessage)
   }
 
-  async expectSuccessAlert() {
+  async expectSuccessAlertOnUpdate() {
     const alertContainer = await this.page.innerHTML('.usa-alert--success')
 
     expect(alertContainer).toContain(
       'Client info has been successfully updated.',
     )
+  }
+  async expectSuccessAlertOnAddNewClient() {
+    const alertContainer = await this.page.innerHTML('.usa-alert--success')
+
+    expect(alertContainer).toContain('New client successfully created.')
   }
 
   async expectIneligiblePage() {

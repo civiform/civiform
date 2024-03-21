@@ -38,7 +38,7 @@ test.describe('Trusted intermediaries', () => {
       lastName: 'last',
       dobDate: '2021-12-12',
     }
-    await tiDashboard.expectSuccessAlert()
+    await tiDashboard.expectSuccessAlertOnUpdate()
     await validateScreenshot(page.locator('main'), 'edit-client-success-alert')
 
     await page.click('#ti-dashboard-link')
@@ -119,10 +119,6 @@ test.describe('Trusted intermediaries', () => {
     }
     await tiDashboard.createClient(client2)
     await tiDashboard.expectDashboardContainClient(client2)
-    await tiDashboard.expectSuccessToast(
-      `Successfully added new client: ${client2.firstName} ${client2.lastName}`,
-    )
-
     await validateScreenshot(page, 'add-clients-no-email')
   })
 
@@ -628,9 +624,8 @@ test.describe('Trusted intermediaries', () => {
     }
     await tiDashboard.createClient(client)
     await tiDashboard.clickOnViewApplications()
-    await page.click('#ti-clients-link')
-
-    expect(await page.innerHTML('body')).toContain('#name-search')
+    await page.getByRole('link', {name: 'Select a new client'}).click()
+    expect(await page.innerHTML('body')).toContain('id="name-search"')
   })
 
   test.describe('application flow with eligibility conditions', () => {
