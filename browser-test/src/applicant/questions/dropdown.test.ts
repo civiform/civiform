@@ -1,6 +1,7 @@
 import {test, expect} from '@playwright/test'
 import {
   createTestContext,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -14,25 +15,7 @@ test.describe('Dropdown question for applicant flow', () => {
     const programName = 'Test program for single dropdown'
 
     test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
-      // As admin, create program with single dropdown question.
-      await loginAsAdmin(page)
-
-      await adminQuestions.addDropdownQuestion({
-        questionName: 'dropdown-color-q',
-        options: [
-          {adminName: 'red_admin', text: 'red'},
-          {adminName: 'green_admin', text: 'green'},
-          {adminName: 'orange_admin', text: 'orange'},
-          {adminName: 'blue_admin', text: 'blue'},
-        ],
-      })
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['dropdown-color-q'],
-        programName,
-      )
-
-      await logout(page)
+      await setUpSingleDropdownQuestion(programName)
     })
 
     test('Updates options in preview', async () => {
@@ -181,4 +164,67 @@ test.describe('Dropdown question for applicant flow', () => {
       await validateAccessibility(page)
     })
   })
+
+  test.describe('single dropdown questio with north star flag enabled', () => {
+    const programName = 'Test program for single dropdown'
+
+    test.beforeAll(async () => {
+      await setUpSingleDropdownQuestion(programName)
+    })
+
+    test.beforeEach(async () => {
+      const {page} = ctx
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
+    test(
+      'validate screenshot',
+      {tag: ['@northstar']},
+      async () => {
+        const {page, applicantQuestions} = ctx
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('Screenshot without errors', async () => {
+          await validateScreenshot(
+            page,
+            'dropdown-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+
+        await test.step('Screenshot with errors', async () => {
+          await applicantQuestions.clickContinue()
+          await validateScreenshot(
+            page,
+            'dropdown-errors-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+      },
+    )
+  })
+
+  async function setUpSingleDropdownQuestion(programName: string) {
+    const {page, adminQuestions, adminPrograms} = ctx
+    // As admin, create program with single dropdown question.
+    await loginAsAdmin(page)
+
+    await adminQuestions.addDropdownQuestion({
+      questionName: 'dropdown-color-q',
+      options: [
+        {adminName: 'red_admin', text: 'red'},
+        {adminName: 'green_admin', text: 'green'},
+        {adminName: 'orange_admin', text: 'orange'},
+        {adminName: 'blue_admin', text: 'blue'},
+      ],
+    })
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['dropdown-color-q'],
+      programName,
+    )
+
+    await logout(page)
+  }
 })
