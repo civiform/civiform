@@ -27,9 +27,11 @@ import services.applicant.ApplicantPersonalInfo;
 import services.ti.TrustedIntermediaryService;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.style.BaseStyles;
 
 /** Renders a page for a trusted intermediary to edit a client */
 public class EditTiClientView extends BaseHtmlView {
@@ -62,13 +64,16 @@ public class EditTiClientView extends BaseHtmlView {
     String title = "Add new Client";
     String pageHeader = "Add client";
     String pageId = "add-client";
+    String successToast = messages.at(MessageKey.BANNER_NEW_CLIENT_CREATED.getKeyName());
     if (accountIdToEdit.isPresent()) {
       optionalAccountModel =
           Optional.of(accountRepository.lookupAccount(accountIdToEdit.get()).get());
       title = "Edit client information";
       pageHeader = "Edit client";
       pageId = "edit-client";
+      successToast = messages.at(MessageKey.BANNER_CLIENT_INFO_UPDATED.getKeyName());
     }
+    boolean isSuccessfulSave = tiClientInfoForm.isPresent() && !tiClientInfoForm.get().hasErrors();
     HtmlBundle bundle =
         layout
             .getBundle(request)
@@ -78,6 +83,7 @@ public class EditTiClientView extends BaseHtmlView {
                 hr(),
                 renderSubHeader(pageHeader).withId(pageId).withClass("my-4"),
                 renderBackLink(),
+                renderSuccessAlert(isSuccessfulSave, successToast),
                 requiredFieldsExplanationContent(),
                 renderAddOrEditClientForm(
                     tiGroup, optionalAccountModel, request, tiClientInfoForm, messages))
@@ -96,8 +102,19 @@ public class EditTiClientView extends BaseHtmlView {
                     /* yearQuery= */ Optional.empty(),
                     /* page= */ Optional.of(1))
                 .url();
-    LinkElement link = new LinkElement().setHref(tiDashLink).setText("Back to client list");
+    LinkElement link =
+        new LinkElement()
+            .setHref(tiDashLink)
+            .setText("Back to client list")
+            .setId("ti-dashboard-link");
     return link.asAnchorText();
+  }
+
+  private DivTag renderSuccessAlert(boolean isSuccessfulSave, String text) {
+    if (!isSuccessfulSave) {
+      return div();
+    }
+    return ViewUtils.makeAlertSlim(text, false, BaseStyles.ALERT_SUCCESS, "mb-4", "w-3/5");
   }
 
   private DivTag renderAddOrEditClientForm(

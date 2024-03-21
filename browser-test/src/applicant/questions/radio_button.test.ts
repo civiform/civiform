@@ -1,6 +1,8 @@
 import {test, expect} from '@playwright/test'
 import {
   createTestContext,
+  disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -10,28 +12,16 @@ import {
 test.describe('Radio button question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  test.describe('single radio button question', () => {
+  test.describe('single radio button question with north star flag disabled', () => {
     const programName = 'Test program for single radio button'
 
     test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
-      // As admin, create program with radio button question.
-      await loginAsAdmin(page)
+      await setUpForSingleQuestion(programName)
+    })
 
-      await adminQuestions.addRadioButtonQuestion({
-        questionName: 'ice-cream-radio-q',
-        options: [
-          {adminName: 'matcha_admin', text: 'matcha'},
-          {adminName: 'strawberry_admin', text: 'strawberry'},
-          {adminName: 'vanilla_admin', text: 'vanilla'},
-        ],
-      })
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['ice-cream-radio-q'],
-        programName,
-      )
-
-      await logout(page)
+    test.beforeEach(async () => {
+      const {page} = ctx
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
     test('Updates options in preview', async () => {
@@ -182,4 +172,66 @@ test.describe('Radio button question for applicant flow', () => {
       await validateAccessibility(page)
     })
   })
+
+  test.describe('single radio button question with north star flag enabled', () => {
+    const programName = 'Test program for single radio button'
+
+    test.beforeAll(async () => {
+      await setUpForSingleQuestion(programName)
+    })
+
+    test.beforeEach(async () => {
+      const {page} = ctx
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
+    test(
+      'validate screenshot with north star flag enabled',
+      {tag: ['@northstar']},
+      async () => {
+        const {page, applicantQuestions} = ctx
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('Screenshot without errors', async () => {
+          await validateScreenshot(
+            page,
+            'radio-button-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+
+        await test.step('Screenshot with errors', async () => {
+          await applicantQuestions.clickContinue()
+          await validateScreenshot(
+            page,
+            'radio-button-errors-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+      },
+    )
+  })
+
+  async function setUpForSingleQuestion(programName: string) {
+    const {page, adminQuestions, adminPrograms} = ctx
+    // As admin, create program with radio button question.
+    await loginAsAdmin(page)
+
+    await adminQuestions.addRadioButtonQuestion({
+      questionName: 'ice-cream-radio-q',
+      options: [
+        {adminName: 'matcha_admin', text: 'matcha'},
+        {adminName: 'strawberry_admin', text: 'strawberry'},
+        {adminName: 'vanilla_admin', text: 'vanilla'},
+      ],
+    })
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['ice-cream-radio-q'],
+      programName,
+    )
+
+    await logout(page)
+  }
 })

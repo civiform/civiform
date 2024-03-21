@@ -2028,7 +2028,7 @@ public class ProgramServiceTest extends ResetPostgres {
         .isEqualTo(program.getProgramDefinition().blockDefinitions());
     assertThat(newDraft.localizedDescription())
         .isEqualTo(program.getProgramDefinition().localizedDescription());
-    assertThat(newDraft.id()).isNotEqualTo(program.getProgramDefinition().id());
+    assertThat(newDraft.id()).isNotEqualTo(program.id);
 
     ProgramDefinition secondNewDraft = ps.newDraftOf(program.id);
     assertThat(secondNewDraft.id()).isEqualTo(newDraft.id());

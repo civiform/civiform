@@ -92,8 +92,7 @@ public final class CsvExporterService {
       long programId, SubmittedApplicationFilter filters, Request request)
       throws ProgramNotFoundException {
     ImmutableList<ProgramDefinition> allProgramVersions =
-        programService.getAllVersionsFullProgramDefinition(programId).stream()
-            .collect(ImmutableList.toImmutableList());
+        programService.getAllVersionsFullProgramDefinition(programId);
 
     ProgramDefinition currentProgram = programService.getFullProgramDefinition(programId);
     CsvExportConfig exportConfig =
