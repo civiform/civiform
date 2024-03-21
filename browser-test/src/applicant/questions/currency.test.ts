@@ -1,6 +1,7 @@
 import {test, expect} from '@playwright/test'
 import {
   createTestContext,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -17,16 +18,7 @@ test.describe('currency applicant flow', () => {
     const programName = 'Test program for single currency'
 
     test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
-      await loginAsAdmin(page)
-
-      await adminQuestions.addCurrencyQuestion({questionName: 'currency-q'})
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['currency-q'],
-        programName,
-      )
-
-      await logout(page)
+      await setUpSingleCurrencyQuestion(programName)
     })
 
     test('validate screenshot', async () => {
@@ -149,4 +141,54 @@ test.describe('currency applicant flow', () => {
       await validateAccessibility(page)
     })
   })
+
+  test.describe('single currency question with north star flag enabled', () => {
+    const programName = 'Test program for single currency'
+
+    test.beforeAll(async () => {
+      await setUpSingleCurrencyQuestion(programName)
+    })
+
+    test.beforeEach(async () => {
+      const {page} = ctx
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
+    test('validate screenshot', {tag: ['@northstar']}, async () => {
+      const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+
+      await test.step('Screenshot without errors', async () => {
+        await validateScreenshot(
+          page,
+          'currency-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      await test.step('Screenshot with errors', async () => {
+        await applicantQuestions.clickContinue()
+        await validateScreenshot(
+          page,
+          'currency-errors-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+    })
+  })
+
+  async function setUpSingleCurrencyQuestion(programName: string) {
+    const {page, adminQuestions, adminPrograms} = ctx
+    await loginAsAdmin(page)
+
+    await adminQuestions.addCurrencyQuestion({questionName: 'currency-q'})
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['currency-q'],
+      programName,
+    )
+
+    await logout(page)
+  }
 })

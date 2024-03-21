@@ -1,0 +1,29 @@
+<div th:fragment="currency(question)"
+    th:with="currencyQuestion=${question.createCurrencyQuestion()},
+             questionId=${#strings.randomAlphanumeric(8)},
+             inputId=${#strings.randomAlphanumeric(8)}"
+    th:id="${questionId}">
+    <!-- Title and Help Text -->
+    <div th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"></div>
+
+    <!-- Display errors -->
+    <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${currencyQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
+    
+    <div class="usa-input-group">
+        <div class="usa-input-prefix">$</div>
+        <input th:with="value=${currencyQuestion.getCurrencyValue().isPresent() ?
+                                currencyQuestion.getCurrencyValue().get().prettyPrint() :
+                                currencyQuestion.getFailedUpdates().getOrDefault(currencyQuestion.getCurrencyPath(), '')}"
+            class="usa-input"
+            inputmode="decimal"
+            currency
+            th:id="${inputId}"
+            th:name="${currencyQuestion.getCurrencyPath()}"
+            th:value="${value}"
+            th:aria-describedby="${questionId} + '-description'"
+            th:aria-required="${!question.isOptional()}"
+            th:aria-invalid="${!currencyQuestion.getValidationErrors().isEmpty()}">
+    </div>
+    <!-- Display field specific error messages -->
+    <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${currencyQuestion.getValidationErrors().get(currencyQuestion.getCurrencyPath())})}"></div>
+</div>
