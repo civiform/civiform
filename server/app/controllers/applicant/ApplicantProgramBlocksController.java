@@ -307,7 +307,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     settingsManifest.getEsriAddressServiceAreaValidationEnabled(request)),
             classLoaderExecutionContext.current())
         .thenComposeAsync(
-            pair -> {
+            ro -> {
               removeAddressJsonFromSession(request);
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
               return renderErrorOrRedirectToRequestedPage(
@@ -319,8 +319,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicantStage.join(),
                   inReview,
                   applicantRequestedAction,
-                  pair.getLeft(),
-                  /* changesMade= */ true);
+                  ro);
             },
             classLoaderExecutionContext.current())
         .exceptionally(
@@ -580,7 +579,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             },
             classLoaderExecutionContext.current())
         .thenComposeAsync(
-            (pair) -> {
+            (ro) -> {
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
               return renderErrorOrRedirectToRequestedPage(
                   request,
@@ -591,8 +590,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicantStage.toCompletableFuture().join(),
                   inReview,
                   applicantRequestedActionWrapper.getAction(),
-                  pair.getLeft(),
-                  /* changesMade= */ true);
+                  ro);
             },
             classLoaderExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
@@ -659,50 +657,92 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId, request);
 
-    return applicantStage
+    CompletableFuture<ReadOnlyApplicantProgramService>
+        readOnlyApplicantProgramServiceCompletionStage =
+            this.applicantService
+                .getReadOnlyApplicantProgramService(applicantId, programId)
+                .toCompletableFuture();
+
+    CompletableFuture<ImmutableMap<String, String>> formDataStage =
+        applicantStage
+            .thenComposeAsync(
+                v -> checkApplicantAuthorization(request, applicantId),
+                classLoaderExecutionContext.current())
+            .thenComposeAsync(
+                v -> {
+                  DynamicForm form = formFactory.form().bindFromRequest(request);
+                  ImmutableMap<String, String> formData = cleanForm(form.rawData());
+                  return applicantService.resetAddressCorrectionWhenAddressChanged(
+                      applicantId, programId, blockId, formData);
+                },
+                    classLoaderExecutionContext.current())
+            .thenComposeAsync(
+                formData ->
+                    applicantService.setPhoneCountryCode(applicantId, programId, blockId, formData),
+                    classLoaderExecutionContext.current())
+            .toCompletableFuture();
+
+    return CompletableFuture.allOf(formDataStage, readOnlyApplicantProgramServiceCompletionStage)
         .thenComposeAsync(
-            v -> checkApplicantAuthorization(request, applicantId),
-            classLoaderExecutionContext.current())
-        .thenComposeAsync(
-            v -> {
-              DynamicForm form = formFactory.form().bindFromRequest(request);
-              ImmutableMap<String, String> formData = cleanForm(form.rawData());
-              return applicantService.resetAddressCorrectionWhenAddressChanged(
-                  applicantId, programId, blockId, formData);
-            },
-            classLoaderExecutionContext.current())
-        .thenComposeAsync(
-            formData ->
-                applicantService.setPhoneCountryCode(applicantId, programId, blockId, formData),
-            classLoaderExecutionContext.current())
-        .thenComposeAsync(
-            formData ->
-                applicantService.stageAndUpdateIfValid(
+            (v) -> {
+              ImmutableMap<String, String> formData = formDataStage.join();
+              ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
+                  readOnlyApplicantProgramServiceCompletionStage.join();
+
+              CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
+
+              // Allow applicants to navigate away from a block that they haven't even started
+              // answering.
+              Optional<Block> maybeBlockBeforeUpdate =
+                  readOnlyApplicantProgramService.getActiveBlock(blockId);
+
+              if (applicantRequestedActionWrapper.getAction() != ApplicantRequestedAction.NEXT_BLOCK
+                  && formData.values().stream().allMatch(value -> value.equals(""))
+                  && maybeBlockBeforeUpdate.isPresent()
+                  && !maybeBlockBeforeUpdate.get().isCompletedInProgramWithoutErrors()
+                  && !maybeBlockBeforeUpdate.get().isOnlyOptionalQuestions()) {
+                // Note on checking "only optional questions": We don't allow applicants to submit
+                // an application until they've at least seen all the questions.
+                // We mark as question as "seen" by checking that the metadata is filled in (see
+                // {@link ApplicantQuestion#isAnsweredOrSkippedOptionalInProgram}).
+                // That metadata only gets filled in by {@link #stageAndUpdateIfValid}.
+
+                // If a block has all optional questions, having all empty answers is a valid
+                // response, and we should mark that block as seen. So, we need
+                // {@link #stageAndUpdateIfValid} to proceed and add metadata to the questions,
+                // so we can't early-return here.
+                return getRequestedPage(
+                    profile,
                     applicantId,
                     programId,
                     blockId,
-                    formData,
-                    settingsManifest.getEsriAddressServiceAreaValidationEnabled(request)),
-            classLoaderExecutionContext.current())
-        .thenComposeAsync(
-            pair -> {
-              ReadOnlyApplicantProgramService roApplicantProgramService = pair.getLeft();
-              boolean changesMade = pair.getRight();
-              CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
-              return renderErrorOrRedirectToRequestedPage(
-                  request,
-                  profile,
-                  applicantId,
-                  programId,
-                  blockId,
-                  applicantStage.toCompletableFuture().join(),
-                  inReview,
-                  applicantRequestedActionWrapper.getAction(),
-                  roApplicantProgramService,
-                  changesMade);
-            },
-            classLoaderExecutionContext.current())
-        .exceptionally(this::handleUpdateExceptions);
+                    inReview,
+                    applicantRequestedActionWrapper.getAction(),
+                    readOnlyApplicantProgramService,
+                    /* flashingMap= */ ImmutableMap.of());
+              }
+              return applicantService
+                  .stageAndUpdateIfValid(
+                      applicantId,
+                      programId,
+                      blockId,
+                      formData,
+                      settingsManifest.getEsriAddressServiceAreaValidationEnabled(request))
+                  .thenComposeAsync(
+                      newReadOnlyApplicantProgramService ->
+                          renderErrorOrRedirectToRequestedPage(
+                              request,
+                              profile,
+                              applicantId,
+                              programId,
+                              blockId,
+                              applicantStage.toCompletableFuture().join(),
+                              inReview,
+                              applicantRequestedActionWrapper.getAction(),
+                              newReadOnlyApplicantProgramService),
+                          classLoaderExecutionContext.current())
+                  .exceptionally(this::handleUpdateExceptions);
+            });
   }
 
   /** See {@link #updateWithApplicantId}. */
@@ -735,8 +775,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *
    * @param applicantRequestedAction the page the applicant would like to see next if there are no
    *     errors with this block.
-   * @param changesMade true if the applicant changed any of their answers on the block and false if
-   *     the applicant previously had no answers and still has no answers.
    */
   private CompletionStage<Result> renderErrorOrRedirectToRequestedPage(
       Request request,
@@ -747,8 +785,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ApplicantPersonalInfo personalInfo,
       boolean inReview,
       ApplicantRequestedAction applicantRequestedAction,
-      ReadOnlyApplicantProgramService roApplicantProgramService,
-      boolean changesMade) {
+      ReadOnlyApplicantProgramService roApplicantProgramService) {
     Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getActiveBlock(blockId);
     if (thisBlockUpdatedMaybe.isEmpty()) {
       return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
@@ -756,20 +793,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     Block thisBlockUpdated = thisBlockUpdatedMaybe.get();
 
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
-
-    if (!changesMade) {
-      // If the applicant didn't make any changes, no need to validate. Just let
-      // them proceed to wherever they requested.
-      return getRequestedPage(
-          profile,
-          applicantId,
-          programId,
-          blockId,
-          inReview,
-          applicantRequestedAction,
-          roApplicantProgramService,
-          /* flashingMap= */ ImmutableMap.of());
-    }
 
     // Validation errors: re-render this block with errors and previously entered data.
     if (thisBlockUpdated.hasErrors()) {

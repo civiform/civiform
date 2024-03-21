@@ -38,7 +38,6 @@ import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.StoredFileModel;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.i18n.Lang;
@@ -262,7 +261,7 @@ public final class ApplicantService {
    *     </ul>
    *     TODO: Return an actual type, not a Pair
    */
-  public CompletionStage<Pair<ReadOnlyApplicantProgramService, Boolean>> stageAndUpdateIfValid(
+  public CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
       long applicantId,
       long programId,
       String blockId,
@@ -288,7 +287,7 @@ public final class ApplicantService {
         applicantId, programId, blockId, updateMap, updates, addressServiceAreaValidationEnabled);
   }
 
-  private CompletionStage<Pair<ReadOnlyApplicantProgramService, Boolean>> stageAndUpdateIfValid(
+  private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
       long applicantId,
       long programId,
       String blockId,
@@ -326,25 +325,6 @@ public final class ApplicantService {
               }
               Block blockBeforeUpdate = maybeBlockBeforeUpdate.get();
 
-              // Allow applicants to navigate away from a block that they haven't even started
-              // answering.
-              if (updateMap.values().stream().allMatch(value -> value.equals(""))
-                  && !blockBeforeUpdate.isCompletedInProgramWithoutErrors()
-                  && !blockBeforeUpdate.isOnlyOptionalQuestions()) {
-                // Note on checking "only optional questions": We don't allow applicants to submit
-                // an application until they've at least seen all the questions.
-                // We mark as question as "seen" by checking that the metadata is filled in (see
-                // {@link ApplicantQuestion#isAnsweredOrSkippedOptionalInProgram}).
-                // That metadata only gets filled in by {@link #stageAndUpdateIfValid}.
-
-                // If a block has all optional questions, having all empty answers is a valid
-                // response, and we should mark that block as seen. So, we need
-                // {@link #stageAndUpdateIfValid} to proceed and add metadata to the questions,
-                // so we can't early-return here.
-                return CompletableFuture.completedFuture(
-                    Pair.of(readOnlyApplicantProgramServiceBeforeUpdate, /* changesMade= */ false));
-              }
-
               if (addressServiceAreaValidationEnabled
                   && blockBeforeUpdate.getLeafAddressNodeServiceAreaIds().isPresent()) {
                 return serviceAreaUpdateResolver
@@ -372,13 +352,13 @@ public final class ApplicantService {
             },
             classLoaderExecutionContext.current())
         .thenCompose(
-            (pair) ->
+            (ro) ->
                 applicationRepository
                     .createOrUpdateDraft(applicantId, programId)
-                    .thenApplyAsync(appDraft -> pair));
+                    .thenApplyAsync(appDraft -> ro));
   }
 
-  private CompletionStage<Pair<ReadOnlyApplicantProgramService, Boolean>> stageAndUpdateIfValid(
+  private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
       ApplicantModel applicant,
       String baseUrl,
       Block blockBeforeUpdate,
@@ -416,8 +396,7 @@ public final class ApplicantService {
               (finishedSaving) -> roApplicantProgramService, classLoaderExecutionContext.current());
     }
 
-    return CompletableFuture.completedFuture(
-        Pair.of(roApplicantProgramService, /* changesMade= */ true));
+    return CompletableFuture.completedFuture(roApplicantProgramService);
   }
 
   /**
