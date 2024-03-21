@@ -5,11 +5,11 @@
 # Docker's BuildKit skips unused stages so the image for the platform that isn't used will not be built.
 
 FROM eclipse-temurin:11.0.22_7-jdk-alpine as amd64
-FROM bellsoft/liberica-openjdk-alpine:11.0.19-7 as arm64
+FROM bellsoft/liberica-openjdk-alpine:11.0.22-12 as arm64
 
 FROM ${TARGETARCH}
 
-ARG SBT_VERSION
+ARG SBT_VERSION=1.9.8
 ENV SBT_VERSION "${SBT_VERSION}"
 ENV INSTALL_DIR /usr/local
 ENV SBT_HOME /usr/local/sbt
@@ -30,7 +30,7 @@ RUN set -o pipefail && \
   apk update && \
   apk add --upgrade apk-tools && \
   apk upgrade --available && \
-  apk add --no-cache --update openjdk11 bash wget npm git openssh ncurses
+  apk add --no-cache --update bash wget npm git openssh ncurses
 
 # Install npm (node)
 RUN npm install -g npm@8.5.1
