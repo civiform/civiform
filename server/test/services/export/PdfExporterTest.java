@@ -15,6 +15,9 @@ import java.io.IOException;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+import services.applications.PdfExporterService;
+import services.program.ProgramDefinition;
+import services.question.types.QuestionDefinition;
 
 public class PdfExporterTest extends AbstractExporterTest {
 
@@ -210,6 +213,162 @@ public class PdfExporterTest extends AbstractExporterTest {
     List<String> linesFromPDFTwo = Splitter.on('\n').splitToList(textFromPDFTwo.toString());
     assertThat(linesFromPDFTwo.get(1)).isEqualTo("Program Name : " + programName);
     assertThat(textFromPDFTwo).contains("Meets eligibility");
+  }
+
+  @Test
+  public void exportProgram_hasMainProgramInfo() throws IOException {
+    PdfExporterService service = instanceOf(PdfExporterService.class);
+    ProgramDefinition programDef = fakeProgram.getProgramDefinition();
+
+    PdfExporter.InMemoryPdf result =
+        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
+
+    List<String> linesFromPdf = getPdfLines(result);
+    assertThat(linesFromPdf).isNotEmpty();
+    assertThat(linesFromPdf.get(0)).isEqualTo(programDef.localizedName().getDefault());
+    assertThat(linesFromPdf.get(1)).isEqualTo("Admin name: " + programDef.adminName());
+    assertThat(linesFromPdf.get(2))
+        .isEqualTo("Admin description: " + programDef.adminDescription());
+    assertThat(linesFromPdf.get(3)).contains("Time of export:");
+    assertThat(linesFromPdf.get(4)).isEqualTo("Origin of export: http://localhost:9000");
+  }
+
+  @Test
+  public void exportProgram_hasBlocksAndQuestions() throws IOException {
+    PdfExporterService service = instanceOf(PdfExporterService.class);
+    ProgramDefinition programDef = fakeProgram.getProgramDefinition();
+
+    PdfExporter.InMemoryPdf result =
+        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
+
+    String pdfText = getPdfText(result);
+    // For every block (which is every question, since our fake program creates one block per
+    // question): Verify the PDF has the block name, question text, question help text, admin name,
+    // admin description, and question type.
+    for (int i = 0; i < fakeQuestions.size(); i++) {
+      QuestionDefinition questionDefinition = fakeQuestions.get(i).getQuestionDefinition();
+      pdfText = assertContainsThenCrop(pdfText, "Screen " + (i + 1));
+      pdfText = assertContainsThenCrop(pdfText, questionDefinition.getQuestionText().getDefault());
+      if (!questionDefinition.getQuestionHelpText().isEmpty()) {
+        pdfText =
+            assertContainsThenCrop(pdfText, questionDefinition.getQuestionHelpText().getDefault());
+      }
+      pdfText = assertContainsThenCrop(pdfText, "Admin name: " + questionDefinition.getName());
+      pdfText =
+          assertContainsThenCrop(
+              pdfText, "Admin description: " + questionDefinition.getDescription());
+      pdfText =
+          assertContainsThenCrop(
+              pdfText,
+              "Question type: "
+                  + fakeQuestions.get(i).getQuestionDefinition().getQuestionType().name());
+    }
+  }
+
+  /**
+   * Asserts that {@code expected} is contained in {@code actual}, then crops {@code actual} to just
+   * be the substring after the first occurrence of {@code expected}.
+   *
+   * <p>This is used for asserting program info is in the PDF in the right order. Because the
+   * program info is split across multiple pages and then concatenated together, there may be extra
+   * spaces within the PDF string and we can't assert that lines are exactly equal to particular
+   * values. Instead, we can only assert that all the information is in the PDF in the right order.
+   */
+  private String assertContainsThenCrop(String actual, String expected) {
+    assertThat(actual).contains(expected);
+    return actual.substring(actual.indexOf(expected) + expected.length());
+  }
+
+  @Test
+  public void exportProgram_hasQuestionOptions() throws IOException {
+    PdfExporterService service = instanceOf(PdfExporterService.class);
+    ProgramDefinition programDef = fakeProgram.getProgramDefinition();
+
+    PdfExporter.InMemoryPdf result =
+        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
+
+    String pdfText = getPdfText(result);
+
+    // Dropdown options
+    assertThat(pdfText).contains("- Chocolate");
+    assertThat(pdfText).contains("- Strawberry");
+    assertThat(pdfText).contains("- Vanilla");
+    assertThat(pdfText).contains("- Coffee");
+
+    // Checkbox options
+    assertThat(pdfText).contains("- Toaster");
+    assertThat(pdfText).contains("- Pepper Grinder");
+    assertThat(pdfText).contains("- Garlic Press");
+
+    // Radio button options
+    assertThat(pdfText).contains("- Winter");
+    assertThat(pdfText).contains("- Spring");
+    assertThat(pdfText).contains("- Summer");
+    assertThat(pdfText).contains("- Fall");
+  }
+
+  @Test
+  public void exportProgram_hasEligibilityPredicate() throws IOException {
+    createFakeProgramWithEligibilityPredicate();
+
+    PdfExporterService service = instanceOf(PdfExporterService.class);
+    ProgramDefinition programDef = fakeProgramWithEligibility.getProgramDefinition();
+
+    PdfExporter.InMemoryPdf result =
+        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
+
+    String pdfText = getPdfText(result);
+    assertThat(pdfText)
+        .contains("Screen 1 is eligible if \"applicant favorite color\" text is equal to \"blue\"");
+  }
+
+  @Test
+  public void exportProgram_hasVisibilityPredicate() throws IOException {
+    createFakeProgramWithVisibilityPredicate();
+
+    PdfExporterService service = instanceOf(PdfExporterService.class);
+    ProgramDefinition programDef = fakeProgramWithVisibility.getProgramDefinition();
+
+    PdfExporter.InMemoryPdf result =
+        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
+
+    String pdfText = getPdfText(result);
+    assertThat(pdfText)
+        .contains("Screen 2 is hidden if \"applicant favorite color\" text is equal to \"red\"");
+  }
+
+  @Test
+  public void exportProgram_nestedEnumeratorQuestionsShown() throws IOException {
+    createFakeProgramWithEnumeratorAndAnswerQuestions();
+
+    PdfExporterService service = instanceOf(PdfExporterService.class);
+    ProgramDefinition programDef = fakeProgramWithEnumerator.getProgramDefinition();
+
+    PdfExporter.InMemoryPdf result =
+        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
+
+    String pdfText = getPdfText(result);
+    assertThat(pdfText).contains("What is the $this's name?");
+    assertThat(pdfText).contains("household members name");
+    assertThat(pdfText).contains("What are the $this's jobs?");
+    assertThat(pdfText).contains("household members jobs");
+    assertThat(pdfText).contains("How many days has $this.parent worked at $this?");
+    assertThat(pdfText).contains("household members days worked");
+  }
+
+  public static List<String> getPdfLines(PdfExporter.InMemoryPdf pdf) throws IOException {
+    return Splitter.on('\n').splitToList(getPdfText(pdf));
+  }
+
+  private static String getPdfText(PdfExporter.InMemoryPdf pdf) throws IOException {
+    PdfReader pdfReader = new PdfReader(pdf.getByteArray());
+    StringBuilder textFromPdf = new StringBuilder();
+    int pages = pdfReader.getNumberOfPages();
+    for (int pageNum = 1; pageNum <= pages; pageNum++) {
+      textFromPdf.append(PdfTextExtractor.getTextFromPage(pdfReader, pageNum));
+    }
+    pdfReader.close();
+    return textFromPdf.toString();
   }
 
   public static final String APPLICATION_SIX_STRING =

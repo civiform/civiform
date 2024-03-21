@@ -1,12 +1,23 @@
-<div th:fragment="applicant-question (question)">
+<div th:fragment="applicant-question(question)">
     <!-- TODO(#6910): Investigate why we can't access enum types in Thymeleaf -->
     <th:block th:switch="${question.getType().getLabel()}">
         <th:block th:case="'Checkbox'">
             <div th:replace="~{questiontypes/CheckboxQuestionFragment :: checkbox(${question})}"></div>
         </th:block>
-
+        <th:block th:case="'Name'">
+            <div th:replace="~{questiontypes/NameQuestionFragment :: name(${question})}"></div>
+        </th:block>
+        <th:block th:case="'Number'">
+            <div th:replace="~{questiontypes/NumberQuestionFragment :: number(${question})}"></div>
+        </th:block>
+        <th:block th:case="'Radio Button'">
+            <div th:replace="~{questiontypes/RadioButtonQuestionFragment :: radio(${question})}"></div>
+        </th:block>
         <th:block th:case="'Static Text'">
             <div th:replace="~{questiontypes/StaticTextQuestionFragment :: static-text(${question})}"></div>
+        </th:block>
+        <th:block th:case="'Text'">
+            <div th:replace="~{questiontypes/TextQuestionFragment :: text(${question})}"></div>
         </th:block>
     </th:block>
 </div>

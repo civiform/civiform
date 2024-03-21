@@ -10,7 +10,9 @@ RUN apt-get update -y && \
     apt-get remove -y --purge cmdtest && \
     apt-get update && \
     # Install the packages
-    apt-get install -y nodejs && \
+    apt-get install -y nodejs fonts-ubuntu && \
+    # Update npm
+    npm install -g npm && \
     # Smoke tests
     node --version && \
     npm --version && \
@@ -53,3 +55,12 @@ CMD ["/usr/src/civiform-browser-tests/bin/wait_for_server_start_and_run_tests.sh
 # Save build results to anonymous volumes for reuse
 VOLUME ["/usr/src/civiform-browser-tests/node_modules"]
 VOLUME ["/usr/src/civiform-browser-tests"]
+
+# Symlink the fonts config
+# This is to solve https://github.com/civiform/civiform/issues/3225. It forces
+# `fc-match` to pick a font that contains bold styles for the `system-ui`
+# generic font family.
+ENV FONTCONFIG_DIR /root/.config/fontconfig
+RUN mkdir -p ${FONTCONFIG_DIR} && \
+    ln -s ${PROJECT_DIR}/fonts.conf ${FONTCONFIG_DIR}/fonts.conf
+

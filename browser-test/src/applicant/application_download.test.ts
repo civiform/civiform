@@ -310,7 +310,7 @@ test.describe('normal application flow', () => {
     await adminPrograms.viewApplicationForApplicant('smith, sarah')
     await validateScreenshot(page, 'applications-page')
 
-    const pdfFile = await adminPrograms.getPdf()
+    const pdfFile = await adminPrograms.getApplicationPdf()
     expect(pdfFile.length).toBeGreaterThan(1)
 
     await logout(page)

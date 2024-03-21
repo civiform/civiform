@@ -275,7 +275,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
     ProgramModel updated = repo.updateProgramSync(updates);
 
-    assertThat(updated.getProgramDefinition().id()).isEqualTo(existing.id);
+    assertThat(updated.id).isEqualTo(existing.id);
     assertThat(updated.getProgramDefinition().localizedName())
         .isEqualTo(LocalizedStrings.of(Locale.US, "new name"));
   }
