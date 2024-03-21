@@ -9,8 +9,7 @@ FROM bellsoft/liberica-openjdk-alpine:11.0.22-12 as arm64
 
 FROM ${TARGETARCH}
 
-# Add a default version if unset.
-ARG SBT_VERSION=1.9.8
+ARG SBT_VERSION
 ENV SBT_VERSION "${SBT_VERSION}"
 ENV INSTALL_DIR /usr/local
 ENV SBT_HOME /usr/local/sbt
