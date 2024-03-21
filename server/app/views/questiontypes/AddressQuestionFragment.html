@@ -1,20 +1,12 @@
 
-<div th:fragment="address (question, messages, stateAbbreviations)" th:with="questionId=${#strings.randomAlphanumeric(8)}" th:id="${questionId}">
-
+<div th:fragment="address (question, stateAbbreviations)" th:with="questionId=${#strings.randomAlphanumeric(8)}" th:id="${questionId}">
     <fieldset class="usa-fieldset" th:with="addressQuestion=${question.createAddressQuestion()}">
-        <!-- Question title -->
-        <legend class="usa-legend">
-            <span th:text="${question.getQuestionText()}"></span>
-            <!-- Required asterisk -->
-            <th:block th:if="${!question.isOptional()}">
-                <div th:replace="~{applicant/ApplicantBaseFragment :: requiredAsterisk}"></div>
-            </th:block>
-            </legend>
+        <!-- Title and Help Text -->
+        <div th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"></div>
 
-                    <!-- Question help text -->
-        <div th:id="${questionId} + '-description'" th:text="${question.getQuestionHelpText()}"></div>
+        <!-- Display errors -->
+        <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
 
-        <!-- TODO Display errors on each of the inputs -->
         <!-- TODO Update the ids for each element -->
 
       <th:block th:with="inputId=${#strings.randomAlphanumeric(8)}">
