@@ -70,15 +70,15 @@ modal.errorSaving.review.title=Hindi kumpleto ang mga tanong sa page na ito. Gus
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
 modal.errorSaving.previous.title=Hindi kumpleto ang mga tanong sa page na ito. Gusto mo pa rin bang umalis at pumunta sa nakaraang page?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?
+modal.errorSaving.review.content=May ilang error sa impormasyong inilagay mo. Gusto mo bang manatili at ayusin ang iyong mga sagot, o pumunta sa page ng pagsusuri nang hindi sine-save ang mga sagot mo?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the previous question page without saving your answers?
+modal.errorSaving.previous.content=May ilang error sa impormasyong inilagay mo. Gusto mo bang manatili at ayusin ang mga sagot mo, o pumunta sa nakaraang page ng tanong nang hindi sine-save ang iyong mga sagot?
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=Continue to review page without saving
+modal.errorSaving.review.noSaveButton=Magpatuloy sa page ng pagsusuri nang hindi nagse-save
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=Continue to previous questions without saving
+modal.errorSaving.previous.noSaveButton=Magpatuloy sa nakaraang mga tanong nang hindi nagse-save
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=Stay and fix your answers
+modal.errorSaving.stayAndFixButton=Manatili at ayusin ang iyong mga sagot
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -125,6 +125,9 @@ banner.clientInfoUpdated=Matagumpay na na-update ang impormasyon ng kliyente.
 banner.clientAcctDeleted=Matagumpay na na-delete ang account ng kliyente para sa "{0}."
 # Message when a user successfully creates a client account.
 banner.newClientCreated=Matagumpay na nakagawa ng bagong kliyente.
+# Banner at the top of the page with the name of the client substituted in when viewing an application.
+banner.viewApplication=You are applying for {0}. Are you trying to apply for a different client?
+
 
 # Button that allows a user to add a client to the CiviForm system.
 button.addNewClient=Magdagdag ng bagong kliyente
@@ -152,13 +155,27 @@ button.select=Piliin
 button.startApp=Magsimula ng application
 # Button to view the applications belonging to an applicant.
 button.viewApplications=Tingnan ang mga application
+# Button to view and add clients
+button.viewAndAddClients=View and add clients
 
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=Naidagdag na sa listahan ng kliyente mo ang iyong bagong kliyenteng si {0}. Puwede ka nang magsimulang magsumite ng mga application para sa kliyenteng ito.
+# The tooltip of the email input field.
+content.emailTooltip=Add an email address for your client to receive status updates about their application automatically. Without an email, you or your community-based organization will be responsible for communicating updates to your client.
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted={0} (na) application ang naisumite
+# Shows that a single application has been submitted on behalf of the client.
+content.oneAppSubmitted=1 application submitted
 # Some explanation text on the confirmation modal when deleting a client.
 content.warning=Walang application na naisumite para sa kliyenteng ito, kaya walang mawawalang application.
+# Shows there is no email address connected to the account.
+content.noEmailAddress=(no email address)
+# The status of an organization member when they have been enrolled but have never logged into CiviForm.
+content.notLoggedIn=Not yet logged in
+# The status of an organization member when they have logged in but haven't applied on behalf of a client.
+content.noApplications=Logged in, no applications submitted
+# The status of an organization member showing the date of the last application that they submitted for a client.
+content.lastApplicationDate=Last submitted application on {0}
 # Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=Sigurado ka bang gusto mong i-delete ang account ng kliyenteng ito?
 
@@ -166,8 +183,10 @@ dialog.deleteConfirmation=Sigurado ka bang gusto mong i-delete ang account ng kl
 header.acctSettings=Mga setting ng account
 # Tab label for getting to the client list page
 header.clientList=Listahan ng kliyente
+# Label for search
+header.search=Search
 
-# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last login XX-XX-XXXX".
+# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
 label.acctStatus=Status ng Account
 # Label above the phone number for each client on the client list.
 label.contactInfo=Impormasyon sa Pakikipag-ugnayan
@@ -179,6 +198,12 @@ label.dob=Petsa ng kapanganakan
 label.dobExample=Halimbawa: Enero 28, 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=Email
+# Validation error message below date of birth input when the TI clicks on save without filling out the field.
+label.errorDOB=Error: Date of birth required
+# Validation error message below first name input when the TI clicks on save without filling out the field.
+label.errorFirstName=Error: First name required
+# Validation error message below last name input when the TI clicks on save without filling out the field.
+label.errorLastName=Error: Last name required
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Buwan
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -195,8 +220,12 @@ label.searchByDob=Maghanap ayon sa Petsa ng Kapanganakan
 label.searchByName=Maghanap ayon sa (mga) pangalan
 # The label above the input field for the year of the client birth date.
 label.year=Taon
+# Label showing the user when there is no name
+label.unnamedUser=Unnamed user
 
 link.edit=I-edit
+# Link to change the client that the trusted intermediary is applying for.
+link.selectNewClient=Select a new client
 
 # This is the header above the list of clients and the client search.
 title.allClients=Lahat ng Kliyente
@@ -267,7 +296,7 @@ content.commonIntakeNoMatchingPrograms=Hindi makahanap ang pre-screener ng mga p
 content.commonIntakeNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga programa kung saan puwedeng maging kwalipikado ang kliyente mo sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
 content.commonIntakeNoMatchingProgramsNextStep=Puwede ka ring bumalik sa nakaraang page para i-edit ang iyong mga sagot.
 # A header above a list of other programs the applicant might be interested in applying to.
-content.otherProgramsToApplyFor=Other programs you might be interested in
+content.otherProgramsToApplyFor=Ibang programang posibleng kainteresan mo
 button.downloadPdf=I-download ang PDF
 button.applyToPrograms=Mag-apply sa mga programa
 
@@ -302,7 +331,7 @@ title.verifyAddress=I-verify ang address
 
 content.foundSimilarAddress=Hindi namin ma-verify ang ibinigay mong address, pero may nakita kaming katulad nito.
 # Heading for showing the user the address they provided earlier
-content.addressEntered=Inilagay na address:
+content.addressEntered=Inilagay mong address:
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=Iminumungkahing address:
@@ -320,15 +349,15 @@ content.noValidAddress=Hindi namin ma-verify ang ibinigay mong address. Paki-edi
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
-title.confirmAddress=Confirm your address
+title.confirmAddress=Kumpirmahin ang iyong address
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=We were not able to find your address.
+content.confirmAddressLine1=Hindi namin nahanap ang iyong address.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
-content.foundSimilarAddressLine2=Please check your address for spelling or choose an option from the list provided.
+content.foundSimilarAddressLine2=Pakitingnan kung tama ang spelling ng address mo o pumili ng opsyon sa listahang ibinigay.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
-content.noValidAddressLine2=Please check your address for spelling and edit to continue.
+content.noValidAddressLine2=Pakitingnan kung tama ang spelling ng address mo at i-edit ito para magpatuloy.
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
-button.confirmAddress=Confirm address
+button.confirmAddress=Kumpirmahin ang address
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -363,7 +392,7 @@ button.addEntity=Idagdag {0}
 button.removeEntity=Alisin {0}
 dialog.confirmDelete=Kayo ba ay sigurado sa nais na alisin {0}? Ang pagbabago na ito ay maitatala matapos mong i-click ang "Next" at lahat ng mga data na nauugnay dito ay mawawala.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
-dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
+dialog.confirmDeleteAllButtonsSave=Sigurado ka bang gusto mong alisin ang {0} na ito? Ise-save ang pagbabagong ito kapag na-click mo ang "Suriin," "Nakaraan," o "Susunod" at mawawala ang lahat ng data na nauugnay sa {0} na ito.
 validation.entityNameRequired=Maaari lamang ay maglagay ng halaga para sa bawat linya.
 validation.duplicateEntityName=Maaari lamang ay maglagay ng natatangi na halaga para sa bawat linya.
 placeholder.entityName={0} Palayaw
@@ -373,9 +402,9 @@ placeholder.entityName={0} Palayaw
 #---------------------------------------------------------------------------------#
 
 validation.fileRequired=Maaari lamang ay pumili ng file.
-button.chooseFile=Pumili ng File
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
-validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
+validation.fileTooLarge=Masyadong malaki ang iyong file. Pumili ng file na wala pang {0} MB.
+button.chooseFile=Pumili ng File
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
@@ -428,7 +457,7 @@ validation.textTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga charac
 
 adminValidation.multiOptionEmpty=Ang mga katanungan na maraming pagpipiliang opsyon ay hindi maaaring magkaroon ng mga blanko na mga opsyon.
 # An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
-adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
+adminValidation.multiOptionAdminError=Maliliit na titik, numero, underscore, at gitling lang ang puwedeng gamitin para sa mga pangalan ng admin.
 
 #----------------------------------#
 # ERRORS - various error messages  #

@@ -70,15 +70,15 @@ modal.errorSaving.review.title=ຄຳຖາມໃນໜ້ານີ້ບໍ່�
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
 modal.errorSaving.previous.title=ຄຳຖາມໃນໜ້ານີ້ບໍ່ສົມບູນ. ທ່ານຍັງຕ້ອງການອອກ ແລະ ເຂົ້າໄປໜ້າກ່ອນໜ້ານີ້ຫຼືບໍ່?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?
+modal.errorSaving.review.content=ເກີດຂໍ້ຜິດພາດບາງຢ່າງຂຶ້ນກັບຂໍ້ມູນທີ່ທ່ານຕື່ມໃສ່. ທ່ານຕ້ອງການຢູ່ຕໍ່ແລ້ວແກ້ໄຂຄຳຕອບຂອງທ່ານ ຫຼື ກັບໄປໜ້າຄຳຕິຊົມໂດຍບໍ່ບັນທຶກຄຳຕອບຂອງທ່ານ?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the previous question page without saving your answers?
+modal.errorSaving.previous.content=ເກີດຂໍ້ຜິດພາດບາງຢ່າງຂຶ້ນກັບຂໍ້ມູນທີ່ທ່ານຕື່ມໃສ່. ທ່ານຕ້ອງການຢູ່ຕໍ່ແລ້ວແກ້ໄຂຄຳຕອບຂອງທ່ານ ຫຼື ກັບໄປໜ້າຄຳຖາມກ່ອນໜ້າໂດຍບໍ່ບັນທຶກຄຳຕອບຂອງທ່ານ?
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=Continue to review page without saving
+modal.errorSaving.review.noSaveButton=ສືບຕໍ່ໄປຫາໜ້າຄຳຕິຊົມໂດຍບໍ່ບັນທຶກ
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=Continue to previous questions without saving
+modal.errorSaving.previous.noSaveButton=ສືບຕໍ່ໄປຫາຄຳຕອບກ່ອນໜ້າໂດຍບໍ່ບັນທຶກ
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=Stay and fix your answers
+modal.errorSaving.stayAndFixButton=ຢູ່ຕໍ່ແລ້ວແກ້ໄຂຄຳຕອບຂອງທ່ານ
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -125,6 +125,9 @@ banner.clientInfoUpdated=ອັບເດດຂໍ້ມູນລູກຂ່າ�
 banner.clientAcctDeleted=ລຶບບັນຊີລູກຂ່າຍສຳລັບ "{0}" ສຳເລັດແລ້ວ.
 # Message when a user successfully creates a client account.
 banner.newClientCreated=ສ້າງລູກຂ່າຍໃໝ່ສຳເລັດແລ້ວ.
+# Banner at the top of the page with the name of the client substituted in when viewing an application.
+banner.viewApplication=You are applying for {0}. Are you trying to apply for a different client?
+
 
 # Button that allows a user to add a client to the CiviForm system.
 button.addNewClient=ເພີ່ມລູກຂ່າຍໃໝ່
@@ -152,13 +155,27 @@ button.select=ເລືອກ
 button.startApp=ເປີດແອັບພລິເຄຊັນ
 # Button to view the applications belonging to an applicant.
 button.viewApplications=ເບິ່ງແອັບພລິເຄຊັນ
+# Button to view and add clients
+button.viewAndAddClients=View and add clients
 
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=ເພີ່ມ {0} ລູກຂ່າຍໃໝ່ຂອງທ່ານໃສ່ໃນລາຍຊື່ລູກຂ່າຍຂອງທ່ານແລ້ວ. ຕອນນີ້ທ່ານສາມາດເລີ່ມສົ່ງແອັບພລິເຄຊັນສຳລັບລູກຂ່າຍຄົນນີ້ໄດ້ແລ້ວ.
+# The tooltip of the email input field.
+content.emailTooltip=Add an email address for your client to receive status updates about their application automatically. Without an email, you or your community-based organization will be responsible for communicating updates to your client.
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted={0} ແອັບພລິເຄຊັນທີ່ສົ່ງແລ້ວ
+# Shows that a single application has been submitted on behalf of the client.
+content.oneAppSubmitted=1 application submitted
 # Some explanation text on the confirmation modal when deleting a client.
 content.warning=ບໍ່ມີການສົ່ງແອັບພລິເຄຊັນສຳລັບລູກຂ່າຍຄົນນີ້, ດັ່ງນັ້ນຈະບໍ່ມີແອັບພລິເຄຊັນໃດສູນຫາຍ.
+# Shows there is no email address connected to the account.
+content.noEmailAddress=(no email address)
+# The status of an organization member when they have been enrolled but have never logged into CiviForm.
+content.notLoggedIn=Not yet logged in
+# The status of an organization member when they have logged in but haven't applied on behalf of a client.
+content.noApplications=Logged in, no applications submitted
+# The status of an organization member showing the date of the last application that they submitted for a client.
+content.lastApplicationDate=Last submitted application on {0}
 # Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=ທ່ານໝັ້ນໃຈບໍ່ວ່າຕ້ອງການລຶບບັນຊີຂອງລູກຂ່າຍຄົນນີ້ອອກ?
 
@@ -166,9 +183,11 @@ dialog.deleteConfirmation=ທ່ານໝັ້ນໃຈບໍ່ວ່າຕ້
 header.acctSettings=ການຕັ້ງຄ່າບັນຊີ
 # Tab label for getting to the client list page
 header.clientList=ລາຍຊື່ລູກຂ່າຍ
+# Label for search
+header.search=Search
 
-# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last login XX-XX-XXXX".
-label.acctStatus=ສະຖານະບັນຊີ
+# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
+label.acctStatus=Account status
 # Label above the phone number for each client on the client list.
 label.contactInfo=ຂໍ້ມູນການຕິດຕໍ່
 # The label above the input field for the day of the client birth date. i.e. 12 for November 12
@@ -179,6 +198,12 @@ label.dob=ວັນເດືອນປີເກີດ
 label.dobExample=ຕົວຢ່າງ: 28 ມັງກອນ 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=ອີເມວ
+# Validation error message below date of birth input when the TI clicks on save without filling out the field.
+label.errorDOB=Error: Date of birth required
+# Validation error message below first name input when the TI clicks on save without filling out the field.
+label.errorFirstName=Error: First name required
+# Validation error message below last name input when the TI clicks on save without filling out the field.
+label.errorLastName=Error: Last name required
 # The label above the dropdown select field for the month of the client birth date.
 label.month=ເດືອນ
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -195,8 +220,12 @@ label.searchByDob=ຊອກຫາຕາມວັນເດືອນປີເກ�
 label.searchByName=ຊອກຫາຕາມຊື່
 # The label above the input field for the year of the client birth date.
 label.year=ປີ
+# Label showing the user when there is no name
+label.unnamedUser=Unnamed user
 
 link.edit=ແກ້ໄຂ
+# Link to change the client that the trusted intermediary is applying for.
+link.selectNewClient=Select a new client
 
 # This is the header above the list of clients and the client search.
 title.allClients=ລູກຂ່າຍທຸກຄົນ
@@ -267,7 +296,7 @@ content.commonIntakeNoMatchingPrograms=ຕົວກວດສອບລ່ວງ�
 content.commonIntakeNoMatchingProgramsTi=ຕົວກວດສອບລ່ວງໜ້າບໍ່ພົບໂຄງການທີ່ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມໃນເວລານີ້. ແນວໃດກໍຕາມ, ທ່ານອາດສະໝັກໂຄງການໄດ້ທຸກເວລາ, ໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''. ຫຼື ເພື່ອເບິ່ງໂຄງການເພີ່ມເຕີມ ທ່ານສາມາດເຂົ້າໄປ {0} ໄດ້
 content.commonIntakeNoMatchingProgramsNextStep=ນອກຈາກນັ້ນ, ທ່ານຍັງສາມາດກັບຄືນໄປຫາໜ້າກ່ອນໜ້ານີ້ເພື່ອແກ້ໄຂຄຳຕອບຂອງທ່ານໄດ້ນຳ.
 # A header above a list of other programs the applicant might be interested in applying to.
-content.otherProgramsToApplyFor=Other programs you might be interested in
+content.otherProgramsToApplyFor=ໂປຣແກຣມອື່ນທີ່ທ່ານອາດສົນໃຈ
 button.downloadPdf=ດາວໂຫຼດ PDF
 button.applyToPrograms=ສະໝັກເຂົ້າຮ່ວມໂຄງການ
 
@@ -302,7 +331,7 @@ title.verifyAddress=ຢັ້ງຢືນທີ່ຢູ່
 
 content.foundSimilarAddress=ພວກເຮົາບໍ່ສາມາດຢັ້ງຢືນທີ່ຢູ່ທີ່ທ່ານລະບຸໄດ້, ແຕ່ພົບທີ່ຢູ່ທີ່ຄ້າຍຄືກັນ.
 # Heading for showing the user the address they provided earlier
-content.addressEntered=ທີ່ຢູ່ທີ່ປ້ອນເຂົ້າ:
+content.addressEntered=ທີ່ຢູ່ທີ່ທ່ານປ້ອນເຂົ້າ:
 
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=ທີ່ຢູ່ທີ່ແນະນຳ:
@@ -310,7 +339,7 @@ content.suggestedAddresses=ທີ່ຢູ່ທີ່ແນະນຳ:
 
 # Title on address correction dialog when no address is found.
 title.noValidAddress=ບໍ່ພົບທີ່ຢູ່ທີ່ຖືກຕ້ອງ
-content.noValidAddress=ພວກເຮົາບໍ່ສາມາດຢັ້ງຢືນທີ່ຢູ່ທີ່ທ່ານລະບຸໄດ້. ກະລຸນາແກ້ໄຂທີ່ຢູ່ຂອງທ່ານເພື່ອສືບຕໍ່.
+content.noValidAddress=ພວກເຮົາບໍ່ສາມາດຢັ້ງຢືນທີ່ຢູ່ທີ່ທ່ານສະໜອງໃຫ້ໄດ້. ກະລຸນາແກ້ໄຂທີ່ຢູ່ຂອງທ່ານເພື່ອສືບຕໍ່.
 
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
@@ -320,15 +349,15 @@ content.noValidAddress=ພວກເຮົາບໍ່ສາມາດຢັ້ງ
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
-title.confirmAddress=Confirm your address
+title.confirmAddress=ຢືນຢັນທີ່ຢູ່ຂອງທ່ານ
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=We were not able to find your address.
+content.confirmAddressLine1=ພວກເຮົາບໍ່ພົບທີ່ຢູ່ຂອງທ່ານ.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
-content.foundSimilarAddressLine2=Please check your address for spelling or choose an option from the list provided.
+content.foundSimilarAddressLine2=ກະລຸນາກວດເບິ່ງການສະກົດຄຳທີ່ຢູ່ຂອງທ່ານ ຫຼື ເລືອກຕົວເລືອກຈາກລາຍຊື່ທີ່ສະໜອງໃຫ້.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
-content.noValidAddressLine2=Please check your address for spelling and edit to continue.
+content.noValidAddressLine2=ກະລຸນາກວດເບິ່ງການສະກົດຄຳທີ່ຢູ່ຂອງທ່ານ ແລະ ແກ້ໄຂມັນເພື່ອສືບຕໍ່.
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
-button.confirmAddress=Confirm address
+button.confirmAddress=ຢືນຢັນທີ່ຢູ່
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -363,7 +392,7 @@ button.addEntity=ເພີ່ມ {0}
 button.removeEntity=ລຶບ {0} ອອກ
 dialog.confirmDelete=ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບ {0} ນີ້ອອກ? ການປ່ຽນແປງນີ້ຈະຖືກບັນທຶກໄວ້ຫຼັງຈາກທ່ານຄລິກ "ຕໍ່ໄປ" ແລະ ຂໍ້ມູນທັງໝົດທີ່ກ່ຽວຂ້ອງກັບ {0} ນີ້ຈະສູນເສຍ.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
-dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
+dialog.confirmDeleteAllButtonsSave=ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບ {0} ນີ້ອອກ? ການປ່ຽນແປງນີ້ຈະຖືກບັນທຶກໄວ້ເມື່ອທ່ານຄລິກ "ກວດສອບ", "ກ່ອນໜ້າ" ຫຼື "ຕໍ່ໄປ" ແລະ ຂໍ້ມູນທັງໝົດທີ່ກ່ຽວຂ້ອງກັບ {0} ນີ້ຈະສູນເສຍ.
 validation.entityNameRequired=ກະລຸນາປ້ອນຄ່າສຳລັບແຕ່ລະແຖວ.
 validation.duplicateEntityName=ກະລຸນາປ້ອນຄ່າທີ່ບໍ່ຊ້ຳກັນສຳລັບແຕ່ລະແຖວ.
 placeholder.entityName=ຊື່ {0}
@@ -373,9 +402,9 @@ placeholder.entityName=ຊື່ {0}
 #---------------------------------------------------------------------------------#
 
 validation.fileRequired=ກະລຸນາເລືອກໄຟລ໌.
-button.chooseFile=ເລືອກໄຟລ໌
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
-validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
+validation.fileTooLarge=ໄຟລ໌ຂອງທ່ານໃຫຍ່ເກີນໄປ. ກະລຸນາເລືອກໄຟລ໌ທີ່ນ້ອຍກວ່າ {0} MB.
+button.chooseFile=ເລືອກໄຟລ໌
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
@@ -428,7 +457,7 @@ validation.textTooShort=ຕ້ອງມີຢ່າງໜ້ອຍ {0} ຕົວ
 
 adminValidation.multiOptionEmpty=ຄຳຖາມແບບຫຼາຍຕົວເລືອກບໍ່ສາມາດມີເລືອກຫວ່າງເປົ່າໄດ້.
 # An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
-adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
+adminValidation.multiOptionAdminError=ຊື່ຂອງຜູ້ເບິ່ງແຍງສາມາດມີໄດ້ສະເພາະຕົວພິມນ້ອຍ, ຕົວເລກ, ຂີດກ້ອງ ແລະ ຂີດກາງ.
 
 #----------------------------------#
 # ERRORS - various error messages  #
