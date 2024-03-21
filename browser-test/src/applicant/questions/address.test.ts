@@ -331,7 +331,7 @@ test.describe('address applicant flow', () => {
       })
     })
   })
-  
+
   test.describe('single required address question with north star flag enabled', () => {
     const programName = 'Test program for single address'
 
@@ -344,33 +344,29 @@ test.describe('address applicant flow', () => {
       await enableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
-    test(
-      'validate screenshot',
-      {tag: ['@northstar']},
-      async () => {
-        const {page, applicantQuestions} = ctx
-        await applicantQuestions.applyProgram(programName)
+    test('validate screenshot', {tag: ['@northstar']}, async () => {
+      const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
 
-        await test.step('Screenshot without errors', async () => {
-          await validateScreenshot(
-            page,
-            'address-north-star',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
-          )
-        })
+      await test.step('Screenshot without errors', async () => {
+        await validateScreenshot(
+          page,
+          'address-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
 
-        await test.step('Screenshot with errors', async () => {
-          await applicantQuestions.clickContinue()
-          await validateScreenshot(
-            page,
-            'address-errors-north-star',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
-          )
-        })
-      },
-    )
+      await test.step('Screenshot with errors', async () => {
+        await applicantQuestions.clickContinue()
+        await validateScreenshot(
+          page,
+          'address-errors-north-star',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+    })
   })
 
   async function setUpProgramWithSingleAddressQuestion(programName: string) {
@@ -385,6 +381,6 @@ test.describe('address applicant flow', () => {
       programName,
     )
 
-    await logout(page) 
+    await logout(page)
   }
 })
