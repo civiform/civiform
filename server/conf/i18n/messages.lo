@@ -235,6 +235,8 @@ title.createClient=ສ້າງລູກຂ່າຍໃໝ່
 title.displayingMultiClients=ສະແດງລູກຂ່າຍ {0} ຄົນ
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=ສະແດງລູກຂ່າຍ 1 ຄົນ
+# This is the heading above an unfiltered list of clients.
+title.displayingAllClients=Displaying all clients
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=ສະມາຊິກຂອງອົງກອນ
 
