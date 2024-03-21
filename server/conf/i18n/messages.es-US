@@ -187,7 +187,7 @@ header.clientList=Lista de clientes
 header.search=Search
 
 # A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
-label.acctStatus=Account status
+label.acctStatus=Estado de la cuenta
 # Label above the phone number for each client on the client list.
 label.contactInfo=Información de contacto
 # The label above the input field for the day of the client birth date. i.e. 12 for November 12
