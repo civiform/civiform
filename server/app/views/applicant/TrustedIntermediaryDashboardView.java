@@ -169,7 +169,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                     searchParameters.monthQuery().orElse(""),
                     searchParameters.yearQuery().orElse(""),
                     messages.at(MessageKey.SEARCH_BY_DOB.getKeyName()),
-                    !isValidSearch)
+                    !isValidSearch,
+                    Optional.empty())
                 .withClass("ml-6"),
             makeCsrfTokenInputTag(request),
             div(submitButton(messages.at(MessageKey.BUTTON_SEARCH.getKeyName()))

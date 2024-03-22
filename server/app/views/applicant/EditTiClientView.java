@@ -12,7 +12,9 @@ import forms.TiClientInfoForm;
 import j2html.tags.Tag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
+import java.time.LocalDate;
 import java.util.Optional;
 import models.AccountModel;
 import models.TrustedIntermediaryGroupModel;
@@ -222,17 +224,31 @@ public class EditTiClientView extends BaseHtmlView {
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_EMAIL_ADDRESS,
             messages);
-    FieldWithLabel dateOfBirthField =
-        setStateIfPresent(
-            FieldWithLabel.date()
-                .setId("date-of-birth-input")
-                .setFieldName("dob")
-                .setLabelText(messages.at(MessageKey.DOB_LABEL.getKeyName()))
-                .setRequired(true)
-                .setValue(getDefaultDob(optionalApplicantData)),
-            form,
-            TrustedIntermediaryService.FORM_FIELD_NAME_DOB,
-            messages);
+    Optional<String> errorMessage = Optional.empty();
+    Optional<LocalDate> dob = getDefaultDob(optionalApplicantData);
+    if (form.isPresent() && form.get().hasErrors()) {
+      TiClientInfoForm tiForm = form.get().value().get();
+      dob = Optional.of(dateConverter.parseIso8601DateToLocalDate(tiForm.getDob()));
+      errorMessage =
+          form.get().error(TrustedIntermediaryService.FORM_FIELD_NAME_DOB).isPresent()
+              ? Optional.ofNullable(
+                  form.get().error(TrustedIntermediaryService.FORM_FIELD_NAME_DOB).get().message())
+              : Optional.empty();
+    }
+    FieldsetTag dateOfBirthField =
+        ViewUtils.makeMemorableDate(
+            dob, messages.at(MessageKey.DOB_LABEL.getKeyName()), false, errorMessage,"dob");
+    //    FieldWithLabel dateOfBirthField =
+    //        setStateIfPresent(
+    //            FieldWithLabel.date()
+    //                .setId("date-of-birth-input")
+    //                .setFieldName("dob")
+    //                .setLabelText(messages.at(MessageKey.DOB_LABEL.getKeyName()))
+    //                .setRequired(true)
+    //                .setValue(),
+    //            form,
+    //            TrustedIntermediaryService.FORM_FIELD_NAME_DOB,
+    //            messages);
     FieldWithLabel tiNoteField =
         setStateIfPresent(
             FieldWithLabel.textArea()
@@ -264,7 +280,7 @@ public class EditTiClientView extends BaseHtmlView {
                     lastNameField.getInputTag(),
                     phoneNumberField.getInputTag(),
                     emailField.getEmailTag(),
-                    dateOfBirthField.getDateTag(),
+                    dateOfBirthField,
                     tiNoteField.getTextareaTag(),
                     makeCsrfTokenInputTag(request),
                     submitButton("Save").withClasses("ml-2", "mb-6"),
@@ -272,14 +288,10 @@ public class EditTiClientView extends BaseHtmlView {
                 .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6"));
   }
 
-  private String getDefaultDob(Optional<ApplicantData> optionalApplicantData) {
+  private Optional<LocalDate> getDefaultDob(Optional<ApplicantData> optionalApplicantData) {
     return optionalApplicantData.isPresent()
-        ? optionalApplicantData
-            .get()
-            .getDateOfBirth()
-            .map(this.dateConverter::formatIso8601Date)
-            .orElse("")
-        : "";
+        ? optionalApplicantData.get().getDateOfBirth()
+        : Optional.empty();
   }
 
   private Optional<String> setDefaultPhone(Optional<ApplicantData> optionalApplicantData) {
