@@ -20,7 +20,8 @@
       "installMaven": "true",
       "installGradle": "false"
     },
-    "ghcr.io/devcontainers-contrib/features/ant-sdkman:2": {}
+    "ghcr.io/devcontainers-contrib/features/ant-sdkman:2": {},
+    "ghcr.io/devcontainers/features/node:1": {}
   },
 
   "customizations": {
