@@ -49,7 +49,7 @@ lazy val root = (project in file("."))
       "com.h2database" % "h2" % "2.2.224" % Test,
 
       // Metrics collection and export for Prometheus
-      "io.github.jyllands-posten" %% "play-prometheus-filters" % "0.6.1",
+      "io.github.jyllands-posten" %% "play-prometheus-filters" % "1.0.2",
 
       // Parameterized testing
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
