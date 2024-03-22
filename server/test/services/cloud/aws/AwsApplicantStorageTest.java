@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.test.Helpers.fakeRequest;
+import static services.cloud.aws.AwsApplicantStorage.AWS_S3_FILE_LIMIT_CONF_PATH;
 
 import com.typesafe.config.Config;
 import java.io.File;
@@ -18,6 +19,14 @@ import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 
 public class AwsApplicantStorageTest extends ResetPostgres {
+  @Test
+  public void getFileLimitMb_returnsSizeFromConfig() {
+    AwsApplicantStorage awsApplicantStorage = instanceOf(AwsApplicantStorage.class);
+
+    assertThat(awsApplicantStorage.getFileLimitMb())
+        .isEqualTo(
+            Integer.parseInt(instanceOf(Config.class).getString(AWS_S3_FILE_LIMIT_CONF_PATH)));
+  }
 
   @Test
   public void getSignedUploadRequest_prodEnv_actionLinkIsProdAws() {
