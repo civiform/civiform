@@ -25,7 +25,7 @@ export class TIDashboard {
   }
 
   async createClient(client: ClientInformation) {
-    await page.getByRole('link', {name: 'Add new client'}).click()
+    await this.page.getByRole('link', {name: 'Add new client'}).click()
     await waitForPageJsLoad(this.page)
     await this.page.fill('#email-input', client.emailAddress)
     await this.page.fill('#first-name-input', client.firstName)
@@ -48,7 +48,7 @@ export class TIDashboard {
 
   async createMultipleClients(nameBase: string, copies: number) {
     for (let i = 1; i <= copies; i++) {
-      await page.getByRole('link', {name: 'Add new client'}).click()
+      await this.page.getByRole('link', {name: 'Add new client'}).click()
       await waitForPageJsLoad(this.page)
       await this.page.fill('#email-input', nameBase + i + '@test.com')
       await this.page.fill('#first-name-input', nameBase + i)
