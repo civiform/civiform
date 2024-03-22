@@ -29,7 +29,8 @@
         "files.watcherExclude": {
           "**/target": true,
           "**/.bloop": true,
-          "**/node_modules": true
+          "**/node_modules": true,
+          "**/__pycache__": true
         },
         "search.exclude": {
           "*/target": true,
