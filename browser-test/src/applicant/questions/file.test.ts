@@ -150,7 +150,7 @@ test.describe('file upload applicant flow', () => {
       await applicantFileQuestion.expectFileSelectionErrorHidden()
     })
 
-    test('too large file uploaded shows error', async () => {
+    test('too large file uploaded shows error and cannot submit', async () => {
       const {page, applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
 
@@ -159,19 +159,11 @@ test.describe('file upload applicant flow', () => {
       await applicantFileQuestion.expectFileTooLargeErrorShown()
       await validateScreenshot(page, 'file-error-too-large')
       await validateAccessibility(page)
-    })
-
-    test('cannot submit if file is too large', async () => {
-      const {applicantQuestions, applicantFileQuestion} = ctx
-      await applicantQuestions.applyProgram(programName)
-
-      await applicantQuestions.answerFileUploadQuestionWithMbSize(101)
-      await applicantFileQuestion.expectFileTooLargeErrorShown()
 
       // Try clicking Save & next
       await applicantQuestions.clickNext()
 
-      // Verify it's not saved we're still on the file upload question block
+      // Verify the file isn't saved and we're still on the file upload question block
       await applicantQuestions.validateQuestionIsOnPage(fileUploadQuestionText)
     })
 

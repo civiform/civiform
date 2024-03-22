@@ -120,16 +120,15 @@ function validateFileUploadQuestion(blockForm: Element): boolean {
   const fileInput = assertNotNull(
     blockForm.querySelector<HTMLInputElement>('input[type=file]'),
   )
-
   const isFileUploaded = fileInput.value != ''
 
   const fileNotSelectedErrorDiv = document.getElementById(
     'cf-fileupload-required-error',
   ) as HTMLElement
-  if (isFileUploaded) {
-    hideError(fileNotSelectedErrorDiv, fileInput)
-  } else {
+  if (!isFileUploaded) {
     showError(fileNotSelectedErrorDiv, fileInput)
+  } else {
+    hideError(fileNotSelectedErrorDiv, fileInput)
   }
 
   const isFileTooLargeResult = isFileTooLarge(fileInput)
