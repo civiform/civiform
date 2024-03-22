@@ -170,7 +170,6 @@ test.describe('Applicant navigation flow', () => {
           await applicantQuestions.validateQuestionIsOnPage(
             currencyQuestionText,
           )
-
           await applicantQuestions.answerPhoneQuestion('4256373270')
           await applicantQuestions.answerCurrencyQuestion('5')
         })

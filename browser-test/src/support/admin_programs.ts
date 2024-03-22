@@ -673,14 +673,14 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    const questionArray: QuestionSpec[] = questionNames.map((qName) => {
+    const questionSpecs: QuestionSpec[] = questionNames.map((qName) => {
       const creator: QuestionSpec = {name: qName, isOptional: false}
       return creator
     })
     return await this.addProgramBlockUsingSpec(
       programName,
       blockDescription,
-      questionArray,
+      questionSpecs,
     )
   }
 
