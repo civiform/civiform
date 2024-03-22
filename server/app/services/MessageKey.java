@@ -246,6 +246,7 @@ public enum MessageKey {
   TITLE_DISPLAY_ALL_CLIENTS("title.displayingAllClients"),
   TITLE_DISPLAY_MULTI_CLIENTS("title.displayingMultiClients"),
   TITLE_DISPLAY_ONE_CLIENT("title.displayingOneClient"),
+  TITLE_EDIT_CLIENT("title.editClient"),
   TITLE_FIND_SERVICES_SECTION("title.getStartedSection"),
   TITLE_LOGIN("title.login"),
   TITLE_NO_CHANGES_TO_SAVE("title.noChangesToSave"),

@@ -30,7 +30,7 @@ import com.google.inject.Inject;
 import controllers.ti.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.H3Tag;
 import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
@@ -106,7 +106,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         renderAddNewClientButton(messages, tiGroup.id))
                     .withClasses("flex", "justify-between", "my-4"),
                 h4("Search"),
-                renderSearchForm(request, searchParameters, messages),
+                renderSearchForm(request, searchParameters, messages, managedAccounts.size()),
                 renderTIClientsList(
                     managedAccounts, searchParameters, page, totalPageCount, messages),
                 hr().withClasses("my-6"),
@@ -134,48 +134,87 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .withHref(redirectUrl);
   }
 
-  private FormTag renderSearchForm(
-      Http.Request request, SearchParameters searchParameters, Messages messages) {
+  private DivTag renderSearchForm(
+      Http.Request request,
+      SearchParameters searchParameters,
+      Messages messages,
+      int totalClients) {
     boolean isValidSearch = TrustedIntermediaryService.validateSearch(searchParameters);
-    return form()
-        .withId("ti-search-form")
-        .withClasses("mb-6")
-        .withMethod("GET")
-        .withAction(
-            routes.TrustedIntermediaryController.dashboard(
-                    /* paramName=  nameQuery */ Optional.empty(),
-                    /* paramName=  dayQuery */ Optional.empty(),
-                    /* paramName=  monthQuery */ Optional.empty(),
-                    /* paramName=  yearQuery */ Optional.empty(),
-                    /* paramName=  page */ Optional.empty())
-                .url())
+    return div()
         .with(
-            div(
+            form()
+                .withId("ti-search-form")
+                .withClasses("mb-6")
+                .withMethod("GET")
+                .withAction(
+                    routes.TrustedIntermediaryController.dashboard(
+                            /* paramName=  nameQuery */ Optional.empty(),
+                            /* paramName=  dayQuery */ Optional.empty(),
+                            /* paramName=  monthQuery */ Optional.empty(),
+                            /* paramName=  yearQuery */ Optional.empty(),
+                            /* paramName=  page */ Optional.empty())
+                        .url())
+                .with(
                     div(
-                        label(messages.at(MessageKey.SEARCH_BY_NAME.getKeyName()))
-                            .withClass("usa-label")
-                            .withId("name-search")
-                            .withFor("name-query"),
-                        span(messages.at(MessageKey.NAME_EXAMPLE.getKeyName()))
-                            .withClass("usa-hint")),
-                    input()
-                        .withClasses("usa-input", "mt-12")
-                        .withId("name-query")
-                        .withName("nameQuery")
-                        .withValue(searchParameters.nameQuery().orElse("")))
-                .withClasses("flex", "flex-col", "justify-between"),
-            ViewUtils.makeMemorableDate(
-                    searchParameters.dayQuery().orElse(""),
-                    searchParameters.monthQuery().orElse(""),
-                    searchParameters.yearQuery().orElse(""),
-                    messages.at(MessageKey.SEARCH_BY_DOB.getKeyName()),
-                    !isValidSearch)
-                .withClass("ml-6"),
-            makeCsrfTokenInputTag(request),
-            div(submitButton(messages.at(MessageKey.BUTTON_SEARCH.getKeyName()))
-                    .withClasses("ml-6", "h-11"))
-                .withClasses("flex", "flex-col", "justify-end"))
-        .withClasses("flex", "my-6");
+                            div(
+                                label(messages.at(MessageKey.SEARCH_BY_NAME.getKeyName()))
+                                    .withClass("usa-label")
+                                    .withId("name-search")
+                                    .withFor("name-query"),
+                                span(messages.at(MessageKey.NAME_EXAMPLE.getKeyName()))
+                                    .withClass("usa-hint")),
+                            input()
+                                .withClasses("usa-input", "mt-12")
+                                .withId("name-query")
+                                .withName("nameQuery")
+                                .withValue(searchParameters.nameQuery().orElse("")))
+                        .withClasses("flex", "flex-col", "justify-between"),
+                    ViewUtils.makeMemorableDate(
+                            searchParameters.dayQuery().orElse(""),
+                            searchParameters.monthQuery().orElse(""),
+                            searchParameters.yearQuery().orElse(""),
+                            messages.at(MessageKey.SEARCH_BY_DOB.getKeyName()),
+                            !isValidSearch)
+                        .withClass("ml-6"),
+                    makeCsrfTokenInputTag(request),
+                    div(submitButton(messages.at(MessageKey.BUTTON_SEARCH.getKeyName()))
+                            .withClasses("ml-6", "h-11"))
+                        .withClasses("flex", "flex-col", "justify-end"))
+                .withClasses("flex", "my-6"))
+        .with(
+            div()
+                .condWith(
+                    isValidSearch,
+                    renderDisplayingNumberOfClients(totalClients, searchParameters, messages)
+                        .attr("data-testid", "displaying-clients")
+                        .withClasses("mr-6"))
+                .with(u(renderClearSearchLink(messages)).withClasses("text-sm"))
+                .withClasses("flex", "items-center", "mb-4"));
+  }
+
+  private H3Tag renderDisplayingNumberOfClients(
+      int totalClients, SearchParameters searchParameters, Messages messages) {
+    boolean noSearchTerms =
+        TrustedIntermediaryService.findMissingSearchParams(searchParameters).size() == 4;
+    if (noSearchTerms) {
+      return h3(messages.at(MessageKey.TITLE_DISPLAY_ALL_CLIENTS.getKeyName()));
+    }
+    if (totalClients == 1) {
+      return h3(messages.at(MessageKey.TITLE_DISPLAY_ONE_CLIENT.getKeyName()));
+    }
+    return h3(messages.at(MessageKey.TITLE_DISPLAY_MULTI_CLIENTS.getKeyName(), totalClients));
+  }
+
+  private ATag renderClearSearchLink(Messages messages) {
+    return new LinkElement()
+        .setText(messages.at(MessageKey.BUTTON_CLEAR_SEARCH.getKeyName()))
+        .asAnchorText()
+        .attr(
+            "onClick",
+            "document.getElementById('name-query').value = '';"
+                + "document.getElementById('date_of_birth_day').value = '';"
+                + "document.getElementById('date_of_birth_month').value = '';"
+                + "document.getElementById('date_of_birth_year').value = '';");
   }
 
   private DivTag renderTIClientsList(

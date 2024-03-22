@@ -264,7 +264,7 @@ public final class TrustedIntermediaryService {
         .collect(ImmutableList.toImmutableList());
   }
 
-  private static List<SearchParameters.ParamTypes> findMissingSearchParams(
+  public static List<SearchParameters.ParamTypes> findMissingSearchParams(
       SearchParameters searchParameters) {
     List<SearchParameters.ParamTypes> missing = new ArrayList<>();
 
