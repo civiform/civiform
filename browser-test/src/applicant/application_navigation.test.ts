@@ -461,7 +461,7 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('clicking previous with missing answers shows modal', async () => {
+      test('clicking previous with some missing answers shows error modal', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
@@ -476,6 +476,20 @@ test.describe('Applicant navigation flow', () => {
         // The date question is required, so we should see the error modal.
         await applicantQuestions.expectErrorOnPreviousModal()
         await validateScreenshot(page, 'error-on-previous-modal')
+      })
+
+      test('clicking previous with no answers does not show error modal', async () => {
+           const {page, applicantQuestions} = ctx
+                  await loginAsAdmin(page)
+                  await enableFeatureFlag(page, 'save_on_all_actions')
+                  await logout(page)
+
+                  await applicantQuestions.applyProgram(programName)
+
+                  // If the applicant has never answered this block before and doesn't fill in any answers now, we shouldn't show the error modal and should just go straight to the previous page (which is the review page since this is the first block)
+                          await applicantQuestions.clickPrevious()
+
+            await applicantQuestions.expectReviewPage()
       })
 
       test('error on previous modal > click stay and fix > shows block', async () => {
@@ -565,6 +579,39 @@ test.describe('Applicant navigation flow', () => {
 
         await applicantQuestions.checkDateQuestionValue('2021-11-01')
         await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
+      })
+
+         test('clicking previous after deleting answers to required questions shows error modal', async () => {
+               const {page, applicantQuestions} = ctx
+                    await loginAsAdmin(page)
+                    await enableFeatureFlag(page, 'save_on_all_actions')
+                    await logout(page)
+
+                  await test.step('Answer questions on first block', async () => {
+                                await applicantQuestions.applyProgram(programName)
+                                await applicantQuestions.answerDateQuestion('2021-11-01')
+                                await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+                                await applicantQuestions.clickReview()
+                  })
+
+                              await test.step('Delete answers on first block', async () => {
+                                            await applicantQuestions.applyProgram(programName)
+                                            await applicantQuestions.answerDateQuestion('')
+                                            await applicantQuestions.answerEmailQuestion('')
+                                            await applicantQuestions.clickPrevious()
+                              })
+
+                              await test.step('Clicking previous shows error modal', async () => {
+                                // Because the questions were previously answered and the date and email questions are required,
+                                // we don't let the user save the deletion of answers.
+                                                                      await applicantQuestions.clickPrevious()
+              await applicantQuestions.expectErrorOnPreviousModal()
+
+                              })
+            })
+
+      test('clicking previous on block with all optional questions with no answers marks questions as seen', async () => {
+
       })
 
       test.afterAll(async () => {
