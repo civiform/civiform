@@ -150,33 +150,32 @@ test.describe('file upload applicant flow', () => {
       await applicantFileQuestion.expectFileSelectionErrorHidden()
     })
 
-    test('too large file uploaded shows error and cannot submit', async () => {
+    test('too large file error', async () => {
       const {page, applicantQuestions, applicantFileQuestion} = ctx
       await applicantQuestions.applyProgram(programName)
 
-      await applicantQuestions.answerFileUploadQuestionWithMbSize(101)
+      await test.step('Shows error when file size is too large', async () => {
+        await applicantQuestions.answerFileUploadQuestionWithMbSize(101)
 
-      await applicantFileQuestion.expectFileTooLargeErrorShown()
-      await validateScreenshot(page, 'file-error-too-large')
-      await validateAccessibility(page)
+        await applicantFileQuestion.expectFileTooLargeErrorShown()
+        await validateScreenshot(page, 'file-error-too-large')
+        await validateAccessibility(page)
+      })
 
-      // Try clicking Save & next
-      await applicantQuestions.clickNext()
+      await test.step('Cannot save file if too large', async () => {
+        await applicantQuestions.clickNext()
 
-      // Verify the file isn't saved and we're still on the file upload question block
-      await applicantQuestions.validateQuestionIsOnPage(fileUploadQuestionText)
-    })
+        // Verify the file isn't saved and we're still on the file upload question block
+        await applicantQuestions.validateQuestionIsOnPage(
+          fileUploadQuestionText,
+        )
+      })
 
-    test('too large file error disappears when smaller file uploaded', async () => {
-      const {applicantQuestions, applicantFileQuestion} = ctx
-      await applicantQuestions.applyProgram(programName)
+      await test.step('Hides error when smaller file is uploaded', async () => {
+        await applicantQuestions.answerFileUploadQuestionWithMbSize(100)
 
-      await applicantQuestions.answerFileUploadQuestionWithMbSize(101)
-      await applicantFileQuestion.expectFileTooLargeErrorShown()
-
-      await applicantQuestions.answerFileUploadQuestionWithMbSize(100)
-
-      await applicantFileQuestion.expectFileTooLargeErrorHidden()
+        await applicantFileQuestion.expectFileTooLargeErrorHidden()
+      })
     })
 
     test('has no accessibility violations', async () => {
