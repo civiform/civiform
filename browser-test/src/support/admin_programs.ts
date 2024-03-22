@@ -46,9 +46,9 @@ export enum Eligibility {
   IS_NOT_GATING = "Allow residents to submit applications even if they don't meet eligibility requirements",
 }
 
-export interface QuestionCreator {
-  name: string,
-  isOptional: boolean,
+export interface QuestionSpec {
+  name: string
+  isOptional: boolean
 }
 
 function slugify(value: string): string {
@@ -663,44 +663,63 @@ export class AdminPrograms {
     }
   }
 
-    /** Creates a new program block with the given questions, all marked as required. */
-    async addProgramBlock(
-      programName: string,
-      blockDescription = 'screen description',
-      questionNames: string[] = [],
-    ) {
-      return await addProgramBlock(programName, blockDescription, questionNames.map((qName) => QuestionCreator(qName, /* is_optional= */ false))
-    }
-
-  /** Creates a new program block with the given questions. */
+  /**
+   * Creates a new program block with the given questions, all marked as required.
+   *
+   * @deprecated prefer using {@link #addProgramBlockWithQuestionSpec} instead.
+   */
   async addProgramBlock(
-      programName: string,
-      blockDescription = 'screen description',
-      questions: QuestionCreator[] = [],
+    programName: string,
+    blockDescription = 'screen description',
+    questionNames: string[] = [],
   ) {
-      await this.gotoEditDraftProgramPage(programName)
+    const questionArray: QuestionSpec[] = questionNames.map((qName) => {
+      const creator: QuestionSpec = {name: qName, isOptional: false}
+      return creator
+    })
+    return await this.addProgramBlockUsingSpec(
+      programName,
+      blockDescription,
+      questionArray,
+    )
+  }
 
-      await this.page.click('#add-block-button')
-      await waitForPageJsLoad(this.page)
+  /**
+   * Creates a new program block with the given questions as defined by {@link QuestionSpec}.
+   *
+   * Prefer this method over {@link #addProgramBlock}: This method provides the same functionality
+   * but also makes it easy to use optional questions.
+   */
+  async addProgramBlockUsingSpec(
+    programName: string,
+    blockDescription = 'screen description',
+    questions: QuestionSpec[] = [],
+  ) {
+    await this.gotoEditDraftProgramPage(programName)
 
-      await clickAndWaitForModal(this.page, 'block-description-modal')
-      await this.page.type('textarea', blockDescription)
-      await this.page.click('#update-block-button:not([disabled])')
-      // Wait for submit and redirect back to this page.
-      await this.page.waitForURL(this.page.url())
-      await waitForPageJsLoad(this.page)
+    await this.page.click('#add-block-button')
+    await waitForPageJsLoad(this.page)
 
-      for (const question of questions) {
-        await this.addQuestionFromQuestionBank(question.name)
-        if (question.isOptional) {
-          const optionalToggle = this.page.locator(this.questionCardSelectorInProgramView(question.name).getByRole('button',  { name: 'optional' })
-          await optionalToggle.click()
-        }
+    await clickAndWaitForModal(this.page, 'block-description-modal')
+    await this.page.type('textarea', blockDescription)
+    await this.page.click('#update-block-button:not([disabled])')
+    // Wait for submit and redirect back to this page.
+    await this.page.waitForURL(this.page.url())
+    await waitForPageJsLoad(this.page)
+
+    for (const question of questions) {
+      await this.addQuestionFromQuestionBank(question.name)
+      if (question.isOptional) {
+        const optionalToggle = this.page
+          .locator(this.questionCardSelectorInProgramView(question.name))
+          .getByRole('button', {name: 'optional'})
+        await optionalToggle.click()
       }
-      return await this.page.$eval(
-        '#block-name-input',
-        (el) => (el as HTMLInputElement).value,
-      )
+    }
+    return await this.page.$eval(
+      '#block-name-input',
+      (el) => (el as HTMLInputElement).value,
+    )
   }
 
   async addProgramRepeatedBlock(

@@ -178,6 +178,7 @@ export class ApplicantQuestions {
     await this.page.click(
       `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Answer")`,
     )
+    await waitForPageJsLoad(this.page)
   }
 
   /** On the review page, click "Edit" to change an answer to a previously answered question. */
@@ -185,6 +186,7 @@ export class ApplicantQuestions {
     await this.page.click(
       `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`,
     )
+    await waitForPageJsLoad(this.page)
   }
 
   async validateInputTypePresent(type: string) {
@@ -567,8 +569,10 @@ export class ApplicantQuestions {
 
   async validateQuestionIsOnPage(questionText: string) {
     await expect(
-      this.page.locator('.cf-applicant-question-text'),
-    ).toContainText(questionText)
+      this.page
+        .locator('.cf-applicant-question-text')
+        .filter({hasText: questionText}),
+    ).toBeVisible()
   }
 
   async validatePreviouslyAnsweredText(questionText: string) {

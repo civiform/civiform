@@ -25,7 +25,11 @@ test.describe('Applicant navigation flow', () => {
     const programName = 'Test program for navigation flows'
     const dateQuestionText = 'date question text'
     const emailQuestionText = 'email question text'
+    const staticQuestionText = 'static question text'
     const addressQuestionText = 'address question text'
+    const radioQuestionText = 'radio question text'
+    const phoneQuestionText = 'phone question text'
+    const currencyQuestionText = 'currency question text'
 
     test.beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -49,18 +53,24 @@ test.describe('Applicant navigation flow', () => {
       })
       await adminQuestions.addRadioButtonQuestion({
         questionName: 'nav-radio-q',
+        questionText: radioQuestionText,
         options: [
           {adminName: 'one_admin', text: 'one'},
           {adminName: 'two_admin', text: 'two'},
           {adminName: 'three_admin', text: 'three'},
         ],
       })
-      await adminQuestions.addStaticQuestion({questionName: 'nav-static-q'})
+      await adminQuestions.addStaticQuestion({
+        questionName: 'nav-static-q',
+        questionText: staticQuestionText,
+      })
       await adminQuestions.addPhoneQuestion({
         questionName: 'nav-phone-q',
+        questionText: phoneQuestionText,
       })
       await adminQuestions.addCurrencyQuestion({
         questionName: 'nav-currency-q',
+        questionText: currencyQuestionText,
       })
 
       await adminPrograms.addProgram(programName)
@@ -68,257 +78,274 @@ test.describe('Applicant navigation flow', () => {
         'nav-date-q',
         'nav-email-q',
       ])
-      await adminPrograms.addProgramBlock(programName, 'second description', [
-        {name: 'nav-static-q', isOptional: false},
-      ])
-      await adminPrograms.addProgramBlock(programName, 'third description', [
-        {name: 'nav-address-q', isOptional: false},
-      ])
-      await adminPrograms.addProgramBlock(programName, 'fourth description', [
-        {name: 'nav-radio-q', isOptional: true},
-      ])
-      await adminPrograms.addProgramBlock(programName, 'fifth description', [
-        {name: 'nav-phone-q', isOptional: false},
-        {name: 'nav-currency-q', isOptional: true},
-      ])
+      await adminPrograms.addProgramBlockUsingSpec(
+        programName,
+        'second description',
+        [{name: 'nav-static-q', isOptional: false}],
+      )
+      await adminPrograms.addProgramBlockUsingSpec(
+        programName,
+        'third description',
+        [{name: 'nav-address-q', isOptional: false}],
+      )
+      await adminPrograms.addProgramBlockUsingSpec(
+        programName,
+        'fourth description',
+        [{name: 'nav-radio-q', isOptional: true}],
+      )
+      await adminPrograms.addProgramBlockUsingSpec(
+        programName,
+        'fifth description',
+        [
+          {name: 'nav-phone-q', isOptional: false},
+          {name: 'nav-currency-q', isOptional: true},
+        ],
+      )
 
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishProgram(programName)
     })
 
-    // HERE
     test.describe('next button', () => {
-      test('clicking previous on first block goes to summary page', async () => {
+      test('next block progression', async () => {
         const {page, applicantQuestions} = ctx
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.clickApplyProgramButton(programName)
 
-        await applicantQuestions.clickPrevious()
-        await applicantQuestions.clickPreviousWithoutSaving()
+        await validateAccessibility(page)
+        await validateScreenshot(
+          page,
+          'program-preview',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
 
-        // Assert that we're on the preview page.
-        await applicantQuestions.expectReviewPage()
+        await test.step('incomplete screen 1', async () => {
+          await applicantQuestions.clickContinue()
+          await applicantQuestions.validateQuestionIsOnPage(dateQuestionText)
+          await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
+          await applicantQuestions.answerDateQuestion('2021-11-01')
+          await applicantQuestions.answerEmailQuestion('')
+          await applicantQuestions.clickNext()
+
+          // Expect we're still on the same page and see errors since email wasn't answered
+          await applicantQuestions.validateQuestionIsOnPage(dateQuestionText)
+          await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
+          expect(await page.innerText('.cf-question-email')).toContain(
+            'This question is required',
+          )
+        })
+
+        await test.step('complete screen 1', async () => {
+          await applicantQuestions.answerDateQuestion('2021-11-01')
+          await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+        })
+
+        await test.step('screen 2', async () => {
+          await applicantQuestions.clickNext()
+          await applicantQuestions.validateQuestionIsOnPage(staticQuestionText)
+        })
+
+        await test.step('screen 3', async () => {
+          await applicantQuestions.clickNext()
+          await applicantQuestions.validateQuestionIsOnPage(addressQuestionText)
+          await applicantQuestions.answerAddressQuestion(
+            '1234 St',
+            'Unit B',
+            'Sim',
+            'WA',
+            '54321',
+          )
+        })
+
+        await test.step('screen 4', async () => {
+          await applicantQuestions.clickNext()
+          await applicantQuestions.validateQuestionIsOnPage(radioQuestionText)
+          await applicantQuestions.answerRadioButtonQuestion('two')
+        })
+
+        await test.step('screen 5', async () => {
+          await applicantQuestions.clickNext()
+
+          await applicantQuestions.validateQuestionIsOnPage(phoneQuestionText)
+          await applicantQuestions.validateQuestionIsOnPage(
+            currencyQuestionText,
+          )
+
+          await applicantQuestions.answerPhoneQuestion('4256373270')
+          await applicantQuestions.answerCurrencyQuestion('5')
+        })
+
+        await test.step('clicking next on last block goes to review page', async () => {
+          await applicantQuestions.clickNext()
+          await applicantQuestions.expectReviewPage()
+        })
+
+        await test.step('review page has all saved answers', async () => {
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            dateQuestionText,
+            '11/01/2021',
+          )
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            emailQuestionText,
+            'test1@gmail.com',
+          )
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            addressQuestionText,
+            '1234 St',
+          )
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            radioQuestionText,
+            'two',
+          )
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            phoneQuestionText,
+            '425-637-3270',
+          )
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            currencyQuestionText,
+            '5',
+          )
+          await validateAccessibility(page)
+          await validateScreenshot(
+            page,
+            'program-review',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+
+        await test.step('can submit application', async () => {
+          await applicantQuestions.submitFromReviewPage()
+          await applicantQuestions.expectConfirmationPage()
+        })
       })
 
-      test('clicking previous on later blocks goes to previous blocks', async () => {
-        const {page, applicantQuestions} = ctx
-        await enableFeatureFlag(page, 'save_on_all_actions')
+      test('can skip optional questions', async () => {
+        const {applicantQuestions} = ctx
         await applicantQuestions.applyProgram(programName)
 
-        // Fill out the first block and click next
-        await applicantQuestions.answerDateQuestion('2021-11-01')
-        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-        await applicantQuestions.clickNext()
+        await test.step('screen 1', async () => {
+          await applicantQuestions.answerDateQuestion('2021-11-01')
+          await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+        })
 
-        // Nothing to fill in since this is the static question block
-        await applicantQuestions.clickNext()
+        await test.step('screen 2', async () => {
+          await applicantQuestions.clickNext()
+          await applicantQuestions.validateQuestionIsOnPage(staticQuestionText)
+        })
 
-        // Fill out address question and click next
-        await applicantQuestions.answerAddressQuestion(
-          '1234 St',
-          'Unit B',
-          'Sim',
-          'WA',
-          '54321',
-        )
-        await applicantQuestions.clickNext()
+        await test.step('screen 3', async () => {
+          await applicantQuestions.clickNext()
+          await applicantQuestions.validateQuestionIsOnPage(addressQuestionText)
+          await applicantQuestions.answerAddressQuestion(
+            '1234 St',
+            'Unit B',
+            'Sim',
+            'WA',
+            '54321',
+          )
+        })
 
-        // Click previous and see previous page with address
-        await applicantQuestions.clickPrevious()
-        await applicantQuestions.clickPreviousWithoutSaving()
-        await applicantQuestions.checkAddressQuestionValue(
-          '1234 St',
-          'Unit B',
-          'Sim',
-          'WA',
-          '54321',
-        )
+        await test.step('screen 4 (optional)', async () => {
+          await applicantQuestions.clickNext()
+          await applicantQuestions.validateQuestionIsOnPage(radioQuestionText)
+          // Don't answer the optional radio question
+        })
 
-        // Click previous and see static question page
-        await applicantQuestions.clickPrevious()
-        await applicantQuestions.seeStaticQuestion('static question text')
+        await test.step('screen 5 (currency optional)', async () => {
+          await applicantQuestions.clickNext()
+          await applicantQuestions.validateQuestionIsOnPage(phoneQuestionText)
+          await applicantQuestions.validateQuestionIsOnPage(
+            currencyQuestionText,
+          )
 
-        // Click previous and see date and name questions
-        await applicantQuestions.clickPrevious()
-        await applicantQuestions.checkDateQuestionValue('2021-11-01')
-        await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
+          await applicantQuestions.answerPhoneQuestion('4256373270')
+          // Don't answer the optional currency question
+        })
 
-        // Assert that we're on the review page.
-        await applicantQuestions.clickPrevious()
-        await applicantQuestions.expectReviewPage()
+        await test.step('can submit application', async () => {
+          await applicantQuestions.clickNext()
+          await applicantQuestions.expectReviewPage()
+          await applicantQuestions.submitFromReviewPage()
+          await applicantQuestions.expectConfirmationPage()
+        })
       })
 
-      test('clicking previous does not save when flag off', async () => {
+      test('answering questions out of order', async () => {
         const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await disableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
-
-        await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerDateQuestion('2021-11-01')
-        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-
-        await applicantQuestions.clickPrevious()
-
-        await applicantQuestions.expectReviewPage()
-        await applicantQuestions.validateNoPreviouslyAnsweredText(
-          dateQuestionText,
-        )
-        await applicantQuestions.validateNoPreviouslyAnsweredText(
-          emailQuestionText,
-        )
-      })
-
-      test('clicking previous with correct form shows previous page and saves answers', async () => {
-        const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
-
-        await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerDateQuestion('2021-11-01')
-        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-
-        await applicantQuestions.clickNext()
-        // Nothing to fill in since this is the static question block
-        await applicantQuestions.clickNext()
-
-        // Fill out address question
-        await applicantQuestions.answerAddressQuestion(
-          '1234 St',
-          'Unit B',
-          'Sim',
-          'WA',
-          '54321',
-        )
-
-        // Click previous then go to the review page and verify the address question
-        // answer was saved
-        await applicantQuestions.clickPrevious()
-
-        await applicantQuestions.clickReview()
-        await applicantQuestions.expectReviewPage()
-        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          addressQuestionText,
-          '1234 St',
-        )
-      })
-
-      test('clicking previous with missing answers shows modal', async () => {
-        const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
-
-        await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerDateQuestion('')
-        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-
-        await applicantQuestions.clickPrevious()
-
-        // The date question is required, so we should see the error modal.
-        await applicantQuestions.expectErrorOnPreviousModal()
-        await validateScreenshot(page, 'error-on-previous-modal')
-      })
-
-      test('error on previous modal > click stay and fix > shows block', async () => {
-        const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
-
-        await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerDateQuestion('')
-        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-
-        await applicantQuestions.clickPrevious()
-        await applicantQuestions.expectErrorOnPreviousModal()
-
-        await applicantQuestions.clickStayAndFixAnswers()
-
-        // Verify the previously filled in answers are present
-        await applicantQuestions.checkDateQuestionValue('')
-        await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
-
-        // Answer the date question correctly and try clicking "Review" again
-        await applicantQuestions.answerDateQuestion('2021-11-01')
-
-        await applicantQuestions.clickPrevious()
-
-        // Verify we're taken to the previous page (which is the review page
-        // since this was the first block) page and the answers were saved
-        await applicantQuestions.expectReviewPage()
-        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          dateQuestionText,
-          '11/01/2021',
-        )
-        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          emailQuestionText,
-          'test1@gmail.com',
-        )
-      })
-
-      test('error on previous modal > click previous without saving > answers not saved', async () => {
-        const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
 
-        await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerDateQuestion('2021-11-01')
-        await applicantQuestions.answerEmailQuestion('')
+        await applicantQuestions.clickApplyProgramButton(programName)
 
-        await applicantQuestions.clickPrevious()
-        await applicantQuestions.expectErrorOnPreviousModal()
+        await test.step('answer screen 4', async () => {
+          await applicantQuestions.answerQuestionFromReviewPage(
+            radioQuestionText,
+          )
+          await applicantQuestions.validateQuestionIsOnPage(radioQuestionText)
+          await applicantQuestions.answerRadioButtonQuestion('one')
+          await applicantQuestions.clickReview()
 
-        // Proceed to the previous page (which will be the review page,
-        // since this is the first block), acknowledging that answers won't be saved
-        await applicantQuestions.clickPreviousWithoutSaving()
+          await validateScreenshot(
+            page,
+            'fourth-question-answered',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
 
-        await applicantQuestions.expectReviewPage()
-        await applicantQuestions.validateNoPreviouslyAnsweredText(
-          dateQuestionText,
-        )
-        await applicantQuestions.validateNoPreviouslyAnsweredText(
-          emailQuestionText,
-        )
-      })
+        await test.step('answer screen 1', async () => {
+          await applicantQuestions.answerQuestionFromReviewPage(
+            dateQuestionText,
+          )
+          await applicantQuestions.answerDateQuestion('2021-11-01')
+          await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+          await applicantQuestions.clickReview()
+        })
 
-      test('error on previous modal > click previous without saving > shows previous block', async () => {
-        const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
+        // Re-answering questions by clicking "Edit" on the review page puts the application
+        // in "review mode", which we'll test in the next step
+        await test.step('re-answer screen 4', async () => {
+          await applicantQuestions.editQuestionFromReviewPage(radioQuestionText)
+          await applicantQuestions.validateQuestionIsOnPage(radioQuestionText)
+          await applicantQuestions.answerRadioButtonQuestion('two')
+        })
 
-        await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerDateQuestion('2021-11-01')
-        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-        await applicantQuestions.clickNext()
-        // Nothing to fill in since this is the static question block
-        await applicantQuestions.clickNext()
+        // In review mode, you're only taken to blocks you haven't yet answered.
+        // Screen 2 is just a static question which applicants don't need to answer,
+        // so the first unanswered screen is screen 3.
+        await test.step('next screen is screen 3', async () => {
+          await applicantQuestions.clickNext()
+          await applicantQuestions.validateQuestionIsOnPage(addressQuestionText)
+          await applicantQuestions.answerAddressQuestion(
+            '1234 St',
+            'Unit B',
+            'Sim',
+            'WA',
+            '54321',
+          )
+        })
 
-        // Don't fill in the address question, and try going to previous block
-        await applicantQuestions.clickPrevious()
-        await applicantQuestions.expectErrorOnPreviousModal()
+        // The next unanswered block after screen 3 is screen 5
+        await test.step('next screen is screen 5', async () => {
+          await applicantQuestions.clickNext()
+          await applicantQuestions.validateQuestionIsOnPage(phoneQuestionText)
+          await applicantQuestions.validateQuestionIsOnPage(
+            currencyQuestionText,
+          )
+          await applicantQuestions.answerPhoneQuestion('4256373270')
+        })
 
-        // Proceed to the previous page and verify the first block answers are present
-        await applicantQuestions.clickPreviousWithoutSaving()
-        // This is the static question block, so continue to the previous block
-        await applicantQuestions.clickPrevious()
+        // All the blocks are answered, so we should now be taken to the review page
+        await test.step('next screen is review page', async () => {
+          await applicantQuestions.clickNext()
+          await applicantQuestions.expectReviewPage()
 
-        await applicantQuestions.checkDateQuestionValue('2021-11-01')
-        await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
-      })
-
-      test.afterAll(async () => {
-        const {page} = ctx
-        await loginAsAdmin(page)
-        await disableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
+          await applicantQuestions.submitFromReviewPage()
+          await applicantQuestions.expectConfirmationPage()
+        })
       })
     })
-
-    // END HERE
 
     test.describe('previous button', () => {
       test('clicking previous on first block goes to summary page', async () => {
@@ -358,7 +385,6 @@ test.describe('Applicant navigation flow', () => {
 
         // Click previous and see previous page with address
         await applicantQuestions.clickPrevious()
-        await applicantQuestions.clickPreviousWithoutSaving()
         await applicantQuestions.checkAddressQuestionValue(
           '1234 St',
           'Unit B',
@@ -746,93 +772,6 @@ test.describe('Applicant navigation flow', () => {
       await validateScreenshot(
         page,
         'program-list-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
-    })
-
-    test('verify program preview page', async () => {
-      const {page, applicantQuestions} = ctx
-      await applicantQuestions.clickApplyProgramButton(programName)
-
-      // Verify we are on program preview page.
-      await applicantQuestions.expectReviewPage()
-      await validateAccessibility(page)
-      await validateScreenshot(
-        page,
-        'program-preview',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
-    })
-
-    test('can answer third question directly', async () => {
-      const {page, applicantQuestions} = ctx
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.answerQuestionFromReviewPage(
-        'address question text',
-      )
-      await waitForPageJsLoad(page)
-      await applicantQuestions.validateQuestionIsOnPage('address question text')
-      // Should focus on the question the applicant clicked on when answering for the first time
-      expect(await page.innerHTML('.cf-address-street-1')).toContain(
-        'autofocus',
-      )
-      await applicantQuestions.answerAddressQuestion(
-        '1234 St',
-        'Unit B',
-        'Sim',
-        'WA',
-        '54321',
-      )
-      await applicantQuestions.clickNext()
-      await applicantQuestions.clickReview()
-      await validateScreenshot(
-        page,
-        'third-question-answered',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
-
-      await page.click(
-        '.cf-applicant-summary-row:has(div:has-text("address question text")) a:has-text("Edit")',
-      )
-      await waitForPageJsLoad(page)
-      await applicantQuestions.validateQuestionIsOnPage('address question text')
-      // Should focus on the question the applicant clicked on when editing previous answer
-      expect(await page.innerHTML('.cf-address-street-1')).toContain(
-        'autofocus',
-      )
-    })
-
-    test('verify program review page', async () => {
-      const {page, applicantQuestions} = ctx
-      await applicantQuestions.applyProgram(programName)
-
-      // Answer all program questions
-      await applicantQuestions.answerDateQuestion('2021-11-01')
-      await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.clickNext()
-      await applicantQuestions.answerAddressQuestion(
-        '1234 St',
-        'Unit B',
-        'Sim',
-        'WA',
-        '54321',
-      )
-      await applicantQuestions.clickNext()
-      await applicantQuestions.answerRadioButtonQuestion('one')
-      await applicantQuestions.clickNext()
-
-      await applicantQuestions.answerPhoneQuestion('4256373270')
-      await applicantQuestions.clickNext()
-      // Verify we are on program review page.
-      await applicantQuestions.expectReviewPage()
-      await validateAccessibility(page)
-      await validateScreenshot(
-        page,
-        'program-review',
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,
       )
