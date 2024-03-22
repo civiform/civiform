@@ -408,7 +408,7 @@ test.describe('Trusted intermediaries', () => {
       firstName: 'first2',
       middleName: 'middle',
       lastName: 'last2',
-      dobDate: '2021-11-07',
+      dobDate: '2021-12-07',
     }
     await tiDashboard.createClient(client2)
     const client3: ClientInformation = {
@@ -419,19 +419,36 @@ test.describe('Trusted intermediaries', () => {
       dobDate: '2021-12-07',
     }
     await tiDashboard.createClient(client3)
+    await expect(
+      page.getByRole('heading', {name: 'Displaying all clients'}),
+    ).toBeVisible()
 
     await tiDashboard.searchByDateOfBirth('07', '12', '2021')
     await waitForPageJsLoad(page)
+    await expect(
+      page.getByRole('heading', {name: 'Displaying 2 clients'}),
+    ).toBeVisible()
+    await tiDashboard.expectDashboardContainClient(client2)
     await tiDashboard.expectDashboardContainClient(client3)
     await tiDashboard.expectDashboardNotContainClient(client1)
-    await tiDashboard.expectDashboardNotContainClient(client2)
 
     // If the day is a single digit, the search still works
     await tiDashboard.searchByDateOfBirth('7', '12', '2021')
     await waitForPageJsLoad(page)
+    await tiDashboard.expectDashboardContainClient(client2)
     await tiDashboard.expectDashboardContainClient(client3)
     await tiDashboard.expectDashboardNotContainClient(client1)
-    await tiDashboard.expectDashboardNotContainClient(client2)
+
+    // We can clear the search and see all clients again
+    await page.getByText('Clear search').click()
+    await page.getByRole('button', {name: 'Search'}).click()
+    await waitForPageJsLoad(page)
+    await expect(
+      page.getByRole('heading', {name: 'Displaying all clients'}),
+    ).toBeVisible()
+    await tiDashboard.expectDashboardContainClient(client1)
+    await tiDashboard.expectDashboardContainClient(client2)
+    await tiDashboard.expectDashboardContainClient(client3)
   })
 
   test('incomplete dob and no name in the client search returns an error', async () => {
@@ -464,6 +481,7 @@ test.describe('Trusted intermediaries', () => {
     tiDashboard.expectRedDateFieldOutline(true, true, false)
     await tiDashboard.expectDashboardNotContainClient(client1)
     await tiDashboard.expectDashboardNotContainClient(client2)
+    await expect(page.getByTestId('displaying-clients')).toBeHidden()
     await validateScreenshot(page, 'incomplete-dob')
   })
 
@@ -493,37 +511,11 @@ test.describe('Trusted intermediaries', () => {
     await tiDashboard.searchByNameAndDateOfBirth('first1', '', '', '2021')
     await waitForPageJsLoad(page)
 
+    await expect(
+      page.getByRole('heading', {name: 'Displaying 1 client'}),
+    ).toBeVisible()
     await tiDashboard.expectDashboardContainClient(client1)
     await tiDashboard.expectDashboardNotContainClient(client2)
-  })
-
-  test('empty search parameters returns all clients', async () => {
-    const {page, tiDashboard} = ctx
-    await loginAsTrustedIntermediary(page)
-
-    await tiDashboard.gotoTIDashboardPage(page)
-    await waitForPageJsLoad(page)
-    const client1: ClientInformation = {
-      emailAddress: 'fake@sample.com',
-      firstName: 'first1',
-      middleName: 'middle',
-      lastName: 'last1',
-      dobDate: '2021-07-10',
-    }
-    await tiDashboard.createClient(client1)
-    const client2: ClientInformation = {
-      emailAddress: 'fake2@sample.com',
-      firstName: 'first2',
-      middleName: 'middle',
-      lastName: 'last2',
-      dobDate: '2021-11-10',
-    }
-    await tiDashboard.createClient(client2)
-
-    await tiDashboard.searchByNameAndDateOfBirth('', '', '', '')
-    await waitForPageJsLoad(page)
-    await tiDashboard.expectDashboardContainClient(client1)
-    await tiDashboard.expectDashboardContainClient(client2)
   })
 
   test('managing trusted intermediary', async () => {
