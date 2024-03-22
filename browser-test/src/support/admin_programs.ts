@@ -646,7 +646,7 @@ export class AdminPrograms {
     questionNames: string[],
     optionalQuestionName: string,
   ) {
-    await this.gotoEditDraftProgramPage(programName)
+    //  await this.gotoEditDraftProgramPage(programName)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
     await this.page.fill('textarea', blockDescription)
