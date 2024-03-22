@@ -87,6 +87,7 @@ public class ProgramBuilder {
             ImmutableList.of(EMPTY_FIRST_BLOCK),
             versionRepository.getDraftVersionOrCreate(),
             ProgramType.DEFAULT,
+            /* eligibilityIsGating= */ true,
             new ProgramAcls());
     program.save();
     ProgramDefinition.Builder builder =
@@ -180,6 +181,7 @@ public class ProgramBuilder {
             ImmutableList.of(EMPTY_FIRST_BLOCK),
             versionRepository.getActiveVersion(),
             programType,
+            /* eligibilityIsGating= */ true,
             new ProgramAcls());
     program.save();
     ProgramDefinition.Builder builder =
@@ -206,6 +208,7 @@ public class ProgramBuilder {
             ImmutableList.of(EMPTY_FIRST_BLOCK),
             obsoleteVersion,
             ProgramType.DEFAULT,
+            /* eligibilityIsGating= */ true,
             new ProgramAcls());
     program.save();
     ProgramDefinition.Builder builder =

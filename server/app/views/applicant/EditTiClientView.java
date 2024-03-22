@@ -9,6 +9,7 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.ti.routes;
 import forms.TiClientInfoForm;
+import j2html.tags.Tag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -61,10 +62,15 @@ public class EditTiClientView extends BaseHtmlView {
       Long applicantIdOfTi,
       Optional<Form<TiClientInfoForm>> tiClientInfoForm) {
     Optional<AccountModel> optionalAccountModel = Optional.empty();
-    String title = "Add new Client";
+    String title = messages.at(MessageKey.TITLE_CREATE_CLIENT.getKeyName());
     String pageHeader = "Add client";
     String pageId = "add-client";
-    String successToast = messages.at(MessageKey.BANNER_NEW_CLIENT_CREATED.getKeyName());
+    Optional<String> optionalSuccessMessage =
+        Optional.ofNullable(messages.at(MessageKey.BANNER_NEW_CLIENT_CREATED.getKeyName()));
+    String successToast =
+        messages.at(
+            MessageKey.CONTENT_CLIENT_CREATED.getKeyName(),
+            personalInfo.getDisplayString(messages));
     if (accountIdToEdit.isPresent()) {
       optionalAccountModel =
           Optional.of(accountRepository.lookupAccount(accountIdToEdit.get()).get());
@@ -72,6 +78,7 @@ public class EditTiClientView extends BaseHtmlView {
       pageHeader = "Edit client";
       pageId = "edit-client";
       successToast = messages.at(MessageKey.BANNER_CLIENT_INFO_UPDATED.getKeyName());
+      optionalSuccessMessage = Optional.empty();
     }
     boolean isSuccessfulSave = tiClientInfoForm.isPresent() && !tiClientInfoForm.get().hasErrors();
     HtmlBundle bundle =
@@ -83,13 +90,22 @@ public class EditTiClientView extends BaseHtmlView {
                 hr(),
                 renderSubHeader(pageHeader).withId(pageId).withClass("my-4"),
                 renderBackLink(),
-                renderSuccessAlert(isSuccessfulSave, successToast),
+                renderSuccessAlert(isSuccessfulSave, successToast, optionalSuccessMessage),
                 requiredFieldsExplanationContent(),
                 renderAddOrEditClientForm(
                     tiGroup, optionalAccountModel, request, tiClientInfoForm, messages))
             .addMainStyles("px-20", "max-w-screen-xl");
 
     return layout.renderWithNav(request, personalInfo, messages, bundle, applicantIdOfTi);
+  }
+
+  private Tag renderSuccessAlert(
+      boolean isSuccessfulSave, String successToast, Optional<String> optionalSuccessMessage) {
+    if (!isSuccessfulSave) {
+      return div();
+    }
+    return ViewUtils.makeAlert(
+        successToast, false, optionalSuccessMessage, BaseStyles.ALERT_SUCCESS, "mb-4", "w-3/5");
   }
 
   private ATag renderBackLink() {
@@ -108,13 +124,6 @@ public class EditTiClientView extends BaseHtmlView {
             .setText("Back to client list")
             .setId("ti-dashboard-link");
     return link.asAnchorText();
-  }
-
-  private DivTag renderSuccessAlert(boolean isSuccessfulSave, String text) {
-    if (!isSuccessfulSave) {
-      return div();
-    }
-    return ViewUtils.makeAlertSlim(text, false, BaseStyles.ALERT_SUCCESS, "mb-4", "w-3/5");
   }
 
   private DivTag renderAddOrEditClientForm(
@@ -185,7 +194,10 @@ public class EditTiClientView extends BaseHtmlView {
                 .setPlaceholderText("(xxx) xxx-xxxx")
                 .setAttribute("inputmode", "tel")
                 .setFieldName("phoneNumber")
-                .setLabelText("Phone number")
+                .setLabelText(
+                    messages.at(MessageKey.PHONE_LABEL_PHONE_NUMBER.getKeyName())
+                        + " "
+                        + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
                 .setValue(setDefaultPhone(optionalApplicantData)),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_PHONE,
@@ -197,7 +209,9 @@ public class EditTiClientView extends BaseHtmlView {
                 .setId("email-input")
                 .setFieldName("emailAddress")
                 .setLabelText(
-                    "Email address " + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
+                    messages.at(MessageKey.EMAIL_LABEL.getKeyName())
+                        + " "
+                        + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
                 .setToolTipIcon(Icons.INFO)
                 .setToolTipText(
                     "Add an email address for your client to receive status updates about their"
@@ -224,7 +238,10 @@ public class EditTiClientView extends BaseHtmlView {
             FieldWithLabel.textArea()
                 .setId("ti-note-input")
                 .setFieldName("tiNote")
-                .setLabelText("Notes")
+                .setLabelText(
+                    messages.at(MessageKey.NOTES_LABEL.getKeyName())
+                        + " "
+                        + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
                 .setValue(setDefaultTiNotes(optionalAccount)),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_TI_NOTES,

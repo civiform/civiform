@@ -16,7 +16,7 @@ import {
   waitForPageJsLoad,
   isLocalDevEnvironment,
 } from '../support'
-import {ProgramVisibility} from '../support/admin_programs'
+import {Eligibility, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Applicant navigation flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
@@ -1407,7 +1407,10 @@ test.describe('Applicant navigation flow', () => {
 
       await loginAsAdmin(page)
       await adminPrograms.createNewVersion(fullProgramName)
-      await adminPrograms.setProgramEligibilityToNongating(fullProgramName)
+      await adminPrograms.setProgramEligibility(
+        fullProgramName,
+        Eligibility.IS_NOT_GATING,
+      )
       await adminPrograms.publishProgram(fullProgramName)
       await logout(page)
 
@@ -1430,7 +1433,10 @@ test.describe('Applicant navigation flow', () => {
 
       await loginAsAdmin(page)
       await adminPrograms.createNewVersion(fullProgramName)
-      await adminPrograms.setProgramEligibilityToNongating(fullProgramName)
+      await adminPrograms.setProgramEligibility(
+        fullProgramName,
+        Eligibility.IS_NOT_GATING,
+      )
       await adminPrograms.publishProgram(fullProgramName)
       await logout(page)
 
@@ -1515,8 +1521,10 @@ test.describe('Applicant navigation flow', () => {
 
         await expect(addressCorrectionInput).toHaveValue('true')
 
-        // Set thing to soft eligibilty
-        await adminPrograms.toggleEligibilityGating()
+        await adminPrograms.setProgramEligibility(
+          programName,
+          Eligibility.IS_NOT_GATING,
+        )
 
         // Add address eligibility predicate
         await adminPrograms.goToEditBlockEligibilityPredicatePage(

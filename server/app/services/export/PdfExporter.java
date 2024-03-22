@@ -295,6 +295,7 @@ public final class PdfExporter {
               "Time of export: "
                   + timeCreated.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a")),
               SMALL_GRAY_FONT));
+      document.add(new Paragraph("Origin of export: " + baseUrl, SMALL_GRAY_FONT));
 
       for (BlockDefinition block : programDefinition.getNonRepeatedBlockDefinitions()) {
         renderProgramBlock(

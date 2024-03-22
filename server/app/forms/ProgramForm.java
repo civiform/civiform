@@ -17,6 +17,7 @@ public final class ProgramForm {
   // Represents whether or not the user has confirmed that they want to change which program is
   // marked as the common intake form.
   private Boolean confirmedChangeCommonIntakeForm;
+  private Boolean eligibilityIsGating;
   private List<Long> tiGroups;
 
   public ProgramForm() {
@@ -29,6 +30,7 @@ public final class ProgramForm {
     displayMode = "";
     isCommonIntakeForm = false;
     confirmedChangeCommonIntakeForm = false;
+    eligibilityIsGating = true;
     tiGroups = new ArrayList<>();
   }
 
@@ -102,6 +104,14 @@ public final class ProgramForm {
 
   public void setConfirmedChangeCommonIntakeForm(Boolean confirmedChangeCommonIntakeForm) {
     this.confirmedChangeCommonIntakeForm = confirmedChangeCommonIntakeForm;
+  }
+
+  public boolean getEligibilityIsGating() {
+    return eligibilityIsGating;
+  }
+
+  public void setEligibilityIsGating(boolean eligibilityIsGating) {
+    this.eligibilityIsGating = eligibilityIsGating;
   }
 
   public void setLocalizedConfirmationMessage(String localizedConfirmationMessage) {

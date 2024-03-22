@@ -77,7 +77,7 @@ public final class ApplicantProgramsController extends CiviFormController {
 
     Optional<ToastMessage> banner = request.flash().get("banner").map(ToastMessage::alert);
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        applicantService.getPersonalInfo(applicantId);
+        applicantService.getPersonalInfo(applicantId, request);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
@@ -136,7 +136,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     }
 
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId);
+        this.applicantService.getPersonalInfo(applicantId, request);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))

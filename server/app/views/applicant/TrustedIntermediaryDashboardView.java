@@ -29,7 +29,6 @@ import com.google.i18n.phonenumbers.Phonenumber;
 import com.google.inject.Inject;
 import controllers.ti.routes;
 import j2html.tags.specialized.ATag;
-import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LiTag;
@@ -101,10 +100,11 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setTitle("CiviForm")
             .addMainContent(
                 renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
-                renderAddNewClientButton(messages, tiGroup.id).withClasses("float-right"),
                 hr().withClasses("mt-6"),
-                renderSubHeader(messages.at(MessageKey.TITLE_ALL_CLIENTS.getKeyName()))
-                    .withClass("my-4"),
+                div(
+                        renderSubHeader(messages.at(MessageKey.TITLE_ALL_CLIENTS.getKeyName())),
+                        renderAddNewClientButton(messages, tiGroup.id))
+                    .withClasses("flex", "justify-between", "my-4"),
                 h4("Search"),
                 renderSearchForm(request, searchParameters, messages),
                 renderTIClientsList(
@@ -121,16 +121,17 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
           .info(request.flash().get("error").get());
       bundle.addToastMessages(
           ToastMessage.errorNonLocalized(flash.get("error").get()).setDuration(-1));
-    } else if (flash.get("success").isPresent()) {
-      bundle.addToastMessages(ToastMessage.success(flash.get("success").get()).setDuration(-1));
     }
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
   }
 
-  private ButtonTag renderAddNewClientButton(Messages messages, Long tiGroupId) {
+  private ATag renderAddNewClientButton(Messages messages, Long tiGroupId) {
     String redirectUrl = routes.TrustedIntermediaryController.showAddClientForm(tiGroupId).url();
-    return BaseHtmlView.redirectButton(
-        "add-new-client", messages.at(MessageKey.BUTTON_ADD_NEW_CLIENT.getKeyName()), redirectUrl);
+    return new ATag()
+        .withText(messages.at(MessageKey.BUTTON_ADD_NEW_CLIENT.getKeyName()))
+        .withId("add-new-client")
+        .withClasses("usa-button")
+        .withHref(redirectUrl);
   }
 
   private FormTag renderSearchForm(

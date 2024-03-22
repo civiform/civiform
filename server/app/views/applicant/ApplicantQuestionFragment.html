@@ -4,6 +4,12 @@
         <th:block th:case="'Checkbox'">
             <div th:replace="~{questiontypes/CheckboxQuestionFragment :: checkbox(${question})}"></div>
         </th:block>
+        <th:block th:case="'Currency'">
+            <div th:replace="~{questiontypes/CurrencyQuestionFragment :: currency(${question})}"></div>
+        </th:block>
+        <th:block th:case="'ID'">
+            <div th:replace="~{questiontypes/IdQuestionFragment :: id(${question})}"></div>
+        </th:block>
         <th:block th:case="'Name'">
             <div th:replace="~{questiontypes/NameQuestionFragment :: name(${question})}"></div>
         </th:block>

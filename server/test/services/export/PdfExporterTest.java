@@ -230,6 +230,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(linesFromPdf.get(2))
         .isEqualTo("Admin description: " + programDef.adminDescription());
     assertThat(linesFromPdf.get(3)).contains("Time of export:");
+    assertThat(linesFromPdf.get(4)).isEqualTo("Origin of export: http://localhost:9000");
   }
 
   @Test

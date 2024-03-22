@@ -45,6 +45,31 @@ test.describe('Trusted intermediaries', () => {
     await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardContainClient(updatedClient)
   })
+  test('verify success toast screenshot on adding new client', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'abc@abc.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2022-07-11',
+    }
+    await page.locator('#add-new-client').click()
+    await waitForPageJsLoad(page)
+
+    await page.fill('#email-input', client.emailAddress)
+    await page.fill('#first-name-input', client.firstName)
+    await page.fill('#middle-name-input', client.middleName)
+    await page.fill('#last-name-input', client.lastName)
+    await page.fill('#date-of-birth-input', client.dobDate)
+
+    await page.getByRole('button', {name: 'Save'}).click()
+    await validateScreenshot(page, 'verify-success-toast-on-new-client')
+  })
 
   test('expect client cannot be added with invalid date of birth', async () => {
     const {page, tiDashboard} = ctx
@@ -59,7 +84,7 @@ test.describe('Trusted intermediaries', () => {
       lastName: 'last',
       dobDate: '1870-07-11',
     }
-    await page.getByRole('button', {name: 'Add new client'}).click()
+    await page.locator('#add-new-client').click()
     await waitForPageJsLoad(page)
 
     await page.fill('#email-input', client.emailAddress)
@@ -300,7 +325,7 @@ test.describe('Trusted intermediaries', () => {
       lastName: 'last',
       dobDate: '2023-07-11',
     }
-    await page.getByRole('button', {name: 'Add new client'}).click()
+    await page.locator('#add-new-client').click()
     await waitForPageJsLoad(page)
 
     await page.fill('#email-input', client.emailAddress)
@@ -338,7 +363,7 @@ test.describe('Trusted intermediaries', () => {
     }
     await tiDashboard.createClient(client1)
 
-    await page.getByRole('button', {name: 'Add new client'}).click()
+    await page.locator('#add-new-client').click()
     await waitForPageJsLoad(page)
 
     await page.fill('#email-input', client2.emailAddress)
@@ -360,9 +385,13 @@ test.describe('Trusted intermediaries', () => {
   test('dashboard contains required indicator note and optional marker', async () => {
     const {page} = ctx
     await loginAsTrustedIntermediary(page)
-    await page.getByRole('button', {name: 'Add new client'}).click()
+    await page.locator('#add-new-client').click()
     await waitForPageJsLoad(page)
-    expect(await page.textContent('html')).toContain('Email address (optional)')
+    const content = await page.textContent('html')
+    expect(content).toContain('Email (optional)')
+    expect(content).toContain('Notes (optional)')
+    expect(content).toContain('Middle name (optional)')
+    expect(content).toContain('Enter phone number (optional)')
     expect(await page.textContent('html')).toContain(
       'Fields marked with a * are required.',
     )

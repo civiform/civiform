@@ -1,56 +1,59 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from './support/civiform_fixtures'
 import {
-  createTestContext,
   loginAsTestUser,
   validateScreenshot,
   validateAccessibility,
+  logout,
 } from './support'
 
-test.describe('Header', () => {
-  const ctx = createTestContext(/* clearDb= */ false)
+test.describe('Header', {tag: ['@uses-fixtures']}, () => {
+  /**
+   * @todo (#4360) add a "Not logged in, guest mode disabled" test once we can get to the programs page without logging in, for an entity without guest mode.
+   */
+  test('Check screenshots and validate accessibility', async ({page}) => {
+    await test.step('Take a screenshot as a guest', async () => {
+      await logout(page)
+      await validateScreenshot(
+        page.getByRole('navigation'),
+        'not-logged-in-guest-mode-enabled',
+      )
+    })
 
-  test('Not logged in, guest mode enabled', async () => {
-    const {page} = ctx
-    await validateScreenshot(
-      page.getByRole('navigation'),
-      'not-logged-in-guest-mode-enabled',
+    await test.step('Take a screenshot as the test user', async () => {
+      await loginAsTestUser(page)
+      await validateScreenshot(page.getByRole('navigation'), 'logged-in')
+    })
+
+    await test.step('Passes accessibility test', async () => {
+      await validateAccessibility(page)
+    })
+  })
+
+  test('Government banner', async ({page}) => {
+    const usaBannerLocator = page.getByRole('banner').locator('.usa-banner')
+    const usaBannerContentLocator = usaBannerLocator.locator(
+      '.usa-banner__content',
     )
-  })
+    const usaBannerButtonLocator = usaBannerLocator.getByRole('button', {
+      name: "Here's how you know",
+    })
 
-  // TODO(#4360): add a "Not logged in, guest mode disabled" test once we
-  // can get to the programs page without logging in, for an entity without
-  // guest mode.
+    await test.step('Page loads with the banner visible and collapsed', async () => {
+      await expect(usaBannerLocator).toContainText(
+        'This is an official government website.',
+      )
+      await expect(usaBannerContentLocator).toBeHidden()
+    })
 
-  test('Logged in', async () => {
-    const {page} = ctx
-    await loginAsTestUser(page)
-    await validateScreenshot(page.getByRole('navigation'), 'logged-in')
-  })
+    await test.step('Clicking the button expands the banner', async () => {
+      await usaBannerButtonLocator.click()
+      await expect(usaBannerContentLocator).toBeVisible()
+      await validateScreenshot(page.getByRole('navigation'), 'banner-expanded')
+    })
 
-  test('Passes accessibility test', async () => {
-    const {page} = ctx
-    await validateAccessibility(page)
-  })
-
-  test('Displays the government banner', async () => {
-    const {page} = ctx
-    expect(await page.textContent('section')).toContain(
-      'This is an official government website.',
-    )
-  })
-
-  test('Government banner expands when clicked and closes when clicked again', async () => {
-    const {page} = ctx
-    // The banner is initially closed
-    await expect(page.locator('.usa-banner__content')).toBeHidden()
-    // Click to expand the banner
-    await page.click('.usa-banner__button')
-
-    await expect(page.locator('.usa-banner__content')).toBeVisible()
-    await validateScreenshot(page.getByRole('navigation'), 'banner-expanded')
-    // Click again to close the banner
-    await page.click('.usa-banner__button')
-
-    await expect(page.locator('.usa-banner__content')).toBeHidden()
+    await test.step('Clicking the button again collapses the banner', async () => {
+      await usaBannerButtonLocator.click()
+      await expect(usaBannerContentLocator).toBeHidden()
+    })
   })
 })

@@ -14,14 +14,12 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.UlTag;
 import java.util.Locale;
-import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.MessageKey;
-import services.applicant.ApplicantPersonalInfo;
-import services.applicant.ApplicantPersonalInfo.Representation;
+import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.ProgramDefinition;
 import views.ApplicationBaseView;
@@ -38,11 +36,14 @@ public final class IneligibleBlockView extends ApplicationBaseView {
 
   private final ApplicantLayout layout;
   private final ApplicantRoutes applicantRoutes;
+  private final ApplicantService applicantService;
 
   @Inject
-  IneligibleBlockView(ApplicantLayout layout, ApplicantRoutes applicantRoutes) {
+  IneligibleBlockView(
+      ApplicantLayout layout, ApplicantRoutes applicantRoutes, ApplicantService applicantService) {
     this.layout = checkNotNull(layout);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.applicantService = checkNotNull(applicantService);
   }
 
   public Content render(
@@ -139,14 +140,9 @@ public final class IneligibleBlockView extends ApplicationBaseView {
             .addMainStyles(ApplicantStyles.MAIN_APPLICANT_INFO)
             .addMainContent(h1(title).withClasses("sr-only"), content);
 
-    Optional<String> applicantName =
-        roApplicantProgramService.getApplicantData().getApplicantName();
     return layout.renderWithNav(
         request,
-        applicantName.isPresent()
-            ? ApplicantPersonalInfo.ofLoggedInUser(
-                Representation.builder().setName(applicantName).build())
-            : ApplicantPersonalInfo.ofGuestUser(),
+        applicantService.getPersonalInfo(applicantId, request).toCompletableFuture().join(),
         messages,
         bundle,
         applicantId);
