@@ -58,7 +58,7 @@ test.describe('Trusted intermediaries', () => {
       lastName: 'last',
       dobDate: '2022-07-11',
     }
-    await page.locator('#add-new-client').click()
+    await page.getByRole('link', {name: 'Add new client'}).click()
     await waitForPageJsLoad(page)
 
     await page.fill('#email-input', client.emailAddress)
@@ -84,7 +84,7 @@ test.describe('Trusted intermediaries', () => {
       lastName: 'last',
       dobDate: '1870-07-11',
     }
-    await page.locator('#add-new-client').click()
+    await page.getByRole('link', {name: 'Add new client'}).click()
     await waitForPageJsLoad(page)
 
     await page.fill('#email-input', client.emailAddress)
@@ -325,7 +325,7 @@ test.describe('Trusted intermediaries', () => {
       lastName: 'last',
       dobDate: '2023-07-11',
     }
-    await page.locator('#add-new-client').click()
+    await page.getByRole('link', {name: 'Add new client'}).click()
     await waitForPageJsLoad(page)
 
     await page.fill('#email-input', client.emailAddress)
@@ -363,7 +363,7 @@ test.describe('Trusted intermediaries', () => {
     }
     await tiDashboard.createClient(client1)
 
-    await page.locator('#add-new-client').click()
+    await page.getByRole('link', {name: 'Add new client'}).click()
     await waitForPageJsLoad(page)
 
     await page.fill('#email-input', client2.emailAddress)
@@ -382,10 +382,10 @@ test.describe('Trusted intermediaries', () => {
     await validateScreenshot(page, 'ti')
   })
 
-  test('dashboard contains required indicator note and optional marker', async () => {
+  test('ti client form contains required indicator note and optional marker', async () => {
     const {page} = ctx
     await loginAsTrustedIntermediary(page)
-    await page.locator('#add-new-client').click()
+    await page.getByRole('link', {name: 'Add new client'}).click()
     await waitForPageJsLoad(page)
     const content = await page.textContent('html')
     expect(content).toContain('Email (optional)')
