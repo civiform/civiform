@@ -23,13 +23,11 @@ GET     /admin/programs/:programId/edit/:editStatus                         cont
 GET     /admin/programs/:programId/preview                      controllers.admin.AdminProgramPreviewController.preview(request: Request, programId: Long)
 GET     /admin/programs/:programId/pdfPreview                   controllers.admin.AdminProgramPreviewController.pdfPreview(request: Request, programId: Long)
 GET     /admin/programs/:programId/back                         controllers.admin.AdminProgramPreviewController.back(request: Request, programId: Long)
-GET     /admin/programs/:programId/settings/edit                controllers.admin.AdminProgramController.editProgramSettings(request: Request, programId: Long)
 POST    /admin/programs/:programId/newVersion                   controllers.admin.AdminProgramController.newVersionFrom(request: Request, programId: Long)
 POST    /admin/programs                                         controllers.admin.AdminProgramController.create(request: Request)
 POST    /admin/programs/publish                                 controllers.admin.AdminProgramController.publish()
 POST    /admin/programs/:programId/publish                      controllers.admin.AdminProgramController.publishProgram(request: Request, programId: Long)
 POST    /admin/programs/:programId/update/:editStatus     controllers.admin.AdminProgramController.update(request: Request, programId: Long, editStatus: String)
-POST    /admin/programs/:programId/setEligibilityIsGating       controllers.admin.AdminProgramController.setEligibilityIsGating(request: Request, programId: Long)
 
 # Routes for a CiviForm admin to manage program admins for a given program.
 GET     /admin/programs/:programId/admins/edit    controllers.admin.ProgramAdminManagementController.edit(request: Request, programId: Long)
@@ -108,9 +106,10 @@ POST    /admin/tiGroups/:id/addTi          controllers.admin.TrustedIntermediary
 POST    /admin/tiGroups/:id/removeTi       controllers.admin.TrustedIntermediaryManagementController.removeIntermediary(id: Long, request: Request)
 
 GET     /admin/tiDash                                         controllers.ti.TrustedIntermediaryController.dashboard(request: Request, nameQuery: java.util.Optional[String], dayQuery: java.util.Optional[String], monthQuery: java.util.Optional[String], yearQuery: java.util.Optional[String],  page: java.util.Optional[Integer])
-POST    /admin/tiGroups/:id/addApplicant                      controllers.ti.TrustedIntermediaryController.addApplicant(id: Long, request: Request)
-GET     /admin/tiGroups/editClient/:accountId                 controllers.ti.TrustedIntermediaryController.editClient(accountId: Long, request: Request)
-POST    /admin/tiGroups/updateClientInfo/:id                  controllers.ti.TrustedIntermediaryController.updateClientInfo(id: Long, request: Request)
+GET     /admin/tiGroups/addClientForm/:id                      controllers.ti.TrustedIntermediaryController.showAddClientForm(id: Long, request: Request)
+POST    /admin/tiGroups/addClient/:id                         controllers.ti.TrustedIntermediaryController.addClient(id: Long, request: Request)
+GET     /admin/tiGroups/editClientForm/:accountId                 controllers.ti.TrustedIntermediaryController.showEditClientForm(accountId: Long, request: Request)
+POST    /admin/tiGroups/editClient/:id                  controllers.ti.TrustedIntermediaryController.editClient(id: Long, request: Request)
 
 # Controller for admins only, related to applications
 GET     /admin/programs/:programId/applications                             controllers.admin.AdminApplicationController.index(request: Request, programId: Long, search: java.util.Optional[String], page: java.util.Optional[Integer], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], applicationStatus: java.util.Optional[String], selectedApplicationUri: java.util.Optional[String])

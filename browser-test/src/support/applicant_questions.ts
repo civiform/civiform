@@ -1,6 +1,6 @@
 import {expect} from '@playwright/test'
 import {Page} from 'playwright'
-import {readFileSync} from 'fs'
+import {readFileSync, writeFileSync, unlinkSync} from 'fs'
 import {waitForAnyModal, waitForPageJsLoad} from './wait'
 import {BASE_URL} from './config'
 
@@ -92,6 +92,14 @@ export class ApplicantQuestions {
       mimeType: 'text/plain',
       buffer: Buffer.from(text),
     })
+  }
+
+  /** Creates a file with the given size in MB and uploads it to the file upload question. */
+  async answerFileUploadQuestionWithMbSize(mbSize: int) {
+    const filePath = 'file-size-' + mbSize + '-mb.txt'
+    writeFileSync(filePath, 'C'.repeat(mbSize * 1024 * 1024))
+    await this.page.setInputFiles('input[type=file]', filePath)
+    unlinkSync(filePath)
   }
 
   async answerIdQuestion(id: string, index = 0) {

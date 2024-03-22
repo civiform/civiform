@@ -1,12 +1,14 @@
 package forms;
 
-/** Form for adding an applicant to a trusted intermediary group. */
-public final class AddApplicantToTrustedIntermediaryGroupForm {
+/** Form for editing TI client information. */
+public final class TiClientInfoForm {
   private String firstName;
   private String middleName;
   private String lastName;
   private String dob;
   private String emailAddress;
+  private String tiNote;
+  private String phoneNumber;
 
   public String getFirstName() {
     return firstName;
@@ -46,5 +48,21 @@ public final class AddApplicantToTrustedIntermediaryGroupForm {
 
   public void setEmailAddress(String emailAddress) {
     this.emailAddress = emailAddress;
+  }
+
+  public String getTiNote() {
+    return tiNote;
+  }
+
+  public void setTiNote(String tiNote) {
+    this.tiNote = tiNote;
+  }
+
+  public String getPhoneNumber() {
+    return phoneNumber;
+  }
+
+  public void setPhoneNumber(String phoneNumber) {
+    this.phoneNumber = phoneNumber;
   }
 }

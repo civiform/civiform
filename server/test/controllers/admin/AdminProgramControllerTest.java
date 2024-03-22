@@ -35,7 +35,6 @@ import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
 import views.admin.programs.ProgramNewOneView;
-import views.admin.programs.ProgramSettingsEditView;
 import views.html.helper.CSRF;
 
 public class AdminProgramControllerTest extends ResetPostgres {
@@ -60,7 +59,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
             instanceOf(ProgramIndexView.class),
             instanceOf(ProgramNewOneView.class),
             instanceOf(ProgramMetaDataEditView.class),
-            instanceOf(ProgramSettingsEditView.class),
             versionRepository,
             instanceOf(ProfileUtils.class),
             instanceOf(FormFactory.class),
@@ -253,6 +251,78 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result redirectResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
     assertThat(contentAsString(redirectResult)).contains("External program name with acls");
     assertThat(contentAsString(redirectResult)).contains("External program description with acls");
+  }
+
+  @Test
+  public void create_eligibilityIsGating_false() {
+    RequestBuilder requestBuilder =
+        addCSRFToken(
+            requestBuilderWithSettings()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "adminName",
+                        "internal-program-name",
+                        "adminDescription",
+                        "Internal program description",
+                        "localizedDisplayName",
+                        "External program name",
+                        "localizedDisplayDescription",
+                        "External program description",
+                        "externalLink",
+                        "https://external.program.link",
+                        "displayMode",
+                        DisplayMode.PUBLIC.getValue(),
+                        "eligibilityIsGating",
+                        "false")));
+
+    controller.create(requestBuilder.build());
+
+    long programId =
+        versionRepository
+            .getDraftVersionOrCreate()
+            .getPrograms()
+            .get(0)
+            .getProgramDefinition()
+            .id();
+    ProgramModel updatedDraft =
+        programRepository.lookupProgram(programId).toCompletableFuture().join().get();
+    assertThat(updatedDraft.getProgramDefinition().eligibilityIsGating()).isFalse();
+  }
+
+  @Test
+  public void create_eligibilityIsGating_true() {
+    RequestBuilder requestBuilder =
+        addCSRFToken(
+            requestBuilderWithSettings()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "adminName",
+                        "internal-program-name",
+                        "adminDescription",
+                        "Internal program description",
+                        "localizedDisplayName",
+                        "External program name",
+                        "localizedDisplayDescription",
+                        "External program description",
+                        "externalLink",
+                        "https://external.program.link",
+                        "displayMode",
+                        DisplayMode.PUBLIC.getValue(),
+                        "eligibilityIsGating",
+                        "true")));
+
+    controller.create(requestBuilder.build());
+
+    long programId =
+        versionRepository
+            .getDraftVersionOrCreate()
+            .getPrograms()
+            .get(0)
+            .getProgramDefinition()
+            .id();
+    ProgramModel updatedDraft =
+        programRepository.lookupProgram(programId).toCompletableFuture().join().get();
+    assertThat(updatedDraft.getProgramDefinition().eligibilityIsGating()).isTrue();
   }
 
   @Test
@@ -539,6 +609,20 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     assertThatThrownBy(
             () -> controller.update(request, /* programId= */ 1L, ProgramEditStatus.EDIT.name()))
+        .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
+  public void update_nonDraftProgram_throwsException() throws Exception {
+    ProgramModel activeProgram =
+        ProgramBuilder.newActiveProgram("fakeName", "active description").build();
+
+    Request request = requestBuilderWithSettings().build();
+
+    assertThatThrownBy(
+            () ->
+                controller.update(
+                    request, /* programId= */ activeProgram.id, ProgramEditStatus.EDIT.name()))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -892,32 +976,36 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void setEligibilityIsGating() throws Exception {
+  public void update_changesEligibilityIsGating() throws Exception {
     ProgramModel program = ProgramBuilder.newDraftProgram("one").build();
     assertThat(program.getProgramDefinition().eligibilityIsGating()).isTrue();
 
     RequestBuilder request =
-        requestBuilderWithSettings().bodyForm(ImmutableMap.of("eligibilityIsGating", "false"));
-    Result result = controller.setEligibilityIsGating(addCSRFToken(request).build(), program.id);
+        requestBuilderWithSettings()
+            .bodyForm(
+                ImmutableMap.of(
+                    "adminDescription",
+                    "adminDescription",
+                    "localizedDisplayName",
+                    "Program",
+                    "localizedDisplayDescription",
+                    "description",
+                    "externalLink",
+                    "https://external.program.link",
+                    "displayMode",
+                    DisplayMode.PUBLIC.getValue(),
+                    "eligibilityIsGating",
+                    "false"));
+    Result result =
+        controller.update(addCSRFToken(request).build(), program.id, ProgramEditStatus.EDIT.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramController.editProgramSettings(program.id).url());
+        .hasValue(routes.AdminProgramBlocksController.index(program.id).url());
 
     ProgramModel updatedDraft =
         programRepository.lookupProgram(program.id).toCompletableFuture().join().get();
     assertThat(updatedDraft.getProgramDefinition().eligibilityIsGating()).isFalse();
-  }
-
-  @Test
-  public void setEligibilityIsGating_nonDraftProgram_throwsException() throws Exception {
-    Request request =
-        requestBuilderWithSettings()
-            .bodyForm(ImmutableMap.of("eligibilityIsGating", "true"))
-            .build();
-
-    assertThatThrownBy(() -> controller.setEligibilityIsGating(request, /* programId= */ 1L))
-        .isInstanceOf(NotChangeableException.class);
   }
 
   @Test

@@ -13,7 +13,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import durablejobs.jobs.FixApplicantDobDataPathJob;
 import durablejobs.jobs.MigratePrimaryApplicantInfoJob;
-import forms.AddApplicantToTrustedIntermediaryGroupForm;
+import forms.TiClientInfoForm;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Query;
@@ -335,7 +335,7 @@ public final class AccountRepository {
    * @throws EmailAddressExistsException if the provided email address already exists.
    */
   public void createNewApplicantForTrustedIntermediaryGroup(
-      AddApplicantToTrustedIntermediaryGroupForm form, TrustedIntermediaryGroupModel tiGroup) {
+      TiClientInfoForm form, TrustedIntermediaryGroupModel tiGroup) {
     AccountModel newAccount = new AccountModel();
     if (!Strings.isNullOrEmpty(form.getEmailAddress())) {
       if (lookupAccountByEmail(form.getEmailAddress()).isPresent()) {
@@ -344,6 +344,7 @@ public final class AccountRepository {
       newAccount.setEmailAddress(form.getEmailAddress());
     }
     newAccount.setManagedByGroup(tiGroup);
+    newAccount.setTiNote(form.getTiNote());
     newAccount.save();
     ApplicantModel applicant = new ApplicantModel();
     applicant.setAccount(newAccount);
@@ -354,6 +355,7 @@ public final class AccountRepository {
         Optional.ofNullable(form.getLastName()));
     applicantData.setDateOfBirth(form.getDob());
     applicant.setEmailAddress(form.getEmailAddress());
+    applicant.setPhoneNumber(form.getPhoneNumber());
     applicant.save();
   }
 
