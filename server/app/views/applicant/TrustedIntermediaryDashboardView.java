@@ -62,7 +62,6 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
 import views.admin.ti.TrustedIntermediaryGroupListView;
-import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.ToastMessage;
@@ -101,13 +100,11 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setTitle("CiviForm")
             .addMainContent(
                 renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
-                hr(),
-                renderSubHeader("Add Client").withId("add-client").withClass("my-4"),
-                requiredFieldsExplanationContent(),
-                renderAddNewForm(tiGroup, request, messages),
                 hr().withClasses("mt-6"),
-                renderSubHeader(messages.at(MessageKey.TITLE_ALL_CLIENTS.getKeyName()))
-                    .withClass("my-4"),
+                div(
+                        renderSubHeader(messages.at(MessageKey.TITLE_ALL_CLIENTS.getKeyName())),
+                        renderAddNewClientButton(messages, tiGroup.id))
+                    .withClasses("flex", "justify-between", "my-4"),
                 h4("Search"),
                 renderSearchForm(request, searchParameters, messages),
                 renderTIClientsList(
@@ -124,10 +121,17 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
           .info(request.flash().get("error").get());
       bundle.addToastMessages(
           ToastMessage.errorNonLocalized(flash.get("error").get()).setDuration(-1));
-    } else if (flash.get("success").isPresent()) {
-      bundle.addToastMessages(ToastMessage.success(flash.get("success").get()).setDuration(-1));
     }
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
+  }
+
+  private ATag renderAddNewClientButton(Messages messages, Long tiGroupId) {
+    String redirectUrl = routes.TrustedIntermediaryController.showAddClientForm(tiGroupId).url();
+    return new ATag()
+        .withText(messages.at(MessageKey.BUTTON_ADD_NEW_CLIENT.getKeyName()))
+        .withId("add-new-client")
+        .withClasses("usa-button")
+        .withHref(redirectUrl);
   }
 
   private FormTag renderSearchForm(
@@ -218,69 +222,6 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                             .sorted(Comparator.comparing(AccountModel::getApplicantName))
                             .collect(Collectors.toList()),
                         this::renderTIRow))));
-  }
-
-  private DivTag renderAddNewForm(
-      TrustedIntermediaryGroupModel tiGroup, Http.Request request, Messages messages) {
-    FormTag formTag =
-        form()
-            .withMethod("POST")
-            .withAction(routes.TrustedIntermediaryController.addApplicant(tiGroup.id).url());
-    FieldWithLabel firstNameField =
-        FieldWithLabel.input()
-            .setId("first-name-input")
-            .setFieldName("firstName")
-            .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
-            .setRequired(true)
-            .setValue(request.flash().get("providedFirstName").orElse(""));
-    FieldWithLabel middleNameField =
-        FieldWithLabel.input()
-            .setId("middle-name-input")
-            .setFieldName("middleName")
-            .setLabelText(
-                messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName())
-                    + " "
-                    + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
-            .setValue(request.flash().get("providedMiddleName").orElse(""));
-    FieldWithLabel lastNameField =
-        FieldWithLabel.input()
-            .setId("last-name-input")
-            .setFieldName("lastName")
-            .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
-            .setRequired(true)
-            .setValue(request.flash().get("providedLastName").orElse(""));
-    // TODO: do something with this field.  currently doesn't do anything. Add a Path
-    // to WellKnownPaths referencing the canonical date of birth question.
-    FieldWithLabel dateOfBirthField =
-        FieldWithLabel.date()
-            .setId("date-of-birth-input")
-            .setFieldName("dob")
-            .setLabelText(messages.at(MessageKey.DOB_LABEL.getKeyName()))
-            .setRequired(true)
-            .setValue(request.flash().get("providedDob").orElse(""));
-    FieldWithLabel emailField =
-        FieldWithLabel.email()
-            .setId("email-input")
-            .setFieldName("emailAddress")
-            .setLabelText("Email address " + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
-            .setToolTipIcon(Icons.INFO)
-            .setToolTipText(
-                "Add an email address for your client to receive status updates about their"
-                    + " application automatically. Without an email, you or your community-based"
-                    + " organization will be responsible for communicating updates to your"
-                    + " client.")
-            .setValue(request.flash().get("providedEmail").orElse(""));
-    return div()
-        .with(
-            formTag.with(
-                emailField.getEmailTag(),
-                firstNameField.getInputTag(),
-                middleNameField.getInputTag(),
-                lastNameField.getInputTag(),
-                dateOfBirthField.getDateTag(),
-                makeCsrfTokenInputTag(request),
-                submitButton("Add").withClasses("ml-2", "mb-6")))
-        .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
   }
 
   private TrTag renderTIRow(AccountModel ti) {
@@ -413,7 +354,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return new LinkElement()
         .setId("edit-client")
         .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
-        .setHref(controllers.ti.routes.TrustedIntermediaryController.editClient(accountId).url())
+        .setHref(
+            controllers.ti.routes.TrustedIntermediaryController.showEditClientForm(accountId).url())
         .asAnchorText();
   }
 
