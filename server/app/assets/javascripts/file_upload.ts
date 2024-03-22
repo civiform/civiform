@@ -1,4 +1,5 @@
 import {addEventListenerToElements, assertNotNull} from './util'
+import {isFileTooLarge} from './file_upload_util'
 
 const UPLOAD_ATTR = 'data-upload-text'
 
@@ -121,29 +122,35 @@ function validateFileUploadQuestion(blockForm: Element): boolean {
   )
   const isFileUploaded = fileInput.value != ''
 
-  const errorDiv = blockForm.querySelector(
-    '.cf-fileupload-error',
+  const fileNotSelectedErrorDiv = document.getElementById(
+    'cf-fileupload-required-error',
   ) as HTMLElement
-  if (!errorDiv) {
-    return isFileUploaded
+  if (!isFileUploaded) {
+    showError(fileNotSelectedErrorDiv, fileInput)
+  } else {
+    hideError(fileNotSelectedErrorDiv, fileInput)
   }
 
-  if (isFileUploaded) {
-    hideFileSelectionError(errorDiv, fileInput)
+  const isFileTooLargeResult = isFileTooLarge(fileInput)
+  const fileTooLargeErrorDiv = document.getElementById(
+    'cf-fileupload-too-large-error',
+  ) as HTMLElement
+  if (isFileTooLargeResult) {
+    showError(fileTooLargeErrorDiv, fileInput)
   } else {
-    showFileSelectionError(errorDiv, fileInput)
+    hideError(fileTooLargeErrorDiv, fileInput)
   }
-  return isFileUploaded
+
+  // A valid file upload question is one that has an uploaded file that isn't too large.
+  return isFileUploaded && !isFileTooLargeResult
 }
 
-/**
- * Shows a "Please select a file" error. Used when no file was uploaded
- * but the user wants to continue to the next page.
- */
-function showFileSelectionError(
-  errorDiv: HTMLElement,
-  fileInput: HTMLInputElement,
-) {
+/** Shows the error in the specified {@code errorDiv}. */
+function showError(errorDiv: HTMLElement | null, fileInput: HTMLInputElement) {
+  if (errorDiv == null) {
+    return
+  }
+
   errorDiv.hidden = false
   fileInput.setAttribute('aria-invalid', 'true')
 
@@ -158,11 +165,12 @@ function showFileSelectionError(
   }
 }
 
-/** Hides the "Please select a file" error. */
-function hideFileSelectionError(
-  errorDiv: HTMLElement,
-  fileInput: HTMLInputElement,
-) {
+/** Hides the error in the specified {@code errorDiv}. */
+function hideError(errorDiv: HTMLElement | null, fileInput: HTMLInputElement) {
+  if (errorDiv == null) {
+    return
+  }
+
   errorDiv.hidden = true
   fileInput.removeAttribute('aria-invalid')
 

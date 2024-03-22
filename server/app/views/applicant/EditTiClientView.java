@@ -238,17 +238,6 @@ public class EditTiClientView extends BaseHtmlView {
     FieldsetTag dateOfBirthField =
         ViewUtils.makeMemorableDate(
             dob, messages.at(MessageKey.DOB_LABEL.getKeyName()), false, errorMessage,"dob");
-    //    FieldWithLabel dateOfBirthField =
-    //        setStateIfPresent(
-    //            FieldWithLabel.date()
-    //                .setId("date-of-birth-input")
-    //                .setFieldName("dob")
-    //                .setLabelText(messages.at(MessageKey.DOB_LABEL.getKeyName()))
-    //                .setRequired(true)
-    //                .setValue(),
-    //            form,
-    //            TrustedIntermediaryService.FORM_FIELD_NAME_DOB,
-    //            messages);
     FieldWithLabel tiNoteField =
         setStateIfPresent(
             FieldWithLabel.textArea()
