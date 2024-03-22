@@ -228,9 +228,11 @@ link.edit=I-edit
 link.selectNewClient=Select a new client
 
 # This is the header above the list of clients and the client search.
-title.allClients=Lahat ng Kliyente
+title.allClients=All clients
 # This is the heading above a new client creation form.
 title.createClient=Gumawa ng bagong kliyente
+# This is the heading above the client editing form.
+title.editClient=Edit client info
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients=Nagpapakita ng {0} (na) kliyente
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
