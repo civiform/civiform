@@ -46,6 +46,11 @@ export enum Eligibility {
   IS_NOT_GATING = "Allow residents to submit applications even if they don't meet eligibility requirements",
 }
 
+export interface QuestionCreator {
+  name: string,
+  isOptional: boolean,
+}
+
 function slugify(value: string): string {
   return value
     .toLowerCase()
@@ -658,30 +663,44 @@ export class AdminPrograms {
     }
   }
 
-  async addProgramBlock(
-    programName: string,
-    blockDescription = 'screen description',
-    questionNames: string[] = [],
-  ) {
-    await this.gotoEditDraftProgramPage(programName)
-
-    await this.page.click('#add-block-button')
-    await waitForPageJsLoad(this.page)
-
-    await clickAndWaitForModal(this.page, 'block-description-modal')
-    await this.page.type('textarea', blockDescription)
-    await this.page.click('#update-block-button:not([disabled])')
-    // Wait for submit and redirect back to this page.
-    await this.page.waitForURL(this.page.url())
-    await waitForPageJsLoad(this.page)
-
-    for (const questionName of questionNames) {
-      await this.addQuestionFromQuestionBank(questionName)
+    /** Creates a new program block with the given questions, all marked as required. */
+    async addProgramBlock(
+      programName: string,
+      blockDescription = 'screen description',
+      questionNames: string[] = [],
+    ) {
+      return await addProgramBlock(programName, blockDescription, questionNames.map((qName) => QuestionCreator(qName, /* is_optional= */ false))
     }
-    return await this.page.$eval(
-      '#block-name-input',
-      (el) => (el as HTMLInputElement).value,
-    )
+
+  /** Creates a new program block with the given questions. */
+  async addProgramBlock(
+      programName: string,
+      blockDescription = 'screen description',
+      questions: QuestionCreator[] = [],
+  ) {
+      await this.gotoEditDraftProgramPage(programName)
+
+      await this.page.click('#add-block-button')
+      await waitForPageJsLoad(this.page)
+
+      await clickAndWaitForModal(this.page, 'block-description-modal')
+      await this.page.type('textarea', blockDescription)
+      await this.page.click('#update-block-button:not([disabled])')
+      // Wait for submit and redirect back to this page.
+      await this.page.waitForURL(this.page.url())
+      await waitForPageJsLoad(this.page)
+
+      for (const question of questions) {
+        await this.addQuestionFromQuestionBank(question.name)
+        if (question.isOptional) {
+          const optionalToggle = this.page.locator(this.questionCardSelectorInProgramView(question.name).getByRole('button',  { name: 'optional' })
+          await optionalToggle.click()
+        }
+      }
+      return await this.page.$eval(
+        '#block-name-input',
+        (el) => (el as HTMLInputElement).value,
+      )
   }
 
   async addProgramRepeatedBlock(
