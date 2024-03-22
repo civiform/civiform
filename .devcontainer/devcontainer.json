@@ -47,7 +47,6 @@
         "dbaeumer.vscode-eslint",
         "github.vscode-pull-request-github",
         "hashicorp.terraform",
-        "knisterpeter.vscode-github",
         "ms-azuretools.vscode-docker",
         "ms-ossdata.vscode-postgresql",
         "ms-playwright.playwright",
@@ -57,7 +56,8 @@
         "scala-lang.scala",
         "scalameta.metals",
         "vscjava.vscode-java-pack",
-        "vscode-icons-team.vscode-icons"
+        "vscode-icons-team.vscode-icons",
+        "Graphite.gti-vscode"
       ]
     },
     "launch": {
