@@ -35,7 +35,8 @@
         "search.exclude": {
           "*/target": true,
           "**/.bloop": true,
-          "**/node_modules": true
+          "**/node_modules": true,
+          "**/__pycache__": true
         },
         "java.configuration.updateBuildConfiguration": "automatic",
         "java.compile.nullAnalysis.mode": "disabled"
