@@ -228,9 +228,11 @@ link.edit=編輯
 link.selectNewClient=Select a new client
 
 # This is the header above the list of clients and the client search.
-title.allClients=所有客戶
+title.allClients=All clients
 # This is the heading above a new client creation form.
 title.createClient=建立新客戶
+# This is the heading above the client editing form.
+title.editClient=Edit client info
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients=目前顯示 {0} 個客戶
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
