@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
+import io.ebean.annotation.Cache;
 import io.ebean.annotation.DbJsonB;
 import io.ebean.annotation.WhenCreated;
 import java.time.Instant;
@@ -17,6 +18,7 @@ import play.data.validation.Constraints;
  * <p>Each time an admin updates the server settings using the admin UI, a SettingsGroup is saved.
  * The latest snapshot is used to provide settings for a given request to the server.
  */
+@Cache
 @Entity
 @Table(name = "civiform_settings")
 public class SettingsGroupModel extends BaseModel {
