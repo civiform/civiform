@@ -1,5 +1,6 @@
 package views;
 
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.p;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -81,7 +82,13 @@ public class ViewUtilsTest {
   public void makeUSWDSModal_doesNotIncludeFooterIfHasFooterIsFalse() {
     DivTag modal =
         ViewUtils.makeUSWDSModal(
-            p("Welcome to the test modal!"), "test-modal", "header", "Button text", false, "", "");
+            p("Welcome to the test modal!"),
+            "test-modal",
+            "header",
+            false,
+            button("Open the test modal"),
+            "",
+            "");
     assertThat(modal.render()).doesNotContain("usa-modal__footer");
   }
 

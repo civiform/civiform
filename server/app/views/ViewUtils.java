@@ -1,7 +1,6 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
@@ -419,10 +418,10 @@ public final class ViewUtils {
    * @param body The HTML element that will be the main content of the modal.
    * @param elementIdPrefix The prefix for the HTML element ids.
    * @param headerText The header text for the modal.
-   * @param linkButtonText The text that will be on the button that opens the modal.
    * @param hasFooter A boolean value that determines whether to include a footer with action
    *     buttons. If the main content has a form, the buttons will already be included with the
    *     form, so no need for the footer.
+   * @param triggeringButton The button that triggers the modal.
    * @param firstButtonText Text for the first footer button.
    * @param secondButtonText Text for the second footer button.
    * @return DivTag containing the button that opens the modal and the modal itself.
@@ -431,8 +430,8 @@ public final class ViewUtils {
       ContainerTag body,
       String elementIdPrefix,
       String headerText,
-      String linkButtonText,
       boolean hasFooter,
+      ButtonTag triggeringButton,
       String firstButtonText,
       String secondButtonText) {
     // These are the html element ids
@@ -442,16 +441,16 @@ public final class ViewUtils {
 
     DivTag modalContent =
         div()
-            .withClass("usa-modal")
+            .withClasses("usa-modal", "usa-modal--lg")
             .withId(modalId)
             .attr("aria-labelledby", headingId)
             .attr("aria-describedby", descriptionId)
             .with(
                 div()
-                    .withClass("usa-modal__content")
+                    .withClasses("usa-modal__content")
                     .with(
                         div()
-                            .withClasses("mx-4", "usa-modal__main")
+                            .withClasses("m-6", "usa-modal-lg__main")
                             .with(h2(headerText).withClass("usa-modal__heading").withId(headingId))
                             .with(
                                 div()
@@ -497,11 +496,12 @@ public final class ViewUtils {
         div()
             .withClass("margin-y-3")
             .with(
-                a(linkButtonText)
-                    .withHref("#" + modalId)
-                    .withClasses("usa-button", "bg-blue-600")
+                triggeringButton
+                    // .withHref("#" + modalId)
+                    .withClasses("usa-button", "bg-blue-600", "triggering")
                     .attr("aria-controls", modalId)
-                    .attr("data-open-modal"))
+                    .attr("data-open-modal")
+                    .attr("triggering"))
             .with(modalContent);
 
     return linkDiv;
