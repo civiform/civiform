@@ -227,7 +227,7 @@ class PreviewController {
         PreviewController.QUESTION_TEXT_SELECTOR,
       )
       if (contentParent) {
-        contentParent.innerHTML = ''
+        contentParent.innerText = ''
         contentParent.appendChild(contentElement)
       }
     } else {
