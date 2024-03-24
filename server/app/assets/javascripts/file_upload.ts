@@ -46,7 +46,7 @@ export function init() {
     blockForm.addEventListener('change', (event) => {
       const files = (event.target! as HTMLInputElement).files
       const file = assertNotNull(files)[0]
-      uploadedDiv.innerHTML = uploadText.replace('{0}', file.name)
+      uploadedDiv.innerText = uploadText.replace('{0}', file.name)
       validateFileUploadQuestion(blockForm)
     })
   }
