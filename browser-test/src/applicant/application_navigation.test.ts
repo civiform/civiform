@@ -119,6 +119,30 @@ test.describe('Applicant navigation flow', () => {
           /* mobileScreenshot= */ true,
         )
 
+        await test.step('empty screen 1', async () => {
+            await applicantQuestions.clickContinue()
+            await applicantQuestions.validateQuestionIsOnPage(dateQuestionText)
+            await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
+
+        // Note: This test is related to issue #6987. If the user opens a block and doesn't answer any questions
+        // and clicks "Review" or "Previous", we should let them go to the review page or previous page and not
+        // show errors. But if they click "Save & next", we *should* show the errors because future blocks may have
+        // eligibility or visibility conditions that depend on the answers to this block.
+            await applicantQuestions.answerDateQuestion('')
+            await applicantQuestions.answerEmailQuestion('')
+            await applicantQuestions.clickNext()
+
+              // Expect we're still on the same page and see errors since the questions weren't answered
+                      await applicantQuestions.validateQuestionIsOnPage(dateQuestionText)
+                      await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
+                         expect(await page.innerText('.cf-question-date')).toContain(
+                                                              'This question is required',
+                                                            )
+                      expect(await page.innerText('.cf-question-email')).toContain(
+                        'This question is required',
+                      )
+        })
+
         await test.step('incomplete screen 1', async () => {
           await applicantQuestions.clickContinue()
           await applicantQuestions.validateQuestionIsOnPage(dateQuestionText)
@@ -338,7 +362,40 @@ test.describe('Applicant navigation flow', () => {
         await test.step('next screen is review page', async () => {
           await applicantQuestions.clickNext()
           await applicantQuestions.expectReviewPage()
+        })
 
+        await test.step('cannot delete answers', async () => {
+          // Try deleting answers to required questions
+          await applicantQuestions.editQuestionFromReviewPage(addressQuestionText)
+          await applicantQuestions.validateQuestionIsOnPage(addressQuestionText)
+          await applicantQuestions.answerAddressQuestion(
+            '',
+            '',
+            '',
+            '',
+            '',
+          )
+          await applicantQuestions.clickNext()
+
+          // Verify we stay on the same page and the error is shown
+           await applicantQuestions.validateQuestionIsOnPage(addressQuestionText)
+            expect(await page.innerText('.cf-question-address')).toContain('This question is required',)
+
+
+                 // Correctly answer the question
+                    await applicantQuestions.answerAddressQuestion(
+                      '5678 St',
+                      'Unit B',
+                      'Sim',
+                      'WA',
+                      '54321',
+                    )
+                  })
+                  await applicantQuestions.clickNext()
+        })
+
+        await test.step('can submit application', async () => {
+          await applicantQuestions.expectReviewPage()
           await applicantQuestions.submitFromReviewPage()
           await applicantQuestions.expectConfirmationPage()
         })
