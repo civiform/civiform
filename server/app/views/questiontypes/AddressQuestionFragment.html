@@ -99,14 +99,12 @@
           th:selected="${addressQuestion.getStateValue().isEmpty()}"
           th:label="#{label.selectState}"
         ></option>
-        <optgroup>
-          <option
-            th:each="option: ${stateAbbreviations}"
-            th:value="${option}"
-            th:text="${option}"
-            th:selected="${addressQuestion.getStateValue().orElse('').equals(option)}"
-          ></option>
-        </optgroup>
+        <option
+          th:each="option: ${stateAbbreviations}"
+          th:value="${option}"
+          th:text="${option}"
+          th:selected="${addressQuestion.getStateValue().orElse('').equals(option)}"
+        ></option>
       </select>
       <div
         th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(addressQuestion.getStatePath())})}"
