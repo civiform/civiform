@@ -1028,7 +1028,7 @@ test.describe('create and edit predicates', () => {
         /* action= */ null,
         'date',
         'age is younger than',
-        '50',
+        '50.5',
       )
 
       // ensure the edit page renders without errors
