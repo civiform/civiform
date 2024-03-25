@@ -150,7 +150,7 @@ test.describe('Email question for applicant flow', () => {
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerEmailQuestion('my_email@civiform.gov')
         await applicantQuestions.clickContinue()
-  
+
         await applicantQuestions.submitFromReviewPage()
       })
     },
