@@ -40,13 +40,13 @@ export function init() {
 
   const uploadedDivs = blockForm.querySelectorAll(`[${UPLOAD_ATTR}]`)
   if (uploadedDivs.length) {
-    const uploadedDiv = uploadedDivs[0]
+    const uploadedDiv: HTMLDivElement = uploadedDivs[0] as HTMLDivElement
     const uploadText = assertNotNull(uploadedDiv.getAttribute(UPLOAD_ATTR))
 
     blockForm.addEventListener('change', (event) => {
       const files = (event.target! as HTMLInputElement).files
       const file = assertNotNull(files)[0]
-      uploadedDiv.innerHTML = uploadText.replace('{0}', file.name)
+      uploadedDiv.innerText = uploadText.replace('{0}', file.name)
       validateFileUploadQuestion(blockForm)
     })
   }
