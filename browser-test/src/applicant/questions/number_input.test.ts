@@ -164,42 +164,46 @@ test.describe('Number question for applicant flow', () => {
     })
   })
 
-  test.describe('single number question with North Star flag enabled', () => {
-    const programName = 'Test program for single number'
+  test.describe(
+    'single number question with North Star flag enabled',
+    {tag: ['@northstar']},
+    () => {
+      const programName = 'Test program for single number'
 
-    test.beforeAll(async () => {
-      await setUpForSingleQuestion(programName)
-    })
-
-    test.beforeEach(async () => {
-      const {page} = ctx
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-    })
-
-    test('validate screenshot', async () => {
-      const {page, applicantQuestions} = ctx
-      await applicantQuestions.applyProgram(programName)
-
-      await test.step('Screenshot without errors', async () => {
-        await validateScreenshot(
-          page,
-          'number-north-star',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
+      test.beforeAll(async () => {
+        await setUpForSingleQuestion(programName)
       })
 
-      await test.step('Screenshot with errors', async () => {
-        await applicantQuestions.clickContinue()
-        await validateScreenshot(
-          page,
-          'number-errors-north-star',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
+      test.beforeEach(async () => {
+        const {page} = ctx
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
       })
-    })
-  })
+
+      test('validate screenshot', async () => {
+        const {page, applicantQuestions} = ctx
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('Screenshot without errors', async () => {
+          await validateScreenshot(
+            page,
+            'number-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+
+        await test.step('Screenshot with errors', async () => {
+          await applicantQuestions.clickContinue()
+          await validateScreenshot(
+            page,
+            'number-errors-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+      })
+    },
+  )
 
   async function setUpForSingleQuestion(programName: string) {
     const {page, adminQuestions, adminPrograms} = ctx
