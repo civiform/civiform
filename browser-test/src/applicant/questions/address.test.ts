@@ -1,6 +1,7 @@
 import {test, expect} from '@playwright/test'
 import {
   createTestContext,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -14,18 +15,7 @@ test.describe('address applicant flow', () => {
     const programName = 'Test program for single address'
 
     test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
-      await loginAsAdmin(page)
-
-      await adminQuestions.addAddressQuestion({
-        questionName: 'address-test-q',
-      })
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['address-test-q'],
-        programName,
-      )
-
-      await logout(page)
+      await setUpProgramWithSingleAddressQuestion(programName)
     })
 
     test('validate screenshot', async () => {
@@ -341,4 +331,60 @@ test.describe('address applicant flow', () => {
       })
     })
   })
+
+  test.describe(
+    'single required address question with north star flag enabled',
+    {tag: ['@northstar']},
+    () => {
+      const programName = 'Test program for single address'
+
+      test.beforeAll(async () => {
+        await setUpProgramWithSingleAddressQuestion(programName)
+      })
+
+      test.beforeEach(async () => {
+        const {page} = ctx
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+      })
+
+      test('validate screenshot', async () => {
+        const {page, applicantQuestions} = ctx
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('Screenshot without errors', async () => {
+          await validateScreenshot(
+            page,
+            'address-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+
+        await test.step('Screenshot with errors', async () => {
+          await applicantQuestions.clickContinue()
+          await validateScreenshot(
+            page,
+            'address-errors-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+      })
+    },
+  )
+
+  async function setUpProgramWithSingleAddressQuestion(programName: string) {
+    const {page, adminQuestions, adminPrograms} = ctx
+    await loginAsAdmin(page)
+
+    await adminQuestions.addAddressQuestion({
+      questionName: 'address-test-q',
+    })
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['address-test-q'],
+      programName,
+    )
+
+    await logout(page)
+  }
 })
