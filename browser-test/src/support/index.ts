@@ -308,27 +308,35 @@ export const logout = async (page: Page, closeToast = true) => {
 }
 
 export const loginAsAdmin = async (page: Page) => {
-  await page.click('#debug-content-modal-button')
-  await page.click('#admin')
-  await waitForPageJsLoad(page)
+  await test.step('Login as Civiform Admin', async () => {
+    await page.click('#debug-content-modal-button')
+    await page.click('#admin')
+    await waitForPageJsLoad(page)
+  })
 }
 
 export const loginAsProgramAdmin = async (page: Page) => {
-  await page.click('#debug-content-modal-button')
-  await page.click('#program-admin')
-  await waitForPageJsLoad(page)
+  await test.step('Login as Program Admin', async () => {
+    await page.click('#debug-content-modal-button')
+    await page.click('#program-admin')
+    await waitForPageJsLoad(page)
+  })
 }
 
 export const loginAsCiviformAndProgramAdmin = async (page: Page) => {
-  await page.click('#debug-content-modal-button')
-  await page.click('#dual-admin')
-  await waitForPageJsLoad(page)
+  await test.step('Login as Civiform and Program Admin', async () => {
+    await page.click('#debug-content-modal-button')
+    await page.click('#dual-admin')
+    await waitForPageJsLoad(page)
+  })
 }
 
 export const loginAsTrustedIntermediary = async (page: Page) => {
-  await page.click('#debug-content-modal-button')
-  await page.click('#trusted-intermediary')
-  await waitForPageJsLoad(page)
+  await test.step('Login as Trusted Intermediary', async () => {
+    await page.click('#debug-content-modal-button')
+    await page.click('#trusted-intermediary')
+    await waitForPageJsLoad(page)
+  })
 }
 
 /**
@@ -344,26 +352,28 @@ export const loginAsTestUser = async (
   isTi = false,
   displayName: string = '',
 ) => {
-  switch (TEST_USER_AUTH_STRATEGY) {
-    case AuthStrategy.FAKE_OIDC:
-      await loginAsTestUserFakeOidc(page, loginButton, isTi)
-      break
-    case AuthStrategy.AWS_STAGING:
-      await loginAsTestUserAwsStaging(page, loginButton, isTi)
-      break
-    case AuthStrategy.SEATTLE_STAGING:
-      await loginAsTestUserSeattleStaging(page, loginButton)
-      break
-    default:
-      throw new Error(
-        `Unrecognized or unset TEST_USER_AUTH_STRATEGY environment variable of '${TEST_USER_AUTH_STRATEGY}'`,
-      )
-  }
-  await waitForPageJsLoad(page)
-  if (displayName === '') {
-    displayName = testUserDisplayName()
-  }
-  await page.waitForSelector(`:has-text("Logged in as ${displayName}")`)
+  await test.step('Login as Test User', async () => {
+    switch (TEST_USER_AUTH_STRATEGY) {
+      case AuthStrategy.FAKE_OIDC:
+        await loginAsTestUserFakeOidc(page, loginButton, isTi)
+        break
+      case AuthStrategy.AWS_STAGING:
+        await loginAsTestUserAwsStaging(page, loginButton, isTi)
+        break
+      case AuthStrategy.SEATTLE_STAGING:
+        await loginAsTestUserSeattleStaging(page, loginButton)
+        break
+      default:
+        throw new Error(
+          `Unrecognized or unset TEST_USER_AUTH_STRATEGY environment variable of '${TEST_USER_AUTH_STRATEGY}'`,
+        )
+    }
+    await waitForPageJsLoad(page)
+    if (displayName === '') {
+      displayName = testUserDisplayName()
+    }
+    await page.waitForSelector(`:has-text("Logged in as ${displayName}")`)
+  })
 }
 
 async function loginAsTestUserSeattleStaging(page: Page, loginButton: string) {
@@ -481,11 +491,15 @@ export const seedPrograms = async (page: Page) => {
 }
 
 export const disableFeatureFlag = async (page: Page, flag: string) => {
-  await page.goto(BASE_URL + `/dev/feature/${flag}/disable`)
+  await test.step(`Disable feature flag: ${flag}`, async () => {
+    await page.goto(`/dev/feature/${flag}/disable`)
+  })
 }
 
 export const enableFeatureFlag = async (page: Page, flag: string) => {
-  await page.goto(BASE_URL + `/dev/feature/${flag}/enable`)
+  await test.step(`Enable feature flag: ${flag}`, async () => {
+    await page.goto(`/dev/feature/${flag}/enable`)
+  })
 }
 
 export const closeWarningMessage = async (page: Page) => {
@@ -504,14 +518,16 @@ export const closeWarningMessage = async (page: Page) => {
 }
 
 export const validateAccessibility = async (page: Page) => {
-  const results = await new AxeBuilder({page}).analyze()
-  const errorMessage = `Found ${results.violations.length} axe accessibility violations:\n ${JSON.stringify(
-    results.violations,
-    null,
-    2,
-  )}`
+  await test.step('Validate accessiblity', async () => {
+    const results = await new AxeBuilder({page}).analyze()
+    const errorMessage = `Found ${results.violations.length} axe accessibility violations:\n ${JSON.stringify(
+      results.violations,
+      null,
+      2,
+    )}`
 
-  expect(results.violations, errorMessage).toEqual([])
+    expect(results.violations, errorMessage).toEqual([])
+  })
 }
 
 /**

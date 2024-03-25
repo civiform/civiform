@@ -1,3 +1,4 @@
+import {test} from './civiform_fixtures'
 import {ElementHandle, Frame, Page} from 'playwright'
 
 /**
@@ -10,11 +11,13 @@ export const waitForPageJsLoad = async (page: Page | Frame | null) => {
     throw new Error('waitForPageJsLoad received null!')
   }
 
-  await page.waitForLoadState('load')
+  await test.step(`Wait for page to be fully loaded`, async () => {
+    await page.waitForLoadState('load')
 
-  // Wait for main.ts and modal.ts to signal that they're done initializing
-  await page.waitForSelector('body[data-load-main="true"]')
-  await page.waitForSelector('body[data-load-modal="true"]')
+    // Wait for main.ts and modal.ts to signal that they're done initializing
+    await page.waitForSelector('body[data-load-main="true"]')
+    await page.waitForSelector('body[data-load-modal="true"]')
+  })
 }
 
 /**
