@@ -33,7 +33,7 @@ public class ParameterSerializerTest extends OpenApiSerializationAsserter {
   @Test
   public void canSerializeEmptyObject() throws JsonProcessingException {
     Parameter model = Parameter.builder("name1", In.QUERY, DefinitionType.STRING).build();
-    ;
+
     String expected =
         new YamlFormatter()
             .appendLine("in: query")
