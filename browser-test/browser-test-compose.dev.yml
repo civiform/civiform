@@ -15,11 +15,6 @@ services:
       - 9457:9457
     command: ~runBrowserTestsServer
 
-  db:
-    volumes:
-      - ./browser-test/custom-postgres.conf:/etc/postgresql/postgresql.conf
-    command: -c 'config_file=/etc/postgresql/postgresql.conf'
-
 volumes:
   node_modules-data:
     driver: local
