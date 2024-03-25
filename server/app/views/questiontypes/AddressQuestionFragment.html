@@ -93,6 +93,7 @@
         th:name="${addressQuestion.getStatePath()}"
         th:aria-invalid="${!addressQuestion.getValidationErrors().isEmpty()}"
         th:aria-required="${!question.isOptional()}"
+        autocomplete="address-level1"
       >
         <option
           hidden
