@@ -11,6 +11,11 @@
         th:replace="~{questiontypes/CurrencyQuestionFragment :: currency(${question})}"
       ></div>
     </th:block>
+    <th:block th:case="'Dropdown'">
+      <div
+        th:replace="~{questiontypes/DropdownQuestionFragment :: dropdown(${question})}"
+      ></div>
+    </th:block>
     <th:block th:case="'ID'">
       <div
         th:replace="~{questiontypes/IdQuestionFragment :: id(${question})}"
