@@ -42,18 +42,7 @@ public abstract class OpenApiSerializationAsserter {
 
     /** Just a quick check that the left padding is an even number */
     private Boolean validateLeadSpaces(String message) {
-      int count = 0;
-
-      for (int i = 0; i < message.length(); i++) {
-        char c = message.charAt(i);
-        if (c == ' ') {
-          count++;
-        } else {
-          break;
-        }
-      }
-
-      return count % 2 == 0;
+      return message.chars().takeWhile(Character::isSpaceChar).count() % 2 == 0;
     }
 
     @Override
