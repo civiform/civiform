@@ -15,6 +15,7 @@ docker run \
   -v "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
   -e RECORD_VIDEO="${RECORD_VIDEO}" \
   -e TEST_CIVIC_ENTITY_SHORT_NAME="${TEST_CIVIC_ENTITY_SHORT_NAME:-TestCity}" \
+  -e CI="${CI}" \
   --network "${DOCKER_NETWORK_NAME}" \
   civiform-browser-test:latest \
   /usr/src/civiform-browser-tests/bin/wait_for_server_start_and_run_tests.sh \
