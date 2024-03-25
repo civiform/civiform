@@ -5,10 +5,37 @@ public final class TiClientInfoForm {
   private String firstName;
   private String middleName;
   private String lastName;
-  private String dob;
+
+  private String dayQuery;
+  private String monthQuery;
+  private String yearQuery;
   private String emailAddress;
   private String tiNote;
   private String phoneNumber;
+
+  public String getDayQuery() {
+    return dayQuery;
+  }
+
+  public void setDayQuery(String dayQuery) {
+    this.dayQuery = dayQuery;
+  }
+
+  public String getMonthQuery() {
+    return monthQuery;
+  }
+
+  public void setMonthQuery(String monthQuery) {
+    this.monthQuery = monthQuery;
+  }
+
+  public String getYearQuery() {
+    return yearQuery;
+  }
+
+  public void setYearQuery(String yearQuery) {
+    this.yearQuery = yearQuery;
+  }
 
   public String getFirstName() {
     return firstName;
@@ -32,14 +59,6 @@ public final class TiClientInfoForm {
 
   public void setLastName(String lastName) {
     this.lastName = lastName;
-  }
-
-  public String getDob() {
-    return dob;
-  }
-
-  public void setDob(String dob) {
-    this.dob = dob;
   }
 
   public String getEmailAddress() {

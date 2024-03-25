@@ -12,7 +12,6 @@ import forms.TiClientInfoForm;
 import j2html.tags.Tag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -23,7 +22,6 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.AccountRepository;
-import services.DateConverter;
 import services.MessageKey;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
@@ -34,23 +32,22 @@ import views.ViewUtils;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.components.MemorableDateFieldWithLabel;
 import views.style.BaseStyles;
 
 /** Renders a page for a trusted intermediary to edit a client */
 public class EditTiClientView extends BaseHtmlView {
   private final ApplicantLayout layout;
-  private final DateConverter dateConverter;
+
   private final String baseUrl;
   private AccountRepository accountRepository;
 
   @Inject
   public EditTiClientView(
-      ApplicantLayout layout,
-      DateConverter dateConverter,
-      Config configuration,
-      AccountRepository accountRepository) {
+      ApplicantLayout layout, Config configuration, AccountRepository accountRepository) {
+
     this.layout = checkNotNull(layout);
-    this.dateConverter = checkNotNull(dateConverter);
+
     this.accountRepository = checkNotNull(accountRepository);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
   }
@@ -224,20 +221,16 @@ public class EditTiClientView extends BaseHtmlView {
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_EMAIL_ADDRESS,
             messages);
-    Optional<String> errorMessage = Optional.empty();
-    Optional<LocalDate> dob = getDefaultDob(optionalApplicantData);
-    if (form.isPresent() && form.get().hasErrors()) {
-      TiClientInfoForm tiForm = form.get().value().get();
-      dob = Optional.of(dateConverter.parseIso8601DateToLocalDate(tiForm.getDob()));
-      errorMessage =
-          form.get().error(TrustedIntermediaryService.FORM_FIELD_NAME_DOB).isPresent()
-              ? Optional.ofNullable(
-                  form.get().error(TrustedIntermediaryService.FORM_FIELD_NAME_DOB).get().message())
-              : Optional.empty();
-    }
-    FieldsetTag dateOfBirthField =
-        ViewUtils.makeMemorableDate(
-            dob, messages.at(MessageKey.DOB_LABEL.getKeyName()), false, errorMessage,"dob");
+    MemorableDateFieldWithLabel dateOfBirthField =
+        setStateIfPresent(
+            new MemorableDateFieldWithLabel()
+                .setId("date-of-birth-input")
+                .setLegend(messages.at(MessageKey.DOB_LABEL.getKeyName()))
+                .setRequired(true)
+                .setLocalDateValue(getDefaultDob(optionalApplicantData)),
+            form,
+            TrustedIntermediaryService.FORM_FIELD_NAME_DOB,
+            messages);
     FieldWithLabel tiNoteField =
         setStateIfPresent(
             FieldWithLabel.textArea()
@@ -269,7 +262,7 @@ public class EditTiClientView extends BaseHtmlView {
                     lastNameField.getInputTag(),
                     phoneNumberField.getInputTag(),
                     emailField.getEmailTag(),
-                    dateOfBirthField,
+                    dateOfBirthField.makeMemorableDate(),
                     tiNoteField.getTextareaTag(),
                     makeCsrfTokenInputTag(request),
                     submitButton("Save").withClasses("ml-2", "mb-6"),
@@ -315,6 +308,31 @@ public class EditTiClientView extends BaseHtmlView {
         : Optional.empty();
   }
 
+  private MemorableDateFieldWithLabel setStateIfPresent(
+      MemorableDateFieldWithLabel field,
+      Optional<Form<TiClientInfoForm>> optionalForm,
+      String key,
+      Messages messages) {
+    if (optionalForm.isEmpty()) {
+      return field;
+    }
+
+    TiClientInfoForm form = optionalForm.get().value().get();
+    switch (key) {
+      case TrustedIntermediaryService.FORM_FIELD_NAME_DOB:
+        field.setDayQuery(form.getDayQuery());
+        field.setMonthQuery(form.getMonthQuery());
+        field.setYearQuery(form.getYearQuery());
+        break;
+    }
+
+    if (optionalForm.get().error(key).isPresent()) {
+      field.setFieldErrors(messages, optionalForm.get().errors(key));
+    }
+
+    return field;
+  }
+
   private FieldWithLabel setStateIfPresent(
       FieldWithLabel field,
       Optional<Form<TiClientInfoForm>> optionalForm,
@@ -335,9 +353,9 @@ public class EditTiClientView extends BaseHtmlView {
       case TrustedIntermediaryService.FORM_FIELD_NAME_MIDDLE_NAME:
         field.setValue(form.getMiddleName());
         break;
-      case TrustedIntermediaryService.FORM_FIELD_NAME_DOB:
-        field.setValue(form.getDob());
-        break;
+        //      case TrustedIntermediaryService.FORM_FIELD_NAME_DOB:
+        //        field.setValue(form.getDob());
+        //        break;
       case TrustedIntermediaryService.FORM_FIELD_NAME_PHONE:
         field.setValue(form.getPhoneNumber());
         break;

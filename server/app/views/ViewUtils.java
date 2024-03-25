@@ -36,7 +36,6 @@ import j2html.tags.specialized.PTag;
 import j2html.tags.specialized.ScriptTag;
 import j2html.tags.specialized.SpanTag;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -550,15 +549,6 @@ public final class ViewUtils {
                         getYearFormGroup(yearValue, showError && yearValue.isEmpty())));
 
     return dateFieldset;
-  }
-
-  public static FieldsetTag makeMemorableDate(
-      Optional<LocalDate> date, String legend, boolean showError, Optional<String> errorMessage,String name) {
-    String dayValue = date.isPresent() ? String.valueOf(date.get().getDayOfMonth()) : "";
-    String monthValue = date.isPresent() ? String.valueOf(date.get().getMonthValue()) : "";
-    String yearValue = date.isPresent() ? String.valueOf(date.get().getYear()) : "";
-
-    return makeMemorableDate(dayValue, monthValue, yearValue, legend, showError, errorMessage).withName(name);
   }
 
   /* Helper function for the Memorable Date */

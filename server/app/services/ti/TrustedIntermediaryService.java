@@ -40,7 +40,7 @@ public final class TrustedIntermediaryService {
   public static final String FORM_FIELD_NAME_FIRST_NAME = "firstName";
   public static final String FORM_FIELD_NAME_LAST_NAME = "lastName";
   public static final String FORM_FIELD_NAME_EMAIL_ADDRESS = "emailAddress";
-  public static final String FORM_FIELD_NAME_DOB = "dob";
+  public static final String FORM_FIELD_NAME_DOB = "yearQuery";
   public static final String FORM_FIELD_NAME_PHONE = "phoneNumber";
   public static final String FORM_FIELD_NAME_MIDDLE_NAME = "middleName";
   public static final String FORM_FIELD_NAME_TI_NOTES = "tiNote";
@@ -76,13 +76,16 @@ public final class TrustedIntermediaryService {
   }
 
   private Form<TiClientInfoForm> validateDateOfBirth(Form<TiClientInfoForm> form) {
-    String dob = form.value().get().getDob();
-    if (Strings.isNullOrEmpty(dob)) {
-      return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth required");
+    String day = form.value().get().getDayQuery();
+    String month = form.value().get().getMonthQuery();
+    String year = form.value().get().getYearQuery();
+
+    if (Strings.isNullOrEmpty(day) || Strings.isNullOrEmpty(month) || Strings.isNullOrEmpty(year)) {
+      return form.withError(FORM_FIELD_NAME_DOB, "Full date of birth required");
     }
     final LocalDate currentDob;
     try {
-      currentDob = dateConverter.parseIso8601DateToLocalDate(dob);
+      currentDob = dateConverter.parseDayMonthYearToLocalDate(day, month, year);
     } catch (DateTimeParseException e) {
       return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth must be in MM/dd/yyyy format");
     }
@@ -202,7 +205,11 @@ public final class TrustedIntermediaryService {
         /* phoneNumber= */ currentForm.getPhoneNumber(),
         /* tiNote= */ currentForm.getTiNote(),
         /* email= */ currentForm.getEmailAddress(),
-        /* newDob= */ currentForm.getDob());
+        /* newDob= */ currentForm.getYearQuery()
+            + "-"
+            + currentForm.getMonthQuery()
+            + "-"
+            + currentForm.getDayQuery());
     return form;
   }
 

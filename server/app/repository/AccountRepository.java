@@ -56,6 +56,7 @@ public final class AccountRepository {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
     this.idTokensFactory = checkNotNull(idTokensFactory);
+    ;
   }
 
   public CompletionStage<Set<ApplicantModel>> listApplicants() {
@@ -353,7 +354,9 @@ public final class AccountRepository {
         form.getFirstName(),
         Optional.ofNullable(form.getMiddleName()),
         Optional.ofNullable(form.getLastName()));
-    applicantData.setDateOfBirth(form.getDob());
+    // yyyy-MM-dd format
+    applicantData.setDateOfBirth(
+        form.getYearQuery() + "-" + form.getMonthQuery() + "-" + form.getDayQuery());
     applicant.setEmailAddress(form.getEmailAddress());
     applicant.setPhoneNumber(form.getPhoneNumber());
     applicant.save();
