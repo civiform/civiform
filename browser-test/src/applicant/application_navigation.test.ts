@@ -138,15 +138,15 @@ test.describe('Applicant navigation flow', () => {
         await test.step('complete screen 1', async () => {
           await applicantQuestions.answerDateQuestion('2021-11-01')
           await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+          await applicantQuestions.clickNext()
         })
 
         await test.step('screen 2', async () => {
-          await applicantQuestions.clickNext()
           await applicantQuestions.validateQuestionIsOnPage(staticQuestionText)
+          await applicantQuestions.clickNext()
         })
 
         await test.step('screen 3', async () => {
-          await applicantQuestions.clickNext()
           await applicantQuestions.validateQuestionIsOnPage(addressQuestionText)
           await applicantQuestions.answerAddressQuestion(
             '1234 St',
@@ -155,17 +155,16 @@ test.describe('Applicant navigation flow', () => {
             'WA',
             '54321',
           )
+          await applicantQuestions.clickNext()
         })
 
         await test.step('screen 4', async () => {
-          await applicantQuestions.clickNext()
           await applicantQuestions.validateQuestionIsOnPage(radioQuestionText)
           await applicantQuestions.answerRadioButtonQuestion('two')
+          await applicantQuestions.clickNext()
         })
 
         await test.step('screen 5', async () => {
-          await applicantQuestions.clickNext()
-
           await applicantQuestions.validateQuestionIsOnPage(phoneQuestionText)
           await applicantQuestions.validateQuestionIsOnPage(
             currencyQuestionText,
@@ -226,15 +225,15 @@ test.describe('Applicant navigation flow', () => {
         await test.step('screen 1', async () => {
           await applicantQuestions.answerDateQuestion('2021-11-01')
           await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+          await applicantQuestions.clickNext()
         })
 
         await test.step('screen 2', async () => {
-          await applicantQuestions.clickNext()
           await applicantQuestions.validateQuestionIsOnPage(staticQuestionText)
+          await applicantQuestions.clickNext()
         })
 
         await test.step('screen 3', async () => {
-          await applicantQuestions.clickNext()
           await applicantQuestions.validateQuestionIsOnPage(addressQuestionText)
           await applicantQuestions.answerAddressQuestion(
             '1234 St',
@@ -243,16 +242,16 @@ test.describe('Applicant navigation flow', () => {
             'WA',
             '54321',
           )
+          await applicantQuestions.clickNext()
         })
 
         await test.step('screen 4 (optional)', async () => {
-          await applicantQuestions.clickNext()
           await applicantQuestions.validateQuestionIsOnPage(radioQuestionText)
           // Don't answer the optional radio question
+          await applicantQuestions.clickNext()
         })
 
         await test.step('screen 5 (currency optional)', async () => {
-          await applicantQuestions.clickNext()
           await applicantQuestions.validateQuestionIsOnPage(phoneQuestionText)
           await applicantQuestions.validateQuestionIsOnPage(
             currencyQuestionText,
@@ -260,10 +259,10 @@ test.describe('Applicant navigation flow', () => {
 
           await applicantQuestions.answerPhoneQuestion('4256373270')
           // Don't answer the optional currency question
+          await applicantQuestions.clickNext()
         })
 
         await test.step('can submit application', async () => {
-          await applicantQuestions.clickNext()
           await applicantQuestions.expectReviewPage()
           await applicantQuestions.submitFromReviewPage()
           await applicantQuestions.expectConfirmationPage()

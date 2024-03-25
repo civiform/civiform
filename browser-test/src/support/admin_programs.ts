@@ -666,7 +666,7 @@ export class AdminPrograms {
   /**
    * Creates a new program block with the given questions, all marked as required.
    *
-   * @deprecated prefer using {@link #addProgramBlockWithQuestionSpec} instead.
+   * @deprecated prefer using {@link #addProgramBlockUsingSpec} instead.
    */
   async addProgramBlock(
     programName: string,
@@ -674,8 +674,8 @@ export class AdminPrograms {
     questionNames: string[] = [],
   ) {
     const questionSpecs: QuestionSpec[] = questionNames.map((qName) => {
-      const creator: QuestionSpec = {name: qName, isOptional: false}
-      return creator
+      const questionSpec: QuestionSpec = {name: qName, isOptional: false}
+      return questionSpec
     })
     return await this.addProgramBlockUsingSpec(
       programName,
