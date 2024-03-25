@@ -36,6 +36,11 @@
         th:replace="~{questiontypes/NumberQuestionFragment :: number(${question})}"
       ></div>
     </th:block>
+    <th:block th:case="'Phone Number'">
+      <div
+        th:replace="~{questiontypes/PhoneQuestionFragment :: phone(${question})}"
+      ></div>
+    </th:block>
     <th:block th:case="'Radio Button'">
       <div
         th:replace="~{questiontypes/RadioButtonQuestionFragment :: radio(${question})}"
