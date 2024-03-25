@@ -2,6 +2,8 @@
 version: '3.4'
 
 services:
+  # Load custom postgres config that disables durability for performance
+  # Not for use in a production environment
   db:
     volumes:
       - ./browser-test/custom-postgres.conf:/etc/postgresql/postgresql.conf
