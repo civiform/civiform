@@ -5,10 +5,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+
+import models.ApplicantModel;
+
 import java.util.HashMap;
 import services.MessageKey;
 import services.Path;
+import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.types.QuestionType;
 
 /**
@@ -124,5 +129,12 @@ public abstract class Question {
 
   public ApplicantQuestion getApplicantQuestion() {
     return applicantQuestion;
+  }
+
+  public boolean shouldReturnPrimaryApplicantInfoValue(boolean emptyApplicantDataValue, ApplicantData applicantData, PrimaryApplicantInfoTag questionTag) {
+    ApplicantModel applicant = applicantData.getApplicant();
+    boolean isTaggedQuestion = applicantQuestion.getQuestionDefinition().containsPrimaryApplicantInfoTag(questionTag);
+    boolean haveApplicantObject = !Objects.isNull(applicant) && applicant.getFirstName().isPresent();
+    return isTaggedQuestion && emptyApplicantDataValue && haveApplicantObject;
   }
 }

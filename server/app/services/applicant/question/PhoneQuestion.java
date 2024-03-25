@@ -10,7 +10,9 @@ import java.util.Optional;
 import services.MessageKey;
 import services.Path;
 import services.PhoneValidationUtils;
+import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.types.PhoneQuestionDefinition;
 
 /**
@@ -55,7 +57,14 @@ public final class PhoneQuestion extends Question {
     if (phoneNumberValue != null) {
       return phoneNumberValue;
     }
-    phoneNumberValue = applicantQuestion.getApplicantData().readString(getPhoneNumberPath());
+    
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    Optional<String> phoneNumberValue = applicantData.readString(getPhoneNumberPath());
+
+    if (shouldReturnPrimaryApplicantInfoValue(phoneNumberValue.isEmpty(), applicantData, PrimaryApplicantInfoTag.APPLICANT_PHONE)) {
+      phoneNumberValue = applicantData.getApplicant().getPhoneNumber();
+    }
+
     return phoneNumberValue;
   }
 
@@ -64,7 +73,12 @@ public final class PhoneQuestion extends Question {
       return countryCodeValue;
     }
 
-    countryCodeValue = applicantQuestion.getApplicantData().readString(getCountryCodePath());
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    Optional<String> countryCodeValue = applicantData.readString(getCountryCodePath());
+
+    if (shouldReturnPrimaryApplicantInfoValue(countryCodeValue.isEmpty(), applicantData, PrimaryApplicantInfoTag.APPLICANT_PHONE)) {
+      countryCodeValue = applicantData.getApplicant().getCountryCode();
+    }
 
     return countryCodeValue;
   }
