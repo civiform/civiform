@@ -234,7 +234,7 @@ test.describe('phone question for applicant flow', () => {
   })
 
   test.describe(
-    'single number question with North Star flag enabled',
+    'single phone question with North Star flag enabled',
     {tag: ['@northstar']},
     () => {
       const programName = 'Test program for single phone q'
