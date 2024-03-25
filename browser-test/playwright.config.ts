@@ -14,7 +14,7 @@ export default defineConfig({
   globalTeardown: './src/setup/global-teardown.ts',
   fullyParallel: false,
   workers: 1,
-  retries: 1,
+  retries: 0,
   outputDir: './tmp/test-output',
   expect: {
     toHaveScreenshot: {

@@ -597,6 +597,12 @@ export class ApplicantQuestions {
     expect(await this.page.textContent('html')).toContain(questionText)
   }
 
+  async expectRequiredQuestionError(questionLocator: string) {
+    expect(await this.page.innerText(questionLocator)).toContain(
+      'This question is required',
+    )
+  }
+
   async expectErrorOnReviewModal() {
     const modal = await waitForAnyModal(this.page)
     expect(await modal.innerText()).toContain(
