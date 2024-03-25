@@ -259,7 +259,6 @@ public final class ApplicantService {
    *       <li>`UnsupportedScalarTypeException` - Specified paths point to an unsupported type of
    *           scalar.
    *     </ul>
-   *     TODO: Return an actual type, not a Pair
    */
   public CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
       long applicantId,
@@ -352,10 +351,10 @@ public final class ApplicantService {
             },
             classLoaderExecutionContext.current())
         .thenCompose(
-            (ro) ->
+            (v) ->
                 applicationRepository
                     .createOrUpdateDraft(applicantId, programId)
-                    .thenApplyAsync(appDraft -> ro));
+                    .thenApplyAsync(appDraft -> v));
   }
 
   private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(

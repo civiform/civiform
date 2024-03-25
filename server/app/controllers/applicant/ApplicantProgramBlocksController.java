@@ -1,6 +1,8 @@
 package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static controllers.applicant.ApplicantRequestedAction.PREVIOUS_BLOCK;
+import static controllers.applicant.ApplicantRequestedAction.REVIEW_PAGE;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
@@ -307,7 +309,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     settingsManifest.getEsriAddressServiceAreaValidationEnabled(request)),
             classLoaderExecutionContext.current())
         .thenComposeAsync(
-            ro -> {
+            roApplicantProgramService -> {
               removeAddressJsonFromSession(request);
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
               return renderErrorOrRedirectToRequestedPage(
@@ -319,7 +321,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicantStage.join(),
                   inReview,
                   applicantRequestedAction,
-                  ro);
+                  roApplicantProgramService);
             },
             classLoaderExecutionContext.current())
         .exceptionally(
@@ -579,7 +581,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             },
             classLoaderExecutionContext.current())
         .thenComposeAsync(
-            (ro) -> {
+            (roApplicantProgramService) -> {
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
               return renderErrorOrRedirectToRequestedPage(
                   request,
@@ -590,7 +592,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicantStage.toCompletableFuture().join(),
                   inReview,
                   applicantRequestedActionWrapper.getAction(),
-                  ro);
+                  roApplicantProgramService);
             },
             classLoaderExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
@@ -688,36 +690,46 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ImmutableMap<String, String> formData = formDataStage.join();
               ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
                   readOnlyApplicantProgramServiceCompletionStage.join();
-
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
-
-              // Allow applicants to navigate away from a block that they haven't even started
-              // answering.
               Optional<Block> maybeBlockBeforeUpdate =
                   readOnlyApplicantProgramService.getActiveBlock(blockId);
+              ApplicantRequestedAction applicantRequestedAction =
+                  applicantRequestedActionWrapper.getAction();
 
-              if (applicantRequestedActionWrapper.getAction() != ApplicantRequestedAction.NEXT_BLOCK
-                  && formData.values().stream().allMatch(value -> value.equals(""))
+              // Allow applicants to immediately navigate away from a block if they haven't even
+              // started answering it.
+              // We can immediately navigate away from a block if:
+              if (
+              // There are no answers currently filled out...
+              formData.values().stream().allMatch(value -> value.equals(""))
+                  // ... and the applicant wants to navigate to previous or review...
+                  // [Explanation: we can't let applicants navigate to the next block without
+                  // answers because the next block may have a visibility conditions that
+                   // depends on the answers to this block.]
+                  && (applicantRequestedAction == REVIEW_PAGE
+                      || applicantRequestedAction == PREVIOUS_BLOCK)
                   && maybeBlockBeforeUpdate.isPresent()
+                  // ... and the applicant didn't previously complete this block...
                   && !maybeBlockBeforeUpdate.get().isCompletedInProgramWithoutErrors()
+                  // ...and there's at least one required question, meaning that all blank answers
+                  // is *not* a valid state.
+                  // [Explanation: We don't allow applicants to submit an application until they've
+                  // at least seen all the questions. We mark as question as "seen" by checking
+                      // that the metadata is filled in (see
+                  // {@link ApplicantQuestion#isAnsweredOrSkippedOptionalInProgram}).
+                  // That metadata only gets filled in by {@link #stageAndUpdateIfValid}.
+                  // If a block has all optional questions, having all empty answers is a valid
+                  // response, and we should mark that block as seen. So, we need
+                  // {@link #stageAndUpdateIfValid} to proceed and add metadata to the questions,
+                  // so we can't immediately navigate away.]
                   && !maybeBlockBeforeUpdate.get().isOnlyOptionalQuestions()) {
-                // Note on checking "only optional questions": We don't allow applicants to submit
-                // an application until they've at least seen all the questions.
-                // We mark as question as "seen" by checking that the metadata is filled in (see
-                // {@link ApplicantQuestion#isAnsweredOrSkippedOptionalInProgram}).
-                // That metadata only gets filled in by {@link #stageAndUpdateIfValid}.
-
-                // If a block has all optional questions, having all empty answers is a valid
-                // response, and we should mark that block as seen. So, we need
-                // {@link #stageAndUpdateIfValid} to proceed and add metadata to the questions,
-                // so we can't early-return here.
                 return getRequestedPage(
                     profile,
                     applicantId,
                     programId,
                     blockId,
                     inReview,
-                    applicantRequestedActionWrapper.getAction(),
+                    applicantRequestedAction,
                     readOnlyApplicantProgramService,
                     /* flashingMap= */ ImmutableMap.of());
               }
@@ -738,7 +750,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                               blockId,
                               applicantStage.toCompletableFuture().join(),
                               inReview,
-                              applicantRequestedActionWrapper.getAction(),
+                              applicantRequestedAction,
                               newReadOnlyApplicantProgramService),
                           classLoaderExecutionContext.current())
                   .exceptionally(this::handleUpdateExceptions);
@@ -797,9 +809,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     // Validation errors: re-render this block with errors and previously entered data.
     if (thisBlockUpdated.hasErrors()) {
       ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode;
-      if (applicantRequestedAction == ApplicantRequestedAction.REVIEW_PAGE) {
+      if (applicantRequestedAction == REVIEW_PAGE) {
         errorDisplayMode = DISPLAY_ERRORS_WITH_MODAL_REVIEW;
-      } else if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK) {
+      } else if (applicantRequestedAction == PREVIOUS_BLOCK) {
         errorDisplayMode = DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
       } else {
         errorDisplayMode = DISPLAY_ERRORS;
@@ -902,6 +914,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         flashingMap);
   }
 
+  /** Returns the correct page based on the given {@code applicantRequestedAction}. */
   private CompletionStage<Result> getRequestedPage(
       CiviFormProfile profile,
       long applicantId,
@@ -911,10 +924,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ApplicantRequestedAction applicantRequestedAction,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Map<String, String> flashingMap) {
-    if (applicantRequestedAction == ApplicantRequestedAction.REVIEW_PAGE) {
+    if (applicantRequestedAction == REVIEW_PAGE) {
       return supplyAsync(() -> redirect(applicantRoutes.review(profile, applicantId, programId)));
     }
-    if (applicantRequestedAction == ApplicantRequestedAction.PREVIOUS_BLOCK) {
+    if (applicantRequestedAction == PREVIOUS_BLOCK) {
       int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
       return supplyAsync(
           () ->
