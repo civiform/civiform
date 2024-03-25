@@ -15,7 +15,7 @@ test.describe('phone question for applicant flow', () => {
     const programName = 'Test program for single phone q'
 
     test.beforeAll(async () => {
-      setUpForSingleQuestion(programName)
+      await setUpForSingleQuestion(programName)
     })
 
     test('validate screenshot', async () => {
