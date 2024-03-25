@@ -1,0 +1,33 @@
+<div
+  th:fragment="email(question)"
+  th:with="emailQuestion=${question.createEmailQuestion()},
+              questionId=${#strings.randomAlphanumeric(8)},
+              inputId=${#strings.randomAlphanumeric(8)}"
+  th:id="${questionId}"
+>
+  <!-- Title and Help Text -->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
+  ></div>
+
+  <!-- Display errors -->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${emailQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+  ></div>
+
+  <input
+    class="usa-input"
+    maxlength="10000"
+    autocomplete="email"
+    inputmode="email"
+    th:id="${inputId}"
+    th:name="${emailQuestion.getEmailPath()}"
+    th:value="${emailQuestion.getEmailValue().orElse('')}"
+    th:aria-describedby="${questionId} + '-description'"
+    th:aria-required="${!question.isOptional()}"
+    th:aria-invalid="${!emailQuestion.getValidationErrors().isEmpty()}"
+  />
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${emailQuestion.getValidationErrors().get(emailQuestion.getEmailPath())})}"
+  ></div>
+</div>

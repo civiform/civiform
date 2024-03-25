@@ -21,6 +21,11 @@
         th:replace="~{questiontypes/DropdownQuestionFragment :: dropdown(${question})}"
       ></div>
     </th:block>
+    <th:block th:case="'Email'">
+      <div
+        th:replace="~{questiontypes/EmailQuestionFragment :: email(${question})}"
+      ></div>
+    </th:block>
     <th:block th:case="'ID'">
       <div
         th:replace="~{questiontypes/IdQuestionFragment :: id(${question})}"
