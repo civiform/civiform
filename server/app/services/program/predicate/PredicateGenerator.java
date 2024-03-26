@@ -300,7 +300,7 @@ public final class PredicateGenerator {
         // Age values are inputted as numbers.
         if (operator.equals(Operator.AGE_OLDER_THAN)
             || operator.equals(Operator.AGE_YOUNGER_THAN)) {
-          return PredicateValue.of(Long.parseLong(value));
+          return PredicateValue.of(Float.parseFloat(value));
           // Take the string input with the comma separating the two age values and make a list of
           // longs.
         } else if (operator.equals(Operator.AGE_BETWEEN)) {
