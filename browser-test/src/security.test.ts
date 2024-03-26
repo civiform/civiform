@@ -1,34 +1,38 @@
-import {test, expect} from '@playwright/test'
-import {createTestContext, gotoEndpoint, loginAsAdmin} from './support'
-import {BASE_URL} from './support/config'
+import {test, expect} from './support/civiform_fixtures'
+import {loginAsAdmin} from './support'
 
-test.describe('applicant security', () => {
-  const ctx = createTestContext()
+test.describe(
+  'applicant security',
+  {tag: ['@uses-fixtures', '@parallel-candidate']},
+  () => {
+    test('applicant cannot access admin pages', async ({page}) => {
+      const response = await page.goto('/admin/programs')
+      expect(response!.status()).toBe(403)
+    })
 
-  test('applicant cannot access admin pages', async () => {
-    const {page} = ctx
-    // this test visits page that returns 401 which triggers BrowserErrorWatcher.
-    // Silencing error on that page.
-    ctx.browserErrorWatcher.ignoreErrorsFromUrl(/\/admin\/programs/)
-    const response = await gotoEndpoint(page, '/admin/programs')
-    expect(response!.status()).toBe(403)
-  })
+    test('redirects to program index page when not logged in (guest)', async ({
+      page,
+    }) => {
+      await page.goto('/')
+      await expect(
+        page.getByRole('heading', {
+          name: 'Save time applying for programs and services',
+        }),
+      ).toBeAttached()
+    })
 
-  test('redirects to program index page when not logged in (guest)', async () => {
-    const {page} = ctx
-    await page.goto(BASE_URL)
-    expect(await page.innerHTML('body')).toMatch(
-      /Save time applying for programs and services/,
-    )
-  })
+    test('redirects to program dashboard when logged in as admin', async ({
+      page,
+    }) => {
+      await loginAsAdmin(page)
+      await page.goto('/')
 
-  test('redirects to program dashboard when logged in as admin', async () => {
-    const {page} = ctx
-    await loginAsAdmin(page)
-    await page.goto(BASE_URL)
-    expect(await page.innerHTML('body')).toMatch(/Program dashboard/)
-    expect(await page.innerHTML('body')).toMatch(
-      /Create, edit and publish programs/,
-    )
-  })
-})
+      await expect(
+        page.getByRole('heading', {name: 'Program dashboard'}),
+      ).toBeAttached()
+      await expect(
+        page.getByRole('heading', {name: 'Create, edit and publish programs'}),
+      ).toBeAttached()
+    })
+  },
+)
