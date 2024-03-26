@@ -165,7 +165,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
                 "DATE",
                 String.format("question-%d-operator", testQuestionBank.applicantDate().id),
-                "AGE_LESS_THAN",
+                "AGE_YOUNGER_THAN",
                 String.format(
                     "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
                 "10.5"));
