@@ -79,6 +79,17 @@ public final class AdminQuestionController extends CiviFormController {
             classLoaderExecutionContext.current());
   }
 
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result hxQuestionList(Request request) {
+    return ok(
+        listView
+            .renderQuestionListPartial(
+                service.getReadOnlyQuestionServiceSync().getActiveAndDraftQuestions(),
+                request,
+                request.queryString("questionFilter"))
+            .render());
+  }
+
   /**
    * Return a HTML page displaying all configurations of a question without the ability to update
    * it.
