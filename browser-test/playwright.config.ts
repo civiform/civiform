@@ -31,8 +31,16 @@ export default defineConfig({
     // Fall back support config file until it is removed
     baseURL: process.env.BASE_URL || BASE_URL, // 'http://civiform:9000'
   },
-  reporter: [
-    ['list', {printSteps: true}],
-    ['html', {open: 'never', outputFolder: 'tmp/html-output'}],
-  ],
+  reporter: process.env.CI
+    ? // CI
+      [
+        // Blob output used to stictch sharded tests into a single trace
+        ['blob'],
+        ['list', {printSteps: true}],
+      ]
+    : // Not CI
+      [
+        ['list', {printSteps: true}],
+        ['html', {open: 'never', outputFolder: 'tmp/html-output'}],
+      ],
 })
