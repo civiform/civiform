@@ -18,6 +18,7 @@
     "playwright/no-conditional-expect": "off",
     "playwright/no-wait-for-timeout": "off",
     "playwright/no-networkidle": "off",
+    "playwright/no-skipped-test": "off",
     "playwright/prefer-web-first-assertions": "off",
     "playwright/no-eval": "off",
     "playwright/valid-expect": "off"
