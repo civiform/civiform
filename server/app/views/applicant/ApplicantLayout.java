@@ -550,8 +550,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   /**
-   * Returns true if the request object points to a URI that is the Trusted Intermediary Dashboard.
-   * When a TI is impersonating an applicant to apply for them, this method will return false.
+   * Returns true if the request object points to a URI that is the Trusted Intermediary Dashboard
+   * or any of its related pages. When a TI is impersonating an applicant to apply for them, this
+   * method will return false.
    */
   private static boolean onTiDashboardPage(Http.Request request) {
     String currentPath = null;
@@ -573,7 +574,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
     } catch (URISyntaxException e) {
       logger.error("Could not get the path for uri {}", request.uri());
     }
+    if (currentPath == null) {
+      return false;
+    }
 
-    return currentPath != null && currentPath.equals(tiDashboardPath);
+    return currentPath.contains(tiDashboardPath) || currentPath.contains("/admin/tiGroups");
   }
 }

@@ -238,6 +238,11 @@ export class TIDashboard {
     expect(errorDiv).toContain('Error:')
   }
 
+  async expectApplyingForBannerNotPresent() {
+    const tiBanner = this.page.getByRole('banner').locator('.ti-banner')
+    await expect(tiBanner).toBeHidden()
+  }
+
   expectRedDateFieldOutline(
     missingMonth: boolean,
     missingDay: boolean,
