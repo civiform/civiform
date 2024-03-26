@@ -134,7 +134,7 @@ public final class DateConverter {
     Double fullYear = Math.floor(age);
     LocalDate dateFromAge = LocalDate.now(clock).minusYears(fullYear.longValue());
     if ((age - fullYear) > 0) {
-      dateFromAge.minusMonths((long) Math.floor((age - fullYear) * 12));
+      dateFromAge = dateFromAge.minusMonths((long) Math.floor((age - fullYear) * 12));
     }
     return dateFromAge.atStartOfDay(zoneId).toInstant().toEpochMilli();
   }
