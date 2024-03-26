@@ -8,14 +8,19 @@ import {
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
-import { Page } from '@playwright/test'
+import {Page} from '@playwright/test'
 
 test.describe('address applicant flow', () => {
   test.describe('single required address question', () => {
     const programName = 'Test program for single address'
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpProgramWithSingleAddressQuestion(page, adminQuestions, adminPrograms, programName)
+      await setUpProgramWithSingleAddressQuestion(
+        page,
+        adminQuestions,
+        adminPrograms,
+        programName,
+      )
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
@@ -24,14 +29,20 @@ test.describe('address applicant flow', () => {
       await validateScreenshot(page, 'address')
     })
 
-    test('validate screenshot with errors', async ({page, applicantQuestions} ) => {
+    test('validate screenshot with errors', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
       await validateScreenshot(page, 'address-errors')
     })
 
-    test('does not show errors initially', async ({page, applicantQuestions}) => {
+    test('does not show errors initially', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -64,7 +75,10 @@ test.describe('address applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with empty address does not submit', async ({page, applicantQuestions}) => {
+    test('with empty address does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion('', '', '', '', '')
       await applicantQuestions.clickNext()
@@ -79,7 +93,10 @@ test.describe('address applicant flow', () => {
       await expect(error).toBeVisible()
     })
 
-    test('with invalid address does not submit', async ({page, applicantQuestions}) => {
+    test('with invalid address does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -138,7 +155,10 @@ test.describe('address applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with first invalid does not submit', async ({page, applicantQuestions}) => {
+    test('with first invalid does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion('', '', '', '', '', 0)
       await applicantQuestions.answerAddressQuestion(
@@ -172,7 +192,10 @@ test.describe('address applicant flow', () => {
       await expect(error).toBeHidden()
     })
 
-    test('with second invalid does not submit', async ({page, applicantQuestions}) => {
+    test('with second invalid does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -206,7 +229,10 @@ test.describe('address applicant flow', () => {
       await expect(error).toBeVisible()
     })
 
-    test('has no accessibility violations', async ({page, applicantQuestions} ) => {
+    test('has no accessibility violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
@@ -238,7 +264,9 @@ test.describe('address applicant flow', () => {
       await logout(page)
     })
 
-    test('with valid required address does submit', async ({applicantQuestions}) => {
+    test('with valid required address does submit', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -253,7 +281,10 @@ test.describe('address applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with invalid optional address does not submit', async ({page, applicantQuestions}) => {
+    test('with invalid optional address does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -323,10 +354,15 @@ test.describe('address applicant flow', () => {
 
       test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
         await enableFeatureFlag(page, 'north_star_applicant_ui')
-        await setUpProgramWithSingleAddressQuestion(page, adminQuestions, adminPrograms, programName)
+        await setUpProgramWithSingleAddressQuestion(
+          page,
+          adminQuestions,
+          adminPrograms,
+          programName,
+        )
       })
 
-      test('validate screenshot', async ({page, applicantQuestions} ) => {
+      test('validate screenshot', async ({page, applicantQuestions}) => {
         await applicantQuestions.applyProgram(programName)
 
         await test.step('Screenshot without errors', async () => {
@@ -355,7 +391,8 @@ test.describe('address applicant flow', () => {
     page: Page,
     adminQuestions: AdminQuestions,
     adminPrograms: AdminPrograms,
-    programName: string) {
+    programName: string,
+  ) {
     await loginAsAdmin(page)
 
     await adminQuestions.addAddressQuestion({
