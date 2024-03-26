@@ -444,7 +444,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     return applicantStage
         .thenComposeAsync(
-            v -> checkApplicantAuthorization(request, applicantId), classLoaderExecutionContext.current())
+            v -> checkApplicantAuthorization(request, applicantId),
+            classLoaderExecutionContext.current())
         .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
@@ -519,7 +520,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     return applicantStage
         .thenComposeAsync(
-            v -> checkApplicantAuthorization(request, applicantId), classLoaderExecutionContext.current())
+            v -> checkApplicantAuthorization(request, applicantId),
+            classLoaderExecutionContext.current())
         .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
@@ -657,7 +659,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     return applicantStage
         .thenComposeAsync(
-            v -> checkApplicantAuthorization(request, applicantId), classLoaderExecutionContext.current())
+            v -> checkApplicantAuthorization(request, applicantId),
+            classLoaderExecutionContext.current())
         .thenComposeAsync(
             v -> {
               DynamicForm form = formFactory.form().bindFromRequest(request);

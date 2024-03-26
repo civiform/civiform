@@ -638,7 +638,12 @@ public class AdminApplicationControllerTest extends ResetPostgres {
           SettingsManifest settingsManifest,
           Optional<AccountModel> adminAccount,
           AccountRepository accountRepository) {
-        super(dbContext, classLoaderExecutionContext, profileData, settingsManifest, accountRepository);
+        super(
+            dbContext,
+            classLoaderExecutionContext,
+            profileData,
+            settingsManifest,
+            accountRepository);
         this.adminAccount = adminAccount;
       }
 

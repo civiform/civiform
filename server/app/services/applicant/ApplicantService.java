@@ -414,7 +414,8 @@ public final class ApplicantService {
     if (submitterProfile.isTrustedIntermediary()) {
       return getReadOnlyApplicantProgramService(applicantId, programId)
           .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
-          .thenComposeAsync(v -> submitterProfile.getAccount(), classLoaderExecutionContext.current())
+          .thenComposeAsync(
+              v -> submitterProfile.getAccount(), classLoaderExecutionContext.current())
           .thenComposeAsync(
               account ->
                   submitApplication(
@@ -622,7 +623,8 @@ public final class ApplicantService {
                       notifyApplicantFuture,
                       notifyTiSubmitterFuture,
                       updateStoredFileAclsForSubmit(applicantId, programId).toCompletableFuture())
-                  .thenApplyAsync((ignoreVoid) -> application, classLoaderExecutionContext.current());
+                  .thenApplyAsync(
+                      (ignoreVoid) -> application, classLoaderExecutionContext.current());
             },
             classLoaderExecutionContext.current());
   }
@@ -683,8 +685,10 @@ public final class ApplicantService {
     CompletableFuture<List<StoredFileModel>> storedFilesFuture =
         getReadOnlyApplicantProgramService(applicantId, programId)
             .thenApplyAsync(
-                ReadOnlyApplicantProgramService::getStoredFileKeys, classLoaderExecutionContext.current())
-            .thenComposeAsync(storedFileRepository::lookupFiles, classLoaderExecutionContext.current())
+                ReadOnlyApplicantProgramService::getStoredFileKeys,
+                classLoaderExecutionContext.current())
+            .thenComposeAsync(
+                storedFileRepository::lookupFiles, classLoaderExecutionContext.current())
             .toCompletableFuture();
 
     return CompletableFuture.allOf(programDefinitionCompletableFuture, storedFilesFuture)

@@ -103,8 +103,10 @@ public final class UpsellController extends CiviFormController {
     CompletableFuture<AccountModel> account =
         applicantPersonalInfo
             .thenComposeAsync(
-                v -> checkApplicantAuthorization(request, applicantId), classLoaderExecutionContext.current())
-            .thenComposeAsync(v -> profile.get().getAccount(), classLoaderExecutionContext.current())
+                v -> checkApplicantAuthorization(request, applicantId),
+                classLoaderExecutionContext.current())
+            .thenComposeAsync(
+                v -> profile.get().getAccount(), classLoaderExecutionContext.current())
             .toCompletableFuture();
 
     CompletableFuture<ReadOnlyApplicantProgramService> roApplicantProgramService =

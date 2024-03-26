@@ -92,7 +92,11 @@ public final class ProfileFactory {
 
   public CiviFormProfile wrapProfileData(CiviFormProfileData p) {
     return new CiviFormProfile(
-        dbContext, classLoaderExecutionContext, p, settingsManifest, accountRepositoryProvider.get());
+        dbContext,
+        classLoaderExecutionContext,
+        p,
+        settingsManifest,
+        accountRepositoryProvider.get());
   }
 
   /**

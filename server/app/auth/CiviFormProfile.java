@@ -199,7 +199,8 @@ public class CiviFormProfile {
 
   /** Returns the authority id from the {@link AccountModel} associated with the profile. */
   public CompletableFuture<String> getAuthorityId() {
-    return this.getAccount().thenApplyAsync(AccountModel::getAuthorityId, classLoaderExecutionContext.current());
+    return this.getAccount()
+        .thenApplyAsync(AccountModel::getAuthorityId, classLoaderExecutionContext.current());
   }
 
   /**
@@ -217,7 +218,8 @@ public class CiviFormProfile {
     }
 
     // If it's not present i.e. if user is a guest, fall back to the address in the database
-    return this.getAccount().thenApplyAsync(AccountModel::getEmailAddress, classLoaderExecutionContext.current());
+    return this.getAccount()
+        .thenApplyAsync(AccountModel::getEmailAddress, classLoaderExecutionContext.current());
   }
 
   /** Get the profile data. */
