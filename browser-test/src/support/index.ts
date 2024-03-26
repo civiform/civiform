@@ -47,7 +47,6 @@ export {AdminTIGroups} from './admin_ti_groups'
 export {ApplicantFileQuestion} from './applicant_file_question'
 export {ApplicantQuestions} from './applicant_questions'
 export {ClientInformation, TIDashboard} from './ti_dashboard'
-export {NotFoundPage} from './error_pages'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
 
 export const isLocalDevEnvironment = () => {
@@ -276,6 +275,9 @@ export const endSession = async (browser: Browser) => {
   await browser.close()
 }
 
+/**
+ * @deprecated Just use `page.goto()`
+ */
 export const gotoEndpoint = async (page: Page, endpoint = '') => {
   return await page.goto(BASE_URL + endpoint)
 }
@@ -286,25 +288,27 @@ export const dismissToast = async (page: Page) => {
 }
 
 export const logout = async (page: Page, closeToast = true) => {
-  await page.click('#logout-button')
-  // If the user logged in through OIDC previously - during logout they are
-  // redirected to dev-oidc:PORT/session/end page. There they need to confirm
-  // logout.
-  if (page.url().match('dev-oidc.*/session/end')) {
-    const pageContent = await page.textContent('html')
-    if (pageContent!.includes('Do you want to sign-out from')) {
-      // OIDC central provider confirmation page
-      await page.click('button:has-text("Yes")')
+  await test.step('Logout', async () => {
+    await page.click('#logout-button')
+    // If the user logged in through OIDC previously - during logout they are
+    // redirected to dev-oidc:PORT/session/end page. There they need to confirm
+    // logout.
+    if (page.url().match('dev-oidc.*/session/end')) {
+      const pageContent = await page.textContent('html')
+      if (pageContent!.includes('Do you want to sign-out from')) {
+        // OIDC central provider confirmation page
+        await page.click('button:has-text("Yes")')
+      }
     }
-  }
 
-  // Logout is handled by the play framework so it doesn't land on a
-  // page with civiform js where we should waitForPageJsLoad. Because
-  // the process goes through a sequence of redirects we need to wait
-  // for the final destination URL (the programs index page), to make tests reliable.
-  await page.waitForURL('**/programs')
-  await validateToastMessage(page, 'Your session has ended.')
-  if (closeToast) await dismissToast(page)
+    // Logout is handled by the play framework so it doesn't land on a
+    // page with civiform js where we should waitForPageJsLoad. Because
+    // the process goes through a sequence of redirects we need to wait
+    // for the final destination URL (the programs index page), to make tests reliable.
+    await page.waitForURL('**/programs')
+    await validateToastMessage(page, 'Your session has ended.')
+    if (closeToast) await dismissToast(page)
+  })
 }
 
 export const loginAsAdmin = async (page: Page) => {
@@ -469,10 +473,12 @@ export const supportsEmailInspection = () => {
  * The option to select a language is shown in the header bar as a dropdown. This helper method selects the given language from the dropdown.
  */
 export const selectApplicantLanguage = async (page: Page, language: string) => {
-  await page.click('#select-language')
-  await page.selectOption('#select-language', {label: language})
+  await test.step('Set applicant language from header dropdown', async () => {
+    await page.click('#select-language')
+    await page.selectOption('#select-language', {label: language})
 
-  await waitForPageJsLoad(page)
+    await waitForPageJsLoad(page)
+  })
 }
 
 export const dropTables = async (page: Page) => {
@@ -543,53 +549,56 @@ export const validateScreenshot = async (
   fullPage?: boolean,
   mobileScreenshot?: boolean,
 ) => {
-  if (fullPage === undefined) {
-    fullPage = true
-  }
-
   // Do not make image snapshots when running locally
   if (DISABLE_SCREENSHOTS) {
     return
   }
-  const page = 'page' in element ? element.page() : element
-  // Normalize all variable content so that the screenshot is stable.
-  await normalizeElements(page)
-  // Also process any sub frames.
-  for (const frame of page.frames()) {
-    await normalizeElements(frame)
-  }
 
-  if (fullPage) {
-    // Some tests take screenshots while scroll position in the middle. That
-    // affects header which is position fixed and on final full-page screenshots
-    // overlaps part of the page.
-    await page.evaluate(() => {
-      window.scrollTo(0, 0)
-    })
-  }
+  await test.step('Validate screenshot', async () => {
+    if (fullPage === undefined) {
+      fullPage = true
+    }
 
-  expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
+    const page = 'page' in element ? element.page() : element
+    // Normalize all variable content so that the screenshot is stable.
+    await normalizeElements(page)
+    // Also process any sub frames.
+    for (const frame of page.frames()) {
+      await normalizeElements(frame)
+    }
 
-  await takeScreenshot(element, `${screenshotFileName}`, fullPage)
+    if (fullPage) {
+      // Some tests take screenshots while scroll position in the middle. That
+      // affects header which is position fixed and on final full-page screenshots
+      // overlaps part of the page.
+      await page.evaluate(() => {
+        window.scrollTo(0, 0)
+      })
+    }
 
-  const existingWidth = page.viewportSize()?.width || 1280
+    expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
 
-  if (mobileScreenshot) {
-    const height = page.viewportSize()?.height || 720
-    // Update the viewport size to different screen widths so we can test on a
-    // variety of sizes
-    await page.setViewportSize({width: 320, height})
+    await takeScreenshot(element, `${screenshotFileName}`, fullPage)
 
-    await takeScreenshot(element, `${screenshotFileName}-mobile`, fullPage)
+    const existingWidth = page.viewportSize()?.width || 1280
 
-    // Medium width
-    await page.setViewportSize({width: 800, height})
+    if (mobileScreenshot) {
+      const height = page.viewportSize()?.height || 720
+      // Update the viewport size to different screen widths so we can test on a
+      // variety of sizes
+      await page.setViewportSize({width: 320, height})
 
-    await takeScreenshot(element, `${screenshotFileName}-medium`, fullPage)
+      await takeScreenshot(element, `${screenshotFileName}-mobile`, fullPage)
 
-    // Reset back to original width
-    await page.setViewportSize({width: existingWidth, height})
-  }
+      // Medium width
+      await page.setViewportSize({width: 800, height})
+
+      await takeScreenshot(element, `${screenshotFileName}-medium`, fullPage)
+
+      // Reset back to original width
+      await page.setViewportSize({width: existingWidth, height})
+    }
+  })
 }
 
 const takeScreenshot = async (
