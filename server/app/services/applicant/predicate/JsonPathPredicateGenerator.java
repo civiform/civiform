@@ -144,7 +144,7 @@ public final class JsonPathPredicateGenerator {
             String.format(
                 "%s[?(%s %s @.%s)]",
                 getPath(node).predicateFormat(),
-                dateConverter.getDateTimestampFromAge(Float.parseFloat(node.comparedValue().value())),
+                dateConverter.getDateTimestampFromAge(Double.parseDouble(node.comparedValue().value())),
                 node.operator().toJsonPathOperator(),
                 node.scalar().name().toLowerCase(Locale.ROOT)));
       default:

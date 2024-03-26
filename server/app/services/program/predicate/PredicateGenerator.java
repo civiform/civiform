@@ -300,7 +300,7 @@ public final class PredicateGenerator {
         // Age values are inputted as numbers.
         if (operator.equals(Operator.AGE_OLDER_THAN)
             || operator.equals(Operator.AGE_YOUNGER_THAN)) {
-          Float ageVal = Float.parseFloat(value);
+          Double ageVal = Double.parseDouble(value);
           // If the age is a whole number, store it as a long
           if (ageVal == Math.round(ageVal)) {
             return PredicateValue.of(ageVal.longValue());

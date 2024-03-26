@@ -127,9 +127,9 @@ public final class DateConverter {
   }
 
   /** Gets the {@link Long} timestamp from an age, by subtracting the age from today's date, when the age may not be a whole number. */
-  public long getDateTimestampFromAge(Float age) {
-    Float fullYear = (float) Math.floor(age);
-    if (fullYear == age) {
+  public long getDateTimestampFromAge(Double age) {
+    Double fullYear = Math.floor(age);
+    if (fullYear.equals(age)) {
       return LocalDate.now(clock).minusYears(fullYear.longValue()).atStartOfDay(zoneId).toInstant().toEpochMilli();
     }
     Long months = (long) Math.floor((age - fullYear) * 12);
