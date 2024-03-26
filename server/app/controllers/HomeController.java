@@ -25,7 +25,7 @@ public class HomeController extends Controller {
 
   private final ProfileUtils profileUtils;
   private final MessagesApi messagesApi;
-  private final HttpExecutionContext httpExecutionContext;
+  private final HttpExecutionContext classLoaderExecutionContext;
   private final Optional<String> faviconURL;
   private final LanguageUtils languageUtils;
   private final ApplicantRoutes applicantRoutes;
@@ -35,13 +35,13 @@ public class HomeController extends Controller {
       Config configuration,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
-      HttpExecutionContext httpExecutionContext,
+      HttpExecutionContext classLoaderExecutionContext,
       LanguageUtils languageUtils,
       ApplicantRoutes applicantRoutes) {
     checkNotNull(configuration);
     this.profileUtils = checkNotNull(profileUtils);
     this.messagesApi = checkNotNull(messagesApi);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.languageUtils = checkNotNull(languageUtils);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.faviconURL =
@@ -93,7 +93,7 @@ public class HomeController extends Controller {
                           .setLangFromBrowser(applicant.id));
                 }
               },
-              httpExecutionContext.current());
+              classLoaderExecutionContext.current());
     }
   }
 

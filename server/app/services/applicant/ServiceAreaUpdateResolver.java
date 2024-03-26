@@ -28,16 +28,16 @@ import services.geo.esri.EsriServiceAreaValidationOption;
 final class ServiceAreaUpdateResolver {
   private final EsriClient esriClient;
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
-  private final HttpExecutionContext httpExecutionContext;
+  private final HttpExecutionContext classLoaderExecutionContext;
 
   @Inject
   public ServiceAreaUpdateResolver(
       EsriClient esriClient,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
-      HttpExecutionContext httpExecutionContext) {
+      HttpExecutionContext classLoaderExecutionContext) {
     this.esriClient = checkNotNull(esriClient);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
   }
 
   /**
@@ -125,7 +125,7 @@ final class ServiceAreaUpdateResolver {
               return Optional.of(
                   ServiceAreaUpdate.create(serviceAreaPath, newServiceAreaInclusionGroup));
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   private ImmutableList<ServiceAreaInclusion> mergeServiceAreaInclusionGroups(

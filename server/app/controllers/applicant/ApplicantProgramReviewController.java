@@ -53,7 +53,7 @@ import views.components.ToastMessage;
 public class ApplicantProgramReviewController extends CiviFormController {
 
   private final ApplicantService applicantService;
-  private final HttpExecutionContext httpExecutionContext;
+  private final HttpExecutionContext classLoaderExecutionContext;
   private final MessagesApi messagesApi;
   private final ApplicantProgramSummaryView summaryView;
   private final IneligibleBlockView ineligibleBlockView;
@@ -65,7 +65,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   @Inject
   public ApplicantProgramReviewController(
       ApplicantService applicantService,
-      HttpExecutionContext httpExecutionContext,
+      HttpExecutionContext classLoaderExecutionContext,
       MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
       IneligibleBlockView ineligibleBlockView,
@@ -77,7 +77,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
       ApplicantRoutes applicantRoutes) {
     super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
     this.summaryView = checkNotNull(summaryView);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
@@ -110,7 +110,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
         .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
               Messages messages = messagesApi.preferred(request);
@@ -167,7 +167,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
               return ok(summaryView.render(params.build()));
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -220,7 +220,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
     return checkApplicantAuthorization(request, applicantId)
         .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
-            v -> submitInternal(request, applicantId, programId), httpExecutionContext.current())
+            v -> submitInternal(request, applicantId, programId), classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -302,7 +302,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       applicantRoutes.index(submittingProfile, applicantId).url());
               return found(endOfProgramSubmission);
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
