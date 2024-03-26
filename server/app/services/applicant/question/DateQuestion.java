@@ -62,7 +62,10 @@ public final class DateQuestion extends Question {
     ApplicantData applicantData = applicantQuestion.getApplicantData();
     dateValue = applicantData.readDate(getDatePath());
 
-    if (dateValue.isEmpty() && applicantQuestion.getQuestionDefinition().containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_DOB)) {
+    if (dateValue.isEmpty()
+        && applicantQuestion
+            .getQuestionDefinition()
+            .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_DOB)) {
       dateValue = applicantData.getApplicant().getDateOfBirth();
     }
     return dateValue;

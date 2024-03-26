@@ -64,10 +64,13 @@ public final class NameQuestion extends Question {
       return firstNameValue;
     }
 
-   ApplicantData applicantData = applicantQuestion.getApplicantData();
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
     Optional<String> firstNameValue = applicantData.readString(getFirstNamePath());
 
-    if (firstNameValue.isEmpty() && applicantQuestion.getQuestionDefinition().containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_NAME)) {
+    if (firstNameValue.isEmpty()
+        && applicantQuestion
+            .getQuestionDefinition()
+            .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_NAME)) {
       firstNameValue = applicantData.getApplicantFirstName();
     }
 
@@ -82,7 +85,10 @@ public final class NameQuestion extends Question {
     ApplicantData applicantData = applicantQuestion.getApplicantData();
     middleNameValue = applicantData.readString(getMiddleNamePath());
 
-    if (middleNameValue.isEmpty() && applicantQuestion.getQuestionDefinition().containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_NAME)) {
+    if (middleNameValue.isEmpty()
+        && applicantQuestion
+            .getQuestionDefinition()
+            .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_NAME)) {
       middleNameValue = applicantData.getApplicantMiddleName();
     }
     return middleNameValue;
@@ -96,7 +102,10 @@ public final class NameQuestion extends Question {
     ApplicantData applicantData = applicantQuestion.getApplicantData();
     lastNameValue = applicantData.readString(getLastNamePath());
 
-    if (lastNameValue.isEmpty() && applicantQuestion.getQuestionDefinition().containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_NAME)) {
+    if (lastNameValue.isEmpty()
+        && applicantQuestion
+            .getQuestionDefinition()
+            .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_NAME)) {
       lastNameValue = applicantData.getApplicantLastName();
     }
     return lastNameValue;

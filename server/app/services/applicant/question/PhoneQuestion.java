@@ -57,11 +57,14 @@ public final class PhoneQuestion extends Question {
     if (phoneNumberValue != null) {
       return phoneNumberValue;
     }
-    
+
     ApplicantData applicantData = applicantQuestion.getApplicantData();
     Optional<String> phoneNumberValue = applicantData.readString(getPhoneNumberPath());
 
-    if (phoneNumberValue.isEmpty() && applicantQuestion.getQuestionDefinition().containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_PHONE)) {
+    if (phoneNumberValue.isEmpty()
+        && applicantQuestion
+            .getQuestionDefinition()
+            .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_PHONE)) {
       phoneNumberValue = applicantData.getPhoneNumber();
     }
 
@@ -76,7 +79,10 @@ public final class PhoneQuestion extends Question {
     ApplicantData applicantData = applicantQuestion.getApplicantData();
     Optional<String> countryCodeValue = applicantData.readString(getCountryCodePath());
 
-    if (countryCodeValue.isEmpty() && applicantQuestion.getQuestionDefinition().containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_PHONE)) {
+    if (countryCodeValue.isEmpty()
+        && applicantQuestion
+            .getQuestionDefinition()
+            .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_PHONE)) {
       countryCodeValue = applicantData.getApplicant().getCountryCode();
     }
 

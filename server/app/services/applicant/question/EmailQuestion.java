@@ -51,8 +51,11 @@ public final class EmailQuestion extends Question {
     ApplicantData applicantData = applicantQuestion.getApplicantData();
     Optional<String> emailValue = applicantData.readString(getEmailPath());
 
-    if (emailValue.isEmpty() && applicantQuestion.getQuestionDefinition().containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_EMAIL)) {
-      emailValue = applicantData.getApplicant().getEmailAddress();
+    if (emailValue.isEmpty()
+        && applicantQuestion
+            .getQuestionDefinition()
+            .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_EMAIL)) {
+      Optional.of(emailValue = applicantData.getApplicant().getEmailAddress());
     }
 
     return emailValue;
