@@ -14,7 +14,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -25,7 +25,7 @@ public class HomeController extends Controller {
 
   private final ProfileUtils profileUtils;
   private final MessagesApi messagesApi;
-  private final HttpExecutionContext classLoaderExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final Optional<String> faviconURL;
   private final LanguageUtils languageUtils;
   private final ApplicantRoutes applicantRoutes;
@@ -35,7 +35,7 @@ public class HomeController extends Controller {
       Config configuration,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
-      HttpExecutionContext classLoaderExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       LanguageUtils languageUtils,
       ApplicantRoutes applicantRoutes) {
     checkNotNull(configuration);

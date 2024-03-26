@@ -20,7 +20,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import play.i18n.Lang;
 import play.i18n.Langs;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Result;
 import repository.AccountRepository;
 import repository.VersionRepository;
@@ -159,7 +159,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     ProgramSlugHandler handler =
         new ProgramSlugHandler(
-            instanceOf(HttpExecutionContext.class),
+            instanceOf(ClassLoaderExecutionContext.class),
             instanceOf(ApplicantService.class),
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramService.class),
@@ -195,7 +195,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     ProgramSlugHandler handler =
         new ProgramSlugHandler(
-            instanceOf(HttpExecutionContext.class),
+            instanceOf(ClassLoaderExecutionContext.class),
             instanceOf(ApplicantService.class),
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramService.class),

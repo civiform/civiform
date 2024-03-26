@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.ApplicantModel;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.applicant.ApplicantService;
@@ -26,7 +26,7 @@ import services.program.ProgramService;
 /** Class for showing program view based on program slug. */
 public final class ProgramSlugHandler {
 
-  private final HttpExecutionContext classLoaderExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final ApplicantService applicantService;
   private final ProfileUtils profileUtils;
   private final ProgramService programService;
@@ -35,7 +35,7 @@ public final class ProgramSlugHandler {
 
   @Inject
   public ProgramSlugHandler(
-      HttpExecutionContext classLoaderExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       ApplicantService applicantService,
       ProfileUtils profileUtils,
       ProgramService programService,

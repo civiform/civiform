@@ -29,7 +29,7 @@ public final class RecordCookieSizeFilter extends EssentialFilter {
         requestHeader -> {
           String controllerMethod = getControllerMethod(requestHeader);
           requestHeader
-              .getCookie("PLAY_SESSION")
+              .cookie("PLAY_SESSION")
               .ifPresent(
                   cookie -> {
                     PLAY_SESSION_COOKIE_SIZE
