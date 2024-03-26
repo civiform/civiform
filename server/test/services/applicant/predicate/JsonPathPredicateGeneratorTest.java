@@ -108,7 +108,7 @@ public class JsonPathPredicateGeneratorTest {
     assertThat(generator.fromLeafNode(node)).isEqualTo(predicate);
 
     ApplicantData data = new ApplicantData();
-    data.putDate(Path.create("applicant.applicant_birth_date.date"), "2012-01-01");
+    data.putDate(Path.create("applicant.applicant_birth_date.date"), "2011-07-01");
 
     assertThat(data.evalPredicate(predicate)).isTrue();
   }
