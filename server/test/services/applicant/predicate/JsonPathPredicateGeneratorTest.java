@@ -94,7 +94,7 @@ public class JsonPathPredicateGeneratorTest {
   }
 
   @Test
-  public void fromLeafNode_generatesCorrectStringForAgeOlderFloatValue() throws Exception {
+  public void fromLeafNode_generatesCorrectStringForAgeOlderDoubleValue() throws Exception {
     LeafOperationExpressionNode node =
         LeafOperationExpressionNode.create(
             dateQuestion.getId(),
