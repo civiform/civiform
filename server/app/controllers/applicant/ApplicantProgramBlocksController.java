@@ -659,13 +659,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId, request);
 
-    CompletableFuture<ReadOnlyApplicantProgramService>
-        readOnlyApplicantProgramServiceCompletionStage =
-            this.applicantService
-                .getReadOnlyApplicantProgramService(applicantId, programId)
-                .toCompletableFuture();
-
-    CompletableFuture<ImmutableMap<String, String>> formDataStage =
+    CompletableFuture<ImmutableMap<String, String>> formDataCompletableFuture =
         applicantStage
             .thenComposeAsync(
                 v -> checkApplicantAuthorization(request, applicantId),
@@ -683,13 +677,21 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     applicantService.setPhoneCountryCode(applicantId, programId, blockId, formData),
                     classLoaderExecutionContext.current())
             .toCompletableFuture();
+    CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
+        applicantStage
+            .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
+            .thenComposeAsync(
+                v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+                classLoaderExecutionContext.current())
+            .toCompletableFuture();
 
-    return CompletableFuture.allOf(formDataStage, readOnlyApplicantProgramServiceCompletionStage)
+    return CompletableFuture.allOf(
+            formDataCompletableFuture, applicantProgramServiceCompletableFuture)
         .thenComposeAsync(
             (v) -> {
-              ImmutableMap<String, String> formData = formDataStage.join();
+              ImmutableMap<String, String> formData = formDataCompletableFuture.join();
               ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
-                  readOnlyApplicantProgramServiceCompletionStage.join();
+                  applicantProgramServiceCompletableFuture.join();
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
               Optional<Block> maybeBlockBeforeUpdate =
                   readOnlyApplicantProgramService.getActiveBlock(blockId);
@@ -705,7 +707,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   // ... and the applicant wants to navigate to previous or review...
                   // [Explanation: we can't let applicants navigate to the next block without
                   // answers because the next block may have a visibility conditions that
-                   // depends on the answers to this block.]
+                  // depends on the answers to this block.]
                   && (applicantRequestedAction == REVIEW_PAGE
                       || applicantRequestedAction == PREVIOUS_BLOCK)
                   && maybeBlockBeforeUpdate.isPresent()
@@ -715,7 +717,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   // is *not* a valid state.
                   // [Explanation: We don't allow applicants to submit an application until they've
                   // at least seen all the questions. We mark as question as "seen" by checking
-                      // that the metadata is filled in (see
+                  // that the metadata is filled in (see
                   // {@link ApplicantQuestion#isAnsweredOrSkippedOptionalInProgram}).
                   // That metadata only gets filled in by {@link #stageAndUpdateIfValid}.
                   // If a block has all optional questions, having all empty answers is a valid
@@ -752,9 +754,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                               inReview,
                               applicantRequestedAction,
                               newReadOnlyApplicantProgramService),
-                          classLoaderExecutionContext.current())
-                  .exceptionally(this::handleUpdateExceptions);
-            });
+                      classLoaderExecutionContext.current());
+            })
+        .exceptionally(this::handleUpdateExceptions);
   }
 
   /** See {@link #updateWithApplicantId}. */
