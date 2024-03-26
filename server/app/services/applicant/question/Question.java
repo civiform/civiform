@@ -15,6 +15,7 @@ import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.types.QuestionType;
+import java.util.Objects;
 
 /**
  * All specific applicant question types extend this class.
@@ -105,11 +106,32 @@ public abstract class Question {
 
   /**
    * A question is considered answered if the applicant data has been set for any of the paths
-   * associated with the question. If the applicant data does not contain the question's path, then
-   * it will be considered unanswered.
+   * associated with the question or if the question is tagged with a Primary Applicant Info
+   * Tag and the applicant has data saved in the corresponding column.
    */
   public boolean isAnswered() {
-    return getAllPaths().stream().anyMatch(p -> applicantQuestion.getApplicantData().hasPath(p));
+    boolean isAnsweredWithApplicantData = getAllPaths().stream().anyMatch(applicantQuestion.getApplicantData()::hasPath);
+
+    // Filter to see if the applicant has data saved for any of the PAI tags on the question definition.
+    // If the returned set is NOT empty, then the applicant has data saved and the question is "answered"
+    ImmutableSet<PrimaryApplicantInfoTag> tags = applicantQuestion.getQuestionDefinition().getPrimaryApplicantInfoTags();
+    boolean isAnsweredWithPrimaryApplicantInfo = !tags.stream().filter(tag -> {
+      ApplicantModel applicant = applicantQuestion.getApplicantData().getApplicant();
+      switch (tag) {
+        case APPLICANT_EMAIL:
+          return applicant.getEmailAddress().isPresent();
+        case APPLICANT_PHONE:
+          return applicant.getPhoneNumber().isPresent();
+        case APPLICANT_DOB:
+          return applicant.getDateOfBirth().isPresent();
+        case APPLICANT_NAME:
+          return applicant.getFirstName().isPresent();
+        default:
+          return false;
+      }
+    }).collect(ImmutableSet.toImmutableSet()).isEmpty();
+
+    return isAnsweredWithApplicantData || isAnsweredWithPrimaryApplicantInfo;
   }
 
   /**
@@ -129,12 +151,5 @@ public abstract class Question {
 
   public ApplicantQuestion getApplicantQuestion() {
     return applicantQuestion;
-  }
-
-  public boolean shouldReturnPrimaryApplicantInfoValue(boolean emptyApplicantDataValue, ApplicantData applicantData, PrimaryApplicantInfoTag questionTag) {
-    ApplicantModel applicant = applicantData.getApplicant();
-    boolean isTaggedQuestion = applicantQuestion.getQuestionDefinition().containsPrimaryApplicantInfoTag(questionTag);
-    boolean haveApplicantObject = !Objects.isNull(applicant) && applicant.getFirstName().isPresent();
-    return isTaggedQuestion && emptyApplicantDataValue && haveApplicantObject;
   }
 }

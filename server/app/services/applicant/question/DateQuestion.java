@@ -8,7 +8,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import services.MessageKey;
 import services.Path;
+import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.types.DateQuestionDefinition;
 
 /**
@@ -57,8 +59,12 @@ public final class DateQuestion extends Question {
       return dateValue;
     }
 
-    dateValue = applicantQuestion.getApplicantData().readDate(getDatePath());
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    dateValue = applicantData.readDate(getDatePath());
 
+    if (dateValue.isEmpty() && applicantQuestion.getQuestionDefinition().containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_DOB)) {
+      dateValue = applicantData.getApplicant().getDateOfBirth();
+    }
     return dateValue;
   }
 

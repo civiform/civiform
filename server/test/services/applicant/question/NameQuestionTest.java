@@ -95,4 +95,29 @@ public class NameQuestionTest extends ResetPostgres {
                 .containsKey(applicantQuestion.getContextualizedPath()))
         .isFalse();
   }
+
+  // Test that getFirstNameValue returns PAI value when appropriate
+  @Test
+  public void getFirstNameValue_returnsPAIValue() {
+    NameQuestionDefinition nameQuestionDefinitionWithPaiTag =
+      new NameQuestionDefinition(
+          QuestionDefinitionConfig.builder()
+              .setName("question name")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setId(OptionalLong.of(1))
+              .setLastModifiedTime(Optional.empty())
+              .setPrimaryApplicantInfoTags(ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_NAME)) 
+              .build());
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(nameQuestionDefinitionWithPaiTag, applicantData, Optional.empty());
+    QuestionAnswerer.answerNameQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "", "", "");
+
+    NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
+
+    assertThat(nameQuestion.getFirstNameValue().get()).isEqualTo(applicantData.getApplicantFirstName());
+  }
+
 }

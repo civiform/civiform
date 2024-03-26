@@ -5,7 +5,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.Path;
+import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.types.EmailQuestionDefinition;
 
 /**
@@ -46,7 +48,12 @@ public final class EmailQuestion extends Question {
       return emailValue;
     }
 
-    emailValue = applicantQuestion.getApplicantData().readString(getEmailPath());
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    Optional<String> emailValue = applicantData.readString(getEmailPath());
+
+    if (emailValue.isEmpty() && applicantQuestion.getQuestionDefinition().containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_EMAIL)) {
+      emailValue = applicantData.getApplicant().getEmailAddress();
+    }
 
     return emailValue;
   }
