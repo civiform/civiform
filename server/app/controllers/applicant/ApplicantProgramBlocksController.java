@@ -671,11 +671,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   return applicantService.resetAddressCorrectionWhenAddressChanged(
                       applicantId, programId, blockId, formData);
                 },
-                    classLoaderExecutionContext.current())
+                classLoaderExecutionContext.current())
             .thenComposeAsync(
                 formData ->
                     applicantService.setPhoneCountryCode(applicantId, programId, blockId, formData),
-                    classLoaderExecutionContext.current())
+                classLoaderExecutionContext.current())
             .toCompletableFuture();
     CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
         applicantStage
@@ -753,7 +753,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                               inReview,
                               applicantRequestedAction,
                               newReadOnlyApplicantProgramService),
-                          classLoaderExecutionContext.current());
+                      classLoaderExecutionContext.current());
             })
         .exceptionally(this::handleUpdateExceptions);
   }
