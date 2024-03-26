@@ -262,7 +262,7 @@ public final class Block {
   }
 
   /** Returns true if this block contains only optional questions and false otherwise. */
-  public boolean isOnlyOptionalQuestions() {
+  public boolean hasOnlyOptionalQuestions() {
     return getQuestions().stream().allMatch(ApplicantQuestion::isOptional);
   }
 

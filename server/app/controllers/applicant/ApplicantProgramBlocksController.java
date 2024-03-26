@@ -724,7 +724,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   // response, and we should mark that block as seen. So, we need
                   // {@link #stageAndUpdateIfValid} to proceed and add metadata to the questions,
                   // so we can't immediately navigate away.]
-                  && !maybeBlockBeforeUpdate.get().isOnlyOptionalQuestions()) {
+                  && !maybeBlockBeforeUpdate.get().hasOnlyOptionalQuestions()) {
                 return getRequestedPage(
                     profile,
                     applicantId,

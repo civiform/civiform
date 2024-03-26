@@ -23,12 +23,15 @@ import controllers.geo.AddressSuggestionJsonSerializer;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ProgramModel;
 import models.StoredFileModel;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
@@ -41,6 +44,7 @@ import services.geo.AddressSuggestion;
 import support.ProgramBuilder;
 import views.applicant.AddressCorrectionBlockView;
 
+@RunWith(JUnitParamsRunner.class)
 public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   private static final String SUGGESTED_ADDRESS = "456 Suggested Ave, Seattle, Washington, 99999";
   private static final String SUGGESTED_ADDRESS_STREET = "456 Suggested Ave";
@@ -677,6 +681,378 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("FirstName");
     assertThat(contentAsString(result)).contains("Please enter your last name.");
+  }
+
+  @Test
+  public void update_noAnswerToRequiredQuestion_requestedActionNext_staysOnBlockAndShowsErrors() {
+    ApplicantRequestedActionWrapper requestedAction =
+        new ApplicantRequestedActionWrapper(NEXT_BLOCK);
+
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withBlock("block 2")
+            .withRequiredQuestion(testQuestionBank().applicantAddress())
+            .build();
+    Request request =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                            applicant.id,
+                            program.id,
+                            /* blockId= */ "1",
+                            /* inReview= */ false,
+                            requestedAction))
+                    .bodyForm(
+                        ImmutableMap.of(
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.FIRST_NAME)
+                                .toString(),
+                            "",
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.LAST_NAME)
+                                .toString(),
+                            "")))
+            .build();
+
+    Result result =
+        subject
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                requestedAction)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Please enter your first name.");
+    assertThat(contentAsString(result)).contains("Please enter your last name.");
+  }
+
+  @Test
+  public void update_noAnswerToRequiredQuestion_requestedActionPrevious_goesToPrevious() {
+    ApplicantRequestedActionWrapper requestedAction =
+        new ApplicantRequestedActionWrapper(PREVIOUS_BLOCK);
+
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantAddress())
+            .withBlock("block 2")
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+    Request request =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                            applicant.id,
+                            program.id,
+                            /* blockId= */ "2",
+                            /* inReview= */ false,
+                            requestedAction))
+                    .bodyForm(
+                        ImmutableMap.of(
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.FIRST_NAME)
+                                .toString(),
+                            "",
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.LAST_NAME)
+                                .toString(),
+                            "")))
+            .build();
+
+    Result result =
+        subject
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "2",
+                /* inReview= */ false,
+                requestedAction)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    String previousRoute =
+        routes.ApplicantProgramBlocksController.previous(
+                program.id, /* previousBlockIndex= */ 0, /* inReview= */ false)
+            .url();
+    assertThat(result.redirectLocation()).hasValue(previousRoute);
+  }
+
+  @Test
+  public void update_noAnswerToRequiredQuestion_requestedActionReview_goesToReview() {
+    ApplicantRequestedActionWrapper requestedAction =
+        new ApplicantRequestedActionWrapper(REVIEW_PAGE);
+
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantAddress())
+            .withBlock("block 2")
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+    Request request =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                            applicant.id,
+                            program.id,
+                            /* blockId= */ "2",
+                            /* inReview= */ false,
+                            requestedAction))
+                    .bodyForm(
+                        ImmutableMap.of(
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.FIRST_NAME)
+                                .toString(),
+                            "",
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.LAST_NAME)
+                                .toString(),
+                            "")))
+            .build();
+
+    Result result =
+        subject
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "2",
+                /* inReview= */ false,
+                requestedAction)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    String reviewRoute = routes.ApplicantProgramReviewController.review(program.id).url();
+    assertThat(result.redirectLocation()).hasValue(reviewRoute);
+  }
+
+  @Test
+  @Parameters({"NEXT_BLOCK", "REVIEW_PAGE", "PREVIOUS_BLOCK"})
+  public void update_noAnswerToOptionalQuestion_questionSeen(String action) {
+    ApplicantRequestedActionWrapper requestedAction =
+        new ApplicantRequestedActionWrapper(ApplicantRequestedAction.valueOf(action));
+
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withOptionalQuestion(testQuestionBank().applicantName())
+            .build();
+    Request request =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                            applicant.id,
+                            program.id,
+                            /* blockId= */ "1",
+                            /* inReview= */ false,
+                            requestedAction))
+                    .bodyForm(
+                        ImmutableMap.of(
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.FIRST_NAME)
+                                .toString(),
+                            "",
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.LAST_NAME)
+                                .toString(),
+                            "")))
+            .build();
+
+    subject
+        .updateWithApplicantId(
+            request,
+            applicant.id,
+            program.id,
+            /* blockId= */ "1",
+            /* inReview= */ false,
+            requestedAction)
+        .toCompletableFuture()
+        .join();
+
+    applicant.refresh();
+    // We mark as question as seen by including the "updated_at" metadata.
+    assertThat(applicant.getApplicantData().asJsonString())
+        .containsPattern("\"applicant_name\":\\{\"updated_at\":.");
+  }
+
+  @Test
+  @Parameters({"NEXT_BLOCK", "REVIEW_PAGE", "PREVIOUS_BLOCK"})
+  public void update_deletePreviousAnswerToRequiredQuestion_staysOnBlockAndShowsErrors(
+      String action) {
+    ApplicantRequestedActionWrapper requestedAction =
+        new ApplicantRequestedActionWrapper(ApplicantRequestedAction.valueOf(action));
+
+    // First, provide an answer
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+    Request requestWithAnswer =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                            applicant.id,
+                            program.id,
+                            /* blockId= */ "1",
+                            /* inReview= */ false,
+                            requestedAction))
+                    .bodyForm(
+                        ImmutableMap.of(
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.FIRST_NAME)
+                                .toString(),
+                            "InitialFirstName",
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.LAST_NAME)
+                                .toString(),
+                            "InitialLastName")))
+            .build();
+
+    subject
+        .updateWithApplicantId(
+            requestWithAnswer,
+            applicant.id,
+            program.id,
+            /* blockId= */ "1",
+            /* inReview= */ false,
+            requestedAction)
+        .toCompletableFuture()
+        .join();
+
+    // Then, delete the answer
+    Request requestWithoutAnswer =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                            applicant.id,
+                            program.id,
+                            /* blockId= */ "1",
+                            /* inReview= */ false,
+                            requestedAction))
+                    .bodyForm(
+                        ImmutableMap.of(
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.FIRST_NAME)
+                                .toString(),
+                            "",
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.LAST_NAME)
+                                .toString(),
+                            "")))
+            .build();
+
+    Result result =
+        subject
+            .updateWithApplicantId(
+                requestWithoutAnswer,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                requestedAction)
+            .toCompletableFuture()
+            .join();
+
+    // Verify errors are shown because required questions must be answered
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Please enter your first name.");
+    assertThat(contentAsString(result)).contains("Please enter your last name.");
+  }
+
+  @Test
+  @Parameters({"NEXT_BLOCK", "REVIEW_PAGE", "PREVIOUS_BLOCK"})
+  public void update_deletePreviousAnswerToOptionalQuestion_saves(String action) {
+    ApplicantRequestedActionWrapper requestedAction =
+        new ApplicantRequestedActionWrapper(ApplicantRequestedAction.valueOf(action));
+
+    // First, provide an answer
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withOptionalQuestion(testQuestionBank().applicantName())
+            .build();
+    Request requestWithAnswer =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                            applicant.id,
+                            program.id,
+                            /* blockId= */ "1",
+                            /* inReview= */ false,
+                            requestedAction))
+                    .bodyForm(
+                        ImmutableMap.of(
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.FIRST_NAME)
+                                .toString(),
+                            "InitialFirstName",
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.LAST_NAME)
+                                .toString(),
+                            "InitialLastName")))
+            .build();
+
+    subject
+        .updateWithApplicantId(
+            requestWithAnswer,
+            applicant.id,
+            program.id,
+            /* blockId= */ "1",
+            /* inReview= */ false,
+            requestedAction)
+        .toCompletableFuture()
+        .join();
+
+    // Then, delete the answer
+    Request requestWithoutAnswer =
+        addCSRFToken(
+                requestBuilderWithSettings(
+                        routes.ApplicantProgramBlocksController.updateWithApplicantId(
+                            applicant.id,
+                            program.id,
+                            /* blockId= */ "1",
+                            /* inReview= */ false,
+                            requestedAction))
+                    .bodyForm(
+                        ImmutableMap.of(
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.FIRST_NAME)
+                                .toString(),
+                            "",
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.LAST_NAME)
+                                .toString(),
+                            "")))
+            .build();
+
+    subject
+        .updateWithApplicantId(
+            requestWithoutAnswer,
+            applicant.id,
+            program.id,
+            /* blockId= */ "1",
+            /* inReview= */ false,
+            requestedAction)
+        .toCompletableFuture()
+        .join();
+
+    // Verify the deletion is saved successfully (no answer is fine since it's an optional question)
+    applicant.refresh();
+    assertThat(applicant.getApplicantData().asJsonString()).doesNotContain("first_name");
+    assertThat(applicant.getApplicantData().asJsonString()).doesNotContain("last_name");
+    assertThat(applicant.getApplicantData().asJsonString()).doesNotContain("InitialFirstName");
+    assertThat(applicant.getApplicantData().asJsonString()).doesNotContain("InitialLastName");
   }
 
   @Test
