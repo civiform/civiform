@@ -153,6 +153,44 @@ public class PredicateGeneratorTest extends ResetPostgres {
             "Invalid age range: 14,18,24. Age range value must be two integers separated by - or"
                 + " ,");
   }
+  
+  @Test
+  public void generatePredicateDefinition_singleQuestion_singleValue_ageLessThan() throws Exception {
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "predicateAction",
+                "HIDE_BLOCK",
+                String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
+                "DATE",
+                String.format("question-%d-operator", testQuestionBank.applicantDate().id),
+                "AGE_LESS_THAN",
+                String.format(
+                    "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
+                "10.5"));
+
+    PredicateDefinition predicateDefinition =
+        predicateGenerator.generatePredicateDefinition(
+            programDefinition, form, readOnlyQuestionService);
+
+    assertThat(predicateDefinition.predicateFormat())
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+    assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
+    assertThat(predicateDefinition.getQuestions())
+        .isEqualTo(ImmutableList.of(testQuestionBank.applicantDate().id));
+    assertThat(predicateDefinition.rootNode())
+        .isEqualTo(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.builder()
+                    .setQuestionId(testQuestionBank.applicantDate().id)
+                    .setScalar(Scalar.DATE)
+                    .setOperator(Operator.AGE_YOUNGER_THAN)
+                    .setComparedValue(
+                        PredicateGenerator.parsePredicateValue(
+                            Scalar.DATE, Operator.AGE_YOUNGER_THAN, "10.5", null))
+                    .build()));
+  }
+
 
   @Test
   public void generatePredicateDefinition_singleQuestion_serviceArea() throws Exception {

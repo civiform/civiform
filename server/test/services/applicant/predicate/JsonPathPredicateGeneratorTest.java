@@ -94,6 +94,23 @@ public class JsonPathPredicateGeneratorTest {
   }
 
   @Test
+  public void fromLeafNode_generatesCorrectStringForAgeOlderFloatValue() throws Exception {
+    LeafOperationExpressionNode node =
+        LeafOperationExpressionNode.create(
+            dateQuestion.getId(), Scalar.DATE, Operator.AGE_OLDER_THAN, PredicateValue.of((float) 18.5));
+
+    JsonPathPredicate predicate =
+        JsonPathPredicate.create("$.applicant.applicant_birth_date[?(1309478400000 >= @.date)]");
+
+    assertThat(generator.fromLeafNode(node)).isEqualTo(predicate);
+
+    ApplicantData data = new ApplicantData();
+    data.putDate(Path.create("applicant.applicant_birth_date.date"), "2012-01-01");
+
+    assertThat(data.evalPredicate(predicate)).isTrue();
+  }
+
+  @Test
   public void fromLeafNode_generatesCorrectStringForAgeYoungerValue() throws Exception {
     LeafOperationExpressionNode node =
         LeafOperationExpressionNode.create(

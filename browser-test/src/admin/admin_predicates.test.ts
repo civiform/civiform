@@ -1182,7 +1182,7 @@ test.describe('create and edit predicates', () => {
       await applicantQuestions.answerDateQuestion('1930-01-01')
       await applicantQuestions.clickNext()
 
-      // Age less than 50 is allowed
+      // Age less than 50.5 is allowed
       await applicantQuestions.answerDateQuestion('1930-12-31')
       await applicantQuestions.clickNext()
       await applicantQuestions.expectIneligiblePage()
