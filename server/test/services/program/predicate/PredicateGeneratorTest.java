@@ -153,9 +153,10 @@ public class PredicateGeneratorTest extends ResetPostgres {
             "Invalid age range: 14,18,24. Age range value must be two integers separated by - or"
                 + " ,");
   }
-  
+
   @Test
-  public void generatePredicateDefinition_singleQuestion_singleValue_ageLessThan() throws Exception {
+  public void generatePredicateDefinition_singleQuestion_singleValue_ageLessThan()
+      throws Exception {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -190,7 +191,6 @@ public class PredicateGeneratorTest extends ResetPostgres {
                             Scalar.DATE, Operator.AGE_YOUNGER_THAN, "10.5", null))
                     .build()));
   }
-
 
   @Test
   public void generatePredicateDefinition_singleQuestion_serviceArea() throws Exception {

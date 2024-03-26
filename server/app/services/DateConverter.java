@@ -126,13 +126,16 @@ public final class DateConverter {
     return LocalDate.now(clock).minusYears(age).atStartOfDay(zoneId).toInstant().toEpochMilli();
   }
 
-  /** Gets the {@link Long} timestamp from an age, by subtracting the age from today's date, when the age may not be a whole number. */
+  /**
+   * Gets the {@link Long} timestamp from an age, by subtracting the age from today's date, when the
+   * age may not be a whole number.
+   */
   public long getDateTimestampFromAge(Double age) {
     Double fullYear = Math.floor(age);
-    if (fullYear.equals(age)) {
-      return LocalDate.now(clock).minusYears(fullYear.longValue()).atStartOfDay(zoneId).toInstant().toEpochMilli();
+    LocalDate dateFromAge = LocalDate.now(clock).minusYears(fullYear.longValue());
+    if ((age - fullYear) > 0) {
+      dateFromAge.minusMonths((long) Math.floor((age - fullYear) * 12));
     }
-    Long months = (long) Math.floor((age - fullYear) * 12);
-    return LocalDate.now(clock).minusYears(fullYear.longValue()).minusMonths(months).atStartOfDay(zoneId).toInstant().toEpochMilli();
+    return dateFromAge.atStartOfDay(zoneId).toInstant().toEpochMilli();
   }
 }
