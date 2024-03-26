@@ -40,7 +40,9 @@ public final class TrustedIntermediaryService {
   public static final String FORM_FIELD_NAME_FIRST_NAME = "firstName";
   public static final String FORM_FIELD_NAME_LAST_NAME = "lastName";
   public static final String FORM_FIELD_NAME_EMAIL_ADDRESS = "emailAddress";
-  public static final String FORM_FIELD_NAME_DOB = "yearQuery";
+  public static final String FORM_FIELD_NAME_DOB_YEAR = "yearQuery";
+  public static final String FORM_FIELD_NAME_DOB_MONTH = "monthQuery";
+  public static final String FORM_FIELD_NAME_DOB_DAY = "dayQuery";
   public static final String FORM_FIELD_NAME_PHONE = "phoneNumber";
   public static final String FORM_FIELD_NAME_MIDDLE_NAME = "middleName";
   public static final String FORM_FIELD_NAME_TI_NOTES = "tiNote";
@@ -52,48 +54,59 @@ public final class TrustedIntermediaryService {
     this.dateConverter = Preconditions.checkNotNull(dateConverter);
   }
 
-  public Form<TiClientInfoForm> addNewClient(
+  public TIClientFormWithOptionalApplicantData addNewClient(
       Form<TiClientInfoForm> form,
       TrustedIntermediaryGroupModel trustedIntermediaryGroup,
       Messages preferredLanguage) {
+    Optional<ApplicantModel> applicantModel = Optional.empty();
     form = validateFirstNameForEditClient(form);
     form = validateLastNameForEditClient(form);
     form = validatePhoneNumber(form, preferredLanguage);
     form = validateDateOfBirth(form);
     if (form.hasErrors()) {
-      return form;
+      return new TIClientFormWithOptionalApplicantData(form, applicantModel);
     }
     try {
-      accountRepository.createNewApplicantForTrustedIntermediaryGroup(
-          form.get(), trustedIntermediaryGroup);
+      applicantModel =
+          accountRepository.createNewApplicantForTrustedIntermediaryGroup(
+              form.get(), trustedIntermediaryGroup);
     } catch (EmailAddressExistsException e) {
-      return form.withError(
-          FORM_FIELD_NAME_EMAIL_ADDRESS,
-          "Email address already in use. Cannot create applicant if an account already"
-              + " exists.");
+      return new TIClientFormWithOptionalApplicantData(
+          form.withError(
+              FORM_FIELD_NAME_EMAIL_ADDRESS,
+              "Email address already in use. Cannot create applicant if an account already"
+                  + " exists."),
+          Optional.empty());
     }
-    return form;
+    return new TIClientFormWithOptionalApplicantData(form, applicantModel);
   }
 
   private Form<TiClientInfoForm> validateDateOfBirth(Form<TiClientInfoForm> form) {
-    String day = form.value().get().getDayQuery();
-    String month = form.value().get().getMonthQuery();
-    String year = form.value().get().getYearQuery();
+    Optional<String> day = form.value().get().getDayQuery();
+    Optional<String> month = form.value().get().getMonthQuery();
+    Optional<String> year = form.value().get().getYearQuery();
 
-    if (Strings.isNullOrEmpty(day) || Strings.isNullOrEmpty(month) || Strings.isNullOrEmpty(year)) {
-      return form.withError(FORM_FIELD_NAME_DOB, "Full date of birth required");
+    if (day.isEmpty() || (day.isPresent() && Strings.isNullOrEmpty(day.get()))) {
+      return form.withError(FORM_FIELD_NAME_DOB_DAY, "Full date of birth required");
+    }
+    if (month.isEmpty() || (month.isPresent() && Strings.isNullOrEmpty(month.get()))) {
+      return form.withError(FORM_FIELD_NAME_DOB_MONTH, "Full date of birth required");
+    }
+    if (year.isEmpty() || (year.isPresent() && Strings.isNullOrEmpty(year.get()))) {
+      return form.withError(FORM_FIELD_NAME_DOB_YEAR, "Full date of birth required");
     }
     final LocalDate currentDob;
     try {
-      currentDob = dateConverter.parseDayMonthYearToLocalDate(day, month, year);
+      currentDob = dateConverter.parseDayMonthYearToLocalDate(day.get(), month.get(), year.get());
     } catch (DateTimeParseException e) {
-      return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth must be in MM/dd/yyyy format");
+      return form.withError(FORM_FIELD_NAME_DOB_DAY, "Date of Birth must be in MM/dd/yyyy format");
     }
     if (!currentDob.isBefore(dateConverter.getCurrentDateForZoneId())) {
-      return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth should be in the past");
+      return form.withError(FORM_FIELD_NAME_DOB_YEAR, "Date of Birth should be in the past");
     }
     if (currentDob.isBefore(dateConverter.getCurrentDateForZoneId().minusYears(150))) {
-      return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth should be less than 150 years ago");
+      return form.withError(
+          FORM_FIELD_NAME_DOB_YEAR, "Date of Birth should be less than 150 years ago");
     }
     return form;
   }

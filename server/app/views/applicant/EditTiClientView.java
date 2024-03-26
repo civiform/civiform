@@ -16,6 +16,7 @@ import j2html.tags.specialized.FormTag;
 import java.time.LocalDate;
 import java.util.Optional;
 import models.AccountModel;
+import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
 import play.data.Form;
 import play.i18n.Messages;
@@ -45,9 +46,7 @@ public class EditTiClientView extends BaseHtmlView {
   @Inject
   public EditTiClientView(
       ApplicantLayout layout, Config configuration, AccountRepository accountRepository) {
-
     this.layout = checkNotNull(layout);
-
     this.accountRepository = checkNotNull(accountRepository);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
   }
@@ -59,7 +58,8 @@ public class EditTiClientView extends BaseHtmlView {
       Messages messages,
       Optional<Long> accountIdToEdit,
       Long applicantIdOfTi,
-      Optional<Form<TiClientInfoForm>> tiClientInfoForm) {
+      Optional<Form<TiClientInfoForm>> tiClientInfoForm,
+      Optional<ApplicantModel> newlyAddedClient) {
     Optional<AccountModel> optionalAccountModel = Optional.empty();
     String title = messages.at(MessageKey.TITLE_CREATE_CLIENT.getKeyName());
     String pageHeader = "Add client";
@@ -80,6 +80,23 @@ public class EditTiClientView extends BaseHtmlView {
       optionalSuccessMessage = Optional.empty();
     }
     boolean isSuccessfulSave = tiClientInfoForm.isPresent() && !tiClientInfoForm.get().hasErrors();
+    if (newlyAddedClient.isPresent()) {
+      HtmlBundle bundle =
+          layout
+              .getBundle(request)
+              .setTitle(title)
+              .addMainContent(
+                  renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
+                  hr(),
+                  renderSubHeader(pageHeader).withId(pageId).withClass("my-4"),
+                  renderSuccessAlert(isSuccessfulSave, successToast, optionalSuccessMessage),
+                  renderApplicationsStartButton(newlyAddedClient.get(), messages),
+                  renderBackLink())
+              .addMainStyles("px-20", "max-w-screen-xl");
+
+      return layout.renderWithNav(request, personalInfo, messages, bundle, applicantIdOfTi);
+    }
+
     HtmlBundle bundle =
         layout
             .getBundle(request)
@@ -96,6 +113,19 @@ public class EditTiClientView extends BaseHtmlView {
             .addMainStyles("px-20", "max-w-screen-xl");
 
     return layout.renderWithNav(request, personalInfo, messages, bundle, applicantIdOfTi);
+  }
+
+  private DivTag renderApplicationsStartButton(ApplicantModel applicant, Messages messages) {
+    return div()
+        .with(
+            new ATag()
+                .withClasses("usa-button usa-button--outline")
+                .withId("applications-start-button")
+                .withText(messages.at(MessageKey.BUTTON_START_APP.getKeyName()))
+                .withHref(
+                    controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
+                            applicant.id)
+                        .url()));
   }
 
   private Tag renderSuccessAlert(
@@ -229,7 +259,6 @@ public class EditTiClientView extends BaseHtmlView {
                 .setRequired(true)
                 .setLocalDateValue(getDefaultDob(optionalApplicantData)),
             form,
-            TrustedIntermediaryService.FORM_FIELD_NAME_DOB,
             messages);
     FieldWithLabel tiNoteField =
         setStateIfPresent(
@@ -311,23 +340,31 @@ public class EditTiClientView extends BaseHtmlView {
   private MemorableDateFieldWithLabel setStateIfPresent(
       MemorableDateFieldWithLabel field,
       Optional<Form<TiClientInfoForm>> optionalForm,
-      String key,
       Messages messages) {
     if (optionalForm.isEmpty()) {
       return field;
     }
 
     TiClientInfoForm form = optionalForm.get().value().get();
-    switch (key) {
-      case TrustedIntermediaryService.FORM_FIELD_NAME_DOB:
-        field.setDayQuery(form.getDayQuery());
-        field.setMonthQuery(form.getMonthQuery());
-        field.setYearQuery(form.getYearQuery());
-        break;
-    }
+    field.setDayQuery(form.getDayQuery().get());
+    field.setYearQuery(form.getYearQuery().get());
+    field.setMonthQuery(form.getMonthQuery().get());
 
-    if (optionalForm.get().error(key).isPresent()) {
-      field.setFieldErrors(messages, optionalForm.get().errors(key));
+    if (optionalForm.get().error(TrustedIntermediaryService.FORM_FIELD_NAME_DOB_DAY).isPresent()) {
+      field.setFieldErrors(
+          messages, optionalForm.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_DOB_DAY));
+    }
+    if (optionalForm
+        .get()
+        .error(TrustedIntermediaryService.FORM_FIELD_NAME_DOB_MONTH)
+        .isPresent()) {
+      field.setFieldErrors(
+          messages,
+          optionalForm.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_DOB_MONTH));
+    }
+    if (optionalForm.get().error(TrustedIntermediaryService.FORM_FIELD_NAME_DOB_YEAR).isPresent()) {
+      field.setFieldErrors(
+          messages, optionalForm.get().errors(TrustedIntermediaryService.FORM_FIELD_NAME_DOB_YEAR));
     }
 
     return field;

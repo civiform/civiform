@@ -173,7 +173,7 @@ public class MemorableDateFieldWithLabel extends FieldWithLabel {
   /* Helper function for the Memorable Date */
   private DivTag getDayFormGroup() {
 
-    InputTag dayTag = TagCreator.input().withClasses();
+    InputTag dayTag = TagCreator.input();
     dayTag.withValue(dayQuery);
     dayTag.withClasses("usa-input");
     dayTag.withId("date_of_birth_day");
@@ -300,10 +300,11 @@ public class MemorableDateFieldWithLabel extends FieldWithLabel {
     monthTag.withId("date_of_birth_month");
     monthTag.withName("monthQuery");
     monthTag.attr("aria-describedby", "mdHint");
-    if (this.monthQuery.equals("")) {
+    System.out.println("Month query = " + monthQuery);
+    if (monthQuery.equals("")) {
       janOption.isSelected();
     }
-    if (this.monthQuery.equals("02")) {
+    if (monthQuery.equals("02")) {
       FebOption.isSelected();
     }
 
