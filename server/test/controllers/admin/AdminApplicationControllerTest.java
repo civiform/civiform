@@ -633,12 +633,17 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
       public ProfileTester(
           DatabaseExecutionContext dbContext,
-          HttpExecutionContext httpContext,
+          HttpExecutionContext classLoaderExecutionContext,
           CiviFormProfileData profileData,
           SettingsManifest settingsManifest,
           Optional<AccountModel> adminAccount,
           AccountRepository accountRepository) {
-        super(dbContext, httpContext, profileData, settingsManifest, accountRepository);
+        super(
+            dbContext,
+            classLoaderExecutionContext,
+            profileData,
+            settingsManifest,
+            accountRepository);
         this.adminAccount = adminAccount;
       }
 

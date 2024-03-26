@@ -28,7 +28,7 @@ public final class ProfileFactory {
   public static final String FAKE_ADMIN_AUTHORITY_ID = "fake-admin";
   public static final String APPLICANT_ID_ATTRIBUTE_NAME = "applicant_id";
   private final DatabaseExecutionContext dbContext;
-  private final HttpExecutionContext httpContext;
+  private final HttpExecutionContext classLoaderExecutionContext;
   private final Provider<VersionRepository> versionRepositoryProvider;
   private final Provider<ProgramRepository> programRepositoryProvider;
   private final Provider<ApiKeyService> apiKeyService;
@@ -38,14 +38,14 @@ public final class ProfileFactory {
   @Inject
   public ProfileFactory(
       DatabaseExecutionContext dbContext,
-      HttpExecutionContext httpContext,
+      HttpExecutionContext classLoaderExecutionContext,
       Provider<VersionRepository> versionRepositoryProvider,
       Provider<ProgramRepository> programRepositoryProvider,
       Provider<ApiKeyService> apiKeyService,
       Provider<AccountRepository> accountRepositoryProvider,
       SettingsManifest settingsManifest) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
-    this.httpContext = Preconditions.checkNotNull(httpContext);
+    this.classLoaderExecutionContext = Preconditions.checkNotNull(classLoaderExecutionContext);
     this.versionRepositoryProvider = Preconditions.checkNotNull(versionRepositoryProvider);
     this.programRepositoryProvider = Preconditions.checkNotNull(programRepositoryProvider);
     this.apiKeyService = Preconditions.checkNotNull(apiKeyService);
@@ -92,7 +92,11 @@ public final class ProfileFactory {
 
   public CiviFormProfile wrapProfileData(CiviFormProfileData p) {
     return new CiviFormProfile(
-        dbContext, httpContext, p, settingsManifest, accountRepositoryProvider.get());
+        dbContext,
+        classLoaderExecutionContext,
+        p,
+        settingsManifest,
+        accountRepositoryProvider.get());
   }
 
   /**
