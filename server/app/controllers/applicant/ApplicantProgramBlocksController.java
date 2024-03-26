@@ -699,13 +699,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicantRequestedActionWrapper.getAction();
 
               // Allow applicants to immediately navigate away from a block if they haven't even
-              // started answering it.
-              // We can immediately navigate away from a block if:
+              // started answering it. We can immediately navigate away from a block if:
               if (
               // There are no answers currently filled out...
               formData.values().stream().allMatch(value -> value.equals(""))
                   // ... and the applicant wants to navigate to previous or review...
-                  // [Explanation: we can't let applicants navigate to the next block without
+                  // [Explanation: We can't let applicants navigate to the next block without
                   // answers because the next block may have a visibility conditions that
                   // depends on the answers to this block.]
                   && (applicantRequestedAction == REVIEW_PAGE
@@ -714,16 +713,16 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   // ... and the applicant didn't previously complete this block...
                   && !maybeBlockBeforeUpdate.get().isCompletedInProgramWithoutErrors()
                   // ...and there's at least one required question, meaning that all blank answers
-                  // is *not* a valid state.
+                  // is *not* a valid response.
                   // [Explanation: We don't allow applicants to submit an application until they've
                   // at least seen all the questions. We mark as question as "seen" by checking
                   // that the metadata is filled in (see
                   // {@link ApplicantQuestion#isAnsweredOrSkippedOptionalInProgram}).
-                  // That metadata only gets filled in by {@link #stageAndUpdateIfValid}.
+                  //
                   // If a block has all optional questions, having all empty answers is a valid
-                  // response, and we should mark that block as seen. So, we need
-                  // {@link #stageAndUpdateIfValid} to proceed and add metadata to the questions,
-                  // so we can't immediately navigate away.]
+                  // response and we should mark that block as seen by having
+                  // {@link #stageAndUpdateIfValid} fill in that metadata. So, we can't immediately
+                  // navigate away.]
                   && !maybeBlockBeforeUpdate.get().hasOnlyOptionalQuestions()) {
                 return getRequestedPage(
                     profile,
@@ -754,7 +753,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                               inReview,
                               applicantRequestedAction,
                               newReadOnlyApplicantProgramService),
-                      classLoaderExecutionContext.current());
+                          classLoaderExecutionContext.current());
             })
         .exceptionally(this::handleUpdateExceptions);
   }

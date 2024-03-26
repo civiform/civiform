@@ -692,8 +692,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().applicantName())
-            .withBlock("block 2")
-            .withRequiredQuestion(testQuestionBank().applicantAddress())
             .build();
     Request request =
         addCSRFToken(
@@ -733,6 +731,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(contentAsString(result)).contains("Please enter your last name.");
   }
 
+  // See issue #6987.
   @Test
   public void update_noAnswerToRequiredQuestion_requestedActionPrevious_goesToPrevious() {
     ApplicantRequestedActionWrapper requestedAction =
@@ -786,6 +785,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation()).hasValue(previousRoute);
   }
 
+  // See issue #6987.
   @Test
   public void update_noAnswerToRequiredQuestion_requestedActionReview_goesToReview() {
     ApplicantRequestedActionWrapper requestedAction =
@@ -794,8 +794,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().applicantAddress())
-            .withBlock("block 2")
             .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
     Request request =
@@ -804,7 +802,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         routes.ApplicantProgramBlocksController.updateWithApplicantId(
                             applicant.id,
                             program.id,
-                            /* blockId= */ "2",
+                            /* blockId= */ "1",
                             /* inReview= */ false,
                             requestedAction))
                     .bodyForm(
@@ -825,7 +823,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 request,
                 applicant.id,
                 program.id,
-                /* blockId= */ "2",
+                /* blockId= */ "1",
                 /* inReview= */ false,
                 requestedAction)
             .toCompletableFuture()
@@ -918,7 +916,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                                 .toString(),
                             "InitialLastName")))
             .build();
-
     subject
         .updateWithApplicantId(
             requestWithAnswer,
@@ -930,7 +927,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         .toCompletableFuture()
         .join();
 
-    // Then, delete the answer
+    // Then, try to delete the answer
     Request requestWithoutAnswer =
         addCSRFToken(
                 requestBuilderWithSettings(
@@ -1002,7 +999,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                                 .toString(),
                             "InitialLastName")))
             .build();
-
     subject
         .updateWithApplicantId(
             requestWithAnswer,

@@ -124,17 +124,18 @@ test.describe('Applicant navigation flow', () => {
           await applicantQuestions.validateQuestionIsOnPage(dateQuestionText)
           await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
 
-          // Note: This test is related to issue #6987. If the user opens a block
-          // and doesn't answer any questions and clicks "Review" or "Previous",
-          // we should let them go to the review page or previous page and not
-          // show errors. But if they click "Save & next", we *should* show the
-          // errors because the next block may have a visibility conditions that
-          // depends on the answers to this block.
+          // This test is for issue #6987. If the user opens a block and doesn't
+          // answer any questions then clicks "Review" or "Previous", we should
+          // let them go to the review page / previous page and not show errors.
+          // But if they click "Save & next", we *should* show the errors because
+          // the next block may have a visibility conditions that depends on the
+          // answers to this block.
           await applicantQuestions.answerDateQuestion('')
           await applicantQuestions.answerEmailQuestion('')
           await applicantQuestions.clickNext()
 
-          // Expect we're still on the same page and see errors since the questions weren't answered
+          // Expect we're still on the same page and see errors since the questions
+          // weren't answered
           await applicantQuestions.validateQuestionIsOnPage(dateQuestionText)
           await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
           await applicantQuestions.expectRequiredQuestionError(
@@ -365,8 +366,7 @@ test.describe('Applicant navigation flow', () => {
           await applicantQuestions.expectReviewPage()
         })
 
-        await test.step('cannot delete answers', async () => {
-          // Try deleting answers to required questions
+        await test.step('cannot delete answers to required questions', async () => {
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
           )
@@ -624,7 +624,7 @@ test.describe('Applicant navigation flow', () => {
         // Nothing to fill in since this is the static question block
         await applicantQuestions.clickNext()
 
-        // Only fill in half the address question, and try going to previous block
+        // Only fill in half the address question, then try going to previous block
         await applicantQuestions.answerAddressQuestion(
           '1234 St',
           '',
