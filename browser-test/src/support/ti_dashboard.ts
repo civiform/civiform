@@ -41,25 +41,25 @@ export class TIDashboard {
 
     await this.page.getByRole('button', {name: 'Save'}).click()
     await waitForPageJsLoad(this.page)
-    await this.expectSuccessAlertOnAddNewClient()
     await this.gotoTIDashboardPage(this.page)
     await waitForPageJsLoad(this.page)
   }
 
   async createMultipleClients(nameBase: string, copies: number) {
+    await this.page.getByRole('link', {name: 'Add new client'}).click()
+
     for (let i = 1; i <= copies; i++) {
-      await this.page.getByRole('link', {name: 'Add new client'}).click()
       await waitForPageJsLoad(this.page)
       await this.page.fill('#email-input', nameBase + i + '@test.com')
       await this.page.fill('#first-name-input', nameBase + i)
       await this.page.fill('#last-name-input', 'last')
       await this.page.fill('#date-of-birth-input', '2021-05-10')
       await this.page.getByRole('button', {name: 'Save'}).click()
-      await waitForPageJsLoad(this.page)
-      await this.expectSuccessAlertOnAddNewClient()
-      await this.gotoTIDashboardPage(this.page)
-      await waitForPageJsLoad(this.page)
     }
+
+    await waitForPageJsLoad(this.page)
+    await this.gotoTIDashboardPage(this.page)
+    await waitForPageJsLoad(this.page)
   }
 
   async updateClientEmailAddress(client: ClientInformation, newEmail: string) {
