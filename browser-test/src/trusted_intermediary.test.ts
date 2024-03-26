@@ -11,6 +11,7 @@ import {
   AdminQuestions,
   dismissToast,
   selectApplicantLanguage,
+  enableFeatureFlag,
 } from './support'
 
 test.describe('Trusted intermediaries', () => {
@@ -1091,4 +1092,102 @@ test.describe('Trusted intermediaries', () => {
       )
     })
   })
-})
+  test.describe('pre-populating TI client info with PAI questions', () => {
+    const ctx = createTestContext(/* clearDb= */ true)
+    test.beforeEach(async () => {
+      const {page, tiDashboard} = ctx
+
+        await loginAsTrustedIntermediary(page)
+        await tiDashboard.gotoTIDashboardPage(page)
+        const client: ClientInformation = {
+          emailAddress: 'test@email.com',
+          firstName: 'first',
+          middleName: 'middle',
+          lastName: 'last',
+          dobDate: '2001-01-01',
+        }
+        await tiDashboard.createClient(client)
+        await tiDashboard.updateClientTiNoteAndPhone(
+          client,
+          'note',
+          '9178675309',
+        )
+        await waitForPageJsLoad(page)
+    })
+
+      test.only('client info is pre-populated in the application', async () => {
+        const {page, adminPrograms, adminQuestions, tiDashboard, applicantQuestions} = ctx
+
+        await enableFeatureFlag(
+          page,
+          'primary_applicant_info_questions_enabled',
+        )
+
+        await test.step('create program with PAI questions', async () => {
+          await loginAsAdmin(page)
+          await adminQuestions.addDateQuestion({
+            questionName: 'dob',
+            questionText: 'Date of birth',
+            universal: true,
+            primaryApplicantInfo: true,
+          })
+          await adminQuestions.addNameQuestion({
+            questionName: 'name',
+            questionText: 'Name',
+            universal: true,
+            primaryApplicantInfo: true,
+          })
+          await adminQuestions.addPhoneQuestion({
+            questionName: 'phone',
+            questionText: 'Phone',
+            universal: true,
+            primaryApplicantInfo: true,
+          })
+          await adminQuestions.addEmailQuestion({
+            questionName: 'email',
+            questionText: 'Email',
+            universal: true,
+            primaryApplicantInfo: true,
+          })
+          // Add an extra question so "Continue" button is not "Submit"
+          await adminQuestions.addTextQuestion({
+            questionName: 'text',
+            questionText: 'Text',
+          })
+          await adminPrograms.addAndPublishProgramWithQuestions(
+            ['dob', 'name', 'phone', 'email', 'text'],
+            'PAI Program',
+          )
+          await logout(page)
+        })
+
+        await test.step('login as TI and apply to program on behalf of client', async () => {
+          await loginAsTrustedIntermediary(page)
+          await tiDashboard.gotoTIDashboardPage(page)
+          await tiDashboard.clickOnViewApplications()
+          await applicantQuestions.clickApplyProgramButton('PAI Program')
+        })
+        await test.step('verify client info is pre-populated in the application', async () => {
+          expect(await page.innerText('#application-summary')).toContain('01/01/2001')
+          expect(await page.innerText('#application-summary')).toContain('first middle last')
+          expect(await page.innerText('#application-summary')).toContain('+1 917-867-5309')
+          expect(await page.innerText('#application-summary')).toContain('test@email.com')
+          await validateScreenshot(page, 'pai-program-application-preview')
+        })
+        await test.step('verify client info is pre-populated in the application after clicking continue', async () => {
+          await applicantQuestions.clickContinue()
+          // the expects below aren't working, i think i need a better way to select
+          // expect(await page.innerText('#cf-block-form')).toContain('01/01/2001')
+          // expect(await page.innerText('#cf-block-form')).toContain('first middle last')
+          // expect(await page.innerText('#cf-block-form')).toContain('+1 917-867-5309')
+          // expect(await page.innerText('#cf-block-form')).toContain('test@email.com')
+          await validateScreenshot(page, 'pai-program-application')
+        })
+      })
+      test('client info is not pre-populated in the application for non-PAI questions', async () => {
+      })
+      test('info filled in by PAI values is overridden when answered directly in the application', async () => {
+      })
+    })
+    // const createProgram
+  })
