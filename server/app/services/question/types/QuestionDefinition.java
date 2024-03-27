@@ -49,7 +49,7 @@ import services.question.QuestionOption;
 })
 public abstract class QuestionDefinition {
 
-  @JsonProperty("id")
+  @JsonProperty("config")
   private QuestionDefinitionConfig config;
 
   protected QuestionDefinition(QuestionDefinitionConfig config) {
