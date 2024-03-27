@@ -566,19 +566,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 Optional.empty())
             .url();
 
-    String editClientPath =
-        controllers.ti.routes.TrustedIntermediaryController.editClient(1L).url();
-
-    // Remove the last two path segments to get the common path prefix "/admin/tiGroups"
-    int lastSlashIndex = editClientPath.lastIndexOf("/");
-    if (lastSlashIndex != -1) {
-      String pathBeforeLastSlash = editClientPath.substring(0, lastSlashIndex);
-      int secondLastSlashIndex = pathBeforeLastSlash.lastIndexOf("/");
-      if (secondLastSlashIndex != -1) {
-        editClientPath = editClientPath.substring(0, secondLastSlashIndex);
-      }
-    }
-
     try {
       URI currentPathUri = new URI(request.uri());
       currentPath = currentPathUri.getPath();
@@ -586,10 +573,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
       logger.error("Could not get the path for uri {}", request.uri());
     }
 
-    if (currentPath == null) {
-      return false;
-    }
-
-    return currentPath.equals(tiDashboardPath) || currentPath.contains(editClientPath);
+    return currentPath != null && currentPath.contains(tiDashboardPath);
   }
 }
