@@ -41,6 +41,10 @@ test.describe('Trusted intermediaries', () => {
     await tiDashboard.expectSuccessAlertOnUpdate()
     await validateScreenshot(page.locator('main'), 'edit-client-success-alert')
 
+    // The 'You are applying for...' banner should only be present when the TI
+    // is actively applying for a client
+    await tiDashboard.expectApplyingForBannerNotPresent()
+
     await page.click('#ti-dashboard-link')
     await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardContainClient(updatedClient)
@@ -61,6 +65,10 @@ test.describe('Trusted intermediaries', () => {
     }
     await page.getByRole('link', {name: 'Add new client'}).click()
     await waitForPageJsLoad(page)
+
+    // The 'You are applying for...' banner should only be present when the TI
+    // is actively applying for a client
+    await tiDashboard.expectApplyingForBannerNotPresent()
 
     await page.fill('#email-input', client.emailAddress)
     await page.fill('#first-name-input', client.firstName)
@@ -404,12 +412,13 @@ test.describe('Trusted intermediaries', () => {
     await page.getByRole('button', {name: 'Save'}).click()
     await tiDashboard.expectSuccessAlertOnAddNewClient()
     await page.getByRole('link', {name: 'Start an application'}).click()
-    await expect(page.getByRole('heading')).toContainText('Find programs')
+    await validateScreenshot(page, 'start-application-leads-to-program-cards')
   })
 
   test('ti landing page is the TI Dashboard', async () => {
-    const {page} = ctx
+    const {page, tiDashboard} = ctx
     await loginAsTrustedIntermediary(page)
+    await tiDashboard.expectApplyingForBannerNotPresent()
     await validateScreenshot(page, 'ti')
   })
 
