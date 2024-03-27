@@ -521,18 +521,12 @@ export class ApplicantQuestions {
 
   async expectVerifyAddressPage(hasAddressSuggestions: boolean) {
     expect(await this.page.innerText('h2')).toContain('Confirm your address')
-    if (hasAddressSuggestions) {
-      // Note: If there's only one suggestion, the heading will be "Suggested address"
-      // not "Suggested addresses". But, our browser setup always returns multiple
-      // suggestions so we can safely assert the heading is always "Suggested addresses".
-      await expect(
-        this.page.getByRole('heading', {name: 'Suggested addresses'}),
-      ).toBeVisible()
-    } else {
-      await expect(
-        this.page.getByRole('heading', {name: 'Suggested addresses'}),
-      ).toBeHidden()
-    }
+    // Note: If there's only one suggestion, the heading will be "Suggested address"
+    // not "Suggested addresses". But, our browser setup always returns multiple
+    // suggestions so we can safely assert the heading is always "Suggested addresses".
+    await expect(
+      this.page.getByRole('heading', {name: 'Suggested addresses'}),
+    ).toBeVisible({visible: hasAddressSuggestions})
   }
 
   async expectAddressPage() {
