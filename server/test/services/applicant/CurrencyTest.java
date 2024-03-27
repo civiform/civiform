@@ -32,6 +32,8 @@ public class CurrencyTest {
 
         // With cents.
         new Object[] {TestData.create("12345.67", "12,345.67", 12345.67, "12345.67", 1234567)},
+
+        // With cents to demonstrate fixing a floating point issue
         new Object[] {TestData.create("18500.01", "18,500.01", 18500.01, "18500.01", 1850001)},
 
         // With comma and cents.
