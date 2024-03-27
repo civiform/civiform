@@ -327,25 +327,8 @@ validation.stateRequired=እባክዎ ክልል ያስገቡ።
 validation.invalidZipcode=እባክዎ ትክክለኛ ባለ5 አኃዝ ዚፕ ኮድ ያስገቡ።
 validation.noPoBox=እባክዎ ትክክለኛ አድራሻ ያስገቡ። የፖስታ ሳጥን ቁጥሮችን አንቀበልም።
 
-title.verifyAddress=አድራሻን ያረጋግጡ
-
-content.foundSimilarAddress=የሰጡትን አድራሻ ማረጋገጥ አልቻልንም ነገር ግን የሆነ ተመሳሳይ ነገር አግኝተናል።
-# Heading for showing the user the address they provided earlier
-content.addressEntered=እርስዎ ያስገቡት አድራሻ፦
-
-# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
-content.suggestedAddress=የተጠቆመው አድራሻ፦
-content.suggestedAddresses=የተጠቆሙ አድራሻዎች፦
-
-# Title on address correction dialog when no address is found.
-title.noValidAddress=ምንም የሚሠሩ አድራሻዎች አልተገኙም
-content.noValidAddress=የሰጡትን አድራሻ ማረጋገጥ አልቻልንም። እባክዎ ለመቀጠል አድራሻዎን ያርትዑ።
-
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
-# Note: We're re-writing the text shown on the address correction screen. #
-# The strings below will be used in the re-write, and then the strings    #
-# above that are obsolete will be deleted.                                #
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
@@ -356,6 +339,11 @@ content.confirmAddressLine1=አድራሻዎን ማግኘት አልቻልንም�
 content.foundSimilarAddressLine2=እባክዎ የአድራሻዎን ፊደል አጻጻፍ ያረጋግጡ ወይም ከተሰጠው ዝርዝር ውስጥ አንድ አማራጭ ይምረጡ።
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
 content.noValidAddressLine2=እባክዎ አድራሻዎን ፊደል አጻጻፍ ያረጋግጡ እና ለመቀጠል አርትዕ ያድርጉ።
+# Heading for showing the user the address they provided earlier
+content.addressEntered=እርስዎ ያስገቡት አድራሻ፦
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=የተጠቆመው አድራሻ፦
+content.suggestedAddresses=የተጠቆሙ አድራሻዎች፦
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
 button.confirmAddress=አድራሻ ያረጋግጡ
 
