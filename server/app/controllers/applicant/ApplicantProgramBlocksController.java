@@ -709,8 +709,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   // depends on the answers to this block.]
                   && (applicantRequestedAction == REVIEW_PAGE
                       || applicantRequestedAction == PREVIOUS_BLOCK)
-                  && maybeBlockBeforeUpdate.isPresent()
                   // ... and the applicant didn't previously complete this block...
+                  && maybeBlockBeforeUpdate.isPresent()
                   && !maybeBlockBeforeUpdate.get().isCompletedInProgramWithoutErrors()
                   // ...and there's at least one required question, meaning that all blank answers
                   // is *not* a valid response.
@@ -724,7 +724,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   // {@link #stageAndUpdateIfValid} fill in that metadata. So, we can't immediately
                   // navigate away.]
                   && !maybeBlockBeforeUpdate.get().hasOnlyOptionalQuestions()) {
-                return getRequestedPage(
+                return redirectToRequestedPage(
                     profile,
                     applicantId,
                     programId,
@@ -904,7 +904,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       : MessageKey.TOAST_MAY_QUALIFY.getKeyName(),
                   roApplicantProgramService.getProgramTitle()));
     }
-    return getRequestedPage(
+    return redirectToRequestedPage(
         profile,
         applicantId,
         programId,
@@ -916,7 +916,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /** Returns the correct page based on the given {@code applicantRequestedAction}. */
-  private CompletionStage<Result> getRequestedPage(
+  private CompletionStage<Result> redirectToRequestedPage(
       CiviFormProfile profile,
       long applicantId,
       long programId,
