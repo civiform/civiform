@@ -5,69 +5,86 @@
   th:id="${questionId}"
   class="cf-question-enumerator"
 >
-  <!-- Title and Help Text -->
-  <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
-  ></div>
-
-  <!-- Display errors -->
-  <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${enumeratorQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
-  ></div>
-
-  <div
-    th:data-label-text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})}"
-    th:data-button-text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})}"
+  <fieldset
+    class="usa-fieldset"
+    th:aria-describedby="${questionId} + '-description'"
   >
-    <div id="enumerator-fields">
-      <div th:each="option,iterator: ${enumeratorQuestion.getEntityNames()}">
-        <div
-          th:replace="~{this :: enumeratorField(#{strings.randomAlphanumeric(8)}, ${question.getContextualizedPath()}, ${entityNames.get(index)}, ${index})}"
-        ></div>
+    <!-- Title and Help Text -->
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
+    ></div>
+
+    <!-- Display errors -->
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${enumeratorQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+    ></div>
+
+    <div
+      th:data-label-text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})}"
+      th:data-button-text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})}"
+    >
+      <div th:replace="~{this :: deleteInputTemplate}"></div>
+      <div id="enumerator-fields">
+        <div th:each="option,iterator: ${enumeratorQuestion.getEntityNames()}">
+          <div
+            th:replace="~{this :: enumeratorField(${#strings.randomAlphanumeric(8)}, ${#strings.randomAlphanumeric(8)}, ${question.getContextualizedPath()}, ${option}, ${iterator.count}, ${iterator.index}, false)}"
+          ></div>
+        </div>
       </div>
+      <!-- Enumerator field template, used in TS to add another enumerator field -->
+      <div
+        th:replace="~{this :: enumeratorField(enumerator-field-template, enumerator-field-template-input, ${question.getContextualizedPath()}, '', -1, null, true)}"
+      ></div>
+      <!-- Add entity button -->
+      <button
+        th:text="#{button.addEntity(${enumeratorQuestion.getEntityType()})}"
+        id="enumerator-field-add-button"
+        type="button"
+      ></button>
     </div>
-    <div th:replace="~{this :: enumeratorFieldTemplate}"></div>
+  </fieldset>
+</div>
 
-    <!-- Add entity button -->
-    <button
-      th:text="#{button.addEntity(${enumeratorQuestion.getEntityType()})}"
-      id="enumerator-field-add-button"
-      type="button"
-    ></button>
+<div
+  th:fragment="enumeratorField(fieldId, inputId, path, existingEntity, visibleIndex, deleteButtonId, hidden)"
+  class="cf-enumerator-field"
+  th:classappend="${hidden ? 'hidden' : ''}"
+  th:id="${fieldId}"
+  th:with="indexString=${visibleIndex == -1 ? '' : ' #' + visibleIndex}"
+>
+  <div class="cf-entity-name-input">
+    <label th:for="${inputId}">
+      <span
+        th:text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})} + ${indexString}"
+      ></span>
+    </label>
+    <input
+      type="text"
+      class="usa-input"
+      maxlength="10000"
+      th:id="${inputId}"
+      th:value="${existingEntity}"
+      th:name="${path}"
+      th:disabled="${hidden}"
+    />
+    <!-- TODO: Load the errors for the field properly. For now this is a placeholder div so TS won't error -->
+    <div th:id="${inputId + '-errors'}"></div>
   </div>
+  <!-- Delete entity button -->
+  <button
+    type="button"
+    class="cf-enumerator-delete-button"
+    th:id="${deleteButtonId}"
+    th:text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})} + ${indexString}"
+    th:attr="onclick='if(confirm(\'' + #{dialog.confirmDelete(${enumeratorQuestion.getEntityType()})} + '\')){ return true; } else { var e = arguments[0] || window.event; e.stopImmediatePropagation(); return false; }'"
+  ></button>
 </div>
 
-<div
-  th:fragment="enumeratorField(inputId, path, existingEntity, existingIndex)"
-  class="cf-entity-name-input"
->
-  <label
-    th:for="${inputId}"
-    th:with="indexString=${existingIndex.isEmpty() ? '' : '#' + (existingIndex + 1)}"
-  >
-    <span
-      th:text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})} + ${indexString}"
-    ></span>
-  </label>
-  <input
-    type="text"
-    class="usa-input"
-    maxlength="10000"
-    th:id="${inputId}"
-    th:value="${existingEntity}"
-    th:name="${path}"
-  />
-  <!-- TODO: Load the errors for the field properly. For now this is a placeholder div so TS won't error -->
-  <div th:id="${inputId + '-errors'}"></div>
-</div>
-
-<div
-  th:fragment="enumeratorFieldTemplate"
-  id="enumerator-field-template"
+<!-- Enumerator delete template, used in TS to remove an existing enumerator field -->
+<input
+  th:fragment="deleteInputTemplate"
+  id="enumerator-delete-template"
+  name="delete_entity[]"
+  disabled
   class="hidden"
->
-  <div
-    th:replace="~{this :: enumeratorField(enumerator-field-template-input, ${question.getContextualizedPath()}, '', '')}"
-  ></div>
-  <button type="button">a thing</button>
-</div>
+/>
