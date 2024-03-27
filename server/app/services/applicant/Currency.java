@@ -46,7 +46,9 @@ public final class Currency {
       throw new IllegalArgumentException(String.format("Currency is misformatted: %s", currency));
     }
     try {
-      BigDecimal bigDollars = BigDecimal.valueOf(NumberFormat.getNumberInstance(Locale.US).parse(currency).doubleValue());
+      BigDecimal bigDollars =
+          BigDecimal.valueOf(
+              NumberFormat.getNumberInstance(Locale.US).parse(currency).doubleValue());
       long cents = bigDollars.multiply(new BigDecimal(100)).longValue();
       return new Currency(cents);
     } catch (ParseException e) {
