@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAM_SLUG_LOGIN_PROMPT;
 
+import actions.ProgramCheckAction;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
@@ -22,6 +23,7 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import play.mvc.With;
 import repository.VersionRepository;
 import services.MessageKey;
 import services.applicant.AnswerData;
@@ -50,6 +52,8 @@ import views.components.ToastMessage;
  * <p>CAUTION: You must explicitly check the current profile so that an unauthorized user cannot
  * access another applicant's data!
  */
+// Apply to each action in the controller
+@With(ProgramCheckAction.class)
 public class ApplicantProgramReviewController extends CiviFormController {
 
   private final ApplicantService applicantService;
