@@ -29,7 +29,7 @@ public abstract class PredicateValue {
   }
 
   public static PredicateValue of(double value) {
-    return create(String.valueOf(value), OperatorRightHandType.LONG);
+    return create(String.valueOf(value), OperatorRightHandType.DOUBLE);
   }
 
   public static PredicateValue of(String value) {

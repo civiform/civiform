@@ -16,12 +16,12 @@ public enum Operator {
       ">=",
       "age is older than",
       ImmutableSet.of(ScalarType.DATE),
-      ImmutableSet.of(OperatorRightHandType.LONG)),
+      ImmutableSet.of(OperatorRightHandType.DOUBLE)),
   AGE_YOUNGER_THAN(
       "<",
       "age is younger than",
       ImmutableSet.of(ScalarType.DATE),
-      ImmutableSet.of(OperatorRightHandType.LONG)),
+      ImmutableSet.of(OperatorRightHandType.DOUBLE)),
   ANY_OF(
       "anyof",
       "contains any of",
