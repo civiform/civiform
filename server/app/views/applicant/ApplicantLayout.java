@@ -556,28 +556,40 @@ public class ApplicantLayout extends BaseHtmlLayout {
    */
   private static boolean onTiDashboardPage(Http.Request request) {
     String currentPath = null;
-    String tiDashboardPath = null;
+
+    String tiDashboardPath =
+        controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty())
+            .url();
+
+    String editClientPath =
+        controllers.ti.routes.TrustedIntermediaryController.editClient(1L).url();
+
+    // Remove the last two path segments to get the common path prefix "/admin/tiGroups"
+    int lastSlashIndex = editClientPath.lastIndexOf("/");
+    if (lastSlashIndex != -1) {
+      String pathBeforeLastSlash = editClientPath.substring(0, lastSlashIndex);
+      int secondLastSlashIndex = pathBeforeLastSlash.lastIndexOf("/");
+      if (secondLastSlashIndex != -1) {
+        editClientPath = editClientPath.substring(0, secondLastSlashIndex);
+      }
+    }
+
     try {
       URI currentPathUri = new URI(request.uri());
       currentPath = currentPathUri.getPath();
-
-      URI tiDashboardUri =
-          new URI(
-              controllers.ti.routes.TrustedIntermediaryController.dashboard(
-                      Optional.empty(),
-                      Optional.empty(),
-                      Optional.empty(),
-                      Optional.empty(),
-                      Optional.empty())
-                  .url());
-      tiDashboardPath = tiDashboardUri.getPath();
     } catch (URISyntaxException e) {
       logger.error("Could not get the path for uri {}", request.uri());
     }
+
     if (currentPath == null) {
       return false;
     }
 
-    return currentPath.contains(tiDashboardPath) || currentPath.contains("/admin/tiGroups");
+    return currentPath.equals(tiDashboardPath) || currentPath.contains(editClientPath);
   }
 }
