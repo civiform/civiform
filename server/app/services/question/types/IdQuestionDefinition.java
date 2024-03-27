@@ -1,6 +1,7 @@
 package services.question.types;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
@@ -13,7 +14,7 @@ public final class IdQuestionDefinition extends QuestionDefinition {
     super(config);
   }
 
-  @JsonDeserialize(builder = AutoValue_IdQuestionDefinition_IdValidationPredicates.Builder.class)
+  @JsonDeserialize(as = IdValidationPredicates.class)
   @AutoValue
   public abstract static class IdValidationPredicates extends ValidationPredicates {
 

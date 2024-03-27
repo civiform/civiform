@@ -69,6 +69,27 @@ public class DatabaseSeedView extends BaseHtmlView {
     String prettyActivePrograms = getPrettyJson(activePrograms);
     String prettyQuestions = getPrettyJson(questionDefinitions);
 
+    /*
+    System.out.println("PRETTY DRAFT PROGRAMS=" + prettyDraftPrograms);
+
+    System.out.println();
+    System.out.println();
+    System.out.println();
+
+    System.out.println("PRETTY ACTIVE PROGRAMS=" + prettyActivePrograms);
+
+    System.out.println();
+    System.out.println();
+    System.out.println();
+
+    System.out.println("PRETTY QUESTIONS=" + prettyQuestions);
+
+    System.out.println();
+    System.out.println();
+    System.out.println();
+
+     */
+
     ATag indexLinkTag =
         a().withHref(routes.DevDatabaseSeedController.index().url())
             .withId("index")

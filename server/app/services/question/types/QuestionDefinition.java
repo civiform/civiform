@@ -1,8 +1,12 @@
 package services.question.types;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.annotations.VisibleForTesting;
@@ -25,8 +29,28 @@ import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
 
 /** Superclass for all question types. */
+// Needed for import/export -- TODO more
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = AddressQuestionDefinition.class, name = "address"),
+        @JsonSubTypes.Type(value = CurrencyQuestionDefinition.class, name = "currency"),
+        @JsonSubTypes.Type(value = DateQuestionDefinition.class, name = "date"),
+        @JsonSubTypes.Type(value = EmailQuestionDefinition.class, name = "email"),
+        @JsonSubTypes.Type(value = EnumeratorQuestionDefinition.class, name = "enumerator"),
+        @JsonSubTypes.Type(value = FileUploadQuestionDefinition.class, name = "fileupload"),
+        @JsonSubTypes.Type(value = IdQuestionDefinition.class, name = "id"),
+        @JsonSubTypes.Type(value = MultiOptionQuestionDefinition.class, name = "multioption"),
+        @JsonSubTypes.Type(value = NameQuestionDefinition.class, name = "name"),
+        @JsonSubTypes.Type(value = NumberQuestionDefinition.class, name = "number"),
+        @JsonSubTypes.Type(value = PhoneQuestionDefinition.class, name = "phone"),
+        @JsonSubTypes.Type(value = StaticContentQuestionDefinition.class, name = "static"),
+        @JsonSubTypes.Type(value = TextQuestionDefinition.class, name = "text"),
+})
 public abstract class QuestionDefinition {
 
+  @JsonProperty("config")
   private QuestionDefinitionConfig config;
 
   protected QuestionDefinition(QuestionDefinitionConfig config) {
@@ -37,6 +61,34 @@ public abstract class QuestionDefinition {
     this.config = config;
   }
 
+/*
+  @JsonTypeInfo(
+          use = JsonTypeInfo.Id.NAME,
+         // include = JsonTypeInfo.As.EXISTING_PROPERTY,
+          property = "type")
+  @JsonSubTypes({
+
+          @JsonSubTypes.Type(value = AddressQuestionDefinition.AddressValidationPredicates.class, name = "address"),
+          @JsonSubTypes.Type(value = CurrencyQuestionDefinition.CurrencyValidationPredicates.class, name = "currency"),
+
+          @JsonSubTypes.Type(value = DateQuestionDefinition.DateValidationPredicates.class, name = "date"),
+          @JsonSubTypes.Type(value = EmailQuestionDefinition.EmailValidationPredicates.class, name = "email"),
+          @JsonSubTypes.Type(value = EnumeratorQuestionDefinition.EnumeratorValidationPredicates.class, name = "enumerator"),
+          @JsonSubTypes.Type(value = FileUploadQuestionDefinition.FileUploadValidationPredicates.class, name = "fileupload"),
+     //     @JsonSubTypes.Type(value = IdQuestionDefinition.IdValidationPredicates.class, name = "idthing"),
+          @JsonSubTypes.Type(value = MultiOptionQuestionDefinition.MultiOptionValidationPredicates.class, name = "multioption"),
+          @JsonSubTypes.Type(value = NameQuestionDefinition.NameValidationPredicates.class, name = "name"),
+          @JsonSubTypes.Type(value = NumberQuestionDefinition.NumberValidationPredicates.class, name = "number"),
+          @JsonSubTypes.Type(value = PhoneQuestionDefinition.PhoneValidationPredicates.class, name = "phone"),
+          @JsonSubTypes.Type(value = StaticContentQuestionDefinition.StaticContentValidationPredicates.class, name = "static"),
+          @JsonSubTypes.Type(value = TextQuestionDefinition.TextValidationPredicates.class, name = "text"),
+
+
+  })
+
+ */
+
+  @JsonDeserialize(using = ValidationPredicateDeserializer.class)
   public abstract static class ValidationPredicates {
     protected static final ObjectMapper mapper =
         new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
@@ -433,7 +485,7 @@ public abstract class QuestionDefinition {
    * <p>The {@link QuestionDefinitionConfig} should be entirely internal to {@link
    * QuestionDefinition}.
    */
-  QuestionDefinitionConfig getConfig() {
+ public QuestionDefinitionConfig getConfig() {
     return config;
   }
 
