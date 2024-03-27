@@ -6,6 +6,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.math.DoubleMath;
 import controllers.BadRequestException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -302,7 +303,7 @@ public final class PredicateGenerator {
             || operator.equals(Operator.AGE_YOUNGER_THAN)) {
           Double ageVal = Double.parseDouble(value);
           // If the age is a whole number, store it as a long
-          if (ageVal == Math.round(ageVal)) {
+          if (DoubleMath.isMathematicalInteger(ageVal)) {
             return PredicateValue.of(ageVal.longValue());
           }
           return PredicateValue.of(ageVal);
