@@ -166,7 +166,9 @@ public class EditTiClientView extends BaseHtmlView {
                 .url();
     LinkElement link =
         new LinkElement()
+            .setStyles("underline")
             .setHref(tiDashLink)
+            .setIcon(Icons.ARROW_LEFT, LinkElement.IconPosition.START)
             .setText("Back to client list")
             .setId("ti-dashboard-link");
     return link.asAnchorText();
