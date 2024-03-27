@@ -27,6 +27,7 @@ import services.PaginationInfo;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.exception.ApplicantNotFoundException;
+import services.ti.AddNewApplicantReturnObject;
 import services.ti.TrustedIntermediarySearchResult;
 import services.ti.TrustedIntermediaryService;
 import views.applicant.EditTiClientView;
@@ -146,7 +147,8 @@ public final class TrustedIntermediaryController {
             /* messages= */ messagesApi.preferred(request),
             /* accountIdToEdit= */ Optional.empty(),
             /* applicantIdOfTi= */ getTiApplicantIdFromCiviformProfile(civiformProfile),
-            /* tiClientInfoForm= */ Optional.empty()));
+            /* tiClientInfoForm= */ Optional.empty(),
+            /* applicantIdOfNewlyAddedClient= */ Optional.empty()));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -170,7 +172,8 @@ public final class TrustedIntermediaryController {
             /* messages= */ messagesApi.preferred(request),
             /* accountIdToEdit= */ Optional.of(accountId),
             /* applicantIdOfTi= */ getTiApplicantIdFromCiviformProfile(civiformProfile),
-            /* tiClientInfoForm= */ Optional.empty()));
+            /* tiClientInfoForm= */ Optional.empty(),
+            /* applicantIdOfNewlyAddedClient= */ Optional.empty()));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -187,11 +190,12 @@ public final class TrustedIntermediaryController {
     if (!trustedIntermediaryGroup.get().id.equals(id)) {
       return unauthorized();
     }
-    Form<TiClientInfoForm> form =
+    AddNewApplicantReturnObject addNewApplicantReturnObject =
         tiService.addNewClient(
             formFactory.form(TiClientInfoForm.class).bindFromRequest(request),
             trustedIntermediaryGroup.get(),
             messagesApi.preferred(request));
+    Form<TiClientInfoForm> form = addNewApplicantReturnObject.getForm();
     return ok(
         editTiClientView.render(
             /* tiGroup= */ trustedIntermediaryGroup.get(),
@@ -204,7 +208,9 @@ public final class TrustedIntermediaryController {
             /* messages= */ messagesApi.preferred(request),
             /* accountIdToEdit= */ Optional.empty(),
             /* applicantIdOfTi= */ getTiApplicantIdFromCiviformProfile(civiformProfile),
-            /* tiClientInfoForm= */ Optional.of(form)));
+            /* tiClientInfoForm= */ Optional.of(form),
+            /* applicantIdOfNewlyAddedClient= */ addNewApplicantReturnObject
+                .getoptionalApplicantId()));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -235,7 +241,8 @@ public final class TrustedIntermediaryController {
             /* messages= */ messagesApi.preferred(request),
             /* accountIdToEdit= */ Optional.of(id),
             /* applicantIdOfTi= */ getTiApplicantIdFromCiviformProfile(civiformProfile),
-            /* tiClientInfoForm= */ Optional.of(form)));
+            /* tiClientInfoForm= */ Optional.of(form),
+            /* applicantIdOfNewlyAddedClient= */ Optional.empty()));
   }
 
   private Long getTiApplicantIdFromCiviformProfile(Optional<CiviFormProfile> civiformProfile) {
