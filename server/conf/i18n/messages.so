@@ -331,25 +331,8 @@ validation.stateRequired=Fadlan geli gobolka.
 validation.invalidZipcode=Fadlan geli sib koodhka shanta lambarka ah oo saxsan.
 validation.noPoBox=Fadlan gali ciwaan saxda ah.Ma aqbalno sanduuqyada boostada (PO BOX).
 
-title.verifyAddress=Xaqiiji cinwaanka
-
-content.foundSimilarAddress=Waanu xaqiijin kari waynay cinwaanka aad bixisay, laakiin waxaanu helnay shay la mid ah.
-# Heading for showing the user the address they provided earlier
-content.addressEntered=Ciwaanka aad gelisay:
-
-# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
-content.suggestedAddress=Cinwaanka la soo jeediyay:
-content.suggestedAddresses=Cinwaanada la soo jeediyay:
-
-# Title on address correction dialog when no address is found.
-title.noValidAddress=Lama helin ciwaan sax ah
-content.noValidAddress=Waanu xaqiijin kari waynay ciwaanka aad bixisay. Fadlan wax ka beddel ciwaankaaga si aad horay ugu sii socoto.
-
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
-# Note: We're re-writing the text shown on the address correction screen. #
-# The strings below will be used in the re-write, and then the strings    #
-# above that are obsolete will be deleted.                                #
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
@@ -360,6 +343,11 @@ content.confirmAddressLine1=Nooma suurta galin inaan helno ciwaankaaga
 content.foundSimilarAddressLine2=Fadlan ka hubi ciwaankaaga higaada ama ka dooro xulasho liiska lagu siiyay.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
 content.noValidAddressLine2=Fadlan ka hubi ciwaankaaga higaada oo wax ka beddel si aad u sii socoto.
+# Heading for showing the user the address they provided earlier
+content.addressEntered=Ciwaanka aad gelisay:
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=Cinwaanka la soo jeediyay:
+content.suggestedAddresses=Cinwaanada la soo jeediyay:
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
 button.confirmAddress=Hubi ciwaankaaga
 
