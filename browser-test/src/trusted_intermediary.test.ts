@@ -379,6 +379,34 @@ test.describe('Trusted intermediaries', () => {
     await validateScreenshot(page, 'cannot-add-client-invalid-email')
   })
 
+  test('expect client can added and directly apply to programs', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'mail@test.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2023-07-11',
+    }
+    await page.getByRole('link', {name: 'Add new client'}).click()
+    await waitForPageJsLoad(page)
+
+    await page.fill('#email-input', client.emailAddress)
+    await page.fill('#first-name-input', client.firstName)
+    await page.fill('#middle-name-input', client.middleName)
+    await page.fill('#last-name-input', client.lastName)
+    await page.fill('#date-of-birth-input', client.dobDate)
+
+    await page.getByRole('button', {name: 'Save'}).click()
+    await tiDashboard.expectSuccessAlertOnAddNewClient()
+    await page.getByRole('link', {name: 'Start an application'}).click()
+    await expect(page.getByRole('heading')).toContainText('Find programs')
+  })
+
   test('ti landing page is the TI Dashboard', async () => {
     const {page} = ctx
     await loginAsTrustedIntermediary(page)
