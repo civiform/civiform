@@ -693,37 +693,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
                   applicantProgramServiceCompletableFuture.join();
               CiviFormProfile profile = profileUtils.currentUserProfileOrThrow(request);
-              Optional<Block> maybeBlockBeforeUpdate =
+              Optional<Block> optionalBlockBeforeUpdate =
                   readOnlyApplicantProgramService.getActiveBlock(blockId);
               ApplicantRequestedAction applicantRequestedAction =
                   applicantRequestedActionWrapper.getAction();
 
-              // Allow applicants to immediately navigate away from a block if they haven't even
-              // started answering it. We can immediately navigate away from a block if:
-              if (
-              // There are no answers currently filled out...
-              formData.values().stream().allMatch(value -> value.equals(""))
-                  // ... and the applicant wants to navigate to previous or review...
-                  // [Explanation: We can't let applicants navigate to the next block without
-                  // answers because the next block may have a visibility conditions that
-                  // depends on the answers to this block.]
-                  && (applicantRequestedAction == REVIEW_PAGE
-                      || applicantRequestedAction == PREVIOUS_BLOCK)
-                  // ... and the applicant didn't previously complete this block...
-                  && maybeBlockBeforeUpdate.isPresent()
-                  && !maybeBlockBeforeUpdate.get().isCompletedInProgramWithoutErrors()
-                  // ...and there's at least one required question, meaning that all blank answers
-                  // is *not* a valid response.
-                  // [Explanation: We don't allow applicants to submit an application until they've
-                  // at least seen all the questions. We mark as question as "seen" by checking
-                  // that the metadata is filled in (see
-                  // {@link ApplicantQuestion#isAnsweredOrSkippedOptionalInProgram}).
-                  //
-                  // If a block has all optional questions, having all empty answers is a valid
-                  // response and we should mark that block as seen by having
-                  // {@link #stageAndUpdateIfValid} fill in that metadata. So, we can't immediately
-                  // navigate away.]
-                  && !maybeBlockBeforeUpdate.get().hasOnlyOptionalQuestions()) {
+              if (canNavigateAwayFromBlockImmediately(
+                  formData, applicantRequestedAction, optionalBlockBeforeUpdate)) {
                 return redirectToRequestedPage(
                     profile,
                     applicantId,
@@ -756,6 +732,40 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       classLoaderExecutionContext.current());
             })
         .exceptionally(this::handleUpdateExceptions);
+  }
+
+  /**
+   * Returns true if applicants can immediately navigate away from a block because they haven't even
+   * started answering it. Returns false if applicants have started answering the block or answered
+   * the block in the past.
+   */
+  private boolean canNavigateAwayFromBlockImmediately(
+      ImmutableMap<String, String> formData,
+      ApplicantRequestedAction applicantRequestedAction,
+      Optional<Block> optionalBlockBeforeUpdate) {
+    // An applicant can immediately navigate away from a block if:
+    // There are no answers currently filled out...
+    return formData.values().stream().allMatch(value -> value.equals(""))
+        // ... and the applicant wants to navigate to previous or review...
+        // [Explanation: We can't let applicants navigate to the next block without
+        // answers because the next block may have a visibility condition that
+        // depends on the answers to this block.]
+        && (applicantRequestedAction == REVIEW_PAGE || applicantRequestedAction == PREVIOUS_BLOCK)
+        // ... and the applicant didn't previously complete this block...
+        && optionalBlockBeforeUpdate.isPresent()
+        && !optionalBlockBeforeUpdate.get().isCompletedInProgramWithoutErrors()
+        // ...and there's at least one required question, meaning that all blank answers
+        // is *not* a valid response.
+        // [Explanation: We don't allow applicants to submit an application until they've
+        // at least seen all the questions. We mark as question as "seen" by checking
+        // that the metadata is filled in (see
+        // {@link ApplicantQuestion#isAnsweredOrSkippedOptionalInProgram}).
+        //
+        // If a block has all optional questions, having all empty answers is a valid
+        // response and we should mark that block as seen by having
+        // {@link #stageAndUpdateIfValid} fill in that metadata. So, we can't immediately
+        // navigate away.]
+        && !optionalBlockBeforeUpdate.get().hasOnlyOptionalQuestions();
   }
 
   /** See {@link #updateWithApplicantId}. */
