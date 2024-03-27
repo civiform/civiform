@@ -4,7 +4,7 @@ import forms.TiClientInfoForm;
 import java.util.Optional;
 import play.data.Form;
 
-public class AddNewApplicantReturnObject {
+public final class AddNewApplicantReturnObject {
   private Form<TiClientInfoForm> form;
 
   public Form<TiClientInfoForm> getForm() {
