@@ -4,6 +4,10 @@ import forms.TiClientInfoForm;
 import java.util.Optional;
 import play.data.Form;
 
+/**
+ * Class to hold the return variables needed to render the AddNewTiClient form both on success and
+ * failure.
+ */
 public final class AddNewApplicantReturnObject {
   private Form<TiClientInfoForm> form;
 
