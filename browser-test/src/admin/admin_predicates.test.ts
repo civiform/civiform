@@ -1132,7 +1132,6 @@ test.describe('create and edit predicates', () => {
       await validateToastMessage(page, 'may qualify')
 
       await applicantQuestions.clickReview()
-      await applicantQuestions.clickReviewWithoutSaving()
       await validateScreenshot(page, 'review-page-no-ineligible-banner')
       await validateToastMessage(page, '')
       await applicantQuestions.clickContinue()

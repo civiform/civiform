@@ -119,8 +119,34 @@ test.describe('Applicant navigation flow', () => {
           /* mobileScreenshot= */ true,
         )
 
-        await test.step('incomplete screen 1', async () => {
+        await test.step('empty screen 1', async () => {
           await applicantQuestions.clickContinue()
+          await applicantQuestions.validateQuestionIsOnPage(dateQuestionText)
+          await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
+
+          // This test is for issue #6987. If the user opens a block and doesn't
+          // answer any questions then clicks "Review" or "Previous", we should
+          // let them go to the review page / previous page and not show errors.
+          // But if they click "Save & next", we *should* show the errors because
+          // the next block may have a visibility conditions that depends on the
+          // answers to this block.
+          await applicantQuestions.answerDateQuestion('')
+          await applicantQuestions.answerEmailQuestion('')
+          await applicantQuestions.clickNext()
+
+          // Expect we're still on the same page and see errors since the questions
+          // weren't answered
+          await applicantQuestions.validateQuestionIsOnPage(dateQuestionText)
+          await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
+          await applicantQuestions.expectRequiredQuestionError(
+            '.cf-question-date',
+          )
+          await applicantQuestions.expectRequiredQuestionError(
+            '.cf-question-email',
+          )
+        })
+
+        await test.step('incomplete screen 1', async () => {
           await applicantQuestions.validateQuestionIsOnPage(dateQuestionText)
           await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
           await applicantQuestions.answerDateQuestion('2021-11-01')
@@ -130,8 +156,8 @@ test.describe('Applicant navigation flow', () => {
           // Expect we're still on the same page and see errors since email wasn't answered
           await applicantQuestions.validateQuestionIsOnPage(dateQuestionText)
           await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
-          expect(await page.innerText('.cf-question-email')).toContain(
-            'This question is required',
+          await applicantQuestions.expectRequiredQuestionError(
+            '.cf-question-email',
           )
         })
 
@@ -338,7 +364,35 @@ test.describe('Applicant navigation flow', () => {
         await test.step('next screen is review page', async () => {
           await applicantQuestions.clickNext()
           await applicantQuestions.expectReviewPage()
+        })
 
+        await test.step('cannot delete answers to required questions', async () => {
+          await applicantQuestions.editQuestionFromReviewPage(
+            addressQuestionText,
+          )
+          await applicantQuestions.validateQuestionIsOnPage(addressQuestionText)
+          await applicantQuestions.answerAddressQuestion('', '', '', '', '')
+          await applicantQuestions.clickNext()
+
+          // Verify we stay on the same page and the error is shown
+          await applicantQuestions.validateQuestionIsOnPage(addressQuestionText)
+          await applicantQuestions.expectRequiredQuestionError(
+            '.cf-question-address',
+          )
+
+          // Correctly answer the question
+          await applicantQuestions.answerAddressQuestion(
+            '5678 St',
+            'Unit B',
+            'Sim',
+            'WA',
+            '54321',
+          )
+          await applicantQuestions.clickNext()
+        })
+
+        await test.step('can submit application', async () => {
+          await applicantQuestions.expectReviewPage()
           await applicantQuestions.submitFromReviewPage()
           await applicantQuestions.expectConfirmationPage()
         })
@@ -352,7 +406,6 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.applyProgram(programName)
 
         await applicantQuestions.clickPrevious()
-        await applicantQuestions.clickPreviousWithoutSaving()
 
         // Assert that we're on the preview page.
         await applicantQuestions.expectReviewPage()
@@ -461,7 +514,7 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('clicking previous with missing answers shows modal', async () => {
+      test('clicking previous with some missing answers shows error modal', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
@@ -476,6 +529,23 @@ test.describe('Applicant navigation flow', () => {
         // The date question is required, so we should see the error modal.
         await applicantQuestions.expectErrorOnPreviousModal()
         await validateScreenshot(page, 'error-on-previous-modal')
+      })
+
+      test('clicking previous with no answers does not show error modal', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+
+        // If the applicant has never answered this block before and doesn't fill in any
+        // answers now, we shouldn't show the error modal and should just go straight to
+        // the previous page (which is the review page since this is the first block).
+        // See issue #6987.
+        await applicantQuestions.clickPrevious()
+
+        await applicantQuestions.expectReviewPage()
       })
 
       test('error on previous modal > click stay and fix > shows block', async () => {
@@ -554,7 +624,14 @@ test.describe('Applicant navigation flow', () => {
         // Nothing to fill in since this is the static question block
         await applicantQuestions.clickNext()
 
-        // Don't fill in the address question, and try going to previous block
+        // Only fill in half the address question, then try going to previous block
+        await applicantQuestions.answerAddressQuestion(
+          '1234 St',
+          '',
+          '',
+          'WA',
+          '',
+        )
         await applicantQuestions.clickPrevious()
         await applicantQuestions.expectErrorOnPreviousModal()
 
@@ -565,6 +642,87 @@ test.describe('Applicant navigation flow', () => {
 
         await applicantQuestions.checkDateQuestionValue('2021-11-01')
         await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
+      })
+
+      test('clicking previous after deleting answers to required questions shows error modal', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await test.step('answer questions on first block', async () => {
+          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.answerDateQuestion('2021-11-01')
+          await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+          await applicantQuestions.clickReview()
+        })
+
+        await test.step('delete answers on first block', async () => {
+          await applicantQuestions.editQuestionFromReviewPage(
+            'date question text',
+          )
+          await applicantQuestions.answerDateQuestion('')
+          await applicantQuestions.answerEmailQuestion('')
+        })
+
+        await test.step('previous button should show error modal', async () => {
+          // Because the questions were previously answered and the date and email questions are required,
+          // we don't let the user save the deletion of answers.
+          await applicantQuestions.clickPrevious()
+          await applicantQuestions.expectErrorOnPreviousModal()
+        })
+      })
+
+      test('previous saves blank optional answers', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await test.step('answer blocks with all required questions', async () => {
+          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.answerDateQuestion('2021-11-01')
+          await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+          await applicantQuestions.clickReview()
+
+          await applicantQuestions.answerQuestionFromReviewPage(
+            addressQuestionText,
+          )
+          await applicantQuestions.answerAddressQuestion(
+            '1234 St',
+            'Unit B',
+            'Sim',
+            'WA',
+            '54321',
+          )
+          await applicantQuestions.clickReview()
+        })
+
+        // We require that all questions be seen before an applicant can submit an application,
+        // so open the optional question but don't fill in any answer, then use the "Previous" button.
+        await test.step('open optional question block but do not answer', async () => {
+          await applicantQuestions.answerQuestionFromReviewPage(
+            radioQuestionText,
+          )
+          await applicantQuestions.clickPrevious()
+        })
+
+        await test.step('answer only required questions on block with both required and optional', async () => {
+          await applicantQuestions.clickReview()
+          // This block has a required phone question and optional currency question.
+          // Only answer the required question, then use the "Previous" button.
+          await applicantQuestions.answerQuestionFromReviewPage(
+            phoneQuestionText,
+          )
+          await applicantQuestions.answerPhoneQuestion('4256373270')
+          await applicantQuestions.clickPrevious()
+        })
+
+        // Verify that the optional questions were marked as seen and we can now submit the application
+        await test.step('can submit application', async () => {
+          await applicantQuestions.clickReview()
+          await applicantQuestions.submitFromReviewPage()
+          await applicantQuestions.expectConfirmationPage()
+        })
       })
 
       test.afterAll(async () => {
@@ -620,7 +778,7 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('clicking review with missing answers shows modal', async () => {
+      test('clicking review with some missing answers shows modal', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
         await enableFeatureFlag(page, 'save_on_all_actions')
@@ -635,6 +793,22 @@ test.describe('Applicant navigation flow', () => {
         // The date question is required, so we should see the error modal.
         await applicantQuestions.expectErrorOnReviewModal()
         await validateScreenshot(page, 'error-on-review-modal')
+      })
+
+      test('clicking review with no answers does not show error modal', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await applicantQuestions.applyProgram(programName)
+
+        // If the applicant has never answered this block before and doesn't fill in any
+        // answers now, we shouldn't show the error modal and should just go straight to
+        // the review page -- see issue #6987.
+        await applicantQuestions.clickReview()
+
+        await applicantQuestions.expectReviewPage()
       })
 
       test('error on review modal > click stay and fix > shows block', async () => {
@@ -695,6 +869,85 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.validateNoPreviouslyAnsweredText(
           emailQuestionText,
         )
+      })
+
+      test('clicking review after deleting answers to required questions shows error modal', async () => {
+        const {page, applicantQuestions} = ctx
+        await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await test.step('answer questions on first block', async () => {
+          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.answerDateQuestion('2021-11-01')
+          await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+          await applicantQuestions.clickReview()
+        })
+
+        await test.step('delete answers on first block', async () => {
+          await applicantQuestions.editQuestionFromReviewPage(
+            'date question text',
+          )
+          await applicantQuestions.answerDateQuestion('')
+          await applicantQuestions.answerEmailQuestion('')
+        })
+
+        await test.step('review button should show error modal', async () => {
+          // Because the questions were previously answered and the date and email questions are required,
+          // we don't let the user save the deletion of answers.
+          await applicantQuestions.clickReview()
+          await applicantQuestions.expectErrorOnReviewModal()
+        })
+      })
+
+      test('review saves blank optional answers', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'save_on_all_actions')
+        await logout(page)
+
+        await test.step('answer blocks with all required questions', async () => {
+          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.answerDateQuestion('2021-11-01')
+          await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+          await applicantQuestions.clickReview()
+
+          await applicantQuestions.answerQuestionFromReviewPage(
+            addressQuestionText,
+          )
+          await applicantQuestions.answerAddressQuestion(
+            '1234 St',
+            'Unit B',
+            'Sim',
+            'WA',
+            '54321',
+          )
+          await applicantQuestions.clickReview()
+        })
+
+        // We require that all questions be seen before an applicant can submit an application,
+        // so open the optional question but don't fill in any answer, then use the "Review" button.
+        await test.step('open optional question block but do not answer', async () => {
+          await applicantQuestions.answerQuestionFromReviewPage(
+            radioQuestionText,
+          )
+          await applicantQuestions.clickReview()
+        })
+
+        await test.step('answer only required questions on block with both required and optional', async () => {
+          // This block has a required phone question and optional currency question.
+          // Only answer the required question, then use the "Review" button.
+          await applicantQuestions.answerQuestionFromReviewPage(
+            phoneQuestionText,
+          )
+          await applicantQuestions.answerPhoneQuestion('4256373270')
+          await applicantQuestions.clickReview()
+        })
+
+        // Verify that the optional questions were marked as seen and we can now submit the application
+        await test.step('can submit application', async () => {
+          await applicantQuestions.submitFromReviewPage()
+          await applicantQuestions.expectConfirmationPage()
+        })
       })
 
       test.afterAll(async () => {
@@ -799,7 +1052,7 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.submitFromReviewPage()
 
       // Verify we are on program submission page.
-      expect(await page.innerText('h1')).toContain('Application confirmation')
+      await applicantQuestions.expectConfirmationPage()
       expect(
         await page.locator('.cf-application-id + div').textContent(),
       ).toContain('This is the custom confirmation message with markdown')
@@ -849,7 +1102,7 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.submitFromReviewPage()
 
       // Verify we are on program submission page.
-      expect(await page.innerText('h1')).toContain('Application confirmation')
+      await applicantQuestions.expectConfirmationPage()
       expect(
         await page.locator('.cf-application-id + div').textContent(),
       ).toContain('This is the custom confirmation message with markdown')
@@ -895,7 +1148,7 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.submitFromReviewPage()
 
       // Verify we are on program submission page.
-      expect(await page.innerText('h1')).toContain('Application confirmation')
+      await applicantQuestions.expectConfirmationPage()
       await validateAccessibility(page)
       await validateScreenshot(
         page,
