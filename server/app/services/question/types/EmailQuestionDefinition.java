@@ -1,12 +1,14 @@
 package services.question.types;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
 
 /** Defines an email question. */
 public final class EmailQuestionDefinition extends QuestionDefinition {
 
-  public EmailQuestionDefinition(QuestionDefinitionConfig config) {
+  public EmailQuestionDefinition(  @JsonProperty("config")
+                                   QuestionDefinitionConfig config) {
     super(config);
   }
 
