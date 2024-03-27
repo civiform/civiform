@@ -331,25 +331,8 @@ validation.stateRequired=Maaari lamang na ilagay ang Estado.
 validation.invalidZipcode=Maaari lamang na ilagay ang 5-bilang na ZIP code.
 validation.noPoBox=Maaari lamang na ilagay ang wasto na adres. Kami ay hindi natanggap ng mga PO Box.
 
-title.verifyAddress=I-verify ang address
-
-content.foundSimilarAddress=Hindi namin ma-verify ang ibinigay mong address, pero may nakita kaming katulad nito.
-# Heading for showing the user the address they provided earlier
-content.addressEntered=Inilagay mong address:
-
-# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
-content.suggestedAddress=Iminumungkahing address:
-content.suggestedAddresses=Mga iminumungkahing address:
-
-# Title on address correction dialog when no address is found.
-title.noValidAddress=Walang nakitang valid na address
-content.noValidAddress=Hindi namin ma-verify ang ibinigay mong address. Paki-edit ang address mo para magpatuloy.
-
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
-# Note: We're re-writing the text shown on the address correction screen. #
-# The strings below will be used in the re-write, and then the strings    #
-# above that are obsolete will be deleted.                                #
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
@@ -360,6 +343,11 @@ content.confirmAddressLine1=Hindi namin nahanap ang iyong address.
 content.foundSimilarAddressLine2=Pakitingnan kung tama ang spelling ng address mo o pumili ng opsyon sa listahang ibinigay.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
 content.noValidAddressLine2=Pakitingnan kung tama ang spelling ng address mo at i-edit ito para magpatuloy.
+# Heading for showing the user the address they provided earlier
+content.addressEntered=Inilagay mong address:
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=Iminumungkahing address:
+content.suggestedAddresses=Mga iminumungkahing address:
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
 button.confirmAddress=Kumpirmahin ang address
 
