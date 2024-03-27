@@ -14,9 +14,8 @@ public final class IdQuestionDefinition extends QuestionDefinition {
     super(config);
   }
 
-  @JsonDeserialize(builder = AutoValue_IdQuestionDefinition_IdValidationPredicates.Builder.class)
+  @JsonDeserialize(as = IdValidationPredicates.class)
   @AutoValue
-  @JsonTypeName("idthing")
   public abstract static class IdValidationPredicates extends ValidationPredicates {
 
     public static IdValidationPredicates parse(String jsonString) {

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.annotations.VisibleForTesting;
@@ -60,13 +61,13 @@ public abstract class QuestionDefinition {
     this.config = config;
   }
 
-
+/*
   @JsonTypeInfo(
           use = JsonTypeInfo.Id.NAME,
          // include = JsonTypeInfo.As.EXISTING_PROPERTY,
           property = "type")
   @JsonSubTypes({
-          /*
+
           @JsonSubTypes.Type(value = AddressQuestionDefinition.AddressValidationPredicates.class, name = "address"),
           @JsonSubTypes.Type(value = CurrencyQuestionDefinition.CurrencyValidationPredicates.class, name = "currency"),
 
@@ -82,9 +83,12 @@ public abstract class QuestionDefinition {
           @JsonSubTypes.Type(value = StaticContentQuestionDefinition.StaticContentValidationPredicates.class, name = "static"),
           @JsonSubTypes.Type(value = TextQuestionDefinition.TextValidationPredicates.class, name = "text"),
 
-       */
+
   })
 
+ */
+
+  @JsonDeserialize(using = ValidationPredicateDeserializer.class)
   public abstract static class ValidationPredicates {
     protected static final ObjectMapper mapper =
         new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
@@ -481,7 +485,7 @@ public abstract class QuestionDefinition {
    * <p>The {@link QuestionDefinitionConfig} should be entirely internal to {@link
    * QuestionDefinition}.
    */
-  QuestionDefinitionConfig getConfig() {
+ public QuestionDefinitionConfig getConfig() {
     return config;
   }
 

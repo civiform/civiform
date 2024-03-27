@@ -13,10 +13,16 @@ import controllers.admin.AdminImportExportController;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
+
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -41,7 +47,11 @@ public class AdminImportView extends BaseHtmlView {
     contentDiv.with(importProgram(request));
 
     if (dataToImport.isPresent()) {
+      contentDiv.with(h2("Programs:"));
       contentDiv.with(p(dataToImport.get().getPrograms().toString()));
+      contentDiv.with(h2("Questions:"));
+      List<String> questions = dataToImport.get().getQuestions().stream().map(QuestionDefinition::getConfig).map(QuestionDefinitionConfig::toString).collect(Collectors.toList());
+      contentDiv.with(p(questions.get(0)));
     } else {
       contentDiv.with(p("Nothing imported yet"));
     }
