@@ -60,7 +60,8 @@ public class EditTiClientView extends BaseHtmlView {
       Messages messages,
       Optional<Long> accountIdToEdit,
       Long applicantIdOfTi,
-      Optional<Form<TiClientInfoForm>> tiClientInfoForm) {
+      Optional<Form<TiClientInfoForm>> tiClientInfoForm,
+      Optional<Long> applicantIdOfNewlyAddedClient) {
     Optional<AccountModel> optionalAccountModel = Optional.empty();
     String title = messages.at(MessageKey.TITLE_CREATE_CLIENT.getKeyName());
     String pageHeader = "Add client";
@@ -81,22 +82,67 @@ public class EditTiClientView extends BaseHtmlView {
       optionalSuccessMessage = Optional.empty();
     }
     boolean isSuccessfulSave = tiClientInfoForm.isPresent() && !tiClientInfoForm.get().hasErrors();
-    HtmlBundle bundle =
-        layout
-            .getBundle(request)
-            .setTitle(title)
-            .addMainContent(
-                renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
-                hr(),
-                renderSubHeader(pageHeader).withId(pageId).withClass("my-4"),
-                renderBackLink(),
-                renderSuccessAlert(isSuccessfulSave, successToast, optionalSuccessMessage),
-                requiredFieldsExplanationContent(),
-                renderAddOrEditClientForm(
-                    tiGroup, optionalAccountModel, request, tiClientInfoForm, messages))
-            .addMainStyles("px-20", "max-w-screen-xl");
+    HtmlBundle bundle;
+    if (isSuccessfulSave && applicantIdOfNewlyAddedClient.isPresent()) {
+      bundle =
+          layout
+              .getBundle(request)
+              .setTitle(title)
+              .addMainContent(
+                  renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
+                  hr(),
+                  renderSubHeader(pageHeader).withId(pageId).withClass("my-4"),
+                  renderBackLink(),
+                  renderSuccessAlert(isSuccessfulSave, successToast, optionalSuccessMessage),
+                  renderApplicationsStartButton(applicantIdOfNewlyAddedClient.get(), messages),
+                  renderBackToClientListButton(messages))
+              .addMainStyles("px-20", "max-w-screen-xl");
 
+    } else {
+      bundle =
+          layout
+              .getBundle(request)
+              .setTitle(title)
+              .addMainContent(
+                  renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
+                  hr(),
+                  renderSubHeader(pageHeader).withId(pageId).withClass("my-4"),
+                  renderBackLink(),
+                  renderSuccessAlert(isSuccessfulSave, successToast, optionalSuccessMessage),
+                  requiredFieldsExplanationContent(),
+                  renderAddOrEditClientForm(
+                      tiGroup, optionalAccountModel, request, tiClientInfoForm, messages))
+              .addMainStyles("px-20", "max-w-screen-xl");
+    }
     return layout.renderWithNav(request, personalInfo, messages, bundle, applicantIdOfTi);
+  }
+
+  private ATag renderBackToClientListButton(Messages messages) {
+    String tiDashLink =
+        baseUrl
+            + controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                    /* nameQuery= */ Optional.empty(),
+                    /* dayQuery= */ Optional.empty(),
+                    /* monthQuery= */ Optional.empty(),
+                    /* yearQuery= */ Optional.empty(),
+                    /* page= */ Optional.of(1))
+                .url();
+    return new ATag()
+        .withClasses("usa-button usa-button--outline")
+        .withId("back-to-client-list")
+        .withHref(tiDashLink)
+        .withText(messages.at(MessageKey.BUTTON_BACK_TO_CLIENT_LIST.getKeyName()));
+  }
+
+  private ATag renderApplicationsStartButton(Long applicantId, Messages messages) {
+    return new ATag()
+        .withClasses("usa-button usa-button")
+        .withId("applications-start-button")
+        .withText(messages.at(MessageKey.BUTTON_START_APP.getKeyName()))
+        .withHref(
+            controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
+                    applicantId)
+                .url());
   }
 
   private Tag renderSuccessAlert(

@@ -332,9 +332,10 @@ public final class AccountRepository {
    * email address if one is provided, but if one is not provided, use an anonymous (guest-style)
    * account.
    *
+   * @return optional applicantId of the newly created client
    * @throws EmailAddressExistsException if the provided email address already exists.
    */
-  public void createNewApplicantForTrustedIntermediaryGroup(
+  public Optional<Long> createNewApplicantForTrustedIntermediaryGroup(
       TiClientInfoForm form, TrustedIntermediaryGroupModel tiGroup) {
     AccountModel newAccount = new AccountModel();
     if (!Strings.isNullOrEmpty(form.getEmailAddress())) {
@@ -357,6 +358,7 @@ public final class AccountRepository {
     applicant.setEmailAddress(form.getEmailAddress());
     applicant.setPhoneNumber(form.getPhoneNumber());
     applicant.save();
+    return Optional.ofNullable(applicant.id);
   }
 
   /**
