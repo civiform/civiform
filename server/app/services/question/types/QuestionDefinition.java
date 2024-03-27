@@ -60,6 +60,31 @@ public abstract class QuestionDefinition {
     this.config = config;
   }
 
+
+  @JsonTypeInfo(
+          use = JsonTypeInfo.Id.NAME,
+         // include = JsonTypeInfo.As.EXISTING_PROPERTY,
+          property = "type")
+  @JsonSubTypes({
+          /*
+          @JsonSubTypes.Type(value = AddressQuestionDefinition.AddressValidationPredicates.class, name = "address"),
+          @JsonSubTypes.Type(value = CurrencyQuestionDefinition.CurrencyValidationPredicates.class, name = "currency"),
+
+          @JsonSubTypes.Type(value = DateQuestionDefinition.DateValidationPredicates.class, name = "date"),
+          @JsonSubTypes.Type(value = EmailQuestionDefinition.EmailValidationPredicates.class, name = "email"),
+          @JsonSubTypes.Type(value = EnumeratorQuestionDefinition.EnumeratorValidationPredicates.class, name = "enumerator"),
+          @JsonSubTypes.Type(value = FileUploadQuestionDefinition.FileUploadValidationPredicates.class, name = "fileupload"),
+     //     @JsonSubTypes.Type(value = IdQuestionDefinition.IdValidationPredicates.class, name = "idthing"),
+          @JsonSubTypes.Type(value = MultiOptionQuestionDefinition.MultiOptionValidationPredicates.class, name = "multioption"),
+          @JsonSubTypes.Type(value = NameQuestionDefinition.NameValidationPredicates.class, name = "name"),
+          @JsonSubTypes.Type(value = NumberQuestionDefinition.NumberValidationPredicates.class, name = "number"),
+          @JsonSubTypes.Type(value = PhoneQuestionDefinition.PhoneValidationPredicates.class, name = "phone"),
+          @JsonSubTypes.Type(value = StaticContentQuestionDefinition.StaticContentValidationPredicates.class, name = "static"),
+          @JsonSubTypes.Type(value = TextQuestionDefinition.TextValidationPredicates.class, name = "text"),
+
+       */
+  })
+
   public abstract static class ValidationPredicates {
     protected static final ObjectMapper mapper =
         new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
