@@ -28,7 +28,6 @@ public class CurrencyTest {
         new Object[] {TestData.create("12345", "12,345.00", 12345, "12345.00", 12345 * 100)},
 
         // With comma
-
         new Object[] {TestData.create("12,345", "12,345.00", 12345, "12345.00", 12345 * 100)},
 
         // With cents.
