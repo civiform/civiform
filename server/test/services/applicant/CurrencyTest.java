@@ -18,21 +18,26 @@ public class CurrencyTest {
         // Zero dollars
         new Object[] {TestData.create("0", "0.00", 0, "0.00", 0)}, // Zero
         new Object[] {TestData.create("0.00", "0.00", 0, "0.00", 0)}, // Zero with cents
+
         // Non zero Single dollars.
         new Object[] {TestData.create("1", "1.00", 1, "1.00", 100)}, // Single dollars
         new Object[] {TestData.create("0.40", "0.40", 0.40, "0.40", 40)}, // Only cents
         new Object[] {TestData.create("1.23", "1.23", 1.23, "1.23", 123)},
+
         // Large values
         new Object[] {TestData.create("12345", "12,345.00", 12345, "12345.00", 12345 * 100)},
-        new Object[] {
-          TestData.create("12,345", "12,345.00", 12345, "12345.00", 12345 * 100)
-        }, // With comma
-        new Object[] {
-          TestData.create("12345.67", "12,345.67", 12345.67, "12345.67", 1234567)
-        }, // With cents.
-        new Object[] {
-          TestData.create("12,345.67", "12,345.67", 12345.67, "12345.67", 1234567)
-        }); // With comma and cents.
+
+        // With comma
+        new Object[] {TestData.create("12,345", "12,345.00", 12345, "12345.00", 12345 * 100)},
+
+        // With cents.
+        new Object[] {TestData.create("12345.67", "12,345.67", 12345.67, "12345.67", 1234567)},
+
+        // With cents to demonstrate fixing a floating point issue
+        new Object[] {TestData.create("18500.01", "18,500.01", 18500.01, "18500.01", 1850001)},
+
+        // With comma and cents.
+        new Object[] {TestData.create("12,345.67", "12,345.67", 12345.67, "12345.67", 1234567)});
   }
 
   @Test
