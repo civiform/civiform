@@ -331,25 +331,8 @@ validation.stateRequired=시/도를 입력하세요.
 validation.invalidZipcode=유효한 5자리 우편번호를 입력하세요.
 validation.noPoBox=유효한 주소를 입력하세요. 사서함은 주소 정보로 등록할 수 없습니다.
 
-title.verifyAddress=주소 확인
-
-content.foundSimilarAddress=제공된 주소를 확인할 수 없지만 비슷한 주소를 발견했습니다.
-# Heading for showing the user the address they provided earlier
-content.addressEntered=입력한 주소:
-
-# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
-content.suggestedAddress=추천 주소:
-content.suggestedAddresses=추천 주소:
-
-# Title on address correction dialog when no address is found.
-title.noValidAddress=유효한 주소를 찾을 수 없음
-content.noValidAddress=제공된 주소를 확인할 수 없습니다. 계속하려면 주소를 수정하세요.
-
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
-# Note: We're re-writing the text shown on the address correction screen. #
-# The strings below will be used in the re-write, and then the strings    #
-# above that are obsolete will be deleted.                                #
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
@@ -360,6 +343,11 @@ content.confirmAddressLine1=주소를 찾을 수 없습니다.
 content.foundSimilarAddressLine2=주소의 철자를 확인하거나 제공된 목록에서 주소를 선택하세요.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
 content.noValidAddressLine2=계속하려면 주소의 철자를 확인하고 수정하세요.
+# Heading for showing the user the address they provided earlier
+content.addressEntered=입력한 주소:
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=추천 주소:
+content.suggestedAddresses=추천 주소:
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
 button.confirmAddress=주소 확인
 
