@@ -109,7 +109,7 @@ class GitHub:
             artifacts = [
                 {"id": x["id"], "name": x["name"], "url": x["archive_download_url"]}
                 for x in response_json["artifacts"]
-                if x["name"].startswith("tests videos")
+                if x["name"].startswith("html-report-attempt")
             ]
             return artifacts
         except Exception as error:
@@ -190,10 +190,15 @@ class Runner:
         for index, artifact_item in enumerate(artifacts_list):
             print(f'  {index: <4}| {artifact_item["id"]} | {artifact_item["name"]}')
 
-    def get_index(self):
+    def get_index(self, record_count_from_server):
         """
-        Ask the user for input, default to 0, the first option in the list
+        Ask the user for input, default to 0, the first option in the list. If
+        there is only a single result from the source list return index 0
+        without prompting the user
         """
+        if record_count_from_server == 1:
+            return 0
+
         inputValue = input("\nEnter Index (default=0): ")
         inputIndex = int(inputValue) if inputValue.isdigit() else None
 
@@ -223,14 +228,15 @@ class Runner:
         Run the application core
         """
         branch_name = self.get_branch_name()
-        print(f'Running on branch: {branch_name}')
+        print(f"Running on branch: {branch_name}")
 
         workflow_runs = self.github.get_failed_workflow_runs(branch_name)
 
         self.print_workflow_runs_table(workflow_runs)
 
         try:
-            inputIndex = self.get_index()
+            inputIndex = self.get_index(len(workflow_runs))
+
             artifacts_list = self.github.get_artifacts_list(workflow_runs[inputIndex])
             self.print_download_artifacts_table(artifacts_list)
         except IndexError:
@@ -238,7 +244,7 @@ class Runner:
             exit(1)
 
         try:
-            inputIndex = self.get_index()
+            inputIndex = self.get_index(len(artifacts_list))
             artifact_zip_file_path = self.github.download_artifact(artifacts_list[inputIndex], path)
             unzipped_artifact_path = self.unzip_artifact(artifact_zip_file_path, path)
         except IndexError:

@@ -138,9 +138,46 @@ jobs:
           name: tests videos (aws) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
           path: browser-test/tmp
         if: failure()
+
+      - name: Upload playwright reporting blobs
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-blob-aws-shard-${{ matrix.shared_number }}-run-${{ github.run_attempt }}
+          path: browser-test/blob-report
+        if: always()
+
       - name: Print logs on failure
         if: failure()
         run: cat .dockerlogs
+
+  merge_playwright_reports:
+    if: always()
+    needs: [run_browser_tests_aws]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+
+      - name: Install playwright
+        run: npm install -g @playwright/test
+
+      - name: Download playwright blob reports from GitHub Actions Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-blob-reports
+          pattern: playwright-blob-aws-shard-*-run-${{ github.run_attempt }}
+          merge-multiple: true
+
+      - name: Merge into HTML report
+        run: npx playwright merge-reports --config=browser-test/merge.config.ts ./all-blob-reports
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-report-attempt-${{ github.run_attempt }}
+          path: playwright-report
 
   run_browser_tests_azure:
     if: false

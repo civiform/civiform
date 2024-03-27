@@ -8,5 +8,5 @@
     "types": ["playwright", "node"],
     "sourceMap": true
   },
-  "include": [".", "../playwright.config.ts"]
+  "include": [".", "../playwright.config.ts", "../merge.config.ts"]
 }
