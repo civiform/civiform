@@ -148,7 +148,7 @@ public final class TrustedIntermediaryController {
             /* accountIdToEdit= */ Optional.empty(),
             /* applicantIdOfTi= */ getTiApplicantIdFromCiviformProfile(civiformProfile),
             /* tiClientInfoForm= */ Optional.empty(),
-            /* applicantIdOfNewlyAddedClient= */ Optional.empty()));
+            /* applicantIdOfNewlyAddedClient= */ null));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -173,7 +173,7 @@ public final class TrustedIntermediaryController {
             /* accountIdToEdit= */ Optional.of(accountId),
             /* applicantIdOfTi= */ getTiApplicantIdFromCiviformProfile(civiformProfile),
             /* tiClientInfoForm= */ Optional.empty(),
-            /* applicantIdOfNewlyAddedClient= */ Optional.empty()));
+            /* applicantIdOfNewlyAddedClient= */ null));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -209,8 +209,7 @@ public final class TrustedIntermediaryController {
             /* accountIdToEdit= */ Optional.empty(),
             /* applicantIdOfTi= */ getTiApplicantIdFromCiviformProfile(civiformProfile),
             /* tiClientInfoForm= */ Optional.of(form),
-            /* applicantIdOfNewlyAddedClient= */ addNewApplicantReturnObject
-                .getoptionalApplicantId()));
+            /* applicantIdOfNewlyAddedClient= */ addNewApplicantReturnObject.getApplicantId()));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -242,7 +241,7 @@ public final class TrustedIntermediaryController {
             /* accountIdToEdit= */ Optional.of(id),
             /* applicantIdOfTi= */ getTiApplicantIdFromCiviformProfile(civiformProfile),
             /* tiClientInfoForm= */ Optional.of(form),
-            /* applicantIdOfNewlyAddedClient= */ Optional.empty()));
+            /* applicantIdOfNewlyAddedClient= */ null));
   }
 
   private Long getTiApplicantIdFromCiviformProfile(Optional<CiviFormProfile> civiformProfile) {

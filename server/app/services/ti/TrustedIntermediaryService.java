@@ -56,16 +56,16 @@ public final class TrustedIntermediaryService {
       Form<TiClientInfoForm> form,
       TrustedIntermediaryGroupModel trustedIntermediaryGroup,
       Messages preferredLanguage) {
-    Optional<Long> optionalClientApplicantId = Optional.empty();
+    Long clientApplicantId;
     form = validateFirstNameForEditClient(form);
     form = validateLastNameForEditClient(form);
     form = validatePhoneNumber(form, preferredLanguage);
     form = validateDateOfBirth(form);
     if (form.hasErrors()) {
-      return new AddNewApplicantReturnObject(form, optionalClientApplicantId);
+      return new AddNewApplicantReturnObject(form);
     }
     try {
-      optionalClientApplicantId =
+      clientApplicantId =
           accountRepository.createNewApplicantForTrustedIntermediaryGroup(
               form.get(), trustedIntermediaryGroup);
     } catch (EmailAddressExistsException e) {
@@ -73,10 +73,9 @@ public final class TrustedIntermediaryService {
           form.withError(
               FORM_FIELD_NAME_EMAIL_ADDRESS,
               "Email address already in use. Cannot create applicant if an account already"
-                  + " exists."),
-          optionalClientApplicantId);
+                  + " exists."));
     }
-    return new AddNewApplicantReturnObject(form, optionalClientApplicantId);
+    return new AddNewApplicantReturnObject(form, clientApplicantId);
   }
 
   private Form<TiClientInfoForm> validateDateOfBirth(Form<TiClientInfoForm> form) {

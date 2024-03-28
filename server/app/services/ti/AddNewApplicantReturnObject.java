@@ -1,7 +1,6 @@
 package services.ti;
 
 import forms.TiClientInfoForm;
-import java.util.Optional;
 import play.data.Form;
 
 /**
@@ -19,19 +18,23 @@ public final class AddNewApplicantReturnObject {
     this.form = form;
   }
 
-  public Optional<Long> getoptionalApplicantId() {
-    return optionalApplicantId;
+  public Long getApplicantId() {
+    return applicantId;
   }
 
-  public void setoptionalApplicantId(Optional<Long> optionalApplicantId) {
-    this.optionalApplicantId = optionalApplicantId;
+  public void setApplicantId(Long applicantId) {
+    this.applicantId = applicantId;
   }
 
-  private Optional<Long> optionalApplicantId;
+  private Long applicantId;
 
-  public AddNewApplicantReturnObject(
-      Form<TiClientInfoForm> form, Optional<Long> optionalApplicantId) {
-    this.optionalApplicantId = optionalApplicantId;
+  public AddNewApplicantReturnObject(Form<TiClientInfoForm> form, Long applicantId) {
+    this.applicantId = applicantId;
+    this.form = form;
+  }
+
+  public AddNewApplicantReturnObject(Form<TiClientInfoForm> form) {
+    this.applicantId = null;
     this.form = form;
   }
 }

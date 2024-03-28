@@ -335,7 +335,7 @@ public final class AccountRepository {
    * @return optional applicantId of the newly created client
    * @throws EmailAddressExistsException if the provided email address already exists.
    */
-  public Optional<Long> createNewApplicantForTrustedIntermediaryGroup(
+  public Long createNewApplicantForTrustedIntermediaryGroup(
       TiClientInfoForm form, TrustedIntermediaryGroupModel tiGroup) {
     AccountModel newAccount = new AccountModel();
     if (!Strings.isNullOrEmpty(form.getEmailAddress())) {
@@ -358,7 +358,7 @@ public final class AccountRepository {
     applicant.setEmailAddress(form.getEmailAddress());
     applicant.setPhoneNumber(form.getPhoneNumber());
     applicant.save();
-    return Optional.ofNullable(applicant.id);
+    return applicant.id;
   }
 
   /**
