@@ -24,7 +24,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
           @JsonSubTypes.Type(value = AutoValue_FileUploadQuestionDefinition_FileUploadValidationPredicates.class, name = "fileupload"),
           @JsonSubTypes.Type(value = AutoValue_IdQuestionDefinition_IdValidationPredicates.class, name = "id"),
           @JsonSubTypes.Type(value = AutoValue_MultiOptionQuestionDefinition_MultiOptionValidationPredicates.class, name = "multioption"),
-          @JsonSubTypes.Type(value = NameQuestionDefinition.NameValidationPredicates.class, name = "name"),
+          @JsonSubTypes.Type(value = AutoValue_NameQuestionDefinition_NameValidationPredicates.class, name = "name"),
           @JsonSubTypes.Type(value = AutoValue_NumberQuestionDefinition_NumberValidationPredicates.class, name = "number"),
           @JsonSubTypes.Type(value = AutoValue_PhoneQuestionDefinition_PhoneValidationPredicates.class, name = "phone"),
           @JsonSubTypes.Type(value = AutoValue_StaticContentQuestionDefinition_StaticContentValidationPredicates.class, name = "static"),
