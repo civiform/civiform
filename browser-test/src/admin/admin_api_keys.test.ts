@@ -1,47 +1,62 @@
-import {test, expect} from '@playwright/test'
-import {createTestContext, loginAsAdmin, validateScreenshot} from '../support'
+import {test, expect} from '../support/civiform_fixtures'
+import {loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('Managing API keys', () => {
-  const ctx = createTestContext()
-
-  test('Creates, views and retires new API key', async () => {
-    const {page, adminApiKeys, adminPrograms} = ctx
-    await loginAsAdmin(page)
-
+  test('Creates, views and retires new API key', async ({
+    page,
+    adminApiKeys,
+    adminPrograms,
+  }) => {
     const programName = 'Api using program'
     const programDescription = 'This program uses the API.'
-    await adminPrograms.addProgram(
-      programName,
-      programDescription,
-      'https://usa.gov',
-    )
-    await adminPrograms.publishAllDrafts()
-    await adminApiKeys.gotoNewApiKeyPage()
-    await validateScreenshot(page, 'new-api-key-page')
 
-    const credentials = await adminApiKeys.createApiKey({
-      name: 'Test API key',
-      expiration: '2100-01-01',
-      subnet: '0.0.0.0/0,1.1.1.1/0',
-      programSlugs: ['api-using-program'],
+    await loginAsAdmin(page)
+
+    await test.step('Add and publish program', async () => {
+      await adminPrograms.addProgram(
+        programName,
+        programDescription,
+        'https://usa.gov',
+      )
+
+      await adminPrograms.publishAllDrafts()
     })
 
-    expect(typeof credentials).toEqual('string')
+    await test.step('Validate new api key page', async () => {
+      await adminApiKeys.gotoNewApiKeyPage()
+      await validateScreenshot(page, 'new-api-key-page')
+    })
 
-    await adminApiKeys.expectApiKeyIsActive('Test API key')
-    await validateScreenshot(page, 'api-key-index-page')
+    const credentials = await test.step('Create new api key', async () => {
+      const credentials = await adminApiKeys.createApiKey({
+        name: 'Test API key',
+        expiration: '2100-01-01',
+        subnet: '0.0.0.0/0,1.1.1.1/0',
+        programSlugs: ['api-using-program'],
+      })
 
-    let apiResponse = await adminApiKeys.callCheckAuth(credentials)
-    expect(apiResponse.status).toEqual(200)
-    await adminApiKeys.expectKeyCallCount('test-api-key', 1)
-    await adminApiKeys.expectLastCallIpAddressToBeSet('test-api-key')
+      expect(typeof credentials).toEqual('string')
+      await adminApiKeys.expectApiKeyIsActive('Test API key')
+      await validateScreenshot(page, 'api-key-index-page')
 
-    apiResponse = await adminApiKeys.callCheckAuth(credentials)
-    expect(apiResponse.status).toEqual(200)
-    await adminApiKeys.expectKeyCallCount('test-api-key', 2)
+      return credentials
+    })
 
-    await adminApiKeys.retireApiKey('test-api-key')
-    await validateScreenshot(page, 'api-key-index-page-no-active-keys')
-    await adminApiKeys.expectApiKeyIsRetired('Test API key')
+    await test.step('Check new api key', async () => {
+      let apiResponse = await adminApiKeys.callCheckAuth(credentials)
+      await expect(apiResponse).toBeOK()
+      await adminApiKeys.expectKeyCallCount('test-api-key', 1)
+      await adminApiKeys.expectLastCallIpAddressToBeSet('test-api-key')
+
+      apiResponse = await adminApiKeys.callCheckAuth(credentials)
+      await expect(apiResponse).toBeOK()
+      await adminApiKeys.expectKeyCallCount('test-api-key', 2)
+    })
+
+    await test.step('Retire api key', async () => {
+      await adminApiKeys.retireApiKey('test-api-key')
+      await validateScreenshot(page, 'api-key-index-page-no-active-keys')
+      await adminApiKeys.expectApiKeyIsRetired('Test API key')
+    })
   })
 })
