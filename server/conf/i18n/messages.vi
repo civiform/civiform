@@ -369,7 +369,6 @@ validation.phoneMustBeLocalToCountry=Số điện thoại bạn đã cung cấp 
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
 
-validation.dateMisformatted=Vui lòng nhập ngày ở định dạng YYYY/MM/DD.
 validation.invalidDateFormat=Hãy nhập ngày theo đúng định dạng
 
 #--------------------------------------------------------------------------------------------------------#
