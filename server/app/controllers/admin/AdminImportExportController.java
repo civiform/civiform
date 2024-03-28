@@ -187,7 +187,7 @@ public final class AdminImportExportController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> importProgramsPage(Http.Request request) {
-    return supplyAsync(() -> ok(adminImportView.render(request, Optional.empty())));
+    return supplyAsync(() -> ok(adminImportView.render(request, Optional.empty(), Optional.empty())));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -222,7 +222,12 @@ public final class AdminImportExportController extends CiviFormController {
         System.out.println("receivedPrograms= " + receivedStuff.getPrograms());
 
         // TODO: Can this redirect back to /import instead of /import/programs?
-        return supplyAsync(() -> ok(adminImportView.render(request, Optional.of(receivedStuff))));
+
+        return questionService.getReadOnlyQuestionService()
+                .thenApplyAsync(
+                        readOnlyQuestionService ->
+                                ok(adminImportView.render(request, Optional.of(receivedStuff),
+                                        Optional.of(readOnlyQuestionService.getActiveAndDraftQuestions().getActiveQuestions()))));
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -230,6 +235,13 @@ public final class AdminImportExportController extends CiviFormController {
 
     return supplyAsync(
         () -> redirect(controllers.admin.routes.AdminImportExportController.importProgramsPage()));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public CompletionStage<Result> createProgramsAndQuestions(Http.Request request) {
+    // TODO: Parse the form content from the request correctly
+
+    return supplyAsync(() -> badRequest());
   }
 
   public static final class JsonExportingClass {

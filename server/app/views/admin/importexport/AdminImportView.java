@@ -3,6 +3,7 @@ package views.admin.importexport;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
@@ -13,6 +14,7 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.ul;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.admin.AdminImportExportController;
 import controllers.admin.PredicateUtils;
@@ -24,6 +26,8 @@ import j2html.tags.specialized.DivTag;
 import java.util.List;
 import java.util.Optional;
 
+import j2html.tags.specialized.FieldsetTag;
+import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.UlTag;
 import play.i18n.MessagesApi;
@@ -42,6 +46,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
+import views.components.FieldWithLabel;
 import views.fileupload.FileUploadViewStrategy;
 
 public class AdminImportView extends BaseHtmlView {
@@ -55,7 +60,7 @@ public class AdminImportView extends BaseHtmlView {
   }
 
   public Content render(
-      Http.Request request, Optional<AdminImportExportController.JsonExportingClass> dataToImport) {
+      Http.Request request, Optional<AdminImportExportController.JsonExportingClass> dataToImport, Optional<ImmutableList<QuestionDefinition>> currentQuestionsWithinInstance) {
     String title = "Import programs";
     DivTag contentDiv = div().with(h1(title));
 
@@ -63,7 +68,7 @@ public class AdminImportView extends BaseHtmlView {
 
 
     if (dataToImport.isPresent()) {
-      contentDiv.with(renderImportedProgram(dataToImport.get().getPrograms().get(0), dataToImport.get().getQuestions()));
+      contentDiv.with(renderImportedProgram(request, dataToImport.get().getPrograms().get(0), dataToImport.get().getQuestions(), currentQuestionsWithinInstance.get()));
     }
 
     /*
@@ -106,20 +111,33 @@ public class AdminImportView extends BaseHtmlView {
   }
 
   private DomContent renderImportedProgram(
+          Http.Request request,
           ProgramDefinition programDefinition,
-          List<QuestionDefinition> questionsWithinProgram) {
-    DivTag content = div();
+          List<QuestionDefinition> questionsWithinProgram,           ImmutableList<QuestionDefinition> currentQuestionsInInstance) {
+
+
+    ImmutableMap.Builder<String, QuestionDefinition> questionsByAdminName = ImmutableMap.builder();
+    currentQuestionsInInstance.forEach(q -> questionsByAdminName.put(q.getName(), q));
+    System.out.println("questions by admin name map: "+ questionsByAdminName);
+
+    FormTag form = form()
+            .withMethod("POST")
+                    .withAction(routes.AdminImportExportController.createProgramsAndQuestions().url())
+                            .with(makeCsrfTokenInputTag(request));
 
     // TODO: Similar to PdfExporter
-    content.with(h2(programDefinition.localizedName().getDefault()));
-      content.with(p("Admin name: " + programDefinition.adminName()));
-    content.with(p( "Admin description: " + programDefinition.adminDescription()));
+            // TODO: Error if there's an existing program with that admin name
+    form.with(h2(programDefinition.localizedName().getDefault()));
+    form.with(p("Admin name: " + programDefinition.adminName()));
+    form.with(p( "Admin description: " + programDefinition.adminDescription()));
 
       for (BlockDefinition block : programDefinition.getNonRepeatedBlockDefinitions()) {
-        content.with(renderProgramBlock(
-                programDefinition, block, questionsWithinProgram, /* indentationLevel= */ 0));
+        form.with(renderProgramBlock(
+                programDefinition, block, questionsWithinProgram, questionsByAdminName.build(), /* indentationLevel= */ 0));
       }
-    return content;
+
+      form.with(submitButton("Import programs and questions"));
+    return form;
   }
 
   /**
@@ -132,43 +150,39 @@ public class AdminImportView extends BaseHtmlView {
   private DomContent renderProgramBlock(
           ProgramDefinition program,
           BlockDefinition block,
-          List<QuestionDefinition> allQuestions,
+          List<QuestionDefinition> questionsForImportedProgram,
+          ImmutableMap<String, QuestionDefinition> currentQuestionsInInstance,
           int indentationLevel) {
-    DivTag content = div();
+    DivTag blockDiv = div().withClasses("border", "border-gray-200", "p-4", "flex", "flex-col");
     // Block-level information
-    content.with(h3(block.name()));
-    content.with(p("Admin description: " + block.description()));
+    blockDiv.with(h3(block.name()).withClass("w-full"));
+    blockDiv.with(p("Admin description: " + block.description()).withClass("w-full"));
     // Visibility & eligibility information
     if (block.visibilityPredicate().isPresent()) {
-      renderPredicate(block.visibilityPredicate().get(), block, allQuestions, indentationLevel);
+      blockDiv.with(renderPredicate(block.visibilityPredicate().get(), block, questionsForImportedProgram, indentationLevel));
     }
     if (block.eligibilityDefinition().isPresent()) {
-      renderPredicate(block.eligibilityDefinition().get().predicate(),
+      blockDiv.with(renderPredicate(block.eligibilityDefinition().get().predicate(),
               block,
-              allQuestions,
-              indentationLevel);
+              questionsForImportedProgram,
+              indentationLevel));
     }
 
     for (ProgramQuestionDefinition pqd : block.programQuestionDefinitions()) {
+      DivTag fullQuestionRow = div().withClasses("border", "border-gray-200", "p-4", "flex");
       // Question-level information
-      QuestionDefinition question = allQuestions.stream().filter(qdef -> qdef.getId() == pqd.id()).findFirst().get();
-      content.with(h4(question.getQuestionText().getDefault()));
-      if (!question.getQuestionHelpText().isEmpty()) {
-        content.with(p(question.getQuestionHelpText().getDefault()));
-      }
-      content.with(p("Admin name: " + question.getName()));
-      content.with(p("Admin description: " + question.getDescription()));
-      content.with(p("Question type: " + question.getQuestionType().name()));
+      QuestionDefinition question = questionsForImportedProgram.stream().filter(qdef -> qdef.getId() == pqd.id()).findFirst().get();
+      boolean hasExistingQuestion = currentQuestionsInInstance.containsKey(question.getName());
 
-      // If a question offers options, put those options in the PDF
-      if (question.getQuestionType().isMultiOptionType()) {
-        MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) question;
-        UlTag optionList = ul();
-        for (QuestionOption option : multiOption.getOptions()) {
-          optionList.with(li(option.optionText().getDefault()));
-        }
-        content.with(optionList);
+
+      fullQuestionRow.with(renderQuestion(question, /*wide= */ !hasExistingQuestion, /* heading= */ "Imported question"));
+      if (hasExistingQuestion) {
+        /* wide= */
+        fullQuestionRow.with(renderQuestion(currentQuestionsInInstance.get(question.getName()), /* wide= */ false, /* heading= */ "Existing question") );
       }
+      DomContent adminSelectionOptions = createAdminSelectionOptionsForQuestion(question, currentQuestionsInInstance);
+      fullQuestionRow.with(adminSelectionOptions);
+      blockDiv.with(fullQuestionRow);
     }
 
     /* TODO: Block.isEnumerator calls ProgramQuestionDefinition.getQuestionDefinition which we're not actually including in the export, so it can't find it. Maybe we should just include it?
@@ -181,7 +195,36 @@ public class AdminImportView extends BaseHtmlView {
     }
 
      */
-    return content;
+    return blockDiv;
+  }
+
+  private DomContent renderQuestion(QuestionDefinition question, boolean wide, String heading) {
+    String width;
+    if (wide) { width = "w-2/3";} else {width = "w-1/3";}
+    DivTag questionDiv = div().withClasses("border-gray-200", "p-4", width);
+    questionDiv.with(p(heading).withClass("font-bold"));
+    questionDiv.with(h4(question.getQuestionText().getDefault()));
+    if (!question.getQuestionHelpText().isEmpty()) {
+      questionDiv.with(p(question.getQuestionHelpText().getDefault()));
+    }
+    questionDiv.with(p("Admin name: " + question.getName()));
+    questionDiv.with(p("Admin description: " + question.getDescription()));
+    questionDiv.with(p("Question type: " + question.getQuestionType().name()));
+
+    // TODO: Seems like the help text isn't being imported?
+    // should also blank line if no help text so everything aligns
+    // Or maybe just align things in grid if wording changes
+
+    // If a question offers options, put those options in the PDF
+    if (question.getQuestionType().isMultiOptionType()) {
+      MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) question;
+      UlTag optionList = ul();
+      for (QuestionOption option : multiOption.getOptions()) {
+        optionList.with(li(option.optionText().getDefault()));
+      }
+      questionDiv.with(optionList);
+    }
+    return questionDiv;
   }
 
   private DomContent renderPredicate(
@@ -189,7 +232,7 @@ public class AdminImportView extends BaseHtmlView {
           BlockDefinition block,
           List<QuestionDefinition> allQuestions,
           int indentationLevel) {
-    DivTag content = div();
+    DivTag content = div().withClass("w-full");
     ReadablePredicate readablePredicate =
             PredicateUtils.getReadablePredicateDescription(block.name(), predicate, ImmutableList.copyOf(allQuestions));
 
@@ -202,5 +245,45 @@ public class AdminImportView extends BaseHtmlView {
       content.with(conditionList);
     }
     return content;
+  }
+
+  private static final String QUESTION_CHOICE_PREFIX = "question-choice-"; // Should append the admin name to the end
+
+  private DomContent createAdminSelectionOptionsForQuestion(QuestionDefinition questionDefinition, ImmutableMap<String, QuestionDefinition> currentQuestionsInInstance) {
+    String fieldName = QUESTION_CHOICE_PREFIX + questionDefinition.getName();
+    DivTag selectionOptions = div().withClass("w-1/3");
+    FieldsetTag fields = fieldset();
+    if (currentQuestionsInInstance.containsKey(questionDefinition.getName())) {
+      // Admin needs to choose between keeping the current instance version or using the new version
+      fields.with(FieldWithLabel.radio()
+              .setFieldName(fieldName)
+              .setLabelText("Keep existing version")
+              .setValue("keep-existing")
+              .getRadioTag());
+      fields.with(FieldWithLabel.radio()
+              .setFieldName(fieldName)
+              .setLabelText("Replace with imported version")
+              .setValue("replace-with-imported")
+              .getRadioTag());
+      fields.with(FieldWithLabel.radio()
+              .setFieldName(fieldName)
+              .setLabelText("Remove from program")
+              .setValue("remove-from-program")
+              .getRadioTag());
+    } else {
+      // Admin needs to confirm they want this question in the program
+      fields.with(FieldWithLabel.radio()
+              .setFieldName(fieldName)
+              .setLabelText("Use in program")
+              .setValue("use-in-program")
+                      .setChecked(true) // Assume any new questions will be kept in the program
+              .getRadioTag());
+      fields.with(FieldWithLabel.radio()
+              .setFieldName(fieldName)
+              .setLabelText("Remove from program")
+              .setValue("remove-from-program")
+              .getRadioTag());
+    }
+    return selectionOptions.with(fields);
   }
 }

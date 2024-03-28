@@ -135,6 +135,7 @@ GET    /admin/export       controllers.admin.AdminImportExportController.export(
 GET    /admin/import       controllers.admin.AdminImportExportController.importProgramsPage(request: Request)
 GET   /admin/export/programs    controllers.admin.AdminImportExportController.exportPrograms(request: Request)
 POST   /admin/import/programs    controllers.admin.AdminImportExportController.importPrograms(request: Request)
+POST   /admin/import/programs/create    controllers.admin.AdminImportExportController.createProgramsAndQuestions(request: Request)
 
 # Admin settings
 GET      /admin/settings                             controllers.admin.AdminSettingsController.index(request: Request)
