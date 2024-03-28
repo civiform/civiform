@@ -16,7 +16,7 @@ test.describe('Pagination', () => {
     await waitForPageJsLoad(page)
 
     await tiDashboard.createMultipleClients('myname', 10)
-    const cardCount = await page.locator('.usa-card__container').count()
+    const cardCount = await page.locator('.usa-card__containerTEMP').count()
     expect(cardCount).toBe(10)
 
     // No 'Previous' button
