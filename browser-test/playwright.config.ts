@@ -14,7 +14,7 @@ export default defineConfig({
   globalTeardown: './src/setup/global-teardown.ts',
   fullyParallel: false,
   workers: 1,
-  retries: 0,
+  retries: 1,
   outputDir: './tmp/test-output',
   expect: {
     toHaveScreenshot: {
@@ -26,7 +26,7 @@ export default defineConfig({
     },
   },
   use: {
-    trace: 'on',
+    trace: 'on-first-retry',
     video: process.env.RECORD_VIDEO ? 'on-first-retry' : 'off',
     // Fall back support config file until it is removed
     baseURL: process.env.BASE_URL || BASE_URL, // 'http://civiform:9000'
