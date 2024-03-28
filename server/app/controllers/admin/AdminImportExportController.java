@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import org.pac4j.play.java.Secure;
+import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
 import play.libs.Files;
@@ -187,7 +188,7 @@ public final class AdminImportExportController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> importProgramsPage(Http.Request request) {
-    return supplyAsync(() -> ok(adminImportView.render(request, Optional.empty(), Optional.empty())));
+    return supplyAsync(() -> ok(adminImportView.render(request, Optional.empty(), Optional.empty(), Optional.empty())));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -226,7 +227,7 @@ public final class AdminImportExportController extends CiviFormController {
         return questionService.getReadOnlyQuestionService()
                 .thenApplyAsync(
                         readOnlyQuestionService ->
-                                ok(adminImportView.render(request, Optional.of(receivedStuff),
+                                ok(adminImportView.render(request, Optional.of(receivedStuff), Optional.of(result.toString()),
                                         Optional.of(readOnlyQuestionService.getActiveAndDraftQuestions().getActiveQuestions()))));
       } catch (IOException e) {
         throw new RuntimeException(e);
@@ -240,6 +241,9 @@ public final class AdminImportExportController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> createProgramsAndQuestions(Http.Request request) {
     // TODO: Parse the form content from the request correctly
+    DynamicForm form = formFactory.form().bindFromRequest(request);
+
+    System.out.println("raw data from form=" + form);
 
     return supplyAsync(() -> badRequest());
   }

@@ -9,6 +9,7 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.ul;
@@ -60,7 +61,7 @@ public class AdminImportView extends BaseHtmlView {
   }
 
   public Content render(
-      Http.Request request, Optional<AdminImportExportController.JsonExportingClass> dataToImport, Optional<ImmutableList<QuestionDefinition>> currentQuestionsWithinInstance) {
+      Http.Request request, Optional<AdminImportExportController.JsonExportingClass> dataToImport, Optional<String> pureString, Optional<ImmutableList<QuestionDefinition>> currentQuestionsWithinInstance) {
     String title = "Import programs";
     DivTag contentDiv = div().with(h1(title));
 
@@ -68,7 +69,7 @@ public class AdminImportView extends BaseHtmlView {
 
 
     if (dataToImport.isPresent()) {
-      contentDiv.with(renderImportedProgram(request, dataToImport.get().getPrograms().get(0), dataToImport.get().getQuestions(), currentQuestionsWithinInstance.get()));
+      contentDiv.with(renderImportedProgram(request, pureString.get(), dataToImport.get().getPrograms().get(0), dataToImport.get().getQuestions(), currentQuestionsWithinInstance.get()));
     }
 
     /*
@@ -112,6 +113,7 @@ public class AdminImportView extends BaseHtmlView {
 
   private DomContent renderImportedProgram(
           Http.Request request,
+          String pureString,
           ProgramDefinition programDefinition,
           List<QuestionDefinition> questionsWithinProgram,           ImmutableList<QuestionDefinition> currentQuestionsInInstance) {
 
@@ -124,6 +126,8 @@ public class AdminImportView extends BaseHtmlView {
             .withMethod("POST")
                     .withAction(routes.AdminImportExportController.createProgramsAndQuestions().url())
                             .with(makeCsrfTokenInputTag(request));
+
+    form.with(input().isHidden().withValue(pureString).withName("pureString"));
 
     // TODO: Similar to PdfExporter
             // TODO: Error if there's an existing program with that admin name
@@ -259,16 +263,21 @@ public class AdminImportView extends BaseHtmlView {
               .setFieldName(fieldName)
               .setLabelText("Keep existing version")
               .setValue("keep-existing")
+                      .setRequired(true)
               .getRadioTag());
       fields.with(FieldWithLabel.radio()
               .setFieldName(fieldName)
               .setLabelText("Replace with imported version")
               .setValue("replace-with-imported")
+              .setRequired(true)
+
               .getRadioTag());
       fields.with(FieldWithLabel.radio()
               .setFieldName(fieldName)
               .setLabelText("Remove from program")
               .setValue("remove-from-program")
+              .setRequired(true)
+
               .getRadioTag());
     } else {
       // Admin needs to confirm they want this question in the program
@@ -277,13 +286,18 @@ public class AdminImportView extends BaseHtmlView {
               .setLabelText("Use in program")
               .setValue("use-in-program")
                       .setChecked(true) // Assume any new questions will be kept in the program
+              .setRequired(true)
+
               .getRadioTag());
       fields.with(FieldWithLabel.radio()
               .setFieldName(fieldName)
               .setLabelText("Remove from program")
               .setValue("remove-from-program")
+              .setRequired(true)
+
               .getRadioTag());
     }
+    // TODO: Prevent form submission unless something has been selected for every question
     return selectionOptions.with(fields);
   }
 }
