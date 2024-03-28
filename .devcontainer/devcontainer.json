@@ -91,5 +91,5 @@
   "onCreateCommand": "bin/vscode-setup",
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  "forwardPorts": [9000]
+  "forwardPorts": [9000, 5432]
 }
