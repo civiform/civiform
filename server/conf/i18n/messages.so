@@ -369,12 +369,7 @@ validation.phoneMustBeLocalToCountry=Telefoonka aad bixisay wadana malaha
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
 
-<<<<<<< HEAD
-validation.dateMisformatted=Please enter a date in the format YYYY/MM/DD.
 validation.invalidDateFormat=Fadlan taariikhda ugu qor qaabka saxda ah
-=======
-validation.invalidDateFormat=Please enter a date in the correct format
->>>>>>> e2288c9d3 (Update the validation string for date questions)
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #

@@ -369,12 +369,7 @@ validation.phoneMustBeLocalToCountry=您提供的電話號碼不屬於您選取�
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
 
-<<<<<<< HEAD
-validation.dateMisformatted=日期格式必須為 YYYY/MM/DD。
 validation.invalidDateFormat=日期的格式不正確，請重新輸入
-=======
-validation.invalidDateFormat=Please enter a date in the correct format
->>>>>>> e2288c9d3 (Update the validation string for date questions)
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #

@@ -130,7 +130,6 @@ public enum MessageKey {
   ERROR_NOT_FOUND_DESCRIPTION("error.notFoundDescription"),
   ERROR_NOT_FOUND_DESCRIPTION_LINK("error.notFoundDescriptionLink"),
   DATE_VALIDATION_INVALID_DATE_FORMAT("validation.invalidDateFormat"),
-  DATE_VALIDATION_MISFORMATTED("validation.dateMisformatted"),
   DAY_LABEL("label.day"),
   DIALOG_DELETE_CONFIRMATION("dialog.deleteConfirmation"),
   DOB_EXAMPLE("label.dobExample"),
