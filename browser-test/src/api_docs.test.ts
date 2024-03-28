@@ -39,9 +39,7 @@ test.describe('Viewing API docs', {tag: ['@uses-fixtures']}, () => {
 
     await test.step('Verify default comprehensive sample program', async () => {
       await expect(
-        page
-          .getByRole('complementary', {name: 'API response preview'})
-          .getByRole('code'),
+        page.getByRole('complementary').getByRole('code'),
       ).toContainText('"program_name" : "comprehensive-sample-program"')
 
       await validateScreenshot(page, 'comprehensive-program-active-version')
@@ -53,9 +51,7 @@ test.describe('Viewing API docs', {tag: ['@uses-fixtures']}, () => {
         .selectOption('minimal-sample-program')
 
       await expect(
-        page
-          .getByRole('complementary', {name: 'API response preview'})
-          .getByRole('code'),
+        page.getByRole('complementary').getByRole('code'),
       ).toContainText('"program_name" : "minimal-sample-program"')
 
       await validateScreenshot(page, 'minimal-program-active-version')
@@ -85,9 +81,7 @@ test.describe('Viewing API docs', {tag: ['@uses-fixtures']}, () => {
 
     await test.step('Verify default comprehensive sample program', async () => {
       await expect(
-        freshPage
-          .getByRole('complementary', {name: 'API response preview'})
-          .getByRole('code'),
+        freshPage.getByRole('complementary').getByRole('code'),
       ).toContainText('"program_name" : "comprehensive-sample-program"')
 
       await validateScreenshot(
@@ -126,9 +120,7 @@ test.describe('Viewing API docs', {tag: ['@uses-fixtures']}, () => {
         .selectOption('draft')
 
       await expect(
-        page
-          .getByRole('complementary', {name: 'API response preview'})
-          .getByRole('code'),
+        page.getByRole('complementary').getByRole('code'),
       ).toContainText('"program_name" : "minimal-sample-program"')
 
       await validateScreenshot(page, 'draft-available')

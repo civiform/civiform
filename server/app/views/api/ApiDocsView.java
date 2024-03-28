@@ -1,6 +1,7 @@
 package views.api;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static j2html.TagCreator.aside;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.blockquote;
 import static j2html.TagCreator.code;
@@ -23,6 +24,7 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.AsideTag;
 import j2html.tags.specialized.CodeTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.OptionTag;
@@ -157,8 +159,9 @@ public class ApiDocsView extends BaseHtmlView {
             .with(
                 div()
                     .withClasses("flex", "flex-row", "items-center", "mx-6")
-                    .with(label("Select a program:").with(slugsDropdown))
-                    .with(label("Select version:").with(versionsDropdown)));
+                    .with(label("Select a program:").withFor("select-slug").with(slugsDropdown))
+                    .with(
+                        label("Select version:").withFor("select-version").with(versionsDropdown)));
 
     DivTag fullProgramDiv = div();
 
@@ -171,7 +174,7 @@ public class ApiDocsView extends BaseHtmlView {
       leftSide.with(h2("Questions").withClasses("pl-4"));
       leftSide.with(programDocsDiv(programDefinition.get()));
 
-      DivTag rightSide = div().withClasses("w-full flex-grow");
+      AsideTag rightSide = aside().withClasses("w-full flex-grow");
       rightSide.with(h2("API response preview").withClasses("pl-4"));
       rightSide.with(apiResponseSampleDiv(programDefinition.get()));
 
@@ -188,19 +191,11 @@ public class ApiDocsView extends BaseHtmlView {
     String fullJsonResponsePreview = programJsonSampler.getSampleJson(programDefinition);
     String fullJsonResponsePreviewPretty = asPrettyJsonString(fullJsonResponsePreview);
 
-    apiResponseSampleDiv
-        .attr("role", "complementary")
-        .attr("aria-label", "API response preview in JSON format")
-        .with(
-            pre(code(fullJsonResponsePreviewPretty))
-                .withStyle("max-width: 100ch;")
-                .withClasses(
-                    "m-4",
-                    "p-2",
-                    "rounded-lg",
-                    "bg-slate-200",
-                    "break-words",
-                    "whitespace-pre-wrap"));
+    apiResponseSampleDiv.with(
+        pre(code(fullJsonResponsePreviewPretty))
+            .withStyle("max-width: 100ch;")
+            .withClasses(
+                "m-4", "p-2", "rounded-lg", "bg-slate-200", "break-words", "whitespace-pre-wrap"));
 
     return apiResponseSampleDiv;
   }
