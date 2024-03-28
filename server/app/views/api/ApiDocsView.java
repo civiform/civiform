@@ -1,6 +1,7 @@
 package views.api;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static j2html.TagCreator.aside;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.blockquote;
 import static j2html.TagCreator.code;
@@ -9,6 +10,7 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
+import static j2html.TagCreator.label;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.pre;
@@ -22,6 +24,7 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.AsideTag;
 import j2html.tags.specialized.CodeTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.OptionTag;
@@ -156,24 +159,23 @@ public class ApiDocsView extends BaseHtmlView {
             .with(
                 div()
                     .withClasses("flex", "flex-row", "items-center", "mx-6")
-                    .with(text("Select a program:   "))
-                    .with(slugsDropdown)
-                    .with(text("Select version:   "))
-                    .with(versionsDropdown));
+                    .with(label("Select a program:").withFor("select-slug").with(slugsDropdown))
+                    .with(
+                        label("Select version:").withFor("select-version").with(versionsDropdown)));
 
     DivTag fullProgramDiv = div();
 
     if (programDefinition.isEmpty()) {
-      fullProgramDiv.with(h1("Program and version not found").withClasses("mx-5", "my-10"));
+      fullProgramDiv.with(h2("Program and version not found").withClasses("mx-5", "my-10"));
     } else {
       fullProgramDiv.withClasses("flex", "flex-row", "gap-4", "m-4");
 
       DivTag leftSide = div().withClasses("w-full", "flex-grow");
-      leftSide.with(h1("Questions").withClasses("pl-4"));
+      leftSide.with(h2("Questions").withClasses("pl-4"));
       leftSide.with(programDocsDiv(programDefinition.get()));
 
-      DivTag rightSide = div().withClasses("w-full flex-grow");
-      rightSide.with(h1("API response preview").withClasses("pl-4"));
+      AsideTag rightSide = aside().withClasses("w-full flex-grow");
+      rightSide.with(h2("API response preview").withClasses("pl-4"));
       rightSide.with(apiResponseSampleDiv(programDefinition.get()));
 
       fullProgramDiv.with(leftSide);

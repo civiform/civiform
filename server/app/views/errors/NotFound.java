@@ -1,13 +1,14 @@
 package views.errors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.span;
 
 import com.google.inject.Inject;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import play.i18n.Messages;
@@ -18,7 +19,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.LanguageSelector;
 import views.applicant.ApplicantLayout;
-import views.style.BaseStyles;
+import views.components.LinkElement;
 import views.style.ErrorStyles;
 
 /**
@@ -47,11 +48,21 @@ public final class NotFound extends BaseHtmlView {
   }
 
   private DivTag descriptionContent(Messages messages) {
-    return div(p(
-                span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION.getKeyName())),
-                a(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_LINK.getKeyName()))
-                    .withHref("/")
-                    .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT))
+    ATag homepageLink =
+        new LinkElement()
+            .setStyles("underline")
+            .setText(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_LINK.getKeyName()))
+            .setHref("/")
+            .opensInNewTab()
+            .asAnchorText()
+            .attr(
+                "aria-label",
+                messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_LINK.getKeyName()));
+
+    return div(p(span(
+                rawHtml(
+                    messages.at(
+                        MessageKey.ERROR_NOT_FOUND_DESCRIPTION.getKeyName(), homepageLink))))
             .withClasses(ErrorStyles.P_MOBILE_INLINE))
         .withClasses(ErrorStyles.P_DESCRIPTION);
   }

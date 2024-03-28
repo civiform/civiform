@@ -327,25 +327,8 @@ validation.stateRequired=ກະລຸນາໃສ່ລັດ.
 validation.invalidZipcode=ກະລຸນາໃສ່ລະຫັດ ZIP 5 ຕົວເລກທີ່ຖືກຕ້ອງ.
 validation.noPoBox=ກະລຸນາໃສ່ທີ່ຢູ່ທີ່ຖືກຕ້ອງ. ພວກເຮົາບໍ່ຮັບຂໍ້ມູນຕູ້ໄປສະນີ.
 
-title.verifyAddress=ຢັ້ງຢືນທີ່ຢູ່
-
-content.foundSimilarAddress=ພວກເຮົາບໍ່ສາມາດຢັ້ງຢືນທີ່ຢູ່ທີ່ທ່ານລະບຸໄດ້, ແຕ່ພົບທີ່ຢູ່ທີ່ຄ້າຍຄືກັນ.
-# Heading for showing the user the address they provided earlier
-content.addressEntered=ທີ່ຢູ່ທີ່ທ່ານປ້ອນເຂົ້າ:
-
-# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
-content.suggestedAddress=ທີ່ຢູ່ທີ່ແນະນຳ:
-content.suggestedAddresses=ທີ່ຢູ່ທີ່ແນະນຳ:
-
-# Title on address correction dialog when no address is found.
-title.noValidAddress=ບໍ່ພົບທີ່ຢູ່ທີ່ຖືກຕ້ອງ
-content.noValidAddress=ພວກເຮົາບໍ່ສາມາດຢັ້ງຢືນທີ່ຢູ່ທີ່ທ່ານສະໜອງໃຫ້ໄດ້. ກະລຸນາແກ້ໄຂທີ່ຢູ່ຂອງທ່ານເພື່ອສືບຕໍ່.
-
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
-# Note: We're re-writing the text shown on the address correction screen. #
-# The strings below will be used in the re-write, and then the strings    #
-# above that are obsolete will be deleted.                                #
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
@@ -356,6 +339,11 @@ content.confirmAddressLine1=ພວກເຮົາບໍ່ພົບທີ່ຢ�
 content.foundSimilarAddressLine2=ກະລຸນາກວດເບິ່ງການສະກົດຄຳທີ່ຢູ່ຂອງທ່ານ ຫຼື ເລືອກຕົວເລືອກຈາກລາຍຊື່ທີ່ສະໜອງໃຫ້.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
 content.noValidAddressLine2=ກະລຸນາກວດເບິ່ງການສະກົດຄຳທີ່ຢູ່ຂອງທ່ານ ແລະ ແກ້ໄຂມັນເພື່ອສືບຕໍ່.
+# Heading for showing the user the address they provided earlier
+content.addressEntered=ທີ່ຢູ່ທີ່ທ່ານປ້ອນເຂົ້າ:
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=ທີ່ຢູ່ທີ່ແນະນຳ:
+content.suggestedAddresses=ທີ່ຢູ່ທີ່ແນະນຳ:
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
 button.confirmAddress=ຢືນຢັນທີ່ຢູ່
 
@@ -381,7 +369,6 @@ validation.phoneMustBeLocalToCountry=ເບີໂທລະສັບທີ່ທ�
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
 
-validation.dateMisformatted=ກະລຸນາໃສ່ວັນທີໃນຮູບແບບ ປປປປ/ດດ/ວວ.
 validation.invalidDateFormat=ກະລຸນາໃສ່ວັນທີໃນຮູບແບບທີ່ຖືກຕ້ອງ
 
 #--------------------------------------------------------------------------------------------------------#

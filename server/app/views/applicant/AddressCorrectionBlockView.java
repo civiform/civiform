@@ -115,16 +115,15 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
             .withAction(getFormAction(params, ApplicantRequestedAction.NEXT_BLOCK))
             .withMethod(Http.HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(params.request()));
-    MessageKey title =
+    MessageKey title = MessageKey.ADDRESS_CORRECTION_TITLE;
+    MessageKey instructionsLine1 = MessageKey.ADDRESS_CORRECTION_LINE_1;
+    MessageKey instructionsLine2 =
         suggestions.size() > 0
-            ? MessageKey.ADDRESS_CORRECTION_VERIFY_TITLE
-            : MessageKey.ADDRESS_CORRECTION_NO_VALID_TITLE;
-    MessageKey instructions =
-        suggestions.size() > 0
-            ? MessageKey.ADDRESS_CORRECTION_VERIFY_INSTRUCTIONS
-            : MessageKey.ADDRESS_CORRECTION_NO_VALID_INSTRUCTIONS;
+            ? MessageKey.ADDRESS_CORRECTION_FOUND_SIMILAR_LINE_2
+            : MessageKey.ADDRESS_CORRECTION_NO_VALID_LINE_2;
     form.with(h2(messages.at(title.getKeyName())).withClass("font-bold mb-2"))
-        .with(div(messages.at(instructions.getKeyName())).withClass("mb-8"));
+        .with(div(messages.at(instructionsLine1.getKeyName())).withClass("mb-4"))
+        .with(div(messages.at(instructionsLine2.getKeyName())).withClass("mb-8"));
 
     boolean anySuggestions = suggestions.size() > 0;
     // If the address question is part of determining eligibility, then the address *must* get

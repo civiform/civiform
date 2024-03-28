@@ -519,9 +519,14 @@ export class ApplicantQuestions {
     ).toEqual(0)
   }
 
-  async expectVerifyAddressPage(validAddress: boolean) {
-    const header = validAddress ? 'Verify address' : 'No valid address found'
-    expect(await this.page.innerText('h2')).toContain(header)
+  async expectVerifyAddressPage(hasAddressSuggestions: boolean) {
+    expect(await this.page.innerText('h2')).toContain('Confirm your address')
+    // Note: If there's only one suggestion, the heading will be "Suggested address"
+    // not "Suggested addresses". But, our browser setup always returns multiple
+    // suggestions so we can safely assert the heading is always "Suggested addresses".
+    await expect(
+      this.page.getByRole('heading', {name: 'Suggested addresses'}),
+    ).toBeVisible({visible: hasAddressSuggestions})
   }
 
   async expectAddressPage() {
@@ -595,6 +600,12 @@ export class ApplicantQuestions {
 
   async seeStaticQuestion(questionText: string) {
     expect(await this.page.textContent('html')).toContain(questionText)
+  }
+
+  async expectRequiredQuestionError(questionLocator: string) {
+    expect(await this.page.innerText(questionLocator)).toContain(
+      'This question is required',
+    )
   }
 
   async expectErrorOnReviewModal() {

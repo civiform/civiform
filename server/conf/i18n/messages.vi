@@ -327,25 +327,8 @@ validation.stateRequired=Vui lòng nhập tên tiểu bang.
 validation.invalidZipcode=Vui lòng nhập mã bưu chính hợp lệ gồm 5 chữ số.
 validation.noPoBox=Vui lòng nhập một địa chỉ hợp lệ. Chúng tôi không chấp nhận hộp thư bưu điện.
 
-title.verifyAddress=Xác minh địa chỉ
-
-content.foundSimilarAddress=Chúng tôi không thể xác minh địa chỉ do bạn cung cấp nhưng đã tìm thấy địa chỉ tương tự.
-# Heading for showing the user the address they provided earlier
-content.addressEntered=Địa chỉ bạn đã nhập:
-
-# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
-content.suggestedAddress=Địa chỉ được đề xuất:
-content.suggestedAddresses=Các địa chỉ được đề xuất:
-
-# Title on address correction dialog when no address is found.
-title.noValidAddress=Không tìm thấy địa chỉ hợp lệ
-content.noValidAddress=Chúng tôi không thể xác minh địa chỉ do bạn cung cấp. Vui lòng chỉnh sửa địa chỉ của bạn để tiếp tục.
-
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
-# Note: We're re-writing the text shown on the address correction screen. #
-# The strings below will be used in the re-write, and then the strings    #
-# above that are obsolete will be deleted.                                #
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
@@ -356,6 +339,11 @@ content.confirmAddressLine1=Chúng tôi không thể tìm thấy địa chỉ c�
 content.foundSimilarAddressLine2=Vui lòng kiểm tra xem địa chỉ bạn nhập có lỗi chính tả không hoặc chọn một địa chỉ từ danh sách được cung cấp.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
 content.noValidAddressLine2=Vui lòng kiểm tra xem địa chỉ bạn nhập có lỗi chính tả không rồi chỉnh sửa để tiếp tục.
+# Heading for showing the user the address they provided earlier
+content.addressEntered=Địa chỉ bạn đã nhập:
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=Địa chỉ được đề xuất:
+content.suggestedAddresses=Các địa chỉ được đề xuất:
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
 button.confirmAddress=Xác nhận địa chỉ
 
@@ -381,7 +369,6 @@ validation.phoneMustBeLocalToCountry=Số điện thoại bạn đã cung cấp 
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
 
-validation.dateMisformatted=Vui lòng nhập ngày ở định dạng YYYY/MM/DD.
 validation.invalidDateFormat=Hãy nhập ngày theo đúng định dạng
 
 #--------------------------------------------------------------------------------------------------------#

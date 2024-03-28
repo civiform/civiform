@@ -1028,7 +1028,7 @@ test.describe('create and edit predicates', () => {
         /* action= */ null,
         'date',
         'age is younger than',
-        '50',
+        '50.5',
       )
 
       // ensure the edit page renders without errors
@@ -1132,7 +1132,6 @@ test.describe('create and edit predicates', () => {
       await validateToastMessage(page, 'may qualify')
 
       await applicantQuestions.clickReview()
-      await applicantQuestions.clickReviewWithoutSaving()
       await validateScreenshot(page, 'review-page-no-ineligible-banner')
       await validateToastMessage(page, '')
       await applicantQuestions.clickContinue()
@@ -1182,7 +1181,7 @@ test.describe('create and edit predicates', () => {
       await applicantQuestions.answerDateQuestion('1930-01-01')
       await applicantQuestions.clickNext()
 
-      // Age less than 50 is allowed
+      // Age less than 50.5 is allowed
       await applicantQuestions.answerDateQuestion('1930-12-31')
       await applicantQuestions.clickNext()
       await applicantQuestions.expectIneligiblePage()
