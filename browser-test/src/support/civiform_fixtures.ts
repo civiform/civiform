@@ -29,8 +29,8 @@ type CiviformFixtures = {
 }
 
 export const test = base.extend<CiviformFixtures>({
-  adminApiKeys: async ({page}, use) => {
-    await use(new AdminApiKeys(page))
+  adminApiKeys: async ({page, request}, use) => {
+    await use(new AdminApiKeys(page, request))
   },
 
   adminPrograms: async ({page}, use) => {
