@@ -136,7 +136,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: tests videos (aws) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
-          path: browser-test/tmp
+          path: |
+            browser-test/tmp/html-output/
+            browser-test/tmp/videos/
         if: failure()
       - name: Print logs on failure
         if: failure()
