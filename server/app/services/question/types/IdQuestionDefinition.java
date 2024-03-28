@@ -1,20 +1,22 @@
 package services.question.types;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.auto.value.AutoValue;
 import java.util.OptionalInt;
 
 /** Defines an id question. */
 public final class IdQuestionDefinition extends QuestionDefinition {
 
-  public IdQuestionDefinition(QuestionDefinitionConfig config) {
+  public IdQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
     super(config);
   }
 
-  @JsonDeserialize(as = IdValidationPredicates.class)
+  @JsonDeserialize(builder = AutoValue_IdQuestionDefinition_IdValidationPredicates.Builder.class)
   @AutoValue
   public abstract static class IdValidationPredicates extends ValidationPredicates {
 
@@ -41,11 +43,18 @@ public final class IdQuestionDefinition extends QuestionDefinition {
     @JsonProperty("maxLength")
     public abstract OptionalInt maxLength();
 
+    // TODO: This will mess up storing the predicate in the DB
+    @JsonProperty("type")
+    public String type() {
+      return "IdValidationPredicates";
+    }
+
     public static Builder builder() {
       return new AutoValue_IdQuestionDefinition_IdValidationPredicates.Builder();
     }
 
     @AutoValue.Builder
+    @JsonPOJOBuilder
     public abstract static class Builder {
 
       @JsonProperty("minLength")
@@ -62,7 +71,7 @@ public final class IdQuestionDefinition extends QuestionDefinition {
     }
   }
 
-  public IdValidationPredicates getIdValidationPredicates() {
+  private IdValidationPredicates getIdValidationPredicates() {
     return (IdValidationPredicates) getValidationPredicates();
   }
 
@@ -76,10 +85,12 @@ public final class IdQuestionDefinition extends QuestionDefinition {
     return IdValidationPredicates.create();
   }
 
+  @JsonIgnore
   public OptionalInt getMinLength() {
     return getIdValidationPredicates().minLength();
   }
 
+  @JsonIgnore
   public OptionalInt getMaxLength() {
     return getIdValidationPredicates().maxLength();
   }

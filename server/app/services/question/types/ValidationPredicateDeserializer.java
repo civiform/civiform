@@ -15,6 +15,8 @@ public class ValidationPredicateDeserializer extends JsonDeserializer<QuestionDe
         ObjectMapper mapper = (ObjectMapper) jp.getCodec();
         ObjectNode root = mapper.readTree(jp);
 
+       System.out.println("root=" + root.toString());
+
         // TODO
         if (root.has("minLength")) {
             return mapper.readValue(root.toString(), IdQuestionDefinition.IdValidationPredicates.class);

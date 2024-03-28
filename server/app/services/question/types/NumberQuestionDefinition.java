@@ -9,7 +9,7 @@ import java.util.OptionalLong;
 /** Defines a number question. */
 public final class NumberQuestionDefinition extends QuestionDefinition {
 
-  public NumberQuestionDefinition(QuestionDefinitionConfig config) {
+  public NumberQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
     super(config);
   }
 
