@@ -3,6 +3,7 @@ package services.question.types;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -33,9 +34,9 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
   private final MultiOptionQuestionType multiOptionQuestionType;
 
   public MultiOptionQuestionDefinition(
-      QuestionDefinitionConfig questionDefinitionConfig,
-      ImmutableList<QuestionOption> questionOptions,
-      MultiOptionQuestionType multiOptionQuestionType) {
+          @JsonProperty("config") QuestionDefinitionConfig questionDefinitionConfig,
+          @JsonProperty("questionOptions") ImmutableList<QuestionOption> questionOptions,
+          @JsonProperty("multiOptionQuestionType") MultiOptionQuestionType multiOptionQuestionType) {
     super(fixValidationPredicates(questionDefinitionConfig, multiOptionQuestionType));
     this.questionOptions = questionOptions;
     this.multiOptionQuestionType = multiOptionQuestionType;
@@ -53,6 +54,12 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
     }
 
     return builder.build();
+  }
+
+  // TODO: Prefer using question type not this type
+  @JsonProperty("multiOptionQuestionType")
+  public MultiOptionQuestionType getMultiOptionQuestionType() {
+    return multiOptionQuestionType;
   }
 
   @Override
@@ -102,6 +109,7 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
     return smallestSet.get();
   }
 
+  @JsonProperty("questionOptions")
   public ImmutableList<QuestionOption> getOptions() {
     return this.questionOptions;
   }
@@ -111,6 +119,7 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
    *
    * @return a list of option admin names.
    */
+  @JsonIgnore
   public ImmutableList<String> getOptionAdminNames() {
     return this.questionOptions.stream().map(QuestionOption::adminName).collect(toImmutableList());
   }
@@ -126,6 +135,7 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   /** Get question options localized to CiviForm's default locale. */
+  @JsonIgnore
   public ImmutableList<LocalizedQuestionOption> getOptionsForDefaultLocale() {
     try {
       return getOptionsForLocale(LocalizedStrings.DEFAULT_LOCALE);
@@ -171,6 +181,7 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
         .findFirst();
   }
 
+  @JsonIgnore // Will be handled by the parent QuesstionDefinition.validationPredicates
   public MultiOptionValidationPredicates getMultiOptionValidationPredicates() {
     return (MultiOptionValidationPredicates) getValidationPredicates();
   }

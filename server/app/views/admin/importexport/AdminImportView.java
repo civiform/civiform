@@ -6,6 +6,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h3;
 import static j2html.TagCreator.p;
 
 import com.google.common.collect.ImmutableList;
@@ -51,8 +52,10 @@ public class AdminImportView extends BaseHtmlView {
       contentDiv.with(h2("Programs:"));
       contentDiv.with(p(dataToImport.get().getPrograms().toString()));
       contentDiv.with(h2("Questions:"));
-      List<String> questions = dataToImport.get().getQuestions().stream().map(QuestionDefinition::getConfig).map(QuestionDefinitionConfig::toString).collect(Collectors.toList());
-      contentDiv.with(each(questions, question -> p(question)));
+      for (QuestionDefinition question : dataToImport.get().getQuestions()) {
+        contentDiv.with(h3(question.getQuestionText().getDefault() + "  [Type: " + question.getQuestionType() + "]"));
+        contentDiv.with(p(question.getConfig().toString()));
+      }
     } else {
       contentDiv.with(p("Nothing imported yet"));
     }
