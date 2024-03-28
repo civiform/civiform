@@ -15,6 +15,8 @@ public final class NameQuestionDefinition extends QuestionDefinition {
 
     public static NameValidationPredicates parse(String jsonString) {
       try {
+        // TODO: I think it's failing  because the existing JSON doesn't have the "type" property
+        // in it so we can't parse it
         return mapper.readValue(
             jsonString, AutoValue_NameQuestionDefinition_NameValidationPredicates.class);
       } catch (JsonProcessingException e) {

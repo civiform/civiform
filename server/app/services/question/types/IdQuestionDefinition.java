@@ -2,7 +2,6 @@ package services.question.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -44,10 +43,10 @@ public final class IdQuestionDefinition extends QuestionDefinition {
     public abstract OptionalInt maxLength();
 
     // TODO: This will mess up storing the predicate in the DB
-    @JsonProperty("type")
-    public String type() {
-      return "IdValidationPredicates";
-    }
+   // @JsonProperty("type")
+   // public String type() {
+   //   return "IdValidationPredicates";
+   // }
 
     public static Builder builder() {
       return new AutoValue_IdQuestionDefinition_IdValidationPredicates.Builder();

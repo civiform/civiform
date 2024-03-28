@@ -9,7 +9,7 @@ import java.util.Optional;
 /** Defines an address question. */
 public final class AddressQuestionDefinition extends QuestionDefinition {
 
-  public AddressQuestionDefinition(QuestionDefinitionConfig config) {
+  public AddressQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
     super(config);
   }
 

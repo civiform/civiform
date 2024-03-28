@@ -41,7 +41,7 @@ public abstract class QuestionDefinitionConfig {
   abstract Optional<LocalizedStrings> questionHelpTextInternal();
 
   @JsonProperty("validationPredicates")
-  abstract Optional<QuestionDefinition.ValidationPredicates> validationPredicates();
+  abstract Optional<ValidationPredicates> validationPredicates();
 
   @JsonProperty("id")
   abstract OptionalLong id();
@@ -109,7 +109,7 @@ public abstract class QuestionDefinitionConfig {
 
     @JsonProperty("validationPredicates")
     public abstract Builder setValidationPredicates(
-        QuestionDefinition.ValidationPredicates validationPredicates);
+        ValidationPredicates validationPredicates);
 
     public Builder setQuestionHelpText(LocalizedStrings questionHelpText) {
       return setQuestionHelpTextInternal(questionHelpText);

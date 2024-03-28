@@ -17,7 +17,6 @@ import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidati
 import services.question.types.NameQuestionDefinition.NameValidationPredicates;
 import services.question.types.NumberQuestionDefinition.NumberValidationPredicates;
 import services.question.types.PhoneQuestionDefinition.PhoneValidationPredicates;
-import services.question.types.QuestionDefinition.ValidationPredicates;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
 /**
@@ -177,6 +176,23 @@ public final class QuestionDefinitionBuilder {
   }
 
   public QuestionDefinition build() throws UnsupportedQuestionTypeException {
+    System.out.println("building " + this.questionType + "Q="  + builder.build().questionText().getDefault() + " predString=" + validationPredicatesString);
+
+    String type = this.questionType.name().toLowerCase();
+    if (this.questionType == QuestionType.CHECKBOX || this.questionType == QuestionType.RADIO_BUTTON || this.questionType == QuestionType.DROPDOWN) {
+      type = "multioption";
+    }
+
+    // TODO: Helper function
+    // TODO: Check what it looks like in the db now
+    if (validationPredicatesString.equals("{}")) {
+      //validationPredicatesString = "{\"type\": \"" + type + "\"}";
+      validationPredicatesString = "";
+    } else if (validationPredicatesString.startsWith("{")) {
+      validationPredicatesString = validationPredicatesString.replaceFirst("\\{", "\\{\"type\":\"" + type + "\",");
+    }
+    System.out.println("string after replacement: " + validationPredicatesString);
+
     switch (this.questionType) {
       case ADDRESS:
         if (!validationPredicatesString.isEmpty()) {

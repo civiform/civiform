@@ -1,12 +1,13 @@
 package services.question.types;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
 
 /** Defines a currency question. */
 public final class CurrencyQuestionDefinition extends QuestionDefinition {
 
-  public CurrencyQuestionDefinition(QuestionDefinitionConfig config) {
+  public CurrencyQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
     super(config);
   }
 

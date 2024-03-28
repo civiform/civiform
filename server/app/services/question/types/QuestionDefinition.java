@@ -4,12 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -60,50 +54,6 @@ public abstract class QuestionDefinition {
     }
 
     this.config = config;
-  }
-
-/*
-  @JsonTypeInfo(
-          use = JsonTypeInfo.Id.NAME,
-         // include = JsonTypeInfo.As.EXISTING_PROPERTY,
-          property = "type")
-  @JsonSubTypes({
-
-          @JsonSubTypes.Type(value = AddressQuestionDefinition.AddressValidationPredicates.class, name = "address"),
-          @JsonSubTypes.Type(value = CurrencyQuestionDefinition.CurrencyValidationPredicates.class, name = "currency"),
-
-          @JsonSubTypes.Type(value = DateQuestionDefinition.DateValidationPredicates.class, name = "date"),
-          @JsonSubTypes.Type(value = EmailQuestionDefinition.EmailValidationPredicates.class, name = "email"),
-          @JsonSubTypes.Type(value = EnumeratorQuestionDefinition.EnumeratorValidationPredicates.class, name = "enumerator"),
-          @JsonSubTypes.Type(value = FileUploadQuestionDefinition.FileUploadValidationPredicates.class, name = "fileupload"),
-          @JsonSubTypes.Type(value = IdQuestionDefinition.IdValidationPredicates.class, name = "idthing"),
-          @JsonSubTypes.Type(value = MultiOptionQuestionDefinition.MultiOptionValidationPredicates.class, name = "multioption"),
-          @JsonSubTypes.Type(value = NameQuestionDefinition.NameValidationPredicates.class, name = "name"),
-          @JsonSubTypes.Type(value = NumberQuestionDefinition.NumberValidationPredicates.class, name = "number"),
-          @JsonSubTypes.Type(value = PhoneQuestionDefinition.PhoneValidationPredicates.class, name = "phone"),
-          @JsonSubTypes.Type(value = StaticContentQuestionDefinition.StaticContentValidationPredicates.class, name = "static"),
-          @JsonSubTypes.Type(value = TextQuestionDefinition.TextValidationPredicates.class, name = "text"),
-  })
-
- */
-  // TODO: NEed to comment out whenever not using the Import tab because not all question predicates
-  // are handled in the Deserializer
- // @JsonDeserialize(using = ValidationPredicateDeserializer.class)
-  public abstract static class ValidationPredicates {
-    protected static final ObjectMapper mapper =
-        new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
-
-    static {
-      mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-    }
-
-    public String serializeAsString() {
-      try {
-        return mapper.writeValueAsString(this);
-      } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
-      }
-    }
   }
 
   /** Return true if the question is persisted and has an unique identifier. */

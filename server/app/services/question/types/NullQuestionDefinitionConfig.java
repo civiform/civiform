@@ -48,7 +48,7 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
   }
 
   @Override
-  Optional<QuestionDefinition.ValidationPredicates> validationPredicates() {
+  Optional<ValidationPredicates> validationPredicates() {
     return Optional.empty();
   }
 
@@ -134,7 +134,7 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
 
     @Override
     public QuestionDefinitionConfig.Builder setValidationPredicates(
-        QuestionDefinition.ValidationPredicates validationPredicates) {
+        ValidationPredicates validationPredicates) {
       return this;
     }
 

@@ -8,10 +8,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 
-public class ValidationPredicateDeserializer extends JsonDeserializer<QuestionDefinition.ValidationPredicates> {
+public class ValidationPredicateDeserializer extends JsonDeserializer<ValidationPredicates> {
 
     @Override
-    public QuestionDefinition.ValidationPredicates deserialize(JsonParser jp, DeserializationContext context) throws IOException {
+    public ValidationPredicates deserialize(JsonParser jp, DeserializationContext context) throws IOException {
         ObjectMapper mapper = (ObjectMapper) jp.getCodec();
         ObjectNode root = mapper.readTree(jp);
 

@@ -2,6 +2,7 @@ package views.admin.importexport;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
@@ -51,7 +52,7 @@ public class AdminImportView extends BaseHtmlView {
       contentDiv.with(p(dataToImport.get().getPrograms().toString()));
       contentDiv.with(h2("Questions:"));
       List<String> questions = dataToImport.get().getQuestions().stream().map(QuestionDefinition::getConfig).map(QuestionDefinitionConfig::toString).collect(Collectors.toList());
-      contentDiv.with(p(questions.get(0)));
+      contentDiv.with(each(questions, question -> p(question)));
     } else {
       contentDiv.with(p("Nothing imported yet"));
     }

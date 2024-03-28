@@ -11,7 +11,7 @@ public final class PhoneQuestionDefinition extends QuestionDefinition {
 
   @AutoValue
   public abstract static class PhoneValidationPredicates
-      extends QuestionDefinition.ValidationPredicates {
+      extends ValidationPredicates {
 
     public static PhoneQuestionDefinition.PhoneValidationPredicates parse(String jsonString) {
       try {
