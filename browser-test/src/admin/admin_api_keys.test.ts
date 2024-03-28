@@ -1,7 +1,7 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {loginAsAdmin, validateScreenshot} from '../support'
 
-test.describe('Managing API keys', () => {
+test.describe('Managing API keys', {tag: ['@uses-fixtures']}, () => {
   test('Creates, views and retires new API key', async ({
     page,
     adminApiKeys,
