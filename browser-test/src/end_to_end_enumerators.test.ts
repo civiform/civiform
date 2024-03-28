@@ -1,8 +1,8 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from './support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
-  createTestContext,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -12,10 +12,10 @@ import {
 
 test.describe('End to end enumerator test', () => {
   const programName = 'Ete enumerator program'
-  const ctx = createTestContext(/* clearDb= */ false)
 
-  test('Updates enumerator elements in preview', async () => {
-    const {page, adminQuestions} = ctx
+  test.describe('with North star flag disabled', () => {
+
+  test('Updates enumerator elements in preview', async ({page, adminQuestions}) => {
     await loginAsAdmin(page)
 
     await adminQuestions.gotoAdminQuestionsPage()
@@ -47,8 +47,7 @@ test.describe('End to end enumerator test', () => {
     })
   })
 
-  test('Create nested enumerator and repeated questions as admin', async () => {
-    const {page, adminQuestions, adminPrograms} = ctx
+  test('Create nested enumerator and repeated questions as admin', async ({page, adminQuestions, adminPrograms}) => {
     await loginAsAdmin(page)
 
     await adminQuestions.addNameQuestion({
@@ -163,8 +162,7 @@ test.describe('End to end enumerator test', () => {
     await logout(page)
   })
 
-  test('has no accessibility violations', async () => {
-    const {page, applicantQuestions} = ctx
+  test('has no accessibility violations', async ({page, applicantQuestions}) => {
     await applicantQuestions.applyProgram(programName)
 
     await applicantQuestions.answerNameQuestion('Porky', 'Pig')
@@ -190,8 +188,7 @@ test.describe('End to end enumerator test', () => {
     await validateAccessibility(page)
   })
 
-  test('validate screenshot', async () => {
-    const {page, applicantQuestions} = ctx
+  test('validate screenshot', async ({page, applicantQuestions}) => {
     await applicantQuestions.applyProgram(programName)
 
     await applicantQuestions.answerNameQuestion('Porky', 'Pig')
@@ -202,8 +199,7 @@ test.describe('End to end enumerator test', () => {
     await validateScreenshot(page, 'enumerator')
   })
 
-  test('validate screenshot with errors', async () => {
-    const {page, applicantQuestions} = ctx
+  test('validate screenshot with errors', async ({page, applicantQuestions}) => {
     await applicantQuestions.applyProgram(programName)
 
     await applicantQuestions.answerNameQuestion('Porky', 'Pig')
@@ -214,8 +210,7 @@ test.describe('End to end enumerator test', () => {
     await validateScreenshot(page, 'enumerator-errors')
   })
 
-  test('Renders the correct indexes for labels and buttons', async () => {
-    const {page, applicantQuestions} = ctx
+  test('Renders the correct indexes for labels and buttons', async ({page, applicantQuestions}) => {
     await applicantQuestions.applyProgram(programName)
 
     // Fill in name question
@@ -233,8 +228,7 @@ test.describe('End to end enumerator test', () => {
     await validateScreenshot(page, 'enumerator-indexes-after-removing-field')
   })
 
-  test('Applicant can fill in lots of blocks, and then go back and delete some repeated entities', async () => {
-    const {page, applicantQuestions} = ctx
+  test('Applicant can fill in lots of blocks, and then go back and delete some repeated entities', async ({page, applicantQuestions}) => {
     await applicantQuestions.applyProgram(programName)
 
     // Fill in name question
@@ -364,8 +358,7 @@ test.describe('End to end enumerator test', () => {
     await logout(page)
   })
 
-  test('Applicant can navigate to previous blocks', async () => {
-    const {page, applicantQuestions} = ctx
+  test('Applicant can navigate to previous blocks', async ({page, applicantQuestions}) => {
     await applicantQuestions.applyProgram(programName)
 
     // Fill in name question
@@ -415,8 +408,7 @@ test.describe('End to end enumerator test', () => {
     await logout(page)
   })
 
-  test('Create new version of enumerator and update repeated questions and programs', async () => {
-    const {page} = ctx
+  test('Create new version of enumerator and update repeated questions and programs', async ({page}) => {
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
@@ -439,4 +431,34 @@ test.describe('End to end enumerator test', () => {
 
     await logout(page)
   })
+})
+
+test.describe('with North star flag enabled', () => {
+
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
+  test('validate screenshot', async ({page, applicantQuestions}) => {
+    await applicantQuestions.applyProgram(programName)
+
+    await applicantQuestions.answerNameQuestion('Porky', 'Pig')
+    await applicantQuestions.clickContinue()
+
+    await applicantQuestions.addEnumeratorAnswer('Bugs')
+
+    await validateScreenshot(page, 'enumerator-north-star')
+  })
+
+  test('validate screenshot with errors', async ({page, applicantQuestions}) => {
+    await applicantQuestions.applyProgram(programName)
+
+    await applicantQuestions.answerNameQuestion('Porky', 'Pig')
+    await applicantQuestions.clickContinue()
+
+    // Click next without adding an enumerator
+    await applicantQuestions.clickContinue()
+    await validateScreenshot(page, 'enumerator-north-star-errors')
+  })
+})
 })
