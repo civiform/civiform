@@ -60,7 +60,8 @@ public class EditTiClientView extends BaseHtmlView {
       Messages messages,
       Optional<Long> accountIdToEdit,
       Long applicantIdOfTi,
-      Optional<Form<TiClientInfoForm>> tiClientInfoForm) {
+      Optional<Form<TiClientInfoForm>> tiClientInfoForm,
+      Long applicantIdOfNewlyAddedClient) {
     Optional<AccountModel> optionalAccountModel = Optional.empty();
     String title = messages.at(MessageKey.TITLE_CREATE_CLIENT.getKeyName());
     String pageHeader = "Add client";
@@ -81,7 +82,8 @@ public class EditTiClientView extends BaseHtmlView {
       optionalSuccessMessage = Optional.empty();
     }
     boolean isSuccessfulSave = tiClientInfoForm.isPresent() && !tiClientInfoForm.get().hasErrors();
-    HtmlBundle bundle =
+    HtmlBundle bundle;
+    bundle =
         layout
             .getBundle(request)
             .setTitle(title)
@@ -91,12 +93,70 @@ public class EditTiClientView extends BaseHtmlView {
                 renderSubHeader(pageHeader).withId(pageId).withClass("my-4"),
                 renderBackLink(),
                 renderSuccessAlert(isSuccessfulSave, successToast, optionalSuccessMessage),
-                requiredFieldsExplanationContent(),
-                renderAddOrEditClientForm(
-                    tiGroup, optionalAccountModel, request, tiClientInfoForm, messages))
+                renderMainContent(
+                    isSuccessfulSave,
+                    applicantIdOfNewlyAddedClient,
+                    messages,
+                    tiGroup,
+                    optionalAccountModel,
+                    request,
+                    tiClientInfoForm))
             .addMainStyles("px-20", "max-w-screen-xl");
 
     return layout.renderWithNav(request, personalInfo, messages, bundle, applicantIdOfTi);
+  }
+
+  private DivTag renderMainContent(
+      boolean isSuccessfulSave,
+      Long applicantIdOfNewlyAddedClient,
+      Messages messages,
+      TrustedIntermediaryGroupModel tiGroup,
+      Optional<AccountModel> optionalAccountModel,
+      Http.Request request,
+      Optional<Form<TiClientInfoForm>> tiClientInfoForm) {
+    boolean isSaved = isSuccessfulSave && (applicantIdOfNewlyAddedClient != null);
+    if (isSaved)
+      return div()
+          .with(
+              renderApplicationsStartButton(applicantIdOfNewlyAddedClient, messages),
+              renderBackToClientListButton(messages));
+    else {
+      return div()
+          .with(
+              requiredFieldsExplanationContent(),
+              renderAddOrEditClientForm(
+                  tiGroup, optionalAccountModel, request, tiClientInfoForm, messages));
+    }
+  }
+
+  private String getTiLink() {
+    return baseUrl
+        + controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                /* nameQuery= */ Optional.empty(),
+                /* dayQuery= */ Optional.empty(),
+                /* monthQuery= */ Optional.empty(),
+                /* yearQuery= */ Optional.empty(),
+                /* page= */ Optional.of(1))
+            .url();
+  }
+
+  private ATag renderBackToClientListButton(Messages messages) {
+    return new ATag()
+        .withClasses("usa-button usa-button--outline")
+        .withId("back-to-client-list")
+        .withHref(getTiLink())
+        .withText(messages.at(MessageKey.BUTTON_BACK_TO_CLIENT_LIST.getKeyName()));
+  }
+
+  private ATag renderApplicationsStartButton(Long applicantId, Messages messages) {
+    return new ATag()
+        .withClasses("usa-button")
+        .withId("applications-start-button")
+        .withText(messages.at(MessageKey.BUTTON_START_APP.getKeyName()))
+        .withHref(
+            controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
+                    applicantId)
+                .url());
   }
 
   private Tag renderSuccessAlert(
@@ -109,18 +169,11 @@ public class EditTiClientView extends BaseHtmlView {
   }
 
   private ATag renderBackLink() {
-    String tiDashLink =
-        baseUrl
-            + controllers.ti.routes.TrustedIntermediaryController.dashboard(
-                    /* nameQuery= */ Optional.empty(),
-                    /* dayQuery= */ Optional.empty(),
-                    /* monthQuery= */ Optional.empty(),
-                    /* yearQuery= */ Optional.empty(),
-                    /* page= */ Optional.of(1))
-                .url();
     LinkElement link =
         new LinkElement()
-            .setHref(tiDashLink)
+            .setStyles("underline")
+            .setHref(getTiLink())
+            .setIcon(Icons.ARROW_LEFT, LinkElement.IconPosition.START)
             .setText("Back to client list")
             .setId("ti-dashboard-link");
     return link.asAnchorText();
