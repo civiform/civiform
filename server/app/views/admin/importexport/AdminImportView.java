@@ -179,6 +179,10 @@ public class AdminImportView extends BaseHtmlView {
       boolean hasExistingQuestion = currentQuestionsInInstance.containsKey(question.getName());
 
 
+      // TODO: Better handling if existing q and imported q are identical
+      // TODO: Show validation predicate?
+      // TODO: Make a table with the rows being adminName, questionText, questionHelpText, etc. and
+      // the columns being the existing q and imported q and highlight the differences so it's easy to see what's happening?
       fullQuestionRow.with(renderQuestion(question, /*wide= */ !hasExistingQuestion, /* heading= */ "Imported question"));
       if (hasExistingQuestion) {
         /* wide= */
