@@ -916,7 +916,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("NORTH_STAR_APPLICANT_UI", request);
   }
 
-  /** Enables migrating programs between deployed environments */
+  /** (NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments */
   public boolean getProgramMigration(RequestHeader request) {
     return getBool("PROGRAM_MIGRATION", request);
   }
@@ -1901,7 +1901,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "PROGRAM_MIGRATION",
-                      "Enables migrating programs between deployed environments",
+                      "(NOT FOR PRODUCTION USE) Enables migrating programs between deployed"
+                          + " environments",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),
