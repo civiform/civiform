@@ -23,6 +23,7 @@ import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 
+/** A view allowing admins to export a program into JSON format. */
 public final class AdminExportView extends BaseHtmlView {
   private final AdminLayout layout;
 
@@ -31,6 +32,10 @@ public final class AdminExportView extends BaseHtmlView {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.EXPORT);
   }
 
+  /**
+   * Renders the export page, showing a list of all active programs. Admins can select a single
+   * program then download it.
+   */
   public Content render(Http.Request request, ImmutableList<ProgramDefinition> activePrograms) {
     String title = "Export a program";
     DivTag contentDiv =

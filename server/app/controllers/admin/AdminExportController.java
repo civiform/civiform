@@ -64,6 +64,8 @@ public class AdminExportController extends CiviFormController {
             .bindFromRequest(request, AdminProgramExportForm.FIELD_NAMES.toArray(new String[0]));
     // TODO(#7087): Show an error if no program was selected.
     // TODO(#7087): Return JSON representing the exported program.
-    return notFound("Program export is not yet implemented");
+    return notFound(
+        String.format(
+            "Received ID: %s. Program export is not yet implemented", form.get().getProgramId()));
   }
 }

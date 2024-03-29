@@ -2,6 +2,7 @@ import {test as base} from '@playwright/test'
 import {
   AdminPrograms,
   AdminQuestions,
+  AdminProgramMigration,
   AdminProgramStatuses,
   ApplicantQuestions,
   AdminPredicates,
@@ -19,6 +20,7 @@ type CiviformFixtures = {
   adminApiKeys: AdminApiKeys
   adminPrograms: AdminPrograms
   adminQuestions: AdminQuestions
+  adminProgramMigration: AdminProgramMigration
   adminProgramStatuses: AdminProgramStatuses
   applicantQuestions: ApplicantQuestions
   adminPredicates: AdminPredicates
@@ -41,6 +43,10 @@ export const test = base.extend<CiviformFixtures>({
 
   adminQuestions: async ({page}, use) => {
     await use(new AdminQuestions(page))
+  },
+
+  adminProgramMigration: async ({page}, use) => {
+    await use(new AdminProgramMigration(page))
   },
 
   adminProgramStatuses: async ({page}, use) => {
