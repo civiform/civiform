@@ -5,7 +5,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.h2;
+import static j2html.TagCreator.p;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -32,40 +32,47 @@ public final class AdminExportView extends BaseHtmlView {
   }
 
   public Content render(Http.Request request, ImmutableList<ProgramDefinition> activePrograms) {
-    String title = "Export programs";
-    DivTag contentDiv = div().with(h1(title));
+    String title = "Export a program";
+    DivTag contentDiv =
+        div()
+            .withClasses("pt-10", "px-20")
+            .with(h1(title))
+            .with(
+                p("Select the program you'd like to export to a different environment and then"
+                        + " click \"Download program\". This will download a JSON file representing"
+                        + " the selected program.")
+                    .withClass("my-2"))
+            .with(
+                p("Once the JSON file is downloaded, open the environment where this program should"
+                        + " be added. Log in as a CiviForm Admin and use the \"Import\" tab to add"
+                        + " the program.")
+                    .withClass("my-2"));
 
-    contentDiv.with(programSelection(request, activePrograms));
+    contentDiv.with(createProgramSelectionForm(request, activePrograms));
 
     HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
     return layout.render(bundle);
   }
 
-  private DomContent programSelection(
+  private DomContent createProgramSelectionForm(
       Http.Request request, ImmutableList<ProgramDefinition> activePrograms) {
-    DivTag mainDiv = div();
-    mainDiv.with(h2("Programs"));
-
     FieldsetTag fields = fieldset();
-
     for (ProgramDefinition program : activePrograms) {
-      System.out.println(program.localizedName().getDefault() + "  is ID=" + program.id());
       fields.with(
           FieldWithLabel.radio()
               .setFieldName(AdminProgramExportForm.PROGRAM_ID_FIELD)
-              .setLabelText(
-                  String.format(
-                      "%s (Admin name: %s)",
-                      program.localizedName().getDefault(), program.adminName()))
+              // TODO(#7087): Should we display the admin name, localized name, or both?
+              .setLabelText(program.adminName())
               .setValue(String.valueOf(program.id()))
               .getRadioTag());
     }
 
-    return mainDiv.with(
-        form()
-            .withMethod("GET")
-            .withAction(routes.AdminExportController.exportPrograms().url())
-            .with(makeCsrfTokenInputTag(request), fields)
-            .with(submitButton("Export program").withClass(ButtonStyles.SOLID_BLUE)));
+    return div()
+        .with(
+            form()
+                .withMethod("GET")
+                .withAction(routes.AdminExportController.exportProgram().url())
+                .with(makeCsrfTokenInputTag(request), fields)
+                .with(submitButton("Download program").withClass(ButtonStyles.SOLID_BLUE)));
   }
 }
