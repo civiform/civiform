@@ -74,14 +74,14 @@ lazy val root = (project in file("."))
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
-      "org.pac4j" %% "play-pac4j" % "11.1.0-PLAY2.8",
-      "org.pac4j" % "pac4j-core" % "5.7.4",
+      "org.pac4j" %% "play-pac4j" % "12.0.0-PLAY2.9",
+      "org.pac4j" % "pac4j-core" % "6.0.1",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "5.7.4",
+      "org.pac4j" % "pac4j-http" % "6.0.1",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "5.7.4",
+      "org.pac4j" % "pac4j-oidc" % "6.0.1",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "5.7.4",
+      "org.pac4j" % "pac4j-saml" % "6.0.1",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
@@ -92,6 +92,7 @@ lazy val root = (project in file("."))
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.27.1",
+      "org.checkerframework" % "dataflow-errorprone" % "3.42.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.11.0",
@@ -138,10 +139,22 @@ lazy val root = (project in file("."))
         .filter(_ != "true")
         .map(_ =>
           Seq(
+//            "-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+//            "-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+//            "-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+//            "-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+//            "-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+//            "-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+//            "-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+//            "-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+//            "-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+//            "-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
+//
+//            "-processorpath error_prone_core-2.26.1-with-dependencies.jar:dataflow-errorprone-3.42.0.jar",
             // Turn off the AutoValueSubclassLeaked error since the generated
             // code contains it - we can't control that.
-            "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
-            "-Werror"
+//            "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
+//            "-Werror"
           )
         )
         .getOrElse(Seq.empty)

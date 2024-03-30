@@ -16,8 +16,7 @@ import java.util.Optional;
 import javax.inject.Provider;
 import models.AccountModel;
 import org.apache.commons.lang3.NotImplementedException;
-import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.context.CallContext;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.profile.UserProfile;
@@ -95,7 +94,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
   }
 
   private Optional<JWT> getIdTokenForAccount(
-      long accountId, WebContext context, CiviFormProfileData profileData) {
+      long accountId, CallContext callContext, CiviFormProfileData profileData) {
     if (!enhancedLogoutEnabled()) {
       return Optional.empty();
     }
@@ -111,7 +110,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
           Optional.of(
               profileData.getAttribute(CiviformOidcProfileCreator.SESSION_ID, String.class));
     } else {
-      PlayWebContext playWebContext = (PlayWebContext) context;
+      PlayWebContext playWebContext = (PlayWebContext) callContext.webContext();
       sessionId = playWebContext.getNativeSession().get(CiviformOidcProfileCreator.SESSION_ID);
     }
 
@@ -150,7 +149,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
    */
   @Override
   public Optional<RedirectionAction> getLogoutAction(
-      WebContext context, SessionStore sessionStore, UserProfile currentProfile, String targetUrl) {
+      CallContext callContext, UserProfile currentProfile, String targetUrl) {
     String logoutUrl = configuration.findLogoutUrl();
     if (CommonHelper.isNotBlank(logoutUrl) && currentProfile instanceof CiviFormProfileData) {
       try {
@@ -159,12 +158,11 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
         // Optional state param for logout is only needed by certain OIDC providers, but we
         // always include it since it can help with cross-site forgery attacks.
         // OidcConfiguration comes with a default state generator.
-        State state =
-            new State(configuration.getStateGenerator().generateValue(context, sessionStore));
+        State state = new State(configuration.getStateGenerator().generateValue(callContext));
 
         long accountId = Long.parseLong(currentProfile.getId());
         Optional<JWT> idToken =
-            getIdTokenForAccount(accountId, context, (CiviFormProfileData) currentProfile);
+            getIdTokenForAccount(accountId, callContext, (CiviFormProfileData) currentProfile);
 
         LogoutRequest logoutRequest =
             new CustomOidcLogoutRequest(
@@ -176,7 +174,8 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
                 idToken.orElse(null));
 
         return Optional.of(
-            HttpActionHelper.buildRedirectUrlAction(context, logoutRequest.toURI().toString()));
+            HttpActionHelper.buildRedirectUrlAction(
+                callContext.webContext(), logoutRequest.toURI().toString()));
       } catch (URISyntaxException e) {
         throw new TechnicalException(e);
       }
