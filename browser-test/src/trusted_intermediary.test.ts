@@ -1095,8 +1095,17 @@ test.describe('Trusted intermediaries', () => {
   test.describe('pre-populating TI client info with PAI questions', () => {
     const ctx = createTestContext(/* clearDb= */ true)
     test.beforeEach(async () => {
-      const {page, tiDashboard} = ctx
+      const {
+        page,
+        tiDashboard,
+        adminQuestions,
+        adminPrograms,
+        applicantQuestions,
+      } = ctx
 
+      await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
+
+      // Login as TI and add a client
       await loginAsTrustedIntermediary(page)
       await tiDashboard.gotoTIDashboardPage(page)
       const client: ClientInformation = {
@@ -1109,20 +1118,8 @@ test.describe('Trusted intermediaries', () => {
       await tiDashboard.createClient(client)
       await tiDashboard.updateClientTiNoteAndPhone(client, 'note', '9178675309')
       await waitForPageJsLoad(page)
-    })
 
-    test('client info is pre-populated in the application', async () => {
-      const {
-        page,
-        adminPrograms,
-        adminQuestions,
-        tiDashboard,
-        applicantQuestions,
-      } = ctx
-
-      await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
-
-      await test.step('create program with PAI questions', async () => {
+      await test.step('create a program with PAI questions', async () => {
         await loginAsAdmin(page)
         await adminQuestions.addDateQuestion({
           questionName: 'dob',
@@ -1149,12 +1146,12 @@ test.describe('Trusted intermediaries', () => {
           primaryApplicantInfo: true,
         })
         // Add an extra question so "Continue" button is not "Submit"
-        await adminQuestions.addTextQuestion({
-          questionName: 'text',
-          questionText: 'Text',
+        await adminQuestions.addNumberQuestion({
+          questionName: 'number',
+          questionText: 'Number',
         })
         await adminPrograms.addAndPublishProgramWithQuestions(
-          ['dob', 'name', 'phone', 'email', 'text'],
+          ['dob', 'name', 'phone', 'email', 'number'],
           'PAI Program',
         )
         await logout(page)
@@ -1166,6 +1163,11 @@ test.describe('Trusted intermediaries', () => {
         await tiDashboard.clickOnViewApplications()
         await applicantQuestions.clickApplyProgramButton('PAI Program')
       })
+    })
+
+    test('client info is pre-populated in the application', async () => {
+      const {page, applicantQuestions} = ctx
+
       await test.step('verify client info is pre-populated in the application', async () => {
         expect(await page.innerText('#application-summary')).toContain(
           '01/01/2001',
@@ -1204,6 +1206,28 @@ test.describe('Trusted intermediaries', () => {
         await validateScreenshot(page, 'pai-program-application')
       })
     })
-    test('info filled in by PAI values is overridden when answered directly in the application', async () => {})
+    test('info filled in by PAI values is overridden when answered directly in the application', async () => {
+      const {page, applicantQuestions} = ctx
+      await test.step('fill in the name question with different values', async () => {
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.answerNameQuestion('newfirst', 'newlast')
+        // Answer the blank question so we can click "Save and next"
+        await applicantQuestions.answerNumberQuestion('1')
+        await applicantQuestions.clickNext()
+      })
+      // New name values should be shown, but other values should remain the same
+      expect(await page.innerText('#application-summary')).toContain(
+        '01/01/2001',
+      )
+      expect(await page.innerText('#application-summary')).toContain(
+        'newfirst middle newlast',
+      )
+      expect(await page.innerText('#application-summary')).toContain(
+        '+1 917-867-5309',
+      )
+      expect(await page.innerText('#application-summary')).toContain(
+        'test@email.com',
+      )
+    })
   })
 })
