@@ -917,8 +917,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** (NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments */
-  public boolean getProgramMigration(RequestHeader request) {
-    return getBool("PROGRAM_MIGRATION", request);
+  public boolean getProgramMigrationEnabled(RequestHeader request) {
+    return getBool("PROGRAM_MIGRATION_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -1900,7 +1900,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "PROGRAM_MIGRATION",
+                      "PROGRAM_MIGRATION_ENABLED",
                       "(NOT FOR PRODUCTION USE) Enables migrating programs between deployed"
                           + " environments",
                       /* isRequired= */ false,
