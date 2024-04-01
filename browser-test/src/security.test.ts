@@ -5,9 +5,11 @@ test.describe(
   'applicant security',
   {tag: ['@uses-fixtures', '@parallel-candidate']},
   () => {
-    test('applicant cannot access admin pages', async ({page}) => {
-      const response = await page.goto('/admin/programs')
-      expect(response!.status()).toBe(403)
+    test('applicant cannot access admin pages', async ({request}) => {
+      const response = await request.get('/admin/programs')
+      await expect(response).toBeOK()
+      // Redirected to a non-admin page
+      expect(response.url()).not.toContain('/admin')
     })
 
     test('redirects to program index page when not logged in (guest)', async ({
