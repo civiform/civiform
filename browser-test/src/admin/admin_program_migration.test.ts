@@ -7,7 +7,7 @@ test.describe('program migration', {tag: ['@uses-fixtures']}, () => {
     adminPrograms,
     adminProgramMigration,
   }) => {
-    await test.step('add two programs', async () => {
+    await test.step('add two active programs', async () => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram('program-1')
       await adminPrograms.addProgram('program-2')

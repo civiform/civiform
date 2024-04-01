@@ -66,7 +66,7 @@ public final class AdminExportView extends BaseHtmlView {
       fields.with(
           FieldWithLabel.radio()
               .setFieldName(AdminProgramExportForm.PROGRAM_ID_FIELD)
-              // TODO(#7087): Should we display the admin name, localized name, or both?
+              // TODO(#7087): Should we display the admin name, display name, or both?
               .setLabelText(program.adminName())
               .setValue(String.valueOf(program.id()))
               .getRadioTag());
@@ -77,7 +77,8 @@ public final class AdminExportView extends BaseHtmlView {
             form()
                 .withMethod("GET")
                 .withAction(routes.AdminExportController.exportProgram().url())
-                .with(makeCsrfTokenInputTag(request), fields)
+                .with(makeCsrfTokenInputTag(request))
+                .with(fields)
                 .with(submitButton("Download program").withClass(ButtonStyles.SOLID_BLUE)));
   }
 }

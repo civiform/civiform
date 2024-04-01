@@ -18,9 +18,14 @@ import views.admin.migration.AdminExportView;
 import views.admin.migration.AdminProgramExportForm;
 
 /**
- * A controller that allows admins to export programs into a JSON format. This JSON format will be
- * consumed by {@link AdminImportController} to re-create the programs. Typically, admins will
- * export from one environment (e.g. staging) and import to another environment (e.g. production).
+ * A controller for the export part of program migration (allowing admins to easily migrate programs
+ * between different environments). This controller is responsible for exporting a program into a
+ * JSON format. The JSON can then be imported to a different environment to re-create the program
+ * there. {@link AdminImportController} is responsible for reading the program JSON and turning it
+ * into a program definition with blocks and questions.
+ *
+ * <p>Typically, admins will export from one environment (e.g. staging) and import to another
+ * environment (e.g. production).
  */
 public class AdminExportController extends CiviFormController {
   private final AdminExportView adminExportView;
