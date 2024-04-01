@@ -58,6 +58,9 @@ public class AdminExportController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result exportProgram(Http.Request request) {
+    if (!settingsManifest.getProgramMigration(request)) {
+      return notFound("Program export is not enabled");
+    }
     Form<AdminProgramExportForm> form =
         formFactory
             .form(AdminProgramExportForm.class)
