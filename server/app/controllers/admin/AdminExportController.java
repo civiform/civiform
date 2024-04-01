@@ -50,7 +50,7 @@ public class AdminExportController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request) {
-    if (!settingsManifest.getProgramMigration(request)) {
+    if (!settingsManifest.getProgramMigrationEnabled(request)) {
       return notFound("Program export is not enabled");
     }
     return ok(
@@ -63,7 +63,7 @@ public class AdminExportController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result exportProgram(Http.Request request) {
-    if (!settingsManifest.getProgramMigration(request)) {
+    if (!settingsManifest.getProgramMigrationEnabled(request)) {
       return notFound("Program export is not enabled");
     }
     Form<AdminProgramExportForm> form =

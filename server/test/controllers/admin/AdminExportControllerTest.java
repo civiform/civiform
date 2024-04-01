@@ -41,7 +41,7 @@ public class AdminExportControllerTest extends ResetPostgres {
 
   @Test
   public void index_migrationNotEnabled_notFound() {
-    when(mockSettingsManifest.getProgramMigration(any())).thenReturn(false);
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(false);
 
     Result result = controller.index(addCSRFToken(fakeRequest()).build());
 
@@ -51,7 +51,7 @@ public class AdminExportControllerTest extends ResetPostgres {
 
   @Test
   public void index_migrationEnabled_ok_listsActiveProgramsOnly() {
-    when(mockSettingsManifest.getProgramMigration(any())).thenReturn(true);
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
     ProgramBuilder.newActiveProgram("active-program-1").build();
     ProgramBuilder.newActiveProgram("active-program-2").build();
     ProgramBuilder.newDraftProgram("draft-program").build();
@@ -67,7 +67,7 @@ public class AdminExportControllerTest extends ResetPostgres {
 
   @Test
   public void exportProgram_migrationNotEnabled_notFound() {
-    when(mockSettingsManifest.getProgramMigration(any())).thenReturn(false);
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(false);
 
     Result result = controller.exportProgram(addCSRFToken(fakeRequest()).build());
 
@@ -77,7 +77,7 @@ public class AdminExportControllerTest extends ResetPostgres {
 
   @Test
   public void exportProgram_migrationEnabled_notFound_hasProgramId() {
-    when(mockSettingsManifest.getProgramMigration(any())).thenReturn(true);
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
         controller.exportProgram(

@@ -15,7 +15,7 @@ test.describe('program migration', {tag: ['@uses-fixtures']}, () => {
     })
 
     await test.step('load export page', async () => {
-      await enableFeatureFlag(page, 'program_migration')
+      await enableFeatureFlag(page, 'program_migration_enabled')
       await adminProgramMigration.goToExportPage()
       await validateScreenshot(page, 'export-page')
     })

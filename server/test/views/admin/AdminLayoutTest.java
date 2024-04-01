@@ -49,7 +49,7 @@ public class AdminLayoutTest extends ResetPostgres {
 
   @Test
   public void getBundle_programMigrationNotEnabled_noExportTabInNav() {
-    when(settingsManifest.getProgramMigration(any())).thenReturn(false);
+    when(settingsManifest.getProgramMigrationEnabled(any())).thenReturn(false);
 
     HtmlBundle bundle =
         adminLayout.getBundle(new HtmlBundle(fakeRequest().build(), instanceOf(ViewUtils.class)));
@@ -60,7 +60,7 @@ public class AdminLayoutTest extends ResetPostgres {
 
   @Test
   public void getBundle_programMigrationEnabled_hasExportTabInNav() {
-    when(settingsManifest.getProgramMigration(any())).thenReturn(true);
+    when(settingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     HtmlBundle bundle =
         adminLayout.getBundle(new HtmlBundle(fakeRequest().build(), instanceOf(ViewUtils.class)));

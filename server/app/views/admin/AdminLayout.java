@@ -210,7 +210,8 @@ public final class AdminLayout extends BaseHtmlLayout {
               .with(apiKeysHeaderLink)
               .condWith(
                   getSettingsManifest().getApiGeneratedDocsEnabled(request), apiDocsHeaderLink)
-              .condWith(getSettingsManifest().getProgramMigration(request), exportHeaderLink);
+              .condWith(
+                  getSettingsManifest().getProgramMigrationEnabled(request), exportHeaderLink);
           break;
         }
       case PROGRAM_ADMIN:
