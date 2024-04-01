@@ -1,5 +1,7 @@
 package auth;
 
+import static play.mvc.Results.redirect;
+
 import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.http.HttpAction;
@@ -23,14 +25,25 @@ public final class CiviFormHttpActionAdapter extends PlayHttpActionAdapter {
   @Override
   public Result adapt(final HttpAction action, final WebContext context) {
     if (isUnauthorizedApiRequest(action, context)) {
+      // Stop this request in its tracks.
       return ((PlayWebContext) context).supplementResponse(Results.unauthorized());
+    }
+
+    // If we encounter a general authentication error, redirect the user to the home page.
+    if (isRequestCode(action, HttpConstants.UNAUTHORIZED)
+        || isRequestCode(action, HttpConstants.FORBIDDEN)) {
+      return redirect(controllers.routes.HomeController.index().url());
     }
 
     return super.adapt(action, context);
   }
 
   private static boolean isUnauthorizedApiRequest(HttpAction action, WebContext context) {
-    return action.getCode() == HttpConstants.UNAUTHORIZED
+    return isRequestCode(action, HttpConstants.UNAUTHORIZED)
         && context.getPath().startsWith(API_URL_PATH_PREFIX);
+  }
+
+  private static boolean isRequestCode(HttpAction action, int code) {
+    return action.getCode() == code;
   }
 }

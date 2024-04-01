@@ -1,25 +1,19 @@
-import {test, expect} from '@playwright/test'
-import {
-  createTestContext,
-  validateAccessibility,
-  validateScreenshot,
-} from '../support'
-import {Locator} from 'playwright'
+import {test, expect} from '../support/civiform_fixtures'
+import {validateAccessibility, validateScreenshot} from '../support'
 
-test.describe('developer tools', () => {
-  const ctx = createTestContext()
+test.describe('developer tools', {tag: ['@uses-fixtures']}, () => {
+  test('dev link exists', async ({page}) => {
+    const header = page.locator('nav')
 
-  test('link shown in the header', async () => {
-    const header: Locator = ctx.page.locator('nav')
-    await validateScreenshot(header, 'dev-tools-in-header')
+    await test.step('link shown in the header', async () => {
+      await expect(header.getByText('DevTools')).toBeInViewport()
+      await validateScreenshot(header, 'dev-tools-in-header')
+      await validateAccessibility(page)
+    })
 
-    expect(await ctx.page.textContent('nav')).toContain('DevTools')
-
-    await validateAccessibility(ctx.page)
-  })
-
-  test('modal appears on click', async () => {
-    await ctx.page.click('#debug-content-modal-button')
-    await validateScreenshot(ctx.page, 'dev-tools-modal')
+    await test.step('modal appears on click', async () => {
+      await header.getByText('DevTools').click()
+      await validateScreenshot(page, 'dev-tools-modal')
+    })
   })
 })

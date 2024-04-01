@@ -916,6 +916,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("NORTH_STAR_APPLICANT_UI", request);
   }
 
+  /** (NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments */
+  public boolean getProgramMigrationEnabled(RequestHeader request) {
+    return getBool("PROGRAM_MIGRATION_ENABLED", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.of(
           "Branding",
@@ -1891,6 +1896,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   SettingDescription.create(
                       "NORTH_STAR_APPLICANT_UI",
                       "Enables showing new UI with an updated user experience in Applicant flows",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "PROGRAM_MIGRATION_ENABLED",
+                      "(NOT FOR PRODUCTION USE) Enables migrating programs between deployed"
+                          + " environments",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),

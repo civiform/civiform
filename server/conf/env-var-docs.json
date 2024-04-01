@@ -767,6 +767,11 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables showing new UI with an updated user experience in Applicant flows",
         "type": "bool"
+      },
+      "PROGRAM_MIGRATION_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments",
+        "type": "bool"
       }
     }
   }
