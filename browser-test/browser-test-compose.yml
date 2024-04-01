@@ -2,6 +2,13 @@
 version: '3.4'
 
 services:
+  # Load custom postgres config that disables durability for performance
+  # Not for use in a production environment
+  db:
+    volumes:
+      - ./browser-test/custom-postgres.conf:/etc/postgresql/postgresql.conf
+    command: -c 'config_file=/etc/postgresql/postgresql.conf'
+
   localstack:
     ports:
       - 6645:4566

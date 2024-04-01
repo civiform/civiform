@@ -327,25 +327,8 @@ validation.stateRequired=請輸入州別。
 validation.invalidZipcode=請輸入有效的 5 位數郵遞區號。
 validation.noPoBox=請輸入有效地址，切勿提供郵政信箱。
 
-title.verifyAddress=驗證地址
-
-content.foundSimilarAddress=我們無法驗證您提供的地址，但找到了類似的地址。
-# Heading for showing the user the address they provided earlier
-content.addressEntered=您輸入的地址：
-
-# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
-content.suggestedAddress=建議的地址：
-content.suggestedAddresses=建議的地址：
-
-# Title on address correction dialog when no address is found.
-title.noValidAddress=找不到有效的地址
-content.noValidAddress=我們無法驗證您提供的地址。如要繼續操作，請編輯地址。
-
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
-# Note: We're re-writing the text shown on the address correction screen. #
-# The strings below will be used in the re-write, and then the strings    #
-# above that are obsolete will be deleted.                                #
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
@@ -356,6 +339,11 @@ content.confirmAddressLine1=找不到您輸入的地址。
 content.foundSimilarAddressLine2=請檢查地址的拼字是否正確無誤，或是從我們提供的清單中選擇其他地址。
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
 content.noValidAddressLine2=請檢查地址的拼字是否正確無誤。如果有誤，請編輯地址以便繼續操作。
+# Heading for showing the user the address they provided earlier
+content.addressEntered=您輸入的地址：
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=建議的地址：
+content.suggestedAddresses=建議的地址：
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
 button.confirmAddress=確認地址
 
@@ -381,7 +369,6 @@ validation.phoneMustBeLocalToCountry=您提供的電話號碼不屬於您選取�
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
 
-validation.dateMisformatted=日期格式必須為 YYYY/MM/DD。
 validation.invalidDateFormat=日期的格式不正確，請重新輸入
 
 #--------------------------------------------------------------------------------------------------------#

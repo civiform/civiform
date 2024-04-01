@@ -1,0 +1,36 @@
+<div
+  th:fragment="phone(question)"
+  th:with="phoneQuestion=${question.createPhoneQuestion()},
+             questionId=${#strings.randomAlphanumeric(8)},
+             inputId=${'cf-phone-number-' +#strings.randomAlphanumeric(8)}"
+  th:id="${questionId}"
+>
+  <!-- Title and Help Text -->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
+  ></div>
+
+  <!-- Display errors -->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${phoneQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+  ></div>
+
+  <div class="cf-phone-number">
+    <input
+      type="text"
+      class="usa-input"
+      maxlength="10000"
+      inputmode="tel"
+      th:id="${inputId}"
+      th:name="${phoneQuestion.getPhoneNumberPath()}"
+      th:value="${phoneQuestion.getPhoneNumberValue().orElse('')}"
+      placeholder="(xxx) xxx-xxxx"
+      th:aria-describedby="${questionId} + '-description'"
+      th:aria-required="${!question.isOptional()}"
+      th:aria-invalid="${!phoneQuestion.getValidationErrors().isEmpty()}"
+    />
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${phoneQuestion.getValidationErrors().get(phoneQuestion.getPhoneNumberPath())})}"
+    ></div>
+  </div>
+</div>

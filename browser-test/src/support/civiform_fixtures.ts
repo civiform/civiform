@@ -29,8 +29,8 @@ type CiviformFixtures = {
 }
 
 export const test = base.extend<CiviformFixtures>({
-  adminApiKeys: async ({page}, use) => {
-    await use(new AdminApiKeys(page))
+  adminApiKeys: async ({page, request}, use) => {
+    await use(new AdminApiKeys(page, request))
   },
 
   adminPrograms: async ({page}, use) => {
@@ -75,10 +75,15 @@ export const test = base.extend<CiviformFixtures>({
 
   page: async ({page, request}, use) => {
     // BeforeEach
-    await request.post('/dev/seed/clear')
-    await page.goto('/programs')
-    await waitForPageJsLoad(page)
-    await page.locator('#warning-message-dismiss').click()
+    await test.step('Clear database', async () => {
+      await request.post('/dev/seed/clear')
+    })
+
+    await test.step('Go to home page before test starts', async () => {
+      await page.goto('/programs')
+      await waitForPageJsLoad(page)
+      await page.locator('#warning-message-dismiss').click()
+    })
 
     // Run the Test
     await use(page)

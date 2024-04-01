@@ -14,6 +14,7 @@ package services.program.predicate;
  */
 public enum OperatorRightHandType {
   DATE,
+  DOUBLE,
   LIST_OF_LONGS,
   LIST_OF_STRINGS,
   LONG,

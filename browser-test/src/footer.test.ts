@@ -1,57 +1,35 @@
-import {test, expect} from '@playwright/test'
+import {test, expect} from './support/civiform_fixtures'
 import {
-  createTestContext,
   enableFeatureFlag,
   disableFeatureFlag,
   validateAccessibility,
   validateScreenshot,
-  TestContext,
 } from './support'
-import {Locator} from 'playwright'
 
-function sharedTests(ctx: TestContext, screenshotName: string) {
-  test('matches the expected screenshot', async () => {
-    const footer: Locator = ctx.page.locator('footer')
-    await validateScreenshot(footer, screenshotName)
-  })
+test.describe('the footer', {tag: ['@uses-fixtures']}, () => {
+  test('does not have civiform version when feature flag is disabled', async ({
+    page,
+  }) => {
+    const footerLocator = page.locator('footer')
 
-  test('has no accessibility violations', async () => {
-    await validateAccessibility(ctx.page)
-  })
-}
+    await disableFeatureFlag(page, 'show_civiform_image_tag_on_landing_page')
+    await validateScreenshot(footerLocator, 'footer-no-version')
+    await validateAccessibility(page)
 
-test.describe('the footer', () => {
-  const ctx = createTestContext()
-
-  test.describe('without civiform version feature flag', () => {
-    test.beforeEach(async () => {
-      await disableFeatureFlag(
-        ctx.page,
-        'show_civiform_image_tag_on_landing_page',
-      )
-    })
-
-    sharedTests(ctx, 'footer-no-version')
-
-    test('does not have civiform version', async () => {
-      expect(await ctx.page.textContent('html')).not.toContain(
-        'CiviForm version:',
-      )
+    await test.step('Footer does not have version text', async () => {
+      await expect(footerLocator).not.toContainText('CiviForm version:')
     })
   })
 
-  test.describe('with civiform version feature flag', () => {
-    test.beforeEach(async () => {
-      await enableFeatureFlag(
-        ctx.page,
-        'show_civiform_image_tag_on_landing_page',
-      )
-    })
+  test('has civiform version when feature flag is enabled', async ({page}) => {
+    const footerLocator = page.locator('footer')
 
-    sharedTests(ctx, 'footer-with-version')
+    await enableFeatureFlag(page, 'show_civiform_image_tag_on_landing_page')
+    await validateScreenshot(footerLocator, 'footer-with-version')
+    await validateAccessibility(page)
 
-    test('has civiform version', async () => {
-      expect(await ctx.page.textContent('html')).toContain('CiviForm version:')
+    await test.step('Footer does has version text', async () => {
+      await expect(footerLocator).toContainText('CiviForm version:')
     })
   })
 })

@@ -6,6 +6,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.math.DoubleMath;
 import controllers.BadRequestException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -300,7 +301,12 @@ public final class PredicateGenerator {
         // Age values are inputted as numbers.
         if (operator.equals(Operator.AGE_OLDER_THAN)
             || operator.equals(Operator.AGE_YOUNGER_THAN)) {
-          return PredicateValue.of(Long.parseLong(value));
+          Double ageVal = Double.parseDouble(value);
+          // If the age is a whole number, store it as a long
+          if (DoubleMath.isMathematicalInteger(ageVal)) {
+            return PredicateValue.of(ageVal.longValue());
+          }
+          return PredicateValue.of(ageVal);
           // Take the string input with the comma separating the two age values and make a list of
           // longs.
         } else if (operator.equals(Operator.AGE_BETWEEN)) {

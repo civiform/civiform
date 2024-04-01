@@ -26,7 +26,7 @@ import services.program.ProgramService;
 /** Class for showing program view based on program slug. */
 public final class ProgramSlugHandler {
 
-  private final HttpExecutionContext httpContext;
+  private final HttpExecutionContext classLoaderExecutionContext;
   private final ApplicantService applicantService;
   private final ProfileUtils profileUtils;
   private final ProgramService programService;
@@ -35,13 +35,13 @@ public final class ProgramSlugHandler {
 
   @Inject
   public ProgramSlugHandler(
-      HttpExecutionContext httpContext,
+      HttpExecutionContext classLoaderExecutionContext,
       ApplicantService applicantService,
       ProfileUtils profileUtils,
       ProgramService programService,
       LanguageUtils languageUtils,
       ApplicantRoutes applicantRoutes) {
-    this.httpContext = checkNotNull(httpContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
     this.profileUtils = checkNotNull(profileUtils);
     this.programService = checkNotNull(programService);
@@ -117,9 +117,9 @@ public final class ProgramSlugHandler {
                                           .removingFromSession(request, REDIRECT_TO_SESSION_KEY));
                         }
                       },
-                      httpContext.current());
+                      classLoaderExecutionContext.current());
             },
-            httpContext.current());
+            classLoaderExecutionContext.current());
   }
 
   private Result redirectToReviewPage(
@@ -150,6 +150,6 @@ public final class ProgramSlugHandler {
                     .map(ApplicantProgramData::program)
                     .filter(program -> program.slug().equals(programSlug))
                     .findFirst(),
-            httpContext.current());
+            classLoaderExecutionContext.current());
   }
 }

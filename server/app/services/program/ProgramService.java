@@ -81,7 +81,7 @@ public final class ProgramService {
 
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
-  private final HttpExecutionContext httpExecutionContext;
+  private final HttpExecutionContext classLoaderExecutionContext;
   private final AccountRepository accountRepository;
   private final VersionRepository versionRepository;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
@@ -92,11 +92,11 @@ public final class ProgramService {
       QuestionService questionService,
       AccountRepository accountRepository,
       VersionRepository versionRepository,
-      HttpExecutionContext ec,
+      HttpExecutionContext classLoaderExecutionContext,
       ProgramBlockValidationFactory programBlockValidationFactory) {
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
-    this.httpExecutionContext = checkNotNull(ec);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.accountRepository = checkNotNull(accountRepository);
     this.versionRepository = checkNotNull(versionRepository);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
@@ -189,7 +189,7 @@ public final class ProgramService {
 
                       return syncProgramAssociations(programMaybe.get());
                     },
-                    httpExecutionContext.current()));
+                    classLoaderExecutionContext.current()));
   }
 
   /**
@@ -222,7 +222,7 @@ public final class ProgramService {
       String programSlug) {
     return programRepository
         .getActiveProgramFromSlug(programSlug)
-        .thenComposeAsync(this::getFullProgramDefinition, httpExecutionContext.current());
+        .thenComposeAsync(this::getFullProgramDefinition, classLoaderExecutionContext.current());
   }
 
   /**
@@ -1733,7 +1733,7 @@ public final class ProgramService {
                     String.format("Question not found for Program %s", programDefinition.id()), e);
               }
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   private ProgramDefinition syncProgramDefinitionQuestions(

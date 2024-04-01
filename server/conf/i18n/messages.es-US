@@ -327,25 +327,8 @@ validation.stateRequired=Ingresa un estado.
 validation.invalidZipcode=Ingresa un código postal válido de 5 dígitos.
 validation.noPoBox=Ingresa una dirección válida. No aceptamos apartados postales.
 
-title.verifyAddress=Verifica la dirección
-
-content.foundSimilarAddress=No pudimos verificar la dirección que proporcionaste, pero encontramos resultados similares.
-# Heading for showing the user the address they provided earlier
-content.addressEntered=Dirección que ingresaste:
-
-# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
-content.suggestedAddress=Dirección sugerida:
-content.suggestedAddresses=Direcciones sugeridas:
-
-# Title on address correction dialog when no address is found.
-title.noValidAddress=No se encontraron direcciones válidas
-content.noValidAddress=No pudimos verificar la dirección que proporcionaste. Para continuar, edita la dirección.
-
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
-# Note: We're re-writing the text shown on the address correction screen. #
-# The strings below will be used in the re-write, and then the strings    #
-# above that are obsolete will be deleted.                                #
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
@@ -356,6 +339,11 @@ content.confirmAddressLine1=No pudimos encontrar tu dirección.
 content.foundSimilarAddressLine2=Revisa si la dirección tiene errores de ortografía o elige una opción de la lista que se ofrece.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
 content.noValidAddressLine2=Revisa si la dirección tiene errores de ortografía y corrígela para continuar.
+# Heading for showing the user the address they provided earlier
+content.addressEntered=Dirección que ingresaste:
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=Dirección sugerida:
+content.suggestedAddresses=Direcciones sugeridas:
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
 button.confirmAddress=Confirmar dirección
 
@@ -381,7 +369,6 @@ validation.phoneMustBeLocalToCountry=El teléfono que proporcionaste no es de es
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
 
-validation.dateMisformatted=Ingresa una fecha en el formato AAAA/MM/DD.
 validation.invalidDateFormat=Ingresa una fecha en el formato correcto.
 
 #--------------------------------------------------------------------------------------------------------#

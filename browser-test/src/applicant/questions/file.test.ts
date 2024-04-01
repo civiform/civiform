@@ -71,6 +71,7 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
 
       await applicantFileQuestion.expectFileSelectionErrorHidden()
+      await applicantFileQuestion.expectFileTooLargeErrorHidden()
     })
 
     test('no continue button initially', async () => {
@@ -147,6 +148,34 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.answerFileUploadQuestion('some text')
 
       await applicantFileQuestion.expectFileSelectionErrorHidden()
+    })
+
+    test('too large file error', async () => {
+      const {page, applicantQuestions, applicantFileQuestion} = ctx
+      await applicantQuestions.applyProgram(programName)
+
+      await test.step('Shows error when file size is too large', async () => {
+        await applicantQuestions.answerFileUploadQuestionWithMbSize(101)
+
+        await applicantFileQuestion.expectFileTooLargeErrorShown()
+        await validateScreenshot(page, 'file-error-too-large')
+        await validateAccessibility(page)
+      })
+
+      await test.step('Cannot save file if too large', async () => {
+        await applicantQuestions.clickNext()
+
+        // Verify the file isn't saved and we're still on the file upload question block
+        await applicantQuestions.validateQuestionIsOnPage(
+          fileUploadQuestionText,
+        )
+      })
+
+      await test.step('Hides error when smaller file is uploaded', async () => {
+        await applicantQuestions.answerFileUploadQuestionWithMbSize(100)
+
+        await applicantFileQuestion.expectFileTooLargeErrorHidden()
+      })
     })
 
     test('has no accessibility violations', async () => {
@@ -664,7 +693,8 @@ test.describe('file upload applicant flow', () => {
           fileUploadQuestionText,
         )
         await applicantFileQuestion.expectFileSelectionErrorShown()
-        await validateScreenshot(page, 'file-errors')
+        await validateScreenshot(page, 'file-error-none-selected')
+        await validateAccessibility(page)
       })
 
       test('clicking save&next without file shows error on same page (flag on)', async () => {

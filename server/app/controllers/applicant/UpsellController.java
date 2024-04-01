@@ -39,7 +39,7 @@ import views.components.ToastMessage;
 /** Controller for handling methods for upselling applicants. */
 public final class UpsellController extends CiviFormController {
 
-  private final HttpExecutionContext httpContext;
+  private final HttpExecutionContext classLoaderExecutionContext;
   private final ApplicantService applicantService;
   private final ApplicationService applicationService;
   private final ProgramService programService;
@@ -52,7 +52,7 @@ public final class UpsellController extends CiviFormController {
 
   @Inject
   public UpsellController(
-      HttpExecutionContext httpContext,
+      HttpExecutionContext classLoaderExecutionContext,
       ApplicantService applicantService,
       ApplicationService applicationService,
       ProfileUtils profileUtils,
@@ -65,7 +65,7 @@ public final class UpsellController extends CiviFormController {
       VersionRepository versionRepository,
       ApplicantRoutes applicantRoutes) {
     super(profileUtils, versionRepository);
-    this.httpContext = checkNotNull(httpContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
     this.applicationService = checkNotNull(applicationService);
     this.programService = checkNotNull(programService);
@@ -103,8 +103,10 @@ public final class UpsellController extends CiviFormController {
     CompletableFuture<AccountModel> account =
         applicantPersonalInfo
             .thenComposeAsync(
-                v -> checkApplicantAuthorization(request, applicantId), httpContext.current())
-            .thenComposeAsync(v -> profile.get().getAccount(), httpContext.current())
+                v -> checkApplicantAuthorization(request, applicantId),
+                classLoaderExecutionContext.current())
+            .thenComposeAsync(
+                v -> profile.get().getAccount(), classLoaderExecutionContext.current())
             .toCompletableFuture();
 
     CompletableFuture<ReadOnlyApplicantProgramService> roApplicantProgramService =
@@ -135,7 +137,7 @@ public final class UpsellController extends CiviFormController {
                       v ->
                           applicantService.maybeEligibleProgramsForApplicant(
                               applicantId, profile.get()),
-                      httpContext.current())
+                      classLoaderExecutionContext.current())
                   .thenApplyAsync(Optional::of);
             })
         .thenApplyAsync(
@@ -177,7 +179,7 @@ public final class UpsellController extends CiviFormController {
                       toastMessage,
                       applicantRoutes));
             },
-            httpContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {

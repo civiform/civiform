@@ -228,9 +228,11 @@ link.edit=Edit
 link.selectNewClient=Select a new client
 
 # This is the header above the list of clients and the client search.
-title.allClients=All Clients
+title.allClients=All clients
 # This is the heading above a new client creation form.
 title.createClient=Create a new client
+# This is the heading above the client editing form.
+title.editClient=Edit client info
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients=Displaying {0} clients
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
@@ -329,25 +331,8 @@ validation.stateRequired=Please enter state.
 validation.invalidZipcode=Please enter valid 5-digit ZIP code.
 validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
 
-title.verifyAddress=Verify address
-
-content.foundSimilarAddress=We could not verify the address that you provided, but found something similar.
-# Heading for showing the user the address they provided earlier
-content.addressEntered=Address you entered:
-
-# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
-content.suggestedAddress=Suggested address:
-content.suggestedAddresses=Suggested addresses:
-
-# Title on address correction dialog when no address is found.
-title.noValidAddress=No valid address found
-content.noValidAddress=We could not verify the address that you provided. Please edit your address to continue.
-
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
-# Note: We're re-writing the text shown on the address correction screen. #
-# The strings below will be used in the re-write, and then the strings    #
-# above that are obsolete will be deleted.                                #
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
@@ -358,6 +343,11 @@ content.confirmAddressLine1=We were not able to find your address.
 content.foundSimilarAddressLine2=Please check your address for spelling or choose an option from the list provided.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
 content.noValidAddressLine2=Please check your address for spelling and edit to continue.
+# Heading for showing the user the address they provided earlier
+content.addressEntered=Address you entered:
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=Suggested address:
+content.suggestedAddresses=Suggested addresses:
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
 button.confirmAddress=Confirm address
 
@@ -383,7 +373,6 @@ validation.phoneMustBeLocalToCountry=The phone you have provided does not belong
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
 
-validation.dateMisformatted=Please enter a date in the format YYYY/MM/DD.
 validation.invalidDateFormat=Please enter a date in the correct format
 
 #--------------------------------------------------------------------------------------------------------#

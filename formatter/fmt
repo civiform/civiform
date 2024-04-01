@@ -133,7 +133,7 @@ else
 
   # Prefix each file with ../ and remove newlines. The newlines prevent printf from
   # prefixing each line itself which is why this sed command is needed.
-  eslint_app_file_list="$(printf "%s" "${modified_ts}" | (grep -E "^app" || true) | sed 's/^/ ..\//' | tr -d '\n')"
+  eslint_app_file_list="$(printf "%s" "${modified_ts}" | (grep -E "^server/app" || true) | sed 's/^/ ..\//' | tr -d '\n')"
   eslint_browsertest_file_list="$(printf "%s" "${modified_ts}" | (grep -E "^browser-test" || true) | sed 's/^/ ..\//' | tr -d '\n')"
 
   cd server

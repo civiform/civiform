@@ -1,6 +1,11 @@
-<div th:fragment="applicant-question(question)">
+<div th:fragment="applicant-question (question, stateAbbreviations)">
   <!-- TODO(#6910): Investigate why we can't access enum types in Thymeleaf -->
   <th:block th:switch="${question.getType().getLabel()}">
+    <th:block th:case="'Address'">
+      <div
+        th:replace="~{questiontypes/AddressQuestionFragment :: address(${question}, ${stateAbbreviations})}"
+      ></div>
+    </th:block>
     <th:block th:case="'Checkbox'">
       <div
         th:replace="~{questiontypes/CheckboxQuestionFragment :: checkbox(${question})}"
@@ -9,6 +14,16 @@
     <th:block th:case="'Currency'">
       <div
         th:replace="~{questiontypes/CurrencyQuestionFragment :: currency(${question})}"
+      ></div>
+    </th:block>
+    <th:block th:case="'Dropdown'">
+      <div
+        th:replace="~{questiontypes/DropdownQuestionFragment :: dropdown(${question})}"
+      ></div>
+    </th:block>
+    <th:block th:case="'Email'">
+      <div
+        th:replace="~{questiontypes/EmailQuestionFragment :: email(${question})}"
       ></div>
     </th:block>
     <th:block th:case="'ID'">
@@ -24,6 +39,11 @@
     <th:block th:case="'Number'">
       <div
         th:replace="~{questiontypes/NumberQuestionFragment :: number(${question})}"
+      ></div>
+    </th:block>
+    <th:block th:case="'Phone Number'">
+      <div
+        th:replace="~{questiontypes/PhoneQuestionFragment :: phone(${question})}"
       ></div>
     </th:block>
     <th:block th:case="'Radio Button'">

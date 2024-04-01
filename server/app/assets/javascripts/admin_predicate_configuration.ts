@@ -353,6 +353,8 @@ class AdminPredicateConfiguration {
           ) {
             // Age-related operators should have number input value
             valueInput.setAttribute('type', 'number')
+            // We should allow for decimals to account for month intervals
+            valueInput.setAttribute('step', '.01')
           } else if (operatorValue.toUpperCase() === 'AGE_BETWEEN') {
             // BETWEEN operates on lists of longs, which must be entered as a comma-separated list
             valueInput.setAttribute('type', 'text')

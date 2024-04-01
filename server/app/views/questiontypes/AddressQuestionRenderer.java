@@ -20,16 +20,6 @@ import views.style.ReferenceClasses;
 /** Renders an address question. */
 public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer {
 
-  // 50 states, DC and 8 territories as sourced from https://pe.usps.com/text/pub28/28apb.htm
-  private static final ImmutableList<String> STATE_ABBREVIATIONS =
-      ImmutableList.sortedCopyOf(
-          ImmutableList.of(
-              "AK", "AL", "AR", "AS", "AZ", "CA", "CO", "CT", "DC", "DE", "FL", "FM", "GA", "GU",
-              "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME", "MH", "MI", "MN",
-              "MO", "MP", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY", "OH", "OK",
-              "OR", "PA", "PR", "PW", "RI", "SC", "SD", "TN", "TX", "UT", "VA", "VI", "VT", "WA",
-              "WI", "WV", "WY"));
-
   public AddressQuestionRenderer(ApplicantQuestion question) {
     super(question);
   }
@@ -175,7 +165,7 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
 
   /** Returns a list of State options as mentioned in https://pe.usps.com/text/pub28/28apb.htm */
   private static ImmutableList<SelectWithLabel.OptionValue> stateOptions() {
-    return STATE_ABBREVIATIONS.stream()
+    return AddressQuestion.STATE_ABBREVIATIONS.stream()
         .map(state -> SelectWithLabel.OptionValue.builder().setLabel(state).setValue(state).build())
         .collect(ImmutableList.toImmutableList());
   }
