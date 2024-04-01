@@ -931,8 +931,10 @@ test.describe('Trusted intermediaries', () => {
       )
     })
   })
+
   test.describe('pre-populating TI client info with PAI questions', () => {
     const ctx = createTestContext(/* clearDb= */ true)
+
     test.beforeEach(async () => {
       const {
         page,
@@ -944,19 +946,24 @@ test.describe('Trusted intermediaries', () => {
 
       await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
 
-      // Login as TI and add a client
-      await loginAsTrustedIntermediary(page)
-      await tiDashboard.gotoTIDashboardPage(page)
-      const client: ClientInformation = {
-        emailAddress: 'test@email.com',
-        firstName: 'first',
-        middleName: 'middle',
-        lastName: 'last',
-        dobDate: '2001-01-01',
-      }
-      await tiDashboard.createClient(client)
-      await tiDashboard.updateClientTiNoteAndPhone(client, 'note', '9178675309')
-      await waitForPageJsLoad(page)
+      await test.step('login as TI and add a client', async () => {
+        await loginAsTrustedIntermediary(page)
+        await tiDashboard.gotoTIDashboardPage(page)
+        const client: ClientInformation = {
+          emailAddress: 'test@email.com',
+          firstName: 'first',
+          middleName: 'middle',
+          lastName: 'last',
+          dobDate: '2001-01-01',
+        }
+        await tiDashboard.createClient(client)
+        await tiDashboard.updateClientTiNoteAndPhone(
+          client,
+          'note',
+          '9178675309',
+        )
+        await waitForPageJsLoad(page)
+      })
 
       await test.step('create a program with PAI questions', async () => {
         await loginAsAdmin(page)
@@ -1022,6 +1029,7 @@ test.describe('Trusted intermediaries', () => {
         )
         await validateScreenshot(page, 'pai-program-application-preview')
       })
+
       await test.step('verify client info is pre-populated in the application after clicking continue', async () => {
         await applicantQuestions.clickContinue()
         expect(await page.locator('input[type=date]').inputValue()).toEqual(
@@ -1045,8 +1053,10 @@ test.describe('Trusted intermediaries', () => {
         await validateScreenshot(page, 'pai-program-application')
       })
     })
+
     test('info filled in by PAI values is overridden when answered directly in the application', async () => {
       const {page, applicantQuestions} = ctx
+
       await test.step('fill in the name question with different values', async () => {
         await applicantQuestions.clickContinue()
         await applicantQuestions.answerNameQuestion('newfirst', 'newlast')
@@ -1054,19 +1064,21 @@ test.describe('Trusted intermediaries', () => {
         await applicantQuestions.answerNumberQuestion('1')
         await applicantQuestions.clickNext()
       })
-      // New name values should be shown, but other values should remain the same
-      expect(await page.innerText('#application-summary')).toContain(
-        '01/01/2001',
-      )
-      expect(await page.innerText('#application-summary')).toContain(
-        'newfirst middle newlast',
-      )
-      expect(await page.innerText('#application-summary')).toContain(
-        '+1 917-867-5309',
-      )
-      expect(await page.innerText('#application-summary')).toContain(
-        'test@email.com',
-      )
+
+      await test.step('verify the new values for name are shown in the application and the other values are unchanged', async () => {
+        expect(await page.innerText('#application-summary')).toContain(
+          '01/01/2001',
+        )
+        expect(await page.innerText('#application-summary')).toContain(
+          'newfirst middle newlast',
+        )
+        expect(await page.innerText('#application-summary')).toContain(
+          '+1 917-867-5309',
+        )
+        expect(await page.innerText('#application-summary')).toContain(
+          'test@email.com',
+        )
+      })
     })
   })
 })
