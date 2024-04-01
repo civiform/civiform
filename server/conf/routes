@@ -133,6 +133,9 @@ POST    /admin/apiKeys/:apiKeyId/retire             controllers.admin.AdminApiKe
 # Admin program migration
 GET /admin/export            controllers.admin.AdminExportController.index(request: Request)
 GET /admin/export/program    controllers.admin.AdminExportController.exportProgram(request: Request)
+GET /admin/import            controllers.admin.AdminImportController.index(request: Request)
+POST /admin/import/program            controllers.admin.AdminImportController.importProgram(request: Request)
+
 
 # Admin settings
 GET      /admin/settings                             controllers.admin.AdminSettingsController.index(request: Request)
