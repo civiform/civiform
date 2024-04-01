@@ -67,7 +67,7 @@ public final class DateQuestion extends Question {
         && applicantQuestion
             .getQuestionDefinition()
             .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_DOB)) {
-      dateValue = applicantData.getApplicant().getDateOfBirth();
+      dateValue = applicantData.getDateOfBirth();
     }
     return dateValue;
   }
