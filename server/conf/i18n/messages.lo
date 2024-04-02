@@ -126,7 +126,7 @@ banner.clientAcctDeleted=ລຶບບັນຊີລູກຂ່າຍສຳລ�
 # Message when a user successfully creates a client account.
 banner.newClientCreated=ສ້າງລູກຂ່າຍໃໝ່ສຳເລັດແລ້ວ.
 # Banner at the top of the page with the name of the client substituted in when viewing an application.
-banner.viewApplication=You are applying for {0}. Are you trying to apply for a different client?
+banner.viewApplication=ທ່ານກຳລັງສະໝັກ {0}. ທ່ານກຳລັງສະໝັກໃຫ້ກັບລູກຂ່າຍຄົນອື່ນບໍ?
 
 
 # Button that allows a user to add a client to the CiviForm system.
@@ -156,20 +156,20 @@ button.startApp=ເປີດແອັບພລິເຄຊັນ
 # Button to view the applications belonging to an applicant.
 button.viewApplications=ເບິ່ງແອັບພລິເຄຊັນ
 # Button to view and add clients
-button.viewAndAddClients=View and add clients
+button.viewAndAddClients=ເບິ່ງ ແລະ ເພີ່ມລູກຂ່າຍ
 
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=ເພີ່ມ {0} ລູກຂ່າຍໃໝ່ຂອງທ່ານໃສ່ໃນລາຍຊື່ລູກຂ່າຍຂອງທ່ານແລ້ວ. ຕອນນີ້ທ່ານສາມາດເລີ່ມສົ່ງແອັບພລິເຄຊັນສຳລັບລູກຂ່າຍຄົນນີ້ໄດ້ແລ້ວ.
 # The tooltip of the email input field.
-content.emailTooltip=Add an email address for your client to receive status updates about their application automatically. Without an email, you or your community-based organization will be responsible for communicating updates to your client.
+content.emailTooltip=ເພີ່ມທີ່ຢູ່ອີເມວສຳລັບລູກຂ່າຍຂອງທ່ານເພື່ອຮັບການອັບເດດສະຖານະກ່ຽວກັບໃບສະໝັກຂອງເຂົາເຈົ້າໂດຍອັດຕະໂນມັດ. ຫາກບໍ່ມີອີເມວ, ທ່ານ ຫຼື ອົງກອນໃນຊຸມຊົນຂອງທ່ານຈະຕ້ອງຮັບຜິດຊອບໃນການສື່ສານຂໍ້ມູນອັບເດດໄປໃຫ້ລູກຂ່າຍຂອງທ່ານ.
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted={0} ແອັບພລິເຄຊັນທີ່ສົ່ງແລ້ວ
 # Shows that a single application has been submitted on behalf of the client.
-content.oneAppSubmitted=1 application submitted
+content.oneAppSubmitted=ສົ່ງໃບສະໝັກແລ້ວ 1 ລາຍການ
 # Some explanation text on the confirmation modal when deleting a client.
 content.warning=ບໍ່ມີການສົ່ງແອັບພລິເຄຊັນສຳລັບລູກຂ່າຍຄົນນີ້, ດັ່ງນັ້ນຈະບໍ່ມີແອັບພລິເຄຊັນໃດສູນຫາຍ.
 # Shows there is no email address connected to the account.
-content.noEmailAddress=(no email address)
+content.noEmailAddress=(ບໍ່ມີທີ່ຢູ່ອີເມວ)
 # The status of an organization member when they have been enrolled but have never logged into CiviForm.
 content.notLoggedIn=Not yet logged in
 # The status of an organization member when they have logged in but haven't applied on behalf of a client.
@@ -184,10 +184,10 @@ header.acctSettings=ການຕັ້ງຄ່າບັນຊີ
 # Tab label for getting to the client list page
 header.clientList=ລາຍຊື່ລູກຂ່າຍ
 # Label for search
-header.search=Search
+header.search=ຊອກຫາ
 
 # A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
-label.acctStatus=Account status
+label.acctStatus=ສະຖານະບັນຊີ
 # Label above the phone number for each client on the client list.
 label.contactInfo=ຂໍ້ມູນການຕິດຕໍ່
 # The label above the input field for the day of the client birth date. i.e. 12 for November 12
@@ -199,11 +199,11 @@ label.dobExample=ຕົວຢ່າງ: 28 ມັງກອນ 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=ອີເມວ
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=Error: Date of birth required
+label.errorDOB=ຂໍ້ຜິດພາດ: ຕ້ອງລະບຸວັນເດືອນປີເກີດ
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=Error: First name required
+label.errorFirstName=ຂໍ້ຜິດພາດ: ຕ້ອງລະບຸຊື່
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=Error: Last name required
+label.errorLastName=ຂໍ້ຜິດພາດ: ຕ້ອງລະບຸນາມສະກຸນ
 # The label above the dropdown select field for the month of the client birth date.
 label.month=ເດືອນ
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -221,11 +221,11 @@ label.searchByName=ຊອກຫາຕາມຊື່
 # The label above the input field for the year of the client birth date.
 label.year=ປີ
 # Label showing the user when there is no name
-label.unnamedUser=Unnamed user
+label.unnamedUser=ຜູ້ໃຊ້ທີ່ບໍ່ມີຊື່
 
 link.edit=ແກ້ໄຂ
 # Link to change the client that the trusted intermediary is applying for.
-link.selectNewClient=Select a new client
+link.selectNewClient=ເລືອກລູກຂ່າຍຄົນໃໝ່
 
 # This is the header above the list of clients and the client search.
 title.allClients=All clients
@@ -340,11 +340,11 @@ title.confirmAddress=ຢືນຢັນທີ່ຢູ່ຂອງທ່ານ
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=ພວກເຮົາບໍ່ພົບທີ່ຢູ່ຂອງທ່ານ.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
-content.foundSimilarAddressLine2=ກະລຸນາກວດເບິ່ງການສະກົດຄຳທີ່ຢູ່ຂອງທ່ານ ຫຼື ເລືອກຕົວເລືອກຈາກລາຍຊື່ທີ່ສະໜອງໃຫ້.
+content.foundSimilarAddressLine2=ກະລຸນາກວດສອບການສະກົດທີ່ຢູ່ຂອງທ່ານ ຫຼື ເລືອກຕົວເລືອກຈາກລາຍຊື່ທີ່ໃຫ້ໄວ້.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
-content.noValidAddressLine2=ກະລຸນາກວດເບິ່ງການສະກົດຄຳທີ່ຢູ່ຂອງທ່ານ ແລະ ແກ້ໄຂມັນເພື່ອສືບຕໍ່.
+content.noValidAddressLine2=ກະລຸນາກວດສອບການສະກົດທີ່ຢູ່ຂອງທ່ານ ແລະ ແກ້ໄຂເພື່ອສືບຕໍ່.
 # Heading for showing the user the address they provided earlier
-content.addressEntered=ທີ່ຢູ່ທີ່ທ່ານປ້ອນເຂົ້າ:
+content.addressEntered=ທີ່ຢູ່ທີ່ທ່ານໄດ້ລະບຸ:
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=ທີ່ຢູ່ທີ່ແນະນຳ:
 content.suggestedAddresses=ທີ່ຢູ່ທີ່ແນະນຳ:
@@ -383,7 +383,7 @@ button.addEntity=ເພີ່ມ {0}
 button.removeEntity=ລຶບ {0} ອອກ
 dialog.confirmDelete=ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບ {0} ນີ້ອອກ? ການປ່ຽນແປງນີ້ຈະຖືກບັນທຶກໄວ້ຫຼັງຈາກທ່ານຄລິກ "ຕໍ່ໄປ" ແລະ ຂໍ້ມູນທັງໝົດທີ່ກ່ຽວຂ້ອງກັບ {0} ນີ້ຈະສູນເສຍ.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
-dialog.confirmDeleteAllButtonsSave=ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບ {0} ນີ້ອອກ? ການປ່ຽນແປງນີ້ຈະຖືກບັນທຶກໄວ້ເມື່ອທ່ານຄລິກ "ກວດສອບ", "ກ່ອນໜ້າ" ຫຼື "ຕໍ່ໄປ" ແລະ ຂໍ້ມູນທັງໝົດທີ່ກ່ຽວຂ້ອງກັບ {0} ນີ້ຈະສູນເສຍ.
+dialog.confirmDeleteAllButtonsSave=ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບ {0} ນີ້ອອກ? ການປ່ຽນແປງນີ້ຈະຖືກບັນທຶກໄວ້ເມື່ອທ່ານຄລິກ "ກວດສອບ", "ກ່ອນໜ້າ" ຫຼື "ຕໍ່ໄປ" ແລະ ຂໍ້ມູນທັງໝົດທີ່ກ່ຽວຂ້ອງກັບ {0} ນີ້ຈະສູນຫາຍ.
 validation.entityNameRequired=ກະລຸນາປ້ອນຄ່າສຳລັບແຕ່ລະແຖວ.
 validation.duplicateEntityName=ກະລຸນາປ້ອນຄ່າທີ່ບໍ່ຊ້ຳກັນສຳລັບແຕ່ລະແຖວ.
 placeholder.entityName=ຊື່ {0}
