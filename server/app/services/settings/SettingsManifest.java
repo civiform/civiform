@@ -578,6 +578,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getInt("ESRI_EXTERNAL_CALL_TRIES");
   }
 
+  /**
+   * Forces calls to Esri services to use the specified spatial reference wellKnownId value for the
+   * [coordinate
+   * system](https://developers.arcgis.com/rest/services-reference/enterprise/using-spatial-references.htm).
+   * If not set the default configuration from the Esri server is used. Setting this may be needed
+   * if using the results of the findAddressCandidates service return spatial references in a format
+   * different from one or more of the map query service endpoints.
+   */
+  public Optional<Integer> getEsriWellknownIdOverride() {
+    return getInt("ESRI_WELLKNOWN_ID_OVERRIDE");
+  }
+
   /** This email address is listed in the footer for applicants to contact support. */
   public Optional<String> getSupportEmailAddress(RequestHeader request) {
     return getString("SUPPORT_EMAIL_ADDRESS", request);
@@ -1577,6 +1589,19 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               "ESRI_EXTERNAL_CALL_TRIES",
                               "The number of tries CiviForm will attempt requests to external Esri"
                                   + " services.",
+                              /* isRequired= */ false,
+                              SettingType.INT,
+                              SettingMode.ADMIN_READABLE),
+                          SettingDescription.create(
+                              "ESRI_WELLKNOWN_ID_OVERRIDE",
+                              "Forces calls to Esri services to use the specified spatial reference"
+                                  + " wellKnownId value for the [coordinate"
+                                  + " system](https://developers.arcgis.com/rest/services-reference/enterprise/using-spatial-references.htm)."
+                                  + " If not set the default configuration from the Esri server is"
+                                  + " used. Setting this may be needed if using the results of the"
+                                  + " findAddressCandidates service return spatial references in a"
+                                  + " format different from one or more of the map query service"
+                                  + " endpoints.",
                               /* isRequired= */ false,
                               SettingType.INT,
                               SettingMode.ADMIN_READABLE)))),
