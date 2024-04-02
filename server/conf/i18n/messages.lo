@@ -213,7 +213,7 @@ label.nameExample=ຕົວຢ່າງ: Gu ຫຼື Darren ຫຼື Darren Gu
 # Label above the text input field for notes about a client.
 label.notes=ໝາຍເຫດ
 # Label above the phone number input field when creating or editing a client.
-label.phoneNum=ເບີໂທລະສັບ
+label.phoneNum=Phone number
 # The label above the Date of Birth search input for the client search.
 label.searchByDob=ຊອກຫາຕາມວັນເດືອນປີເກີດ
 # The label above the name search field of the client search.
