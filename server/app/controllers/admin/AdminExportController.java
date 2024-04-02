@@ -4,6 +4,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
 import org.pac4j.play.java.Secure;
@@ -12,7 +17,12 @@ import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
+import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.question.QuestionService;
+import services.question.exceptions.QuestionNotFoundException;
+import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.admin.migration.AdminExportView;
 import views.admin.migration.AdminProgramExportForm;
@@ -30,21 +40,31 @@ import views.admin.migration.AdminProgramExportForm;
 public class AdminExportController extends CiviFormController {
   private final AdminExportView adminExportView;
   private final FormFactory formFactory;
+  private final ObjectMapper objectMapper;
   private final ProgramService programService;
+  private final QuestionService questionService;
   private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminExportController(
       AdminExportView adminExportView,
       FormFactory formFactory,
+      ObjectMapper objectMapper,
       ProfileUtils profileUtils,
       ProgramService programService,
+      QuestionService questionService,
       SettingsManifest settingsManifest,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
     this.adminExportView = checkNotNull(adminExportView);
     this.formFactory = checkNotNull(formFactory);
+    // These extra modules let ObjectMapper serialize Guava types like ImmutableList.
+    this.objectMapper =
+        checkNotNull(objectMapper)
+            .registerModule(new GuavaModule())
+            .registerModule(new Jdk8Module());
     this.programService = checkNotNull(programService);
+    this.questionService = checkNotNull(questionService);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
@@ -70,10 +90,47 @@ public class AdminExportController extends CiviFormController {
         formFactory
             .form(AdminProgramExportForm.class)
             .bindFromRequest(request, AdminProgramExportForm.FIELD_NAMES.toArray(new String[0]));
-    // TODO(#7087): Show an error if no program was selected.
-    // TODO(#7087): Return JSON representing the exported program.
-    return notFound(
-        String.format(
-            "Received ID: %s. Program export is not yet implemented", form.get().getProgramId()));
+
+    Long programId = form.get().getProgramId();
+    if (programId == null) {
+      // If they didn't select anything, just re-render the main export page.
+      return redirect(routes.AdminExportController.index().url());
+    }
+
+    ProgramDefinition program;
+    try {
+      program = programService.getFullProgramDefinition(programId);
+    } catch (ProgramNotFoundException e) {
+      return badRequest(String.format("Program with ID %s could not be found", programId));
+    }
+
+    ImmutableList<QuestionDefinition> questionsInProgram =
+        program.getQuestionIdsInProgram().stream()
+            .map(
+                questionId -> {
+                  try {
+                    return questionService
+                        .getReadOnlyQuestionServiceSync()
+                        .getQuestionDefinition(questionId);
+                  } catch (QuestionNotFoundException e) {
+                    throw new RuntimeException(e);
+                  }
+                })
+            .collect(ImmutableList.toImmutableList());
+
+    String programJson;
+    try {
+      programJson =
+          objectMapper
+              .writerWithDefaultPrettyPrinter()
+              .writeValueAsString(new ProgramMigration(program, questionsInProgram));
+    } catch (JsonProcessingException e) {
+      return badRequest(String.format("Program could not be serialized: %s", e));
+    }
+
+    String filename = program.adminName() + "-exported.json";
+    return ok(programJson)
+        .as(Http.MimeTypes.JSON)
+        .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
   }
 }
