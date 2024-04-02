@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import models.ApplicantModel;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
@@ -31,6 +32,11 @@ public final class NameQuestion extends Question {
   @Override
   public ImmutableList<Path> getAllPaths() {
     return ImmutableList.of(getFirstNamePath(), getMiddleNamePath(), getLastNamePath());
+  }
+
+  @Override
+  public boolean isAnsweredWithPai(ApplicantModel applicant) {
+    return isPaiQuestion() && applicant.getFirstName().isPresent();
   }
 
   @Override
@@ -67,10 +73,7 @@ public final class NameQuestion extends Question {
     ApplicantData applicantData = applicantQuestion.getApplicantData();
     Optional<String> firstNameValue = applicantData.readString(getFirstNamePath());
 
-    if (firstNameValue.isEmpty()
-        && applicantQuestion
-            .getQuestionDefinition()
-            .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_NAME)) {
+    if (firstNameValue.isEmpty() && isPaiQuestion()) {
       firstNameValue = applicantData.getApplicantFirstName();
     }
 
@@ -85,10 +88,7 @@ public final class NameQuestion extends Question {
     ApplicantData applicantData = applicantQuestion.getApplicantData();
     middleNameValue = applicantData.readString(getMiddleNamePath());
 
-    if (middleNameValue.isEmpty()
-        && applicantQuestion
-            .getQuestionDefinition()
-            .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_NAME)) {
+    if (middleNameValue.isEmpty() && isPaiQuestion()) {
       middleNameValue = applicantData.getApplicantMiddleName();
     }
     return middleNameValue;
@@ -102,10 +102,7 @@ public final class NameQuestion extends Question {
     ApplicantData applicantData = applicantQuestion.getApplicantData();
     lastNameValue = applicantData.readString(getLastNamePath());
 
-    if (lastNameValue.isEmpty()
-        && applicantQuestion
-            .getQuestionDefinition()
-            .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_NAME)) {
+    if (lastNameValue.isEmpty() && isPaiQuestion()) {
       lastNameValue = applicantData.getApplicantLastName();
     }
     return lastNameValue;
@@ -134,5 +131,11 @@ public final class NameQuestion extends Question {
     };
 
     return Arrays.stream(parts).filter(part -> part.length() > 0).collect(Collectors.joining(" "));
+  }
+
+  private boolean isPaiQuestion() {
+    return applicantQuestion
+        .getQuestionDefinition()
+        .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_NAME);
   }
 }

@@ -7,6 +7,7 @@ import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import java.util.Optional;
+import models.ApplicantModel;
 import services.MessageKey;
 import services.Path;
 import services.PhoneValidationUtils;
@@ -37,6 +38,11 @@ public final class PhoneQuestion extends Question {
   }
 
   @Override
+  public boolean isAnsweredWithPai(ApplicantModel applicant) {
+    return isPaiQuestion() && applicant.getPhoneNumber().isPresent();
+  }
+
+  @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     // TODO: Implement admin-defined validation.
     return ImmutableMap.of(getPhoneNumberPath(), validatePhoneNumber());
@@ -61,10 +67,7 @@ public final class PhoneQuestion extends Question {
     ApplicantData applicantData = applicantQuestion.getApplicantData();
     Optional<String> phoneNumberValue = applicantData.readString(getPhoneNumberPath());
 
-    if (phoneNumberValue.isEmpty()
-        && applicantQuestion
-            .getQuestionDefinition()
-            .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_PHONE)) {
+    if (phoneNumberValue.isEmpty() && isPaiQuestion()) {
       phoneNumberValue = applicantData.getPhoneNumber();
     }
 
@@ -79,10 +82,7 @@ public final class PhoneQuestion extends Question {
     ApplicantData applicantData = applicantQuestion.getApplicantData();
     Optional<String> countryCodeValue = applicantData.readString(getCountryCodePath());
 
-    if (countryCodeValue.isEmpty()
-        && applicantQuestion
-            .getQuestionDefinition()
-            .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_PHONE)) {
+    if (countryCodeValue.isEmpty() && isPaiQuestion()) {
       countryCodeValue = applicantData.getApplicant().getCountryCode();
     }
 
@@ -115,5 +115,11 @@ public final class PhoneQuestion extends Question {
     } catch (NumberParseException e) {
       return "-";
     }
+  }
+
+  private boolean isPaiQuestion() {
+    return applicantQuestion
+        .getQuestionDefinition()
+        .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_PHONE);
   }
 }

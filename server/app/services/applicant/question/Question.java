@@ -10,7 +10,6 @@ import models.ApplicantModel;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
-import services.question.PrimaryApplicantInfoTag;
 import services.question.types.QuestionType;
 
 /**
@@ -109,33 +108,8 @@ public abstract class Question {
     boolean isAnsweredWithApplicantData =
         getAllPaths().stream().anyMatch(applicantQuestion.getApplicantData()::hasPath);
 
-    // Filter to see if the applicant has data saved for any of the PAI tags on the question
-    // definition. If the returned set is NOT empty, then the applicant has data saved and the
-    // question is "answered"
-    ImmutableSet<PrimaryApplicantInfoTag> tags =
-        applicantQuestion.getQuestionDefinition().getPrimaryApplicantInfoTags();
-    boolean isAnsweredWithPrimaryApplicantInfo =
-        !tags.stream()
-            .filter(
-                tag -> {
-                  ApplicantModel applicant = applicantQuestion.getApplicantData().getApplicant();
-                  switch (tag) {
-                    case APPLICANT_EMAIL:
-                      return applicant.getEmailAddress().isPresent();
-                    case APPLICANT_PHONE:
-                      return applicant.getPhoneNumber().isPresent();
-                    case APPLICANT_DOB:
-                      return applicant.getDateOfBirth().isPresent();
-                    case APPLICANT_NAME:
-                      return applicant.getFirstName().isPresent();
-                    default:
-                      return false;
-                  }
-                })
-            .collect(ImmutableSet.toImmutableSet())
-            .isEmpty();
-
-    return isAnsweredWithApplicantData || isAnsweredWithPrimaryApplicantInfo;
+    return isAnsweredWithApplicantData
+        || isAnsweredWithPai(applicantQuestion.getApplicantData().getApplicant());
   }
 
   /**
@@ -155,5 +129,10 @@ public abstract class Question {
 
   public ApplicantQuestion getApplicantQuestion() {
     return applicantQuestion;
+  }
+
+  /** Question types that have a PAI tag associated with them should override this method */
+  public boolean isAnsweredWithPai(ApplicantModel applicant) {
+    return false;
   }
 }
