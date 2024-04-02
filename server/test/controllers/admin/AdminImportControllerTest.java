@@ -92,15 +92,14 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   // TODO(#7087): Re-enable this test once https://github.com/orgs/playframework/discussions/12518
-  // is
-  // answered.
+  // is answered.
   // I wrote this test based on the guidance in
   // https://www.playframework.com/documentation/2.9.x/JavaFileUpload#Testing-the-file-upload,
   // but the `request.body()` ends up being null when this test runs even though it's non-null when
-  // testing on a server or in browser tests. Hopefully
-  // the Play Framework team answers that discussion question and we can re-enable this test soon.
-  // The browser tests in admin_program_migration.test.ts are passing and do exercise this endpoint,
-  // so we at least have some test coverage there.
+  // testing on a server or in browser tests. Hopefully the Play Framework team answers that
+  // discussion question and we can re-enable this test soon. The browser tests in
+  // admin_program_migration.test.ts are passing and do exercise this endpoint, so we at least have
+  // some test coverage there.
   @Test
   @Ignore
   public void importProgram_migrationEnabled_resultHasFileContent() throws IOException {

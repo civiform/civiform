@@ -135,7 +135,7 @@ public class AdminImportController extends CiviFormController {
     // TODO(#7087): Is there a way to redirect back to the index page (`/admin/import` URL) but have
     // this result? Right now, this keeps users on the `/admin/import/program` URL. And if they
     // refresh the page, they get a warning from their browser asking if they want to resubmit the
-    // form.
+    // form, which isn't great.
     return ok(adminImportView.render(request, Optional.of(ErrorAnd.of(parsedJson.toString()))));
   }
 
