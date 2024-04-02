@@ -213,7 +213,7 @@ label.nameExample=ለምሳሌ፦ ገ ወይም ዳዊት ወይም ዳዊት �
 # Label above the text input field for notes about a client.
 label.notes=ማስታወሻዎች
 # Label above the phone number input field when creating or editing a client.
-label.phoneNum=ስልክ ቁጥር
+label.phoneNum=Phone number
 # The label above the Date of Birth search input for the client search.
 label.searchByDob=በልደት ቀን ይፈልጉ
 # The label above the name search field of the client search.
