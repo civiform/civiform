@@ -213,7 +213,7 @@ label.nameExample=Halimbawa: Gu o Darren o Darren Gu
 # Label above the text input field for notes about a client.
 label.notes=Mga Tala
 # Label above the phone number input field when creating or editing a client.
-label.phoneNum=Numero ng Telepono
+label.phoneNum=Phone number
 # The label above the Date of Birth search input for the client search.
 label.searchByDob=Maghanap ayon sa Petsa ng Kapanganakan
 # The label above the name search field of the client search.
