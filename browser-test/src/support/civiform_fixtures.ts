@@ -2,7 +2,6 @@ import {test as base} from '@playwright/test'
 import {
   AdminPrograms,
   AdminQuestions,
-  AdminProgramMigration,
   AdminProgramStatuses,
   ApplicantQuestions,
   AdminPredicates,
@@ -15,6 +14,7 @@ import {
   AdminSettings,
 } from '.'
 import {AdminApiKeys} from './admin_api_keys'
+import {AdminProgramMigration} from './admin_program_migration'
 
 type CiviformFixtures = {
   adminApiKeys: AdminApiKeys
