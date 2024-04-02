@@ -213,7 +213,7 @@ label.nameExample=Tusaale: Gu ama Darren ama Darren Gu
 # Label above the text input field for notes about a client.
 label.notes=Qoraalo
 # Label above the phone number input field when creating or editing a client.
-label.phoneNum=Lambarka Telefoonka
+label.phoneNum=Phone number
 # The label above the Date of Birth search input for the client search.
 label.searchByDob=Ku raadi Taariikhda Dhalashada
 # The label above the name search field of the client search.
