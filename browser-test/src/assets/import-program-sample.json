@@ -1,9 +1,7 @@
 {
-  "commonIntakeForm": false,
-  "id": 32,
-  "adminName": "email-program",
-  "adminDescription": "",
-  "externalLink": "",
+  "adminName": "email-program-sample",
+  "adminDescription": "A sample program for browser tests in JSON format",
+  "externalLink": "fake.link",
   "displayMode": "HIDDEN_IN_INDEX",
   "localizedName": {
     "translations": {
@@ -13,14 +11,16 @@
   },
   "localizedDescription": {
     "translations": {
-      "en_US": "email program"
+      "en_US": "Email program description"
     },
     "isRequired": true
   },
   "localizedConfirmationMessage": {
     "translations": {
-      "en_US": ""
+      "en_US": "Email program confirmation message"
     },
     "isRequired": true
-  }
+  },
+  "commonIntakeForm": false,
+  "id": 32
 }

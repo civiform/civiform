@@ -7,9 +7,12 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
+import static views.ViewUtils.makeAlert;
+import static views.style.BaseStyles.ALERT_ERROR;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.admin.AdminImportController;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
@@ -81,8 +84,7 @@ public class AdminImportView extends BaseHtmlView {
             Http.MimeTypes.JSON,
             /* hints= */ ImmutableList.of(),
             /* disabled= */ false,
-            // TODO(#7087): Determine a reasonable file size limit.
-            /* fileLimitMb= */ 5,
+            /* fileLimitMb= */ AdminImportController.MAX_FILE_SIZE_MB,
             messagesApi.preferred(request));
     return div()
         .with(h2("Upload program JSON"))
@@ -93,7 +95,7 @@ public class AdminImportView extends BaseHtmlView {
                 .with(makeCsrfTokenInputTag(request), fileUploadElement)
                 .with(submitButton("Upload program").withClass(ButtonStyles.SOLID_BLUE))
                 .withAction(routes.AdminImportController.importProgram().url()))
-        .withClass("mb-10");
+        .withClass("my-10");
   }
 
   private DomContent renderProgramData(Optional<ErrorAnd<String, CiviFormError>> programData) {
@@ -102,7 +104,15 @@ public class AdminImportView extends BaseHtmlView {
       return data.with(p("No data has been uploaded yet."));
     }
     if (programData.get().isError()) {
-      return data.with(each(programData.get().getErrors(), error -> p(error.message())));
+      return data.with(
+          each(
+              programData.get().getErrors(),
+              error ->
+                  makeAlert(
+                      /* text= */ error.message(),
+                      /* hidden= */ false,
+                      /* title= */ Optional.of("Error processing file"), /* classes...= */
+                      ALERT_ERROR)));
     }
     // TODO(#7087): Render the program data correctly by showing the blocks and questions in a
     // readable format.

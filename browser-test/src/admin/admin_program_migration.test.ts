@@ -45,4 +45,40 @@ test.describe('program migration', {tag: ['@uses-fixtures']}, () => {
       await validateScreenshot(page, 'import-page-with-data')
     })
   })
+
+  test('import errors', async ({page, adminProgramMigration}) => {
+    await test.step('load import page', async () => {
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_migration_enabled')
+      await adminProgramMigration.goToImportPage()
+    })
+
+    await test.step('file too large error', async () => {
+      await adminProgramMigration.uploadProgramJsonWithSize(/* mbSize= */ 2)
+      await adminProgramMigration.expectImportError()
+      await validateScreenshot(page, 'import-page-with-error-too-large')
+    })
+
+    await test.step('malformed: missing "', async () => {
+      await adminProgramMigration.uploadProgramJsonWithContent(
+        '{"adminName: "mismatched-double-quote"}',
+      )
+      await adminProgramMigration.expectImportError()
+      await validateScreenshot(page, 'import-page-with-error-parse')
+    })
+
+    await test.step('malformed: not matching {}', async () => {
+      await adminProgramMigration.uploadProgramJsonWithContent(
+        '{"adminName": "mismatched-brackets"',
+      )
+      await adminProgramMigration.expectImportError()
+    })
+
+    await test.step('malformed: missing ,', async () => {
+      await adminProgramMigration.uploadProgramJsonWithContent(
+        '{"adminName": "missing-comma" "adminDescription": "missing-comma-description"}',
+      )
+      await adminProgramMigration.expectImportError()
+    })
+  })
 })

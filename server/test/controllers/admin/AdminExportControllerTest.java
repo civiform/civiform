@@ -46,7 +46,7 @@ public class AdminExportControllerTest extends ResetPostgres {
     Result result = controller.index(addCSRFToken(fakeRequest()).build());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
-    assertThat(contentAsString(result)).contains("not enabled");
+    assertThat(contentAsString(result)).contains("export is not enabled");
   }
 
   @Test
@@ -72,7 +72,7 @@ public class AdminExportControllerTest extends ResetPostgres {
     Result result = controller.exportProgram(addCSRFToken(fakeRequest()).build());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
-    assertThat(contentAsString(result)).contains("not enabled");
+    assertThat(contentAsString(result)).contains("export is not enabled");
   }
 
   @Test
