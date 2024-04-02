@@ -22,6 +22,7 @@ import java.util.Collections;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
@@ -43,6 +44,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     controller =
         new AdminImportController(
             instanceOf(AdminImportView.class),
+            instanceOf(MessagesApi.class),
             instanceOf(ProfileUtils.class),
             mockSettingsManifest,
             instanceOf(VersionRepository.class));
