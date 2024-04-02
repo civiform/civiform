@@ -24,7 +24,6 @@ import {
 } from './config'
 import {AdminQuestions} from './admin_questions'
 import {AdminPrograms} from './admin_programs'
-import {AdminApiKeys} from './admin_api_keys'
 import {AdminProgramStatuses} from './admin_program_statuses'
 import {ApplicantFileQuestion} from './applicant_file_question'
 import {ApplicantQuestions} from './applicant_questions'
@@ -35,7 +34,6 @@ import {TIDashboard} from './ti_dashboard'
 import {AdminTIGroups} from './admin_ti_groups'
 import {BrowserErrorWatcher} from './browser_error_watcher'
 
-export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
 export {AdminPredicates} from './admin_predicates'
 export {AdminPrograms} from './admin_programs'
@@ -155,7 +153,6 @@ export interface TestContext {
 
   adminQuestions: AdminQuestions
   adminPrograms: AdminPrograms
-  adminApiKeys: AdminApiKeys
   adminProgramStatuses: AdminProgramStatuses
   applicantFileQuestion: ApplicantFileQuestion
   applicantQuestions: ApplicantQuestions
@@ -258,7 +255,6 @@ export async function resetContext(ctx: TestContext) {
   ctx.page.setDefaultTimeout(8000)
   ctx.adminQuestions = new AdminQuestions(ctx.page)
   ctx.adminPrograms = new AdminPrograms(ctx.page)
-  ctx.adminApiKeys = new AdminApiKeys(ctx.page)
   ctx.adminProgramStatuses = new AdminProgramStatuses(ctx.page)
   ctx.applicantQuestions = new ApplicantQuestions(ctx.page)
   ctx.adminPredicates = new AdminPredicates(ctx.page)

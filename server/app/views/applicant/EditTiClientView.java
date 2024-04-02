@@ -3,7 +3,6 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.hr;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -60,10 +59,11 @@ public class EditTiClientView extends BaseHtmlView {
       Messages messages,
       Optional<Long> accountIdToEdit,
       Long applicantIdOfTi,
-      Optional<Form<TiClientInfoForm>> tiClientInfoForm) {
+      Optional<Form<TiClientInfoForm>> tiClientInfoForm,
+      Long applicantIdOfNewlyAddedClient) {
     Optional<AccountModel> optionalAccountModel = Optional.empty();
     String title = messages.at(MessageKey.TITLE_CREATE_CLIENT.getKeyName());
-    String pageHeader = "Add client";
+    String pageHeader = messages.at(MessageKey.TITLE_CREATE_CLIENT.getKeyName());
     String pageId = "add-client";
     Optional<String> optionalSuccessMessage =
         Optional.ofNullable(messages.at(MessageKey.BANNER_NEW_CLIENT_CREATED.getKeyName()));
@@ -74,29 +74,87 @@ public class EditTiClientView extends BaseHtmlView {
     if (accountIdToEdit.isPresent()) {
       optionalAccountModel =
           Optional.of(accountRepository.lookupAccount(accountIdToEdit.get()).get());
-      title = "Edit client information";
-      pageHeader = "Edit client";
+      title = messages.at(MessageKey.TITLE_EDIT_CLIENT.getKeyName());
+      pageHeader = messages.at(MessageKey.TITLE_EDIT_CLIENT.getKeyName());
       pageId = "edit-client";
       successToast = messages.at(MessageKey.BANNER_CLIENT_INFO_UPDATED.getKeyName());
       optionalSuccessMessage = Optional.empty();
     }
     boolean isSuccessfulSave = tiClientInfoForm.isPresent() && !tiClientInfoForm.get().hasErrors();
-    HtmlBundle bundle =
+    HtmlBundle bundle;
+    bundle =
         layout
             .getBundle(request)
             .setTitle(title)
             .addMainContent(
                 renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
-                hr(),
-                renderSubHeader(pageHeader).withId(pageId).withClass("my-4"),
+                renderSubHeader(pageHeader).withId(pageId).withClasses("mt-4", "mb-8"),
                 renderBackLink(),
                 renderSuccessAlert(isSuccessfulSave, successToast, optionalSuccessMessage),
-                requiredFieldsExplanationContent(),
-                renderAddOrEditClientForm(
-                    tiGroup, optionalAccountModel, request, tiClientInfoForm, messages))
+                renderMainContent(
+                    isSuccessfulSave,
+                    applicantIdOfNewlyAddedClient,
+                    messages,
+                    tiGroup,
+                    optionalAccountModel,
+                    request,
+                    tiClientInfoForm))
             .addMainStyles("px-20", "max-w-screen-xl");
 
     return layout.renderWithNav(request, personalInfo, messages, bundle, applicantIdOfTi);
+  }
+
+  private DivTag renderMainContent(
+      boolean isSuccessfulSave,
+      Long applicantIdOfNewlyAddedClient,
+      Messages messages,
+      TrustedIntermediaryGroupModel tiGroup,
+      Optional<AccountModel> optionalAccountModel,
+      Http.Request request,
+      Optional<Form<TiClientInfoForm>> tiClientInfoForm) {
+    boolean isSaved = isSuccessfulSave && (applicantIdOfNewlyAddedClient != null);
+    if (isSaved)
+      return div()
+          .with(
+              renderApplicationsStartButton(applicantIdOfNewlyAddedClient, messages),
+              renderBackToClientListButton(messages));
+    else {
+      return div()
+          .with(
+              requiredFieldsExplanationContent(),
+              renderAddOrEditClientForm(
+                  tiGroup, optionalAccountModel, request, tiClientInfoForm, messages));
+    }
+  }
+
+  private String getTiLink() {
+    return baseUrl
+        + controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                /* nameQuery= */ Optional.empty(),
+                /* dayQuery= */ Optional.empty(),
+                /* monthQuery= */ Optional.empty(),
+                /* yearQuery= */ Optional.empty(),
+                /* page= */ Optional.of(1))
+            .url();
+  }
+
+  private ATag renderBackToClientListButton(Messages messages) {
+    return new ATag()
+        .withClasses("usa-button usa-button--outline")
+        .withId("back-to-client-list")
+        .withHref(getTiLink())
+        .withText(messages.at(MessageKey.BUTTON_BACK_TO_CLIENT_LIST.getKeyName()));
+  }
+
+  private ATag renderApplicationsStartButton(Long applicantId, Messages messages) {
+    return new ATag()
+        .withClasses("usa-button")
+        .withId("applications-start-button")
+        .withText(messages.at(MessageKey.BUTTON_START_APP.getKeyName()))
+        .withHref(
+            controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
+                    applicantId)
+                .url());
   }
 
   private Tag renderSuccessAlert(
@@ -109,18 +167,11 @@ public class EditTiClientView extends BaseHtmlView {
   }
 
   private ATag renderBackLink() {
-    String tiDashLink =
-        baseUrl
-            + controllers.ti.routes.TrustedIntermediaryController.dashboard(
-                    /* nameQuery= */ Optional.empty(),
-                    /* dayQuery= */ Optional.empty(),
-                    /* monthQuery= */ Optional.empty(),
-                    /* yearQuery= */ Optional.empty(),
-                    /* page= */ Optional.of(1))
-                .url();
     LinkElement link =
         new LinkElement()
-            .setHref(tiDashLink)
+            .setStyles("underline")
+            .setHref(getTiLink())
+            .setIcon(Icons.ARROW_LEFT, LinkElement.IconPosition.START)
             .setText("Back to client list")
             .setId("ti-dashboard-link");
     return link.asAnchorText();
@@ -195,7 +246,7 @@ public class EditTiClientView extends BaseHtmlView {
                 .setAttribute("inputmode", "tel")
                 .setFieldName("phoneNumber")
                 .setLabelText(
-                    messages.at(MessageKey.PHONE_LABEL_PHONE_NUMBER.getKeyName())
+                    messages.at(MessageKey.PHONE_NUMBER_LABEL.getKeyName())
                         + " "
                         + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
                 .setValue(setDefaultPhone(optionalApplicantData)),
@@ -267,9 +318,13 @@ public class EditTiClientView extends BaseHtmlView {
                     dateOfBirthField.getDateTag(),
                     tiNoteField.getTextareaTag(),
                     makeCsrfTokenInputTag(request),
-                    submitButton("Save").withClasses("ml-2", "mb-6"),
-                    asRedirectElement(button("Cancel").withClasses("m-2"), cancelUrl))
-                .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6"));
+                    submitButton(messages.at(MessageKey.BUTTON_SAVE.getKeyName()))
+                        .withClasses("usa-button"),
+                    asRedirectElement(
+                        button(messages.at(MessageKey.BUTTON_CANCEL.getKeyName()))
+                            .withClasses("usa-button usa-button--outline", "m-2"),
+                        cancelUrl))
+                .withClasses("w-1/2", "mt-6"));
   }
 
   private String getDefaultDob(Optional<ApplicantData> optionalApplicantData) {

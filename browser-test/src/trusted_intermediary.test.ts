@@ -51,7 +51,7 @@ test.describe('Trusted intermediaries', () => {
   })
 
   test('verify success toast screenshot on adding new client', async () => {
-    const {page, tiDashboard} = ctx
+    const {page, tiDashboard, applicantQuestions} = ctx
     await loginAsTrustedIntermediary(page)
 
     await tiDashboard.gotoTIDashboardPage(page)
@@ -80,6 +80,8 @@ test.describe('Trusted intermediaries', () => {
     await waitForPageJsLoad(page)
     await tiDashboard.expectSuccessAlertOnAddNewClient()
     await validateScreenshot(page, 'verify-success-toast-on-new-client')
+    await page.getByRole('link', {name: 'Start an application'}).click()
+    await applicantQuestions.expectProgramsPage()
   })
 
   test('expect client cannot be added with invalid date of birth', async () => {
@@ -403,7 +405,7 @@ test.describe('Trusted intermediaries', () => {
     expect(content).toContain('Email (optional)')
     expect(content).toContain('Notes (optional)')
     expect(content).toContain('Middle name (optional)')
-    expect(content).toContain('Enter phone number (optional)')
+    expect(content).toContain('Phone number (optional)')
     expect(await page.textContent('html')).toContain(
       'Fields marked with a * are required.',
     )
