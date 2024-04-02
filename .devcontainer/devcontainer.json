@@ -2,7 +2,7 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-dockerfile
 {
   "name": "Codespace setup",
-  "build": { "dockerfile": "Dockerfile" },
+  "build": {"dockerfile": "Dockerfile"},
 
   // For details, see https://containers.dev/implementors/json_reference/#min-host-reqs
   "hostRequirements": {
