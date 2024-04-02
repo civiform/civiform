@@ -27,6 +27,22 @@
     @apply bg-blue-600 border border-transparent text-white font-bold py-2 px-4 rounded;
   }
 
+  /* TODO: Remove these extra USWDS button styles once all our buttons use USWDS classes.
+    Right now, the general button styles above interfere with the USWDS button styles, so
+    we have to override them explicitly here. */
+  .usa-button {
+    @apply py-3 px-5;
+  }
+
+  .usa-button:not(.usa-button--outline) {
+    background-color: #005ea2;
+  }
+
+  .usa-button.usa-button--outline {
+    background-color: transparent;
+    color: #005ea2;
+  }
+
   button:hover {
     @apply bg-blue-700;
   }

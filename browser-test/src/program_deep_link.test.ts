@@ -7,7 +7,7 @@ import {
   validateScreenshot,
 } from './support'
 
-test.describe('navigating to a deep link', () => {
+test.describe('navigating to a deep link', {tag: ['@uses-fixtures']}, () => {
   const questionText = 'What is your address?'
 
   test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {

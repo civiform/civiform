@@ -253,3 +253,6 @@ GET     /dev/profile                   controllers.dev.ProfileController.index(r
 
 ## Prometheus metrics export
 GET     /metrics          controllers.monitoring.MetricsController.getMetrics()
+
+# Nothing to see here
+GET     /teapot           controllers.HomeController.teapot()

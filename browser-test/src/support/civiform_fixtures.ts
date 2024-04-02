@@ -1,6 +1,5 @@
 import {test as base} from '@playwright/test'
 import {
-  AdminApiKeys,
   AdminPrograms,
   AdminQuestions,
   AdminProgramStatuses,
@@ -12,7 +11,9 @@ import {
   TIDashboard,
   AdminTIGroups,
   waitForPageJsLoad,
+  AdminSettings,
 } from '.'
+import {AdminApiKeys} from './admin_api_keys'
 
 type CiviformFixtures = {
   adminApiKeys: AdminApiKeys
@@ -23,6 +24,7 @@ type CiviformFixtures = {
   adminPredicates: AdminPredicates
   adminTranslations: AdminTranslations
   adminProgramImage: AdminProgramImage
+  adminSettings: AdminSettings
   applicantFileQuestion: ApplicantFileQuestion
   tiDashboard: TIDashboard
   adminTiGroups: AdminTIGroups
@@ -59,6 +61,10 @@ export const test = base.extend<CiviformFixtures>({
 
   adminProgramImage: async ({page}, use) => {
     await use(new AdminProgramImage(page))
+  },
+
+  adminSettings: async ({page}, use) => {
+    await use(new AdminSettings(page))
   },
 
   applicantFileQuestion: async ({page}, use) => {

@@ -3,7 +3,6 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.hr;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -64,7 +63,7 @@ public class EditTiClientView extends BaseHtmlView {
       Long applicantIdOfNewlyAddedClient) {
     Optional<AccountModel> optionalAccountModel = Optional.empty();
     String title = messages.at(MessageKey.TITLE_CREATE_CLIENT.getKeyName());
-    String pageHeader = "Add client";
+    String pageHeader = messages.at(MessageKey.TITLE_CREATE_CLIENT.getKeyName());
     String pageId = "add-client";
     Optional<String> optionalSuccessMessage =
         Optional.ofNullable(messages.at(MessageKey.BANNER_NEW_CLIENT_CREATED.getKeyName()));
@@ -75,8 +74,8 @@ public class EditTiClientView extends BaseHtmlView {
     if (accountIdToEdit.isPresent()) {
       optionalAccountModel =
           Optional.of(accountRepository.lookupAccount(accountIdToEdit.get()).get());
-      title = "Edit client information";
-      pageHeader = "Edit client";
+      title = messages.at(MessageKey.TITLE_EDIT_CLIENT.getKeyName());
+      pageHeader = messages.at(MessageKey.TITLE_EDIT_CLIENT.getKeyName());
       pageId = "edit-client";
       successToast = messages.at(MessageKey.BANNER_CLIENT_INFO_UPDATED.getKeyName());
       optionalSuccessMessage = Optional.empty();
@@ -89,8 +88,7 @@ public class EditTiClientView extends BaseHtmlView {
             .setTitle(title)
             .addMainContent(
                 renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
-                hr(),
-                renderSubHeader(pageHeader).withId(pageId).withClass("my-4"),
+                renderSubHeader(pageHeader).withId(pageId).withClasses("mt-4", "mb-8"),
                 renderBackLink(),
                 renderSuccessAlert(isSuccessfulSave, successToast, optionalSuccessMessage),
                 renderMainContent(
@@ -248,7 +246,7 @@ public class EditTiClientView extends BaseHtmlView {
                 .setAttribute("inputmode", "tel")
                 .setFieldName("phoneNumber")
                 .setLabelText(
-                    messages.at(MessageKey.PHONE_LABEL_PHONE_NUMBER.getKeyName())
+                    messages.at(MessageKey.PHONE_NUMBER_LABEL.getKeyName())
                         + " "
                         + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
                 .setValue(setDefaultPhone(optionalApplicantData)),
@@ -320,9 +318,13 @@ public class EditTiClientView extends BaseHtmlView {
                     dateOfBirthField.getDateTag(),
                     tiNoteField.getTextareaTag(),
                     makeCsrfTokenInputTag(request),
-                    submitButton("Save").withClasses("ml-2", "mb-6"),
-                    asRedirectElement(button("Cancel").withClasses("m-2"), cancelUrl))
-                .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6"));
+                    submitButton(messages.at(MessageKey.BUTTON_SAVE.getKeyName()))
+                        .withClasses("usa-button"),
+                    asRedirectElement(
+                        button(messages.at(MessageKey.BUTTON_CANCEL.getKeyName()))
+                            .withClasses("usa-button usa-button--outline", "m-2"),
+                        cancelUrl))
+                .withClasses("w-1/2", "mt-6"));
   }
 
   private String getDefaultDob(Optional<ApplicantData> optionalApplicantData) {

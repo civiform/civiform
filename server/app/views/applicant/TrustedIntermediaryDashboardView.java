@@ -178,7 +178,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         .withClass("ml-6"),
                     makeCsrfTokenInputTag(request),
                     div(submitButton(messages.at(MessageKey.BUTTON_SEARCH.getKeyName()))
-                            .withClasses("ml-6", "h-11"))
+                            .withClasses("usa-button", "ml-6", "h-11"))
                         .withClasses("flex", "flex-col", "justify-end"))
                 .withClasses("flex", "my-6"))
         .with(
