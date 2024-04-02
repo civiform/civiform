@@ -213,7 +213,7 @@ label.nameExample=例如：王、小明或王小明
 # Label above the text input field for notes about a client.
 label.notes=附註
 # Label above the phone number input field when creating or editing a client.
-label.phoneNum=電話號碼
+label.phoneNum=Phone number
 # The label above the Date of Birth search input for the client search.
 label.searchByDob=依出生日期搜尋
 # The label above the name search field of the client search.
