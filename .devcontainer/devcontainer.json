@@ -16,14 +16,14 @@
     "ghcr.io/devcontainers/features/sshd:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/devcontainers/features/java:1.4.1": {
-			"version": "11",
-			"jdkDistro": "tem",
+      "version": "11",
+      "jdkDistro": "tem",
       "installMaven": "true",
       "installGradle": "false"
     },
     "ghcr.io/devcontainers-contrib/features/ant-sdkman:2": {
-			"jdkVersion": "11",
-			"jdkDistro": "tem"
+      "jdkVersion": "11",
+      "jdkDistro": "tem"
     },
     "ghcr.io/devcontainers/features/node:1": {}
   },
