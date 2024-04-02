@@ -405,7 +405,7 @@ test.describe('Trusted intermediaries', () => {
     expect(content).toContain('Email (optional)')
     expect(content).toContain('Notes (optional)')
     expect(content).toContain('Middle name (optional)')
-    expect(content).toContain('Enter phone number (optional)')
+    expect(content).toContain('Phone number (optional)')
     expect(await page.textContent('html')).toContain(
       'Fields marked with a * are required.',
     )
