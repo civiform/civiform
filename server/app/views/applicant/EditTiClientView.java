@@ -310,13 +310,13 @@ public class EditTiClientView extends BaseHtmlView {
         .with(
             formTag
                 .with(
-                    firstNameField.getInputTag(),
-                    middleNameField.getInputTag(),
-                    lastNameField.getInputTag(),
-                    phoneNumberField.getInputTag(),
-                    emailField.getEmailTag(),
-                    dateOfBirthField.getDateTag(),
-                    tiNoteField.getTextareaTag(),
+                    firstNameField.getUSWDSInputTag(),
+                    middleNameField.getUSWDSInputTag(),
+                    lastNameField.getUSWDSInputTag(),
+                    phoneNumberField.getUSWDSInputTag(),
+                    emailField.getUSWDSInputTag(),
+                    dateOfBirthField.getUSWDSInputTag(),
+                    tiNoteField.getUSWDSTextareaTag(),
                     makeCsrfTokenInputTag(request),
                     submitButton(messages.at(MessageKey.BUTTON_SAVE.getKeyName()))
                         .withClasses("usa-button"),
