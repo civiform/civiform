@@ -126,7 +126,7 @@ banner.clientAcctDeleted=Matagumpay na na-delete ang account ng kliyente para sa
 # Message when a user successfully creates a client account.
 banner.newClientCreated=Matagumpay na nakagawa ng bagong kliyente.
 # Banner at the top of the page with the name of the client substituted in when viewing an application.
-banner.viewApplication=You are applying for {0}. Are you trying to apply for a different client?
+banner.viewApplication=Nag-a-apply ka para sa {0}. Sinusubukan mo bang mag-apply para sa ibang kliyente?
 
 
 # Button that allows a user to add a client to the CiviForm system.
@@ -156,20 +156,20 @@ button.startApp=Magsimula ng application
 # Button to view the applications belonging to an applicant.
 button.viewApplications=Tingnan ang mga application
 # Button to view and add clients
-button.viewAndAddClients=View and add clients
+button.viewAndAddClients=Tumingin at magdagdag ng mga kliyente
 
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=Naidagdag na sa listahan ng kliyente mo ang iyong bagong kliyenteng si {0}. Puwede ka nang magsimulang magsumite ng mga application para sa kliyenteng ito.
 # The tooltip of the email input field.
-content.emailTooltip=Add an email address for your client to receive status updates about their application automatically. Without an email, you or your community-based organization will be responsible for communicating updates to your client.
+content.emailTooltip=Magdagdag ng email address para awtomatikong makatanggap ang iyong kliyente ng mga update sa status kaugnay ng kanyang aplikasyon. Kapag walang email, ikaw o ang iyong organisasyong nakabatay sa komunidad ang responsable sa pagbibigay-alam ng mga update sa iyong kliyente.
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted={0} (na) application ang naisumite
 # Shows that a single application has been submitted on behalf of the client.
-content.oneAppSubmitted=1 application submitted
+content.oneAppSubmitted=1 aplikasyon ang naisumite
 # Some explanation text on the confirmation modal when deleting a client.
 content.warning=Walang application na naisumite para sa kliyenteng ito, kaya walang mawawalang application.
 # Shows there is no email address connected to the account.
-content.noEmailAddress=(no email address)
+content.noEmailAddress=(walang email address)
 # The status of an organization member when they have been enrolled but have never logged into CiviForm.
 content.notLoggedIn=Not yet logged in
 # The status of an organization member when they have logged in but haven't applied on behalf of a client.
@@ -187,7 +187,7 @@ header.clientList=Listahan ng kliyente
 header.search=Search
 
 # A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
-label.acctStatus=Account status
+label.acctStatus=Status ng account
 # Label above the phone number for each client on the client list.
 label.contactInfo=Impormasyon sa Pakikipag-ugnayan
 # The label above the input field for the day of the client birth date. i.e. 12 for November 12
@@ -199,11 +199,11 @@ label.dobExample=Halimbawa: Enero 28, 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=Email
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=Error: Date of birth required
+label.errorDOB=Error: Kinakailangan ang petsa ng kapanganakan
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=Error: First name required
+label.errorFirstName=Error: Kinakailangan ang pangalan
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=Error: Last name required
+label.errorLastName=Error: Kinakailangan ang apelyido
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Buwan
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -221,11 +221,11 @@ label.searchByName=Maghanap ayon sa (mga) pangalan
 # The label above the input field for the year of the client birth date.
 label.year=Taon
 # Label showing the user when there is no name
-label.unnamedUser=Unnamed user
+label.unnamedUser=Walang pangalang user
 
 link.edit=I-edit
 # Link to change the client that the trusted intermediary is applying for.
-link.selectNewClient=Select a new client
+link.selectNewClient=Pumili ng bagong kliyente
 
 # This is the header above the list of clients and the client search.
 title.allClients=All clients
