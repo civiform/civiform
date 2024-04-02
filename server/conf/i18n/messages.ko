@@ -213,7 +213,7 @@ label.nameExample=예: 김 또는 영수 또는 김영수
 # Label above the text input field for notes about a client.
 label.notes=메모
 # Label above the phone number input field when creating or editing a client.
-label.phoneNum=Phone number
+label.phoneNum=전화번호
 # The label above the Date of Birth search input for the client search.
 label.searchByDob=생일로 검색
 # The label above the name search field of the client search.
@@ -228,7 +228,7 @@ link.edit=편집
 link.selectNewClient=새 고객 선택
 
 # This is the header above the list of clients and the client search.
-title.allClients=All clients
+title.allClients=모든 클라이언트
 # This is the heading above a new client creation form.
 title.createClient=새 클라이언트 만들기
 # This is the heading above the client editing form.

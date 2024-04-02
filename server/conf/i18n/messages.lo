@@ -213,7 +213,7 @@ label.nameExample=ຕົວຢ່າງ: Gu ຫຼື Darren ຫຼື Darren Gu
 # Label above the text input field for notes about a client.
 label.notes=ໝາຍເຫດ
 # Label above the phone number input field when creating or editing a client.
-label.phoneNum=Phone number
+label.phoneNum=ເບີໂທລະສັບ
 # The label above the Date of Birth search input for the client search.
 label.searchByDob=ຊອກຫາຕາມວັນເດືອນປີເກີດ
 # The label above the name search field of the client search.
@@ -228,7 +228,7 @@ link.edit=ແກ້ໄຂ
 link.selectNewClient=ເລືອກລູກຂ່າຍຄົນໃໝ່
 
 # This is the header above the list of clients and the client search.
-title.allClients=All clients
+title.allClients=ລູກຂ່າຍທຸກຄົນ
 # This is the heading above a new client creation form.
 title.createClient=ສ້າງລູກຂ່າຍໃໝ່
 # This is the heading above the client editing form.
