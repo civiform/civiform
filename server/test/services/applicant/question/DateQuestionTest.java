@@ -18,6 +18,7 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionAnswerer;
 import services.question.types.DateQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
@@ -87,5 +88,30 @@ public class DateQuestionTest extends ResetPostgres {
                     ValidationErrorMessage.create(
                         MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT))));
     assertThat(dateQuestion.getDateValue().isPresent()).isFalse();
+  }
+
+  @Test
+  public void getDateValue_returnsPAIValueWhenTagged() {
+    DateQuestionDefinition dateQuestionDefinitionWithPAI =
+        new DateQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("question name")
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                .setId(OptionalLong.of(1))
+                .setLastModifiedTime(Optional.empty())
+                // Tag the question as a PAI question
+                .setPrimaryApplicantInfoTags(ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_DOB))
+                .build());
+
+    // Save applicant's dob to the PAI column
+    applicant.setDateOfBirth("2001-01-01");
+
+    DateQuestion dateQuestion =
+        new ApplicantQuestion(dateQuestionDefinitionWithPAI, applicantData, Optional.empty())
+            .createDateQuestion();
+
+    assertThat(dateQuestion.getDateValue().get()).isEqualTo(applicant.getDateOfBirth().get());
   }
 }
