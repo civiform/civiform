@@ -545,7 +545,7 @@ public class FieldWithLabel {
     }
   }
 
-  private LabelTag genLabelTag() {
+  private LabelTag genLabelTag(boolean isUSWDS) {
     if (toolTipText.isPresent() ^ toolTipIcon.isPresent()) {
       throw new RuntimeException("Tool tip text and icon must both be defined");
     }
@@ -558,15 +558,15 @@ public class FieldWithLabel {
         .withFor(this.id)
         // If the text is screen-reader text, then we want the label to be screen-reader
         // only.
-        .withClass(labelText.isEmpty() ? "sr-only" : BaseStyles.INPUT_LABEL)
+        .withClass(
+            labelText.isEmpty() ? "sr-only" : (isUSWDS ? "usa-label mt-0" : BaseStyles.INPUT_LABEL))
         .withText(text)
         .condWith(required, ViewUtils.requiredQuestionIndicator())
         // The DomContent is evaluated even if the condition is false, so provide
         // some defaults we will never use.
         .condWith(
             toolTipText.isPresent(),
-            span(ViewUtils.makeSvgToolTip(toolTipText.orElse(""), toolTipIcon.orElse(Icons.INFO))))
-        .withCondClass(toolTipText.isPresent(), "block");
+            span(ViewUtils.makeSvgToolTip(toolTipText.orElse(""), toolTipIcon.orElse(Icons.INFO))));
   }
 
   private DivTag buildBaseContainer(Tag fieldTag, Tag labelTag, String fieldErrorsId) {
@@ -696,7 +696,7 @@ public class FieldWithLabel {
     generalApplyAttrsToTag(fieldTag);
     generalApplyClassesToTag(fieldTag);
 
-    LabelTag labelTag = genLabelTag();
+    LabelTag labelTag = genLabelTag(false);
     // Generate label / container
     return buildBaseContainer(fieldTag, labelTag, fieldErrorsInfo.fieldErrorsId);
   }
@@ -717,7 +717,7 @@ public class FieldWithLabel {
     generalApplyAttrsToTag(fieldTag);
     fieldTag.withClasses(getUSWDSFieldClasses(fieldTag));
 
-    LabelTag labelTag = genLabelTag();
+    LabelTag labelTag = genLabelTag(true);
     // Generate label / container
     return buildBaseContainer(fieldTag, labelTag, fieldErrorsInfo.fieldErrorsId);
   }
