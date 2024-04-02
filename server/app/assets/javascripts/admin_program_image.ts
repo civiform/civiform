@@ -69,8 +69,10 @@ class AdminProgramImage {
       ),
     )
     const fileTooLargeError = assertNotNull(
-      document.getElementById(AdminProgramImage.FILE_TOO_LARGE_ID),
-    ) as HTMLElement
+      document.getElementById(
+        AdminProgramImage.FILE_TOO_LARGE_ID,
+      ) as HTMLElement,
+    )
 
     if (imageInput.value == '') {
       // Prevent submission and hide the too-large error if no file is uploaded

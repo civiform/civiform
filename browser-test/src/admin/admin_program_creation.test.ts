@@ -7,7 +7,7 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
-import {ProgramVisibility} from '../support/admin_programs'
+import {Eligibility, ProgramVisibility} from '../support/admin_programs'
 import {dismissModal, waitForAnyModal} from '../support/wait'
 import {Page} from 'playwright'
 
@@ -28,6 +28,7 @@ test.describe('program creation', () => {
       /* isCommonIntake= */ false,
       'selectedTI',
       'confirmationMessage',
+      Eligibility.IS_GATING,
       /* submitNewProgram= */ false,
     )
     await adminPrograms.expectProgramDetailsSaveAndContinueButton()
@@ -53,6 +54,7 @@ test.describe('program creation', () => {
       /* isCommonIntake= */ false,
       'selectedTI',
       'confirmationMessage',
+      Eligibility.IS_GATING,
       /* submitNewProgram= */ false,
     )
 
@@ -714,6 +716,39 @@ test.describe('program creation', () => {
     }
   }
 
+  test('eligibility is gating selected by default', async () => {
+    const {page, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramDescriptionPage(programName)
+
+    await expect(adminPrograms.getEligibilityIsGatingInput()).toBeChecked()
+    await expect(
+      adminPrograms.getEligibilityIsNotGatingInput(),
+    ).not.toBeChecked()
+  })
+
+  test('can select eligibility is not gating', async () => {
+    const {page, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramDescriptionPage(programName)
+
+    await adminPrograms.chooseEligibility(Eligibility.IS_NOT_GATING)
+
+    await expect(adminPrograms.getEligibilityIsGatingInput()).not.toBeChecked()
+    await expect(adminPrograms.getEligibilityIsNotGatingInput()).toBeChecked()
+
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminPrograms.expectProgramBlockEditPage(programName)
+  })
+
   test('create common intake form with intake form feature enabled', async () => {
     const {page, adminPrograms} = ctx
 
@@ -737,8 +772,7 @@ test.describe('program creation', () => {
       'program-description-page-with-intake-form-true',
     )
     await expect(commonIntakeFormInput).toBeChecked()
-    await page.click('#program-update-button')
-    await waitForPageJsLoad(page)
+    await adminPrograms.submitProgramDetailsEdits()
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 

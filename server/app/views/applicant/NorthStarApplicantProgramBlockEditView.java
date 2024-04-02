@@ -7,6 +7,7 @@ import controllers.applicant.ApplicantRoutes;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
+import services.applicant.question.AddressQuestion;
 import views.ApplicationBaseViewParams;
 import views.html.helper.CSRF;
 
@@ -33,6 +34,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
         "reviewFormAction", getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicationParams", applicationParams);
+    // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
+    context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
     return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
   }
 

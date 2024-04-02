@@ -343,7 +343,6 @@ test.describe('End to end enumerator test', () => {
     await applicantQuestions.answerNameQuestion('Tweety', 'Bird')
     await applicantQuestions.clickNext()
     await applicantQuestions.clickReview()
-    await applicantQuestions.clickReviewWithoutSaving()
 
     // Review page should contain Daffy Duck and newly added Tweety Bird.
     expect(await page.innerText('#application-summary')).toContain('Porky Pig')
@@ -397,7 +396,6 @@ test.describe('End to end enumerator test', () => {
     // Check previous navigation works
     // Click previous and see number question
     await applicantQuestions.clickPrevious()
-    await applicantQuestions.clickPreviousWithoutSaving()
     await applicantQuestions.checkNumberQuestionValue('100')
 
     // Click previous and see enumerator question

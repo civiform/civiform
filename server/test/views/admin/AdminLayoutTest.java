@@ -1,8 +1,11 @@
 package views.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static play.test.Helpers.contentAsString;
+import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableList;
 import controllers.AssetsFinder;
@@ -12,18 +15,25 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import play.twirl.api.Content;
 import repository.ResetPostgres;
 import services.DeploymentType;
 import services.TranslationLocales;
 import services.settings.SettingsManifest;
+import views.HtmlBundle;
 import views.ViewUtils;
 
 public class AdminLayoutTest extends ResetPostgres {
+  private SettingsManifest settingsManifest;
   private TranslationLocales translationLocales;
   private AdminLayout adminLayout;
 
   @Before
   public void setUp() {
+    settingsManifest = mock(SettingsManifest.class);
+    when(settingsManifest.getCiviformImageTag()).thenReturn(Optional.of("fake-image-tag"));
+    when(settingsManifest.getFaviconUrl()).thenReturn(Optional.of("favicon-url"));
+
     translationLocales = mock(TranslationLocales.class);
     when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
 
@@ -31,10 +41,32 @@ public class AdminLayoutTest extends ResetPostgres {
         new AdminLayout(
             instanceOf(ViewUtils.class),
             AdminLayout.NavPage.PROGRAMS,
-            instanceOf(SettingsManifest.class),
+            settingsManifest,
             translationLocales,
             instanceOf(DeploymentType.class),
             instanceOf(AssetsFinder.class));
+  }
+
+  @Test
+  public void getBundle_programMigrationNotEnabled_noExportTabInNav() {
+    when(settingsManifest.getProgramMigrationEnabled(any())).thenReturn(false);
+
+    HtmlBundle bundle =
+        adminLayout.getBundle(new HtmlBundle(fakeRequest().build(), instanceOf(ViewUtils.class)));
+
+    Content content = bundle.render();
+    assertThat(contentAsString(content)).doesNotContain("Export");
+  }
+
+  @Test
+  public void getBundle_programMigrationEnabled_hasExportTabInNav() {
+    when(settingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    HtmlBundle bundle =
+        adminLayout.getBundle(new HtmlBundle(fakeRequest().build(), instanceOf(ViewUtils.class)));
+
+    Content content = bundle.render();
+    assertThat(contentAsString(content)).contains("Export");
   }
 
   @Test

@@ -9,18 +9,18 @@
   "devDependencies": {
     "@axe-core/playwright": "4.8.5",
     "@playwright/test": "1.42.1",
-    "@types/node": "20.11.28",
-    "@typescript-eslint/eslint-plugin": "7.2.0",
-    "@typescript-eslint/parser": "7.2.0",
-    "axe-core": "4.8.4",
-    "axios": "1.6.8",
+    "@types/node": "20.11.30",
+    "@typescript-eslint/eslint-plugin": "7.4.0",
+    "@typescript-eslint/parser": "7.4.0",
+    "axe-core": "4.9.0",
     "eslint": "8.57.0",
-    "glob": "10.3.10",
-    "eslint-plugin-playwright": "1.5.2",
+    "eslint-plugin-no-unsanitized": "^4.0.2",
+    "eslint-plugin-playwright": "1.5.4",
+    "glob": "10.3.12",
     "playwright": "1.42.1",
-    "sharp": "0.33.2",
+    "sharp": "0.33.3",
     "ts-node": "10.9.2",
     "ts-node-dev": "2.0.0",
-    "typescript": "5.4.2"
+    "typescript": "5.4.3"
   }
 }

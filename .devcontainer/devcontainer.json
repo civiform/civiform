@@ -1,0 +1,95 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-dockerfile
+{
+  "name": "Codespace setup",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+
+  // For details, see https://containers.dev/implementors/json_reference/#min-host-reqs
+  "hostRequirements": {
+    "memory": "6gb"
+  },
+
+  // Features to add to the dev container. More info: https://containers.dev/features.
+  "features": {
+    // Enable running docker in docker
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/sshd:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/java:1.4.1": {
+      "version": "none",
+      "installMaven": "true",
+      "installGradle": "false"
+    },
+    "ghcr.io/devcontainers-contrib/features/ant-sdkman:2": {},
+    "ghcr.io/devcontainers/features/node:1": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "files.watcherExclude": {
+          "**/target": true,
+          "**/.bloop": true,
+          "**/node_modules": true,
+          "**/__pycache__": true
+        },
+        "search.exclude": {
+          "*/target": true,
+          "**/.bloop": true,
+          "**/node_modules": true,
+          "**/__pycache__": true
+        },
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "java.compile.nullAnalysis.mode": "disabled"
+      },
+      "extensions": [
+        "bradlc.vscode-tailwindcss",
+        "dbaeumer.vscode-eslint",
+        "github.vscode-pull-request-github",
+        "hashicorp.terraform",
+        "ms-azuretools.vscode-docker",
+        "ms-ossdata.vscode-postgresql",
+        "ms-playwright.playwright",
+        "ms-vscode-remote.remote-containers",
+        "redhat.vscode-yaml",
+        "rvest.vs-code-prettier-eslint",
+        "scala-lang.scala",
+        "scalameta.metals",
+        "vscjava.vscode-java-pack",
+        "vscode-icons-team.vscode-icons",
+        "Graphite.gti-vscode"
+      ]
+    },
+    "launch": {
+      "version": "0.2.0",
+      "configurations": [
+        {
+          "type": "java",
+          "name": "Attach to Civiform Browser Tests",
+          "request": "attach",
+          "hostName": "localhost",
+          "port": "9457"
+        },
+        {
+          "type": "java",
+          "name": "Attach to Civiform Unit Tests",
+          "request": "attach",
+          "hostName": "localhost",
+          "port": "8459"
+        },
+        {
+          "type": "java",
+          "name": "Attach to Civiform Dev",
+          "request": "attach",
+          "hostName": "localhost",
+          "port": "8457"
+        }
+      ]
+    }
+  },
+
+  "onCreateCommand": "bin/vscode-setup",
+
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  "forwardPorts": [9000, 5432]
+}

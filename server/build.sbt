@@ -27,6 +27,7 @@ lazy val root = (project in file("."))
       "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.17.0",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.17.0",
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.0",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.17.0",
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
@@ -34,15 +35,15 @@ lazy val root = (project in file("."))
       "org.thymeleaf" % "thymeleaf" % "3.1.2.RELEASE",
       "org.commonmark" % "commonmark" % "0.22.0",
       "org.commonmark" % "commonmark-ext-autolink" % "0.22.0",
-      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20220608.1",
+      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.25.11",
-      "software.amazon.awssdk" % "ses" % "2.25.11",
+      "software.amazon.awssdk" % "s3" % "2.25.20",
+      "software.amazon.awssdk" % "ses" % "2.25.20",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.11.4",
-      "com.azure" % "azure-storage-blob" % "12.25.2",
+      "com.azure" % "azure-storage-blob" % "12.25.3",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.3",
@@ -95,7 +96,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.32",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.33",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.6",

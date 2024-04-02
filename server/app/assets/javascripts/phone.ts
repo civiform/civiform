@@ -26,7 +26,7 @@ export function init() {
     }
   })
 
-  const phoneElement = document.getElementById('edit-phone-number-input')
+  const phoneElement = document.getElementById('phone-number-input')
   if (phoneElement) {
     formatPhone(phoneElement)
   }

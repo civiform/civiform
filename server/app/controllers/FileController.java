@@ -27,19 +27,19 @@ import services.cloud.ApplicantStorageClient;
 public class FileController extends CiviFormController {
   private static final Logger logger = LoggerFactory.getLogger(FileController.class);
 
-  private final HttpExecutionContext httpExecutionContext;
+  private final HttpExecutionContext classLoaderExecutionContext;
   private final ApplicantStorageClient applicantStorageClient;
   private final StoredFileRepository storedFileRepository;
 
   @Inject
   public FileController(
-      HttpExecutionContext httpExecutionContext,
+      HttpExecutionContext classLoaderExecutionContext,
       StoredFileRepository storedFileRepository,
       ApplicantStorageClient applicantStorageClient,
       ProfileUtils profileUtils,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantStorageClient = checkNotNull(applicantStorageClient);
     this.storedFileRepository = checkNotNull(storedFileRepository);
   }
@@ -58,7 +58,7 @@ public class FileController extends CiviFormController {
               String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
               return redirect(applicantStorageClient.getPresignedUrlString(decodedFileKey));
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {

@@ -1,8 +1,16 @@
 {
   "root": true,
-  "extends": "../formatter/eslintrc_base.json",
+  "extends": [
+    "../formatter/eslintrc_base.json",
+    "plugin:playwright/recommended"
+  ],
   "rules": {
     "@typescript-eslint/no-non-null-assertion": "off", // this is test code.
+    // Browser tests probably won't directly set `.innerHTML`, but if they
+    // do have a reason to it's fine
+    "no-unsanitized/method": "off",
+    "no-unsanitized/property": "off",
+    // Playwright specific: off until we can clean it all up
     "playwright/expect-expect": "off",
     "playwright/no-wait-for-selector": "off",
     "playwright/no-element-handle": "off",
@@ -10,6 +18,7 @@
     "playwright/no-conditional-expect": "off",
     "playwright/no-wait-for-timeout": "off",
     "playwright/no-networkidle": "off",
+    "playwright/no-skipped-test": "off",
     "playwright/prefer-web-first-assertions": "off",
     "playwright/no-eval": "off",
     "playwright/valid-expect": "off"

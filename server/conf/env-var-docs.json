@@ -480,6 +480,11 @@
             "mode": "ADMIN_READABLE",
             "description": "The number of tries CiviForm will attempt requests to external Esri services.",
             "type": "int"
+          },
+          "ESRI_WELLKNOWN_ID_OVERRIDE": {
+            "mode": "ADMIN_READABLE",
+            "description": "Forces calls to Esri services to use the specified spatial reference wellKnownId value for the [coordinate system](https://developers.arcgis.com/rest/services-reference/enterprise/using-spatial-references.htm). If not set the default configuration from the Esri server is used. Setting this may be needed if using the results of the findAddressCandidates service return spatial references in a format different from one or more of the map query service endpoints.",
+            "type": "int"
           }
         }
       }
@@ -766,6 +771,11 @@
       "NORTH_STAR_APPLICANT_UI": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables showing new UI with an updated user experience in Applicant flows",
+        "type": "bool"
+      },
+      "PROGRAM_MIGRATION_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments",
         "type": "bool"
       }
     }

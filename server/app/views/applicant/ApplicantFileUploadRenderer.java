@@ -8,7 +8,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
-import static j2html.TagCreator.p;
+import static views.fileupload.FileUploadViewStrategy.createFileTooLargeError;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -29,6 +29,7 @@ import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.ApplicantFileNameFormatter;
+import services.cloud.ApplicantStorageClient;
 import services.cloud.StorageUploadRequest;
 import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
@@ -77,15 +78,18 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
 
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final ApplicantRoutes applicantRoutes;
+  private final ApplicantStorageClient applicantStorageClient;
   private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantFileUploadRenderer(
       FileUploadViewStrategy fileUploadViewStrategy,
       ApplicantRoutes applicantRoutes,
+      ApplicantStorageClient applicantStorageClient,
       SettingsManifest settingsManifest) {
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
     this.applicantRoutes = checkNotNull(applicantRoutes);
+    this.applicantStorageClient = checkNotNull(applicantStorageClient);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
@@ -109,31 +113,30 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
             .getFilename()
             .map(f -> params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName(), f));
 
-    DivTag result =
-        div()
-            .with(
-                div()
-                    .withText(uploaded.orElse(""))
-                    // adds INPUT_FILE_ALREADY_UPLOADED text to data attribute here so client side
-                    // can render the translated text if it gets added
-                    .attr(
-                        "data-upload-text",
-                        params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName()))
-                    .attr("aria-live", "polite"));
+    DivTag result = div();
     result.with(
         fileUploadViewStrategy.additionalFileUploadFormInputs(params.signedFileUploadRequest()));
     result.with(createFileInputFormElement(fileInputId, ariaDescribedByIds, hasErrors));
+    // TODO(#6804): Use HTMX to add these errors to the DOM only when they're needed.
     result.with(
         ViewUtils.makeAlertSlim(
-            fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()),
-            // file_upload.ts will un-hide this error if needed.
-            /* hidden= */ true,
-            /* classes...= */ BaseStyles.ALERT_ERROR,
-            ReferenceClasses.FILEUPLOAD_ERROR,
-            "mb-2"));
+                fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()),
+                // file_upload.ts will un-hide this error if needed.
+                /* hidden= */ true,
+                /* classes...= */ BaseStyles.ALERT_ERROR,
+                "mb-2")
+            .withId(ReferenceClasses.FILEUPLOAD_REQUIRED_ERROR_ID));
     result.with(
-        p(params.messages().at(MessageKey.MOBILE_FILE_UPLOAD_HELP.getKeyName()))
-            .withClasses("text-sm", "text-gray-600", "mb-2"));
+        createFileTooLargeError(applicantStorageClient.getFileLimitMb(), params.messages()));
+    result.with(
+        div()
+            .withText(uploaded.orElse(""))
+            // adds INPUT_FILE_ALREADY_UPLOADED text to data attribute here so client side
+            // can render the translated text if it gets added
+            .attr(
+                "data-upload-text",
+                params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName()))
+            .attr("aria-live", "polite"));
     return result;
   }
 
@@ -215,6 +218,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
         .withType("file")
         .withName("file")
         .withClass("hidden")
+        .attr("data-file-limit-mb", applicantStorageClient.getFileLimitMb())
         .withAccept(MIME_TYPES_IMAGES_AND_PDF);
   }
 

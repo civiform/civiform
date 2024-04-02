@@ -1,6 +1,7 @@
 import {test, expect} from '@playwright/test'
 import {
   createTestContext,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -14,19 +15,7 @@ test.describe('phone question for applicant flow', () => {
     const programName = 'Test program for single phone q'
 
     test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
-      // As admin, create program with a free form text question.
-      await loginAsAdmin(page)
-
-      await adminQuestions.addPhoneQuestion({
-        questionName: 'phone-q',
-      })
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['phone-q'],
-        programName,
-      )
-
-      await logout(page)
+      await setUpForSingleQuestion(programName)
     })
 
     test('validate screenshot', async () => {
@@ -243,4 +232,61 @@ test.describe('phone question for applicant flow', () => {
       )
     })
   })
+
+  test.describe(
+    'single phone question with North Star flag enabled',
+    {tag: ['@northstar']},
+    () => {
+      const programName = 'Test program for single phone q'
+
+      test.beforeAll(async () => {
+        await setUpForSingleQuestion(programName)
+      })
+
+      test.beforeEach(async () => {
+        const {page} = ctx
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+      })
+
+      test('validate screenshot', async () => {
+        const {page, applicantQuestions} = ctx
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('Screenshot without errors', async () => {
+          await validateScreenshot(
+            page,
+            'phone-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+
+        await test.step('Screenshot with errors', async () => {
+          await applicantQuestions.clickContinue()
+          await validateScreenshot(
+            page,
+            'phone-errors-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+      })
+    },
+  )
+
+  async function setUpForSingleQuestion(programName: string) {
+    const {page, adminQuestions, adminPrograms} = ctx
+    // As admin, create program with a free form text question.
+    await loginAsAdmin(page)
+
+    await adminQuestions.addPhoneQuestion({
+      questionName: 'phone-q',
+    })
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['phone-q'],
+      programName,
+    )
+
+    await logout(page)
+  }
 })

@@ -8,7 +8,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
-import com.typesafe.config.Config;
 import io.prometheus.client.Counter;
 import io.prometheus.client.Histogram;
 import java.time.Clock;
@@ -47,10 +46,7 @@ public abstract class EsriClient {
           .labelNames("type")
           .register();
 
-  public EsriClient(
-      Clock clock,
-      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
-      Optional<Config> maybeConfig) {
+  public EsriClient(Clock clock, EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
     this.clock = checkNotNull(clock);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
   }

@@ -197,6 +197,7 @@ public class ProgramModel extends BaseModel {
       ImmutableList<BlockDefinition> blockDefinitions,
       VersionModel associatedVersion,
       ProgramType programType,
+      boolean eligibilityIsGating,
       ProgramAcls programAcls) {
     this.name = adminName;
     this.description = adminDescription;
@@ -211,7 +212,7 @@ public class ProgramModel extends BaseModel {
     this.statusDefinitions = new StatusDefinitions();
     this.versions.add(associatedVersion);
     this.programType = programType;
-    this.eligibilityIsGating = true;
+    this.eligibilityIsGating = eligibilityIsGating;
     this.acls = programAcls;
   }
 

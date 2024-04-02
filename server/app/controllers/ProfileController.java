@@ -19,16 +19,16 @@ public class ProfileController extends Controller {
 
   private final ProfileView profileView;
   private final ProfileUtils profileUtils;
-  private final HttpExecutionContext httpExecutionContext;
+  private final HttpExecutionContext classLoaderExecutionContext;
 
   @Inject
   public ProfileController(
       ProfileUtils profileUtils,
       ProfileView profileView,
-      HttpExecutionContext httpExecutionContext) {
+      HttpExecutionContext classLoaderExecutionContext) {
     this.profileUtils = checkNotNull(profileUtils);
     this.profileView = checkNotNull(profileView);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
   }
 
   public CompletionStage<Result> myProfile(Http.Request request) {
@@ -43,7 +43,7 @@ public class ProfileController extends Controller {
         .getApplicant()
         .thenApplyAsync(
             applicant -> ok(profileView.render(request, maybeProfile.get(), applicant)),
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   public Result profilePage(Http.Request request, Long id) {

@@ -37,7 +37,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
   public static final String UNTIL_DATE_PARAM_NAME = "toDate";
   private final DateConverter dateConverter;
   private final ProgramService programService;
-  private final HttpExecutionContext httpContext;
+  private final HttpExecutionContext classLoaderExecutionContext;
   private final JsonExporterService jsonExporterService;
   private final int maxPageSize;
 
@@ -48,13 +48,13 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
       DateConverter dateConverter,
       ProfileUtils profileUtils,
       JsonExporterService jsonExporterService,
-      HttpExecutionContext httpContext,
+      HttpExecutionContext classLoaderExecutionContext,
       ProgramService programService,
       VersionRepository versionRepository,
       Config config) {
     super(apiPaginationTokenSerializer, apiPayloadWrapper, profileUtils, versionRepository);
     this.dateConverter = checkNotNull(dateConverter);
-    this.httpContext = checkNotNull(httpContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.jsonExporterService = checkNotNull(jsonExporterService);
     this.programService = checkNotNull(programService);
     this.maxPageSize = checkNotNull(config).getInt("civiform_api_applications_list_max_page_size");
@@ -118,7 +118,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
 
               return ok(responseJson).as("application/json");
             },
-            httpContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {

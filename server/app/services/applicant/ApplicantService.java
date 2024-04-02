@@ -112,7 +112,7 @@ public final class ApplicantService {
   private final Clock clock;
   private final String baseUrl;
   private final boolean isStaging;
-  private final HttpExecutionContext httpExecutionContext;
+  private final HttpExecutionContext classLoaderExecutionContext;
   private final String stagingProgramAdminNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
@@ -135,7 +135,7 @@ public final class ApplicantService {
       SimpleEmail amazonSESClient,
       Clock clock,
       Config configuration,
-      HttpExecutionContext httpExecutionContext,
+      HttpExecutionContext classLoaderExecutionContext,
       DeploymentType deploymentType,
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
@@ -151,7 +151,7 @@ public final class ApplicantService {
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.serviceAreaUpdateResolver = checkNotNull(serviceAreaUpdateResolver);
     this.messagesApi = checkNotNull(messagesApi);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -201,7 +201,7 @@ public final class ApplicantService {
                   programDefinition,
                   baseUrl);
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /** Get a {@link ReadOnlyApplicantProgramService} from an application. */
@@ -338,7 +338,7 @@ public final class ApplicantService {
                               updates,
                               serviceAreaUpdate);
                         },
-                        httpExecutionContext.current());
+                        classLoaderExecutionContext.current());
               }
 
               return stageAndUpdateIfValid(
@@ -349,7 +349,7 @@ public final class ApplicantService {
                   updates,
                   Optional.empty());
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .thenCompose(
             (v) ->
                 applicationRepository
@@ -392,7 +392,7 @@ public final class ApplicantService {
       return accountRepository
           .updateApplicant(applicant)
           .thenApplyAsync(
-              (finishedSaving) -> roApplicantProgramService, httpExecutionContext.current());
+              (finishedSaving) -> roApplicantProgramService, classLoaderExecutionContext.current());
     }
 
     return CompletableFuture.completedFuture(roApplicantProgramService);
@@ -414,7 +414,8 @@ public final class ApplicantService {
     if (submitterProfile.isTrustedIntermediary()) {
       return getReadOnlyApplicantProgramService(applicantId, programId)
           .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
-          .thenComposeAsync(v -> submitterProfile.getAccount(), httpExecutionContext.current())
+          .thenComposeAsync(
+              v -> submitterProfile.getAccount(), classLoaderExecutionContext.current())
           .thenComposeAsync(
               account ->
                   submitApplication(
@@ -422,7 +423,7 @@ public final class ApplicantService {
                       programId,
                       /* tiSubmitterEmail= */ Optional.of(account.getEmailAddress()),
                       request),
-              httpExecutionContext.current());
+              classLoaderExecutionContext.current());
     }
 
     return getReadOnlyApplicantProgramService(applicantId, programId)
@@ -548,7 +549,7 @@ public final class ApplicantService {
             .submitApplication(applicantId, programId, tiSubmitterEmail)
             .thenComposeAsync(
                 application -> savePrimaryApplicantInfoAnswers(application),
-                httpExecutionContext.current())
+                classLoaderExecutionContext.current())
             .toCompletableFuture();
     return CompletableFuture.allOf(applicantLabelFuture, applicationFuture)
         .thenComposeAsync(
@@ -577,7 +578,7 @@ public final class ApplicantService {
                   CompletableFuture.runAsync(
                       () ->
                           notifyProgramAdmins(applicantId, programId, application.id, programName),
-                      httpExecutionContext.current());
+                      classLoaderExecutionContext.current());
 
               CompletableFuture<Void> notifyTiSubmitterFuture =
                   tiSubmitterEmail
@@ -622,9 +623,10 @@ public final class ApplicantService {
                       notifyApplicantFuture,
                       notifyTiSubmitterFuture,
                       updateStoredFileAclsForSubmit(applicantId, programId).toCompletableFuture())
-                  .thenApplyAsync((ignoreVoid) -> application, httpExecutionContext.current());
+                  .thenApplyAsync(
+                      (ignoreVoid) -> application, classLoaderExecutionContext.current());
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   public Optional<ImmutableSet<String>> getApplicantEmails(
@@ -683,8 +685,10 @@ public final class ApplicantService {
     CompletableFuture<List<StoredFileModel>> storedFilesFuture =
         getReadOnlyApplicantProgramService(applicantId, programId)
             .thenApplyAsync(
-                ReadOnlyApplicantProgramService::getStoredFileKeys, httpExecutionContext.current())
-            .thenComposeAsync(storedFileRepository::lookupFiles, httpExecutionContext.current())
+                ReadOnlyApplicantProgramService::getStoredFileKeys,
+                classLoaderExecutionContext.current())
+            .thenComposeAsync(
+                storedFileRepository::lookupFiles, classLoaderExecutionContext.current())
             .toCompletableFuture();
 
     return CompletableFuture.allOf(programDefinitionCompletableFuture, storedFilesFuture)
@@ -703,7 +707,7 @@ public final class ApplicantService {
 
               return future;
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /**
@@ -806,7 +810,7 @@ public final class ApplicantService {
                 amazonSESClient.send(tiEmail, subject, message);
               }
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .toCompletableFuture();
   }
 
@@ -856,7 +860,7 @@ public final class ApplicantService {
             amazonSESClient.send(applicantEmail, subject, message);
           }
         },
-        httpExecutionContext.current());
+        classLoaderExecutionContext.current());
   }
 
   /**
@@ -912,7 +916,7 @@ public final class ApplicantService {
                 return ApplicantPersonalInfo.ofTiPartiallyCreated(builder.build());
               }
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /** Return the preferred locale of the given applicant id. */
@@ -922,7 +926,7 @@ public final class ApplicantService {
         .thenApplyAsync(
             applicant ->
                 applicant.map(ApplicantModel::getApplicantData).map(ApplicantData::preferredLocale),
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /** Return the preferred locale of the given TI email. */
@@ -940,7 +944,7 @@ public final class ApplicantService {
                   .map(ApplicantModel::getApplicantData)
                   .map(ApplicantData::preferredLocale);
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /**
@@ -1007,7 +1011,7 @@ public final class ApplicantService {
               return relevantProgramsForApplicantInternal(
                   activeProgramDefinitions, applications, allPrograms);
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /**
@@ -1038,7 +1042,7 @@ public final class ApplicantService {
                     .filter(programData -> programData.isProgramMaybeEligible().orElse(true))
                     .filter(programData -> !programData.program().isCommonIntakeForm())
                     .collect(ImmutableList.toImmutableList()),
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /**

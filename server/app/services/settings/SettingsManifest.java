@@ -578,6 +578,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getInt("ESRI_EXTERNAL_CALL_TRIES");
   }
 
+  /**
+   * Forces calls to Esri services to use the specified spatial reference wellKnownId value for the
+   * [coordinate
+   * system](https://developers.arcgis.com/rest/services-reference/enterprise/using-spatial-references.htm).
+   * If not set the default configuration from the Esri server is used. Setting this may be needed
+   * if using the results of the findAddressCandidates service return spatial references in a format
+   * different from one or more of the map query service endpoints.
+   */
+  public Optional<Integer> getEsriWellknownIdOverride() {
+    return getInt("ESRI_WELLKNOWN_ID_OVERRIDE");
+  }
+
   /** This email address is listed in the footer for applicants to contact support. */
   public Optional<String> getSupportEmailAddress(RequestHeader request) {
     return getString("SUPPORT_EMAIL_ADDRESS", request);
@@ -914,6 +926,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** Enables showing new UI with an updated user experience in Applicant flows */
   public boolean getNorthStarApplicantUi(RequestHeader request) {
     return getBool("NORTH_STAR_APPLICANT_UI", request);
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments */
+  public boolean getProgramMigrationEnabled(RequestHeader request) {
+    return getBool("PROGRAM_MIGRATION_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -1574,6 +1591,19 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   + " services.",
                               /* isRequired= */ false,
                               SettingType.INT,
+                              SettingMode.ADMIN_READABLE),
+                          SettingDescription.create(
+                              "ESRI_WELLKNOWN_ID_OVERRIDE",
+                              "Forces calls to Esri services to use the specified spatial reference"
+                                  + " wellKnownId value for the [coordinate"
+                                  + " system](https://developers.arcgis.com/rest/services-reference/enterprise/using-spatial-references.htm)."
+                                  + " If not set the default configuration from the Esri server is"
+                                  + " used. Setting this may be needed if using the results of the"
+                                  + " findAddressCandidates service return spatial references in a"
+                                  + " format different from one or more of the map query service"
+                                  + " endpoints.",
+                              /* isRequired= */ false,
+                              SettingType.INT,
                               SettingMode.ADMIN_READABLE)))),
               ImmutableList.of(
                   SettingDescription.create(
@@ -1891,6 +1921,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   SettingDescription.create(
                       "NORTH_STAR_APPLICANT_UI",
                       "Enables showing new UI with an updated user experience in Applicant flows",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "PROGRAM_MIGRATION_ENABLED",
+                      "(NOT FOR PRODUCTION USE) Enables migrating programs between deployed"
+                          + " environments",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),

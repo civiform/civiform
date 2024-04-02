@@ -1,6 +1,6 @@
 import {expect} from '@playwright/test'
 import {Page} from 'playwright'
-import {readFileSync} from 'fs'
+import {readFileSync, writeFileSync, unlinkSync} from 'fs'
 import {waitForAnyModal, waitForPageJsLoad} from './wait'
 import {BASE_URL} from './config'
 
@@ -94,6 +94,14 @@ export class ApplicantQuestions {
     })
   }
 
+  /** Creates a file with the given size in MB and uploads it to the file upload question. */
+  async answerFileUploadQuestionWithMbSize(mbSize: int) {
+    const filePath = 'file-size-' + mbSize + '-mb.txt'
+    writeFileSync(filePath, 'C'.repeat(mbSize * 1024 * 1024))
+    await this.page.setInputFiles('input[type=file]', filePath)
+    unlinkSync(filePath)
+  }
+
   async answerIdQuestion(id: string, index = 0) {
     await this.page.fill(`input[type="text"] >> nth=${index}`, id)
   }
@@ -170,6 +178,7 @@ export class ApplicantQuestions {
     await this.page.click(
       `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Answer")`,
     )
+    await waitForPageJsLoad(this.page)
   }
 
   /** On the review page, click "Edit" to change an answer to a previously answered question. */
@@ -177,6 +186,7 @@ export class ApplicantQuestions {
     await this.page.click(
       `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`,
     )
+    await waitForPageJsLoad(this.page)
   }
 
   async validateInputTypePresent(type: string) {
@@ -509,9 +519,14 @@ export class ApplicantQuestions {
     ).toEqual(0)
   }
 
-  async expectVerifyAddressPage(validAddress: boolean) {
-    const header = validAddress ? 'Verify address' : 'No valid address found'
-    expect(await this.page.innerText('h2')).toContain(header)
+  async expectVerifyAddressPage(hasAddressSuggestions: boolean) {
+    expect(await this.page.innerText('h2')).toContain('Confirm your address')
+    // Note: If there's only one suggestion, the heading will be "Suggested address"
+    // not "Suggested addresses". But, our browser setup always returns multiple
+    // suggestions so we can safely assert the heading is always "Suggested addresses".
+    await expect(
+      this.page.getByRole('heading', {name: 'Suggested addresses'}),
+    ).toBeVisible({visible: hasAddressSuggestions})
   }
 
   async expectAddressPage() {
@@ -559,8 +574,10 @@ export class ApplicantQuestions {
 
   async validateQuestionIsOnPage(questionText: string) {
     await expect(
-      this.page.locator('.cf-applicant-question-text'),
-    ).toContainText(questionText)
+      this.page
+        .locator('.cf-applicant-question-text')
+        .filter({hasText: questionText}),
+    ).toBeVisible()
   }
 
   async validatePreviouslyAnsweredText(questionText: string) {
@@ -583,6 +600,12 @@ export class ApplicantQuestions {
 
   async seeStaticQuestion(questionText: string) {
     expect(await this.page.textContent('html')).toContain(questionText)
+  }
+
+  async expectRequiredQuestionError(questionLocator: string) {
+    expect(await this.page.innerText(questionLocator)).toContain(
+      'This question is required',
+    )
   }
 
   async expectErrorOnReviewModal() {
