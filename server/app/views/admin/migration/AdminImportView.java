@@ -56,11 +56,11 @@ public class AdminImportView extends BaseHtmlView {
             .with(h1(title))
             .with(
                 p("This page allows you to import a program that exists in another environment"
-                      + " (like staging) and easily add the program to this environment.")
+                        + " (like staging) and easily add the program to this environment.")
                     .withClass("my-2"))
             .with(
                 p("First, open the other environment and use the \"Export\" tab to download a JSON"
-                      + " file that represents the existing program.")
+                        + " file that represents the existing program.")
                     .withClass("my-2"))
             .with(
                 p("Then, upload the JSON file here. The program information will be displayed"

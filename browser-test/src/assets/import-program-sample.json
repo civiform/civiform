@@ -1,26 +1,26 @@
 {
-  "commonIntakeForm" : false,
-  "id" : 32,
-  "adminName" : "email-program",
-  "adminDescription" : "",
-  "externalLink" : "",
-  "displayMode" : "HIDDEN_IN_INDEX",
-  "localizedName" : {
-    "translations" : {
-      "en_US" : "Email program"
+  "commonIntakeForm": false,
+  "id": 32,
+  "adminName": "email-program",
+  "adminDescription": "",
+  "externalLink": "",
+  "displayMode": "HIDDEN_IN_INDEX",
+  "localizedName": {
+    "translations": {
+      "en_US": "Email program"
     },
-    "isRequired" : true
+    "isRequired": true
   },
-  "localizedDescription" : {
-    "translations" : {
-      "en_US" : "email program"
+  "localizedDescription": {
+    "translations": {
+      "en_US": "email program"
     },
-    "isRequired" : true
+    "isRequired": true
   },
-  "localizedConfirmationMessage" : {
-    "translations" : {
-      "en_US" : ""
+  "localizedConfirmationMessage": {
+    "translations": {
+      "en_US": ""
     },
-    "isRequired" : true
+    "isRequired": true
   }
 }
