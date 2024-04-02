@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
-import com.typesafe.config.Config;
 import io.prometheus.client.Counter;
 import java.time.Clock;
 import java.util.Optional;
@@ -22,6 +21,7 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import services.AddressField;
 import services.geo.AddressLocation;
+import services.settings.SettingsManifest;
 
 /**
  * Provides methods for handling reqeusts to external Esri geo and map layer services for getting
@@ -36,6 +36,7 @@ import services.geo.AddressLocation;
  *     (Map Service/Layer)</a>
  */
 public final class RealEsriClient extends EsriClient implements WSBodyReadables, WSBodyWritables {
+  private final SettingsManifest settingsManifest;
   private final WSClient ws;
 
   private static final Counter ESRI_REQUEST_C0UNT =
@@ -52,27 +53,26 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
   // The service supports responses in JSON or PJSON format. You can specify the response format
   // using the f parameter. This is a required parameter
   private static final String ESRI_RESPONSE_FORMAT = "json";
+
   @VisibleForTesting Optional<String> ESRI_FIND_ADDRESS_CANDIDATES_URL;
   private int ESRI_EXTERNAL_CALL_TRIES;
+  private final Optional<Integer> ESRI_WELLKNOWN_ID_OVERRIDE;
 
   private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
   @Inject
   public RealEsriClient(
-      Config configuration,
+      SettingsManifest settingsManifest,
       Clock clock,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
       WSClient ws) {
-    super(clock, esriServiceAreaValidationConfig, Optional.of(configuration));
+    super(clock, esriServiceAreaValidationConfig);
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.ws = checkNotNull(ws);
-    this.ESRI_FIND_ADDRESS_CANDIDATES_URL =
-        configuration.hasPath("esri_find_address_candidates_url")
-            ? Optional.of(configuration.getString("esri_find_address_candidates_url"))
-            : Optional.empty();
-    this.ESRI_EXTERNAL_CALL_TRIES =
-        configuration.hasPath("esri_external_call_tries")
-            ? configuration.getInt("esri_external_call_tries")
-            : 3;
+
+    this.ESRI_FIND_ADDRESS_CANDIDATES_URL = settingsManifest.getEsriFindAddressCandidatesUrl();
+    this.ESRI_EXTERNAL_CALL_TRIES = settingsManifest.getEsriExternalCallTries().orElse(3);
+    this.ESRI_WELLKNOWN_ID_OVERRIDE = settingsManifest.getEsriWellknownIdOverride();
   }
 
   /** Retries failed requests up to the provided value */
@@ -108,6 +108,12 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
     request.addQueryParameter("outFields", ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS);
     // "f" stands for "format", options are json and pjson (PrettyJson)
     request.addQueryParameter("f", ESRI_RESPONSE_FORMAT);
+
+    // Override the spatial reference if provided
+    if (ESRI_WELLKNOWN_ID_OVERRIDE.isPresent()) {
+      request.addQueryParameter("outSR", ESRI_WELLKNOWN_ID_OVERRIDE.get().toString());
+    }
+
     // limit max locations to 3 to keep the size down, since CF stores the suggestions in the user
     // session
     request.addQueryParameter("maxLocations", "3");

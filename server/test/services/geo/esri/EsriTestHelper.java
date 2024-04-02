@@ -17,6 +17,7 @@ import play.libs.ws.WSClient;
 import play.routing.RoutingDsl;
 import play.server.Server;
 import services.geo.AddressLocation;
+import services.settings.SettingsManifest;
 
 public class EsriTestHelper {
   public static enum TestType {
@@ -33,6 +34,8 @@ public class EsriTestHelper {
 
   private static final Clock CLOCK = Clock.system(ZoneId.of("America/Los_Angeles"));
   private static final Config CONFIG = ConfigFactory.load();
+  private static final SettingsManifest SETTINGS_MANIFEST = new SettingsManifest(CONFIG);
+
   private static final EsriServiceAreaValidationConfig ESRI_SERVICE_AREA_VALIDATION_CONFIG =
       new EsriServiceAreaValidationConfig(CONFIG);
 
@@ -148,8 +151,9 @@ public class EsriTestHelper {
         throw new Exception("Unknown server type");
     }
     ws = play.test.WSTestClient.newClient(server.httpPort());
+
     RealEsriClient realClient =
-        new RealEsriClient(CONFIG, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, ws);
+        new RealEsriClient(SETTINGS_MANIFEST, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, ws);
     // overwrite to not include base URL so it uses the mock service
     realClient.ESRI_FIND_ADDRESS_CANDIDATES_URL = Optional.of("/findAddressCandidates");
     client = realClient;

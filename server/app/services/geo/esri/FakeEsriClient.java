@@ -32,7 +32,7 @@ public final class FakeEsriClient extends EsriClient {
   @Inject
   public FakeEsriClient(
       Clock clock, EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
-    super(clock, esriServiceAreaValidationConfig, Optional.empty());
+    super(clock, esriServiceAreaValidationConfig);
   }
 
   /**
