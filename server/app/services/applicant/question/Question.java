@@ -110,9 +110,8 @@ public abstract class Question {
         getAllPaths().stream().anyMatch(applicantQuestion.getApplicantData()::hasPath);
 
     // Filter to see if the applicant has data saved for any of the PAI tags on the question
-    // definition.
-    // If the returned set is NOT empty, then the applicant has data saved and the question is
-    // "answered"
+    // definition. If the returned set is NOT empty, then the applicant has data saved and the
+    // question is "answered"
     ImmutableSet<PrimaryApplicantInfoTag> tags =
         applicantQuestion.getQuestionDefinition().getPrimaryApplicantInfoTags();
     boolean isAnsweredWithPrimaryApplicantInfo =

@@ -55,7 +55,7 @@ public final class EmailQuestion extends Question {
         && applicantQuestion
             .getQuestionDefinition()
             .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_EMAIL)) {
-      emailValue = applicantData.getApplicant().getEmailAddress();
+      emailValue = applicantData.getApplicantEmail();
     }
 
     return emailValue;
