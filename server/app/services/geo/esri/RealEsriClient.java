@@ -36,7 +36,6 @@ import services.settings.SettingsManifest;
  *     (Map Service/Layer)</a>
  */
 public final class RealEsriClient extends EsriClient implements WSBodyReadables, WSBodyWritables {
-  private final SettingsManifest settingsManifest;
   private final WSClient ws;
 
   private static final Counter ESRI_REQUEST_C0UNT =
@@ -67,7 +66,7 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
       WSClient ws) {
     super(clock, esriServiceAreaValidationConfig);
-    this.settingsManifest = checkNotNull(settingsManifest);
+    checkNotNull(settingsManifest);
     this.ws = checkNotNull(ws);
 
     this.ESRI_FIND_ADDRESS_CANDIDATES_URL = settingsManifest.getEsriFindAddressCandidatesUrl();
