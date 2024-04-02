@@ -28,7 +28,7 @@ import views.fileupload.FileUploadViewStrategy;
 
 /**
  * A view allowing admins to import a JSON representation of a program and add that program to their
- * instance.
+ * environment.
  */
 public class AdminImportView extends BaseHtmlView {
   private final AdminLayout layout;
@@ -91,7 +91,7 @@ public class AdminImportView extends BaseHtmlView {
                 .withEnctype("multipart/form-data")
                 .withMethod("POST")
                 .with(makeCsrfTokenInputTag(request), fileUploadElement)
-                .with(submitButton("Import program").withClass(ButtonStyles.SOLID_BLUE))
+                .with(submitButton("Upload program").withClass(ButtonStyles.SOLID_BLUE))
                 .withAction(routes.AdminImportController.importProgram().url()))
         .withClass("mb-10");
   }
@@ -99,15 +99,13 @@ public class AdminImportView extends BaseHtmlView {
   private DomContent renderProgramData(Optional<ErrorAnd<String, CiviFormError>> programData) {
     DivTag data = div().with(h2("Uploaded program data"));
     if (programData.isEmpty()) {
-      data.with(p("No data has been uploaded yet."));
-      return data;
+      return data.with(p("No data has been uploaded yet."));
     }
     if (programData.get().isError()) {
-      data.with(each(programData.get().getErrors(), error -> p(error.message())));
+      return data.with(each(programData.get().getErrors(), error -> p(error.message())));
     }
     // TODO(#7087): Render the program data correctly by showing the blocks and questions in a
     // readable format.
-    data.with(p(programData.get().getResult()));
-    return data;
+    return data.with(p(programData.get().getResult()));
   }
 }

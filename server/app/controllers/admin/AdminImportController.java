@@ -64,11 +64,24 @@ public class AdminImportController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result importProgram(Http.Request request) {
+    if (!settingsManifest.getProgramMigrationEnabled(request)) {
+      return notFound("Program export is not enabled");
+    }
+
+    System.out.println("form url encoded= " + request.body().asFormUrlEncoded());
+    System.out.println("text= " + request.body().asText());
+
     Http.MultipartFormData<Files.TemporaryFile> body = request.body().asMultipartFormData();
+    if (body == null){
+      System.err.println("null body -> OK");
+      return ok(
+              adminImportView.render(request, Optional.of(createErrorResult("Request did not contain a file."))));
+    }
+    System.err.println("non-null body is:");
+    System.err.println(body);
     Http.MultipartFormData.FilePart<Files.TemporaryFile> uploadedFile = body.getFile("file");
 
     if (uploadedFile == null) {
-      // TODO(#7087): Is there a way to redirect back to the index page but have this result?
       return ok(
           adminImportView.render(request, Optional.of(createErrorResult("No file was uploaded."))));
     }
@@ -78,6 +91,7 @@ public class AdminImportController extends CiviFormController {
     // https://www.playframework.com/documentation/2.9.x/JavaFileUpload#Cleaning-up-temporary-files.
     Files.TemporaryFile uploadedFileRef = uploadedFile.getRef();
 
+    // TODO(#7087): Should this path be defined in application.conf so different deployments can use different values? Is /tmp a reasonable default?
     File file = new File("/tmp/imported_program.json");
     uploadedFileRef.copyTo(file, /* replace= */ true);
 
@@ -95,6 +109,8 @@ public class AdminImportController extends CiviFormController {
       logger.error(String.format("File [%s] was not able to be deleted", file.getAbsolutePath()));
     }
 
+    // TODO(#7087): Is there a way to redirect back to the index page (`/admin/import` URL) but have this result?
+    // Right now, this keeps users on the `/admin/import/program` URL. And if they refresh the page, they get a warning from their browser asking if they want to resubmit the form.
     return ok(adminImportView.render(request, Optional.of(ErrorAnd.of(parsedJson.toString()))));
   }
 

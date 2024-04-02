@@ -26,4 +26,24 @@ test.describe('program migration', {tag: ['@uses-fixtures']}, () => {
       // TODO(#7087): Assert JSON file with correct content is downloaded.
     })
   })
+
+  test.only('import a program', async ({    page,
+                                       adminPrograms,
+                                       adminProgramMigration,}) => {
+             await test.step('load import page', async () => {
+                   await loginAsAdmin(page)
+               await enableFeatureFlag(page, 'program_migration_enabled')
+               await adminProgramMigration.goToImportPage()
+               await validateScreenshot(page, 'import-page-no-data')
+             })
+
+
+             await test.step('import a program', async () => {
+             // TODO(#7087): We should also have a test that exports JSON and then imports that same JSON
+             // so that we can verify export and import work together.
+               await adminProgramMigration.uploadProgramJson('src/assets/import-program-sample.json')
+
+                await validateScreenshot(page, 'import-page-with-data')
+             })
+      })
 })

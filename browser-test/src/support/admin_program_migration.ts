@@ -28,4 +28,26 @@ export class AdminProgramMigration {
   async downloadProgram() {
     await this.page.getByRole('button', {name: 'Download program'}).click()
   }
+
+  async goToImportPage() {
+      await this.page.getByRole('link', {name: 'Import'}).click()
+      await waitForPageJsLoad(this.page)
+      await this.expectImportPage()
+    }
+
+    async expectImportPage() {
+      await expect(
+        this.page.getByRole('heading', {name: 'Import a program'}),
+      ).toBeVisible()
+    }
+
+    async uploadProgramJson(jsonFileName: string) {
+       await this.page
+            .locator('input[type=file]')
+            .setInputFiles(jsonFileName)
+
+
+       await this.page.getByRole('button', {name: 'Upload program'}).click()
+      await waitForPageJsLoad(this.page)
+    }
 }
