@@ -213,7 +213,7 @@ label.nameExample=Por ejemplo: López o Pablo o Pablo López
 # Label above the text input field for notes about a client.
 label.notes=Notas
 # Label above the phone number input field when creating or editing a client.
-label.phoneNum=Número de teléfono
+label.phoneNum=Phone number
 # The label above the Date of Birth search input for the client search.
 label.searchByDob=Buscar por fecha de nacimiento
 # The label above the name search field of the client search.
