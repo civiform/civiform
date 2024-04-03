@@ -70,15 +70,15 @@ modal.errorSaving.review.title=Su'aalaha boggan ku yaalo ma dhammaystirna. Weli 
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
 modal.errorSaving.previous.title=Su'aalaha boggan ku yaalo ma dhammaystirna. Weli ma jeclaan lahayd inaad ka baxdo oo aad gasho boggii hore?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=Waxaa jira khaladaad qaar oo ku jira macluumaadka aad buuxisay. Ma jeclaan lahayd inaad bixin oo aad hagaajisid jawaabahaaga, ama aad tagto bogga dib u eegista adoon kaydin jawaabahaaga?
+modal.errorSaving.review.content=Waxaa jira khaladaad qaar oo ku jira macluumaadka aad buuxisay. Ma jeclaan lahayd inaad joogto oo aad hagaajisid jawaabahaaga, ama aad tagto bogga dib u eegista adoon kaydin jawaabahaaga?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=Waxaa jira khaladaad qaar oo ku jira macluumaadka aad buuxisay. Ma jeclaan lahayd inaad bixin oo aad hagaajisid jawaabahaaga, ama aad tagtid boggii hore ee su'aalaha adoon kaydin jawaabahaaga?
+modal.errorSaving.previous.content=Waxaa jira khaladaad qaar oo ku jira macluumaadka aad buuxisay. Ma jeclaan lahayd inaad joogto oo aad hagaajisid jawaabahaaga, ama aad tagtid boggii hore ee su'aalaha adoon kaydin jawaabahaaga?
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
 modal.errorSaving.review.noSaveButton=Sii wad inaad dib u eegto bogga adigoon kaydin
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
 modal.errorSaving.previous.noSaveButton=Sii wad su'aalahii hore adigoon kaydin
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=Ha bixin oo hagaaji jawaabahaaga
+modal.errorSaving.stayAndFixButton=Joog oo hagaaji jawaabahaaga
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -126,7 +126,7 @@ banner.clientAcctDeleted=Akoonka macmiilka ee "{0}" si guul leh ayaa loo tirtira
 # Message when a user successfully creates a client account.
 banner.newClientCreated=Macmiil cusub ayaa si guul leh loo sameeyay.
 # Banner at the top of the page with the name of the client substituted in when viewing an application.
-banner.viewApplication=You are applying for {0}. Are you trying to apply for a different client?
+banner.viewApplication=Waxaad codsanaysaa {0}. Ma waxaad isku dayaysaa inaad u codsato macamiil kale?
 
 
 # Button that allows a user to add a client to the CiviForm system.
@@ -156,20 +156,20 @@ button.startApp=Biloow codsi
 # Button to view the applications belonging to an applicant.
 button.viewApplications=Eeg codsiyada
 # Button to view and add clients
-button.viewAndAddClients=View and add clients
+button.viewAndAddClients=Arag oo ku dar macaamiisha
 
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=Macmiilkaaga cusub {0} waxaa lagu daray liiska macmiilkaaga. Hadda waxaad bilaabi kartaa soo gudbinta codsiyada macmiilkan.
 # The tooltip of the email input field.
-content.emailTooltip=Add an email address for your client to receive status updates about their application automatically. Without an email, you or your community-based organization will be responsible for communicating updates to your client.
+content.emailTooltip=Ku dar ciwaanka iimaylka macmiilkaaga si uu u helo wararka ku soo kordha xaalada ku saabsan codsigooda si toos ah. Iimayl la'aan, adiga ama ururkaaga bulshada ayaa mas'uul ka noqon doona gaarsiinta wararka soo kordha macmiilkaaga.
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted={0} Codsiyada waa la gudbiyey
 # Shows that a single application has been submitted on behalf of the client.
-content.oneAppSubmitted=1 application submitted
+content.oneAppSubmitted=1 codsi ayaa la gudbiyay
 # Some explanation text on the confirmation modal when deleting a client.
 content.warning=Ma jiraan wax codsiyo ah oo loo gudbiyay macmiilkan, markaa ma jiraan codsiyo dhumi doonaan.
 # Shows there is no email address connected to the account.
-content.noEmailAddress=(no email address)
+content.noEmailAddress=(ma jiro ciwaan iimayl ah)
 # The status of an organization member when they have been enrolled but have never logged into CiviForm.
 content.notLoggedIn=Not yet logged in
 # The status of an organization member when they have logged in but haven't applied on behalf of a client.
@@ -184,10 +184,10 @@ header.acctSettings=Dejimaha akoonka
 # Tab label for getting to the client list page
 header.clientList=Liiska macmiilka
 # Label for search
-header.search=Search
+header.search=Raadi
 
 # A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
-label.acctStatus=Xaaladda Akoonka
+label.acctStatus=Xaaladda akoonka
 # Label above the phone number for each client on the client list.
 label.contactInfo=Macluumaadka xiriirka
 # The label above the input field for the day of the client birth date. i.e. 12 for November 12
@@ -199,11 +199,11 @@ label.dobExample=Tusaale Janaayo 28 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=Iimayl
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=Error: Date of birth required
+label.errorDOB=Khalad: Taariikhda dhalashada ayaa loo baahan yahay
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=Error: First name required
+label.errorFirstName=Khalad: Magaca koowaad ayaa loo baahan yahay
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=Error: Last name required
+label.errorLastName=Khalad: Magaca awoowgaa ayaa loo baahan yahay
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Bisha
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -221,20 +221,24 @@ label.searchByName=Ku raadi magaca(yada)
 # The label above the input field for the year of the client birth date.
 label.year=Sanadka
 # Label showing the user when there is no name
-label.unnamedUser=Unnamed user
+label.unnamedUser=Isticmaale aan la magacaabin
 
 link.edit=Wax ka beddel
 # Link to change the client that the trusted intermediary is applying for.
-link.selectNewClient=Select a new client
+link.selectNewClient=Dooro macamiil cusub
 
 # This is the header above the list of clients and the client search.
 title.allClients=Dhammaan Macaamiisha
 # This is the heading above a new client creation form.
 title.createClient=Abuur macmiil cusub
+# This is the heading above the client editing form.
+title.editClient=Edit client info
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients=Muujinaya {0} macaamiisha
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=Muujinaya 1 macaamil
+# This is the heading above an unfiltered list of clients.
+title.displayingAllClients=Displaying all clients
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=Xubnaha ururka
 
@@ -332,13 +336,13 @@ validation.noPoBox=Fadlan gali ciwaan saxda ah.Ma aqbalno sanduuqyada boostada (
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
-title.confirmAddress=Hubi ciwaankaaga
+title.confirmAddress=Hubi ciwaankaada
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=Nooma suurta galin inaan helno ciwaankaaga
+content.confirmAddressLine1=Nooma suurta galin inaan helno ciwaankaaga.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
-content.foundSimilarAddressLine2=Fadlan ka hubi ciwaankaaga higaada ama ka dooro xulasho liiska lagu siiyay.
+content.foundSimilarAddressLine2=Fadlan ka sax ciwaankaaga higaada ama ka dooro liiska la bixiyay.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
-content.noValidAddressLine2=Fadlan ka hubi ciwaankaaga higaada oo wax ka beddel si aad u sii socoto.
+content.noValidAddressLine2=Fadlan ka hubi ciwaankaaga higaada oo wax ka beddel si aad u sii waddo.
 # Heading for showing the user the address they provided earlier
 content.addressEntered=Ciwaanka aad gelisay:
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
@@ -379,7 +383,7 @@ button.addEntity=Ku dar {0}
 button.removeEntity=Ka saar {0}
 dialog.confirmDelete=Ma hubtaa inaad doonayso inaad tan saarto {0}? Isbeddelkan waa la keydin doonaa ka dib markaad gujiso ''Kan XIga'' oo dhammaan xogta la xiriirta tan waa lumin doonaa.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
-dialog.confirmDeleteAllButtonsSave=Ma hubtaa inaad doonayso inaad tan bixiso {0}? Isbeddelkaan waxa la kaydin doonaa marka aad gujiso "Dib u eeg", "Hore", ama "Xiga" iyo dhammaan xogta la xiriirta tan {0} way dhumi doontaa.
+dialog.confirmDeleteAllButtonsSave=Ma hubtaa inaad doonayso inaad midkaan saarto{0}? Isbeddelkan waxa la kaydin doonaa marka aad gujiso "Dib-u-eeg", "Hore", ama "Xiga" oo dhammaan xogta la xiriirta tan {0} way lumi doontaa.
 validation.entityNameRequired=Fadlan geli qiimaha sadar kasta.
 validation.duplicateEntityName=Fadlan geli qiime u gaar ah sadar kasta.
 placeholder.entityName=Naanaysta {0}
@@ -444,7 +448,7 @@ validation.textTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
 
 adminValidation.multiOptionEmpty=Su''aalaha xulashada badan ma yeelan karaan ikhtiyaaro madhan.
 # An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
-adminValidation.multiOptionAdminError=Magacyada maamulka keliya waxay ka koobnaan karaan xarfaha yar yar, lambaro, calaamada hoose, iyo dhibcaha jiidan.
+adminValidation.multiOptionAdminError=Magacyada maamulka keliya waxay ka koobnaan karaan xarfaha yaryar, lambaro, calaamada hoose, iyo dhibcaha jiidan.
 
 #----------------------------------#
 # ERRORS - various error messages  #
