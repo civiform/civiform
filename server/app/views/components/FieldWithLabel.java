@@ -434,6 +434,8 @@ public class FieldWithLabel {
   }
 
   /** Public final tag getters * */
+  // TODO: Once we've eliminated all uses of this method (when all textarea fields are using USWDS),
+  //  remove it and rename `getUSWDSTextareaTag` to `getTextareaTag`.
   public DivTag getTextareaTag() {
     if (isTagTypeTextarea()) {
       TextareaTag textareaFieldTag = TagCreator.textarea();
