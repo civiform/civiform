@@ -12,7 +12,16 @@ import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
 import auth.ProfileUtils;
+<<<<<<< HEAD
 import com.google.common.collect.ImmutableMap;
+=======
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Collections;
+>>>>>>> 3e779e27d (browser tests, some unit test)
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -37,8 +46,13 @@ public class AdminImportControllerTest extends ResetPostgres {
     controller =
         new AdminImportController(
             instanceOf(AdminImportView.class),
+<<<<<<< HEAD
             instanceOf(AdminImportViewPartial.class),
             instanceOf(FormFactory.class),
+=======
+            instanceOf(MessagesApi.class),
+            instanceOf(ObjectMapper.class),
+>>>>>>> 3e779e27d (browser tests, some unit test)
             instanceOf(ProfileUtils.class),
             mockSettingsManifest,
             instanceOf(VersionRepository.class));

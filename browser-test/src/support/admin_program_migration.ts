@@ -26,7 +26,15 @@ export class AdminProgramMigration {
   }
 
   async downloadProgram() {
-    await this.page.getByRole('button', {name: 'Download program'}).click()
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.getByRole('button', {name: 'Download program'}).click(),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+    return readFileSync(path, 'utf8')
   }
 
   async goToImportPage() {

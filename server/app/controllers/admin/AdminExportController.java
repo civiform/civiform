@@ -90,6 +90,7 @@ public class AdminExportController extends CiviFormController {
       return redirect(routes.AdminExportController.index().url());
     }
 
+    // TODO: Protect against downloading draft programs?
     ProgramDefinition program;
     try {
       program = programService.getFullProgramDefinition(programId);

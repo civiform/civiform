@@ -1247,4 +1247,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
     assertThat(def.summaryImageFileKey().get())
         .isEqualTo("program-summary-image/program-123/newFileKey.png");
   }
+
+  // TODO: Add tests that serialize then deserialize and verify it has literally all the data
 }
