@@ -10,6 +10,7 @@ import com.typesafe.config.Config;
 import durablejobs.DurableJobName;
 import durablejobs.DurableJobRegistry;
 import durablejobs.DurableJobRunner;
+import durablejobs.ExecutionTimeResolver;
 import durablejobs.RecurringJobExecutionTimeResolvers;
 import durablejobs.RecurringJobScheduler;
 import durablejobs.jobs.FixApplicantDobDataPathJob;
@@ -19,6 +20,7 @@ import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
 import durablejobs.jobs.UnusedProgramImagesCleanupJob;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Random;
 import repository.AccountRepository;
@@ -103,7 +105,7 @@ public final class DurableJobModule extends AbstractModule {
         DurableJobName.FIX_APPLICANT_DOB_DATA_PATH,
         persistedDurableJob ->
             new FixApplicantDobDataPathJob(accountRepository, persistedDurableJob),
-        new RecurringJobExecutionTimeResolvers.Nightly2Am());
+        new ExecutionTimeResolver(LocalDate.of(2024, 04, 01)));
 
     durableJobRegistry.register(
         DurableJobName.UNUSED_PROGRAM_IMAGES_CLEANUP,

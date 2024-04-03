@@ -17,7 +17,11 @@ import java.time.temporal.TemporalAdjusters;
 public final class RecurringJobExecutionTimeResolvers {
 
   /** Every Sunday at 2am local time. Used for the OLD_JOB_CLEANUP job. */
-  public static final class Sunday2Am implements RecurringJobExecutionTimeResolver {
+  public static final class Sunday2Am extends ExecutionTimeResolver {
+
+    public Sunday2Am() {
+      super(null);
+    }
 
     @Override
     public Instant resolveExecutionTime(Clock clock) {
@@ -32,7 +36,11 @@ public final class RecurringJobExecutionTimeResolvers {
   /**
    * First day of the month at 2am local time. Used for the REPORTING_DASHBOARD_MONTHLY_REFRESH job.
    */
-  public static final class FirstOfMonth2Am implements RecurringJobExecutionTimeResolver {
+  public static final class FirstOfMonth2Am extends ExecutionTimeResolver {
+
+    public FirstOfMonth2Am() {
+      super(null);
+    }
 
     @Override
     public Instant resolveExecutionTime(Clock clock) {
@@ -45,7 +53,11 @@ public final class RecurringJobExecutionTimeResolvers {
   }
 
   /** Second day of the month at 2am local time. Used for the UNUSED_ACCOUNT_CLEANUP job. */
-  public static final class SecondOfMonth2Am implements RecurringJobExecutionTimeResolver {
+  public static final class SecondOfMonth2Am extends ExecutionTimeResolver {
+
+    public SecondOfMonth2Am() {
+      super(null);
+    }
 
     @Override
     public Instant resolveExecutionTime(Clock clock) {
@@ -59,7 +71,11 @@ public final class RecurringJobExecutionTimeResolvers {
   }
 
   /** Third day of the month at 2am local time. Used for the UNUSED_PROGRAM_IMAGES_CLEANUP job. */
-  public static final class ThirdOfMonth2Am implements RecurringJobExecutionTimeResolver {
+  public static final class ThirdOfMonth2Am extends ExecutionTimeResolver {
+
+    public ThirdOfMonth2Am() {
+      super(null);
+    }
 
     @Override
     public Instant resolveExecutionTime(Clock clock) {
@@ -73,20 +89,18 @@ public final class RecurringJobExecutionTimeResolvers {
   }
 
   /** Nightly at 2am local time. Used for the FIX_APPLICANT_DOB_DATA_PATH job. */
-  public static final class Nightly2Am implements RecurringJobExecutionTimeResolver {
-
-    @Override
-    public Instant resolveExecutionTime(Clock clock) {
-      return LocalDate.now(clock)
-          .plusDays(1)
-          .atStartOfDay(clock.getZone())
-          .plus(2, ChronoUnit.HOURS)
-          .toInstant();
+  public static final class Nightly2Am extends ExecutionTimeResolver {
+    public Nightly2Am() {
+      super(null);
     }
   }
 
   /** Nightly at 3am local time. Used for the MIGRATE_PRIMARY_APPLICANT_INFO job. */
-  public static final class Nightly3Am implements RecurringJobExecutionTimeResolver {
+  public static final class Nightly3Am extends ExecutionTimeResolver {
+
+    public Nightly3Am() {
+      super(null);
+    }
 
     @Override
     public Instant resolveExecutionTime(Clock clock) {

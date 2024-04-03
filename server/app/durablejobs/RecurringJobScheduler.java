@@ -51,15 +51,15 @@ public final class RecurringJobScheduler {
    */
   public synchronized void scheduleRecurringJobs() {
     for (DurableJobRegistry.RegisteredJob registeredJob : durableJobRegistry.getRecurringJobs()) {
-      if (registeredJob.getRecurringJobExecutionTimeResolver().isEmpty()) {
+      if (registeredJob.getExecutionTimeResolver().isEmpty()) {
         LOGGER.error(
-            "JobScheduler_SchedulingError No RecurringJobExecutionTimeResolver registered with {}",
+            "JobScheduler_SchedulingError No ExecutionTimeResolver registered with {}",
             registeredJob.getJobName());
         continue;
       }
 
       Instant executionTime =
-          registeredJob.getRecurringJobExecutionTimeResolver().get().resolveExecutionTime(clock);
+          registeredJob.getExecutionTimeResolver().get().resolveExecutionTime(clock);
       boolean jobAlreadyScheduled =
           persistedDurableJobRepository
               .findScheduledJob(registeredJob.getJobName().getJobNameString(), executionTime)
