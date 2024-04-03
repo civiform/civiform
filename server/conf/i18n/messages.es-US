@@ -126,7 +126,7 @@ banner.clientAcctDeleted=Se borró la cuenta de cliente de "{0}" correctamente.
 # Message when a user successfully creates a client account.
 banner.newClientCreated=Se creó un cliente nuevo correctamente.
 # Banner at the top of the page with the name of the client substituted in when viewing an application.
-banner.viewApplication=You are applying for {0}. Are you trying to apply for a different client?
+banner.viewApplication=Estás enviando una solicitud para {0}. ¿Estás intentando enviar una solicitud para otro cliente?
 
 
 # Button that allows a user to add a client to the CiviForm system.
@@ -156,20 +156,20 @@ button.startApp=Comenzar una solicitud
 # Button to view the applications belonging to an applicant.
 button.viewApplications=Ver solicitudes
 # Button to view and add clients
-button.viewAndAddClients=View and add clients
+button.viewAndAddClients=Ver y agregar clientes
 
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=Se agregó tu cliente nuevo {0} a tu lista de clientes. Ahora puedes comenzar a enviar solicitudes para este cliente.
 # The tooltip of the email input field.
-content.emailTooltip=Add an email address for your client to receive status updates about their application automatically. Without an email, you or your community-based organization will be responsible for communicating updates to your client.
+content.emailTooltip=Agrega una dirección de correo electrónico para que tu cliente reciba actualizaciones sobre el estado de su solicitud automáticamente. Sin un correo electrónico, tu organización social y tú estarán a cargo de comunicar las actualizaciones al cliente.
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted={0} solicitudes enviadas
 # Shows that a single application has been submitted on behalf of the client.
-content.oneAppSubmitted=1 application submitted
+content.oneAppSubmitted=Se envió 1 solicitud
 # Some explanation text on the confirmation modal when deleting a client.
 content.warning=No se enviaron solicitudes para este cliente, por lo que no se perderá ninguna.
 # Shows there is no email address connected to the account.
-content.noEmailAddress=(no email address)
+content.noEmailAddress=(no se proporcionó una dirección de correo electrónico)
 # The status of an organization member when they have been enrolled but have never logged into CiviForm.
 content.notLoggedIn=Not yet logged in
 # The status of an organization member when they have logged in but haven't applied on behalf of a client.
@@ -184,7 +184,7 @@ header.acctSettings=Configuración de la cuenta
 # Tab label for getting to the client list page
 header.clientList=Lista de clientes
 # Label for search
-header.search=Search
+header.search=Búsqueda
 
 # A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
 label.acctStatus=Estado de la cuenta
@@ -199,11 +199,11 @@ label.dobExample=Por ejemplo: 28 de enero de 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=Correo electrónico
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=Error: Date of birth required
+label.errorDOB=Error: Debes ingresar la fecha de nacimiento
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=Error: First name required
+label.errorFirstName=Error: Debes ingresar el nombre
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=Error: Last name required
+label.errorLastName=Error: Debes ingresar el apellido
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Mes
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -221,20 +221,24 @@ label.searchByName=Buscar por nombre(s)
 # The label above the input field for the year of the client birth date.
 label.year=Año
 # Label showing the user when there is no name
-label.unnamedUser=Unnamed user
+label.unnamedUser=Usuario sin nombre
 
 link.edit=Editar
 # Link to change the client that the trusted intermediary is applying for.
-link.selectNewClient=Select a new client
+link.selectNewClient=Seleccionar un nuevo cliente
 
 # This is the header above the list of clients and the client search.
 title.allClients=Todos los clientes
 # This is the heading above a new client creation form.
 title.createClient=Crea un cliente nuevo
+# This is the heading above the client editing form.
+title.editClient=Edit client info
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients=Se muestran {0} clientes
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=Se muestra 1 cliente
+# This is the heading above an unfiltered list of clients.
+title.displayingAllClients=Displaying all clients
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=Miembros de la organización
 
