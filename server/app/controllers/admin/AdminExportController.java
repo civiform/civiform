@@ -19,7 +19,6 @@ import repository.VersionRepository;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.question.QuestionService;
 import services.settings.SettingsManifest;
 import views.admin.migration.AdminExportView;
 import views.admin.migration.AdminProgramExportForm;
@@ -39,7 +38,6 @@ public class AdminExportController extends CiviFormController {
   private final FormFactory formFactory;
   private final ObjectMapper objectMapper;
   private final ProgramService programService;
-  private final QuestionService questionService;
   private final SettingsManifest settingsManifest;
 
   @Inject
@@ -49,7 +47,6 @@ public class AdminExportController extends CiviFormController {
       ObjectMapper objectMapper,
       ProfileUtils profileUtils,
       ProgramService programService,
-      QuestionService questionService,
       SettingsManifest settingsManifest,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
@@ -61,7 +58,6 @@ public class AdminExportController extends CiviFormController {
             .registerModule(new GuavaModule())
             .registerModule(new Jdk8Module());
     this.programService = checkNotNull(programService);
-    this.questionService = checkNotNull(questionService);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 

@@ -14,8 +14,7 @@ public class ProgramMigration {
   private ProgramDefinition program;
 
   // TODO(#7087): The program definition will only contain the IDs of the questions it has, but not
-  // the question definition itself.
-  // We should also export the question definition.
+  // the question definition itself. We should also export the question definitions.
 
   @JsonCreator
   public ProgramMigration(@JsonProperty("program") ProgramDefinition program) {

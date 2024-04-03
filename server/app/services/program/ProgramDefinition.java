@@ -33,7 +33,20 @@ import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 
-/** An immutable configuration of a program. */
+/**
+ * An immutable configuration of a program.
+ *
+ * <p>This class is serializable so that program definitions can be migrated between different
+ * instances of CiviForm, **not** so that it can be stored in the database. A program definition is
+ * stored in the database using {@link ProgramModel} instead.
+ *
+ * <p>The items marked as @JsonIgnore are either (1) properties that shouldn't be migrated across
+ * instances (like create time) or (2) no-argument getter functions. Jackson serializes no-arg
+ * getter functions by default, but we only want to serialize pure properties.
+ *
+ * <p>Any property marked with @JsonProperty should also be marked with @JsonProperty in the {@link
+ * Builder}.
+ */
 @AutoValue
 @JsonDeserialize(builder = AutoValue_ProgramDefinition.Builder.class)
 public abstract class ProgramDefinition {

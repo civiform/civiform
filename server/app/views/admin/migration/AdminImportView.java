@@ -121,6 +121,8 @@ public class AdminImportView extends BaseHtmlView {
     ProgramDefinition program = programMigration.getProgram();
     DivTag programDiv = div();
     programDiv.with(h3("Program name: " + program.localizedName().getDefault()));
+    // TODO(#7087): If the imported program admin name matches an existing program admin name, we
+    // should show some kind of error because admin names need to be unique.
     programDiv.with(p("Admin name: " + program.adminName()));
 
     for (BlockDefinition block : program.blockDefinitions()) {
