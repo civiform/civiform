@@ -428,8 +428,9 @@ public class FieldWithLabel {
     } else {
       throw new RuntimeException("non-number tag expected");
     }
-    return isUSWDS ?
-      applyUSWDSAttrsClassesAndLabel(inputFieldTag) : applyAttrsClassesAndLabel(inputFieldTag);
+    return isUSWDS
+        ? applyUSWDSAttrsClassesAndLabel(inputFieldTag)
+        : applyAttrsClassesAndLabel(inputFieldTag);
   }
 
   /** Public final tag getters * */
