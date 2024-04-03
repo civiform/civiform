@@ -419,7 +419,7 @@ public class FieldWithLabel {
     return checkboxApplyAttrsAndGenLabel(inputFieldTag);
   }
 
-  private DivTag getNonNumberInputTag() {
+  private DivTag getNonNumberInputTag(boolean isUSWDS) {
     InputTag inputFieldTag = TagCreator.input();
     inputFieldTag.withType(getFieldType());
     applyAttributesFromMap(inputFieldTag);
@@ -428,19 +428,8 @@ public class FieldWithLabel {
     } else {
       throw new RuntimeException("non-number tag expected");
     }
-    return applyAttrsClassesAndLabel(inputFieldTag);
-  }
-
-  private DivTag getUSWDSNonNumberInputTag() {
-    InputTag inputFieldTag = TagCreator.input();
-    inputFieldTag.withType(getFieldType());
-    applyAttributesFromMap(inputFieldTag);
-    if (!this.fieldType.equals("number")) {
-      inputFieldTag.withValue(this.fieldValue);
-    } else {
-      throw new RuntimeException("non-number tag expected");
-    }
-    return applyUSWDSAttrsClassesAndLabel(inputFieldTag);
+    return isUSWDS ?
+      applyUSWDSAttrsClassesAndLabel(inputFieldTag) : applyAttrsClassesAndLabel(inputFieldTag);
   }
 
   /** Public final tag getters * */
@@ -483,15 +472,15 @@ public class FieldWithLabel {
   }
 
   public DivTag getCurrencyTag() {
-    return getNonNumberInputTag();
+    return getNonNumberInputTag(false);
   }
 
   public DivTag getInputTag() {
-    return getNonNumberInputTag();
+    return getNonNumberInputTag(false);
   }
 
   public DivTag getUSWDSInputTag() {
-    return getUSWDSNonNumberInputTag();
+    return getNonNumberInputTag(true);
   }
 
   public DivTag getNumberTag() {
@@ -507,11 +496,11 @@ public class FieldWithLabel {
   }
 
   public DivTag getDateTag() {
-    return getNonNumberInputTag();
+    return getNonNumberInputTag(false);
   }
 
   public DivTag getEmailTag() {
-    return getNonNumberInputTag();
+    return getNonNumberInputTag(false);
   }
 
   protected void applyAttributesFromMap(Tag fieldTag) {
