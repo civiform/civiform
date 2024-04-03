@@ -134,6 +134,9 @@ public abstract class ProgramDefinition {
   public abstract Optional<LocalizedStrings> localizedSummaryImageDescription();
 
   /** A key used to fetch the program's summary image from cloud storage. */
+  // JsonIgnored because the file key points to a file in cloud storage, and different instances
+  // will have different cloud storages so the file key will be inaccurate when migrating a program
+  // to a different instance.
   @JsonIgnore
   public abstract Optional<String> summaryImageFileKey();
 

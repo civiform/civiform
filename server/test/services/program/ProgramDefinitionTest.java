@@ -5,6 +5,12 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import auth.ProgramAcls;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Locale;
@@ -1248,5 +1254,181 @@ public class ProgramDefinitionTest extends ResetPostgres {
         .isEqualTo("program-summary-image/program-123/newFileKey.png");
   }
 
-  // TODO: Add tests that serialize then deserialize and verify it has literally all the data
+  @Test
+  public void serializeThenDeserialize_allFieldsPresent() throws JsonProcessingException {
+    QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition questionB = testQuestionBank.applicantAddress().getQuestionDefinition();
+    QuestionDefinition questionC =
+        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+
+    long programDefinitionId = 654L;
+    BlockDefinition blockA =
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("Block A")
+            .setDescription("Block A Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    questionA,
+                    Optional.of(programDefinitionId),
+                    /* optional= */ false,
+                    /* addressCorrectionEnabled= */ false))
+            .build();
+
+    BlockDefinition blockB =
+        BlockDefinition.builder()
+            .setId(321L)
+            .setName("Block B")
+            .setDescription("Block B Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    questionB,
+                    Optional.of(programDefinitionId),
+                    /* optional= */ false,
+                    /* addressCorrectionEnabled= */ true))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    questionC,
+                    Optional.of(programDefinitionId),
+                    /* optional= */ true,
+                    /* addressCorrectionEnabled= */ false))
+            .build();
+
+    StatusDefinitions.Status approvedStatus =
+        StatusDefinitions.Status.builder()
+            .setStatusText("Approved")
+            .setLocalizedStatusText(
+                LocalizedStrings.of(
+                    Locale.US, "US approved status", Locale.GERMAN, "German approved status"))
+            .build();
+    StatusDefinitions.Status deniedStatus =
+        StatusDefinitions.Status.builder()
+            .setStatusText("Denied")
+            .setLocalizedStatusText(
+                LocalizedStrings.of(
+                    Locale.US, "US denied status", Locale.GERMAN, "German denied status"))
+            .build();
+    StatusDefinitions statusDefinitions =
+        new StatusDefinitions(ImmutableList.of(approvedStatus, deniedStatus));
+
+    ProgramDefinition programDefinition =
+        ProgramDefinition.builder()
+            // The following fields *should* be included in the serialization
+            .setId(programDefinitionId)
+            .setAdminName("serialize-test")
+            .setAdminDescription("Test program for serialization")
+            .setLocalizedName(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "US name",
+                    Locale.FRENCH,
+                    "French name",
+                    Locale.ITALIAN,
+                    "Italian name"))
+            .setLocalizedDescription(
+                LocalizedStrings.of(
+                    Locale.US, "US description", Locale.GERMAN, "German description"))
+            .setLocalizedConfirmationMessage(
+                LocalizedStrings.of(Locale.US, "US message", Locale.GERMAN, "German message"))
+            .setLocalizedSummaryImageDescription(
+                Optional.of(
+                    LocalizedStrings.of(
+                        Locale.US,
+                        "US summary image description",
+                        Locale.ITALIAN,
+                        "Italian summary image description")))
+            .setExternalLink("external.link")
+            .setStatusDefinitions(statusDefinitions)
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.COMMON_INTAKE_FORM)
+            .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls(ImmutableSet.of(987L, 65L, 4321L)))
+            .addBlockDefinition(blockA)
+            .addBlockDefinition(blockB)
+            // The following fields should *not* be included in the serialization
+            .setSummaryImageFileKey(Optional.of("program-summary-image/program-123/fileKey.png"))
+            .setCreateTime(Instant.now())
+            .setLastModifiedTime(Instant.now())
+            .build();
+
+    ObjectMapper objectMapper =
+        instanceOf(ObjectMapper.class)
+            .registerModule(new GuavaModule())
+            .registerModule(new Jdk8Module());
+
+    String serializedProgramDefinition = objectMapper.writeValueAsString(programDefinition);
+    ProgramDefinition result =
+        objectMapper.readValue(serializedProgramDefinition, ProgramDefinition.class);
+
+    // Assert that the fields that should have been parsed were parsed correctly
+    assertThat(result.id()).isEqualTo(654L);
+    assertThat(result.adminName()).isEqualTo("serialize-test");
+    assertThat(result.adminDescription()).isEqualTo("Test program for serialization");
+    assertThat(result.localizedName())
+        .isEqualTo(
+            LocalizedStrings.of(
+                Locale.US,
+                "US name",
+                Locale.FRENCH,
+                "French name",
+                Locale.ITALIAN,
+                "Italian name"));
+    assertThat(result.localizedDescription())
+        .isEqualTo(
+            LocalizedStrings.of(Locale.US, "US description", Locale.GERMAN, "German description"));
+    assertThat(result.localizedConfirmationMessage())
+        .isEqualTo(LocalizedStrings.of(Locale.US, "US message", Locale.GERMAN, "German message"));
+    assertThat(result.localizedSummaryImageDescription())
+        .hasValue(
+            LocalizedStrings.of(
+                Locale.US,
+                "US summary image description",
+                Locale.ITALIAN,
+                "Italian summary image description"));
+    assertThat(result.externalLink()).isEqualTo("external.link");
+    assertThat(result.statusDefinitions().getStatuses())
+        .containsExactly(approvedStatus, deniedStatus);
+    assertThat(result.displayMode()).isEqualTo(DisplayMode.PUBLIC);
+    assertThat(result.programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
+    assertThat(result.eligibilityIsGating()).isTrue();
+    assertThat(result.acls().getTiProgramViewAcls()).containsExactlyInAnyOrder(987L, 65L, 4321L);
+
+    // Assert that the block definitions were parsed correctly
+    // Note: A BlockDefinition contains a list of ProgramQuestionDefinitions, which specify the
+    // questions included in the block.
+    // ProgramQuestionDefinitions are serialized into JSON and stored in our database as that JSON
+    // string.
+    // When we serialize it into JSON, we specifically exclude the `programDefinitionId` and
+    // `questionDefinition` fields.
+    // So when it gets deserialized, we expect those fields to be missing.
+    BlockDefinition expectedBlockA =
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("Block A")
+            .setDescription("Block A Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    questionA.getId(),
+                    /* optional= */ false,
+                    /* addressCorrectionEnabled= */ false))
+            .build();
+    BlockDefinition expectedBlockB =
+        BlockDefinition.builder()
+            .setId(321L)
+            .setName("Block B")
+            .setDescription("Block B Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    questionB.getId(), /* optional= */ false, /* addressCorrectionEnabled= */ true))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    questionC.getId(), /* optional= */ true, /* addressCorrectionEnabled= */ false))
+            .build();
+    assertThat(result.blockDefinitions()).containsExactly(expectedBlockA, expectedBlockB);
+
+    // Assert that the fields that should not have been parsed were not included
+    assertThat(result.summaryImageFileKey()).isEmpty();
+    assertThat(result.createTime()).isEmpty();
+    assertThat(result.lastModifiedTime()).isEmpty();
+  }
 }

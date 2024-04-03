@@ -9,7 +9,7 @@ import services.program.ProgramDefinition;
  * AdminExportController} creates an instance of this class and serializes it to JSON. {@link
  * AdminImportController} de-serializes the JSON back into this class.
  */
-public class ProgramMigration {
+public final class ProgramMigration {
   /** The definition of the program being migrated. */
   private ProgramDefinition program;
 
