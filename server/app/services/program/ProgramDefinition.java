@@ -44,8 +44,8 @@ import services.question.types.QuestionType;
  * instances (like create time) or (2) no-argument getter functions. Jackson serializes no-arg
  * getter functions by default, but we only want to serialize pure properties.
  *
- * <p>Any property marked with @JsonProperty should also be marked with @JsonProperty in the {@link
- * Builder}.
+ * <p>Any property marked with @JsonProperty here should also be marked with @JsonProperty in the
+ * {@link Builder}.
  */
 @AutoValue
 @JsonDeserialize(builder = AutoValue_ProgramDefinition.Builder.class)

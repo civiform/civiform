@@ -98,11 +98,11 @@ test.describe('program migration', {tag: ['@uses-fixtures']}, () => {
       )
       await adminProgramMigration.submitProgramJson(sampleJson)
 
-      // The import page currently shows question and program IDs, so we need
-      // to take this screenshot based on data that comes from a pre-created
-      // JSON file instead of a runtime-downloaded JSON file (because the IDs
-      // could change at runtime). Eventually, I think we likely won't show the
-      // IDs and could take a screenshot based on runtime-downloaded JSON.
+      // The import page currently shows question IDs, so this screenshot needs
+      // to be based on data that comes from a pre-created JSON file instead of
+      // a runtime-downloaded JSON file, as the IDs could change at runtime.
+      // Eventually, we likely won't show the question IDs and could take a
+      // screenshot based on runtime-downloaded JSON.
       await validateScreenshot(page, 'import-page-with-data')
     })
   })
@@ -134,6 +134,19 @@ test.describe('program migration', {tag: ['@uses-fixtures']}, () => {
         '{"adminName": "missing-comma" "adminDescription": "missing-comma-description"}',
       )
       await adminProgramMigration.expectImportError()
+    })
+
+    await test.step('malformed: missing required program info', async () => {
+      // The JSON itself is correctly formatted but it doesn't have all the fields
+      // that we need to build a ProgramDefinition
+      await adminProgramMigration.uploadProgramJsonWithContent(
+        '{"program": {"adminName": "missing-fields", "adminDescription": "missing-fields-description"}}',
+      )
+      await adminProgramMigration.expectImportError()
+      await validateScreenshot(
+        page,
+        'import-page-with-error-missing-program-fields',
+      )
     })
   })
 

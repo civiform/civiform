@@ -1,19 +1,19 @@
 {
   "program": {
     "id": 34,
-    "adminName": "comprehensive-sample-program",
+    "adminName": "import-program-sample",
     "adminDescription": "desc",
     "externalLink": "https://github.com/civiform/civiform",
     "displayMode": "PUBLIC",
     "localizedName": {
       "translations": {
-        "en_US": "Comprehensive Sample Program"
+        "en_US": "Import Sample Program"
       },
       "isRequired": true
     },
     "localizedDescription": {
       "translations": {
-        "en_US": "display description"
+        "en_US": "A sample program for testing program import"
       },
       "isRequired": true
     },
@@ -181,7 +181,7 @@
       {
         "id": 3,
         "name": "Household information",
-        "description": "household information",
+        "description": "List all household members",
         "repeaterId": null,
         "hidePredicate": null,
         "optionalPredicate": null,
@@ -196,7 +196,7 @@
       {
         "id": 4,
         "name": "Household member info",
-        "description": "household member info",
+        "description": "Collect information about each household member",
         "repeaterId": 3,
         "hidePredicate": null,
         "optionalPredicate": null,
@@ -221,7 +221,7 @@
       {
         "id": 9,
         "name": "Car information",
-        "description": "Screen 9 description",
+        "description": "Information about an applicant's cars",
         "repeaterId": 3,
         "hidePredicate": null,
         "optionalPredicate": null,
@@ -236,7 +236,7 @@
       {
         "id": 10,
         "name": "Car price per car",
-        "description": "car price per car",
+        "description": "",
         "repeaterId": 9,
         "hidePredicate": null,
         "optionalPredicate": null,
@@ -251,7 +251,7 @@
       {
         "id": 5,
         "name": "Screen 3",
-        "description": "Random information",
+        "description": "Additional questions",
         "repeaterId": null,
         "hidePredicate": null,
         "optionalPredicate": null,
@@ -266,7 +266,7 @@
       {
         "id": 6,
         "name": "Screen only for Spring and Summer",
-        "description": "May be hidden",
+        "description": "A screen exercising visibility conditions",
         "repeaterId": null,
         "hidePredicate": {
           "rootNode": {
@@ -294,8 +294,8 @@
       },
       {
         "id": 7,
-        "name": "file upload",
-        "description": "this is for file upload",
+        "name": "File upload",
+        "description": "Upload a file",
         "repeaterId": null,
         "hidePredicate": {
           "rootNode": {
@@ -349,8 +349,8 @@
       },
       {
         "id": 11,
-        "name": "Screen 11",
-        "description": "Screen 11 description",
+        "name": "Just Static Text Screen",
+        "description": "Some final static information",
         "repeaterId": null,
         "hidePredicate": null,
         "optionalPredicate": null,
@@ -385,7 +385,7 @@
     },
     "localizedSummaryImageDescription": {
       "translations": {
-        "en_US": "test2"
+        "en_US": "Test summary image description"
       },
       "isRequired": true
     }

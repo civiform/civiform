@@ -1360,7 +1360,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
     ProgramDefinition result =
         objectMapper.readValue(serializedProgramDefinition, ProgramDefinition.class);
 
-    // Assert that the fields that should have been parsed were parsed correctly
+    // Assert that the fields that should have been parsed were parsed correctly.
     assertThat(result.id()).isEqualTo(654L);
     assertThat(result.adminName()).isEqualTo("serialize-test");
     assertThat(result.adminDescription()).isEqualTo("Test program for serialization");
@@ -1393,14 +1393,12 @@ public class ProgramDefinitionTest extends ResetPostgres {
     assertThat(result.eligibilityIsGating()).isTrue();
     assertThat(result.acls().getTiProgramViewAcls()).containsExactlyInAnyOrder(987L, 65L, 4321L);
 
-    // Assert that the block definitions were parsed correctly
+    // Assert that the block definitions were parsed correctly.
     // Note: A BlockDefinition contains a list of ProgramQuestionDefinitions, which specify the
-    // questions included in the block.
-    // ProgramQuestionDefinitions are serialized into JSON and stored in our database as that JSON
-    // string.
-    // When we serialize it into JSON, we specifically exclude the `programDefinitionId` and
-    // `questionDefinition` fields.
-    // So when it gets deserialized, we expect those fields to be missing.
+    // questions included in the block. ProgramQuestionDefinitions are serialized into JSON and
+    // stored in our database as that JSON string. When we serialize, we specifically exclude
+    // the `programDefinitionId` and `questionDefinition` fields. When it gets deserialized,
+    // we expect those fields to be missing.
     BlockDefinition expectedBlockA =
         BlockDefinition.builder()
             .setId(123L)
@@ -1426,7 +1424,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .build();
     assertThat(result.blockDefinitions()).containsExactly(expectedBlockA, expectedBlockB);
 
-    // Assert that the fields that should not have been parsed were not included
+    // Assert that the fields that should not have been parsed were not included.
     assertThat(result.summaryImageFileKey()).isEmpty();
     assertThat(result.createTime()).isEmpty();
     assertThat(result.lastModifiedTime()).isEmpty();

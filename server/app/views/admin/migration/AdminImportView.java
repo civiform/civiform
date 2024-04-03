@@ -121,9 +121,9 @@ public class AdminImportView extends BaseHtmlView {
     ProgramDefinition program = programMigration.getProgram();
     DivTag programDiv = div();
     programDiv.with(h3("Program name: " + program.localizedName().getDefault()));
+    programDiv.with(p("Admin name: " + program.adminName()));
     // TODO(#7087): If the imported program admin name matches an existing program admin name, we
     // should show some kind of error because admin names need to be unique.
-    programDiv.with(p("Admin name: " + program.adminName()));
 
     for (BlockDefinition block : program.blockDefinitions()) {
       programDiv.with(renderProgramBlock(block));
@@ -135,13 +135,18 @@ public class AdminImportView extends BaseHtmlView {
     DivTag blockDiv = div().withClasses("border", "border-gray-200", "p-2");
     blockDiv.with(h4(block.name()));
     blockDiv.with(p(block.description()));
+    // TODO(#7087): Display eligibility and visibility predicates.
 
-    for (ProgramQuestionDefinition questionDefinition : block.programQuestionDefinitions()) {
-      DivTag questionDiv = div().withClasses("border", "border-gray-200", "p-2");
-      questionDiv.with(p("Question ID: " + questionDefinition.id()));
-      // TODO(#7087): Fetch and display all the question info, not just the ID.
-      blockDiv.with(questionDiv);
+    for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
+      blockDiv.with(renderQuestion(question));
     }
     return blockDiv;
+  }
+
+  private DomContent renderQuestion(ProgramQuestionDefinition question) {
+    DivTag questionDiv = div().withClasses("border", "border-gray-200", "p-2");
+    questionDiv.with(p("Question ID: " + question.id()));
+    // TODO(#7087): Fetch and display all the question info, not just the ID.
+    return questionDiv;
   }
 }
