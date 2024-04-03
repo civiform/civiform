@@ -673,7 +673,7 @@
         "description": "Enables the feature that allows completed applications to be downloadable by PDF.",
         "type": "bool"
       },
-      "DISABLED_PROGRAMS_ENABLED": {
+      "DISABLED_VISIBILITY_CONDITION_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables the feature that allows programs to be disabled from CiviForm",
         "type": "bool"
