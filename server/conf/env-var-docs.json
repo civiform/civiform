@@ -673,11 +673,6 @@
         "description": "Enables the feature that allows completed applications to be downloadable by PDF.",
         "type": "bool"
       },
-      "DISABLED_VISIBILITY_CONDITION_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "Enables the feature that allows programs to be disabled from CiviForm",
-        "type": "bool"
-      },
       "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables the feature that allows for service area validation of a corrected address. ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
