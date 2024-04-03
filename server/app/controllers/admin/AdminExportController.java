@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
 import org.pac4j.play.java.Secure;
@@ -21,8 +20,6 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
-import services.question.exceptions.QuestionNotFoundException;
-import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.admin.migration.AdminExportView;
 import views.admin.migration.AdminProgramExportForm;
@@ -104,26 +101,12 @@ public class AdminExportController extends CiviFormController {
       return badRequest(String.format("Program with ID %s could not be found", programId));
     }
 
-    ImmutableList<QuestionDefinition> questionsInProgram =
-        program.getQuestionIdsInProgram().stream()
-            .map(
-                questionId -> {
-                  try {
-                    return questionService
-                        .getReadOnlyQuestionServiceSync()
-                        .getQuestionDefinition(questionId);
-                  } catch (QuestionNotFoundException e) {
-                    throw new RuntimeException(e);
-                  }
-                })
-            .collect(ImmutableList.toImmutableList());
-
     String programJson;
     try {
       programJson =
           objectMapper
               .writerWithDefaultPrettyPrinter()
-              .writeValueAsString(new ProgramMigration(program, questionsInProgram));
+              .writeValueAsString(new ProgramMigration(program));
     } catch (JsonProcessingException e) {
       return badRequest(String.format("Program could not be serialized: %s", e));
     }
