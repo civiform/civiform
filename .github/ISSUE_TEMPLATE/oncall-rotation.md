@@ -29,6 +29,7 @@ Resources:
   - Changes to other stateful parts of the application (i.e. changes to the format of things stored in the database not necessarily requiring an evolution)
   - Config setting addition or removal
 - [ ] Create a Draft Release by 12 PT on Tuesday
+  - Ensure both the `civiform` and `cloud-deploy-infra` repos are tagged appropriately after running the `Create Release` action.
 - [ ] Contact Matthew Sprenke for QA on Slack
 - [ ] If Matthew is unavailable have the general team attempt a best-effort QA.
 - [ ] After QA, publish the release
