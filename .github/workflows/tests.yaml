@@ -122,6 +122,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: image diff output directory (aws) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
+          retention-days: 3
           path: browser-test/diff_output
         if: failure()
 
@@ -129,6 +130,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: updated snapshots output directory (aws) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
+          retention-days: 3
           path: browser-test/updated_snapshots
         if: failure()
 
@@ -136,10 +138,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: tests videos (aws) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
+          retention-days: 3
           path: |
             browser-test/tmp/html-output/
             browser-test/tmp/videos/
         if: failure()
+        
       - name: Print logs on failure
         if: failure()
         run: cat .dockerlogs
