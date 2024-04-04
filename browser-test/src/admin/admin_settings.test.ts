@@ -15,8 +15,11 @@ test.describe(
         })
 
         await adminSettings.gotoAdminSettings()
-        await validateScreenshot(page, 'admin-settings-page',
-        /* fullPage= */ false,)
+        await validateScreenshot(
+          page,
+          'admin-settings-page',
+          /* fullPage= */ false,
+        )
       })
 
       await test.step('Jump to a specific section', async () => {
@@ -37,8 +40,11 @@ test.describe(
 
         await adminSettings.gotoAdminSettings()
 
-        await validateScreenshot(page, 'admin-settings-page-narrow',
-        /* fullPage= */ false,)
+        await validateScreenshot(
+          page,
+          'admin-settings-page-narrow',
+          /* fullPage= */ false,
+        )
       })
     })
 
