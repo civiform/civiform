@@ -6,9 +6,12 @@ import com.google.common.collect.ImmutableSet;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import models.ApplicantModel;
 import services.MessageKey;
 import services.Path;
+import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.types.DateQuestionDefinition;
 
 /**
@@ -47,6 +50,11 @@ public final class DateQuestion extends Question {
   }
 
   @Override
+  public boolean isAnsweredWithPai(ApplicantModel applicant) {
+    return isPaiQuestion() && applicant.getDateOfBirth().isPresent();
+  }
+
+  @Override
   public String getAnswerString() {
     return getDateValue()
         .map(localDate -> localDate.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")))
@@ -58,12 +66,22 @@ public final class DateQuestion extends Question {
       return dateValue;
     }
 
-    dateValue = applicantQuestion.getApplicantData().readDate(getDatePath());
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    dateValue = applicantData.readDate(getDatePath());
 
+    if (dateValue.isEmpty() && isPaiQuestion()) {
+      dateValue = applicantData.getDateOfBirth();
+    }
     return dateValue;
   }
 
   public DateQuestionDefinition getQuestionDefinition() {
     return (DateQuestionDefinition) applicantQuestion.getQuestionDefinition();
+  }
+
+  private boolean isPaiQuestion() {
+    return applicantQuestion
+        .getQuestionDefinition()
+        .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_DOB);
   }
 }

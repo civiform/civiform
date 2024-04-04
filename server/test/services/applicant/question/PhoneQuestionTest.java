@@ -20,6 +20,7 @@ import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.program.ProgramQuestionDefinition;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionAnswerer;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
@@ -146,5 +147,35 @@ public class PhoneQuestionTest extends ResetPostgres {
     assertThat(phoneQuestion.getPhoneNumberValue().get()).isEqualTo("2505550199");
     assertThat(phoneQuestion.getCountryCodeValue().get()).isEqualTo("CA");
     ;
+  }
+
+  @Test
+  public void getPhoneValue_returnsPAIValueWhenTagged() {
+
+    PhoneQuestionDefinition phoneQuestionDefinitionWithPAI =
+        new PhoneQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("applicant phone")
+                .setDescription("The applicant Phone Number")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your phone number?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setId(OptionalLong.of(1))
+                .setLastModifiedTime(Optional.empty())
+                // Tag the question as a PAI question
+                .setPrimaryApplicantInfoTags(
+                    ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_PHONE))
+                .build());
+
+    // Save applicant's phone number to the PAI column
+    applicant.setPhoneNumber("9178675309");
+
+    PhoneQuestion phoneQuestion =
+        new ApplicantQuestion(phoneQuestionDefinitionWithPAI, applicantData, Optional.empty())
+            .createPhoneQuestion();
+
+    assertThat(phoneQuestion.getPhoneNumberValue().get())
+        .isEqualTo(applicant.getPhoneNumber().get());
+    assertThat(phoneQuestion.getCountryCodeValue().get())
+        .isEqualTo(applicant.getCountryCode().get());
   }
 }

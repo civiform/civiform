@@ -14,11 +14,13 @@ import {
   AdminSettings,
 } from '.'
 import {AdminApiKeys} from './admin_api_keys'
+import {AdminProgramMigration} from './admin_program_migration'
 
 type CiviformFixtures = {
   adminApiKeys: AdminApiKeys
   adminPrograms: AdminPrograms
   adminQuestions: AdminQuestions
+  adminProgramMigration: AdminProgramMigration
   adminProgramStatuses: AdminProgramStatuses
   applicantQuestions: ApplicantQuestions
   adminPredicates: AdminPredicates
@@ -41,6 +43,10 @@ export const test = base.extend<CiviformFixtures>({
 
   adminQuestions: async ({page}, use) => {
     await use(new AdminQuestions(page))
+  },
+
+  adminProgramMigration: async ({page}, use) => {
+    await use(new AdminProgramMigration(page))
   },
 
   adminProgramStatuses: async ({page}, use) => {

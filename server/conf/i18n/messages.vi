@@ -126,7 +126,7 @@ banner.clientAcctDeleted=Đã xoá thành công tài khoản khách hàng của 
 # Message when a user successfully creates a client account.
 banner.newClientCreated=Đã tạo thành công hồ sơ khách hàng mới.
 # Banner at the top of the page with the name of the client substituted in when viewing an application.
-banner.viewApplication=You are applying for {0}. Are you trying to apply for a different client?
+banner.viewApplication=Bạn đang đăng ký cho {0}. Bạn đang định đăng ký cho một khách hàng khác?
 
 
 # Button that allows a user to add a client to the CiviForm system.
@@ -156,20 +156,20 @@ button.startApp=Bắt đầu đơn đăng ký
 # Button to view the applications belonging to an applicant.
 button.viewApplications=Xem các đơn đăng ký
 # Button to view and add clients
-button.viewAndAddClients=View and add clients
+button.viewAndAddClients=Xem và thêm khách hàng
 
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=Khách hàng mới {0} đã được thêm vào danh sách khách hàng của bạn. Bây giờ bạn có thể bắt đầu gửi đơn đăng ký cho khách hàng này.
 # The tooltip of the email input field.
-content.emailTooltip=Add an email address for your client to receive status updates about their application automatically. Without an email, you or your community-based organization will be responsible for communicating updates to your client.
+content.emailTooltip=Thêm địa chỉ email để khách hàng tự động nhận được thông tin cập nhật về trạng thái đơn đăng ký của họ. Nếu không có địa chỉ email, bạn hoặc tổ chức dựa vào cộng đồng của bạn sẽ chịu trách nhiệm truyền đạt thông tin cập nhật cho khách hàng.
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted=Đã gửi {0} đơn đăng ký
 # Shows that a single application has been submitted on behalf of the client.
-content.oneAppSubmitted=1 application submitted
+content.oneAppSubmitted=Đã gửi 1 đơn đăng ký
 # Some explanation text on the confirmation modal when deleting a client.
 content.warning=Không có đơn đăng ký nào được gửi cho khách hàng này nên sẽ không có đơn đăng ký nào bị mất.
 # Shows there is no email address connected to the account.
-content.noEmailAddress=(no email address)
+content.noEmailAddress=(không có địa chỉ email)
 # The status of an organization member when they have been enrolled but have never logged into CiviForm.
 content.notLoggedIn=Not yet logged in
 # The status of an organization member when they have logged in but haven't applied on behalf of a client.
@@ -184,7 +184,7 @@ header.acctSettings=Cài đặt tài khoản
 # Tab label for getting to the client list page
 header.clientList=Danh sách khách hàng
 # Label for search
-header.search=Search
+header.search=Tìm kiếm
 
 # A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
 label.acctStatus=Trạng thái tài khoản
@@ -199,11 +199,11 @@ label.dobExample=Ví dụ: Ngày 28 tháng 1 năm 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=Email
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.
-label.errorDOB=Error: Date of birth required
+label.errorDOB=Lỗi: Cần phải nhập ngày sinh
 # Validation error message below first name input when the TI clicks on save without filling out the field.
-label.errorFirstName=Error: First name required
+label.errorFirstName=Lỗi: Cần phải nhập tên
 # Validation error message below last name input when the TI clicks on save without filling out the field.
-label.errorLastName=Error: Last name required
+label.errorLastName=Lỗi: Cần phải nhập họ
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Tháng
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -221,20 +221,24 @@ label.searchByName=Tìm theo tên
 # The label above the input field for the year of the client birth date.
 label.year=Năm
 # Label showing the user when there is no name
-label.unnamedUser=Unnamed user
+label.unnamedUser=Người dùng chưa được đặt tên
 
 link.edit=Chỉnh sửa
 # Link to change the client that the trusted intermediary is applying for.
-link.selectNewClient=Select a new client
+link.selectNewClient=Chọn một khách hàng mới
 
 # This is the header above the list of clients and the client search.
 title.allClients=Tất cả khách hàng
 # This is the heading above a new client creation form.
 title.createClient=Tạo hồ sơ khách hàng mới
+# This is the heading above the client editing form.
+title.editClient=Edit client info
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients=Đang hiện {0} khách hàng
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=Đang hiện 1 khách hàng
+# This is the heading above an unfiltered list of clients.
+title.displayingAllClients=Displaying all clients
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=Thành viên của tổ chức
 

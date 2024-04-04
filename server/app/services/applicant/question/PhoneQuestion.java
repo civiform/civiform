@@ -7,10 +7,13 @@ import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import java.util.Optional;
+import models.ApplicantModel;
 import services.MessageKey;
 import services.Path;
 import services.PhoneValidationUtils;
+import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.types.PhoneQuestionDefinition;
 
 /**
@@ -35,6 +38,11 @@ public final class PhoneQuestion extends Question {
   }
 
   @Override
+  public boolean isAnsweredWithPai(ApplicantModel applicant) {
+    return isPaiQuestion() && applicant.getPhoneNumber().isPresent();
+  }
+
+  @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     // TODO: Implement admin-defined validation.
     return ImmutableMap.of(getPhoneNumberPath(), validatePhoneNumber());
@@ -55,7 +63,14 @@ public final class PhoneQuestion extends Question {
     if (phoneNumberValue != null) {
       return phoneNumberValue;
     }
-    phoneNumberValue = applicantQuestion.getApplicantData().readString(getPhoneNumberPath());
+
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    Optional<String> phoneNumberValue = applicantData.readString(getPhoneNumberPath());
+
+    if (phoneNumberValue.isEmpty() && isPaiQuestion()) {
+      phoneNumberValue = applicantData.getPhoneNumber();
+    }
+
     return phoneNumberValue;
   }
 
@@ -64,7 +79,12 @@ public final class PhoneQuestion extends Question {
       return countryCodeValue;
     }
 
-    countryCodeValue = applicantQuestion.getApplicantData().readString(getCountryCodePath());
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    Optional<String> countryCodeValue = applicantData.readString(getCountryCodePath());
+
+    if (countryCodeValue.isEmpty() && isPaiQuestion()) {
+      countryCodeValue = applicantData.getApplicant().getCountryCode();
+    }
 
     return countryCodeValue;
   }
@@ -95,5 +115,11 @@ public final class PhoneQuestion extends Question {
     } catch (NumberParseException e) {
       return "-";
     }
+  }
+
+  private boolean isPaiQuestion() {
+    return applicantQuestion
+        .getQuestionDefinition()
+        .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_PHONE);
   }
 }

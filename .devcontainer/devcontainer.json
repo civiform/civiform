@@ -16,11 +16,15 @@
     "ghcr.io/devcontainers/features/sshd:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/devcontainers/features/java:1.4.1": {
-      "version": "none",
+      "version": "11",
+      "jdkDistro": "tem", // Eclipse Adoptium Temurin per https://sdkman.io/jdks#tem See also: whichjdk.com
       "installMaven": "true",
       "installGradle": "false"
     },
-    "ghcr.io/devcontainers-contrib/features/ant-sdkman:2": {},
+    "ghcr.io/devcontainers-contrib/features/ant-sdkman:2": {
+      "jdkVersion": "11",
+      "jdkDistro": "tem"
+    },
     "ghcr.io/devcontainers/features/node:1": {}
   },
 
@@ -88,9 +92,9 @@
     }
   },
 
-  "onCreateCommand": "bin/vscode-setup",
-  "postCreateCommand": "npm install -g @withgraphite/graphite-cli@stable && npm install --no-save @playwright/test",
+  "onCreateCommand": "npm install -g @withgraphite/graphite-cli@stable && npm install --no-save @playwright/test",
+  "updateContentCommand": "bin/vscode-setup",
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  "forwardPorts": [9000, 5432]
+  "forwardPorts": [9000, 5432, 3390]
 }
