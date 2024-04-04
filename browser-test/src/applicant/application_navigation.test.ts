@@ -4,7 +4,6 @@ import {
   ClientInformation,
   createTestContext,
   enableFeatureFlag,
-  disableFeatureFlag,
   dropTables,
   loginAsAdmin,
   loginAsTestUser,
@@ -297,8 +296,6 @@ test.describe('Applicant navigation flow', () => {
 
       test('answering questions out of order', async () => {
         const {page, applicantQuestions} = ctx
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
 
         await applicantQuestions.clickApplyProgramButton(programName)
 
@@ -401,8 +398,7 @@ test.describe('Applicant navigation flow', () => {
 
     test.describe('previous button', () => {
       test('clicking previous on first block goes to summary page', async () => {
-        const {page, applicantQuestions} = ctx
-        await enableFeatureFlag(page, 'save_on_all_actions')
+        const {applicantQuestions} = ctx
         await applicantQuestions.applyProgram(programName)
 
         await applicantQuestions.clickPrevious()
@@ -412,8 +408,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       test('clicking previous on later blocks goes to previous blocks', async () => {
-        const {page, applicantQuestions} = ctx
-        await enableFeatureFlag(page, 'save_on_all_actions')
+        const {applicantQuestions} = ctx
         await applicantQuestions.applyProgram(programName)
 
         // Fill out the first block and click next
@@ -458,31 +453,9 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.expectReviewPage()
       })
 
-      test('clicking previous does not save when flag off', async () => {
-        const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await disableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
-
-        await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerDateQuestion('2021-11-01')
-        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-
-        await applicantQuestions.clickPrevious()
-
-        await applicantQuestions.expectReviewPage()
-        await applicantQuestions.validateNoPreviouslyAnsweredText(
-          dateQuestionText,
-        )
-        await applicantQuestions.validateNoPreviouslyAnsweredText(
-          emailQuestionText,
-        )
-      })
-
       test('clicking previous with correct form shows previous page and saves answers', async () => {
         const {page, applicantQuestions} = ctx
         await loginAsAdmin(page)
-        await enableFeatureFlag(page, 'save_on_all_actions')
         await logout(page)
 
         await applicantQuestions.applyProgram(programName)
@@ -516,9 +489,6 @@ test.describe('Applicant navigation flow', () => {
 
       test('clicking previous with some missing answers shows error modal', async () => {
         const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
 
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerDateQuestion('')
@@ -532,10 +502,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       test('clicking previous with no answers does not show error modal', async () => {
-        const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
+        const {applicantQuestions} = ctx
 
         await applicantQuestions.applyProgram(programName)
 
@@ -549,10 +516,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       test('error on previous modal > click stay and fix > shows block', async () => {
-        const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
+        const {applicantQuestions} = ctx
 
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerDateQuestion('')
@@ -586,10 +550,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       test('error on previous modal > click previous without saving > answers not saved', async () => {
-        const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
+        const {applicantQuestions} = ctx
 
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerDateQuestion('2021-11-01')
@@ -612,10 +573,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       test('error on previous modal > click previous without saving > shows previous block', async () => {
-        const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
+        const {applicantQuestions} = ctx
 
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerDateQuestion('2021-11-01')
@@ -645,10 +603,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       test('clicking previous after deleting answers to required questions shows error modal', async () => {
-        const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
+        const {applicantQuestions} = ctx
 
         await test.step('answer questions on first block', async () => {
           await applicantQuestions.applyProgram(programName)
@@ -674,9 +629,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       test('previous saves blank optional answers', async () => {
-        const {page, applicantQuestions} = ctx
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
+        const {applicantQuestions} = ctx
 
         await test.step('answer blocks with all required questions', async () => {
           await applicantQuestions.applyProgram(programName)
@@ -724,42 +677,11 @@ test.describe('Applicant navigation flow', () => {
           await applicantQuestions.expectConfirmationPage()
         })
       })
-
-      test.afterAll(async () => {
-        const {page} = ctx
-        await loginAsAdmin(page)
-        await disableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
-      })
     })
 
     test.describe('review button', () => {
-      test('clicking review does not save when flag off', async () => {
-        const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await disableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
-
-        await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerDateQuestion('2021-11-01')
-        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-
-        await applicantQuestions.clickReview()
-
-        await applicantQuestions.expectReviewPage()
-        await applicantQuestions.validateNoPreviouslyAnsweredText(
-          dateQuestionText,
-        )
-        await applicantQuestions.validateNoPreviouslyAnsweredText(
-          emailQuestionText,
-        )
-      })
-
       test('clicking review with correct form shows review page with saved answers', async () => {
-        const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
+        const {applicantQuestions} = ctx
 
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerDateQuestion('2021-11-01')
@@ -780,9 +702,6 @@ test.describe('Applicant navigation flow', () => {
 
       test('clicking review with some missing answers shows modal', async () => {
         const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
 
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerDateQuestion('')
@@ -796,10 +715,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       test('clicking review with no answers does not show error modal', async () => {
-        const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
+        const {applicantQuestions} = ctx
 
         await applicantQuestions.applyProgram(programName)
 
@@ -812,10 +728,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       test('error on review modal > click stay and fix > shows block', async () => {
-        const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
+        const {applicantQuestions} = ctx
 
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerDateQuestion('')
@@ -847,10 +760,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       test('error on review modal > click review without saving > shows review page without saved answers', async () => {
-        const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
+        const {applicantQuestions} = ctx
 
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerDateQuestion('2021-11-01')
@@ -872,10 +782,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       test('clicking review after deleting answers to required questions shows error modal', async () => {
-        const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
+        const {applicantQuestions} = ctx
 
         await test.step('answer questions on first block', async () => {
           await applicantQuestions.applyProgram(programName)
@@ -901,9 +808,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       test('review saves blank optional answers', async () => {
-        const {page, applicantQuestions} = ctx
-        await enableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
+        const {applicantQuestions} = ctx
 
         await test.step('answer blocks with all required questions', async () => {
           await applicantQuestions.applyProgram(programName)
@@ -948,13 +853,6 @@ test.describe('Applicant navigation flow', () => {
           await applicantQuestions.submitFromReviewPage()
           await applicantQuestions.expectConfirmationPage()
         })
-      })
-
-      test.afterAll(async () => {
-        const {page} = ctx
-        await loginAsAdmin(page)
-        await disableFeatureFlag(page, 'save_on_all_actions')
-        await logout(page)
       })
     })
 
@@ -1996,7 +1894,6 @@ test.describe('Applicant navigation flow', () => {
 
       test('when address is eligible show hidden screen', async () => {
         const {page, applicantQuestions} = ctx
-        await disableFeatureFlag(page, 'save_on_all_actions')
 
         await applicantQuestions.applyProgram(programName)
 
@@ -2011,7 +1908,7 @@ test.describe('Applicant navigation flow', () => {
         )
         await applicantQuestions.clickNext()
         await applicantQuestions.expectVerifyAddressPage(true)
-        await applicantQuestions.clickNext()
+        await applicantQuestions.clickConfirmAddress()
         // Screen 1 will only be visible when the address is validated as being eligible. This test case uses an valid address.
         await applicantQuestions.answerTextQuestion('answer 1')
         await applicantQuestions.clickNext()
@@ -2042,7 +1939,7 @@ test.describe('Applicant navigation flow', () => {
         )
         await applicantQuestions.clickNext()
         await applicantQuestions.expectVerifyAddressPage(false)
-        await applicantQuestions.clickNext()
+        await applicantQuestions.clickConfirmAddress()
         // Screen 1 will only be visible when the address is validated as being eligible. This test case uses an invalid address.
         await applicantQuestions.answerTextQuestion('answer 2')
         await applicantQuestions.clickNext()

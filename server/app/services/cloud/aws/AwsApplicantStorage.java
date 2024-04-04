@@ -16,7 +16,6 @@ import javax.inject.Singleton;
 import org.mockito.Mockito;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
-import play.mvc.Http;
 import services.cloud.ApplicantStorageClient;
 import services.cloud.StorageServiceName;
 import services.settings.SettingsManifest;
@@ -99,8 +98,8 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
 
   @Override
   public SignedS3UploadRequest getSignedUploadRequest(
-      String fileKey, String successActionRedirectUrl, Http.Request request) {
-    if (settingsManifest.getSaveOnAllActions(request)) {
+      String fileKey, String successActionRedirectUrl) {
+    if (settingsManifest.getSaveOnAllActions()) {
       // For the file upload question, assets/javascripts/file_upload.ts may modify the
       // applicant-requested action part of the success_action_redirect URL to specify where the
       // user should be taken after the file has been successfully uploaded. So, the redirect
