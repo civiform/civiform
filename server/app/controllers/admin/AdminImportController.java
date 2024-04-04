@@ -75,6 +75,7 @@ public class AdminImportController extends CiviFormController {
     return ok(adminImportView.render(request, /* programData= */ Optional.empty()));
   }
 
+  // TODO: Rename route to fit guidelines in doc
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result importProgram(Http.Request request) {
     if (!settingsManifest.getProgramMigrationEnabled(request)) {
@@ -120,11 +121,15 @@ public class AdminImportController extends CiviFormController {
       parsedJson = Json.parse(inputStream);
     } catch (FileNotFoundException e) {
       return ok(
-          adminImportView.render(request, createErrorResult("Imported file could not be found.")));
+          adminImportView
+              .renderFetchedProgramData(request, "Imported file could not be found.")
+              .render());
     } catch (RuntimeException e) {
       return ok(
-          adminImportView.render(
-              request, createErrorResult("JSON file is incorrectly formatted: " + e.getMessage())));
+          adminImportView
+              .renderFetchedProgramData(
+                  request, "JSON file is incorrectly formatted: " + e.getMessage())
+              .render());
     }
 
     boolean fileDeleted = file.delete();
@@ -132,11 +137,8 @@ public class AdminImportController extends CiviFormController {
       logger.error(String.format("File [%s] was not able to be deleted", file.getAbsolutePath()));
     }
 
-    // TODO(#7087): Is there a way to redirect back to the index page (`/admin/import` URL) but have
-    // this result? Right now, this keeps users on the `/admin/import/program` URL. And if they
-    // refresh the page, they get a warning from their browser asking if they want to resubmit the
-    // form, which isn't great.
-    return ok(adminImportView.render(request, Optional.of(ErrorAnd.of(parsedJson.toString()))));
+    return ok(
+        adminImportView.renderFetchedProgramData(request, parsedJson.toPrettyString()).render());
   }
 
   private Optional<ErrorAnd<String, CiviFormError>> createErrorResult(String error) {

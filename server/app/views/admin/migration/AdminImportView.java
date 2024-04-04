@@ -86,20 +86,25 @@ public class AdminImportView extends BaseHtmlView {
             /* disabled= */ false,
             /* fileLimitMb= */ AdminImportController.MAX_FILE_SIZE_MB,
             messagesApi.preferred(request));
+
     return div()
         .with(h2("Upload program JSON"))
         .with(
             form()
-                .withEnctype("multipart/form-data")
-                .withMethod("POST")
+                .attr("hx-encoding", "multipart/form-data")
+                .attr("hx-post", routes.AdminImportController.importProgram().url())
+                .attr("hx-target", "#program-data")
+                .attr("hx-swap", "outerHTML")
                 .with(makeCsrfTokenInputTag(request), fileUploadElement)
-                .with(submitButton("Upload program").withClass(ButtonStyles.SOLID_BLUE))
-                .withAction(routes.AdminImportController.importProgram().url()))
+                .with(submitButton("Upload program").withClass(ButtonStyles.SOLID_BLUE)))
         .withClass("my-10");
   }
 
   private DomContent renderProgramData(Optional<ErrorAnd<String, CiviFormError>> programData) {
-    DivTag data = div().with(h2("Uploaded program data"));
+    DivTag container = div().with(h2("Uploaded program data"));
+    DivTag data = div().withId("program-data");
+    container.with(data);
+
     if (programData.isEmpty()) {
       return data.with(p("No data has been uploaded yet."));
     }
@@ -116,6 +121,11 @@ public class AdminImportView extends BaseHtmlView {
     }
     // TODO(#7087): Render the program data correctly by showing the blocks and questions in a
     // readable format.
-    return data.with(p(programData.get().getResult()));
+    data.with(p(programData.get().getResult()));
+    return container;
+  }
+
+  public DomContent renderFetchedProgramData(Http.Request request, String msg) {
+    return div(msg).withId("program-data");
   }
 }
