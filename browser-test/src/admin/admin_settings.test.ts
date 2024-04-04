@@ -9,8 +9,14 @@ test.describe(
       await loginAsAdmin(page)
 
       await test.step('Go to admin settings page and take screenshot', async () => {
+        await page.setViewportSize({
+          width: 1280,
+          height: 720,
+        })
+
         await adminSettings.gotoAdminSettings()
-        await validateScreenshot(page, 'admin-settings-page')
+        await validateScreenshot(page, 'admin-settings-page',
+        /* fullPage= */ false,)
       })
 
       await test.step('Jump to a specific section', async () => {
@@ -29,9 +35,10 @@ test.describe(
           height: 720,
         })
 
-        await page.reload()
+        await adminSettings.gotoAdminSettings()
 
-        await validateScreenshot(page, 'admin-settings-page-narrow')
+        await validateScreenshot(page, 'admin-settings-page-narrow',
+        /* fullPage= */ false,)
       })
     })
 
