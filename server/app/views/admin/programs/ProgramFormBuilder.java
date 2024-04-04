@@ -176,15 +176,15 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setLabelText("Trusted intermediaries only")
                     .setValue(DisplayMode.TI_ONLY.getValue())
                     .setChecked(displayMode.equals(DisplayMode.TI_ONLY.getValue()))
+                    .getRadioTag(),
+                FieldWithLabel.radio()
+                    .setId("program-display-mode-select-ti-only")
+                    .setFieldName("displayMode")
+                    .setAriaRequired(true)
+                    .setLabelText("Visible to selected trusted intermediaries only")
+                    .setValue(DisplayMode.SELECT_TI.getValue())
+                    .setChecked(displayMode.equals(DisplayMode.SELECT_TI.getValue()))
                     .getRadioTag()),
-        FieldWithLabel.radio()
-            .setId("program-display-mode-select-ti-only")
-            .setFieldName("displayMode")
-            .setAriaRequired(true)
-            .setLabelText("Visible to selected trusted intermediaries only")
-            .setValue(DisplayMode.SELECT_TI.getValue())
-            .setChecked(displayMode.equals(DisplayMode.SELECT_TI.getValue()))
-            .getRadioTag(),
         showTiSelectionList(selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())));
 
     formTag.with(
