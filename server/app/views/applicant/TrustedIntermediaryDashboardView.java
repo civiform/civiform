@@ -100,7 +100,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .getBundle(request)
             .setTitle("CiviForm")
             .addMainContent(
-                h1(tiGroup.getName()).withClasses( "py-12", "px-20", "ti-header-band"),
+                h1(tiGroup.getName()).withClasses("py-12", "px-20", "ti-header-band"),
                 div(
                         renderSubHeader(messages.at(MessageKey.TITLE_ALL_CLIENTS.getKeyName()))
                             .withClass("mb-0"),
