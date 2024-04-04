@@ -3,6 +3,7 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.h1;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -87,8 +88,7 @@ public class EditTiClientView extends BaseHtmlView {
             .getBundle(request)
             .setTitle(title)
             .addMainContent(
-                renderHeader(tiGroup.getName(), "py-12", "px-20", "ti-header-band"),
-                div().withClasses("h-6"), // Placeholder for tabs
+                h1(tiGroup.getName()).withClasses("py-12", "px-20", "ti-header-band"),
                 renderSubHeader(pageHeader)
                     .withId(pageId)
                     .withClasses("mb-10", "ti-header-band", "py-6", "px-20"),
