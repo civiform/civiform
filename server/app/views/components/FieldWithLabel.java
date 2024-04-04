@@ -65,6 +65,8 @@ public class FieldWithLabel {
   /** For use with fields of type `textarea`. */
   private OptionalLong cols = OptionalLong.empty();
 
+  private OptionalInt maxLength = OptionalInt.empty();
+
   private String formId = "";
   private String id = "";
   private String labelText = "";
@@ -260,6 +262,15 @@ public class FieldWithLabel {
     }
 
     this.cols = value;
+    return this;
+  }
+
+  public FieldWithLabel setMaxlength(OptionalInt value) {
+    // if (!this.isTagTypeTextarea()) {
+    //   throw new RuntimeException("setting rows is only available on fields of type 'textarea'");
+    // }
+
+    this.maxLength = value;
     return this;
   }
 
@@ -624,7 +635,12 @@ public class FieldWithLabel {
     fieldTag.condAttr(
         shouldForceAriaInvalid || fieldErrorsInfo.hasFieldErrors, "aria-invalid", "true");
     fieldTag.condAttr(focusOnError, Attr.AUTOFOCUS, "");
-    fieldTag.attr("maxlength", MAX_INPUT_TEXT_LENGTH);
+
+    if (this.maxLength.isPresent()) {
+      fieldTag.attr("maxlength", this.maxLength.getAsInt());
+    } else {
+      fieldTag.attr("maxlength", MAX_INPUT_TEXT_LENGTH);
+    }
     if (ariaRequired) {
       fieldTag.attr("aria-required", "true");
     }
