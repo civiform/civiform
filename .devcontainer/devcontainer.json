@@ -92,7 +92,8 @@
     }
   },
 
-  "updateContentCommand": "npm install -g @withgraphite/graphite-cli@stable && bin/vscode-setup",
+  "onCreateCommand": "npm install -g @withgraphite/graphite-cli@stable",
+  "updateContentCommand": "bin/vscode-setup",
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "forwardPorts": [9000, 5432, 3390]
