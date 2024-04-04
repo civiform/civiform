@@ -454,9 +454,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       test('clicking previous with correct form shows previous page and saves answers', async () => {
-        const {page, applicantQuestions} = ctx
-        await loginAsAdmin(page)
-        await logout(page)
+        const {applicantQuestions} = ctx
 
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerDateQuestion('2021-11-01')
