@@ -110,17 +110,18 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     downloadModal.getButton(),
                     filterParams,
                     request),
-                each(
-                    paginatedApplications.getPageContents(),
-                    application ->
-                        renderApplicationListItem(
-                            application,
-                            /* displayStatus= */ allPossibleProgramApplicationStatuses.size() > 0,
-                            hasEligibilityEnabled
-                                ? applicantService.getApplicationEligibilityStatus(
-                                    application, program)
-                                : Optional.empty(),
-                            defaultStatus)))
+                    renderApplicationsTable(paginatedApplications.getPageContents(),allPossibleProgramApplicationStatuses,hasEligibilityEnabled,defaultStatus)
+                // each(
+                //     paginatedApplications.getPageContents(),
+                //     application ->
+                //         renderApplicationListItem(
+                //             application,
+                //             /* displayStatus= */ allPossibleProgramApplicationStatuses.size() > 0,
+                //             hasEligibilityEnabled
+                //                 ? applicantService.getApplicationEligibilityStatus(
+                //                     application, program)
+                //                 : Optional.empty(),
+                //             defaultStatus)))
             .condWith(
                 paginatedApplications.getNumPages() > 1,
                 renderPagination(
@@ -361,71 +362,134 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 .withType("button"))
         .build();
   }
-
-  private DivTag renderApplicationListItem(
-      ApplicationModel application,
-      boolean displayStatus,
-      Optional<Boolean> maybeEligibilityStatus,
-      Optional<StatusDefinitions.Status> defaultStatus) {
-    String applicantNameWithApplicationId =
-        String.format(
-            "%s (%d)",
-            applicantUtils.getApplicantNameEnUs(application.getApplicantData().getApplicantName()),
-            application.id);
-    String viewLinkText = "View →";
-
-    String statusString =
-        application
-            .getLatestStatus()
-            .map(
-                s ->
-                    String.format(
-                        "%s%s",
-                        s,
-                        defaultStatus.map(defaultString -> defaultString.matches(s)).orElse(false)
-                            ? " (default)"
-                            : ""))
-            .orElse("None");
-
-    DivTag cardContent =
-        div()
-            .withClasses("border", "border-gray-300", "bg-white", "rounded", "p-4")
-            .with(
-                p(applicantNameWithApplicationId)
-                    .withClasses(
-                        "text-black",
-                        "font-bold",
-                        "text-xl",
-                        "mb-1",
-                        ReferenceClasses.BT_APPLICATION_ID))
-            .condWith(
-                application.getSubmitterEmail().isPresent(),
-                p(application.getSubmitterEmail().orElse(""))
-                    .withClasses("text-lg", "text-gray-800", "mb-2"))
-            .condWith(
-                displayStatus,
-                p().withClasses("text-sm", "text-gray-700")
-                    .with(span("Status: "), span(statusString).withClass("font-semibold")))
-            .condWith(
-                maybeEligibilityStatus.isPresent(),
-                p().withClasses("text-sm", "text-gray-700")
-                    .with(
-                        span(maybeEligibilityStatus.isPresent() && maybeEligibilityStatus.get()
-                                ? "Meets eligibility"
-                                : "Doesn't meet eligibility")
-                            .withClass("font-semibold")))
-            .with(
-                div()
-                    .withClasses("flex", "text-sm", "w-full")
-                    .with(
-                        p(renderSubmitTime(application))
-                            .withClasses("text-gray-700", "italic", ReferenceClasses.BT_DATE),
-                        div().withClasses("flex-grow"),
-                        renderViewLink(viewLinkText, application)));
-
-    return div(cardContent)
-        .withClasses(ReferenceClasses.ADMIN_APPLICATION_CARD, "w-full", "shadow-lg", "mt-4");
+  private DivTag getApplicationsTable(ImmutableList<ApplicationModel> applications,ImmutableList<String> allPossibleProgramApplicationStatuses,boolean hasEligibilityEnabled,Optional<StatusDefinitions.Status> defaultStatus)
+  {
+    DivTag table = div()
+    .withClass("usa-table-container--scrollable")
+    .table().withClass("usa-table")
+    .with(renderGroupTableHeader(messages))
+    .with(
+        tbody(
+            each(                
+                        application-> renderApplicationRowItem(
+                            application,
+                            /* displayStatus= */ allPossibleProgramApplicationStatuses.size() > 0,
+                            hasEligibilityEnabled
+                                ? applicantService.getApplicationEligibilityStatus(
+                                    application, program)
+                                : Optional.empty(),
+                            defaultStatus))));
+    return table;
   }
+  private TheadTag renderGroupTableHeader(Messages messages) {
+    return thead(
+        tr().with(
+                th("Name")
+                    .withScope("col"))
+            .with(
+                th("Eligibility")
+                    .withScope("col"))
+            .with(
+                th("Status")
+                    .withScope("col"))
+            .with(
+                th("Submission date")
+                    .withScope("col"))
+                );
+  }
+private DivTag renderApplicationRowItem(      
+    ApplicationModel application,
+boolean displayStatus,
+Optional<Boolean> maybeEligibilityStatus,
+Optional<StatusDefinitions.Status> defaultStatus) {
+    String applicantNameWithApplicationId =
+    String.format(
+        "%s (%d)",
+        applicantUtils.getApplicantNameEnUs(application.getApplicantData().getApplicantName()),
+        application.id);
+
+String statusString =
+    application
+        .getLatestStatus()
+        .map(
+            s ->
+                String.format(
+                    "%s%s",
+                    s,
+                    defaultStatus.map(defaultString -> defaultString.matches(s)).orElse(false)
+                        ? " (default)"
+                        : ""))
+        .orElse("None");
+        DivTag tablerow = 
+   tr().with(th().withScope("row").td(applicantNameWithApplicationId).td())
+
+        );
+
+}
+//   private DivTag renderApplicationListItem(
+//       ApplicationModel application,
+//       boolean displayStatus,
+//       Optional<Boolean> maybeEligibilityStatus,
+//       Optional<StatusDefinitions.Status> defaultStatus) {
+//     String applicantNameWithApplicationId =
+//         String.format(
+//             "%s (%d)",
+//             applicantUtils.getApplicantNameEnUs(application.getApplicantData().getApplicantName()),
+//             application.id);
+//     String viewLinkText = "View →";
+
+//     String statusString =
+//         application
+//             .getLatestStatus()
+//             .map(
+//                 s ->
+//                     String.format(
+//                         "%s%s",
+//                         s,
+//                         defaultStatus.map(defaultString -> defaultString.matches(s)).orElse(false)
+//                             ? " (default)"
+//                             : ""))
+//             .orElse("None");
+
+//     DivTag cardContent =
+//         div()
+//             .withClasses("border", "border-gray-300", "bg-white", "rounded", "p-4")
+//             .with(
+//                 p(applicantNameWithApplicationId)
+//                     .withClasses(
+//                         "text-black",
+//                         "font-bold",
+//                         "text-xl",
+//                         "mb-1",
+//                         ReferenceClasses.BT_APPLICATION_ID))
+//             .condWith(
+//                 application.getSubmitterEmail().isPresent(),
+//                 p(application.getSubmitterEmail().orElse(""))
+//                     .withClasses("text-lg", "text-gray-800", "mb-2"))
+//             .condWith(
+//                 displayStatus,
+//                 p().withClasses("text-sm", "text-gray-700")
+//                     .with(span("Status: "), span(statusString).withClass("font-semibold")))
+//             .condWith(
+//                 maybeEligibilityStatus.isPresent(),
+//                 p().withClasses("text-sm", "text-gray-700")
+//                     .with(
+//                         span(maybeEligibilityStatus.isPresent() && maybeEligibilityStatus.get()
+//                                 ? "Meets eligibility"
+//                                 : "Doesn't meet eligibility")
+//                             .withClass("font-semibold")))
+//             .with(
+//                 div()
+//                     .withClasses("flex", "text-sm", "w-full")
+//                     .with(
+//                         p(renderSubmitTime(application))
+//                             .withClasses("text-gray-700", "italic", ReferenceClasses.BT_DATE),
+//                         div().withClasses("flex-grow"),
+//                         renderViewLink(viewLinkText, application)));
+
+//     return div(cardContent)
+//         .withClasses(ReferenceClasses.ADMIN_APPLICATION_CARD, "w-full", "shadow-lg", "mt-4");
+//   }
 
   private SpanTag renderSubmitTime(ApplicationModel application) {
     try {
