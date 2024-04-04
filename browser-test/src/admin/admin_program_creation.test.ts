@@ -16,6 +16,7 @@ test.describe('program creation', () => {
 
   test('create program page', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
+    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await loginAsAdmin(page)
 
     const programName = 'Apc program'
@@ -116,6 +117,7 @@ test.describe('program creation', () => {
   test('shows correct formatting during question creation', async () => {
     const {page, adminQuestions} = ctx
 
+    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await loginAsAdmin(page)
 
     await adminQuestions.createStaticQuestion({
@@ -399,6 +401,7 @@ test.describe('program creation', () => {
   test('change questions order within block', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
+    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await loginAsAdmin(page)
 
     const color = 'favorite-color'
