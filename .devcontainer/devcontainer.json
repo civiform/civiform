@@ -50,7 +50,6 @@
         "bradlc.vscode-tailwindcss",
         "dbaeumer.vscode-eslint",
         "github.vscode-pull-request-github",
-        "hashicorp.terraform",
         "ms-azuretools.vscode-docker",
         "ms-ossdata.vscode-postgresql",
         "ms-playwright.playwright",
