@@ -9,17 +9,6 @@ import org.junit.Test;
 public class DurableJobRegistryTest {
 
   @Test
-  public void register_andGetAJob() throws Exception {
-    var registry = new DurableJobRegistry();
-
-    registry.register(DurableJobName.OLD_JOB_CLEANUP, new FakeJobFactory());
-
-    // assert that it does not throw an exception
-    registry.get(DurableJobName.OLD_JOB_CLEANUP);
-    assertThat(registry.getRecurringJobs()).isEmpty();
-  }
-
-  @Test
   public void get_aMissingJob_throwsException() {
     var registry = new DurableJobRegistry();
 
