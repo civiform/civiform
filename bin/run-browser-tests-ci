@@ -3,9 +3,6 @@
 # DOC: Run the browser tests in CI mode.
 
 export COMPOSE_INTERACTIVE_NO_CLI=1
-# Enable video recording on CI tests as it will be helpful to debug test
-# failures.
-export RECORD_VIDEO=1
 
 source bin/lib.sh
 docker::set_project_name_browser_tests
@@ -13,7 +10,6 @@ docker::set_project_name_browser_tests
 # The display name returned by test_oidc_provider.js is <username>@example.com.
 docker run \
   -v "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
-  -e RECORD_VIDEO="${RECORD_VIDEO}" \
   -e TEST_CIVIC_ENTITY_SHORT_NAME="${TEST_CIVIC_ENTITY_SHORT_NAME:-TestCity}" \
   -e CI="${CI}" \
   --network "${DOCKER_NETWORK_NAME}" \
