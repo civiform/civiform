@@ -24,7 +24,7 @@ public class DurableJobSchedulerTest extends ResetPostgres {
     durableJobRegistry.register(
         DurableJobName.TEST,
         (persistedDurableJob) -> makeTestJob(persistedDurableJob, () -> {}),
-        new RecurringJobExecutionTimeResolvers.Sunday2Am());
+        new ExecutionTimeResolvers.Sunday2Am());
 
     persistedDurableJobRepository = instanceOf(PersistedDurableJobRepository.class);
     recurringJobScheduler =
@@ -42,7 +42,7 @@ public class DurableJobSchedulerTest extends ResetPostgres {
     assertThat(jobs.size()).isEqualTo(1);
     var job = jobs.get(0);
     Instant expectedExecutionTime =
-        new RecurringJobExecutionTimeResolvers.Sunday2Am().resolveExecutionTime(clock);
+        new ExecutionTimeResolvers.Sunday2Am().resolveExecutionTime(clock);
     assertThat(job.getExecutionTime()).isEqualTo(expectedExecutionTime);
     assertThat(job.getJobName()).isEqualTo(DurableJobName.TEST.getJobNameString());
 

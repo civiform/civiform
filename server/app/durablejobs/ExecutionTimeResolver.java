@@ -4,14 +4,14 @@ import com.google.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
-public class ExecutionTimeResolver {
+public abstract class ExecutionTimeResolver {
 
-  private final LocalDate date;
+  protected final Optional<LocalDate> date;
 
   @Inject
-  public ExecutionTimeResolver(LocalDate date) {
+  public ExecutionTimeResolver(Optional<LocalDate> date) {
     this.date = date;
   }
 
@@ -19,15 +19,5 @@ public class ExecutionTimeResolver {
    * Computes the next execution time for a recurring job based on the local time settings
    * represented by {@code clock}.
    */
-  public Instant resolveExecutionTime(Clock clock) {
-    if (date != null) {
-      return date.atStartOfDay(clock.getZone()).toInstant();
-    } else {
-      return LocalDate.now(clock)
-          .plusDays(1)
-          .atStartOfDay(clock.getZone())
-          .plus(2, ChronoUnit.HOURS)
-          .toInstant();
-    }
-  }
+  public abstract Instant resolveExecutionTime(Clock clock);
 }

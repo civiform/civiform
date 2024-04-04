@@ -36,9 +36,9 @@ public final class DurableJobRegistry {
     private static RegisteredJob create(
         DurableJobFactory durableJobFactory,
         DurableJobName jobName,
-        Optional<ExecutionTimeResolver> recurringJobExecutionTimeResolver) {
+        Optional<ExecutionTimeResolver> executionTimeResolver) {
       return new AutoValue_DurableJobRegistry_RegisteredJob(
-          durableJobFactory, jobName, recurringJobExecutionTimeResolver);
+          durableJobFactory, jobName, executionTimeResolver);
     }
 
     /** The {@link DurableJobFactory} factory for this {@link DurableJob}. */
@@ -67,7 +67,7 @@ public final class DurableJobRegistry {
     registeredJobs.put(
         jobName.getJobNameString(),
         RegisteredJob.create(
-            durableJobFactory, jobName, /* recurringJobExecutionTimeResolver= */ Optional.empty()));
+            durableJobFactory, jobName, /* executionTimeResolver= */ Optional.empty()));
   }
 
   /**
@@ -77,13 +77,12 @@ public final class DurableJobRegistry {
   public void register(
       DurableJobName jobName,
       DurableJobFactory durableJobFactory,
-      ExecutionTimeResolver recurringJobExecutionTimeResolver) {
+      ExecutionTimeResolver executionTimeResolver) {
     validateJobName(jobName);
 
     registeredJobs.put(
         jobName.getJobNameString(),
-        RegisteredJob.create(
-            durableJobFactory, jobName, Optional.of(recurringJobExecutionTimeResolver)));
+        RegisteredJob.create(durableJobFactory, jobName, Optional.of(executionTimeResolver)));
   }
 
   private void validateJobName(DurableJobName jobName) {

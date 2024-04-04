@@ -10,8 +10,7 @@ import com.typesafe.config.Config;
 import durablejobs.DurableJobName;
 import durablejobs.DurableJobRegistry;
 import durablejobs.DurableJobRunner;
-import durablejobs.ExecutionTimeResolver;
-import durablejobs.RecurringJobExecutionTimeResolvers;
+import durablejobs.ExecutionTimeResolvers;
 import durablejobs.RecurringJobScheduler;
 import durablejobs.jobs.FixApplicantDobDataPathJob;
 import durablejobs.jobs.MigratePrimaryApplicantInfoJob;
@@ -20,7 +19,6 @@ import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
 import durablejobs.jobs.UnusedProgramImagesCleanupJob;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Random;
 import repository.AccountRepository;
@@ -33,7 +31,7 @@ import services.settings.SettingsService;
 
 /**
  * Configures {@link durablejobs.DurableJob}s with their {@link DurableJobName} and, if they are
- * recurring, their {@link durablejobs.RecurringJobExecutionTimeResolver}.
+ * recurring, their {@link durablejobs.ExecutionTimeResolver}.
  */
 public final class DurableJobModule extends AbstractModule {
 
@@ -87,39 +85,39 @@ public final class DurableJobModule extends AbstractModule {
         DurableJobName.OLD_JOB_CLEANUP,
         persistedDurableJob ->
             new OldJobCleanupJob(persistedDurableJobRepository, persistedDurableJob),
-        new RecurringJobExecutionTimeResolvers.Sunday2Am());
+        new ExecutionTimeResolvers.Sunday2Am());
 
     durableJobRegistry.register(
         DurableJobName.REPORTING_DASHBOARD_MONTHLY_REFRESH,
         persistedDurableJob ->
             new ReportingDashboardMonthlyRefreshJob(reportingRepository, persistedDurableJob),
-        new RecurringJobExecutionTimeResolvers.FirstOfMonth2Am());
+        new ExecutionTimeResolvers.FirstOfMonth2Am());
 
     durableJobRegistry.register(
         DurableJobName.UNUSED_ACCOUNT_CLEANUP,
         persistedDurableJob ->
             new UnusedAccountCleanupJob(accountRepository, nowProvider, persistedDurableJob),
-        new RecurringJobExecutionTimeResolvers.SecondOfMonth2Am());
+        new ExecutionTimeResolvers.SecondOfMonth2Am());
 
     durableJobRegistry.register(
         DurableJobName.FIX_APPLICANT_DOB_DATA_PATH,
         persistedDurableJob ->
             new FixApplicantDobDataPathJob(accountRepository, persistedDurableJob),
-        new ExecutionTimeResolver(LocalDate.of(2024, 04, 01)));
+        new ExecutionTimeResolvers.AprilFirst());
 
     durableJobRegistry.register(
         DurableJobName.UNUSED_PROGRAM_IMAGES_CLEANUP,
         persistedDurableJob ->
             new UnusedProgramImagesCleanupJob(
                 publicStorageClient, versionRepository, persistedDurableJob),
-        new RecurringJobExecutionTimeResolvers.ThirdOfMonth2Am());
+        new ExecutionTimeResolvers.ThirdOfMonth2Am());
 
     durableJobRegistry.register(
         DurableJobName.MIGRATE_PRIMARY_APPLICANT_INFO,
         persistedDurableJob ->
             new MigratePrimaryApplicantInfoJob(
                 persistedDurableJob, accountRepository, settingsService, config),
-        new RecurringJobExecutionTimeResolvers.Nightly3Am());
+        new ExecutionTimeResolvers.Nightly3Am());
 
     return durableJobRegistry;
   }
