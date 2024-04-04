@@ -144,6 +144,12 @@ public class ApplicantData extends CfJsonDocumentContext {
     return applicant.getLastName().or(() -> readString(WellKnownPaths.APPLICANT_LAST_NAME));
   }
 
+  public Optional<String> getApplicantEmail() {
+    return applicant
+        .getEmailAddress()
+        .or(() -> Optional.ofNullable(applicant.getAccount().getEmailAddress()));
+  }
+
   public Optional<String> getPhoneNumber() {
     return applicant.getPhoneNumber().or(() -> readString(WellKnownPaths.APPLICANT_PHONE_NUMBER));
   }

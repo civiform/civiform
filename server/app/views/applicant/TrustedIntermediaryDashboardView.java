@@ -304,8 +304,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       return div();
     }
     ApplicantData applicantData = newestApplicant.get().getApplicantData();
-    Optional<String> maybePhoneNumber = applicantData.getPhoneNumber();
-    String email = account.getEmailAddress();
+    Optional<String> optionalPhoneNumber = applicantData.getPhoneNumber();
+    Optional<String> optionalEmail = applicantData.getApplicantEmail();
 
     return div(
         label(messages.at(MessageKey.CONTACT_INFO_LABEL.getKeyName()))
@@ -313,14 +313,16 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .withClass("whitespace-nowrap"),
         div()
             .condWith(
-                maybePhoneNumber.isPresent(),
+                optionalPhoneNumber.isPresent(),
                 div(
                         Icons.svg(Icons.PHONE).withClasses("h-3", "w-3", "mr-1"),
-                        p(formatPhone(maybePhoneNumber.orElse(""))))
+                        p(formatPhone(optionalPhoneNumber.orElse(""))))
                     .withClass("flex items-center"))
             .condWith(
-                email != null && !email.isEmpty(),
-                div(Icons.svg(Icons.EMAIL).withClasses("h-3", "w-3", "mr-1"), p(email))
+                optionalEmail.isPresent(),
+                div(
+                        Icons.svg(Icons.EMAIL).withClasses("h-3", "w-3", "mr-1"),
+                        p(optionalEmail.orElse("")))
                     .withClass("flex items-center"))
             .withClass("text-xs")
             .withId("card_contact_info"));

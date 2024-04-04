@@ -11,6 +11,7 @@ import {
   AdminQuestions,
   dismissToast,
   selectApplicantLanguage,
+  enableFeatureFlag,
 } from './support'
 
 test.describe('Trusted intermediaries', () => {
@@ -928,6 +929,198 @@ test.describe('Trusted intermediaries', () => {
         page.getByTestId('org-members-table'),
         'org-members-table-many',
       )
+    })
+  })
+
+  test.describe('pre-populating TI client info with PAI questions', () => {
+    const ctx = createTestContext(/* clearDb= */ true)
+
+    test.beforeEach(async () => {
+      const {page, adminQuestions, adminPrograms} = ctx
+
+      await enableFeatureFlag(page, 'primary_applicant_info_questions_enabled')
+
+      await test.step('create a program with PAI questions', async () => {
+        await loginAsAdmin(page)
+        await adminQuestions.addDateQuestion({
+          questionName: 'dob',
+          questionText: 'Date of birth',
+          universal: true,
+          primaryApplicantInfo: true,
+        })
+        await adminQuestions.addNameQuestion({
+          questionName: 'name',
+          questionText: 'Name',
+          universal: true,
+          primaryApplicantInfo: true,
+        })
+        await adminQuestions.addPhoneQuestion({
+          questionName: 'phone',
+          questionText: 'Phone',
+          universal: true,
+          primaryApplicantInfo: true,
+        })
+        await adminQuestions.addEmailQuestion({
+          questionName: 'email',
+          questionText: 'Email',
+          universal: true,
+          primaryApplicantInfo: true,
+        })
+        // Add an extra question so "Continue" button is not "Submit"
+        await adminQuestions.addNumberQuestion({
+          questionName: 'number',
+          questionText: 'Number',
+        })
+        await adminPrograms.addAndPublishProgramWithQuestions(
+          ['dob', 'name', 'phone', 'email', 'number'],
+          'PAI Program',
+        )
+        await logout(page)
+      })
+    })
+
+    test('client info is pre-populated in the application', async () => {
+      const {page, applicantQuestions, tiDashboard} = ctx
+
+      await test.step('login as TI and add a client', async () => {
+        await loginAsTrustedIntermediary(page)
+        await tiDashboard.gotoTIDashboardPage(page)
+        const client: ClientInformation = {
+          emailAddress: 'test@email.com',
+          firstName: 'first',
+          middleName: 'middle',
+          lastName: 'last',
+          dobDate: '2001-01-01',
+        }
+        await tiDashboard.createClient(client)
+        await tiDashboard.updateClientTiNoteAndPhone(
+          client,
+          'note',
+          '9178675309',
+        )
+        await waitForPageJsLoad(page)
+      })
+
+      await test.step('login as TI and apply to program on behalf of client', async () => {
+        await loginAsTrustedIntermediary(page)
+        await tiDashboard.gotoTIDashboardPage(page)
+        await tiDashboard.clickOnViewApplications()
+        await applicantQuestions.clickApplyProgramButton('PAI Program')
+      })
+
+      await test.step('verify client info is pre-populated in the application', async () => {
+        expect(await page.innerText('#application-summary')).toContain(
+          '01/01/2001',
+        )
+        expect(await page.innerText('#application-summary')).toContain(
+          'first middle last',
+        )
+        expect(await page.innerText('#application-summary')).toContain(
+          '+1 917-867-5309',
+        )
+        expect(await page.innerText('#application-summary')).toContain(
+          'test@email.com',
+        )
+        await validateScreenshot(page, 'pai-program-application-preview')
+      })
+
+      await test.step('verify client info is pre-populated in the application after clicking continue', async () => {
+        await applicantQuestions.clickContinue()
+        expect(await page.locator('input[type=date]').inputValue()).toEqual(
+          '2001-01-01',
+        )
+        expect(
+          await page.locator('.cf-name-first').locator('input').inputValue(),
+        ).toEqual('first')
+        expect(
+          await page.locator('.cf-name-middle').locator('input').inputValue(),
+        ).toEqual('middle')
+        expect(
+          await page.locator('.cf-name-last').locator('input').inputValue(),
+        ).toEqual('last')
+        expect(
+          await page.locator('.cf-phone-number').locator('input').inputValue(),
+        ).toEqual('(917) 867-5309')
+        expect(await page.locator('input[type=email]').inputValue()).toEqual(
+          'test@email.com',
+        )
+        await validateScreenshot(page, 'pai-program-application')
+      })
+
+      await test.step('fill in the name question with different values', async () => {
+        await applicantQuestions.answerNameQuestion('newfirst', 'newlast')
+        // Answer the blank question so we can click "Save and next"
+        await applicantQuestions.answerNumberQuestion('1')
+        await applicantQuestions.clickNext()
+      })
+
+      await test.step('verify the new values for name are shown in the application and the other values are unchanged', async () => {
+        expect(await page.innerText('#application-summary')).toContain(
+          '01/01/2001',
+        )
+        expect(await page.innerText('#application-summary')).toContain(
+          'newfirst middle newlast',
+        )
+        expect(await page.innerText('#application-summary')).toContain(
+          '+1 917-867-5309',
+        )
+        expect(await page.innerText('#application-summary')).toContain(
+          'test@email.com',
+        )
+      })
+    })
+
+    test('data from PAI questions answered in the application shows up in the TI Dashboard', async () => {
+      const {page, applicantQuestions, tiDashboard} = ctx
+
+      await test.step('login as TI and add a client with partial data', async () => {
+        await loginAsTrustedIntermediary(page)
+        await tiDashboard.gotoTIDashboardPage(page)
+        const client: ClientInformation = {
+          emailAddress: '',
+          firstName: 'first',
+          middleName: 'middle',
+          lastName: 'last',
+          dobDate: '2001-01-01',
+        }
+        await tiDashboard.createClient(client)
+        await waitForPageJsLoad(page)
+      })
+
+      await test.step('login as TI and apply to program on behalf of client', async () => {
+        await loginAsTrustedIntermediary(page)
+        await tiDashboard.gotoTIDashboardPage(page)
+        await tiDashboard.clickOnViewApplications()
+        await applicantQuestions.clickApplyProgramButton('PAI Program')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('fill out the phone and email questions and submit the application', async () => {
+        await applicantQuestions.answerPhoneQuestion('7188675309')
+        await applicantQuestions.answerEmailQuestion('email@example.com')
+        await applicantQuestions.answerNumberQuestion('1')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.clickSubmit()
+      })
+
+      const newClientInfo: ClientInformation = {
+        emailAddress: 'email@example.com',
+        firstName: 'first',
+        middleName: 'middle',
+        lastName: 'last',
+        dobDate: '2001-01-01',
+        notes: 'Notes',
+      }
+      await test.step('verify the client info is shown in the TI Dashboard', async () => {
+        await tiDashboard.gotoTIDashboardPage(page)
+        await waitForPageJsLoad(page)
+        await tiDashboard.expectDashboardContainClient(newClientInfo)
+        await tiDashboard.expectDashboardClientContainsTiNoteAndFormattedPhone(
+          newClientInfo,
+          '(718) 867-5309',
+        )
+        await validateScreenshot(page, 'pai-ti-dash')
+      })
     })
   })
 })

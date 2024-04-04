@@ -144,7 +144,7 @@ public final class SelectWithLabel extends FieldWithLabel {
       fieldTag.with(optionGroups.stream().map(this::renderOptionGroup));
     }
 
-    return applyAttrsAndGenLabel(fieldTag);
+    return applyAttrsClassesAndLabel(fieldTag);
   }
 
   private OptgroupTag renderOptionGroup(OptionGroup optionGroup) {
