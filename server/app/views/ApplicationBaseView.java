@@ -42,7 +42,7 @@ public class ApplicationBaseView extends BaseHtmlView {
   /** Renders a "Review" button with a custom action. */
   protected DomContent renderReviewButton(
       SettingsManifest settingsManifest, ApplicationBaseViewParams params, String formAction) {
-    if (settingsManifest.getSaveOnAllActions(params.request())) {
+    if (settingsManifest.getSaveOnAllActions()) {
       return submitButton(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
           .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
           .withFormaction(formAction);
@@ -93,7 +93,7 @@ public class ApplicationBaseView extends BaseHtmlView {
    */
   protected DomContent renderPreviousButton(
       SettingsManifest settingsManifest, ApplicationBaseViewParams params, String formAction) {
-    if (settingsManifest.getSaveOnAllActions(params.request())) {
+    if (settingsManifest.getSaveOnAllActions()) {
       return submitButton(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
           .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
           .withFormaction(formAction);

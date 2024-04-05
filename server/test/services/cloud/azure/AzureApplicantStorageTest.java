@@ -1,7 +1,6 @@
 package services.cloud.azure;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.test.Helpers.fakeRequest;
 
 import java.util.Optional;
 import org.junit.Before;
@@ -80,9 +79,7 @@ public class AzureApplicantStorageTest extends ResetPostgres {
 
     BlobStorageUploadRequest blobStorageUploadRequest =
         azureApplicantStorage.getSignedUploadRequest(
-            TEST_FILE_NAME,
-            /* successActionRedirectUrl= */ "www.redirectlink.com",
-            fakeRequest().build());
+            TEST_FILE_NAME, /* successActionRedirectUrl= */ "www.redirectlink.com");
 
     assertThat(blobStorageUploadRequest).isEqualTo(expectedRequest);
   }

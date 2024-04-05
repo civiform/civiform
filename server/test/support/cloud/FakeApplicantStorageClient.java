@@ -1,7 +1,6 @@
 package support.cloud;
 
 import java.util.Optional;
-import play.mvc.Http;
 import services.cloud.ApplicantStorageClient;
 import services.cloud.StorageServiceName;
 import services.cloud.StorageUploadRequest;
@@ -24,7 +23,7 @@ public class FakeApplicantStorageClient implements ApplicantStorageClient {
 
   @Override
   public StorageUploadRequest getSignedUploadRequest(
-      String fileKey, String successActionRedirectUrl, Http.Request request) {
+      String fileKey, String successActionRedirectUrl) {
     return new StorageUploadRequest() {
       @Override
       public String serviceName() {

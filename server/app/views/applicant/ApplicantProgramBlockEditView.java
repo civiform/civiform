@@ -77,7 +77,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     }
 
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
-    if (settingsManifest.getSaveOnAllActions(params.request())
+    if (settingsManifest.getSaveOnAllActions()
         && shouldShowErrorsWithModal(params.errorDisplayMode())) {
       modals.add(editOrDiscardAnswersModalCreator.createModal(params));
     }
