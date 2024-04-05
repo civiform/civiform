@@ -76,7 +76,6 @@ public class AdminImportView extends BaseHtmlView {
   }
 
   private DomContent createUploadProgramJsonForm(Http.Request request) {
-    System.err.println("creating json w/ " + MAX_TEXT_LENGTH);
     DivTag jsonInputElement =
         FieldWithLabel.textArea()
             .setFieldName(AdminProgramImportForm.PROGRAM_JSON_FIELD)

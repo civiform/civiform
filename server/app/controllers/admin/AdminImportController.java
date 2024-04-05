@@ -64,7 +64,6 @@ public class AdminImportController extends CiviFormController {
   /** HTMX Partial that parses and renders the program data included in the request. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxImportProgram(Http.Request request) {
-    System.out.println("hxImportProgram");
     if (!settingsManifest.getProgramMigrationEnabled(request)) {
       return notFound("Program import is not enabled");
     }
@@ -75,17 +74,14 @@ public class AdminImportController extends CiviFormController {
             .bindFromRequest(request, AdminProgramImportForm.FIELD_NAMES.toArray(new String[0]));
     String jsonString = form.get().getProgramJson();
     if (jsonString == null) {
-      System.out.println("null string");
       // If they didn't upload anything, just re-render the main import page.
       return redirect(routes.AdminImportController.index().url());
     }
 
     JsonNode parsedJson;
     try {
-      System.err.println("jsonString=" + jsonString);
       parsedJson = Json.parse(jsonString);
     } catch (RuntimeException e) {
-      System.out.println("runtime exception");
       return ok(
           adminImportViewPartial
               .renderError("JSON file is incorrectly formatted: " + e.getMessage())
