@@ -1068,7 +1068,7 @@ test.describe('Trusted intermediaries', () => {
         )
       })
 
-      await test.step('submitting the application without changed values succeeds', async () => {
+      await test.step('submitting the application with changed values succeeds', async () => {
         await applicantQuestions.clickSubmit()
         await applicantQuestions.expectConfirmationPage()
       })
