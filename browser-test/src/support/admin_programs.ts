@@ -39,6 +39,7 @@ export enum ProgramVisibility {
   PUBLIC = 'Publicly visible',
   TI_ONLY = 'Trusted intermediaries only',
   SELECT_TI = 'Visible to selected trusted intermediaries only',
+  DISABLED = 'Disabled',
 }
 
 export enum Eligibility {

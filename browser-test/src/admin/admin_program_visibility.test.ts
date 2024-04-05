@@ -3,6 +3,7 @@ import {
   ApplicantQuestions,
   ClientInformation,
   createTestContext,
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   loginAsTrustedIntermediary,
@@ -271,5 +272,48 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
       page,
       'program-visibility-changes-all-ti-can-see-program',
     )
+  })
+  test('create a program with disabled visibility, verify it is hidden from applicants and TIs', async () => {
+    const {page, tiDashboard, adminPrograms} = ctx
+
+    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
+    await loginAsAdmin(page)
+
+    const programName = 'Disabled program'
+    const programDescription = 'Description'
+    await adminPrograms.addProgram(
+      programName,
+      programDescription,
+      'https://usa.gov',
+      ProgramVisibility.DISABLED,
+    )
+    await adminPrograms.publishAllDrafts()
+
+    // Login as applicant, verify program is hidden
+    await logout(page)
+    const applicantQuestions = new ApplicantQuestions(page)
+    await applicantQuestions.expectProgramHidden(programName)
+    await validateScreenshot(
+      page,
+      'program-visibility-disabled-hidden-from-applicant',
+    )
+
+    // Login as TI, verify program is hidden
+    await logout(page)
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'fake@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-05-10',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.expectDashboardContainClient(client)
+    await tiDashboard.clickOnViewApplications()
+    await applicantQuestions.expectProgramHidden(programName)
+    await validateScreenshot(page, 'program-visibility-disabled-hidden-from-ti')
   })
 })
