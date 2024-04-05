@@ -40,7 +40,7 @@ test.describe('program creation', () => {
     await adminProgramImage.expectProgramImagePage()
   })
 
-  test('create program with disabled visibility condition feature enabled ', async () =>{
+  test('create program with disabled visibility condition feature enabled', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await loginAsAdmin(page)
@@ -58,7 +58,10 @@ test.describe('program creation', () => {
       /* submitNewProgram= */ false,
     )
     await adminPrograms.expectProgramDetailsSaveAndContinueButton()
-    await validateScreenshot(page, 'program-creation-page-disabled-visibility-enabled')
+    await validateScreenshot(
+      page,
+      'program-creation-page-disabled-visibility-enabled',
+    )
 
     // When the program submission goes through,
     // verify we're redirected to the program image upload page.
@@ -66,9 +69,9 @@ test.describe('program creation', () => {
     await adminProgramImage.expectProgramImagePage()
   })
 
-  test('create program with disabled visibility condition feature disabled ', async () =>{
+  test('create program with disabled visibility condition feature disabled', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
-    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
+    await disableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await loginAsAdmin(page)
 
     await adminPrograms.addProgram(
@@ -84,7 +87,10 @@ test.describe('program creation', () => {
       /* submitNewProgram= */ false,
     )
     await adminPrograms.expectProgramDetailsSaveAndContinueButton()
-    await validateScreenshot(page, 'program-creation-page-disabled-visibility-disabled')
+    await validateScreenshot(
+      page,
+      'program-creation-page-disabled-visibility-disabled',
+    )
 
     // When the program submission goes through,
     // verify we're redirected to the program image upload page.
@@ -804,7 +810,7 @@ test.describe('program creation', () => {
   test('create common intake form with intake form feature enabled', async () => {
     const {page, adminPrograms} = ctx
 
-    //await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
+    // await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'intake_form_enabled')
 
