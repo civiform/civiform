@@ -39,7 +39,6 @@ test.describe('program migration', {tag: ['@uses-fixtures']}, () => {
     await test.step('import a program', async () => {
       // TODO(#7087): We should also have a test that exports JSON and then imports that same JSON
       // so that we can verify export and import work together.
-
       const sampleJson = readFileSync(
         'src/assets/import-program-sample.json',
         'utf8',

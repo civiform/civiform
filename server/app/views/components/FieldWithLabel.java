@@ -66,7 +66,7 @@ public class FieldWithLabel {
   private OptionalLong cols = OptionalLong.empty();
 
   /** The maximum length allowed for the user input. */
-  private OptionalInt maxLength = OptionalInt.empty();
+  private int maxLength = MAX_INPUT_TEXT_LENGTH_DEFAULT;
 
   private String formId = "";
   private String id = "";
@@ -93,7 +93,7 @@ public class FieldWithLabel {
   private final ImmutableMap.Builder<String, Optional<String>> attributesMapBuilder =
       ImmutableMap.builder();
 
-  private static final String MAX_INPUT_TEXT_LENGTH = "10000";
+  private static final int MAX_INPUT_TEXT_LENGTH_DEFAULT = 10000;
 
   private static final class FieldErrorsInfo {
     public String fieldErrorsId;
@@ -267,7 +267,7 @@ public class FieldWithLabel {
   }
 
   /** Sets the maximum length allowed for the user input. */
-  public FieldWithLabel setMaxLength(OptionalInt value) {
+  public FieldWithLabel setMaxLength(int value) {
     this.maxLength = value;
     return this;
   }
@@ -634,11 +634,7 @@ public class FieldWithLabel {
         shouldForceAriaInvalid || fieldErrorsInfo.hasFieldErrors, "aria-invalid", "true");
     fieldTag.condAttr(focusOnError, Attr.AUTOFOCUS, "");
 
-    if (this.maxLength.isPresent()) {
-      fieldTag.attr("maxlength", this.maxLength.getAsInt());
-    } else {
-      fieldTag.attr("maxlength", MAX_INPUT_TEXT_LENGTH);
-    }
+    fieldTag.attr("maxlength", this.maxLength);
     if (ariaRequired) {
       fieldTag.attr("aria-required", "true");
     }

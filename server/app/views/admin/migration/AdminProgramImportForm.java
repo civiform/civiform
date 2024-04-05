@@ -15,6 +15,7 @@ public final class AdminProgramImportForm {
   @SuppressWarnings("unused") // Used by FormFactory
   public AdminProgramImportForm() {}
 
+  @SuppressWarnings("unused") // Used by FormFactory
   public AdminProgramImportForm(String programJson) {
     this.programJson = programJson;
   }

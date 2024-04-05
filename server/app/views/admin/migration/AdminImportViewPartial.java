@@ -9,7 +9,7 @@ import j2html.tags.DomContent;
 import java.util.Optional;
 
 /** An HTMX partial for portions of the page rendered by {@link AdminImportView}. */
-public class AdminImportViewPartial {
+public final class AdminImportViewPartial {
   @Inject
   AdminImportViewPartial() {}
 

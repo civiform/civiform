@@ -11,7 +11,6 @@ import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
-import java.util.OptionalInt;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
@@ -83,7 +82,7 @@ public class AdminImportView extends BaseHtmlView {
             // Note: The AdminExportView will pretty-prints the JSON, which adds a lot of
             // whitespace. If we find that admins are regularly going over the length limit, we
             // could stop pretty-printing the JSON.
-            .setMaxLength(OptionalInt.of(MAX_TEXT_LENGTH))
+            .setMaxLength(MAX_TEXT_LENGTH)
             .getTextareaTag();
 
     return div()
@@ -102,7 +101,7 @@ public class AdminImportView extends BaseHtmlView {
   private DomContent renderProgramDataRegion() {
     return div()
         .withClass("mt-10")
-        .with(h2("Uploaded program data"))
+        .with(h2("Uploaded program data").withClass("mb-4"))
         .with(
             div()
                 .withId(AdminImportViewPartial.PROGRAM_DATA_ID)

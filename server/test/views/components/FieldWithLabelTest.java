@@ -241,7 +241,7 @@ public class FieldWithLabelTest {
   @Test
   public void createTextarea_setsMaxLengthDefault() {
     FieldWithLabel fieldWithLabel = FieldWithLabel.textArea();
-    fieldWithLabel.setMaxLength(OptionalInt.of(4567));
+    fieldWithLabel.setMaxLength(4567);
 
     assertThat(fieldWithLabel.getInputTag().render()).contains("maxlength=\"4567\"");
   }
