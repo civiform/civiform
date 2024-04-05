@@ -810,7 +810,6 @@ test.describe('program creation', () => {
   test('create common intake form with intake form feature enabled', async () => {
     const {page, adminPrograms} = ctx
 
-    // await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'intake_form_enabled')
 
