@@ -916,8 +916,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * (NOT FOR PRODUCTION USE) Save an applicant's answers when they take any action
-   * ('Review'/'Previous'/'Save and next') instead of only saving on 'Save and next'.
+   * Save an applicant's answers when they take any action ('Review'/'Previous'/'Save and next')
+   * instead of only saving on 'Save and next'.
    */
   public boolean getSaveOnAllActions() {
     return getBool("SAVE_ON_ALL_ACTIONS");
@@ -1912,9 +1912,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "SAVE_ON_ALL_ACTIONS",
-                      "(NOT FOR PRODUCTION USE) Save an applicant's answers when they take any"
-                          + " action ('Review'/'Previous'/'Save and next') instead of only saving"
-                          + " on 'Save and next'.",
+                      "Save an applicant's answers when they take any action"
+                          + " ('Review'/'Previous'/'Save and next') instead of only saving on 'Save"
+                          + " and next'.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_READABLE),
