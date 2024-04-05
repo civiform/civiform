@@ -65,6 +65,7 @@ public class FieldWithLabel {
   /** For use with fields of type `textarea`. */
   private OptionalLong cols = OptionalLong.empty();
 
+  /** The maximum length allowed for the user input. */
   private OptionalInt maxLength = OptionalInt.empty();
 
   private String formId = "";
@@ -265,11 +266,8 @@ public class FieldWithLabel {
     return this;
   }
 
-  public FieldWithLabel setMaxlength(OptionalInt value) {
-    // if (!this.isTagTypeTextarea()) {
-    //   throw new RuntimeException("setting rows is only available on fields of type 'textarea'");
-    // }
-
+  /** Sets the maximum length allowed for the user input. */
+  public FieldWithLabel setMaxLength(OptionalInt value) {
     this.maxLength = value;
     return this;
   }

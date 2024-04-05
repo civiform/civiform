@@ -1,7 +1,6 @@
 import {expect} from '@playwright/test'
 import {Page} from 'playwright'
 import {waitForPageJsLoad} from './wait'
-import {writeFileSync, unlinkSync} from 'fs'
 
 export class AdminProgramMigration {
   public page!: Page
@@ -42,30 +41,11 @@ export class AdminProgramMigration {
     ).toBeVisible()
   }
 
-  async uploadProgramJson(jsonFileName: string) {
-    await this.page.locator('input[type=file]').setInputFiles(jsonFileName)
-    await this.uploadFile()
-  }
-
-  async uploadProgramJsonWithContent(content: string) {
-    await this.page.locator('input[type=file]').setInputFiles({
-      name: 'file.json',
-      mimeType: 'application/json',
-      buffer: Buffer.from(content),
-    })
-    await this.uploadFile()
-  }
-
-  async uploadProgramJsonWithSize(mbSize: int) {
-    const filePath = 'file-size-' + mbSize + '-mb.json'
-    writeFileSync(filePath, 'C'.repeat(mbSize * 1024 * 1024))
-    await this.page.locator('input[type=file]').setInputFiles(filePath)
-    await this.uploadFile()
-    unlinkSync(filePath)
-  }
-
-  async uploadFile() {
-    await this.page.getByRole('button', {name: 'Upload program'}).click()
+  async submitProgramJson(content: string) {
+    await this.page.getByRole('textbox').fill(content)
+    await this.page
+      .getByRole('button', {name: 'Display program information'})
+      .click()
     await waitForPageJsLoad(this.page)
   }
 

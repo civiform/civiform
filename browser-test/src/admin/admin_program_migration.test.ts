@@ -1,5 +1,6 @@
 import {test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {readFileSync} from 'fs'
 
 test.describe('program migration', {tag: ['@uses-fixtures']}, () => {
   test('export a program', async ({
@@ -38,9 +39,12 @@ test.describe('program migration', {tag: ['@uses-fixtures']}, () => {
     await test.step('import a program', async () => {
       // TODO(#7087): We should also have a test that exports JSON and then imports that same JSON
       // so that we can verify export and import work together.
-      await adminProgramMigration.uploadProgramJson(
+
+      const sampleJson = readFileSync(
         'src/assets/import-program-sample.json',
+        'utf8',
       )
+      await adminProgramMigration.submitProgramJson(sampleJson)
 
       await validateScreenshot(page, 'import-page-with-data')
     })
@@ -53,29 +57,23 @@ test.describe('program migration', {tag: ['@uses-fixtures']}, () => {
       await adminProgramMigration.goToImportPage()
     })
 
-    await test.step('file too large error', async () => {
-      await adminProgramMigration.uploadProgramJsonWithSize(/* mbSize= */ 2)
-      await adminProgramMigration.expectImportError()
-      await validateScreenshot(page, 'import-page-with-error-too-large')
-    })
-
     await test.step('malformed: missing "', async () => {
-      await adminProgramMigration.uploadProgramJsonWithContent(
+      await adminProgramMigration.submitProgramJson(
         '{"adminName: "mismatched-double-quote"}',
       )
       await adminProgramMigration.expectImportError()
-      await validateScreenshot(page, 'import-page-with-error-parse')
+      await validateScreenshot(page, 'import-page-with-error')
     })
 
     await test.step('malformed: not matching {}', async () => {
-      await adminProgramMigration.uploadProgramJsonWithContent(
+      await adminProgramMigration.submitProgramJson(
         '{"adminName": "mismatched-brackets"',
       )
       await adminProgramMigration.expectImportError()
     })
 
     await test.step('malformed: missing ,', async () => {
-      await adminProgramMigration.uploadProgramJsonWithContent(
+      await adminProgramMigration.submitProgramJson(
         '{"adminName": "missing-comma" "adminDescription": "missing-comma-description"}',
       )
       await adminProgramMigration.expectImportError()

@@ -11,12 +11,9 @@ import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
-import java.util.Optional;
 import java.util.OptionalInt;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.CiviFormError;
-import services.ErrorAnd;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -29,6 +26,17 @@ import views.components.FieldWithLabel;
  * environment.
  */
 public class AdminImportView extends BaseHtmlView {
+  /**
+   * Play Framework can only parse request bodies up to 100KB: See
+   * https://www.playframework.com/documentation/2.4.x/ScalaBodyParsers#Max-content-length and
+   * https://github.com/civiform/civiform/issues/816. So, set the max length to be slightly under.
+   *
+   * <p>Note that the HTML textarea element will automatically truncate the string to be the max
+   * character length, which will likely result in JSON parsing errors. TODO(#7087): Make that
+   * truncation obvious to admins.
+   */
+  private static final int MAX_TEXT_LENGTH = 100000;
+
   private final AdminLayout layout;
 
   @Inject
@@ -39,12 +47,8 @@ public class AdminImportView extends BaseHtmlView {
   /**
    * Renders the import page, showing a file upload area to upload a JSON file. If {@code
    * programData} is present, then the program data will also be displayed.
-   *
-   * @param programData the program data that was parsed from the uploaded JSON file, including any
-   *     errors that may have happened while parsing. If empty, no file has been uploaded yet.
    */
-  public Content render(
-      Http.Request request, Optional<ErrorAnd<String, CiviFormError>> programData) {
+  public Content render(Http.Request request) {
     String title = "Import a program";
     DivTag contentDiv =
         div()
@@ -60,8 +64,8 @@ public class AdminImportView extends BaseHtmlView {
                     .withClass("my-2"))
             .with(
                 p("Then, copy the JSON file contents and paste them into the box below. The program"
-                      + " information will be displayed below, and you can verify all the"
-                      + " information before adding the program.")
+                        + " information will be displayed below, and you can verify all the"
+                        + " information before adding the program.")
                     .withClass("my-2"));
 
     contentDiv.with(createUploadProgramJsonForm(request));
@@ -72,34 +76,28 @@ public class AdminImportView extends BaseHtmlView {
   }
 
   private DomContent createUploadProgramJsonForm(Http.Request request) {
-
-    // Note: FieldWithLabel automatically applies a maxlength of 10000 on text areas. We may need to
-    // lift that restriction if program data is long
+    System.err.println("creating json w/ " + MAX_TEXT_LENGTH);
     DivTag jsonInputElement =
         FieldWithLabel.textArea()
             .setFieldName(AdminProgramImportForm.PROGRAM_JSON_FIELD)
-            //   .setLabelText("Program JSON")
             .setPlaceholderText("Paste the JSON file contents into this box.")
-            // The prettyprint of ComprehensiveSampleProgram is 27k characters, so programs could
-            // pretty quickly exceed this
-            // But we could also trim whitespace
-            .setMaxlength(OptionalInt.of(65000000))
+            // Note: The AdminExportView will pretty-prints the JSON, which adds a lot of
+            // whitespace. If we find that admins are regularly going over the length limit, we
+            // could stop pretty-printing the JSON.
+            .setMaxLength(OptionalInt.of(MAX_TEXT_LENGTH))
             .getTextareaTag();
-
-    //  TextareaTag jsonInputElement =
-    // textarea().withName(AdminProgramImportForm.PROGRAM_JSON_FIELD);
 
     return div()
         .with(
             form()
                 .attr("hx-encoding", "multipart/form-data")
                 .attr("hx-post", routes.AdminImportController.hxImportProgram().url())
-                .attr("hx-target", "#program-data")
+                .attr("hx-target", "#" + AdminImportViewPartial.PROGRAM_DATA_ID)
                 .attr("hx-swap", "outerHTML")
                 .with(makeCsrfTokenInputTag(request), jsonInputElement)
                 .with(
                     submitButton("Display program information")
-                        .withClass(ButtonStyles.SOLID_BLUE)));
+                        .withClasses(ButtonStyles.SOLID_BLUE, "mt-4")));
   }
 
   private DomContent renderProgramDataRegion() {

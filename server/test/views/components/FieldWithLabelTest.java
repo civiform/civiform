@@ -92,7 +92,7 @@ public class FieldWithLabelTest {
   }
 
   @Test
-  public void createInput_setsMaxLength() {
+  public void createInput_setsMaxLengthDefault() {
     FieldWithLabel fieldWithLabel = FieldWithLabel.input();
     // Check that we set the max length.
     assertThat(fieldWithLabel.getInputTag().render()).contains("maxlength=\"10000\"");
@@ -236,6 +236,14 @@ public class FieldWithLabelTest {
     String renderedContent = fieldWithLabel.getTextareaTag().render();
     assertThat(renderedContent).contains("rows=\"8\"");
     assertThat(renderedContent).contains("cols=\"5\"");
+  }
+
+  @Test
+  public void createTextarea_setsMaxLengthDefault() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.textArea();
+    fieldWithLabel.setMaxLength(OptionalInt.of(4567));
+
+    assertThat(fieldWithLabel.getInputTag().render()).contains("maxlength=\"4567\"");
   }
 
   @Test

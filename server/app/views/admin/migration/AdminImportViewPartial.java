@@ -8,7 +8,7 @@ import com.google.inject.Inject;
 import j2html.tags.DomContent;
 import java.util.Optional;
 
-/** TODO */
+/** An HTMX partial for portions of the page rendered by {@link AdminImportView}. */
 public class AdminImportViewPartial {
   @Inject
   AdminImportViewPartial() {}
@@ -19,6 +19,7 @@ public class AdminImportViewPartial {
    */
   public static final String PROGRAM_DATA_ID = "program-data";
 
+  /** Renders an error that occurred while trying to parse the program data. */
   public DomContent renderError(String errorMessage) {
     return div()
         .withId(PROGRAM_DATA_ID)
@@ -30,6 +31,7 @@ public class AdminImportViewPartial {
                 /* classes...= */ ALERT_ERROR));
   }
 
+  /** Renders the correctly parsed program data. */
   public DomContent renderProgramData(String programData) {
     return div(programData).withId(PROGRAM_DATA_ID);
   }

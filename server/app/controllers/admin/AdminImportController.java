@@ -7,7 +7,6 @@ import auth.ProfileUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
-import java.util.Optional;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -59,18 +58,16 @@ public class AdminImportController extends CiviFormController {
     if (!settingsManifest.getProgramMigrationEnabled(request)) {
       return notFound("Program import is not enabled");
     }
-    return ok(adminImportView.render(request, /* programData= */ Optional.empty()));
+    return ok(adminImportView.render(request));
   }
 
+  /** HTMX Partial that parses and renders the program data included in the request. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxImportProgram(Http.Request request) {
+    System.out.println("hxImportProgram");
     if (!settingsManifest.getProgramMigrationEnabled(request)) {
       return notFound("Program import is not enabled");
     }
-
-    // TODO: I think this is eating the "Request entity too large" error that I should see if I go
-    // over
-    // 131k characters -- see https://github.com/civiform/civiform/issues/816.
 
     Form<AdminProgramImportForm> form =
         formFactory
@@ -78,14 +75,17 @@ public class AdminImportController extends CiviFormController {
             .bindFromRequest(request, AdminProgramImportForm.FIELD_NAMES.toArray(new String[0]));
     String jsonString = form.get().getProgramJson();
     if (jsonString == null) {
+      System.out.println("null string");
       // If they didn't upload anything, just re-render the main import page.
       return redirect(routes.AdminImportController.index().url());
     }
 
     JsonNode parsedJson;
     try {
+      System.err.println("jsonString=" + jsonString);
       parsedJson = Json.parse(jsonString);
     } catch (RuntimeException e) {
+      System.out.println("runtime exception");
       return ok(
           adminImportViewPartial
               .renderError("JSON file is incorrectly formatted: " + e.getMessage())
