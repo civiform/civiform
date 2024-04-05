@@ -16,7 +16,6 @@ test.describe('program creation', () => {
 
   test('create program page', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
-    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await loginAsAdmin(page)
 
     const programName = 'Apc program'
@@ -34,6 +33,58 @@ test.describe('program creation', () => {
     )
     await adminPrograms.expectProgramDetailsSaveAndContinueButton()
     await validateScreenshot(page, 'program-creation-page')
+
+    // When the program submission goes through,
+    // verify we're redirected to the program image upload page.
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminProgramImage.expectProgramImagePage()
+  })
+
+  test('create program with disabled visibility condition feature enabled ', async () =>{
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
+    await loginAsAdmin(page)
+
+    await adminPrograms.addProgram(
+      'program name',
+      'description',
+      'https://usa.gov',
+      ProgramVisibility.DISABLED,
+      'admin description',
+      /* isCommonIntake= */ false,
+      'selectedTI',
+      'confirmationMessage',
+      Eligibility.IS_GATING,
+      /* submitNewProgram= */ false,
+    )
+    await adminPrograms.expectProgramDetailsSaveAndContinueButton()
+    await validateScreenshot(page, 'program-creation-page-disabled-visibility-enabled')
+
+    // When the program submission goes through,
+    // verify we're redirected to the program image upload page.
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminProgramImage.expectProgramImagePage()
+  })
+
+  test('create program with disabled visibility condition feature disabled ', async () =>{
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
+    await loginAsAdmin(page)
+
+    await adminPrograms.addProgram(
+      'program name',
+      'description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      /* isCommonIntake= */ false,
+      'selectedTI',
+      'confirmationMessage',
+      Eligibility.IS_GATING,
+      /* submitNewProgram= */ false,
+    )
+    await adminPrograms.expectProgramDetailsSaveAndContinueButton()
+    await validateScreenshot(page, 'program-creation-page-disabled-visibility-disabled')
 
     // When the program submission goes through,
     // verify we're redirected to the program image upload page.
@@ -117,7 +168,6 @@ test.describe('program creation', () => {
   test('shows correct formatting during question creation', async () => {
     const {page, adminQuestions} = ctx
 
-    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await loginAsAdmin(page)
 
     await adminQuestions.createStaticQuestion({
@@ -401,7 +451,6 @@ test.describe('program creation', () => {
   test('change questions order within block', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
-    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await loginAsAdmin(page)
 
     const color = 'favorite-color'
@@ -755,7 +804,7 @@ test.describe('program creation', () => {
   test('create common intake form with intake form feature enabled', async () => {
     const {page, adminPrograms} = ctx
 
-    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
+    //await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'intake_form_enabled')
 
