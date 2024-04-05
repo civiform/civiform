@@ -52,7 +52,7 @@ public final class DateQuestion extends Question {
   public String getAnswerString() {
     return getDateValue()
         .map(localDate -> localDate.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")))
-        .orElse("-");
+        .orElse(getDefaultAnswerString());
   }
 
   public Optional<LocalDate> getDateValue() {

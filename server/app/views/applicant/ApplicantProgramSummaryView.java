@@ -187,8 +187,9 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     // When applicant info is pre-populated by TI entry, the question is not
     // considered "answered" but we want the answers to show on the review screen
-    // "-" is sometimes used as a placeholder when no answer is available
-    boolean haveAnswerText = !data.answerText().equals("-") && !data.answerText().isBlank();
+    String defaultAnswerString = data.applicantQuestion().getQuestion().getDefaultAnswerString();
+    boolean haveAnswerText =
+        !data.answerText().isBlank() && !data.answerText().equals(defaultAnswerString);
 
     if (data.isAnswered() || haveAnswerText) {
       final ContainerTag answerContent;

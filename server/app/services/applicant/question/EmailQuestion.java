@@ -40,7 +40,7 @@ public final class EmailQuestion extends Question {
 
   @Override
   public String getAnswerString() {
-    return getEmailValue().orElse("-");
+    return getEmailValue().orElse(getDefaultAnswerString());
   }
 
   public Optional<String> getEmailValue() {

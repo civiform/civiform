@@ -92,6 +92,6 @@ public final class NumberQuestion extends Question {
 
   @Override
   public String getAnswerString() {
-    return getNumberValue().map(Object::toString).orElse("-");
+    return getNumberValue().map(Object::toString).orElse(getDefaultAnswerString());
   }
 }

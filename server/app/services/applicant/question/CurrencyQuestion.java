@@ -68,6 +68,6 @@ public final class CurrencyQuestion extends Question {
    */
   @Override
   public String getAnswerString() {
-    return getCurrencyValue().map(Currency::getDollarsString).orElse("-");
+    return getCurrencyValue().map(Currency::getDollarsString).orElse(getDefaultAnswerString());
   }
 }

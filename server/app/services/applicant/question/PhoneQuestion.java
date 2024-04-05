@@ -107,7 +107,7 @@ public final class PhoneQuestion extends Question {
               getPhoneNumberValue().orElse(""), getCountryCodeValue().orElse(""));
       return PHONE_NUMBER_UTIL.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
     } catch (NumberParseException e) {
-      return "-";
+      return getDefaultAnswerString();
     }
   }
 

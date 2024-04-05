@@ -115,6 +115,12 @@ public abstract class Question {
    */
   public abstract String getAnswerString();
 
+  /** Returns the default to use when there is no answer */
+  public String getDefaultAnswerString() {
+    return "-";
+  }
+  ;
+
   /** Return every path used by this question. */
   public abstract ImmutableList<Path> getAllPaths();
 
