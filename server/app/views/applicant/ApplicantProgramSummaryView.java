@@ -185,8 +185,12 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                 .withClasses("font-semibold"))
             .withClasses("pr-2");
 
-    // Add existing answer.
-    if (data.isAnswered()) {
+    // When applicant info is pre-populated by TI entry, the question is not
+    // considered "answered" but we want the answers to show on the review screen
+    // "-" is used as a placeholder when no answer is available
+    boolean hasAnswerText = data.isAnswered() || !data.answerText().equals("-");
+
+    if (hasAnswerText) {
       final ContainerTag answerContent;
       if (data.encodedFileKey().isPresent()) {
         String encodedFileKey = data.encodedFileKey().get();
@@ -243,7 +247,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     QuestionDefinition questionDefinition = data.questionDefinition();
     Optional<String> questionName = Optional.of(questionDefinition.getName());
-    if (data.isAnswered()) {
+    if (hasAnswerText) {
       editElement
           .setHref(
               applicantRoutes

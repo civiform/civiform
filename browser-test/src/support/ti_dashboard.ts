@@ -266,6 +266,13 @@ export class TIDashboard {
       ).not.toBeNull()
     }
   }
+
+  async createClientAndApply(client: ClientInformation) {
+    await this.gotoTIDashboardPage(this.page)
+    await this.createClient(client)
+    await waitForPageJsLoad(this.page)
+    await this.clickOnViewApplications()
+  }
 }
 
 /*

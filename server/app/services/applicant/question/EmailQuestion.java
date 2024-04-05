@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
-import models.ApplicantModel;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
@@ -37,11 +36,6 @@ public final class EmailQuestion extends Question {
 
   public Path getEmailPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.EMAIL);
-  }
-
-  @Override
-  public boolean isAnsweredWithPai(ApplicantModel applicant) {
-    return isPaiQuestion() && applicant.getEmailAddress().isPresent();
   }
 
   @Override

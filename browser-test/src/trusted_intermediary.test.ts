@@ -935,6 +935,15 @@ test.describe('Trusted intermediaries', () => {
   test.describe('pre-populating TI client info with PAI questions', () => {
     const ctx = createTestContext(/* clearDb= */ true)
 
+    const clientInfo: ClientInformation = {
+      emailAddress: 'test@email.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2001-01-01',
+      phoneNumber: '9178675309',
+    }
+
     test.beforeEach(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
 
@@ -966,13 +975,8 @@ test.describe('Trusted intermediaries', () => {
           universal: true,
           primaryApplicantInfo: true,
         })
-        // Add an extra question so "Continue" button is not "Submit"
-        await adminQuestions.addNumberQuestion({
-          questionName: 'number',
-          questionText: 'Number',
-        })
         await adminPrograms.addAndPublishProgramWithQuestions(
-          ['dob', 'name', 'phone', 'email', 'number'],
+          ['dob', 'name', 'phone', 'email'],
           'PAI Program',
         )
         await logout(page)
@@ -982,29 +986,9 @@ test.describe('Trusted intermediaries', () => {
     test('client info is pre-populated in the application', async () => {
       const {page, applicantQuestions, tiDashboard} = ctx
 
-      await test.step('login as TI and add a client', async () => {
+      await test.step('login as TI, add a client, and apply', async () => {
         await loginAsTrustedIntermediary(page)
-        await tiDashboard.gotoTIDashboardPage(page)
-        const client: ClientInformation = {
-          emailAddress: 'test@email.com',
-          firstName: 'first',
-          middleName: 'middle',
-          lastName: 'last',
-          dobDate: '2001-01-01',
-        }
-        await tiDashboard.createClient(client)
-        await tiDashboard.updateClientTiNoteAndPhone(
-          client,
-          'note',
-          '9178675309',
-        )
-        await waitForPageJsLoad(page)
-      })
-
-      await test.step('login as TI and apply to program on behalf of client', async () => {
-        await loginAsTrustedIntermediary(page)
-        await tiDashboard.gotoTIDashboardPage(page)
-        await tiDashboard.clickOnViewApplications()
+        await tiDashboard.createClientAndApply(clientInfo)
         await applicantQuestions.clickApplyProgramButton('PAI Program')
       })
 
@@ -1047,10 +1031,25 @@ test.describe('Trusted intermediaries', () => {
         await validateScreenshot(page, 'pai-program-application')
       })
 
+      await test.step('submitting the application without changing any values succeeds', async () => {
+        await applicantQuestions.clickNext()
+        await applicantQuestions.clickSubmit()
+        await applicantQuestions.expectConfirmationPage()
+      })
+    })
+
+    test('updating answers that are prefilled with PAI data works', async () => {
+      const {page, applicantQuestions, tiDashboard} = ctx
+
+      await test.step('login as TI, add a client, and apply', async () => {
+        await loginAsTrustedIntermediary(page)
+        await tiDashboard.createClientAndApply(clientInfo)
+        await applicantQuestions.clickApplyProgramButton('PAI Program')
+      })
+
       await test.step('fill in the name question with different values', async () => {
+        await applicantQuestions.clickContinue()
         await applicantQuestions.answerNameQuestion('newfirst', 'newlast')
-        // Answer the blank question so we can click "Save and next"
-        await applicantQuestions.answerNumberQuestion('1')
         await applicantQuestions.clickNext()
       })
 
@@ -1068,6 +1067,11 @@ test.describe('Trusted intermediaries', () => {
           'test@email.com',
         )
       })
+
+      await test.step('submitting the application without changed values succeeds', async () => {
+        await applicantQuestions.clickSubmit()
+        await applicantQuestions.expectConfirmationPage()
+      })
     })
 
     test('data from PAI questions answered in the application shows up in the TI Dashboard', async () => {
@@ -1076,14 +1080,14 @@ test.describe('Trusted intermediaries', () => {
       await test.step('login as TI and add a client with partial data', async () => {
         await loginAsTrustedIntermediary(page)
         await tiDashboard.gotoTIDashboardPage(page)
-        const client: ClientInformation = {
+        const partialClientInfo: ClientInformation = {
           emailAddress: '',
           firstName: 'first',
           middleName: 'middle',
           lastName: 'last',
           dobDate: '2001-01-01',
         }
-        await tiDashboard.createClient(client)
+        await tiDashboard.createClient(partialClientInfo)
         await waitForPageJsLoad(page)
       })
 
@@ -1098,7 +1102,6 @@ test.describe('Trusted intermediaries', () => {
       await test.step('fill out the phone and email questions and submit the application', async () => {
         await applicantQuestions.answerPhoneQuestion('7188675309')
         await applicantQuestions.answerEmailQuestion('email@example.com')
-        await applicantQuestions.answerNumberQuestion('1')
         await applicantQuestions.clickNext()
         await applicantQuestions.clickSubmit()
       })

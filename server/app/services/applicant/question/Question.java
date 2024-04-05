@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import java.util.HashMap;
-import models.ApplicantModel;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -101,15 +100,11 @@ public abstract class Question {
 
   /**
    * A question is considered answered if the applicant data has been set for any of the paths
-   * associated with the question or if the question is tagged with a Primary Applicant Info Tag and
-   * the applicant has data saved in the corresponding column.
+   * associated with the question. If the applicant data does not contain the question's path, then
+   * it will be considered unanswered.
    */
   public boolean isAnswered() {
-    boolean isAnsweredWithApplicantData =
-        getAllPaths().stream().anyMatch(applicantQuestion.getApplicantData()::hasPath);
-
-    return isAnsweredWithApplicantData
-        || isAnsweredWithPai(applicantQuestion.getApplicantData().getApplicant());
+    return getAllPaths().stream().anyMatch(applicantQuestion.getApplicantData()::hasPath);
   }
 
   /**
@@ -129,10 +124,5 @@ public abstract class Question {
 
   public ApplicantQuestion getApplicantQuestion() {
     return applicantQuestion;
-  }
-
-  /** Question types that have a PAI tag associated with them should override this method */
-  public boolean isAnsweredWithPai(ApplicantModel applicant) {
-    return false;
   }
 }
