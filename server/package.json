@@ -18,7 +18,7 @@
     "@typescript-eslint/eslint-plugin": "7.5.0",
     "@typescript-eslint/parser": "7.5.0",
     "autoprefixer": "^10.4.16",
-    "css-loader": "^6.8.1",
+    "css-loader": "^7.0.0",
     "eslint": "8.57.0",
     "eslint-plugin-no-unsanitized": "^4.0.2",
     "htmx.org": "^1.8.6",
