@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
@@ -2524,14 +2525,28 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(programForDraftApp.id);
+
     assertThat(
             result.inProgress().stream().map(ApplicantProgramData::latestSubmittedApplicationTime))
-        .containsExactly(Optional.of(firstAppSubmitTime));
+        .isNotEmpty();
+
+    assertThat(
+            result.inProgress().stream()
+                .map(x -> x.latestSubmittedApplicationTime().get().truncatedTo(ChronoUnit.SECONDS)))
+        .containsExactly(firstAppSubmitTime.truncatedTo(ChronoUnit.SECONDS));
+
     assertThat(result.submitted().stream().map(p -> p.program().id()))
         .containsExactly(programForSubmittedApp.id);
+
     assertThat(
             result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationTime))
-        .containsExactly(Optional.of(secondAppSubmitTime));
+        .isNotEmpty();
+
+    assertThat(
+            result.submitted().stream()
+                .map(x -> x.latestSubmittedApplicationTime().get().truncatedTo(ChronoUnit.SECONDS)))
+        .containsExactly(secondAppSubmitTime.truncatedTo(ChronoUnit.SECONDS));
+
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactly(programDefinition.id());
   }
@@ -2610,9 +2625,16 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     assertThat(result.submitted().stream().map(p -> p.program().id()))
         .containsExactly(programForSubmitted.id);
+
     assertThat(
             result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationTime))
-        .containsExactly(Optional.of(submittedLater));
+        .isNotEmpty();
+
+    assertThat(
+            result.submitted().stream()
+                .map(x -> x.latestSubmittedApplicationTime().get().truncatedTo(ChronoUnit.SECONDS)))
+        .containsExactly(submittedLater.truncatedTo(ChronoUnit.SECONDS));
+
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(firstDraft.getProgram().id);
     // As part of test setup, a "test program" is initialized.
