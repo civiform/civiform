@@ -240,12 +240,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
   private ImmutableList<ProgramHeaderButton> getEditHeaderButtons(
       SettingsManifest settingsManifest, boolean isEditingAllowed) {
     if (isEditingAllowed) {
-      if (settingsManifest.getProgramCardImages()) {
-        return ImmutableList.of(
-            ProgramHeaderButton.EDIT_PROGRAM_DETAILS, ProgramHeaderButton.EDIT_PROGRAM_IMAGE);
-      } else {
-        return ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM_DETAILS);
-      }
+      return ImmutableList.of(
+          ProgramHeaderButton.EDIT_PROGRAM_DETAILS, ProgramHeaderButton.EDIT_PROGRAM_IMAGE);
     } else {
       return ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM);
     }

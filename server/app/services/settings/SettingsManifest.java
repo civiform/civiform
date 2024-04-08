@@ -898,14 +898,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Enables images on program cards, both for admins to upload them and for applicants to view
-   * them.
-   */
-  public boolean getProgramCardImages() {
-    return getBool("PROGRAM_CARD_IMAGES");
-  }
-
-  /**
    * Add programs cards to the confirmation screen that an applicant sees after finishing an
    * application.
    */
@@ -1895,13 +1887,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
-                  SettingDescription.create(
-                      "PROGRAM_CARD_IMAGES",
-                      "Enables images on program cards, both for admins to upload them and for"
-                          + " applicants to view them.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE",
                       "Add programs cards to the confirmation screen that an applicant sees after"
