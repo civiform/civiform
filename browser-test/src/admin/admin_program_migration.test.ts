@@ -87,6 +87,7 @@ test.describe('program migration', {tag: ['@uses-fixtures']}, () => {
       )
       await adminProgramMigration.submitProgramJson(sampleJson)
 
+      await adminProgramMigration.expectProgramImported('Import Sample Program')
       // The import page currently shows question IDs, so this screenshot needs
       // to be based on data that comes from a pre-created JSON file instead of
       // a runtime-downloaded JSON file, as the IDs could change at runtime.

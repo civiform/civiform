@@ -65,4 +65,10 @@ export class AdminProgramMigration {
         .getByRole('heading', {name: 'Error processing JSON'}),
     ).toBeVisible()
   }
+
+  async expectProgramImported(programName: string) {
+    await expect(
+      this.page.getByRole('heading', {name: 'Program name: ' + programName}),
+    ).toBeVisible()
+  }
 }
