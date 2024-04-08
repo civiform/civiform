@@ -33,6 +33,11 @@
         th:replace="~{questiontypes/EnumeratorQuestionFragment :: enumerator(${question})}"
       ></div>
     </th:block>
+    <th:block th:case="'File Upload'">
+      <div
+        th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question})}"
+      ></div>
+    </th:block>
     <th:block th:case="'ID'">
       <div
         th:replace="~{questiontypes/IdQuestionFragment :: id(${question}, ${questionRendererParams})}"

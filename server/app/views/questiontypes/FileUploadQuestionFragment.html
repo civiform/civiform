@@ -1,0 +1,37 @@
+<!-- TODO: Should file upload page be totally different for rendering. Ask UX about 5 buttons -->
+<div th:fragment="file-upload(question)"
+    th:with="fileUploadQuestion=${question.createFileUploadQuestion()},
+    questionId=${#strings.randomAlphanumeric(8)},
+    inputId=${#strings.randomAlphanumeric(8)}"
+th:id="${questionId}"
+>
+  <!-- Title and Help Text -->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
+  ></div>
+
+  <!-- Display errors -->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+  ></div>
+
+  <input
+  id="file-input-specific"
+  class="usa-file-input"
+  type="file"
+  name="file"
+  aria-describedby="file-input-specific-hint"
+  accept="image/*,.pdf"
+  multiple="multiple"
+/>
+  
+  <input type="hidden" name="key" value="">
+  <input type="hidden" name="success_action_redirect" value="">
+  <input type="hidden" name="X-Amz-Credential" value="">
+  <input type="hidden" name="X-Amz-Algorithm" value="">
+  <input type="hidden" name="X-Amz-Date" value="">
+  <input type="hidden" name="Policy" value="">
+  <input type="hidden" name="X-Amz-Signature" value="">
+  <input th:if="${!signedRequest.securityToken().isEmpty()}" type="hidden" name="X-Amz-Security-Token" value="">
+
+</div>
