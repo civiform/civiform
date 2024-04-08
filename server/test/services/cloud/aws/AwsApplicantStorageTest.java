@@ -1,10 +1,8 @@
 package services.cloud.aws;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static play.test.Helpers.fakeRequest;
 import static services.cloud.aws.AwsApplicantStorage.AWS_S3_FILE_LIMIT_CONF_PATH;
 
 import com.typesafe.config.Config;
@@ -41,7 +39,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
             instanceOf(ApplicationLifecycle.class));
 
     SignedS3UploadRequest uploadRequest =
-        awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect", fakeRequest().build());
+        awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
     assertThat(uploadRequest.actionLink()).contains("amazonaws.com");
     assertThat(uploadRequest.actionLink()).endsWith("/");
@@ -60,7 +58,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
             instanceOf(ApplicationLifecycle.class));
 
     SignedS3UploadRequest uploadRequest =
-        awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect", fakeRequest().build());
+        awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
     assertThat(uploadRequest.actionLink()).contains("localstack");
     assertThat(uploadRequest.actionLink()).doesNotContain("amazonaws.com");
@@ -82,7 +80,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
             instanceOf(ApplicationLifecycle.class));
 
     SignedS3UploadRequest uploadRequest =
-        awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect", fakeRequest().build());
+        awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
     assertThat(uploadRequest.accessKey()).isEqualTo(credentials.getCredentials().accessKeyId());
     assertThat(uploadRequest.secretKey()).isEqualTo(credentials.getCredentials().secretAccessKey());
@@ -94,8 +92,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
     AwsApplicantStorage awsApplicantStorage = instanceOf(AwsApplicantStorage.class);
 
     SignedS3UploadRequest uploadRequest =
-        awsApplicantStorage.getSignedUploadRequest(
-            "test/fake/fakeFile.png", "redirect", fakeRequest().build());
+        awsApplicantStorage.getSignedUploadRequest("test/fake/fakeFile.png", "redirect");
 
     assertThat(uploadRequest.bucket()).isEqualTo("civiform-local-s3");
   }
@@ -105,8 +102,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
     AwsApplicantStorage awsApplicantStorage = instanceOf(AwsApplicantStorage.class);
 
     SignedS3UploadRequest uploadRequest =
-        awsApplicantStorage.getSignedUploadRequest(
-            "test/fake/fakeFile.png", "redirect", fakeRequest().build());
+        awsApplicantStorage.getSignedUploadRequest("test/fake/fakeFile.png", "redirect");
 
     assertThat(uploadRequest.fileLimitMb()).isEqualTo(100);
   }
@@ -116,8 +112,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
     AwsApplicantStorage awsApplicantStorage = instanceOf(AwsApplicantStorage.class);
 
     SignedS3UploadRequest uploadRequest =
-        awsApplicantStorage.getSignedUploadRequest(
-            "test/fake/fakeFile.png", "redirect", fakeRequest().build());
+        awsApplicantStorage.getSignedUploadRequest("test/fake/fakeFile.png", "redirect");
 
     assertThat(uploadRequest.key()).isEqualTo("test/fake/fakeFile.png");
   }
@@ -127,8 +122,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
     AwsApplicantStorage awsApplicantStorage = instanceOf(AwsApplicantStorage.class);
 
     SignedS3UploadRequest uploadRequest =
-        awsApplicantStorage.getSignedUploadRequest(
-            "fileKey", "http://redirect.to.here", fakeRequest().build());
+        awsApplicantStorage.getSignedUploadRequest("fileKey", "http://redirect.to.here");
 
     assertThat(uploadRequest.successActionRedirect()).isEqualTo("http://redirect.to.here");
   }
@@ -153,7 +147,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
             instanceOf(ApplicationLifecycle.class));
 
     SignedS3UploadRequest uploadRequest =
-        awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect", fakeRequest().build());
+        awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
     assertThat(uploadRequest.securityToken()).isEqualTo("testSessionToken");
   }
@@ -177,7 +171,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
             instanceOf(ApplicationLifecycle.class));
 
     SignedS3UploadRequest uploadRequest =
-        awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect", fakeRequest().build());
+        awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
     assertThat(uploadRequest.securityToken()).isEmpty();
   }
@@ -196,13 +190,11 @@ public class AwsApplicantStorageTest extends ResetPostgres {
             instanceOf(Environment.class),
             instanceOf(ApplicationLifecycle.class));
 
-    when(mockSettingsManifest.getSaveOnAllActions(any())).thenReturn(true);
+    when(mockSettingsManifest.getSaveOnAllActions()).thenReturn(true);
 
     SignedS3UploadRequest uploadRequest =
         awsApplicantStorage.getSignedUploadRequest(
-            "fileKey",
-            "https://civiform.dev/programs/4/blocks/1/updateFile/true/NEXT_BLOCK",
-            fakeRequest().build());
+            "fileKey", "https://civiform.dev/programs/4/blocks/1/updateFile/true/NEXT_BLOCK");
 
     // Verify the applicant-requested action at the end of the redirect URL was removed, so that the
     // redirect URL is valid for all types of applicant-requested actions.
@@ -226,13 +218,11 @@ public class AwsApplicantStorageTest extends ResetPostgres {
             instanceOf(Environment.class),
             instanceOf(ApplicationLifecycle.class));
 
-    when(mockSettingsManifest.getSaveOnAllActions(any())).thenReturn(false);
+    when(mockSettingsManifest.getSaveOnAllActions()).thenReturn(false);
 
     SignedS3UploadRequest uploadRequest =
         awsApplicantStorage.getSignedUploadRequest(
-            "fileKey",
-            "https://civiform.dev/programs/4/blocks/1/updateFile/true/NEXT_BLOCK",
-            fakeRequest().build());
+            "fileKey", "https://civiform.dev/programs/4/blocks/1/updateFile/true/NEXT_BLOCK");
 
     // Verify the redirect URL wasn't modified
     assertThat(uploadRequest.successActionRedirect())

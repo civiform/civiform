@@ -50,7 +50,6 @@
         "bradlc.vscode-tailwindcss",
         "dbaeumer.vscode-eslint",
         "github.vscode-pull-request-github",
-        "hashicorp.terraform",
         "ms-azuretools.vscode-docker",
         "ms-ossdata.vscode-postgresql",
         "ms-playwright.playwright",
@@ -62,32 +61,6 @@
         "vscjava.vscode-java-pack",
         "vscode-icons-team.vscode-icons",
         "Graphite.gti-vscode"
-      ]
-    },
-    "launch": {
-      "version": "0.2.0",
-      "configurations": [
-        {
-          "type": "java",
-          "name": "Attach to Civiform Browser Tests",
-          "request": "attach",
-          "hostName": "localhost",
-          "port": "9457"
-        },
-        {
-          "type": "java",
-          "name": "Attach to Civiform Unit Tests",
-          "request": "attach",
-          "hostName": "localhost",
-          "port": "8459"
-        },
-        {
-          "type": "java",
-          "name": "Attach to Civiform Dev",
-          "request": "attach",
-          "hostName": "localhost",
-          "port": "8457"
-        }
       ]
     }
   },

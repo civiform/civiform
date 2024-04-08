@@ -3,7 +3,7 @@ version: '3.4'
 
 services:
   localstack:
-    image: localstack/localstack:3.2.0
+    image: localstack/localstack:3.3.0
     profiles: ['aws', 'emulator']
     expose:
       - '4566'

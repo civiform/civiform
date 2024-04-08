@@ -141,7 +141,6 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
                       params.programId(),
                       params.block().getId(),
                       messages,
-                      params.request(),
                       params.profile()),
                   renderAddress(
                       addressAsEntered,
@@ -170,7 +169,6 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
       long programId,
       String blockId,
       Messages messages,
-      Http.Request request,
       CiviFormProfile profile) {
     DivTag containerDiv = div().withClass("flex flex-nowrap mb-2");
     containerDiv.with(
@@ -180,7 +178,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
     // When the SAVE_ON_ALL_ACTIONS flag is on, the "Edit" action will be a button in the bottom
     // navigation. When the flag is off, the "Edit" action should be part of the "As entered"
     // heading.
-    if (!settingsManifest.getSaveOnAllActions(request)) {
+    if (!settingsManifest.getSaveOnAllActions()) {
       ATag editElement =
           new LinkElement()
               .setStyles(
@@ -272,7 +270,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
     //      question.
     //   2. "Go back and edit": Go back to the block with the address question to edit the address
     //      they'd entered.
-    if (settingsManifest.getSaveOnAllActions(params.request())) {
+    if (settingsManifest.getSaveOnAllActions()) {
       ButtonTag confirmAddressButton =
           submitButton(
                   params.messages().at(MessageKey.ADDRESS_CORRECTION_CONFIRM_BUTTON.getKeyName()))
@@ -315,7 +313,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
 
   private DomContent renderAddressCorrectionSpecificPreviousButton(
       ApplicationBaseViewParams params) {
-    if (!settingsManifest.getSaveOnAllActions(params.request())) {
+    if (!settingsManifest.getSaveOnAllActions()) {
       // Set the block index to the next block, so that the renderPreviousButton
       // method will render the correct block.
       ApplicationBaseViewParams newParams =

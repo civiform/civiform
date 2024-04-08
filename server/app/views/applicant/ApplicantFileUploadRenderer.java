@@ -166,9 +166,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
         ApplicantFileNameFormatter.formatFileUploadQuestionFilename(
             params.applicantId(), params.programId(), params.block().getId());
     StorageUploadRequest signedRequest =
-        params
-            .applicantStorageClient()
-            .getSignedUploadRequest(key, onSuccessRedirectUrl, params.request());
+        params.applicantStorageClient().getSignedUploadRequest(key, onSuccessRedirectUrl);
 
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder()
@@ -369,7 +367,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
 
   private DomContent renderButton(
       ApplicationBaseViewParams params, ApplicantRequestedAction action) {
-    if (!settingsManifest.getSaveOnAllActions(params.request())) {
+    if (!settingsManifest.getSaveOnAllActions()) {
       switch (action) {
         case NEXT_BLOCK:
           return renderOldNextButton(params);
