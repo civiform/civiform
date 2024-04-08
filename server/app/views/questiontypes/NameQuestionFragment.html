@@ -11,7 +11,7 @@
   ></div>
 
   <!-- TODO: errors -->
-  <div th:with="firstNameId=${#strings.randomAlphanumeric(8)}">
+  <div th:with="firstNameId=${#strings.randomAlphanumeric(8)}" class="cf-name-first">
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(nameQuestion.getFirstNamePath())})}"
     ></div>
@@ -31,7 +31,7 @@
       th:name="${nameQuestion.getFirstNamePath()}"
     />
   </div>
-  <div th:with="middleNameId=${#strings.randomAlphanumeric(8)}">
+  <div th:with="middleNameId=${#strings.randomAlphanumeric(8)}" class="cf-name-middle">
     <label th:for="${middleNameId}" th:text="#{label.middleName}"></label>
     <input
       type="text"
@@ -43,7 +43,7 @@
       th:name="${nameQuestion.getMiddleNamePath()}"
     />
   </div>
-  <div th:with="lastNameId=${#strings.randomAlphanumeric(8)}">
+  <div th:with="lastNameId=${#strings.randomAlphanumeric(8)}" class="cf-name-last">
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(nameQuestion.getLastNamePath())})}"
     ></div>
