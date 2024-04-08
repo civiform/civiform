@@ -38,19 +38,6 @@ public class ValidAccountFilter extends EssentialFilter {
             }
           }
 
-          // Check to see if the account is the unconfirmed email placeholder account from Seattle
-          // IDCS. If it is, log them out and redirect to a custom support page for that purpose.
-          if (profile.isPresent()
-              && profileUtils.accountIsIdcsPlaceholder(profile.get())
-              && !isLogoutRequest(request.uri())) {
-            String logoutUrl =
-                controllers.routes.SupportController.handleUnconfirmedIdcsEmail().url();
-
-            return Accumulator.done(
-                Results.redirect(
-                    org.pac4j.play.routes.LogoutController.logout().url() + "?url=" + logoutUrl));
-          }
-
           return next.apply(request);
         });
   }
