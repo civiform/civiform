@@ -14,7 +14,7 @@
     "@tsconfig/recommended": "1.0.6",
     "@types/cleave.js": "1.4.12",
     "@types/jest": "29.5.12",
-    "@types/markdown-it": "^13.0.1",
+    "@types/markdown-it": "^14.0.0",
     "@typescript-eslint/eslint-plugin": "7.5.0",
     "@typescript-eslint/parser": "7.5.0",
     "autoprefixer": "^10.4.16",
