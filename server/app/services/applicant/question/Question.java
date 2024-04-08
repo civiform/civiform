@@ -119,7 +119,6 @@ public abstract class Question {
   public String getDefaultAnswerString() {
     return "-";
   }
-  ;
 
   /** Return every path used by this question. */
   public abstract ImmutableList<Path> getAllPaths();
