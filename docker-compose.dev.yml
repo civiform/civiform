@@ -1,6 +1,5 @@
 # Builds on docker-compose.yml
 # Mount code for hot reloading and cache for faster compile in dev mode.
-version: '3.4'
 
 # Shared yaml extensions (https://docs.docker.com/compose/compose-file/compose-file-v3/#extension-fields)
 # Volume mapping shared between containers.
