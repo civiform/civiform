@@ -1,3 +1,4 @@
+<!-- TODO(#7080): Refactor Enumerator question to use HTMX instead of relying on TS and DOM templates. -->
 <div
   th:fragment="enumerator(question)"
   th:with="enumeratorQuestion=${question.createEnumeratorQuestion()},
@@ -14,7 +15,7 @@
       th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
     ></div>
 
-    <!-- Display errors -->
+    <!-- Display question level errors -->
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${enumeratorQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
     ></div>
@@ -24,6 +25,7 @@
       th:data-button-text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})}"
     >
       <div th:replace="~{this :: deleteInputTemplate}"></div>
+      <!-- Render each existing enumerator field, including remove button -->
       <div id="enumerator-fields">
         <div th:each="option,iterator: ${enumeratorQuestion.getEntityNames()}">
           <div
@@ -45,6 +47,7 @@
   </fieldset>
 </div>
 
+<!-- Renders a single enumerator field (label, input, and remove button). This is used to render existing entities, and as a template used in TS to render a newly added entity.  -->
 <div
   th:fragment="enumeratorField(fieldId, inputId, path, existingEntity, visibleIndex, deleteButtonId, hidden)"
   class="cf-enumerator-field"
@@ -67,7 +70,7 @@
       th:name="${path}"
       th:disabled="${hidden}"
     />
-    <!-- TODO: Load the errors for the field properly. For now this is a placeholder div so TS won't error -->
+    <!-- TODO(#7166): Load the errors for the field properly. For now this is a placeholder div so TS won't error -->
     <div th:id="${inputId + '-errors'}"></div>
   </div>
   <!-- Delete entity button -->
