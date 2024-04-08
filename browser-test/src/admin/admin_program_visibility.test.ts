@@ -292,7 +292,6 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     })
 
     await test.step('log in as an applicant and verify the program is hidden from me', async () => {
-      // Login as applicant, verify program is hidden
       await logout(page)
       await applicantQuestions.expectProgramHidden(programName)
       await validateScreenshot(

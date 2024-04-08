@@ -58,6 +58,9 @@ test.describe('program creation', () => {
       /* submitNewProgram= */ false,
     )
     await adminPrograms.expectProgramDetailsSaveAndContinueButton()
+    expect(await page.innerText('id=program-details-form')).toContain(
+      'Disabled',
+    )
     await validateScreenshot(
       page,
       'program-creation-page-disabled-visibility-enabled',
@@ -87,6 +90,9 @@ test.describe('program creation', () => {
       /* submitNewProgram= */ false,
     )
     await adminPrograms.expectProgramDetailsSaveAndContinueButton()
+    expect(await page.innerText('id=program-details-form')).not.toContain(
+      'Disabled',
+    )
     await validateScreenshot(
       page,
       'program-creation-page-disabled-visibility-disabled',
