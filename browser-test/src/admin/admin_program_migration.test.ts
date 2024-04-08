@@ -128,7 +128,7 @@ test.describe('program migration', {tag: ['@uses-fixtures']}, () => {
     await test.step('malformed: missing program field', async () => {
       // The JSON itself is correctly formatted but it should have a top-level "program" field
       await adminProgramMigration.submitProgramJson(
-        '{"adminName": "missing-program-field", "adminDescription": "missing-comma-description"}',
+        '{"adminName": "missing-program-field", "adminDescription": "missing-field-description"}',
       )
       await adminProgramMigration.expectImportError()
     })

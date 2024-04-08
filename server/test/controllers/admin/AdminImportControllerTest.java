@@ -14,13 +14,9 @@ import static play.test.Helpers.fakeRequest;
 import auth.ProfileUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import play.data.FormFactory;
-import play.libs.Json;
 import play.mvc.Result;
 import repository.ResetPostgres;
 import repository.VersionRepository;
@@ -103,7 +99,7 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Error processing JSON");
-    assertThat(contentAsString(result)).contains("JSON file is incorrectly formatted");
+    assertThat(contentAsString(result)).contains("JSON is incorrectly formatted");
   }
 
   @Test
@@ -125,22 +121,12 @@ public class AdminImportControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Error processing JSON");
     assertThat(contentAsString(result))
-        .containsPattern("JSON file did not have a top-level .*program.* field");
+        .containsPattern("JSON did not have a top-level .*program.* field");
   }
 
   @Test
-  public void hxImportProgram_notEnoughInfoToCreateProgramDef_error() throws FileNotFoundException {
+  public void hxImportProgram_notEnoughInfoToCreateProgramDef_error() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
-
-    // This file contains the bare minimum needed
-    String filePath =
-        System.getProperty("user.dir") + "/test/resources/migration/import-program-sample.json";
-
-    File file = new File(filePath);
-
-    String json;
-    FileInputStream inputStream = new FileInputStream(file);
-    json = Json.parse(inputStream).asText();
 
     Result result =
         controller.hxImportProgram(
@@ -156,12 +142,11 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Error processing JSON");
-    assertThat(contentAsString(result)).contains("JSON file is incorrectly formatted");
+    assertThat(contentAsString(result)).contains("JSON is incorrectly formatted");
   }
 
   @Test
-  public void hxImportProgram_jsonHasAllProgramInfo_resultHasProgramInfo()
-      throws FileNotFoundException {
+  public void hxImportProgram_jsonHasAllProgramInfo_resultHasProgramInfo() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
@@ -178,9 +163,11 @@ public class AdminImportControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains("Screen 1");
   }
 
-  // This contains the bare minimum needed to parse JSON into a program definition. The
-  // admin_program_migration.test.ts browser test has tests for a program with many blocks and
-  // questions.
+  /**
+   * This contains the bare minimum needed to parse JSON into a program definition. The
+   * admin_program_migration.test.ts browser test has tests for a program with many blocks and
+   * questions.
+   */
   private static final String PROGRAM_JSON =
       "{\n"
           + "  \"program\": {\n"

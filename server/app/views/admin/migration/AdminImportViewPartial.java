@@ -42,7 +42,6 @@ public final class AdminImportViewPartial {
   /** Renders the correctly parsed program data. */
   public DomContent renderProgramData(ProgramMigration programMigration) {
     ProgramDefinition program = programMigration.getProgram();
-    System.err.println("render program data, def=" + program);
     DivTag programDiv = div().withId(PROGRAM_DATA_ID);
     programDiv.with(h3("Program name: " + program.localizedName().getDefault()));
     programDiv.with(p("Admin name: " + program.adminName()));
