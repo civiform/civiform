@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-import {test} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
-import {readFileSync} from 'fs'
-=======
 import {test, expect} from '../support/civiform_fixtures'
 import {
   enableFeatureFlag,
@@ -10,7 +5,7 @@ import {
   seedPrograms,
   validateScreenshot,
 } from '../support'
->>>>>>> 3e779e27d (browser tests, some unit test)
+import {readFileSync} from 'fs'
 
 test.describe('program migration', {tag: ['@uses-fixtures']}, () => {
   test('export a program', async ({
@@ -86,13 +81,7 @@ test.describe('program migration', {tag: ['@uses-fixtures']}, () => {
     })
 
     await test.step('import a program', async () => {
-<<<<<<< HEAD
-      // TODO(#7087): We should also have a test that exports JSON and then imports that same JSON
-      // so that we can verify export and import work together.
       const sampleJson = readFileSync(
-=======
-      await adminProgramMigration.uploadProgramJson(
->>>>>>> 3e779e27d (browser tests, some unit test)
         'src/assets/import-program-sample.json',
         'utf8',
       )
@@ -119,7 +108,7 @@ test.describe('program migration', {tag: ['@uses-fixtures']}, () => {
         '{"adminName: "mismatched-double-quote"}',
       )
       await adminProgramMigration.expectImportError()
-      await validateScreenshot(page, 'import-page-with-error')
+      await validateScreenshot(page, 'import-page-with-error-parse')
     })
 
     await test.step('malformed: not matching {}', async () => {
@@ -136,10 +125,18 @@ test.describe('program migration', {tag: ['@uses-fixtures']}, () => {
       await adminProgramMigration.expectImportError()
     })
 
+    await test.step('malformed: missing program field', async () => {
+      // The JSON itself is correctly formatted but it should have a top-level "program" field
+      await adminProgramMigration.submitProgramJson(
+        '{"adminName": "missing-program-field", "adminDescription": "missing-comma-description"}',
+      )
+      await adminProgramMigration.expectImportError()
+    })
+
     await test.step('malformed: missing required program info', async () => {
       // The JSON itself is correctly formatted but it doesn't have all the fields
       // that we need to build a ProgramDefinition
-      await adminProgramMigration.uploadProgramJsonWithContent(
+      await adminProgramMigration.submitProgramJson(
         '{"program": {"adminName": "missing-fields", "adminDescription": "missing-fields-description"}}',
       )
       await adminProgramMigration.expectImportError()
@@ -175,9 +172,7 @@ test.describe('program migration', {tag: ['@uses-fixtures']}, () => {
 
     await test.step('import comprehensive program', async () => {
       await adminProgramMigration.goToImportPage()
-      await adminProgramMigration.uploadProgramJsonWithContent(
-        downloadedProgram,
-      )
+      await adminProgramMigration.submitProgramJson(downloadedProgram)
 
       // Assert all the blocks are shown
       await expect(page.getByRole('heading', {name: 'Screen 1'})).toBeVisible()

@@ -1,6 +1,7 @@
 import {expect} from '@playwright/test'
 import {Page} from 'playwright'
 import {waitForPageJsLoad} from './wait'
+import {readFileSync} from 'fs'
 
 export class AdminProgramMigration {
   public page!: Page

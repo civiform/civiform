@@ -25,7 +25,7 @@ public final class ProgramMigration {
     return program;
   }
 
-  public void setPrograms(ProgramDefinition programs) {
-    this.program = programs;
+  public void setProgram(ProgramDefinition program) {
+    this.program = program;
   }
 }

@@ -5,23 +5,14 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
-import static j2html.TagCreator.h3;
-import static j2html.TagCreator.h4;
 import static j2html.TagCreator.p;
 
 import com.google.inject.Inject;
-import controllers.admin.AdminImportController;
-import controllers.admin.ProgramMigration;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.CiviFormError;
-import services.ErrorAnd;
-import services.program.BlockDefinition;
-import services.program.ProgramDefinition;
-import services.program.ProgramQuestionDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -115,38 +106,5 @@ public class AdminImportView extends BaseHtmlView {
             div()
                 .withId(AdminImportViewPartial.PROGRAM_DATA_ID)
                 .with(p("No data has been uploaded yet.")));
-  }
-
-  private DomContent renderProgramMigration(ProgramMigration programMigration) {
-    ProgramDefinition program = programMigration.getProgram();
-    DivTag programDiv = div();
-    programDiv.with(h3("Program name: " + program.localizedName().getDefault()));
-    programDiv.with(p("Admin name: " + program.adminName()));
-    // TODO(#7087): If the imported program admin name matches an existing program admin name, we
-    // should show some kind of error because admin names need to be unique.
-
-    for (BlockDefinition block : program.blockDefinitions()) {
-      programDiv.with(renderProgramBlock(block));
-    }
-    return programDiv;
-  }
-
-  private DomContent renderProgramBlock(BlockDefinition block) {
-    DivTag blockDiv = div().withClasses("border", "border-gray-200", "p-2");
-    blockDiv.with(h4(block.name()));
-    blockDiv.with(p(block.description()));
-    // TODO(#7087): Display eligibility and visibility predicates.
-
-    for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
-      blockDiv.with(renderQuestion(question));
-    }
-    return blockDiv;
-  }
-
-  private DomContent renderQuestion(ProgramQuestionDefinition question) {
-    DivTag questionDiv = div().withClasses("border", "border-gray-200", "p-2");
-    questionDiv.with(p("Question ID: " + question.id()));
-    // TODO(#7087): Fetch and display all the question info, not just the ID.
-    return questionDiv;
   }
 }

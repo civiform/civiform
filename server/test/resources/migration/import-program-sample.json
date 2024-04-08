@@ -1,0 +1,61 @@
+{
+  "program": {
+    "id": 34,
+    "adminName": "import-program-sample",
+    "adminDescription": "desc",
+    "externalLink": "https://github.com/civiform/civiform",
+    "displayMode": "PUBLIC",
+    "localizedName": {
+      "translations": {
+        "en_US": "Import Sample Program"
+      },
+      "isRequired": true
+    },
+    "localizedDescription": {
+      "translations": {
+        "en_US": "A sample program for testing program import"
+      },
+      "isRequired": true
+    },
+    "localizedConfirmationMessage": {
+      "translations": {
+        "en_US": ""
+      },
+      "isRequired": true
+    },
+    "programType": "DEFAULT",
+    "eligibilityIsGating": true,
+    "acls": {
+      "tiProgramViewAcls": []
+    },
+    "localizedSummaryImageDescription": {
+      "translations": {
+        "en_US": "Test summary image description"
+      },
+      "isRequired": true
+    },
+    "blockDefinitions": [
+      {
+        "id": 1,
+        "name": "Screen 1",
+        "description": "one of each question type - part 1",
+        "repeaterId": null,
+        "hidePredicate": null,
+        "optionalPredicate": null,
+        "questionDefinitions": [
+          {
+            "id": 18,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          },
+          {
+            "id": 5,
+            "optional": false,
+            "addressCorrectionEnabled": true
+          }
+        ]
+      }
+    ],
+    "statusDefinitions": {}
+  }
+}

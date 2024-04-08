@@ -4,27 +4,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
-import com.fasterxml.jackson.databind.DatabindException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.inject.Inject;
-import controllers.CiviFormController;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
-import java.io.File;
-import java.io.IOException;
-import java.util.Optional;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
-import play.libs.Json;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import play.i18n.MessagesApi;
-import play.libs.Files;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -50,7 +38,6 @@ public class AdminImportController extends CiviFormController {
   private final AdminImportViewPartial adminImportViewPartial;
   private final FormFactory formFactory;
   private final ObjectMapper objectMapper;
-
 
   private final SettingsManifest settingsManifest;
 
@@ -100,25 +87,22 @@ public class AdminImportController extends CiviFormController {
       return redirect(routes.AdminImportController.index().url());
     }
 
-      ProgramMigration programMigration;
+    ProgramMigration programMigration;
     try {
-      parsedJson = Json.parse(jsonString);
-    } catch (RuntimeException e) {
+      programMigration = objectMapper.readValue(jsonString, ProgramMigration.class);
+    } catch (RuntimeException | JsonProcessingException e) {
       return ok(
           adminImportViewPartial
               .renderError("JSON is incorrectly formatted: " + e.getMessage())
               .render());
-      programMigration = objectMapper.readValue(jsonString, ProgramMigration.class);
-    } catch (RuntimeException | DatabindException e) {
-        return ok(adminImportViewPartial
-                .renderError("JSON file is incorrectly formatted: " + e.getMessage())
-                .render());
-    } catch (IOException e) {
-      return ok(          adminImportViewPartial
-              .renderError("Imported file could not be read")
-              .render());
     }
 
+    if (programMigration.getProgram() == null) {
+      return ok(
+          adminImportViewPartial
+              .renderError("JSON file did not have a top-level \"program\" field")
+              .render());
+    }
     return ok(adminImportViewPartial.renderProgramData(programMigration).render());
   }
 }

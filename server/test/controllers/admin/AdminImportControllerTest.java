@@ -12,20 +12,15 @@ import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
 import auth.ProfileUtils;
-<<<<<<< HEAD
-import com.google.common.collect.ImmutableMap;
-=======
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Collections;
->>>>>>> 3e779e27d (browser tests, some unit test)
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import play.data.FormFactory;
+import play.libs.Json;
 import play.mvc.Result;
 import repository.ResetPostgres;
 import repository.VersionRepository;
@@ -35,9 +30,6 @@ import views.admin.migration.AdminImportView;
 import views.admin.migration.AdminImportViewPartial;
 
 public class AdminImportControllerTest extends ResetPostgres {
-  private static final String TEST_FILE_CONTENT =
-      "{ \"id\" : 32, \"adminName\" : \"email-program\", \"adminDescription\" : \"\"}";
-
   private AdminImportController controller;
   private final SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
 
@@ -46,13 +38,9 @@ public class AdminImportControllerTest extends ResetPostgres {
     controller =
         new AdminImportController(
             instanceOf(AdminImportView.class),
-<<<<<<< HEAD
             instanceOf(AdminImportViewPartial.class),
             instanceOf(FormFactory.class),
-=======
-            instanceOf(MessagesApi.class),
             instanceOf(ObjectMapper.class),
->>>>>>> 3e779e27d (browser tests, some unit test)
             instanceOf(ProfileUtils.class),
             mockSettingsManifest,
             instanceOf(VersionRepository.class));
@@ -102,8 +90,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  @Ignore
-  public void hxImportProgram_migrationEnabled_resultHasTextContent() {
+  public void hxImportProgram_malformattedJson_error() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
@@ -111,10 +98,151 @@ public class AdminImportControllerTest extends ResetPostgres {
             addCSRFToken(
                     fakeRequest()
                         .method("POST")
-                        .bodyForm(ImmutableMap.of("programJson", TEST_FILE_CONTENT)))
+                        .bodyForm(ImmutableMap.of("programJson", "{\"adminName : \"admin-name\"}")))
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains(TEST_FILE_CONTENT);
+    assertThat(contentAsString(result)).contains("Error processing JSON");
+    assertThat(contentAsString(result)).contains("JSON file is incorrectly formatted");
   }
+
+  @Test
+  public void hxImportProgram_noTopLevelProgramFieldInJson_error() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    Result result =
+        controller.hxImportProgram(
+            addCSRFToken(
+                    fakeRequest()
+                        .method("POST")
+                        .bodyForm(
+                            ImmutableMap.of(
+                                "programJson",
+                                "{ \"id\" : 32, \"adminName\" : \"admin-name\","
+                                    + " \"adminDescription\" : \"description\"}")))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Error processing JSON");
+    assertThat(contentAsString(result))
+        .containsPattern("JSON file did not have a top-level .*program.* field");
+  }
+
+  @Test
+  public void hxImportProgram_notEnoughInfoToCreateProgramDef_error() throws FileNotFoundException {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    // This file contains the bare minimum needed
+    String filePath =
+        System.getProperty("user.dir") + "/test/resources/migration/import-program-sample.json";
+
+    File file = new File(filePath);
+
+    String json;
+    FileInputStream inputStream = new FileInputStream(file);
+    json = Json.parse(inputStream).asText();
+
+    Result result =
+        controller.hxImportProgram(
+            addCSRFToken(
+                    fakeRequest()
+                        .method("POST")
+                        .bodyForm(
+                            ImmutableMap.of(
+                                "programJson",
+                                "{ \"program\": { \"adminName\" : \"admin-name\","
+                                    + " \"adminDescription\" : \"description\"}}")))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Error processing JSON");
+    assertThat(contentAsString(result)).contains("JSON file is incorrectly formatted");
+  }
+
+  @Test
+  public void hxImportProgram_jsonHasAllProgramInfo_resultHasProgramInfo()
+      throws FileNotFoundException {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    Result result =
+        controller.hxImportProgram(
+            addCSRFToken(
+                    fakeRequest()
+                        .method("POST")
+                        .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON)))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Import Sample Program");
+    assertThat(contentAsString(result)).contains("import-program-sample");
+    assertThat(contentAsString(result)).contains("Screen 1");
+  }
+
+  // This contains the bare minimum needed to parse JSON into a program definition. The
+  // admin_program_migration.test.ts browser test has tests for a program with many blocks and
+  // questions.
+  private static final String PROGRAM_JSON =
+      "{\n"
+          + "  \"program\": {\n"
+          + "    \"id\": 34,\n"
+          + "    \"adminName\": \"import-program-sample\",\n"
+          + "    \"adminDescription\": \"desc\",\n"
+          + "    \"externalLink\": \"https://github.com/civiform/civiform\",\n"
+          + "    \"displayMode\": \"PUBLIC\",\n"
+          + "    \"localizedName\": {\n"
+          + "      \"translations\": {\n"
+          + "        \"en_US\": \"Import Sample Program\"\n"
+          + "      },\n"
+          + "      \"isRequired\": true\n"
+          + "    },\n"
+          + "    \"localizedDescription\": {\n"
+          + "      \"translations\": {\n"
+          + "        \"en_US\": \"A sample program for testing program import\"\n"
+          + "      },\n"
+          + "      \"isRequired\": true\n"
+          + "    },\n"
+          + "    \"localizedConfirmationMessage\": {\n"
+          + "      \"translations\": {\n"
+          + "        \"en_US\": \"\"\n"
+          + "      },\n"
+          + "      \"isRequired\": true\n"
+          + "    },\n"
+          + "    \"programType\": \"DEFAULT\",\n"
+          + "    \"eligibilityIsGating\": true,\n"
+          + "    \"acls\": {\n"
+          + "      \"tiProgramViewAcls\": []\n"
+          + "    },\n"
+          + "    \"localizedSummaryImageDescription\": {\n"
+          + "      \"translations\": {\n"
+          + "        \"en_US\": \"Test summary image description\"\n"
+          + "      },\n"
+          + "      \"isRequired\": true\n"
+          + "    },\n"
+          + "    \"blockDefinitions\": [\n"
+          + "      {\n"
+          + "        \"id\": 1,\n"
+          + "        \"name\": \"Screen 1\",\n"
+          + "        \"description\": \"block 1\",\n"
+          + "        \"repeaterId\": null,\n"
+          + "        \"hidePredicate\": null,\n"
+          + "        \"optionalPredicate\": null,\n"
+          + "        \"questionDefinitions\": [\n"
+          + "          {\n"
+          + "            \"id\": 18,\n"
+          + "            \"optional\": false,\n"
+          + "            \"addressCorrectionEnabled\": false\n"
+          + "          },\n"
+          + "          {\n"
+          + "            \"id\": 5,\n"
+          + "            \"optional\": false,\n"
+          + "            \"addressCorrectionEnabled\": true\n"
+          + "          }\n"
+          + "        ]\n"
+          + "      }\n"
+          + "      ],\n"
+          + "    \"statusDefinitions\" : {\n"
+          + "      \"statuses\" : [ ]\n"
+          + "    }"
+          + "  }\n"
+          + "}\n";
 }
