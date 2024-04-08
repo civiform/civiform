@@ -84,7 +84,7 @@ public class AdminImportController extends CiviFormController {
     } catch (RuntimeException e) {
       return ok(
           adminImportViewPartial
-              .renderError("JSON file is incorrectly formatted: " + e.getMessage())
+              .renderError("JSON is incorrectly formatted: " + e.getMessage())
               .render());
     }
 

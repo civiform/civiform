@@ -27,7 +27,7 @@ public final class AdminImportViewPartial {
             makeAlert(
                 /* text= */ errorMessage,
                 /* hidden= */ false,
-                /* title= */ Optional.of("Error processing file"),
+                /* title= */ Optional.of("Error processing JSON"),
                 /* classes...= */ ALERT_ERROR));
   }
 

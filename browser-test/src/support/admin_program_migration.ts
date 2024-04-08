@@ -53,7 +53,7 @@ export class AdminProgramMigration {
     await expect(
       this.page
         .getByRole('alert')
-        .getByRole('heading', {name: 'Error processing file'}),
+        .getByRole('heading', {name: 'Error processing JSON'}),
     ).toBeVisible()
   }
 }
