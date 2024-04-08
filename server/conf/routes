@@ -200,7 +200,6 @@ GET     /api/docs/v1/:programSlug/active                    controllers.api.ApiD
 GET     /api/docs/v1/:programSlug/draft                     controllers.api.ApiDocsController.draftDocsForSlug(request: Request, programSlug: String)
 
 # Methods for user support incidents
-GET     /support/unconfirmedIdcsEmail  controllers.SupportController.handleUnconfirmedIdcsEmail(request: Request)
 GET     /support/unsupportedBrowser    controllers.SupportController.handleUnsupportedBrowser(request: Request)
 
 # Methods for program admins
