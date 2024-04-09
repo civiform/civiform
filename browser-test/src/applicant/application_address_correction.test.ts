@@ -122,19 +122,19 @@ test.describe('address correction', () => {
     })
 
     await test.step('Create optional address program', async () => {
-    await adminPrograms.addProgram(optionalAddressProgram)
+      await adminPrograms.addProgram(optionalAddressProgram)
 
-    await adminPrograms.editProgramBlockWithOptional(
-      optionalAddressProgram,
-      'first block',
-      [],
-      addressWithCorrectionQuestionId,
-    )
+      await adminPrograms.editProgramBlockWithOptional(
+        optionalAddressProgram,
+        'first block',
+        [],
+        addressWithCorrectionQuestionId,
+      )
 
-    await adminPrograms.goToBlockInProgram(optionalAddressProgram, 'Screen 1')
-    await adminPrograms.clickAddressCorrectionToggleByName(
-      addressWithCorrectionQuestionId,
-    )
+      await adminPrograms.goToBlockInProgram(optionalAddressProgram, 'Screen 1')
+      await adminPrograms.clickAddressCorrectionToggleByName(
+        addressWithCorrectionQuestionId,
+      )
 
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishProgram(optionalAddressProgram)
@@ -256,8 +256,8 @@ test.describe('address correction', () => {
       await applicantQuestions.applyProgram(optionalAddressProgram)
 
       await applicantQuestions.clickNext()
-
       await applicantQuestions.expectReviewPage()
+
       await applicantQuestions.clickSubmit()
       await logout(page)
     })
