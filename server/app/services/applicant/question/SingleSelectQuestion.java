@@ -108,6 +108,8 @@ public final class SingleSelectQuestion extends Question {
 
   @Override
   public String getAnswerString() {
-    return getSelectedOptionValue().map(LocalizedQuestionOption::optionText).orElse("-");
+    return getSelectedOptionValue()
+        .map(LocalizedQuestionOption::optionText)
+        .orElse(getDefaultAnswerString());
   }
 }

@@ -156,13 +156,11 @@ public final class ProgramIndexView extends BaseHtmlView {
             .addMainContent(contentDiv)
             .addModals(demographicsCsvModal);
 
-    if (settingsManifest.getUniversalQuestions()) {
-      publishSingleProgramModals.stream()
-          .forEach(
-              (modal) -> {
-                htmlBundle.addModals(modal);
-              });
-    }
+    publishSingleProgramModals.stream()
+        .forEach(
+            (modal) -> {
+              htmlBundle.addModals(modal);
+            });
 
     maybePublishModal.ifPresent(htmlBundle::addModals);
 
@@ -401,14 +399,12 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     Optional<String> maybeUniversalQuestionsText =
         generateUniversalQuestionText(program, universalQuestionIds);
-    boolean shouldShowUniversalQuestionsCount =
-        settingsManifest.getUniversalQuestions() && maybeUniversalQuestionsText.isPresent();
 
     return li().with(
             span(program.localizedName().getDefault()).withClasses("font-medium"),
             span(visibilityText)
                 .condWith(
-                    shouldShowUniversalQuestionsCount,
+                    maybeUniversalQuestionsText.isPresent(),
                     span(" - " + maybeUniversalQuestionsText.orElse(""))),
             new LinkElement()
                 .setText("Edit")
@@ -453,18 +449,16 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (draftProgram.isPresent()) {
       List<ButtonTag> draftRowActions = Lists.newArrayList();
       List<ButtonTag> draftRowExtraActions = Lists.newArrayList();
-      if (settingsManifest.getUniversalQuestions()) {
-        // Add the trigger button belonging to the modal that matches each draft program
-        publishSingleProgramModals.stream()
-            .forEach(
-                (modal) -> {
-                  if (modal.modalId().equals(buildPublishModalId(draftProgram.get().slug()))) {
-                    draftRowActions.add(modal.getButton());
-                  }
-                });
-      } else {
-        draftRowActions.add(renderPublishProgramLink(draftProgram.get(), request));
-      }
+
+      // Add the trigger button belonging to the modal that matches each draft program
+      publishSingleProgramModals.stream()
+          .forEach(
+              (modal) -> {
+                if (modal.modalId().equals(buildPublishModalId(draftProgram.get().slug()))) {
+                  draftRowActions.add(modal.getButton());
+                }
+              });
+
       draftRowActions.add(renderEditLink(/* isActive= */ false, draftProgram.get(), request));
       draftRowExtraActions.add(renderManageProgramAdminsLink(draftProgram.get()));
       Optional<ButtonTag> maybeManageTranslationsLink =
@@ -584,26 +578,6 @@ public final class ProgramIndexView extends BaseHtmlView {
         makeSvgTextButton("Manage application statuses", Icons.FLAKY)
             .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
     return asRedirectElement(button, linkDestination);
-  }
-
-  private ButtonTag renderPublishProgramLink(ProgramDefinition program, Http.Request request) {
-    String linkDestination = routes.AdminProgramController.publishProgram(program.id()).url();
-    String confirmationMessage =
-        String.format(
-            "Are you sure you want to publish %s and all of its draft questions?",
-            program.localizedName().getDefault());
-    return toLinkButtonForPost(
-            makeSvgTextButton("Publish ", Icons.PUBLISH)
-                .withId("publish-program-button")
-                .withClasses(ButtonStyles.CLEAR_WITH_ICON),
-            linkDestination,
-            request)
-        .attr(
-            "onclick",
-            String.format(
-                "if(confirm('%s')){ return true; } else { var e = arguments[0] ||"
-                    + " window.event; e.stopImmediatePropagation(); return false; }",
-                confirmationMessage));
   }
 
   private Optional<ButtonTag> maybeRenderViewApplicationsLink(

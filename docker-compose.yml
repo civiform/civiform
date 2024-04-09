@@ -1,6 +1,4 @@
 # Use postgres/example user/password credentials
-version: '3.4'
-
 services:
   localstack:
     image: localstack/localstack:3.3.0

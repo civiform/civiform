@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableSet;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-import models.ApplicantModel;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
@@ -50,15 +49,10 @@ public final class DateQuestion extends Question {
   }
 
   @Override
-  public boolean isAnsweredWithPai(ApplicantModel applicant) {
-    return isPaiQuestion() && applicant.getDateOfBirth().isPresent();
-  }
-
-  @Override
   public String getAnswerString() {
     return getDateValue()
         .map(localDate -> localDate.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")))
-        .orElse("-");
+        .orElse(getDefaultAnswerString());
   }
 
   public Optional<LocalDate> getDateValue() {

@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
-import models.ApplicantModel;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
@@ -40,13 +39,8 @@ public final class EmailQuestion extends Question {
   }
 
   @Override
-  public boolean isAnsweredWithPai(ApplicantModel applicant) {
-    return isPaiQuestion() && applicant.getEmailAddress().isPresent();
-  }
-
-  @Override
   public String getAnswerString() {
-    return getEmailValue().orElse("-");
+    return getEmailValue().orElse(getDefaultAnswerString());
   }
 
   public Optional<String> getEmailValue() {

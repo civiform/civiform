@@ -7,7 +7,6 @@ import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import java.util.Optional;
-import models.ApplicantModel;
 import services.MessageKey;
 import services.Path;
 import services.PhoneValidationUtils;
@@ -35,11 +34,6 @@ public final class PhoneQuestion extends Question {
   @Override
   public ImmutableList<Path> getAllPaths() {
     return ImmutableList.of(getPhoneNumberPath(), getCountryCodePath());
-  }
-
-  @Override
-  public boolean isAnsweredWithPai(ApplicantModel applicant) {
-    return isPaiQuestion() && applicant.getPhoneNumber().isPresent();
   }
 
   @Override
@@ -113,7 +107,7 @@ public final class PhoneQuestion extends Question {
               getPhoneNumberValue().orElse(""), getCountryCodeValue().orElse(""));
       return PHONE_NUMBER_UTIL.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
     } catch (NumberParseException e) {
-      return "-";
+      return getDefaultAnswerString();
     }
   }
 

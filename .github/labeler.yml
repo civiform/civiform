@@ -13,4 +13,6 @@ i18n:
 
 ignore-for-release:
   - changed-files:
-      - any-glob-to-any-file: '.github/**/*'
+      - any-glob-to-any-file: 
+        - .github/**/*
+        - .devcontainer/**/*
