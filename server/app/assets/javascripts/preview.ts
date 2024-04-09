@@ -183,10 +183,8 @@ class PreviewController {
         `${PreviewController.QUESTION_MULTI_OPTION_SELECTOR} ${PreviewController.QUESTION_MULTI_OPTION_INPUT_FIELD_SELECTOR} input`,
       ),
     ).map((el) => {
-      console.log(el)
       return (el as HTMLInputElement).value
     })
-    console.log(configuredOptions)
     if (configuredOptions.length === 0) {
       configuredOptions.push(PreviewController.DEFAULT_OPTION_TEXT)
     }
@@ -222,7 +220,6 @@ class PreviewController {
       // Objects in javascript are passed by value so editing optionText.innerText
       // modifies newPreviewOption
       optionText.innerHTML = formatText(configuredOption)
-      console.log(formatText(configuredOption))
 
 
       previewQuestionOptionContainer.appendChild(newPreviewOption)
@@ -231,10 +228,7 @@ class PreviewController {
 
   private static updateFromNewQuestionText(text: string) {
     text = text || PreviewController.DEFAULT_QUESTION_TEXT
-    const questionType = document.querySelector('.cf-question-type')
-    const useAdvancedFormatting = questionType
-    if (useAdvancedFormatting) {
-      // Strip the <body> tag off of the returned HTML
+    if (text.length > 0) {
       const contentElement = assertNotNull(formatTextHtml(text).firstElementChild)
       contentElement.classList.add('pr-16')
 
@@ -254,12 +248,7 @@ class PreviewController {
   }
 
   private static updateFromNewQuestionHelpText(helpText: string) {
-    const questionHelpText = document.querySelector(
-      '.cf-applicant-question-help-text',
-    )
-    const useAdvancedFormatting = questionHelpText
-    if (useAdvancedFormatting) {
-      // Strip the <body> tag off of the returned HTML
+      if (helpText.length > 0) {
       const contentElement = assertNotNull(formatTextHtml(helpText).firstElementChild)
       const contentParent = document.querySelector(
         PreviewController.QUESTION_HELP_TEXT_SELECTOR,
