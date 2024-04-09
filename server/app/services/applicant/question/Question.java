@@ -104,7 +104,7 @@ public abstract class Question {
    * it will be considered unanswered.
    */
   public boolean isAnswered() {
-    return getAllPaths().stream().anyMatch(p -> applicantQuestion.getApplicantData().hasPath(p));
+    return getAllPaths().stream().anyMatch(applicantQuestion.getApplicantData()::hasPath);
   }
 
   /**
@@ -114,6 +114,11 @@ public abstract class Question {
    * data export.
    */
   public abstract String getAnswerString();
+
+  /** Returns the default to use when there is no answer */
+  public String getDefaultAnswerString() {
+    return "-";
+  }
 
   /** Return every path used by this question. */
   public abstract ImmutableList<Path> getAllPaths();

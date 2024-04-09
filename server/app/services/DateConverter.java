@@ -77,7 +77,7 @@ public final class DateConverter {
   }
 
   /** Formats an {@link Instant} to a human-readable date and time in the local time zone. */
-  public String renderDateTime(Instant time) {
+  public String renderDateTimeHumanReadable(Instant time) {
     ZonedDateTime dateTime = time.atZone(zoneId);
     return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd 'at' h:mm a z"));
   }
@@ -88,7 +88,16 @@ public final class DateConverter {
    */
   public String renderDateTimeDataOnly(Instant time) {
     ZonedDateTime dateTime = time.atZone(zoneId);
-    return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd h:mm:ss a z"));
+    return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd hh:mm:ss a z"));
+  }
+
+  /**
+   * Formats an {@link Instant} to a date and time in the local time zone in the ISO 8601 format for
+   * the purpose of API responses. Examples: 2011-12-03T10:15:30+01:00 2011-12-03T09:15:30Z
+   */
+  public String renderDateTimeIso8601ExtendedOffset(Instant time) {
+    ZonedDateTime dateTime = time.atZone(zoneId);
+    return dateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
   }
 
   /** Formats an {@link Instant} to a date in the local time zone. */
@@ -115,5 +124,18 @@ public final class DateConverter {
   /** Gets the {@link Long} timestamp from an age, by subtracting the age from today's date. */
   public long getDateTimestampFromAge(Long age) {
     return LocalDate.now(clock).minusYears(age).atStartOfDay(zoneId).toInstant().toEpochMilli();
+  }
+
+  /**
+   * Gets the {@link Long} timestamp from an age, by subtracting the age from today's date, when the
+   * age may not be a whole number.
+   */
+  public long getDateTimestampFromAge(Double age) {
+    Double fullYear = Math.floor(age);
+    LocalDate dateFromAge = LocalDate.now(clock).minusYears(fullYear.longValue());
+    if ((age - fullYear) > 0) {
+      dateFromAge = dateFromAge.minusMonths((long) Math.floor((age - fullYear) * 12));
+    }
+    return dateFromAge.atStartOfDay(zoneId).toInstant().toEpochMilli();
   }
 }

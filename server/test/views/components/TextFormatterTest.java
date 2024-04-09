@@ -223,6 +223,46 @@ public class TextFormatterTest extends ResetPostgres {
 
     // Set the aria label back to the default for the other tests
     TextFormatter.resetAriaLabelToDefault();
-    ;
+  }
+
+  @Test
+  public void formatTextToSanitizedHTMLWithAriaLabel_addsAriaLabel() {
+    String content =
+        TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+            "[link](https://www.example.com)", false, false, "test aria label");
+
+    assertThat(content).contains("aria-label=\"test aria label\"");
+
+    // Set the aria label back to the default for the other tests
+    TextFormatter.resetAriaLabelToDefault();
+  }
+
+  @Test
+  public void formatTextToSanitizedHTMLWithAriaLabel_removesScriptTags() {
+    String stringWithScriptTag = "<script>alert('bad-time');</script>";
+    String formattedText =
+        TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+            stringWithScriptTag,
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ false,
+            "test aria label");
+    assertThat(formattedText).isEqualTo("\n");
+  }
+
+  @Test
+  public void formatTextToSanitizedHTMLWithAriaLabel_appliesMarkdownFormatting() {
+    String stringWithMarkdown =
+        "# Hello!\nThis is a string with *italics* and **bold** and `inline code`";
+    String formattedText =
+        TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+            stringWithMarkdown,
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ false,
+            "aria ");
+    assertThat(formattedText)
+        .isEqualTo(
+            "<h2>Hello!</h2>\n"
+                + "<p>This is a string with <em>italics</em> and <strong>bold</strong> and"
+                + " <code>inline code</code></p>\n");
   }
 }

@@ -167,6 +167,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -186,6 +187,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -209,8 +211,9 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
-            false,
+            /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()));
 
     assertThat(result.hasResult()).isFalse();
@@ -233,6 +236,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "confirm",
             "https://usa.gov",
             "",
+            /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             /* isIntakeFormFeatureEnabled= */ false,
             /* tiGroup */ ImmutableList.copyOf(new ArrayList<>()));
@@ -253,6 +257,7 @@ public class ProgramServiceTest extends ResetPostgres {
         "",
         "https://usa.gov",
         DisplayMode.PUBLIC.getValue(),
+        /* eligibilityIsGating= */ true,
         ProgramType.DEFAULT,
         /* isIntakeFormFeatureEnabled= */ false,
         ImmutableList.copyOf(new ArrayList<>()));
@@ -266,6 +271,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -288,6 +294,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -314,6 +321,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 "",
                 "https://usa.gov",
                 DisplayMode.PUBLIC.getValue(),
+                /* eligibilityIsGating= */ true,
                 ProgramType.DEFAULT,
                 /* isIntakeFormFeatureEnabled= */ false,
                 ImmutableList.copyOf(new ArrayList<>()))
@@ -335,6 +343,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -342,6 +351,48 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
         .containsExactly(CiviFormError.of("A program URL of name-one already exists"));
+  }
+
+  @Test
+  public void createProgram_eligibilityIsGating_true() {
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition(
+            "name-one",
+            "description",
+            "display name",
+            "display description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
+            ProgramType.COMMON_INTAKE_FORM,
+            /* isIntakeFormFeatureEnabled= */ false,
+            ImmutableList.copyOf(new ArrayList<>()));
+
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.isError()).isFalse();
+    assertThat(result.getResult().eligibilityIsGating()).isTrue();
+  }
+
+  @Test
+  public void createProgram_eligibilityIsGating_false() {
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition(
+            "name-one",
+            "description",
+            "display name",
+            "display description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ false,
+            ProgramType.COMMON_INTAKE_FORM,
+            /* isIntakeFormFeatureEnabled= */ false,
+            ImmutableList.copyOf(new ArrayList<>()));
+
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.isError()).isFalse();
+    assertThat(result.getResult().eligibilityIsGating()).isFalse();
   }
 
   @Test
@@ -355,6 +406,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -373,6 +425,7 @@ public class ProgramServiceTest extends ResetPostgres {
         "",
         "https://usa.gov",
         DisplayMode.PUBLIC.getValue(),
+        /* eligibilityIsGating= */ true,
         ProgramType.COMMON_INTAKE_FORM,
         /* isIntakeFormFeatureEnabled= */ true,
         ImmutableList.copyOf(new ArrayList<>()));
@@ -385,6 +438,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             /* isIntakeFormFeatureEnabled= */ true,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -404,6 +458,7 @@ public class ProgramServiceTest extends ResetPostgres {
         "",
         "https://usa.gov",
         DisplayMode.PUBLIC.getValue(),
+        /* eligibilityIsGating= */ true,
         ProgramType.COMMON_INTAKE_FORM,
         /* isIntakeFormFeatureEnabled= */ true,
         ImmutableList.copyOf(new ArrayList<>()));
@@ -421,6 +476,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             /* isIntakeFormFeatureEnabled= */ true,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -546,6 +602,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 "",
                 "https://usa.gov",
                 DisplayMode.PUBLIC.getValue(),
+                /* eligibilityIsGating= */ true,
                 ProgramType.DEFAULT,
                 /* isIntakeFormFeatureEnabled= */ false,
                 ImmutableList.copyOf(new ArrayList<>()))
@@ -614,6 +671,7 @@ public class ProgramServiceTest extends ResetPostgres {
                     "",
                     "https://usa.gov",
                     DisplayMode.PUBLIC.getValue(),
+                    /* eligibilityIsGating= */ true,
                     ProgramType.DEFAULT,
                     /* isIntakeFormFeatureEnabled= */ false,
                     ImmutableList.copyOf(new ArrayList<>())))
@@ -635,6 +693,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -669,6 +728,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 "",
                 "https://usa.gov",
                 DisplayMode.PUBLIC.getValue(),
+                /* eligibilityIsGating= */ true,
                 ProgramType.DEFAULT,
                 /* isIntakeFormFeatureEnabled= */ false,
                 ImmutableList.copyOf(new ArrayList<>()))
@@ -693,6 +753,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -719,6 +780,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "custom confirmation screen message",
             "",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             false,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -740,6 +802,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "french custom confirmation screen message",
             "",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             false,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -760,6 +823,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             false,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -790,6 +854,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             /* isIntakeFormFeatureEnabled= */ false,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -809,6 +874,7 @@ public class ProgramServiceTest extends ResetPostgres {
         "",
         "https://usa.gov",
         DisplayMode.PUBLIC.getValue(),
+        /* eligibilityIsGating= */ true,
         ProgramType.COMMON_INTAKE_FORM,
         /* isIntakeFormFeatureEnabled= */ true,
         ImmutableList.copyOf(new ArrayList<>()));
@@ -828,6 +894,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             /* isIntakeFormFeatureEnabled= */ true,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -855,6 +922,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             /* isIntakeFormFeatureEnabled= */ true,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -869,6 +937,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             /* isIntakeFormFeatureEnabled= */ true,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -888,6 +957,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             /* isIntakeFormFeatureEnabled= */ true,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -902,6 +972,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             /* isIntakeFormFeatureEnabled= */ true,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -945,6 +1016,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             /* isIntakeFormFeatureEnabled= */ true,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -990,6 +1062,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
+            /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             /* isIntakeFormFeatureEnabled= */ true,
             ImmutableList.copyOf(new ArrayList<>()));
@@ -1409,6 +1482,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 "",
                 "https://usa.gov",
                 DisplayMode.PUBLIC.getValue(),
+                /* eligibilityIsGating= */ true,
                 ProgramType.DEFAULT,
                 false,
                 ImmutableList.copyOf(new ArrayList<>()))
@@ -2028,7 +2102,7 @@ public class ProgramServiceTest extends ResetPostgres {
         .isEqualTo(program.getProgramDefinition().blockDefinitions());
     assertThat(newDraft.localizedDescription())
         .isEqualTo(program.getProgramDefinition().localizedDescription());
-    assertThat(newDraft.id()).isNotEqualTo(program.getProgramDefinition().id());
+    assertThat(newDraft.id()).isNotEqualTo(program.id);
 
     ProgramDefinition secondNewDraft = ps.newDraftOf(program.id);
     assertThat(secondNewDraft.id()).isEqualTo(newDraft.id());
@@ -2780,14 +2854,6 @@ public class ProgramServiceTest extends ResetPostgres {
             () ->
                 ps.setProgramQuestionDefinitionAddressCorrectionEnabled(
                     programId, blockDefinitionId, secondaryAddressQuestion.getId(), true));
-  }
-
-  @Test
-  public void setEligibilityIsGating() throws Exception {
-    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
-    ProgramDefinition result =
-        ps.setEligibilityIsGating(programDefinition.id(), /* gating= */ false);
-    assertThat(result.eligibilityIsGating()).isFalse();
   }
 
   @Test

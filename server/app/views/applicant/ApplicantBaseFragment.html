@@ -1,0 +1,27 @@
+<!doctype html>
+<head th:fragment="pageHeader">
+  <meta charset="UTF-8" />
+  <title>Title</title>
+
+  <link th:href="${tailwindStylesheet}" type="text/css" rel="stylesheet" />
+  <link th:href="${uswdsStylesheet}" type="text/css" rel="stylesheet" />
+  <script th:src="${uswdsJsInit}" type="text/javascript"></script>
+</head>
+
+<footer th:fragment="pageFooter">
+  <script th:src="${applicantJsBundle}" type="text/javascript"></script>
+  <script th:src="${uswdsJsBundle}" type="text/javascript"></script>
+</footer>
+
+<div th:fragment="requiredFieldsExplanation">
+  <!-- This uses utext because the parameter passed into the message is html,
+    it is a placeholder span with the red asterisk. We need it to be html and not
+    raw text to recreate the red style -->
+  <p
+    th:utext="#{content.requiredFieldsNote(~{applicant/ApplicantBaseFragment :: requiredAsterisk})}"
+  ></p>
+</div>
+
+<th:block th:fragment="requiredAsterisk">
+  <span class="usa-hint--required"> *</span>
+</th:block>

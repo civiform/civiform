@@ -70,15 +70,15 @@ modal.errorSaving.review.title=No respondiste todas las preguntas de esta págin
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
 modal.errorSaving.previous.title=No respondiste todas las preguntas de esta página todavía. ¿Quieres salir y volver a la página anterior de todas formas?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?
+modal.errorSaving.review.content=Hay algunos errores en la información que completaste. ¿Quieres corregir tus respuestas ahora o dirigirte a la página de revisión sin guardarlas?
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the previous question page without saving your answers?
+modal.errorSaving.previous.content=Hay algunos errores en la información que completaste. ¿Quieres corregir tus respuestas ahora o dirigirte a la página de preguntas anteriores sin guardarlas?
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=Continue to review page without saving
+modal.errorSaving.review.noSaveButton=Continuar a la página de revisión sin guardarlas
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=Continue to previous questions without saving
+modal.errorSaving.previous.noSaveButton=Volver a las preguntas anteriores sin guardarlas
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=Stay and fix your answers
+modal.errorSaving.stayAndFixButton=Corregir los errores ahora
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -125,6 +125,9 @@ banner.clientInfoUpdated=Se actualizó la información del cliente correctamente
 banner.clientAcctDeleted=Se borró la cuenta de cliente de "{0}" correctamente.
 # Message when a user successfully creates a client account.
 banner.newClientCreated=Se creó un cliente nuevo correctamente.
+# Banner at the top of the page with the name of the client substituted in when viewing an application.
+banner.viewApplication=Estás enviando una solicitud para {0}. ¿Estás intentando enviar una solicitud para otro cliente?
+
 
 # Button that allows a user to add a client to the CiviForm system.
 button.addNewClient=Agregar cliente nuevo
@@ -152,13 +155,27 @@ button.select=Seleccionar
 button.startApp=Comenzar una solicitud
 # Button to view the applications belonging to an applicant.
 button.viewApplications=Ver solicitudes
+# Button to view and add clients
+button.viewAndAddClients=Ver y agregar clientes
 
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=Se agregó tu cliente nuevo {0} a tu lista de clientes. Ahora puedes comenzar a enviar solicitudes para este cliente.
+# The tooltip of the email input field.
+content.emailTooltip=Agrega una dirección de correo electrónico para que tu cliente reciba actualizaciones sobre el estado de su solicitud automáticamente. Sin un correo electrónico, tu organización social y tú estarán a cargo de comunicar las actualizaciones al cliente.
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted={0} solicitudes enviadas
+# Shows that a single application has been submitted on behalf of the client.
+content.oneAppSubmitted=Se envió 1 solicitud
 # Some explanation text on the confirmation modal when deleting a client.
 content.warning=No se enviaron solicitudes para este cliente, por lo que no se perderá ninguna.
+# Shows there is no email address connected to the account.
+content.noEmailAddress=(no se proporcionó una dirección de correo electrónico)
+# The status of an organization member when they have been enrolled but have never logged into CiviForm.
+content.notLoggedIn=Not yet logged in
+# The status of an organization member when they have logged in but haven't applied on behalf of a client.
+content.noApplications=Logged in, no applications submitted
+# The status of an organization member showing the date of the last application that they submitted for a client.
+content.lastApplicationDate=Last submitted application on {0}
 # Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=¿Seguro que quieres borrar la cuenta de este cliente?
 
@@ -166,8 +183,10 @@ dialog.deleteConfirmation=¿Seguro que quieres borrar la cuenta de este cliente?
 header.acctSettings=Configuración de la cuenta
 # Tab label for getting to the client list page
 header.clientList=Lista de clientes
+# Label for search
+header.search=Búsqueda
 
-# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last login XX-XX-XXXX".
+# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
 label.acctStatus=Estado de la cuenta
 # Label above the phone number for each client on the client list.
 label.contactInfo=Información de contacto
@@ -179,6 +198,12 @@ label.dob=Fecha de nacimiento
 label.dobExample=Por ejemplo: 28 de enero de 1986
 # Label above the "Email" column of the community-based organization members table.
 label.email=Correo electrónico
+# Validation error message below date of birth input when the TI clicks on save without filling out the field.
+label.errorDOB=Error: Debes ingresar la fecha de nacimiento
+# Validation error message below first name input when the TI clicks on save without filling out the field.
+label.errorFirstName=Error: Debes ingresar el nombre
+# Validation error message below last name input when the TI clicks on save without filling out the field.
+label.errorLastName=Error: Debes ingresar el apellido
 # The label above the dropdown select field for the month of the client birth date.
 label.month=Mes
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -195,17 +220,25 @@ label.searchByDob=Buscar por fecha de nacimiento
 label.searchByName=Buscar por nombre(s)
 # The label above the input field for the year of the client birth date.
 label.year=Año
+# Label showing the user when there is no name
+label.unnamedUser=Usuario sin nombre
 
 link.edit=Editar
+# Link to change the client that the trusted intermediary is applying for.
+link.selectNewClient=Seleccionar un nuevo cliente
 
 # This is the header above the list of clients and the client search.
 title.allClients=Todos los clientes
 # This is the heading above a new client creation form.
 title.createClient=Crea un cliente nuevo
+# This is the heading above the client editing form.
+title.editClient=Edit client info
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients=Se muestran {0} clientes
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=Se muestra 1 cliente
+# This is the heading above an unfiltered list of clients.
+title.displayingAllClients=Displaying all clients
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=Miembros de la organización
 
@@ -267,7 +300,7 @@ content.commonIntakeNoMatchingPrograms=El proceso de evaluación no pudo encontr
 content.commonIntakeNoMatchingProgramsTi=El proceso de evaluación no pudo encontrar programas para los que tu cliente cumpla los requisitos en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
 content.commonIntakeNoMatchingProgramsNextStep=También puedes volver a la página anterior para editar tus respuestas.
 # A header above a list of other programs the applicant might be interested in applying to.
-content.otherProgramsToApplyFor=Other programs you might be interested in
+content.otherProgramsToApplyFor=Otros programas que te pueden interesar
 button.downloadPdf=Descargar PDF
 button.applyToPrograms=Postularse a programas
 
@@ -298,37 +331,25 @@ validation.stateRequired=Ingresa un estado.
 validation.invalidZipcode=Ingresa un código postal válido de 5 dígitos.
 validation.noPoBox=Ingresa una dirección válida. No aceptamos apartados postales.
 
-title.verifyAddress=Verifica la dirección
-
-content.foundSimilarAddress=No pudimos verificar la dirección que proporcionaste, pero encontramos resultados similares.
-# Heading for showing the user the address they provided earlier
-content.addressEntered=Dirección ingresada:
-
-# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
-content.suggestedAddress=Dirección sugerida:
-content.suggestedAddresses=Direcciones sugeridas:
-
-# Title on address correction dialog when no address is found.
-title.noValidAddress=No se encontró ninguna dirección válida
-content.noValidAddress=No pudimos verificar la dirección que proporcionaste. Para continuar, edita la dirección
-
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
-# Note: We're re-writing the text shown on the address correction screen. #
-# The strings below will be used in the re-write, and then the strings    #
-# above that are obsolete will be deleted.                                #
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
-title.confirmAddress=Confirm your address
+title.confirmAddress=Confirma tu dirección
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=We were not able to find your address.
+content.confirmAddressLine1=No pudimos encontrar tu dirección.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
-content.foundSimilarAddressLine2=Please check your address for spelling or choose an option from the list provided.
+content.foundSimilarAddressLine2=Revisa si la dirección tiene errores de ortografía o elige una opción de la lista que se ofrece.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
-content.noValidAddressLine2=Please check your address for spelling and edit to continue.
+content.noValidAddressLine2=Revisa si la dirección tiene errores de ortografía y corrígela para continuar.
+# Heading for showing the user the address they provided earlier
+content.addressEntered=Dirección que ingresaste:
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=Dirección sugerida:
+content.suggestedAddresses=Direcciones sugeridas:
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
-button.confirmAddress=Confirm address
+button.confirmAddress=Confirmar dirección
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -352,7 +373,6 @@ validation.phoneMustBeLocalToCountry=El teléfono que proporcionaste no es de es
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
 
-validation.dateMisformatted=Ingresa una fecha en el formato AAAA/MM/DD.
 validation.invalidDateFormat=Ingresa una fecha en el formato correcto.
 
 #--------------------------------------------------------------------------------------------------------#
@@ -363,7 +383,7 @@ button.addEntity=Agregar {0}
 button.removeEntity=Quitar {0}
 dialog.confirmDelete=¿Confirmas que quieres quitar esta {0}? Se guardará este cambio cuando hagas clic en "Siguiente" y se perderán todos los datos asociados con esta {0}.
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
-dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
+dialog.confirmDeleteAllButtonsSave=¿Confirmas que quieres quitar la entrada {0}? Se guardará este cambio cuando hagas clic en "Review", "Previous" o "Next" y se perderán todos los datos asociados con la entrada {0}.
 validation.entityNameRequired=Ingresa un valor para cada línea.
 validation.duplicateEntityName=Ingresa un valor único para cada línea.
 placeholder.entityName=Nombre de {0}
@@ -373,9 +393,9 @@ placeholder.entityName=Nombre de {0}
 #---------------------------------------------------------------------------------#
 
 validation.fileRequired=Elige un archivo.
-button.chooseFile=Elegir archivo
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
-validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
+validation.fileTooLarge=Tu archivo es demasiado grande. Elige un archivo de un tamaño menor a {0} MB.
+button.chooseFile=Elegir archivo
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
@@ -428,7 +448,7 @@ validation.textTooShort=Debe tener más de {0} caracteres.
 
 adminValidation.multiOptionEmpty=Las preguntas con varias respuestas no pueden tener opciones vacías.
 # An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
-adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
+adminValidation.multiOptionAdminError=Los nombres de administrador solo pueden incluir letras minúsculas, números, guiones o guiones bajos.
 
 #----------------------------------#
 # ERRORS - various error messages  #

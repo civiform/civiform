@@ -36,7 +36,7 @@ import views.applicant.ApplicantLayout;
  */
 public final class ApplicantInformationController extends CiviFormController {
 
-  private final HttpExecutionContext httpExecutionContext;
+  private final HttpExecutionContext classLoaderExecutionContext;
   private final MessagesApi messagesApi;
   private final AccountRepository repository;
   private final FormFactory formFactory;
@@ -45,7 +45,7 @@ public final class ApplicantInformationController extends CiviFormController {
 
   @Inject
   public ApplicantInformationController(
-      HttpExecutionContext httpExecutionContext,
+      HttpExecutionContext classLoaderExecutionContext,
       MessagesApi messagesApi,
       AccountRepository repository,
       FormFactory formFactory,
@@ -54,7 +54,7 @@ public final class ApplicantInformationController extends CiviFormController {
       VersionRepository versionRepository,
       ApplicantRoutes applicantRoutes) {
     super(profileUtils, versionRepository);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
     this.repository = checkNotNull(repository);
     this.formFactory = checkNotNull(formFactory);
@@ -71,7 +71,7 @@ public final class ApplicantInformationController extends CiviFormController {
 
     return checkApplicantAuthorization(request, applicantId)
         .thenComposeAsync(
-            v -> repository.lookupApplicant(applicantId), httpExecutionContext.current())
+            v -> repository.lookupApplicant(applicantId), classLoaderExecutionContext.current())
         .thenComposeAsync(
             maybeApplicant ->
                 updateApplicantPreferredLanguage(
@@ -79,7 +79,7 @@ public final class ApplicantInformationController extends CiviFormController {
                     applicantId,
                     Locale.forLanguageTag(
                         layout.languageSelector.getPreferredLangage(request).code())),
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .thenApplyAsync(
             applicant -> {
               Locale preferredLocale = applicant.getApplicantData().preferredLocale();
@@ -105,7 +105,7 @@ public final class ApplicantInformationController extends CiviFormController {
                   .withLang(preferredLocale, messagesApi)
                   .withSession(request.session());
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -149,11 +149,11 @@ public final class ApplicantInformationController extends CiviFormController {
 
     return checkApplicantAuthorization(request, applicantId)
         .thenComposeAsync(
-            v -> repository.lookupApplicant(applicantId), httpExecutionContext.current())
+            v -> repository.lookupApplicant(applicantId), classLoaderExecutionContext.current())
         .thenComposeAsync(
             maybeApplicant ->
                 updateApplicantPreferredLanguage(maybeApplicant, applicantId, infoForm.getLocale()),
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .thenApplyAsync(
             applicant -> {
               Locale preferredLocale = applicant.getApplicantData().preferredLocale();
@@ -162,7 +162,7 @@ public final class ApplicantInformationController extends CiviFormController {
                   .withLang(preferredLocale, messagesApi)
                   .withSession(session);
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -189,7 +189,7 @@ public final class ApplicantInformationController extends CiviFormController {
       // Update the applicant, then pass the updated applicant to the next stage.
       return repository
           .updateApplicant(applicant)
-          .thenApplyAsync(v -> applicant, httpExecutionContext.current());
+          .thenApplyAsync(v -> applicant, classLoaderExecutionContext.current());
     } else {
       return CompletableFuture.failedFuture(new ApplicantNotFoundException(applicantId));
     }

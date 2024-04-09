@@ -24,7 +24,6 @@ import {
 } from './config'
 import {AdminQuestions} from './admin_questions'
 import {AdminPrograms} from './admin_programs'
-import {AdminApiKeys} from './admin_api_keys'
 import {AdminProgramStatuses} from './admin_program_statuses'
 import {ApplicantFileQuestion} from './applicant_file_question'
 import {ApplicantQuestions} from './applicant_questions'
@@ -35,7 +34,6 @@ import {TIDashboard} from './ti_dashboard'
 import {AdminTIGroups} from './admin_ti_groups'
 import {BrowserErrorWatcher} from './browser_error_watcher'
 
-export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
 export {AdminPredicates} from './admin_predicates'
 export {AdminPrograms} from './admin_programs'
@@ -47,7 +45,6 @@ export {AdminTIGroups} from './admin_ti_groups'
 export {ApplicantFileQuestion} from './applicant_file_question'
 export {ApplicantQuestions} from './applicant_questions'
 export {ClientInformation, TIDashboard} from './ti_dashboard'
-export {NotFoundPage} from './error_pages'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
 
 export const isLocalDevEnvironment = () => {
@@ -156,7 +153,6 @@ export interface TestContext {
 
   adminQuestions: AdminQuestions
   adminPrograms: AdminPrograms
-  adminApiKeys: AdminApiKeys
   adminProgramStatuses: AdminProgramStatuses
   applicantFileQuestion: ApplicantFileQuestion
   applicantQuestions: ApplicantQuestions
@@ -259,7 +255,6 @@ export async function resetContext(ctx: TestContext) {
   ctx.page.setDefaultTimeout(8000)
   ctx.adminQuestions = new AdminQuestions(ctx.page)
   ctx.adminPrograms = new AdminPrograms(ctx.page)
-  ctx.adminApiKeys = new AdminApiKeys(ctx.page)
   ctx.adminProgramStatuses = new AdminProgramStatuses(ctx.page)
   ctx.applicantQuestions = new ApplicantQuestions(ctx.page)
   ctx.adminPredicates = new AdminPredicates(ctx.page)
@@ -276,6 +271,9 @@ export const endSession = async (browser: Browser) => {
   await browser.close()
 }
 
+/**
+ * @deprecated Just use `page.goto()`
+ */
 export const gotoEndpoint = async (page: Page, endpoint = '') => {
   return await page.goto(BASE_URL + endpoint)
 }
@@ -286,49 +284,59 @@ export const dismissToast = async (page: Page) => {
 }
 
 export const logout = async (page: Page, closeToast = true) => {
-  await page.click('#logout-button')
-  // If the user logged in through OIDC previously - during logout they are
-  // redirected to dev-oidc:PORT/session/end page. There they need to confirm
-  // logout.
-  if (page.url().match('dev-oidc.*/session/end')) {
-    const pageContent = await page.textContent('html')
-    if (pageContent!.includes('Do you want to sign-out from')) {
-      // OIDC central provider confirmation page
-      await page.click('button:has-text("Yes")')
+  await test.step('Logout', async () => {
+    await page.click('#logout-button')
+    // If the user logged in through OIDC previously - during logout they are
+    // redirected to dev-oidc:PORT/session/end page. There they need to confirm
+    // logout.
+    if (page.url().match('dev-oidc.*/session/end')) {
+      const pageContent = await page.textContent('html')
+      if (pageContent!.includes('Do you want to sign-out from')) {
+        // OIDC central provider confirmation page
+        await page.click('button:has-text("Yes")')
+      }
     }
-  }
 
-  // Logout is handled by the play framework so it doesn't land on a
-  // page with civiform js where we should waitForPageJsLoad. Because
-  // the process goes through a sequence of redirects we need to wait
-  // for the final destination URL (the programs index page), to make tests reliable.
-  await page.waitForURL('**/programs')
-  await validateToastMessage(page, 'Your session has ended.')
-  if (closeToast) await dismissToast(page)
+    // Logout is handled by the play framework so it doesn't land on a
+    // page with civiform js where we should waitForPageJsLoad. Because
+    // the process goes through a sequence of redirects we need to wait
+    // for the final destination URL (the programs index page), to make tests reliable.
+    await page.waitForURL('**/programs')
+    await validateToastMessage(page, 'Your session has ended.')
+    if (closeToast) await dismissToast(page)
+  })
 }
 
 export const loginAsAdmin = async (page: Page) => {
-  await page.click('#debug-content-modal-button')
-  await page.click('#admin')
-  await waitForPageJsLoad(page)
+  await test.step('Login as Civiform Admin', async () => {
+    await page.click('#debug-content-modal-button')
+    await page.click('#admin')
+    await waitForPageJsLoad(page)
+  })
 }
 
 export const loginAsProgramAdmin = async (page: Page) => {
-  await page.click('#debug-content-modal-button')
-  await page.click('#program-admin')
-  await waitForPageJsLoad(page)
+  await test.step('Login as Program Admin', async () => {
+    await page.click('#debug-content-modal-button')
+    await page.click('#program-admin')
+    await waitForPageJsLoad(page)
+  })
 }
 
 export const loginAsCiviformAndProgramAdmin = async (page: Page) => {
-  await page.click('#debug-content-modal-button')
-  await page.click('#dual-admin')
-  await waitForPageJsLoad(page)
+  await test.step('Login as Civiform and Program Admin', async () => {
+    await page.click('#debug-content-modal-button')
+    await page.click('#dual-admin')
+    await waitForPageJsLoad(page)
+  })
 }
 
 export const loginAsTrustedIntermediary = async (page: Page) => {
-  await page.click('#debug-content-modal-button')
-  await page.click('#trusted-intermediary')
-  await waitForPageJsLoad(page)
+  await test.step('Login as Trusted Intermediary', async () => {
+    await page.click('#debug-content-modal-button')
+    await page.click('#trusted-intermediary')
+    await waitForPageJsLoad(page)
+  })
 }
 
 /**
@@ -344,26 +352,28 @@ export const loginAsTestUser = async (
   isTi = false,
   displayName: string = '',
 ) => {
-  switch (TEST_USER_AUTH_STRATEGY) {
-    case AuthStrategy.FAKE_OIDC:
-      await loginAsTestUserFakeOidc(page, loginButton, isTi)
-      break
-    case AuthStrategy.AWS_STAGING:
-      await loginAsTestUserAwsStaging(page, loginButton, isTi)
-      break
-    case AuthStrategy.SEATTLE_STAGING:
-      await loginAsTestUserSeattleStaging(page, loginButton)
-      break
-    default:
-      throw new Error(
-        `Unrecognized or unset TEST_USER_AUTH_STRATEGY environment variable of '${TEST_USER_AUTH_STRATEGY}'`,
-      )
-  }
-  await waitForPageJsLoad(page)
-  if (displayName === '') {
-    displayName = testUserDisplayName()
-  }
-  await page.waitForSelector(`:has-text("Logged in as ${displayName}")`)
+  await test.step('Login as Test User', async () => {
+    switch (TEST_USER_AUTH_STRATEGY) {
+      case AuthStrategy.FAKE_OIDC:
+        await loginAsTestUserFakeOidc(page, loginButton, isTi)
+        break
+      case AuthStrategy.AWS_STAGING:
+        await loginAsTestUserAwsStaging(page, loginButton, isTi)
+        break
+      case AuthStrategy.SEATTLE_STAGING:
+        await loginAsTestUserSeattleStaging(page, loginButton)
+        break
+      default:
+        throw new Error(
+          `Unrecognized or unset TEST_USER_AUTH_STRATEGY environment variable of '${TEST_USER_AUTH_STRATEGY}'`,
+        )
+    }
+    await waitForPageJsLoad(page)
+    if (displayName === '') {
+      displayName = testUserDisplayName()
+    }
+    await page.waitForSelector(`:has-text("Logged in as ${displayName}")`)
+  })
 }
 
 async function loginAsTestUserSeattleStaging(page: Page, loginButton: string) {
@@ -459,10 +469,12 @@ export const supportsEmailInspection = () => {
  * The option to select a language is shown in the header bar as a dropdown. This helper method selects the given language from the dropdown.
  */
 export const selectApplicantLanguage = async (page: Page, language: string) => {
-  await page.click('#select-language')
-  await page.selectOption('#select-language', {label: language})
+  await test.step('Set applicant language from header dropdown', async () => {
+    await page.click('#select-language')
+    await page.selectOption('#select-language', {label: language})
 
-  await waitForPageJsLoad(page)
+    await waitForPageJsLoad(page)
+  })
 }
 
 export const dropTables = async (page: Page) => {
@@ -476,16 +488,22 @@ export const seedQuestions = async (page: Page) => {
 }
 
 export const seedPrograms = async (page: Page) => {
-  await page.goto(BASE_URL + '/dev/seed')
-  await page.click('#sample-programs')
+  await test.step('Seed programs', async () => {
+    await page.goto('/dev/seed')
+    await page.click('#sample-programs')
+  })
 }
 
 export const disableFeatureFlag = async (page: Page, flag: string) => {
-  await page.goto(BASE_URL + `/dev/feature/${flag}/disable`)
+  await test.step(`Disable feature flag: ${flag}`, async () => {
+    await page.goto(`/dev/feature/${flag}/disable`)
+  })
 }
 
 export const enableFeatureFlag = async (page: Page, flag: string) => {
-  await page.goto(BASE_URL + `/dev/feature/${flag}/enable`)
+  await test.step(`Enable feature flag: ${flag}`, async () => {
+    await page.goto(`/dev/feature/${flag}/enable`)
+  })
 }
 
 export const closeWarningMessage = async (page: Page) => {
@@ -504,14 +522,16 @@ export const closeWarningMessage = async (page: Page) => {
 }
 
 export const validateAccessibility = async (page: Page) => {
-  const results = await new AxeBuilder({page}).analyze()
-  const errorMessage = `Found ${results.violations.length} axe accessibility violations:\n ${JSON.stringify(
-    results.violations,
-    null,
-    2,
-  )}`
+  await test.step('Validate accessiblity', async () => {
+    const results = await new AxeBuilder({page}).analyze()
+    const errorMessage = `Found ${results.violations.length} axe accessibility violations:\n ${JSON.stringify(
+      results.violations,
+      null,
+      2,
+    )}`
 
-  expect(results.violations, errorMessage).toEqual([])
+    expect(results.violations, errorMessage).toEqual([])
+  })
 }
 
 /**
@@ -527,53 +547,56 @@ export const validateScreenshot = async (
   fullPage?: boolean,
   mobileScreenshot?: boolean,
 ) => {
-  if (fullPage === undefined) {
-    fullPage = true
-  }
-
   // Do not make image snapshots when running locally
   if (DISABLE_SCREENSHOTS) {
     return
   }
-  const page = 'page' in element ? element.page() : element
-  // Normalize all variable content so that the screenshot is stable.
-  await normalizeElements(page)
-  // Also process any sub frames.
-  for (const frame of page.frames()) {
-    await normalizeElements(frame)
-  }
 
-  if (fullPage) {
-    // Some tests take screenshots while scroll position in the middle. That
-    // affects header which is position fixed and on final full-page screenshots
-    // overlaps part of the page.
-    await page.evaluate(() => {
-      window.scrollTo(0, 0)
-    })
-  }
+  await test.step('Validate screenshot', async () => {
+    if (fullPage === undefined) {
+      fullPage = true
+    }
 
-  expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
+    const page = 'page' in element ? element.page() : element
+    // Normalize all variable content so that the screenshot is stable.
+    await normalizeElements(page)
+    // Also process any sub frames.
+    for (const frame of page.frames()) {
+      await normalizeElements(frame)
+    }
 
-  await takeScreenshot(element, `${screenshotFileName}`, fullPage)
+    if (fullPage) {
+      // Some tests take screenshots while scroll position in the middle. That
+      // affects header which is position fixed and on final full-page screenshots
+      // overlaps part of the page.
+      await page.evaluate(() => {
+        window.scrollTo(0, 0)
+      })
+    }
 
-  const existingWidth = page.viewportSize()?.width || 1280
+    expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
 
-  if (mobileScreenshot) {
-    const height = page.viewportSize()?.height || 720
-    // Update the viewport size to different screen widths so we can test on a
-    // variety of sizes
-    await page.setViewportSize({width: 320, height})
+    await takeScreenshot(element, `${screenshotFileName}`, fullPage)
 
-    await takeScreenshot(element, `${screenshotFileName}-mobile`, fullPage)
+    const existingWidth = page.viewportSize()?.width || 1280
 
-    // Medium width
-    await page.setViewportSize({width: 800, height})
+    if (mobileScreenshot) {
+      const height = page.viewportSize()?.height || 720
+      // Update the viewport size to different screen widths so we can test on a
+      // variety of sizes
+      await page.setViewportSize({width: 320, height})
 
-    await takeScreenshot(element, `${screenshotFileName}-medium`, fullPage)
+      await takeScreenshot(element, `${screenshotFileName}-mobile`, fullPage)
 
-    // Reset back to original width
-    await page.setViewportSize({width: existingWidth, height})
-  }
+      // Medium width
+      await page.setViewportSize({width: 800, height})
+
+      await takeScreenshot(element, `${screenshotFileName}-medium`, fullPage)
+
+      // Reset back to original width
+      await page.setViewportSize({width: existingWidth, height})
+    }
+  })
 }
 
 const takeScreenshot = async (
@@ -665,7 +688,7 @@ export const extractEmailsForRecipient = async function (
     throw new Error('Unsupported call to extractEmailsForRecipient')
   }
   const originalPageUrl = page.url()
-  await page.goto(`${LOCALSTACK_URL}/_localstack/ses`)
+  await page.goto(`${LOCALSTACK_URL}/_aws/ses`)
   const responseJson = JSON.parse(
     await page.innerText('body'),
   ) as LocalstackSesResponse

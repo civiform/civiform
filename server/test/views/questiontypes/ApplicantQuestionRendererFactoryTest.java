@@ -19,6 +19,7 @@ import play.i18n.Messages;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
+import support.cloud.FakeApplicantStorageClient;
 import views.applicant.ApplicantFileUploadRenderer;
 import views.fileupload.AwsFileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
@@ -49,6 +50,7 @@ public class ApplicantQuestionRendererFactoryTest {
             new ApplicantFileUploadRenderer(
                 new AwsFileUploadViewStrategy(),
                 applicantRoutes,
+                new FakeApplicantStorageClient(),
                 new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
@@ -76,6 +78,7 @@ public class ApplicantQuestionRendererFactoryTest {
             new ApplicantFileUploadRenderer(
                 new AwsFileUploadViewStrategy(),
                 applicantRoutes,
+                new FakeApplicantStorageClient(),
                 new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);

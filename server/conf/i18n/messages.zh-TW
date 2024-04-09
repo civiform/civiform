@@ -70,15 +70,15 @@ modal.errorSaving.review.title=您尚未答完這個頁面的問題。仍要離�
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
 modal.errorSaving.previous.title=您尚未答完這個頁面的問題。仍要離開並返回上一頁嗎？
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?
+modal.errorSaving.review.content=您填寫的資訊有誤。要留在這個頁面並修正回答，還是不儲存回答，直接前往確認頁面？
 # A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the previous question page without saving your answers?
+modal.errorSaving.previous.content=您填寫的資訊有誤。要留在這個頁面並修正回答，還是不儲存回答，直接返回上一個問題頁面？
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=Continue to review page without saving
+modal.errorSaving.review.noSaveButton=不儲存回答，繼續前往確認頁面
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=Continue to previous questions without saving
+modal.errorSaving.previous.noSaveButton=不儲存回答，返回上一個問題頁面
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=Stay and fix your answers
+modal.errorSaving.stayAndFixButton=留在這個頁面並修正回答
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -125,6 +125,9 @@ banner.clientInfoUpdated=已成功更新客戶資訊。
 banner.clientAcctDeleted=已成功刪除「{0}」的客戶帳戶。
 # Message when a user successfully creates a client account.
 banner.newClientCreated=已成功建立新客戶。
+# Banner at the top of the page with the name of the client substituted in when viewing an application.
+banner.viewApplication=您目前在為「{0}」提出申請。您要幫忙提出申請的是其他客戶嗎？
+
 
 # Button that allows a user to add a client to the CiviForm system.
 button.addNewClient=新增客戶
@@ -152,13 +155,27 @@ button.select=選取
 button.startApp=開始申請
 # Button to view the applications belonging to an applicant.
 button.viewApplications=查看申請書
+# Button to view and add clients
+button.viewAndAddClients=查看並新增客戶
 
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=新客戶「{0}」已加入客戶清單。現在可以開始為這個客戶提交申請書了。
+# The tooltip of the email input field.
+content.emailTooltip=新增客戶的電子郵件地址，讓客戶接收相關快訊，掌握最新申請狀態。如未提供電子郵件地址，您或您的社區機構必須負責向客戶說明最新情況。
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted=已提交 {0} 份申請書
+# Shows that a single application has been submitted on behalf of the client.
+content.oneAppSubmitted=已提交 1 份申請書
 # Some explanation text on the confirmation modal when deleting a client.
 content.warning=這個客戶沒有任何申請書提交記錄，因此不會遺失任何申請書。
+# Shows there is no email address connected to the account.
+content.noEmailAddress=(無電子郵件地址)
+# The status of an organization member when they have been enrolled but have never logged into CiviForm.
+content.notLoggedIn=Not yet logged in
+# The status of an organization member when they have logged in but haven't applied on behalf of a client.
+content.noApplications=Logged in, no applications submitted
+# The status of an organization member showing the date of the last application that they submitted for a client.
+content.lastApplicationDate=Last submitted application on {0}
 # Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=確定要刪除這個客戶的帳戶嗎？
 
@@ -166,8 +183,10 @@ dialog.deleteConfirmation=確定要刪除這個客戶的帳戶嗎？
 header.acctSettings=帳戶設定
 # Tab label for getting to the client list page
 header.clientList=客戶清單
+# Label for search
+header.search=搜尋
 
-# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last login XX-XX-XXXX".
+# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
 label.acctStatus=帳戶狀態
 # Label above the phone number for each client on the client list.
 label.contactInfo=聯絡資訊
@@ -179,6 +198,12 @@ label.dob=出生日期
 label.dobExample=例如：1986 年 1 月 28 日
 # Label above the "Email" column of the community-based organization members table.
 label.email=電子郵件地址
+# Validation error message below date of birth input when the TI clicks on save without filling out the field.
+label.errorDOB=錯誤：必須提供出生日期
+# Validation error message below first name input when the TI clicks on save without filling out the field.
+label.errorFirstName=錯誤：必須提供名字
+# Validation error message below last name input when the TI clicks on save without filling out the field.
+label.errorLastName=錯誤：必須提供姓氏
 # The label above the dropdown select field for the month of the client birth date.
 label.month=月
 # Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
@@ -195,17 +220,25 @@ label.searchByDob=依出生日期搜尋
 label.searchByName=依姓名搜尋
 # The label above the input field for the year of the client birth date.
 label.year=年
+# Label showing the user when there is no name
+label.unnamedUser=不具名使用者
 
 link.edit=編輯
+# Link to change the client that the trusted intermediary is applying for.
+link.selectNewClient=選取新客戶
 
 # This is the header above the list of clients and the client search.
 title.allClients=所有客戶
 # This is the heading above a new client creation form.
 title.createClient=建立新客戶
+# This is the heading above the client editing form.
+title.editClient=Edit client info
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients=目前顯示 {0} 個客戶
 # This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=目前顯示 1 個客戶
+# This is the heading above an unfiltered list of clients.
+title.displayingAllClients=Displaying all clients
 # This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=機構成員
 
@@ -267,7 +300,7 @@ content.commonIntakeNoMatchingPrograms=預先篩選工具目前找不到您可�
 content.commonIntakeNoMatchingProgramsTi=預先篩選工具目前找不到您的客戶可能有資格參加的計畫。不過，您隨時可以點選「申請參加計畫」提出計畫申請，或是前往「{0}」查看其他計畫
 content.commonIntakeNoMatchingProgramsNextStep=您也可以返回上一頁編輯回答。
 # A header above a list of other programs the applicant might be interested in applying to.
-content.otherProgramsToApplyFor=Other programs you might be interested in
+content.otherProgramsToApplyFor=您可能會感興趣的其他計畫
 button.downloadPdf=下載 PDF
 button.applyToPrograms=申請參加計畫
 
@@ -298,37 +331,25 @@ validation.stateRequired=請輸入州別。
 validation.invalidZipcode=請輸入有效的 5 位數郵遞區號。
 validation.noPoBox=請輸入有效地址，切勿提供郵政信箱。
 
-title.verifyAddress=驗證地址
-
-content.foundSimilarAddress=我們無法驗證您提供的地址，但找到了類似的地址。
-# Heading for showing the user the address they provided earlier
-content.addressEntered=您輸入的地址：
-
-# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
-content.suggestedAddress=建議的地址：
-content.suggestedAddresses=建議的地址：
-
-# Title on address correction dialog when no address is found.
-title.noValidAddress=找不到有效的網址
-content.noValidAddress=我們無法驗證您提供的地址。如要繼續操作，請編輯地址。
-
 #-------------------------------------------------------------------------#
 # ADDRESS CORRECTION - text when viewing the address correction screen    #
-# Note: We're re-writing the text shown on the address correction screen. #
-# The strings below will be used in the re-write, and then the strings    #
-# above that are obsolete will be deleted.                                #
 #-------------------------------------------------------------------------#
 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
-title.confirmAddress=Confirm your address
+title.confirmAddress=確認地址
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=We were not able to find your address.
+content.confirmAddressLine1=找不到您輸入的地址。
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
-content.foundSimilarAddressLine2=Please check your address for spelling or choose an option from the list provided.
+content.foundSimilarAddressLine2=請檢查地址的拼字是否正確無誤，或是從我們提供的清單中選擇其他地址。
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
-content.noValidAddressLine2=Please check your address for spelling and edit to continue.
+content.noValidAddressLine2=請檢查地址的拼字是否正確無誤。如果有誤，請編輯地址以便繼續操作。
+# Heading for showing the user the address they provided earlier
+content.addressEntered=您輸入的地址：
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=建議的地址：
+content.suggestedAddresses=建議的地址：
 # Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
-button.confirmAddress=Confirm address
+button.confirmAddress=確認地址
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -352,7 +373,6 @@ validation.phoneMustBeLocalToCountry=您提供的電話號碼不屬於您選取�
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
 
-validation.dateMisformatted=日期格式必須為 YYYY/MM/DD。
 validation.invalidDateFormat=日期的格式不正確，請重新輸入
 
 #--------------------------------------------------------------------------------------------------------#
@@ -363,7 +383,7 @@ button.addEntity=新增「{0}」
 button.removeEntity=移除「{0}」
 dialog.confirmDelete=確定要移除此「{0}」嗎？點選「下一步」後，系統就會儲存變更並移除與此「{0}」相關的所有資料。
 # Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
-dialog.confirmDeleteAllButtonsSave=Are you sure you want to remove this {0}? This change will be saved when you click "Review", "Previous", or "Next" and all data associated with this {0} will be lost.
+dialog.confirmDeleteAllButtonsSave=確定要移除這個{0}嗎？點選「檢查」、「上一個」或「下一個」後，系統會儲存這項變更，且所有與這個{0}相關聯的資料將會遺失。
 validation.entityNameRequired=請每行輸入一個值。
 validation.duplicateEntityName=每行輸入的值不可重複。
 placeholder.entityName=「{0}」名稱
@@ -373,9 +393,9 @@ placeholder.entityName=「{0}」名稱
 #---------------------------------------------------------------------------------#
 
 validation.fileRequired=請選取檔案。
-button.chooseFile=選擇檔案
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
-validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
+validation.fileTooLarge=檔案過大，請選擇小於 {0} MB 的檔案。
+button.chooseFile=選擇檔案
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
@@ -428,7 +448,7 @@ validation.textTooShort=長度不可少於 {0} 個字元。
 
 adminValidation.multiOptionEmpty=多選題不得留空。
 # An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
-adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
+adminValidation.multiOptionAdminError=管理員名稱只能使用小寫英文字母、數字、底線和破折號。
 
 #----------------------------------#
 # ERRORS - various error messages  #

@@ -8,7 +8,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import services.MessageKey;
 import services.Path;
+import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.types.DateQuestionDefinition;
 
 /**
@@ -31,7 +33,8 @@ public final class DateQuestion extends Question {
     if (applicantQuestion.getApplicantData().updateDidFailAt(getDatePath())) {
       return ImmutableMap.of(
           getDatePath(),
-          ImmutableSet.of(ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_MISFORMATTED)));
+          ImmutableSet.of(
+              ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT)));
     }
     return ImmutableMap.of();
   }
@@ -49,7 +52,7 @@ public final class DateQuestion extends Question {
   public String getAnswerString() {
     return getDateValue()
         .map(localDate -> localDate.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")))
-        .orElse("-");
+        .orElse(getDefaultAnswerString());
   }
 
   public Optional<LocalDate> getDateValue() {
@@ -57,12 +60,22 @@ public final class DateQuestion extends Question {
       return dateValue;
     }
 
-    dateValue = applicantQuestion.getApplicantData().readDate(getDatePath());
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    dateValue = applicantData.readDate(getDatePath());
 
+    if (dateValue.isEmpty() && isPaiQuestion()) {
+      dateValue = applicantData.getDateOfBirth();
+    }
     return dateValue;
   }
 
   public DateQuestionDefinition getQuestionDefinition() {
     return (DateQuestionDefinition) applicantQuestion.getQuestionDefinition();
+  }
+
+  private boolean isPaiQuestion() {
+    return applicantQuestion
+        .getQuestionDefinition()
+        .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_DOB);
   }
 }

@@ -24,7 +24,6 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import play.Environment;
-import play.mvc.Http;
 import services.cloud.ApplicantStorageClient;
 import services.cloud.StorageServiceName;
 
@@ -69,6 +68,13 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
   }
 
   @Override
+  public int getFileLimitMb() {
+    // We currently don't enforce a file limit for Azure, so use the max integer value.
+    // TODO(#7013): Enforce a file size limit for Azure.
+    return Integer.MAX_VALUE;
+  }
+
+  @Override
   public String getPresignedUrlString(String fileKey) {
     return getPresignedUrlString(fileKey, /* prefixedOriginalFileName= */ Optional.empty());
   }
@@ -92,7 +98,7 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
 
   @Override
   public BlobStorageUploadRequest getSignedUploadRequest(
-      String fileName, String successActionRedirectUrl, Http.Request request) {
+      String fileName, String successActionRedirectUrl) {
     // Azure blob must know the name of a file to generate a SAS for it, so we'll
     // use a UUID When the file is uploaded, this UUID is stored along with the name
     // of the file.

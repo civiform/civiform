@@ -36,7 +36,6 @@ import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
-import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -63,18 +62,15 @@ public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final TranslationLocales translationLocales;
   private final ViewUtils viewUtils;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public QuestionsListView(
       AdminLayoutFactory layoutFactory,
       TranslationLocales translationLocales,
-      ViewUtils viewUtils,
-      SettingsManifest settingsManifest) {
+      ViewUtils viewUtils) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
     this.viewUtils = checkNotNull(viewUtils);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /** Renders a page with a list view of all questions. */
@@ -164,10 +160,7 @@ public final class QuestionsListView extends BaseHtmlView {
                 })
             .sorted(
                 Comparator.<QuestionCardData, Boolean>comparing(
-                        card ->
-                            settingsManifest.getUniversalQuestions(request)
-                                ? getDisplayQuestion(card).isUniversal()
-                                : true)
+                        card -> getDisplayQuestion(card).isUniversal())
                     .thenComparing(
                         card ->
                             getDisplayQuestion(card).getLastModifiedTime().orElse(Instant.EPOCH))
@@ -189,8 +182,7 @@ public final class QuestionsListView extends BaseHtmlView {
           renderQuestionCard(card, activeAndDraftQuestions, request);
       if (isQuestionPendingDeletion(card, activeAndDraftQuestions)) {
         archivedQuestionRows.add(rowAndModals.getLeft());
-      } else if (getDisplayQuestion(card).isUniversal()
-          && settingsManifest.getUniversalQuestions(request)) {
+      } else if (getDisplayQuestion(card).isUniversal()) {
         universalQuestionRows.add(rowAndModals.getLeft());
       } else {
         nonArchivedQuestionRows.add(rowAndModals.getLeft());
@@ -320,8 +312,7 @@ public final class QuestionsListView extends BaseHtmlView {
                 "border",
                 ReferenceClasses.ADMIN_QUESTION_TABLE_ROW)
             .condWith(
-                settingsManifest.getUniversalQuestions(request)
-                    && getDisplayQuestion(cardData).isUniversal(),
+                getDisplayQuestion(cardData).isUniversal(),
                 ViewUtils.makeUniversalBadge(latestDefinition, "mt-4"))
             .with(row)
             .with(adminNote)

@@ -261,6 +261,11 @@ public final class Block {
             .allMatch(ApplicantQuestion::isAnsweredOrSkippedOptionalInProgram);
   }
 
+  /** Returns true if this block contains only optional questions and false otherwise. */
+  public boolean hasOnlyOptionalQuestions() {
+    return getQuestions().stream().allMatch(ApplicantQuestion::isOptional);
+  }
+
   /**
    * Checks that this block is answered and that at least one of the questions was answered during
    * the program.

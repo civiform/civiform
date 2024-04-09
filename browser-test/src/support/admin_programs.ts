@@ -10,7 +10,7 @@ import {
 import {BASE_URL, TEST_CIVIC_ENTITY_SHORT_NAME} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
 import {AdminProgramImage} from './admin_program_image'
-import {validateScreenshot} from '.'
+import {validateScreenshot, extractEmailsForRecipient} from '.'
 
 /**
  * JSON object representing downloaded application. It can be retrieved by
@@ -39,6 +39,16 @@ export enum ProgramVisibility {
   PUBLIC = 'Publicly visible',
   TI_ONLY = 'Trusted intermediaries only',
   SELECT_TI = 'Visible to selected trusted intermediaries only',
+}
+
+export enum Eligibility {
+  IS_GATING = 'Only allow residents to submit applications if they meet all eligibility requirements',
+  IS_NOT_GATING = "Allow residents to submit applications even if they don't meet eligibility requirements",
+}
+
+export interface QuestionSpec {
+  name: string
+  isOptional: boolean
 }
 
 function slugify(value: string): string {
@@ -125,6 +135,7 @@ export class AdminPrograms {
       '\n' +
       '\n' +
       'This link should be autodetected: https://www.example.com\n',
+    eligibility = Eligibility.IS_GATING,
     submitNewProgram = true,
   ) {
     await this.gotoAdminProgramsPage()
@@ -148,6 +159,8 @@ export class AdminPrograms {
       await validateScreenshot(this.page, screenshotname)
       await this.page.check(`label:has-text("${selectedTI}")`)
     }
+
+    await this.chooseEligibility(eligibility)
 
     if (isCommonIntake && this.getCommonIntakeFormToggle != null) {
       await this.clickCommonIntakeFormToggle()
@@ -331,29 +344,22 @@ export class AdminPrograms {
     await this.expectManageProgramAdminsPage()
   }
 
-  async gotoProgramSettingsPage(programName: string) {
-    await this.gotoAdminProgramsPage()
-    await this.expectDraftProgram(programName)
-
-    await this.page.click(
-      this.withinProgramCardSelector(programName, 'Draft', '.cf-with-dropdown'),
-    )
-    await this.page.click(
-      this.withinProgramCardSelector(programName, 'Draft', ':text("Settings")'),
-    )
-
-    await waitForPageJsLoad(this.page)
-    await this.expectProgramSettingsPage()
+  async setProgramEligibility(programName: string, eligibility: Eligibility) {
+    await this.goToProgramDescriptionPage(programName)
+    await this.chooseEligibility(eligibility)
+    await this.submitProgramDetailsEdits()
   }
 
-  async setProgramEligibilityToNongating(programName: string) {
-    await this.gotoProgramSettingsPage(programName)
-    const nonGatingEligibilityValue = await this.page
-      .locator('input[name=eligibilityIsGating]')
-      .inputValue()
-    if (nonGatingEligibilityValue == 'false') {
-      await this.page.locator('#eligibility-toggle').click()
-    }
+  async chooseEligibility(eligibility: Eligibility) {
+    await this.page.check(`label:has-text("${eligibility}")`)
+  }
+
+  getEligibilityIsGatingInput() {
+    return this.page.locator(`label:has-text("${Eligibility.IS_GATING}")`)
+  }
+
+  getEligibilityIsNotGatingInput() {
+    return this.page.locator(`label:has-text("${Eligibility.IS_NOT_GATING}")`)
   }
 
   async gotoEditDraftProgramPage(programName: string) {
@@ -657,10 +663,37 @@ export class AdminPrograms {
     }
   }
 
+  /**
+   * Creates a new program block with the given questions, all marked as required.
+   *
+   * @deprecated prefer using {@link #addProgramBlockUsingSpec} instead.
+   */
   async addProgramBlock(
     programName: string,
     blockDescription = 'screen description',
     questionNames: string[] = [],
+  ) {
+    const questionSpecs: QuestionSpec[] = questionNames.map((qName) => {
+      const questionSpec: QuestionSpec = {name: qName, isOptional: false}
+      return questionSpec
+    })
+    return await this.addProgramBlockUsingSpec(
+      programName,
+      blockDescription,
+      questionSpecs,
+    )
+  }
+
+  /**
+   * Creates a new program block with the given questions as defined by {@link QuestionSpec}.
+   *
+   * Prefer this method over {@link #addProgramBlock}: This method provides the same functionality
+   * but also makes it easy to use optional questions.
+   */
+  async addProgramBlockUsingSpec(
+    programName: string,
+    blockDescription = 'screen description',
+    questions: QuestionSpec[] = [],
   ) {
     await this.gotoEditDraftProgramPage(programName)
 
@@ -674,8 +707,14 @@ export class AdminPrograms {
     await this.page.waitForURL(this.page.url())
     await waitForPageJsLoad(this.page)
 
-    for (const questionName of questionNames) {
-      await this.addQuestionFromQuestionBank(questionName)
+    for (const question of questions) {
+      await this.addQuestionFromQuestionBank(question.name)
+      if (question.isOptional) {
+        const optionalToggle = this.page
+          .locator(this.questionCardSelectorInProgramView(question.name))
+          .getByRole('button', {name: 'optional'})
+        await optionalToggle.click()
+      }
     }
     return await this.page.$eval(
       '#block-name-input',
@@ -1068,7 +1107,7 @@ export class AdminPrograms {
 
     return JSON.parse(readFileSync(path, 'utf8')) as DownloadedApplication[]
   }
-  async getPdf() {
+  async getApplicationPdf() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.applicationFrameLocator()
@@ -1081,6 +1120,19 @@ export class AdminPrograms {
     }
     return readFileSync(path, 'utf8')
   }
+
+  async getProgramPdf() {
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.getByRole('button', {name: 'Download PDF preview'}).click(),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+    return readFileSync(path, 'utf8')
+  }
+
   async getCsv(applyFilters: boolean) {
     await clickAndWaitForModal(this.page, 'download-program-applications-modal')
     if (applyFilters) {
@@ -1181,16 +1233,23 @@ export class AdminPrograms {
     await this.page.click('input[name=isCommonIntakeForm]')
   }
 
-  async toggleEligibilityGating() {
-    await this.page.getByTestId('goto-program-settings-link').click()
-    await this.page.waitForLoadState()
-    await this.page.click('#eligibility-toggle')
-    await this.page.getByText('Back').click()
-    await this.page.waitForLoadState()
-  }
-
   async isPaginationVisibleForApplicationList(): Promise<boolean> {
     const applicationListDiv = this.page.getByTestId('application-list')
     return applicationListDiv.locator('.usa-pagination').isVisible()
+  }
+
+  async expectEmailSent(
+    numEmailsBefore: number,
+    userEmail: string,
+    emailBody: string,
+    programName: string,
+  ) {
+    const emailsAfter = await extractEmailsForRecipient(this.page, userEmail)
+    expect(emailsAfter.length).toEqual(numEmailsBefore + 1)
+    const sentEmail = emailsAfter[emailsAfter.length - 1]
+    expect(sentEmail.Subject).toEqual(
+      `[Test Message] An update on your application ${programName}`,
+    )
+    expect(sentEmail.Body.text_part).toContain(emailBody)
   }
 }

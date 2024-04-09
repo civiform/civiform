@@ -21,7 +21,8 @@ public class ApplicantPersonalInfoTest {
 
   @Test
   public void getDisplayString_forGuest() {
-    ApplicantPersonalInfo personalInfo = ApplicantPersonalInfo.ofGuestUser();
+    ApplicantPersonalInfo personalInfo =
+        ApplicantPersonalInfo.ofGuestUser(Representation.builder().build());
 
     assertThat(personalInfo.getDisplayString(messages)).isEqualTo("guest");
   }
@@ -30,7 +31,7 @@ public class ApplicantPersonalInfoTest {
   public void getDisplayString_forLoggedInUser_emailOnly() {
     ApplicantPersonalInfo personalInfo =
         ApplicantPersonalInfo.ofLoggedInUser(
-            Representation.builder().setEmail("user@example.com").build());
+            Representation.builder().setEmail(ImmutableSet.of("user@example.com")).build());
 
     assertThat(personalInfo.getDisplayString(messages)).isEqualTo("user@example.com");
   }
@@ -47,7 +48,7 @@ public class ApplicantPersonalInfoTest {
   public void getDisplayString_forTiPartiallyCreatedUser_emailOnly() {
     ApplicantPersonalInfo personalInfo =
         ApplicantPersonalInfo.ofTiPartiallyCreated(
-            Representation.builder().setEmail("user@example.com").build());
+            Representation.builder().setEmail(ImmutableSet.of("user@example.com")).build());
 
     assertThat(personalInfo.getDisplayString(messages)).isEqualTo("user@example.com");
   }
@@ -65,7 +66,10 @@ public class ApplicantPersonalInfoTest {
   public void getDisplayString_forLoggedInUser_nameAndEmailPrefersName() {
     ApplicantPersonalInfo personalInfo =
         ApplicantPersonalInfo.ofLoggedInUser(
-            Representation.builder().setEmail("user@example.com").setName("John Doe").build());
+            Representation.builder()
+                .setEmail(ImmutableSet.of("user@example.com"))
+                .setName("John Doe")
+                .build());
 
     assertThat(personalInfo.getDisplayString(messages)).isEqualTo("John Doe");
   }

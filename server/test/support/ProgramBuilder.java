@@ -87,6 +87,7 @@ public class ProgramBuilder {
             ImmutableList.of(EMPTY_FIRST_BLOCK),
             versionRepository.getDraftVersionOrCreate(),
             ProgramType.DEFAULT,
+            /* eligibilityIsGating= */ true,
             new ProgramAcls());
     program.save();
     ProgramDefinition.Builder builder =
@@ -103,6 +104,17 @@ public class ProgramBuilder {
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
     return new ProgramBuilder(program.id, builder);
+  }
+
+  /**
+   * Wrap the provided {@link ProgramDefinition} in a {@link ProgramBuilder}.
+   *
+   * @param programDefinition the {@link ProgramDefinition} to create a {@link ProgramBuilder} for
+   * @return the {@link ProgramBuilder}.
+   */
+  public static ProgramBuilder newBuilderFor(ProgramDefinition programDefinition) {
+    ProgramDefinition.Builder builder = programDefinition.toBuilder();
+    return new ProgramBuilder(programDefinition.id(), builder);
   }
 
   /**
@@ -169,6 +181,7 @@ public class ProgramBuilder {
             ImmutableList.of(EMPTY_FIRST_BLOCK),
             versionRepository.getActiveVersion(),
             programType,
+            /* eligibilityIsGating= */ true,
             new ProgramAcls());
     program.save();
     ProgramDefinition.Builder builder =
@@ -195,6 +208,7 @@ public class ProgramBuilder {
             ImmutableList.of(EMPTY_FIRST_BLOCK),
             obsoleteVersion,
             ProgramType.DEFAULT,
+            /* eligibilityIsGating= */ true,
             new ProgramAcls());
     program.save();
     ProgramDefinition.Builder builder =

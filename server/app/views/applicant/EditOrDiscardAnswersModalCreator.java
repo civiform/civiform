@@ -10,20 +10,18 @@ import com.google.inject.Inject;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import services.MessageKey;
-import views.ApplicationBaseView;
+import views.ApplicationBaseViewParams;
 import views.BaseHtmlView;
 import views.components.ButtonStyles;
 import views.components.Modal;
 import views.style.ReferenceClasses;
-import views.style.StyleUtils;
 
 /**
  * A helper class that creates a modal displayed to an applicant when the applicant clicked "Review"
  * on a block but had invalid answers.
  */
 public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
-  private static final String WITHOUT_SAVE_BUTTON_CLASSES =
-      StyleUtils.joinStyles(ButtonStyles.OUTLINED_TRANSPARENT, "mr-2");
+  private static final String WITHOUT_SAVE_BUTTON_CLASSES = ButtonStyles.OUTLINED_TRANSPARENT;
 
   @Inject
   public EditOrDiscardAnswersModalCreator() {}
@@ -35,7 +33,7 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
    * @throws IllegalArgumentException if {@code params#errorDisplayMode()} isn't a modal-displaying
    *     mode.
    */
-  public Modal createModal(ApplicationBaseView.Params params) {
+  public Modal createModal(ApplicationBaseViewParams params) {
     if (!shouldShowErrorsWithModal(params.errorDisplayMode())) {
       throw new IllegalArgumentException(
           String.format(
@@ -84,14 +82,14 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
         .build();
   }
 
-  private ButtonTag renderStayAndFixButton(ApplicationBaseView.Params params) {
+  private ButtonTag renderStayAndFixButton(ApplicationBaseViewParams params) {
     return button(
             params.messages().at(MessageKey.MODAL_ERROR_SAVING_STAY_AND_FIX_BUTTON.getKeyName()))
         // Adding the MODAL_CLOSE class means that clicking the button will close the modal.
-        .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.SOLID_BLUE);
+        .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.SOLID_BLUE, "ml-2");
   }
 
-  private ButtonTag renderReviewWithoutSavingButton(ApplicationBaseView.Params params) {
+  private ButtonTag renderReviewWithoutSavingButton(ApplicationBaseViewParams params) {
     String reviewUrl =
         params
             .applicantRoutes()
@@ -104,7 +102,7 @@ public class EditOrDiscardAnswersModalCreator extends BaseHtmlView {
         .withClasses(WITHOUT_SAVE_BUTTON_CLASSES);
   }
 
-  private ButtonTag renderPreviousWithoutSavingButton(ApplicationBaseView.Params params) {
+  private ButtonTag renderPreviousWithoutSavingButton(ApplicationBaseViewParams params) {
     return redirectButton(
             "previous-without-saving",
             params

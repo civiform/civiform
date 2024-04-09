@@ -10,7 +10,9 @@ import java.util.Optional;
 import services.MessageKey;
 import services.Path;
 import services.PhoneValidationUtils;
+import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.PrimaryApplicantInfoTag;
 import services.question.types.PhoneQuestionDefinition;
 
 /**
@@ -55,7 +57,14 @@ public final class PhoneQuestion extends Question {
     if (phoneNumberValue != null) {
       return phoneNumberValue;
     }
-    phoneNumberValue = applicantQuestion.getApplicantData().readString(getPhoneNumberPath());
+
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    Optional<String> phoneNumberValue = applicantData.readString(getPhoneNumberPath());
+
+    if (phoneNumberValue.isEmpty() && isPaiQuestion()) {
+      phoneNumberValue = applicantData.getPhoneNumber();
+    }
+
     return phoneNumberValue;
   }
 
@@ -64,7 +73,12 @@ public final class PhoneQuestion extends Question {
       return countryCodeValue;
     }
 
-    countryCodeValue = applicantQuestion.getApplicantData().readString(getCountryCodePath());
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    Optional<String> countryCodeValue = applicantData.readString(getCountryCodePath());
+
+    if (countryCodeValue.isEmpty() && isPaiQuestion()) {
+      countryCodeValue = applicantData.getApplicant().getCountryCode();
+    }
 
     return countryCodeValue;
   }
@@ -93,7 +107,13 @@ public final class PhoneQuestion extends Question {
               getPhoneNumberValue().orElse(""), getCountryCodeValue().orElse(""));
       return PHONE_NUMBER_UTIL.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
     } catch (NumberParseException e) {
-      return "-";
+      return getDefaultAnswerString();
     }
+  }
+
+  private boolean isPaiQuestion() {
+    return applicantQuestion
+        .getQuestionDefinition()
+        .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_PHONE);
   }
 }

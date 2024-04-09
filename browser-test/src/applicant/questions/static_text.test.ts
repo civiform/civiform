@@ -1,6 +1,9 @@
 import {test, expect} from '@playwright/test'
+import {Page} from 'playwright'
 import {
   createTestContext,
+  disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
   validateAccessibility,
   validateScreenshot,
@@ -40,25 +43,56 @@ test.describe('Static text question for applicant flow', () => {
     )
   })
 
-  test('displays static text', async () => {
-    const {applicantQuestions} = ctx
-    await applicantQuestions.applyProgram(programName)
+  test.describe('With north star flag disabled', () => {
+    test.beforeEach(async () => {
+      const {page} = ctx
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
+    })
 
-    await applicantQuestions.seeStaticQuestion(staticText)
+    test('displays static text', async () => {
+      const {applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.seeStaticQuestion(staticText)
+    })
+
+    test('has no accessiblity violations', async () => {
+      const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(page)
+    })
+
+    test('parses markdown', async () => {
+      const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+      await validateScreenshot(page, 'markdown-text')
+
+      await verifyMarkdownHtml(page)
+    })
   })
 
-  test('has no accessiblity violations', async () => {
-    const {page, applicantQuestions} = ctx
-    await applicantQuestions.applyProgram(programName)
+  test.describe('With north star flag enabled', () => {
+    test.beforeEach(async () => {
+      const {page} = ctx
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+    })
 
-    await validateAccessibility(page)
+    test('parses markdown', {tag: ['@northstar']}, async () => {
+      const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+      await validateScreenshot(
+        page,
+        'markdown-text-north-star',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
+
+      await verifyMarkdownHtml(page)
+    })
   })
 
-  test('parses markdown', async () => {
-    const {page, applicantQuestions} = ctx
-    await applicantQuestions.applyProgram(programName)
-    await validateScreenshot(page, 'markdown-text')
-
+  async function verifyMarkdownHtml(page: Page) {
     expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
       '<p>Hello, I am some static text!<br>',
     )
@@ -77,5 +111,5 @@ test.describe('Static text question for applicant flow', () => {
     expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
       '<strong>Last line of content should be bold</strong>',
     )
-  })
+  }
 })

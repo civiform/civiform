@@ -480,6 +480,11 @@
             "mode": "ADMIN_READABLE",
             "description": "The number of tries CiviForm will attempt requests to external Esri services.",
             "type": "int"
+          },
+          "ESRI_WELLKNOWN_ID_OVERRIDE": {
+            "mode": "ADMIN_READABLE",
+            "description": "Forces calls to Esri services to use the specified spatial reference wellKnownId value for the [coordinate system](https://developers.arcgis.com/rest/services-reference/enterprise/using-spatial-references.htm). If not set the default configuration from the Esri server is used. Setting this may be needed if using the results of the findAddressCandidates service return spatial references in a format different from one or more of the map query service endpoints.",
+            "type": "int"
           }
         }
       }
@@ -600,6 +605,11 @@
     "type": "string",
     "values": ["DIRECT", "FORWARDED"]
   },
+  "NUM_TRUSTED_PROXIES": {
+    "mode": "ADMIN_READABLE",
+    "description": "The count of reverse proxies between the internet and the server. In typical deployments, this value is 1.",
+    "type": "int"
+  },
   "Observability": {
     "group_description": "Configuration options for CiviForm observability features.",
     "members": {
@@ -661,6 +671,11 @@
       "APPLICATION_EXPORTABLE": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables the feature that allows completed applications to be downloadable by PDF.",
+        "type": "bool"
+      },
+      "DISABLED_VISIBILITY_CONDITION_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables the feature that allows programs to be disabled from CiviForm",
         "type": "bool"
       },
       "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED": {
@@ -738,11 +753,6 @@
         "description": "Enables setting a universal question as a question representing information about the applicant. The system can then take certain actions based on the answer to this question.",
         "type": "bool"
       },
-      "UNIVERSAL_QUESTIONS": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "Enables setting and displaying the universal question state on questions. These questions are intended to be used by all programs and will appear at the top of the question bank with a badge denoting them as universal.",
-        "type": "bool"
-      },
       "PROGRAM_CARD_IMAGES": {
         "mode": "ADMIN_READABLE",
         "description": "Enables images on program cards, both for admins to upload them and for applicants to view them.",
@@ -754,13 +764,18 @@
         "type": "bool"
       },
       "SAVE_ON_ALL_ACTIONS": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Save an applicant's answers when they take any action ('Review'/'Previous'/'Save and next') instead of only saving on 'Save and next'.",
+        "mode": "ADMIN_READABLE",
+        "description": "Save an applicant's answers when they take any action ('Review'/'Previous'/'Save and next') instead of only saving on 'Save and next'.",
         "type": "bool"
       },
       "NORTH_STAR_APPLICANT_UI": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables showing new UI with an updated user experience in Applicant flows",
+        "type": "bool"
+      },
+      "PROGRAM_MIGRATION_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments",
         "type": "bool"
       }
     }

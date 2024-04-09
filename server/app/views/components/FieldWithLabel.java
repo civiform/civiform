@@ -419,7 +419,7 @@ public class FieldWithLabel {
     return checkboxApplyAttrsAndGenLabel(inputFieldTag);
   }
 
-  private DivTag getNonNumberInputTag() {
+  private DivTag getNonNumberInputTag(boolean isUSWDS) {
     InputTag inputFieldTag = TagCreator.input();
     inputFieldTag.withType(getFieldType());
     applyAttributesFromMap(inputFieldTag);
@@ -428,10 +428,14 @@ public class FieldWithLabel {
     } else {
       throw new RuntimeException("non-number tag expected");
     }
-    return applyAttrsAndGenLabel(inputFieldTag);
+    return isUSWDS
+        ? applyUSWDSAttrsClassesAndLabel(inputFieldTag)
+        : applyAttrsClassesAndLabel(inputFieldTag);
   }
 
   /** Public final tag getters * */
+  // TODO: Once we've eliminated all uses of this method (when all textarea fields are using USWDS),
+  //  remove it and rename `getUSWDSTextareaTag` to `getTextareaTag`.
   public DivTag getTextareaTag() {
     if (isTagTypeTextarea()) {
       TextareaTag textareaFieldTag = TagCreator.textarea();
@@ -443,7 +447,24 @@ public class FieldWithLabel {
       if (this.cols.isPresent()) {
         textareaFieldTag.withCols(String.valueOf(this.cols.getAsLong()));
       }
-      return applyAttrsAndGenLabel(textareaFieldTag);
+      return applyAttrsClassesAndLabel(textareaFieldTag);
+    }
+
+    throw new RuntimeException("needs to be textarea tag");
+  }
+
+  public DivTag getUSWDSTextareaTag() {
+    if (isTagTypeTextarea()) {
+      TextareaTag textareaFieldTag = TagCreator.textarea();
+      applyAttributesFromMap(textareaFieldTag);
+      textareaFieldTag.withText(this.fieldValue);
+      if (this.rows.isPresent()) {
+        textareaFieldTag.withRows(String.valueOf(this.rows.getAsLong()));
+      }
+      if (this.cols.isPresent()) {
+        textareaFieldTag.withCols(String.valueOf(this.cols.getAsLong()));
+      }
+      return applyUSWDSAttrsClassesAndLabel(textareaFieldTag);
     }
 
     throw new RuntimeException("needs to be textarea tag");
@@ -454,11 +475,15 @@ public class FieldWithLabel {
   }
 
   public DivTag getCurrencyTag() {
-    return getNonNumberInputTag();
+    return getNonNumberInputTag(false);
   }
 
   public DivTag getInputTag() {
-    return getNonNumberInputTag();
+    return getNonNumberInputTag(false);
+  }
+
+  public DivTag getUSWDSInputTag() {
+    return getNonNumberInputTag(true);
   }
 
   public DivTag getNumberTag() {
@@ -470,15 +495,15 @@ public class FieldWithLabel {
     } else {
       throw new RuntimeException("number tag expected");
     }
-    return applyAttrsAndGenLabel(inputFieldTag);
+    return applyAttrsClassesAndLabel(inputFieldTag);
   }
 
   public DivTag getDateTag() {
-    return getNonNumberInputTag();
+    return getNonNumberInputTag(false);
   }
 
   public DivTag getEmailTag() {
-    return getNonNumberInputTag();
+    return getNonNumberInputTag(false);
   }
 
   protected void applyAttributesFromMap(Tag fieldTag) {
@@ -512,7 +537,7 @@ public class FieldWithLabel {
     }
   }
 
-  private LabelTag genLabelTag() {
+  private LabelTag genLabelTag(boolean isUSWDS) {
     if (toolTipText.isPresent() ^ toolTipIcon.isPresent()) {
       throw new RuntimeException("Tool tip text and icon must both be defined");
     }
@@ -525,15 +550,15 @@ public class FieldWithLabel {
         .withFor(this.id)
         // If the text is screen-reader text, then we want the label to be screen-reader
         // only.
-        .withClass(labelText.isEmpty() ? "sr-only" : BaseStyles.INPUT_LABEL)
+        .withClass(
+            labelText.isEmpty() ? "sr-only" : (isUSWDS ? "usa-label mt-0" : BaseStyles.INPUT_LABEL))
         .withText(text)
         .condWith(required, ViewUtils.requiredQuestionIndicator())
         // The DomContent is evaluated even if the condition is false, so provide
         // some defaults we will never use.
         .condWith(
             toolTipText.isPresent(),
-            span(ViewUtils.makeSvgToolTip(toolTipText.orElse(""), toolTipIcon.orElse(Icons.INFO))))
-        .withCondClass(toolTipText.isPresent(), "block");
+            span(ViewUtils.makeSvgToolTip(toolTipText.orElse(""), toolTipIcon.orElse(Icons.INFO))));
   }
 
   private DivTag buildBaseContainer(Tag fieldTag, Tag labelTag, String fieldErrorsId) {
@@ -572,19 +597,13 @@ public class FieldWithLabel {
     }
   }
 
-  private <T extends Tag<T> & IName<T> & IDisabled<T>> void generalApplyAttrsClassesToTag(
-      T fieldTag, boolean hasFieldErrors) {
+  private <T extends Tag<T> & IName<T> & IDisabled<T>> void generalApplyAttrsToTag(T fieldTag) {
     // Here we use `.condAttr` instead of the more typesafe methods in 3 instances  here
     // since not all types of the `fieldTag` argument passed to this have those attributes.
     //
     // Adding useless attributes does not hurt the DOM, and helps us avoid putting those calls
     // before the calls to this method, thus simplifying the code.
     fieldTag
-        .withClasses(
-            getFieldClasses(fieldTag, hasFieldErrors),
-            // TODO(#5623): Use unified styles for disabled inputs
-            this.readOnly ? "read-only:text-gray-500" : "",
-            this.readOnly ? "read-only:bg-gray-100" : "")
         .withId(this.id)
         .withName(this.fieldName)
         .withCondDisabled(this.disabled)
@@ -596,12 +615,26 @@ public class FieldWithLabel {
         .condAttr(focusOnInput, Attr.AUTOFOCUS, "");
   }
 
-  private String getFieldClasses(Tag fieldTag, boolean hasFieldErrors) {
+  private String getFieldClasses(Tag fieldTag) {
     boolean isSelectTag = fieldTag instanceof SelectTag;
+    boolean hasFieldErrors = hasFieldErrors();
     if (isSelectTag) {
       return hasFieldErrors ? BaseStyles.SELECT_WITH_ERROR : BaseStyles.SELECT;
     } else {
       return hasFieldErrors ? BaseStyles.INPUT_WITH_ERROR : BaseStyles.INPUT;
+    }
+  }
+
+  private String getUSWDSFieldClasses(Tag fieldTag) {
+    boolean isSelectTag = fieldTag instanceof SelectTag;
+    boolean hasFieldErrors = hasFieldErrors();
+    if (isTagTypeTextarea()) {
+      return hasFieldErrors ? "usa-textarea usa-input--error" : "usa-textarea";
+    }
+    if (isSelectTag) {
+      return hasFieldErrors ? BaseStyles.SELECT_WITH_ERROR : BaseStyles.SELECT;
+    } else {
+      return hasFieldErrors ? "usa-input usa-input--error" : "usa-input";
     }
   }
 
@@ -629,8 +662,6 @@ public class FieldWithLabel {
       fieldTag.attr("aria-required", "true");
     }
 
-    generalApplyAttrsClassesToTag(fieldTag, hasFieldErrors);
-
     return fieldErrorsInfo;
   }
 
@@ -639,6 +670,8 @@ public class FieldWithLabel {
     genRandIdIfEmpty();
     // Apply attributes
     applyAttrsGenFieldErrorsInfo(fieldTag);
+    generalApplyAttrsToTag(fieldTag);
+    generalApplyClassesToTag(fieldTag);
 
     // Generate label / container
     if (getFieldType().equals("checkbox") || getFieldType().equals("radio")) {
@@ -647,11 +680,36 @@ public class FieldWithLabel {
     throw new RuntimeException("needs to be a checkbox or radio type for this method");
   }
 
-  protected <T extends Tag<T> & IName<T> & IDisabled<T>> DivTag applyAttrsAndGenLabel(T fieldTag) {
+  protected <T extends Tag<T> & IName<T> & IDisabled<T>> DivTag applyAttrsClassesAndLabel(
+      T fieldTag) {
     genRandIdIfEmpty();
     // Apply attributes
     FieldErrorsInfo fieldErrorsInfo = applyAttrsGenFieldErrorsInfo(fieldTag);
-    LabelTag labelTag = genLabelTag();
+    generalApplyAttrsToTag(fieldTag);
+    generalApplyClassesToTag(fieldTag);
+
+    LabelTag labelTag = genLabelTag(false);
+    // Generate label / container
+    return buildBaseContainer(fieldTag, labelTag, fieldErrorsInfo.fieldErrorsId);
+  }
+
+  private void generalApplyClassesToTag(Tag fieldTag) {
+    fieldTag.withClasses(
+        getFieldClasses(fieldTag),
+        // TODO(#5623): Use unified styles for disabled inputs
+        this.readOnly ? "read-only:text-gray-500" : "",
+        this.readOnly ? "read-only:bg-gray-100" : "");
+  }
+
+  protected <T extends Tag<T> & IName<T> & IDisabled<T>> DivTag applyUSWDSAttrsClassesAndLabel(
+      T fieldTag) {
+    genRandIdIfEmpty();
+    // Apply attributes
+    FieldErrorsInfo fieldErrorsInfo = applyAttrsGenFieldErrorsInfo(fieldTag);
+    generalApplyAttrsToTag(fieldTag);
+    fieldTag.withClasses(getUSWDSFieldClasses(fieldTag));
+
+    LabelTag labelTag = genLabelTag(true);
     // Generate label / container
     return buildBaseContainer(fieldTag, labelTag, fieldErrorsInfo.fieldErrorsId);
   }

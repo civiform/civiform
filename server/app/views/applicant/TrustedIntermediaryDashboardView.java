@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.hr;
 import static j2html.TagCreator.input;
@@ -29,7 +30,7 @@ import com.google.inject.Inject;
 import controllers.ti.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.H3Tag;
 import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
@@ -61,13 +62,10 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
 import views.admin.ti.TrustedIntermediaryGroupListView;
-import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.ToastMessage;
-import views.style.BaseStyles;
 import views.style.ReferenceClasses;
-import views.style.StyleUtils;
 
 /** Renders a page for a trusted intermediary to manage their clients. */
 public class TrustedIntermediaryDashboardView extends BaseHtmlView {
@@ -102,21 +100,19 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setTitle("CiviForm")
             .addMainContent(
                 renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
-                hr(),
-                renderSubHeader("Add Client").withId("add-client").withClass("my-4"),
-                requiredFieldsExplanationContent(),
-                renderAddNewForm(tiGroup, request, messages),
                 hr().withClasses("mt-6"),
-                renderSubHeader(messages.at(MessageKey.TITLE_ALL_CLIENTS.getKeyName()))
-                    .withClass("my-4"),
+                div(
+                        renderSubHeader(messages.at(MessageKey.TITLE_ALL_CLIENTS.getKeyName())),
+                        renderAddNewClientButton(messages, tiGroup.id))
+                    .withClasses("flex", "justify-between", "my-4"),
                 h4("Search"),
-                renderSearchForm(request, searchParameters, messages),
+                renderSearchForm(request, searchParameters, messages, managedAccounts.size()),
                 renderTIClientsList(
                     managedAccounts, searchParameters, page, totalPageCount, messages),
-                hr().withClasses("mt-6"),
-                renderSubHeader(messages.at(MessageKey.TITLE_ORG_MEMBERS.getKeyName()))
-                    .withClass("my-4"),
-                renderTIMembersTable(tiGroup).withClass("pt-2"))
+                hr().withClasses("my-6"),
+                renderSubHeader(messages.at(MessageKey.HEADER_ACCT_SETTING.getKeyName())),
+                h3(messages.at(MessageKey.TITLE_ORG_MEMBERS.getKeyName())).withClass("mt-8"),
+                renderTIMembersTable(tiGroup, messages))
             .addMainStyles("px-20", "max-w-screen-xl");
 
     Http.Flash flash = request.flash();
@@ -125,54 +121,100 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
           .info(request.flash().get("error").get());
       bundle.addToastMessages(
           ToastMessage.errorNonLocalized(flash.get("error").get()).setDuration(-1));
-    } else if (flash.get("success").isPresent()) {
-      bundle.addToastMessages(ToastMessage.success(flash.get("success").get()).setDuration(-1));
     }
     return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
   }
 
-  private FormTag renderSearchForm(
-      Http.Request request, SearchParameters searchParameters, Messages messages) {
+  private ATag renderAddNewClientButton(Messages messages, Long tiGroupId) {
+    String redirectUrl = routes.TrustedIntermediaryController.showAddClientForm(tiGroupId).url();
+    return new ATag()
+        .withText(messages.at(MessageKey.BUTTON_ADD_NEW_CLIENT.getKeyName()))
+        .withId("add-new-client")
+        .withClasses("usa-button")
+        .withHref(redirectUrl);
+  }
+
+  private DivTag renderSearchForm(
+      Http.Request request,
+      SearchParameters searchParameters,
+      Messages messages,
+      int totalClients) {
     boolean isValidSearch = TrustedIntermediaryService.validateSearch(searchParameters);
-    return form()
-        .withId("ti-search-form")
-        .withClasses("mb-6")
-        .withMethod("GET")
-        .withAction(
-            routes.TrustedIntermediaryController.dashboard(
-                    /* paramName=  nameQuery */ Optional.empty(),
-                    /* paramName=  dayQuery */ Optional.empty(),
-                    /* paramName=  monthQuery */ Optional.empty(),
-                    /* paramName=  yearQuery */ Optional.empty(),
-                    /* paramName=  page */ Optional.empty())
-                .url())
+    return div()
         .with(
-            div(
+            form()
+                .withId("ti-search-form")
+                .withClasses("mb-6")
+                .withMethod("GET")
+                .withAction(
+                    routes.TrustedIntermediaryController.dashboard(
+                            /* paramName=  nameQuery */ Optional.empty(),
+                            /* paramName=  dayQuery */ Optional.empty(),
+                            /* paramName=  monthQuery */ Optional.empty(),
+                            /* paramName=  yearQuery */ Optional.empty(),
+                            /* paramName=  page */ Optional.empty())
+                        .url())
+                .with(
                     div(
-                        label(messages.at(MessageKey.SEARCH_BY_NAME.getKeyName()))
-                            .withClass("usa-label")
-                            .withId("name-search")
-                            .withFor("name-query"),
-                        span(messages.at(MessageKey.NAME_EXAMPLE.getKeyName()))
-                            .withClass("usa-hint")),
-                    input()
-                        .withClasses("usa-input", "mt-12")
-                        .withId("name-query")
-                        .withName("nameQuery")
-                        .withValue(searchParameters.nameQuery().orElse("")))
-                .withClasses("flex", "flex-col", "justify-between"),
-            ViewUtils.makeMemorableDate(
-                    searchParameters.dayQuery().orElse(""),
-                    searchParameters.monthQuery().orElse(""),
-                    searchParameters.yearQuery().orElse(""),
-                    messages.at(MessageKey.SEARCH_BY_DOB.getKeyName()),
-                    !isValidSearch)
-                .withClass("ml-6"),
-            makeCsrfTokenInputTag(request),
-            div(submitButton(messages.at(MessageKey.BUTTON_SEARCH.getKeyName()))
-                    .withClasses("ml-6", "h-11"))
-                .withClasses("flex", "flex-col", "justify-end"))
-        .withClasses("flex", "my-6");
+                            div(
+                                label(messages.at(MessageKey.SEARCH_BY_NAME.getKeyName()))
+                                    .withClass("usa-label")
+                                    .withId("name-search")
+                                    .withFor("name-query"),
+                                span(messages.at(MessageKey.NAME_EXAMPLE.getKeyName()))
+                                    .withClass("usa-hint")),
+                            input()
+                                .withClasses("usa-input", "mt-12")
+                                .withId("name-query")
+                                .withName("nameQuery")
+                                .withValue(searchParameters.nameQuery().orElse("")))
+                        .withClasses("flex", "flex-col", "justify-between"),
+                    ViewUtils.makeMemorableDate(
+                            searchParameters.dayQuery().orElse(""),
+                            searchParameters.monthQuery().orElse(""),
+                            searchParameters.yearQuery().orElse(""),
+                            messages.at(MessageKey.SEARCH_BY_DOB.getKeyName()),
+                            !isValidSearch)
+                        .withClass("ml-6"),
+                    makeCsrfTokenInputTag(request),
+                    div(submitButton(messages.at(MessageKey.BUTTON_SEARCH.getKeyName()))
+                            .withClasses("usa-button", "ml-6", "h-11"))
+                        .withClasses("flex", "flex-col", "justify-end"))
+                .withClasses("flex", "my-6"))
+        .with(
+            div()
+                .condWith(
+                    isValidSearch,
+                    renderDisplayingNumberOfClients(totalClients, searchParameters, messages)
+                        .attr("data-testid", "displaying-clients")
+                        .withClasses("mr-6"))
+                .with(u(renderClearSearchLink(messages)).withClasses("text-sm"))
+                .withClasses("flex", "items-center", "mb-4"));
+  }
+
+  private H3Tag renderDisplayingNumberOfClients(
+      int totalClients, SearchParameters searchParameters, Messages messages) {
+    boolean noSearchTerms =
+        TrustedIntermediaryService.findMissingSearchParams(searchParameters).size() == 4;
+    if (noSearchTerms) {
+      return h3(messages.at(MessageKey.TITLE_DISPLAY_ALL_CLIENTS.getKeyName()));
+    }
+    if (totalClients == 1) {
+      return h3(messages.at(MessageKey.TITLE_DISPLAY_ONE_CLIENT.getKeyName()));
+    }
+    return h3(messages.at(MessageKey.TITLE_DISPLAY_MULTI_CLIENTS.getKeyName(), totalClients));
+  }
+
+  private ATag renderClearSearchLink(Messages messages) {
+    return new LinkElement()
+        .setText(messages.at(MessageKey.BUTTON_CLEAR_SEARCH.getKeyName()))
+        .asAnchorText()
+        .attr(
+            "onClick",
+            "document.getElementById('name-query').value = '';"
+                + "document.getElementById('date_of_birth_day').value = '';"
+                + "document.getElementById('date_of_birth_month').value = '';"
+                + "document.getElementById('date_of_birth_year').value = '';");
   }
 
   private DivTag renderTIClientsList(
@@ -206,11 +248,12 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                     Optional.of(pageNumber))));
   }
 
-  private DivTag renderTIMembersTable(TrustedIntermediaryGroupModel tiGroup) {
+  private DivTag renderTIMembersTable(TrustedIntermediaryGroupModel tiGroup, Messages messages) {
     return div(
         table()
-            .withClasses("border", "border-gray-300", "shadow-md", "w-3/4")
-            .with(renderGroupTableHeader())
+            .withData("testid", "org-members-table")
+            .withClasses("usa-table", "usa-table--striped", "w-5/6")
+            .with(renderGroupTableHeader(messages))
             .with(
                 tbody(
                     each(
@@ -220,76 +263,10 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         this::renderTIRow))));
   }
 
-  private DivTag renderAddNewForm(
-      TrustedIntermediaryGroupModel tiGroup, Http.Request request, Messages messages) {
-    FormTag formTag =
-        form()
-            .withMethod("POST")
-            .withAction(routes.TrustedIntermediaryController.addApplicant(tiGroup.id).url());
-    FieldWithLabel firstNameField =
-        FieldWithLabel.input()
-            .setId("first-name-input")
-            .setFieldName("firstName")
-            .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
-            .setRequired(true)
-            .setValue(request.flash().get("providedFirstName").orElse(""));
-    FieldWithLabel middleNameField =
-        FieldWithLabel.input()
-            .setId("middle-name-input")
-            .setFieldName("middleName")
-            .setLabelText(
-                messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName())
-                    + " "
-                    + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
-            .setValue(request.flash().get("providedMiddleName").orElse(""));
-    FieldWithLabel lastNameField =
-        FieldWithLabel.input()
-            .setId("last-name-input")
-            .setFieldName("lastName")
-            .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
-            .setRequired(true)
-            .setValue(request.flash().get("providedLastName").orElse(""));
-    // TODO: do something with this field.  currently doesn't do anything. Add a Path
-    // to WellKnownPaths referencing the canonical date of birth question.
-    FieldWithLabel dateOfBirthField =
-        FieldWithLabel.date()
-            .setId("date-of-birth-input")
-            .setFieldName("dob")
-            .setLabelText(messages.at(MessageKey.DOB_LABEL.getKeyName()))
-            .setRequired(true)
-            .setValue(request.flash().get("providedDob").orElse(""));
-    FieldWithLabel emailField =
-        FieldWithLabel.email()
-            .setId("email-input")
-            .setFieldName("emailAddress")
-            .setLabelText("Email address " + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
-            .setToolTipIcon(Icons.INFO)
-            .setToolTipText(
-                "Add an email address for your client to receive status updates about their"
-                    + " application automatically. Without an email, you or your community-based"
-                    + " organization will be responsible for communicating updates to your"
-                    + " client.")
-            .setValue(request.flash().get("providedEmail").orElse(""));
-    return div()
-        .with(
-            formTag.with(
-                emailField.getEmailTag(),
-                firstNameField.getInputTag(),
-                middleNameField.getInputTag(),
-                lastNameField.getInputTag(),
-                dateOfBirthField.getDateTag(),
-                makeCsrfTokenInputTag(request),
-                submitButton("Add").withClasses("ml-2", "mb-6")))
-        .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
-  }
-
   private TrTag renderTIRow(AccountModel ti) {
-    return tr().withClasses(
-            ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
-            "border-b",
-            "border-gray-300",
-            StyleUtils.even("bg-gray-100"))
-        .with(renderInfoCell(ti))
+    return tr().withClass(ReferenceClasses.ADMIN_QUESTION_TABLE_ROW)
+        .with(renderNameCell(ti))
+        .with(renderEmailCell(ti))
         .with(renderStatusCell(ti));
   }
 
@@ -327,8 +304,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       return div();
     }
     ApplicantData applicantData = newestApplicant.get().getApplicantData();
-    Optional<String> maybePhoneNumber = applicantData.getPhoneNumber();
-    String email = account.getEmailAddress();
+    Optional<String> optionalPhoneNumber = applicantData.getPhoneNumber();
+    Optional<String> optionalEmail = applicantData.getApplicantEmail();
 
     return div(
         label(messages.at(MessageKey.CONTACT_INFO_LABEL.getKeyName()))
@@ -336,14 +313,16 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .withClass("whitespace-nowrap"),
         div()
             .condWith(
-                maybePhoneNumber.isPresent(),
+                optionalPhoneNumber.isPresent(),
                 div(
                         Icons.svg(Icons.PHONE).withClasses("h-3", "w-3", "mr-1"),
-                        p(formatPhone(maybePhoneNumber.orElse(""))))
+                        p(formatPhone(optionalPhoneNumber.orElse(""))))
                     .withClass("flex items-center"))
             .condWith(
-                email != null && !email.isEmpty(),
-                div(Icons.svg(Icons.EMAIL).withClasses("h-3", "w-3", "mr-1"), p(email))
+                optionalEmail.isPresent(),
+                div(
+                        Icons.svg(Icons.EMAIL).withClasses("h-3", "w-3", "mr-1"),
+                        p(optionalEmail.orElse("")))
                     .withClass("flex items-center"))
             .withClass("text-xs")
             .withId("card_contact_info"));
@@ -416,7 +395,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return new LinkElement()
         .setId("edit-client")
         .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
-        .setHref(controllers.ti.routes.TrustedIntermediaryController.editClient(accountId).url())
+        .setHref(
+            controllers.ti.routes.TrustedIntermediaryController.showEditClientForm(accountId).url())
         .asAnchorText();
   }
 
@@ -455,14 +435,16 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         .url()));
   }
 
-  private TdTag renderInfoCell(AccountModel ti) {
+  private TdTag renderNameCell(AccountModel ti) {
+    return td(ti.getApplicantName());
+  }
+
+  private TdTag renderEmailCell(AccountModel ti) {
     String emailField = ti.getEmailAddress();
     if (Strings.isNullOrEmpty(emailField)) {
       emailField = "(no email address)";
     }
-    return td().with(div(ti.getApplicantName()).withClasses("font-semibold"))
-        .with(div(emailField).withClasses("text-xs", ReferenceClasses.BT_EMAIL))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES);
+    return td(emailField).withClasses(ReferenceClasses.BT_EMAIL);
   }
 
   private TdTag renderStatusCell(AccountModel ti) {
@@ -470,14 +452,25 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     if (ti.ownedApplicantIds().isEmpty()) {
       accountStatus = "Not yet signed in.";
     }
-    return td().with(div(accountStatus).withClasses("font-semibold"))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES);
+    return td(accountStatus);
   }
 
-  private TheadTag renderGroupTableHeader() {
+  private TheadTag renderGroupTableHeader(Messages messages) {
     return thead(
-        tr().withClasses("border-b", "bg-gray-200", "text-left")
-            .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/3"))
-            .with(th("Status").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/4")));
+        tr().with(
+                th(messages.at(MessageKey.NAME_LABEL.getKeyName()))
+                    .withScope("col")
+                    .withData("testid", "org-members-name")
+                    .withClass("w-1/3"))
+            .with(
+                th(messages.at(MessageKey.EMAIL_LABEL.getKeyName()))
+                    .withScope("col")
+                    .withData("testid", "org-members-email")
+                    .withClass("w-2/5"))
+            .with(
+                th(messages.at(MessageKey.ACCT_STATUS_LABEL.getKeyName()))
+                    .withScope("col")
+                    .withData("testid", "org-members-status")
+                    .withClass("w-1/5")));
   }
 }

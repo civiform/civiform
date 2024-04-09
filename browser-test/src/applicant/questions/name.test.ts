@@ -1,6 +1,8 @@
 import {test, expect} from '@playwright/test'
 import {
   createTestContext,
+  disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -17,17 +19,12 @@ test.describe('name applicant flow', () => {
     const programName = 'Test program for single name'
 
     test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
-      await loginAsAdmin(page)
+      await setUpSingleRequiredQuestion(programName)
+    })
 
-      await adminQuestions.addNameQuestion({
-        questionName: 'name-test-q',
-      })
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['name-test-q'],
-        programName,
-      )
-      await logout(page)
+    test.beforeEach(async () => {
+      const {page} = ctx
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
     test('validate screenshot', async () => {
@@ -230,4 +227,59 @@ test.describe('name applicant flow', () => {
       })
     })
   })
+
+  test.describe('single required name question with north star flag enabled', () => {
+    const programName = 'Test program for single name'
+
+    test.beforeAll(async () => {
+      await setUpSingleRequiredQuestion(programName)
+    })
+
+    test.beforeEach(async () => {
+      const {page} = ctx
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
+    test(
+      'validate screenshot with north star flag enabled',
+      {tag: ['@northstar']},
+      async () => {
+        const {page, applicantQuestions} = ctx
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('Screenshot without errors', async () => {
+          await validateScreenshot(
+            page,
+            'name-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+
+        await test.step('Screenshot with errors', async () => {
+          await applicantQuestions.clickContinue()
+          await validateScreenshot(
+            page,
+            'name-errors-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+      },
+    )
+  })
+
+  async function setUpSingleRequiredQuestion(programName: string) {
+    const {page, adminQuestions, adminPrograms} = ctx
+    await loginAsAdmin(page)
+
+    await adminQuestions.addNameQuestion({
+      questionName: 'name-test-q',
+    })
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['name-test-q'],
+      programName,
+    )
+    await logout(page)
+  }
 })

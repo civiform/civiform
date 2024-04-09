@@ -37,7 +37,7 @@ import views.components.ToastMessage;
  */
 public final class ApplicantProgramsController extends CiviFormController {
 
-  private final HttpExecutionContext httpContext;
+  private final HttpExecutionContext classLoaderExecutionContext;
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
   private final ProgramIndexView programIndexView;
@@ -47,7 +47,7 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   @Inject
   public ApplicantProgramsController(
-      HttpExecutionContext httpContext,
+      HttpExecutionContext classLoaderExecutionContext,
       ApplicantService applicantService,
       MessagesApi messagesApi,
       ProgramIndexView programIndexView,
@@ -57,7 +57,7 @@ public final class ApplicantProgramsController extends CiviFormController {
       ProgramSlugHandler programSlugHandler,
       ApplicantRoutes applicantRoutes) {
     super(profileUtils, versionRepository);
-    this.httpContext = checkNotNull(httpContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.programIndexView = checkNotNull(programIndexView);
@@ -77,13 +77,13 @@ public final class ApplicantProgramsController extends CiviFormController {
 
     Optional<ToastMessage> banner = request.flash().get("banner").map(ToastMessage::alert);
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        applicantService.getPersonalInfo(applicantId);
+        applicantService.getPersonalInfo(applicantId, request);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
         .thenComposeAsync(
             v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile.get()),
-            httpContext.current())
+            classLoaderExecutionContext.current())
         .thenApplyAsync(
             applicationPrograms ->
                 ok(programIndexView.render(
@@ -99,7 +99,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                     // cleared to avoid an experience where they're unexpectedly redirected after
                     // logging in.
                     .removingFromSession(request, REDIRECT_TO_SESSION_KEY),
-            httpContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -136,13 +136,13 @@ public final class ApplicantProgramsController extends CiviFormController {
     }
 
     CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId);
+        this.applicantService.getPersonalInfo(applicantId, request);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
         .thenComposeAsync(
             v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile.get()),
-            httpContext.current())
+            classLoaderExecutionContext.current())
         .thenApplyAsync(
             relevantPrograms -> {
               Optional<ProgramDefinition> programDefinition =
@@ -163,7 +163,7 @@ public final class ApplicantProgramsController extends CiviFormController {
               }
               return badRequest(String.format("Program %d not found", programId));
             },
-            httpContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -232,7 +232,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                                   block.getId(),
                                   /* questionName= */ Optional.empty()))));
             },
-            httpContext.current())
+            classLoaderExecutionContext.current())
         .thenComposeAsync(
             resultMaybe -> {
               if (resultMaybe.isEmpty()) {
@@ -242,7 +242,7 @@ public final class ApplicantProgramsController extends CiviFormController {
               }
               return supplyAsync(resultMaybe::get);
             },
-            httpContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {

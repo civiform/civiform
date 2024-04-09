@@ -107,6 +107,7 @@ public class ProgramModelTest extends ResetPostgres {
         .isEqualTo("First Block");
     assertThat(found.getProgramDefinition().programType())
         .isEqualTo(ProgramType.COMMON_INTAKE_FORM);
+    assertThat(found.getProgramDefinition().eligibilityIsGating()).isEqualTo(false);
     assertThat(found.getProgramDefinition().acls().getTiProgramViewAcls()).contains(1L);
     assertThat(found.getProgramDefinition().acls().getTiProgramViewAcls()).contains(3L);
 

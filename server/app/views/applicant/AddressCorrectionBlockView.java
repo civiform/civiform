@@ -32,6 +32,7 @@ import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
 import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
+import views.ApplicationBaseViewParams;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
 import views.components.Icons;
@@ -60,7 +61,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   }
 
   public Content render(
-      Params params,
+      ApplicationBaseViewParams params,
       Messages messages,
       AddressSuggestionGroup addressSuggestionGroup,
       ApplicantRequestedAction applicantRequestedAction,
@@ -102,7 +103,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   }
 
   private FormTag renderForm(
-      Params params,
+      ApplicationBaseViewParams params,
       Messages messages,
       Address addressAsEntered,
       ImmutableList<AddressSuggestion> suggestions,
@@ -114,16 +115,15 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
             .withAction(getFormAction(params, ApplicantRequestedAction.NEXT_BLOCK))
             .withMethod(Http.HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(params.request()));
-    MessageKey title =
+    MessageKey title = MessageKey.ADDRESS_CORRECTION_TITLE;
+    MessageKey instructionsLine1 = MessageKey.ADDRESS_CORRECTION_LINE_1;
+    MessageKey instructionsLine2 =
         suggestions.size() > 0
-            ? MessageKey.ADDRESS_CORRECTION_VERIFY_TITLE
-            : MessageKey.ADDRESS_CORRECTION_NO_VALID_TITLE;
-    MessageKey instructions =
-        suggestions.size() > 0
-            ? MessageKey.ADDRESS_CORRECTION_VERIFY_INSTRUCTIONS
-            : MessageKey.ADDRESS_CORRECTION_NO_VALID_INSTRUCTIONS;
+            ? MessageKey.ADDRESS_CORRECTION_FOUND_SIMILAR_LINE_2
+            : MessageKey.ADDRESS_CORRECTION_NO_VALID_LINE_2;
     form.with(h2(messages.at(title.getKeyName())).withClass("font-bold mb-2"))
-        .with(div(messages.at(instructions.getKeyName())).withClass("mb-8"));
+        .with(div(messages.at(instructionsLine1.getKeyName())).withClass("mb-4"))
+        .with(div(messages.at(instructionsLine2.getKeyName())).withClass("mb-8"));
 
     boolean anySuggestions = suggestions.size() > 0;
     // If the address question is part of determining eligibility, then the address *must* get
@@ -141,7 +141,6 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
                       params.programId(),
                       params.block().getId(),
                       messages,
-                      params.request(),
                       params.profile()),
                   renderAddress(
                       addressAsEntered,
@@ -170,7 +169,6 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
       long programId,
       String blockId,
       Messages messages,
-      Http.Request request,
       CiviFormProfile profile) {
     DivTag containerDiv = div().withClass("flex flex-nowrap mb-2");
     containerDiv.with(
@@ -180,7 +178,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
     // When the SAVE_ON_ALL_ACTIONS flag is on, the "Edit" action will be a button in the bottom
     // navigation. When the flag is off, the "Edit" action should be part of the "As entered"
     // heading.
-    if (!settingsManifest.getSaveOnAllActions(request)) {
+    if (!settingsManifest.getSaveOnAllActions()) {
       ATag editElement =
           new LinkElement()
               .setStyles(
@@ -261,7 +259,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   }
 
   private DivTag renderBottomNavButtons(
-      Params params, ApplicantRequestedAction applicantRequestedAction) {
+      ApplicationBaseViewParams params, ApplicantRequestedAction applicantRequestedAction) {
     DivTag bottomNavButtonsContainer = div().withClasses(ApplicantStyles.APPLICATION_NAV_BAR);
 
     // If the SAVE_ON_ALL_ACTIONS flag is on, the address correction screen becomes an intermediate
@@ -272,7 +270,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
     //      question.
     //   2. "Go back and edit": Go back to the block with the address question to edit the address
     //      they'd entered.
-    if (settingsManifest.getSaveOnAllActions(params.request())) {
+    if (settingsManifest.getSaveOnAllActions()) {
       ButtonTag confirmAddressButton =
           submitButton(
                   params.messages().at(MessageKey.ADDRESS_CORRECTION_CONFIRM_BUTTON.getKeyName()))
@@ -307,17 +305,19 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
         .with(renderNextButton(params));
   }
 
-  private ButtonTag renderNextButton(Params params) {
+  private ButtonTag renderNextButton(ApplicationBaseViewParams params) {
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .withClasses(ButtonStyles.SOLID_BLUE)
         .withId("cf-block-submit");
   }
 
-  private DomContent renderAddressCorrectionSpecificPreviousButton(Params params) {
-    if (!settingsManifest.getSaveOnAllActions(params.request())) {
+  private DomContent renderAddressCorrectionSpecificPreviousButton(
+      ApplicationBaseViewParams params) {
+    if (!settingsManifest.getSaveOnAllActions()) {
       // Set the block index to the next block, so that the renderPreviousButton
       // method will render the correct block.
-      Params newParams = params.toBuilder().setBlockIndex(params.blockIndex() + 1).build();
+      ApplicationBaseViewParams newParams =
+          params.toBuilder().setBlockIndex(params.blockIndex() + 1).build();
       return renderOldPreviousButton(newParams);
     }
     // In the new previous button, ApplicantProgramBlocksController will handle adjusting the block
@@ -327,7 +327,8 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
         settingsManifest, params, getFormAction(params, ApplicantRequestedAction.PREVIOUS_BLOCK));
   }
 
-  private String getFormAction(Params params, ApplicantRequestedAction applicantRequestedAction) {
+  private String getFormAction(
+      ApplicationBaseViewParams params, ApplicantRequestedAction applicantRequestedAction) {
     return applicantRoutes
         .confirmAddress(
             params.profile(),

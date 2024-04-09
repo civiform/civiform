@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static services.cloud.aws.AwsStorageUtils.AWS_PRESIGNED_URL_DURATION;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
 import controllers.applicant.ApplicantRequestedAction;
 import java.net.URL;
@@ -15,7 +16,6 @@ import javax.inject.Singleton;
 import org.mockito.Mockito;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
-import play.mvc.Http;
 import services.cloud.ApplicantStorageClient;
 import services.cloud.StorageServiceName;
 import services.settings.SettingsManifest;
@@ -30,7 +30,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 public class AwsApplicantStorage implements ApplicantStorageClient {
 
   private static final String AWS_S3_BUCKET_CONF_PATH = "aws.s3.bucket";
-  private static final String AWS_S3_FILE_LIMIT_CONF_PATH = "aws.s3.filelimitmb";
+  @VisibleForTesting static final String AWS_S3_FILE_LIMIT_CONF_PATH = "aws.s3.filelimitmb";
 
   private final AwsStorageUtils awsStorageUtils;
   private final Region region;
@@ -71,6 +71,11 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
   }
 
   @Override
+  public int getFileLimitMb() {
+    return fileLimitMb;
+  }
+
+  @Override
   public String getPresignedUrlString(String fileKey) {
     // TODO(#1841): support storing and displaying original filenames for AWS uploads
     return getPresignedUrlString(fileKey, /* originalFileName= */ Optional.empty());
@@ -93,8 +98,8 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
 
   @Override
   public SignedS3UploadRequest getSignedUploadRequest(
-      String fileKey, String successActionRedirectUrl, Http.Request request) {
-    if (settingsManifest.getSaveOnAllActions(request)) {
+      String fileKey, String successActionRedirectUrl) {
+    if (settingsManifest.getSaveOnAllActions()) {
       // For the file upload question, assets/javascripts/file_upload.ts may modify the
       // applicant-requested action part of the success_action_redirect URL to specify where the
       // user should be taken after the file has been successfully uploaded. So, the redirect

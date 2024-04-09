@@ -66,11 +66,21 @@ function get_modified_md_files() {
   ) | grep -E ".+\.(md)$" || true
 }
 
-function get_modified_ts_json_and_md_files() {
+function get_modified_html_files() {
+  # Zero matches in grep returns a 1, but we want to treat as empty which is
+  # why the `|| true` is there
+  (
+    get_tracked_modified_files
+    get_untracked_files
+  ) | grep -E ".+\.(html)$" || true
+}
+
+function get_modified_ts_json_md_and_html_files() {
   (
     get_modified_json_files
     get_modified_ts_files
     get_modified_md_files
+    get_modified_html_files
   )
 }
 
@@ -89,9 +99,9 @@ else
   echo 'Done formatting java'
 fi
 
-modified_ts_json_md="$(get_modified_ts_json_and_md_files)"
-if [[ -z "${modified_ts_json_md}" ]]; then
-  echo 'No modified TypeScript, JSON, or Markdown files for prettier found'
+modified_ts_json_md_html="$(get_modified_ts_json_md_and_html_files)"
+if [[ -z "${modified_ts_json_md_html}" ]]; then
+  echo 'No modified TypeScript, JSON, Markdown, or HTML files for prettier found'
 else
   echo 'Start formatting with prettier'
   # prettier is installed as node module in `formatter` directory
@@ -99,7 +109,7 @@ else
 
   # Prefix each file with ../ and remove newlines. The newlines prevent printf from
   # prefixing each line itself which is why this sed command is needed.
-  prettier_file_list="$(printf "%s" "${modified_ts_json_md}" | sed 's/^/ ..\//' | tr -d '\n')"
+  prettier_file_list="$(printf "%s" "${modified_ts_json_md_html}" | sed 's/^/ ..\//' | tr -d '\n')"
 
   # The prettier_file_list array should not be surrounded by quotes, in this case
   # we want word splitting to occur so prettier will operate in each file. If
@@ -123,7 +133,7 @@ else
 
   # Prefix each file with ../ and remove newlines. The newlines prevent printf from
   # prefixing each line itself which is why this sed command is needed.
-  eslint_app_file_list="$(printf "%s" "${modified_ts}" | (grep -E "^app" || true) | sed 's/^/ ..\//' | tr -d '\n')"
+  eslint_app_file_list="$(printf "%s" "${modified_ts}" | (grep -E "^server/app" || true) | sed 's/^/ ..\//' | tr -d '\n')"
   eslint_browsertest_file_list="$(printf "%s" "${modified_ts}" | (grep -E "^browser-test" || true) | sed 's/^/ ..\//' | tr -d '\n')"
 
   cd server

@@ -578,6 +578,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getInt("ESRI_EXTERNAL_CALL_TRIES");
   }
 
+  /**
+   * Forces calls to Esri services to use the specified spatial reference wellKnownId value for the
+   * [coordinate
+   * system](https://developers.arcgis.com/rest/services-reference/enterprise/using-spatial-references.htm).
+   * If not set the default configuration from the Esri server is used. Setting this may be needed
+   * if using the results of the findAddressCandidates service return spatial references in a format
+   * different from one or more of the map query service endpoints.
+   */
+  public Optional<Integer> getEsriWellknownIdOverride() {
+    return getInt("ESRI_WELLKNOWN_ID_OVERRIDE");
+  }
+
   /** This email address is listed in the footer for applicants to contact support. */
   public Optional<String> getSupportEmailAddress(RequestHeader request) {
     return getString("SUPPORT_EMAIL_ADDRESS", request);
@@ -703,6 +715,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * The count of reverse proxies between the internet and the server. In typical deployments, this
+   * value is 1.
+   */
+  public Optional<Integer> getNumTrustedProxies() {
+    return getInt("NUM_TRUSTED_PROXIES");
+  }
+
+  /**
    * If enabled, allows server Prometheus metrics to be retrieved via the '/metrics' URL path.  If
    * disabled, '/metrics' returns a 404.
    */
@@ -773,6 +793,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** Enables the feature that allows completed applications to be downloadable by PDF. */
   public boolean getApplicationExportable(RequestHeader request) {
     return getBool("APPLICATION_EXPORTABLE", request);
+  }
+
+  /** Enables the feature that allows programs to be disabled from CiviForm */
+  public boolean getDisabledVisibilityConditionEnabled(RequestHeader request) {
+    return getBool("DISABLED_VISIBILITY_CONDITION_ENABLED", request);
   }
 
   /**
@@ -871,15 +896,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Enables setting and displaying the universal question state on questions. These questions are
-   * intended to be used by all programs and will appear at the top of the question bank with a
-   * badge denoting them as universal.
-   */
-  public boolean getUniversalQuestions(RequestHeader request) {
-    return getBool("UNIVERSAL_QUESTIONS", request);
-  }
-
-  /**
    * Enables images on program cards, both for admins to upload them and for applicants to view
    * them.
    */
@@ -896,16 +912,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * (NOT FOR PRODUCTION USE) Save an applicant's answers when they take any action
-   * ('Review'/'Previous'/'Save and next') instead of only saving on 'Save and next'.
+   * Save an applicant's answers when they take any action ('Review'/'Previous'/'Save and next')
+   * instead of only saving on 'Save and next'.
    */
-  public boolean getSaveOnAllActions(RequestHeader request) {
-    return getBool("SAVE_ON_ALL_ACTIONS", request);
+  public boolean getSaveOnAllActions() {
+    return getBool("SAVE_ON_ALL_ACTIONS");
   }
 
   /** Enables showing new UI with an updated user experience in Applicant flows */
   public boolean getNorthStarApplicantUi(RequestHeader request) {
     return getBool("NORTH_STAR_APPLICANT_UI", request);
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments */
+  public boolean getProgramMigrationEnabled(RequestHeader request) {
+    return getBool("PROGRAM_MIGRATION_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -1566,6 +1587,19 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   + " services.",
                               /* isRequired= */ false,
                               SettingType.INT,
+                              SettingMode.ADMIN_READABLE),
+                          SettingDescription.create(
+                              "ESRI_WELLKNOWN_ID_OVERRIDE",
+                              "Forces calls to Esri services to use the specified spatial reference"
+                                  + " wellKnownId value for the [coordinate"
+                                  + " system](https://developers.arcgis.com/rest/services-reference/enterprise/using-spatial-references.htm)."
+                                  + " If not set the default configuration from the Esri server is"
+                                  + " used. Setting this may be needed if using the results of the"
+                                  + " findAddressCandidates service return spatial references in a"
+                                  + " format different from one or more of the map query service"
+                                  + " endpoints.",
+                              /* isRequired= */ false,
+                              SettingType.INT,
                               SettingMode.ADMIN_READABLE)))),
               ImmutableList.of(
                   SettingDescription.create(
@@ -1748,6 +1782,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
+                      "DISABLED_VISIBILITY_CONDITION_ENABLED",
+                      "Enables the feature that allows programs to be disabled from CiviForm",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
                       "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED",
                       "Enables the feature that allows for service area validation of a corrected"
                           + " address. ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
@@ -1850,15 +1890,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "UNIVERSAL_QUESTIONS",
-                      "Enables setting and displaying the universal question state on questions."
-                          + " These questions are intended to be used by all programs and will"
-                          + " appear at the top of the question bank with a badge denoting them as"
-                          + " universal.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
-                  SettingDescription.create(
                       "PROGRAM_CARD_IMAGES",
                       "Enables images on program cards, both for admins to upload them and for"
                           + " applicants to view them.",
@@ -1874,15 +1905,22 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "SAVE_ON_ALL_ACTIONS",
-                      "(NOT FOR PRODUCTION USE) Save an applicant's answers when they take any"
-                          + " action ('Review'/'Previous'/'Save and next') instead of only saving"
-                          + " on 'Save and next'.",
+                      "Save an applicant's answers when they take any action"
+                          + " ('Review'/'Previous'/'Save and next') instead of only saving on 'Save"
+                          + " and next'.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
+                      "NORTH_STAR_APPLICANT_UI",
+                      "Enables showing new UI with an updated user experience in Applicant flows",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "NORTH_STAR_APPLICANT_UI",
-                      "Enables showing new UI with an updated user experience in Applicant flows",
+                      "PROGRAM_MIGRATION_ENABLED",
+                      "(NOT FOR PRODUCTION USE) Enables migrating programs between deployed"
+                          + " environments",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),
@@ -1975,5 +2013,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       /* isRequired= */ false,
                       SettingType.ENUM,
                       SettingMode.ADMIN_READABLE,
-                      ImmutableList.of("DIRECT", "FORWARDED")))));
+                      ImmutableList.of("DIRECT", "FORWARDED")),
+                  SettingDescription.create(
+                      "NUM_TRUSTED_PROXIES",
+                      "The count of reverse proxies between the internet and the server. In typical"
+                          + " deployments, this value is 1.",
+                      /* isRequired= */ false,
+                      SettingType.INT,
+                      SettingMode.ADMIN_READABLE))));
 }

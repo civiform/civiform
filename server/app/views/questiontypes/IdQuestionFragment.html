@@ -1,0 +1,30 @@
+<div
+  th:fragment="id(question)"
+  th:with="idQuestion=${question.createIdQuestion()},
+              questionId=${#strings.randomAlphanumeric(8)},
+              inputId=${#strings.randomAlphanumeric(8)}"
+  th:id="${questionId}"
+  class="cf-question-text"
+>
+  <!-- Title and Help Text -->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
+  ></div>
+
+  <!-- Display errors -->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${idQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+  ></div>
+
+  <input
+    type="text"
+    class="usa-input"
+    th:id="${inputId}"
+    th:name="${idQuestion.getIdPath()}"
+    th:value="${idQuestion.getIdValue().orElse('')}"
+    maxlength="10000"
+    th:aria-describedby="${questionId} + '-description'"
+    th:aria-required="${!question.isOptional()}"
+    th:aria-invalid="${!idQuestion.getValidationErrors().isEmpty()}"
+  />
+</div>
