@@ -4,9 +4,12 @@
  */
 package services.geo.esri;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static play.mvc.Results.internalServerError;
 import static play.mvc.Results.ok;
 
+import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
@@ -30,6 +33,7 @@ public class EsriTestHelper {
     SERVICE_AREA_VALIDATION_NOT_INCLUDED,
     SERVICE_AREA_VALIDATION_NO_FEATURES,
     FAKE,
+    MULTIPLE_ENDPOINTS
   }
 
   private static final Clock CLOCK = Clock.system(ZoneId.of("America/Los_Angeles"));
@@ -141,6 +145,47 @@ public class EsriTestHelper {
                             request -> ok().sendResource("esri/serviceAreaFeaturesNoFeatures.json"))
                         .build());
         break;
+      case MULTIPLE_ENDPOINTS:
+        server =
+            Server.forRouter(
+                (components) ->
+                    RoutingDsl.fromComponents(components)
+                        .GET("/findAddressCandidates1")
+                        .routingTo(
+                            request ->
+                                ok().sendResource(
+                                        "esri/findAddressCandidatesNo100PercentMatch.json"))
+                        .GET("/findAddressCandidates2")
+                        .routingTo(
+                            request ->
+                                ok().sendResource("esri/findAddressCandidatesNoCandidates.json"))
+                        .GET("/findAddressCandidates3")
+                        .routingTo(
+                            request ->
+                                ok().sendResource("esri/findAddressCandidatesWithLine2.json"))
+                        .GET("/findAddressCandidates4")
+                        .routingTo(request -> ok().sendResource("esri/findAddressCandidates.json"))
+                        .build());
+
+        ws = play.test.WSTestClient.newClient(server.httpPort());
+
+        SettingsManifest mockSettingsManifest = mock();
+        when(mockSettingsManifest.getEsriFindAddressCandidatesUrl())
+            .thenReturn(
+                Optional.of(
+                    ImmutableList.<String>builder()
+                        .add("/findAddressCandidates1")
+                        .add("/findAddressCandidates2")
+                        .add("/findAddressCandidates3")
+                        .add("/findAddressCandidates4")
+                        .build()));
+
+        RealEsriClient realClient =
+            new RealEsriClient(
+                mockSettingsManifest, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, ws);
+
+        client = realClient;
+        return;
       case FAKE:
         server = null;
         ws = null;
@@ -155,7 +200,8 @@ public class EsriTestHelper {
     RealEsriClient realClient =
         new RealEsriClient(SETTINGS_MANIFEST, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, ws);
     // overwrite to not include base URL so it uses the mock service
-    realClient.ESRI_FIND_ADDRESS_CANDIDATES_URL = Optional.of("/findAddressCandidates");
+    realClient.ESRI_FIND_ADDRESS_CANDIDATES_URLS =
+        ImmutableList.<String>builder().add("/findAddressCandidates").build();
     client = realClient;
   }
 

@@ -536,11 +536,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * The URL CiviForm will use to call Esri’s [findAddressCandidates
+   * The list of URLs CiviForm will use to call Esri’s [findAddressCandidates
    * service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).
+   * These are used sequentially and not all of them may need to be used for every correction. If
+   * any results have a scores of 90 or higher lower priority urls will not be called.
    */
-  public Optional<String> getEsriFindAddressCandidatesUrl() {
-    return getString("ESRI_FIND_ADDRESS_CANDIDATES_URL");
+  public Optional<ImmutableList<String>> getEsriFindAddressCandidatesUrl() {
+    return getListOfStrings("ESRI_FIND_ADDRESS_CANDIDATES_URL");
   }
 
   /**
@@ -1547,10 +1549,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       ImmutableList.of(
                           SettingDescription.create(
                               "ESRI_FIND_ADDRESS_CANDIDATES_URL",
-                              "The URL CiviForm will use to call Esri’s [findAddressCandidates"
-                                  + " service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).",
+                              "The list of URLs CiviForm will use to call Esri’s"
+                                  + " [findAddressCandidates"
+                                  + " service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm)."
+                                  + " These are used sequentially and not all of them may need to"
+                                  + " be used for every correction. If any results have a scores of"
+                                  + " 90 or higher lower priority urls will not be called.",
                               /* isRequired= */ false,
-                              SettingType.STRING,
+                              SettingType.LIST_OF_STRINGS,
                               SettingMode.ADMIN_READABLE),
                           SettingDescription.create(
                               "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS",

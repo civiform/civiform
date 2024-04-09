@@ -74,6 +74,19 @@ public class RealEsriClientTest {
   }
 
   @Test
+  public void fetchAddressSuggestionsMultipleUrls() throws Exception {
+    helper = new EsriTestHelper(TestType.MULTIPLE_ENDPOINTS);
+    ObjectNode addressJson = Json.newObject();
+    addressJson.put("street", "380 New York St");
+    Optional<JsonNode> maybeResp =
+        helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
+    JsonNode resp = maybeResp.get();
+    ArrayNode candidates = (ArrayNode) resp.get("candidates");
+    assertThat(resp.get("spatialReference").get("wkid").asInt()).isEqualTo(4326);
+    assertThat(candidates).hasSize(8);
+  }
+
+  @Test
   public void fetchServiceAreaFeatures() throws Exception {
     helper = new EsriTestHelper(TestType.SERVICE_AREA_VALIDATION);
     Optional<JsonNode> maybeResp =
