@@ -753,11 +753,6 @@
         "description": "Enables setting a universal question as a question representing information about the applicant. The system can then take certain actions based on the answer to this question.",
         "type": "bool"
       },
-      "UNIVERSAL_QUESTIONS": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables setting and displaying the universal question state on questions. These questions are intended to be used by all programs and will appear at the top of the question bank with a badge denoting them as universal.",
-        "type": "bool"
-      },
       "PROGRAM_CARD_IMAGES": {
         "mode": "ADMIN_READABLE",
         "description": "Enables images on program cards, both for admins to upload them and for applicants to view them.",

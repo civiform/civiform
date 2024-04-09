@@ -146,9 +146,6 @@ public final class ProgramCardFactory {
             "ml-2",
             StyleUtils.responsiveXLarge("ml-8"));
 
-    boolean shouldShowUniversalQuestionsCount =
-        settingsManifest.getUniversalQuestions() && programRow.universalQuestionsText().isPresent();
-
     return div()
         .withClasses(
             "py-7",
@@ -169,7 +166,7 @@ public final class ProgramCardFactory {
                             span(String.format("%d", questionCount)).withClass("font-semibold"),
                             span(questionCount == 1 ? " question" : " questions"))
                         .condWith(
-                            shouldShowUniversalQuestionsCount,
+                            programRow.universalQuestionsText().isPresent(),
                             p(programRow.universalQuestionsText().orElse("")))),
             div().withClass("flex-grow"),
             div()
