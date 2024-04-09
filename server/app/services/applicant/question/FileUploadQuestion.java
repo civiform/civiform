@@ -93,12 +93,17 @@ public final class FileUploadQuestion extends Question {
   @Override
   public String getAnswerString() {
     if (getFilename().isEmpty()) {
-      return "-- NO FILE SELECTED --";
+      return getDefaultAnswerString();
     }
 
     String displayFileName =
         getOriginalFileName().isPresent() ? getOriginalFileName().get() : getFilename().get();
 
     return String.format("-- %s UPLOADED (click to download) --", displayFileName);
+  }
+
+  @Override
+  public String getDefaultAnswerString() {
+    return "-- NO FILE SELECTED --";
   }
 }

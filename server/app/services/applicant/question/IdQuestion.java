@@ -78,6 +78,6 @@ public final class IdQuestion extends Question {
 
   @Override
   public String getAnswerString() {
-    return getIdValue().orElse("-");
+    return getIdValue().orElse(getDefaultAnswerString());
   }
 }
