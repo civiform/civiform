@@ -18,10 +18,62 @@
     it is a placeholder span with the red asterisk. We need it to be html and not
     raw text to recreate the red style -->
   <p
-    th:utext="#{content.requiredFieldsNote(~{applicant/ApplicantBaseFragment :: requiredAsterisk})}"
+    th:utext="#{content.requiredFieldsNote(~{this :: requiredAsterisk})}"
   ></p>
 </div>
 
 <th:block th:fragment="requiredAsterisk">
   <span class="usa-hint--required"> *</span>
 </th:block>
+
+<div
+  th:fragment="progressBar"
+  class="usa-step-indicator usa-step-indicator--center"
+  aria-label="progress"
+>
+  <!-- The progress bar itself -->
+  <ol class="usa-step-indicator__segments">
+    <th:block
+      th:each="i: ${#numbers.sequence(0, applicationParams.totalBlockCount() - 1)}"
+      th:with="block=${applicationParams.blockList().get(i)}"
+    >
+      <li
+        th:if="${i == applicationParams.blockIndex()}"
+        class="usa-step-indicator__segment usa-step-indicator__segment--current"
+      >
+        <span
+          class="usa-step-indicator__segment-label"
+          th:text="#{label.blockIndexLabel(${i + 1}, ${block.getName()})}"
+        ></span>
+      </li>
+      <li
+        th:unless="${i == applicationParams.blockIndex()}"
+        class="usa-step-indicator__segment"
+        th:classappend="${block.isCompletedInProgramWithoutErrors()} ? 'usa-step-indicator__segment--complete' : ''"
+      >
+        <span
+          class="usa-step-indicator__segment-label"
+          th:text="#{label.blockIndexLabel(${i + 1}, ${block.getName()})}"
+        ></span>
+      </li>
+    </th:block>
+  </ol>
+
+  <!-- Text with "X of Y BlockName" -->
+  <div class="usa-step-indicator__header">
+    <h4 class="usa-step-indicator__heading">
+      <span class="usa-step-indicator__heading-counter">
+        <span
+          th:utext="#{content.blockProgress(${applicationParams.blockIndex() + 1},
+        ${applicationParams.totalBlockCount()})}"
+          class="usa-step-indicator__total-steps"
+        >
+        </span>
+        <span
+          class="usa-step-indicator__heading-text"
+          th:text="${applicationParams.block().getName()}"
+        ></span>
+      </span>
+    </h4>
+  </div>
+</div>
