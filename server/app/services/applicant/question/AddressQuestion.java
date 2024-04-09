@@ -281,7 +281,9 @@ public final class AddressQuestion extends Question {
    * the correction process.
    */
   public Boolean needsAddressCorrection() {
-    return applicantQuestion.isAddressCorrectionEnabled() && getCorrectedValue().isEmpty();
+    return applicantQuestion.isAddressCorrectionEnabled()
+        && isAnswered()
+        && getCorrectedValue().isEmpty();
   }
 
   @Override
