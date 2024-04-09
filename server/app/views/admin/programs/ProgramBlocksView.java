@@ -710,9 +710,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 "rounded-md",
                 StyleUtils.hover("text-gray-800", "bg-gray-100"));
     ret.condWith(
-        settingsManifest.getUniversalQuestions()
-            && !malformedQuestionDefinition
-            && questionDefinition.isUniversal(),
+        !malformedQuestionDefinition && questionDefinition.isUniversal(),
         ViewUtils.makeUniversalBadge(questionDefinition, "mt-2", "mb-4"));
 
     DivTag row = div().withClasses("flex", "gap-4", "items-center");
@@ -1105,8 +1103,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .setQuestionCreateRedirectUrl(redirectUrl)
                 .build(),
             programBlockValidationFactory);
-    return qb.getContainer(
-        questionBankVisibility, /* showUniversal= */ settingsManifest.getUniversalQuestions());
+    return qb.getContainer(questionBankVisibility);
   }
 
   /** Creates a modal, which allows the admin to confirm that they want to delete a block. */
