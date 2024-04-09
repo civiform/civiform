@@ -67,7 +67,7 @@ public final class ProgramQuestionBank {
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
   }
 
-  public DivTag getContainer(Visibility questionBankVisibility, boolean showUniversal) {
+  public DivTag getContainer(Visibility questionBankVisibility) {
     return div()
         .withId(ReferenceClasses.QUESTION_BANK_CONTAINER)
         // For explanation of why we need two different hidden classes see
@@ -91,10 +91,10 @@ public final class ProgramQuestionBank {
                     "transition-opacity",
                     ReferenceClasses.CLOSE_QUESTION_BANK_BUTTON,
                     ReferenceClasses.QUESTION_BANK_GLASSPANE))
-        .with(questionBankPanel(showUniversal));
+        .with(questionBankPanel());
   }
 
-  private FormTag questionBankPanel(boolean showUniversal) {
+  private FormTag questionBankPanel() {
     FormTag questionForm =
         form()
             .withMethod(HttpVerbs.POST)
@@ -111,11 +111,11 @@ public final class ProgramQuestionBank {
                 "top-0",
                 "transition-transform");
 
-    // We set pb-12 (padding bottom 12) to account for the fact that question
-    // bank height is screen size while it's effective space is screen-height minus header-height.
-    // That pushes question bank below the header and the bottom part is below the visible part of
-    // the screen.
-    // Because of that we add pb-12 so that invisible part is empty and question are not partly cut.
+    // We set pb-12 (padding bottom 12) to account for the fact that question bank height is screen
+    // size while it's effective space is screen-height minus header-height. That pushes question
+    // bank
+    // below the header and the bottom part is below the visible part of the screen. Because of that
+    // we add pb-12 so that invisible part is empty and question are not partly cut.
     DivTag contentDiv = div().withClasses("relative", "grid", "gap-6", "px-5", "pt-6", "pb-12");
     questionForm.with(contentDiv);
 
@@ -164,7 +164,7 @@ public final class ProgramQuestionBank {
         allQuestions.stream()
             .filter(q -> !q.isUniversal())
             .collect(ImmutableList.toImmutableList());
-    if (!universalQuestions.isEmpty() && showUniversal) {
+    if (!universalQuestions.isEmpty()) {
       contentDiv.with(
           div()
               .withId("question-bank-universal")
@@ -176,24 +176,21 @@ public final class ProgramQuestionBank {
                           + " contact information questions.",
                       /* hidden= */ false,
                       /* classes...= */ BaseStyles.ALERT_INFO))
-              .with(each(universalQuestions, qd -> renderQuestionDefinition(qd, showUniversal))));
+              .with(each(universalQuestions, qd -> renderQuestionDefinition(qd))));
     }
     contentDiv.with(
         div()
             .withId("question-bank-nonuniversal")
             .withClass(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
             .condWith(
-                !universalQuestions.isEmpty() && showUniversal,
+                !universalQuestions.isEmpty(),
                 h2("All other questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
-            .with(
-                each(
-                    showUniversal ? nonUniversalQuestions : allQuestions,
-                    qd -> renderQuestionDefinition(qd, showUniversal))));
+            .with(each(nonUniversalQuestions, qd -> renderQuestionDefinition(qd))));
 
     return questionForm;
   }
 
-  private DivTag renderQuestionDefinition(QuestionDefinition definition, boolean showUniversal) {
+  private DivTag renderQuestionDefinition(QuestionDefinition definition) {
     String questionHelpText =
         definition.getQuestionHelpText().isEmpty()
             ? ""
@@ -212,9 +209,7 @@ public final class ProgramQuestionBank {
         div()
             .withId("add-question-" + definition.getId())
             .withClasses(ReferenceClasses.QUESTION_BANK_ELEMENT, "border-b", "border-gray-300")
-            .condWith(
-                definition.isUniversal() && showUniversal,
-                ViewUtils.makeUniversalBadge(definition, "mt-3"))
+            .condWith(definition.isUniversal(), ViewUtils.makeUniversalBadge(definition, "mt-3"))
             .withData(QuestionSortOption.ADMIN_NAME.getDataAttribute(), definition.getName())
             .withData(
                 QuestionSortOption.LAST_MODIFIED.getDataAttribute(),
