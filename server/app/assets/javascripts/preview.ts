@@ -229,7 +229,7 @@ class PreviewController {
   private static updateFromNewQuestionText(text: string) {
     text = text || PreviewController.DEFAULT_QUESTION_TEXT
     if (text.length > 0) {
-      const contentElement = assertNotNull(formatTextHtml(text).firstElementChild)
+      const contentElement = formatTextHtml(text)
       contentElement.classList.add('pr-16')
 
       const contentParent = document.querySelector(
@@ -249,7 +249,7 @@ class PreviewController {
 
   private static updateFromNewQuestionHelpText(helpText: string) {
       if (helpText.length > 0) {
-      const contentElement = assertNotNull(formatTextHtml(helpText).firstElementChild)
+      const contentElement = formatTextHtml(helpText)
       const contentParent = document.querySelector(
         PreviewController.QUESTION_HELP_TEXT_SELECTOR,
       )

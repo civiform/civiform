@@ -72,16 +72,7 @@ export function formatTextHtml(text: string): Element {
 
 export function formatText(text: string): string {
   // Preserve line breaks before parsing the text
-  // console.log("text before split...", text)
-  // text = text.split('\n\n').join('<br><br>')
-  const textArray = text.split('\n')
-  for (let i = 0; i < textArray.length; i++) {
-    if (!textArray[i]) {
-      textArray[i] = '&nbsp;\n'
-    }
-  }
-  text = textArray.join('\n')
-  // console.log("text after split...", text)
+  text = text.split('\n').join('<br>')
 
   let parsedHtml = md.render(text)
   // Format lists
