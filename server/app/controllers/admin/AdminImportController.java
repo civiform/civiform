@@ -97,6 +97,12 @@ public class AdminImportController extends CiviFormController {
               .renderError("JSON did not have a top-level \"program\" field")
               .render());
     }
+    if (programMigrationWrapper.getQuestions() == null) {
+      return ok(
+          adminImportViewPartial
+              .renderError("JSON did not have a top-level \"questions\" field")
+              .render());
+    }
     return ok(adminImportViewPartial.renderProgramData(programMigrationWrapper).render());
   }
 }

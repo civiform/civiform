@@ -3,18 +3,26 @@ package views.admin.migration;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
+import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.ul;
 import static views.ViewUtils.makeAlert;
 import static views.style.BaseStyles.ALERT_ERROR;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.admin.ProgramMigrationWrapper;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.UlTag;
+import java.util.Objects;
 import java.util.Optional;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.question.QuestionOption;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.QuestionDefinition;
 
 /** An HTMX partial for portions of the page rendered by {@link AdminImportView}. */
 public final class AdminImportViewPartial {
@@ -51,13 +59,18 @@ public final class AdminImportViewPartial {
     // TODO(#7087): If the imported program admin name matches an existing program admin name, we
     // should show some kind of error because admin names need to be unique.
 
+    ImmutableMap<Long, QuestionDefinition> questionsById =
+        programMigrationWrapper.getQuestions().stream()
+            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
+
     for (BlockDefinition block : program.blockDefinitions()) {
-      programDiv.with(renderProgramBlock(block));
+      programDiv.with(renderProgramBlock(block, questionsById));
     }
     return programDiv;
   }
 
-  private DomContent renderProgramBlock(BlockDefinition block) {
+  private DomContent renderProgramBlock(
+      BlockDefinition block, ImmutableMap<Long, QuestionDefinition> questionsById) {
     DivTag blockDiv =
         div()
             .withClasses("border", "border-gray-200", "p-2")
@@ -65,15 +78,37 @@ public final class AdminImportViewPartial {
     // TODO(#7087): Display eligibility and visibility predicates.
 
     for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
-      blockDiv.with(renderQuestion(question));
+      blockDiv.with(renderQuestion(Objects.requireNonNull(questionsById.get(question.id()))));
     }
     return blockDiv;
   }
 
-  private DomContent renderQuestion(ProgramQuestionDefinition question) {
-    return div()
-        .withClasses("border", "border-gray-200", "p-2")
-        .with(p("Question ID: " + question.id()));
-    // TODO(#7087): Fetch and display all the question info, not just the ID.
+  private DomContent renderQuestion(QuestionDefinition question) {
+    DivTag questionDiv =
+        div()
+            .withClasses("border", "border-gray-200", "p-2")
+            .with(p(question.getQuestionText().getDefault()));
+    if (!question.getQuestionHelpText().isEmpty()) {
+      questionDiv.with(p(question.getQuestionHelpText().getDefault()));
+    }
+
+    // TODO: Is help text being imported?
+
+    questionDiv.with(
+        p("Admin name: " + question.getName()),
+        p("Admin description: " + question.getDescription()),
+        p("Question type: " + question.getQuestionType().name()));
+
+    // If a question offers options, show them
+    if (question.getQuestionType().isMultiOptionType()) {
+      MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) question;
+      UlTag optionList = ul();
+      for (QuestionOption option : multiOption.getOptions()) {
+        optionList.with(li(option.optionText().getDefault()));
+      }
+      questionDiv.with(optionList);
+    }
+
+    return questionDiv;
   }
 }

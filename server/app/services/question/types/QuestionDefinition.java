@@ -1,5 +1,9 @@
 package services.question.types;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -25,8 +29,26 @@ import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
 
 /** Superclass for all question types. */
+// TODO: Explain
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+  @JsonSubTypes.Type(value = AddressQuestionDefinition.class, name = "address"),
+  @JsonSubTypes.Type(value = CurrencyQuestionDefinition.class, name = "currency"),
+  @JsonSubTypes.Type(value = DateQuestionDefinition.class, name = "date"),
+  @JsonSubTypes.Type(value = EmailQuestionDefinition.class, name = "email"),
+  @JsonSubTypes.Type(value = EnumeratorQuestionDefinition.class, name = "enumerator"),
+  @JsonSubTypes.Type(value = FileUploadQuestionDefinition.class, name = "fileupload"),
+  @JsonSubTypes.Type(value = IdQuestionDefinition.class, name = "id"),
+  @JsonSubTypes.Type(value = MultiOptionQuestionDefinition.class, name = "multioption"),
+  @JsonSubTypes.Type(value = NameQuestionDefinition.class, name = "name"),
+  @JsonSubTypes.Type(value = NumberQuestionDefinition.class, name = "number"),
+  @JsonSubTypes.Type(value = PhoneQuestionDefinition.class, name = "phone"),
+  @JsonSubTypes.Type(value = StaticContentQuestionDefinition.class, name = "static"),
+  @JsonSubTypes.Type(value = TextQuestionDefinition.class, name = "text"),
+})
 public abstract class QuestionDefinition {
 
+  @JsonProperty("config")
   private QuestionDefinitionConfig config;
 
   protected QuestionDefinition(QuestionDefinitionConfig config) {
@@ -37,6 +59,51 @@ public abstract class QuestionDefinition {
     this.config = config;
   }
 
+  @JsonTypeInfo(
+      use = JsonTypeInfo.Id.NAME,
+      // include = JsonTypeInfo.As.EXISTING_PROPERTY,
+      property = "type")
+  @JsonSubTypes({
+    @JsonSubTypes.Type(
+        value = AutoValue_AddressQuestionDefinition_AddressValidationPredicates.class,
+        name = "address"),
+    @JsonSubTypes.Type(
+        value = AutoValue_CurrencyQuestionDefinition_CurrencyValidationPredicates.class,
+        name = "currency"),
+    @JsonSubTypes.Type(
+        value = AutoValue_DateQuestionDefinition_DateValidationPredicates.class,
+        name = "date"),
+    @JsonSubTypes.Type(
+        value = AutoValue_EmailQuestionDefinition_EmailValidationPredicates.class,
+        name = "email"),
+    @JsonSubTypes.Type(
+        value = AutoValue_EnumeratorQuestionDefinition_EnumeratorValidationPredicates.class,
+        name = "enumerator"),
+    @JsonSubTypes.Type(
+        value = AutoValue_FileUploadQuestionDefinition_FileUploadValidationPredicates.class,
+        name = "fileupload"),
+    @JsonSubTypes.Type(
+        value = AutoValue_IdQuestionDefinition_IdValidationPredicates.class,
+        name = "id"),
+    @JsonSubTypes.Type(
+        value = AutoValue_MultiOptionQuestionDefinition_MultiOptionValidationPredicates.class,
+        name = "multioption"),
+    @JsonSubTypes.Type(
+        value = AutoValue_NameQuestionDefinition_NameValidationPredicates.class,
+        name = "name"),
+    @JsonSubTypes.Type(
+        value = AutoValue_NumberQuestionDefinition_NumberValidationPredicates.class,
+        name = "number"),
+    @JsonSubTypes.Type(
+        value = AutoValue_PhoneQuestionDefinition_PhoneValidationPredicates.class,
+        name = "phone"),
+    @JsonSubTypes.Type(
+        value = AutoValue_StaticContentQuestionDefinition_StaticContentValidationPredicates.class,
+        name = "static"),
+    @JsonSubTypes.Type(
+        value = AutoValue_TextQuestionDefinition_TextValidationPredicates.class,
+        name = "text"),
+  })
   public abstract static class ValidationPredicates {
     protected static final ObjectMapper mapper =
         new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
@@ -54,21 +121,27 @@ public abstract class QuestionDefinition {
     }
   }
 
+  // TODO: Note on all the JsonIgnores
+
   /** Return true if the question is persisted and has an unique identifier. */
+  @JsonIgnore
   public final boolean isPersisted() {
     return config.id().isPresent();
   }
 
   /** Get the unique identifier for this question. */
+  @JsonIgnore
   public final long getId() {
     return config.id().getAsLong();
   }
 
   /** True if the question is marked as a universal question. */
+  @JsonIgnore
   public final boolean isUniversal() {
     return config.universal();
   }
 
+  @JsonIgnore
   public final ImmutableSet<PrimaryApplicantInfoTag> getPrimaryApplicantInfoTags() {
     return config.primaryApplicantInfoTags();
   }
@@ -86,20 +159,24 @@ public abstract class QuestionDefinition {
    *
    * <p>NOTE: This field will not be localized as it is for admin use only.
    */
+  @JsonIgnore
   public final String getName() {
     return config.name();
   }
 
+  @JsonIgnore
   public final Optional<Instant> getLastModifiedTime() {
     return config.lastModifiedTime();
   }
 
   // Note that this formatting logic is duplicated in main.ts formatQuestionName()
+  @JsonIgnore
   public final String getQuestionNameKey() {
     return config.name().replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
   }
 
   /** Returns the {@link Path} segment that corresponds to this QuestionDefinition. */
+  @JsonIgnore
   public final String getQuestionPathSegment() {
     // TODO(#783): Change this getter once we save this formatted name to the database.
     String formattedName = getQuestionNameKey();
@@ -132,6 +209,7 @@ public abstract class QuestionDefinition {
    *
    * @return true if this is an enumerator question.
    */
+  @JsonIgnore
   public final boolean isEnumerator() {
     return getQuestionType().equals(QuestionType.ENUMERATOR);
   }
@@ -141,11 +219,13 @@ public abstract class QuestionDefinition {
    *
    * @return true if this is a repeated question.
    */
+  @JsonIgnore
   public final boolean isRepeated() {
     return config.enumeratorId().isPresent();
   }
 
   /** True if the question is an {@link AddressQuestionDefinition}. */
+  @JsonIgnore
   public final boolean isAddress() {
     return getQuestionType().equals(QuestionType.ADDRESS);
   }
@@ -163,6 +243,7 @@ public abstract class QuestionDefinition {
    * @return the {@link QuestionDefinition#id} for this question definition's enumerator, if it
    *     exists.
    */
+  @JsonIgnore
   public final Optional<Long> getEnumeratorId() {
     return config.enumeratorId();
   }
@@ -172,14 +253,17 @@ public abstract class QuestionDefinition {
    *
    * <p>NOTE: This field will not be localized as it is for admin use only.
    */
+  @JsonIgnore
   public final String getDescription() {
     return config.description();
   }
 
+  @JsonIgnore
   public final LocalizedStrings getQuestionText() {
     return config.questionText();
   }
 
+  @JsonIgnore
   public final LocalizedStrings getQuestionHelpText() {
     return config.questionHelpText();
   }
@@ -188,6 +272,7 @@ public abstract class QuestionDefinition {
    * Get a set of {@link Locale}s that this question supports. A question fully supports a locale if
    * it provides translations for all applicant-visible text in that locale.
    */
+  @JsonIgnore
   public ImmutableSet<Locale> getSupportedLocales() {
     // Question help text is optional
     if (config.questionHelpText().isEmpty()) {
@@ -199,19 +284,23 @@ public abstract class QuestionDefinition {
   }
 
   /** Get the validation predicates. */
+  @JsonIgnore
   public final ValidationPredicates getValidationPredicates() {
     return config.validationPredicates().orElseGet(this::getDefaultValidationPredicates);
   }
 
   /** Serialize validation predicates as a string. This is used for persisting in database. */
+  @JsonIgnore
   public final String getValidationPredicatesAsString() {
     return getValidationPredicates().serializeAsString();
   }
 
   /** Get the type of this question. */
+  @JsonIgnore
   public abstract QuestionType getQuestionType();
 
   /** Get the default validation predicates for this question type. */
+  @JsonIgnore
   abstract ValidationPredicates getDefaultValidationPredicates();
 
   /**

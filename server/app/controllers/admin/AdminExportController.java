@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
 import org.pac4j.play.java.Secure;
@@ -17,6 +18,9 @@ import services.migration.ProgramMigrationService;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.question.QuestionService;
+import services.question.exceptions.QuestionNotFoundException;
+import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.admin.migration.AdminExportView;
 import views.admin.migration.AdminProgramExportForm;
@@ -36,6 +40,7 @@ public class AdminExportController extends CiviFormController {
   private final FormFactory formFactory;
   private final ProgramMigrationService programMigrationService;
   private final ProgramService programService;
+  private final QuestionService questionService;
   private final SettingsManifest settingsManifest;
 
   @Inject
@@ -45,6 +50,7 @@ public class AdminExportController extends CiviFormController {
       ProfileUtils profileUtils,
       ProgramMigrationService programMigrationService,
       ProgramService programService,
+      QuestionService questionService,
       SettingsManifest settingsManifest,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
@@ -52,6 +58,7 @@ public class AdminExportController extends CiviFormController {
     this.formFactory = checkNotNull(formFactory);
     this.programMigrationService = checkNotNull(programMigrationService);
     this.programService = checkNotNull(programService);
+    this.questionService = checkNotNull(questionService);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
@@ -93,7 +100,22 @@ public class AdminExportController extends CiviFormController {
       return badRequest(String.format("Program with ID %s could not be found", programId));
     }
 
-    ErrorAnd<String, String> serializeResult = programMigrationService.serialize(program);
+    ImmutableList<QuestionDefinition> questionsUsedByProgram =
+        program.getQuestionIdsInProgram().stream()
+            .map(
+                questionId -> {
+                  try {
+                    return questionService
+                        .getReadOnlyQuestionServiceSync()
+                        .getQuestionDefinition(questionId);
+                  } catch (QuestionNotFoundException e) {
+                    throw new RuntimeException(e);
+                  }
+                })
+            .collect(ImmutableList.toImmutableList());
+
+    ErrorAnd<String, String> serializeResult =
+        programMigrationService.serialize(program, questionsUsedByProgram);
     if (serializeResult.isError()) {
       return badRequest(serializeResult.getErrors().stream().findFirst().orElseThrow());
     }

@@ -2,7 +2,9 @@ package controllers.admin;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
 import services.program.ProgramDefinition;
+import services.question.types.QuestionDefinition;
 
 /**
  * A Jackson-serializable class used to migrate programs between instances. This wrapper class makes
@@ -15,12 +17,15 @@ public final class ProgramMigrationWrapper {
   /** The definition of the program being migrated. */
   private ProgramDefinition program;
 
-  // TODO(#7087): The program definition will only contain the IDs of the questions it has, but not
-  // the question definitions themselves. We should also export the question definitions.
+  /** The list of questions contained in the {@program}. TODO more */
+  private ImmutableList<QuestionDefinition> questions;
 
   @JsonCreator
-  public ProgramMigrationWrapper(@JsonProperty("program") ProgramDefinition program) {
+  public ProgramMigrationWrapper(
+      @JsonProperty("program") ProgramDefinition program,
+      @JsonProperty("questions") ImmutableList<QuestionDefinition> questions) {
     this.program = program;
+    this.questions = questions;
   }
 
   public ProgramDefinition getProgram() {
@@ -29,5 +34,13 @@ public final class ProgramMigrationWrapper {
 
   public void setProgram(ProgramDefinition program) {
     this.program = program;
+  }
+
+  public ImmutableList<QuestionDefinition> getQuestions() {
+    return questions;
+  }
+
+  public void setQuestions(ImmutableList<QuestionDefinition> questions) {
+    this.questions = questions;
   }
 }

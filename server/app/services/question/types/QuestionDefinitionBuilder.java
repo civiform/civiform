@@ -177,6 +177,34 @@ public final class QuestionDefinitionBuilder {
   }
 
   public QuestionDefinition build() throws UnsupportedQuestionTypeException {
+    // TODO: Do this so much better :)
+
+    System.out.println(
+        "building "
+            + this.questionType
+            + "Q="
+            + builder.build().questionText().getDefault()
+            + " predString="
+            + validationPredicatesString);
+
+    String type = this.questionType.name().toLowerCase();
+    if (this.questionType == QuestionType.CHECKBOX
+        || this.questionType == QuestionType.RADIO_BUTTON
+        || this.questionType == QuestionType.DROPDOWN) {
+      type = "multioption";
+    }
+
+    // TODO: Helper function
+    // TODO: Check what it looks like in the db now
+    if (validationPredicatesString.equals("{}")) {
+      // validationPredicatesString = "{\"type\": \"" + type + "\"}";
+      validationPredicatesString = "";
+    } else if (validationPredicatesString.startsWith("{")) {
+      validationPredicatesString =
+          validationPredicatesString.replaceFirst("\\{", "\\{\"type\":\"" + type + "\",");
+    }
+    System.out.println("string after replacement: " + validationPredicatesString);
+
     switch (this.questionType) {
       case ADDRESS:
         if (!validationPredicatesString.isEmpty()) {

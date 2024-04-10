@@ -3,6 +3,7 @@ package services.question.types;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -29,16 +30,26 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
 
   private static final MultiOptionValidationPredicates SINGLE_SELECT_PREDICATE =
       MultiOptionValidationPredicates.create(1, 1);
+
+  @JsonProperty("questionOptions")
   private final ImmutableList<QuestionOption> questionOptions;
+
+  @JsonProperty("multiOptionQuestionType")
   private final MultiOptionQuestionType multiOptionQuestionType;
 
   public MultiOptionQuestionDefinition(
-      QuestionDefinitionConfig questionDefinitionConfig,
-      ImmutableList<QuestionOption> questionOptions,
-      MultiOptionQuestionType multiOptionQuestionType) {
+      @JsonProperty("config") QuestionDefinitionConfig questionDefinitionConfig,
+      @JsonProperty("questionOptions") ImmutableList<QuestionOption> questionOptions,
+      @JsonProperty("multiOptionQuestionType") MultiOptionQuestionType multiOptionQuestionType) {
     super(fixValidationPredicates(questionDefinitionConfig, multiOptionQuestionType));
     this.questionOptions = questionOptions;
     this.multiOptionQuestionType = multiOptionQuestionType;
+  }
+
+  // TODO: Prefer using question type not this type
+  @JsonProperty("multiOptionQuestionType")
+  public MultiOptionQuestionType getMultiOptionQuestionType() {
+    return multiOptionQuestionType;
   }
 
   // If we are using a dropdown or radio button, set the SINGLE_SELECT_PREDICATE to ensure
@@ -126,6 +137,7 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   /** Get question options localized to CiviForm's default locale. */
+  @JsonIgnore
   public ImmutableList<LocalizedQuestionOption> getOptionsForDefaultLocale() {
     try {
       return getOptionsForLocale(LocalizedStrings.DEFAULT_LOCALE);
@@ -171,6 +183,8 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
         .findFirst();
   }
 
+  // The validation predicates JSON is already handled by the parent QuestionDefinition class.
+  @JsonIgnore
   public MultiOptionValidationPredicates getMultiOptionValidationPredicates() {
     return (MultiOptionValidationPredicates) getValidationPredicates();
   }
