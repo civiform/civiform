@@ -29,13 +29,25 @@
       <div id="enumerator-fields">
         <div th:each="option,iterator: ${enumeratorQuestion.getEntityNames()}">
           <div
-            th:replace="~{this :: enumeratorField(${#strings.randomAlphanumeric(8)}, ${#strings.randomAlphanumeric(8)}, ${question.getContextualizedPath()}, ${option}, ${iterator.count}, ${iterator.index}, false)}"
+            th:replace="~{this :: enumeratorField(fieldId=${#strings.randomAlphanumeric(8)},
+                                                  inputId=${#strings.randomAlphanumeric(8)},
+                                                  path=${question.getContextualizedPath()},
+                                                  existingEntity=${option},
+                                                  visibleIndex=${iterator.count},
+                                                  deleteButtonId=${iterator.index},
+                                                  hidden=false)}"
           ></div>
         </div>
       </div>
       <!-- Enumerator field template, used in TS to add another enumerator field -->
       <div
-        th:replace="~{this :: enumeratorField(enumerator-field-template, enumerator-field-template-input, ${question.getContextualizedPath()}, '', -1, null, true)}"
+        th:replace="~{this :: enumeratorField(fieldId=enumerator-field-template,
+                                              inputId=enumerator-field-template-input,
+                                              path=${question.getContextualizedPath()},
+                                              existingEntity='',
+                                              visibleIndex=-1,
+                                              deleteButtonId=null,
+                                              hidden=true)}"
       ></div>
       <!-- Add entity button -->
       <button

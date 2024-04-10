@@ -11,7 +11,7 @@ import {
 } from './support'
 import {Page} from 'playwright'
 
-test.describe('End to end enumerator test', () => {
+test.describe('End to end enumerator test', {tag: ['@uses-fixtures']}, () => {
   const programName = 'Ete enumerator program'
 
   test.describe('Admin page', () => {
@@ -84,7 +84,7 @@ test.describe('End to end enumerator test', () => {
       await applicantQuestions.clickNext()
 
       // Check that we are on the enumerator page
-      expect(await page.isVisible('.cf-question-enumerator')).toEqual(true)
+      await expect(page.locator('.cf-question-enumerator')).toBeVisible(true)
 
       // Validate that enumerators are accessible
       await validateAccessibility(page)
@@ -188,10 +188,9 @@ test.describe('End to end enumerator test', () => {
 
       // Oops! Can't have blank lines.
       // Verify that the error message is visible.
-      expect(
-        await page.innerText('.cf-applicant-question-errors:visible'),
-      ).toEqual('Error: Please enter a value for each line.')
-
+      await expect(
+        page.locator('.cf-applicant-question-errors:visible'),
+      ).toContainText('Error: Please enter a value for each line.')
       // Put two things in the nested enumerator for enum two
       await applicantQuestions.deleteEnumeratorEntityByIndex(1)
       await applicantQuestions.addEnumeratorAnswer('Banker')
@@ -200,9 +199,9 @@ test.describe('End to end enumerator test', () => {
 
       // Oops! Can't have duplicates.
       // Verify that the error message is visible.
-      expect(
-        await page.innerText('.cf-applicant-question-errors:visible'),
-      ).toEqual('Error: Please enter a unique value for each line.')
+      await expect(
+        page.locator('.cf-applicant-question-errors:visible'),
+      ).toContainText('Error: Please enter a unique value for each line.')
 
       // Remove one of the 'Banker' entries and add 'Painter'.
       // the value attribute of the inputs isn't set, so we're clicking the second one.
@@ -217,23 +216,25 @@ test.describe('End to end enumerator test', () => {
       await applicantQuestions.clickNext()
 
       // Make sure the enumerator answers are in the review page
-      expect(await page.innerText('#application-summary')).toContain(
+      await expect(page.locator('#application-summary')).toContainText(
         'Porky Pig',
       )
-      expect(await page.innerText('#application-summary')).toContain(
+      await expect(page.locator('#application-summary')).toContainText(
         'Bugs Bunny',
       )
-      expect(await page.innerText('#application-summary')).toContain(
+      await expect(page.locator('#application-summary')).toContainText(
         'Cartoon Character',
       )
-      expect(await page.innerText('#application-summary')).toContain('100')
-      expect(await page.innerText('#application-summary')).toContain(
+      await expect(page.locator('#application-summary')).toContainText('100')
+      await expect(page.locator('#application-summary')).toContainText(
         'Daffy Duck',
       )
-      expect(await page.innerText('#application-summary')).toContain('Banker')
-      expect(await page.innerText('#application-summary')).toContain('Painter')
-      expect(await page.innerText('#application-summary')).toContain('31')
-      expect(await page.innerText('#application-summary')).toContain('12')
+      await expect(page.locator('#application-summary')).toContainText('Banker')
+      await expect(page.locator('#application-summary')).toContainText(
+        'Painter',
+      )
+      await expect(page.locator('#application-summary')).toContainText('31')
+      await expect(page.locator('#application-summary')).toContainText('12')
 
       // Go back to delete enumerator answers
       await page.click(
@@ -246,16 +247,18 @@ test.describe('End to end enumerator test', () => {
       await applicantQuestions.clickNext()
 
       // Make sure that the removed enumerator is not present in the review page
-      expect(await page.innerText('#application-summary')).toContain(
+      await expect(page.locator('#application-summary')).toContainText(
         'Porky Pig',
       )
-      expect(await page.innerText('#application-summary')).not.toContain(
+      await expect(page.locator('#application-summary')).not.toContainText(
         'Bugs Bunny',
       )
-      expect(await page.innerText('#application-summary')).not.toContain(
+      await expect(page.locator('#application-summary')).not.toContainText(
         'Cartoon Character',
       )
-      expect(await page.innerText('#application-summary')).not.toContain('100')
+      await expect(page.locator('#application-summary')).not.toContainText(
+        '100',
+      )
 
       // Go back and add an enumerator answer.
       await page.click(
@@ -269,27 +272,31 @@ test.describe('End to end enumerator test', () => {
       await applicantQuestions.clickReview()
 
       // Review page should contain Daffy Duck and newly added Tweety Bird.
-      expect(await page.innerText('#application-summary')).toContain(
+      await expect(page.locator('#application-summary')).toContainText(
         'Porky Pig',
       )
-      expect(await page.innerText('#application-summary')).toContain(
+      await expect(page.locator('#application-summary')).toContainText(
         'Tweety Bird',
       )
-      expect(await page.innerText('#application-summary')).toContain(
+      await expect(page.locator('#application-summary')).toContainText(
         'Daffy Duck',
       )
-      expect(await page.innerText('#application-summary')).toContain('Banker')
-      expect(await page.innerText('#application-summary')).toContain('Painter')
-      expect(await page.innerText('#application-summary')).toContain('31')
-      expect(await page.innerText('#application-summary')).toContain('12')
-      // Review page should not contain deleted enumerator info for Bugs Bunny.
-      expect(await page.innerText('#application-summary')).not.toContain(
+      await expect(page.locator('#application-summary')).toContainText('Banker')
+      await expect(page.locator('#application-summary')).toContainText(
+        'Painter',
+      )
+      await expect(page.locator('#application-summary')).toContainText('31')
+      await expect(page.locator('#application-summary')).toContainText('12')
+      // // Review page should not contain deleted enumerator info for Bugs Bunny.
+      await expect(page.locator('#application-summary')).not.toContainText(
         'Bugs Bunny',
       )
-      expect(await page.innerText('#application-summary')).not.toContain(
+      await expect(page.locator('#application-summary')).not.toContainText(
         'Cartoon Character',
       )
-      expect(await page.innerText('#application-summary')).not.toContain('100')
+      await expect(page.locator('#application-summary')).not.toContainText(
+        '100',
+      )
 
       await logout(page)
     })
@@ -467,10 +474,10 @@ test.describe('End to end enumerator test', () => {
     )
 
     // All non-repeated questions should be available in the question bank.
-    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
+    await expect(page.locator('#question-bank-nonuniversal')).toContainText(
       'enumerator-ete-name',
     )
-    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
+    await expect(page.locator('#question-bank-nonuniversal')).toContainText(
       'enumerator-ete-householdmembers',
     )
 
@@ -478,41 +485,39 @@ test.describe('End to end enumerator test', () => {
     await adminPrograms.addQuestionFromQuestionBank(
       'enumerator-ete-householdmembers',
     )
-    expect(await page.innerText('id=question-bank-nonuniversal')).toBe('')
+    await expect(page.locator('#question-bank-nonuniversal')).toHaveText('')
 
     // Remove the enumerator question and add a non-enumerator question, and the enumerator option should not be in the bank.
     await page.click(
       '.cf-program-question:has-text("enumerator-ete-householdmembers") >> .cf-remove-question-button',
     )
     await adminPrograms.addQuestionFromQuestionBank('enumerator-ete-name')
-    expect(await page.innerText('id=question-bank-nonuniversal')).not.toContain(
+    await expect(page.locator('#question-bank-nonuniversal')).not.toContainText(
       'enumerator-ete-householdmembers',
     )
-
     // Create a new block with the first enumerator question, and then create a repeated block. The repeated questions should be the only options.
     await page.click('#add-block-button')
     await adminPrograms.addQuestionFromQuestionBank(
       'enumerator-ete-householdmembers',
     )
     await page.click('#create-repeated-block-button')
-    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
+    await expect(page.locator('#question-bank-nonuniversal')).toContainText(
       'enumerator-ete-repeated-name',
     )
-    expect(await page.innerText('id=question-bank-nonuniversal')).toContain(
+    await expect(page.locator('#question-bank-nonuniversal')).toContainText(
       'enumerator-ete-repeated-jobs',
     )
 
     // Go back to the enumerator block, and with a repeated block, it cannot be deleted now. The enumerator question cannot be removed, either.
     await page.click('p:text("Screen 2")')
-    expect(
-      await page.getAttribute('#block-delete-modal-button', 'disabled'),
-    ).not.toBeNull()
-    expect(
-      await page.getAttribute(
+    await expect(page.locator('#block-delete-modal-button')).toHaveAttribute(
+      'disabled',
+    )
+    await expect(
+      page.locator(
         '.cf-program-question:has-text("enumerator-ete-householdmembers") >> .cf-remove-question-button',
-        'disabled',
       ),
-    ).not.toBeNull()
+    ).toHaveAttribute('disabled')
 
     // Create the rest of the program.
     // Add repeated name question
