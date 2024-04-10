@@ -40,4 +40,5 @@ docker buildx build --push \
   --build-arg BUILDKIT_INLINE_CACHE=1 \
   --build-arg "git_commit_sha=${GIT_SHA}" \
   --build-arg "image_tag=${IMAGE_TAG}" \
+  --build-arg SBT_VERSION="${SBT_VERSION}" \
   .

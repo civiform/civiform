@@ -184,8 +184,19 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setLabelText("Visible to selected trusted intermediaries only")
                     .setValue(DisplayMode.SELECT_TI.getValue())
                     .setChecked(displayMode.equals(DisplayMode.SELECT_TI.getValue()))
-                    .getRadioTag()),
-        showTiSelectionList(selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())));
+                    .getRadioTag(),
+                showTiSelectionList(
+                    selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())))
+            .condWith(
+                settingsManifest.getDisabledVisibilityConditionEnabled(request),
+                FieldWithLabel.radio()
+                    .setId("program-display-mode-disabled")
+                    .setFieldName("displayMode")
+                    .setAriaRequired(true)
+                    .setLabelText("Disabled")
+                    .setValue(DisplayMode.DISABLED.getValue())
+                    .setChecked(displayMode.equals(DisplayMode.DISABLED.getValue()))
+                    .getRadioTag()));
 
     formTag.with(
         // TODO(#2618): Consider using helpers for grouping related radio controls.
