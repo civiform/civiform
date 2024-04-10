@@ -1,5 +1,6 @@
 /** The preview controller is responsible for updating question preview text in the question builder. */
 import {assertNotNull, formatText, formatTextHtml} from './util'
+import * as DOMPurify from 'dompurify'
 
 class PreviewController {
   private static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea'
@@ -175,7 +176,6 @@ class PreviewController {
     previewQuestionOptionContainer: HTMLElement
     previewOptionTemplate: HTMLElement
   }) {
-
     // Gets the input elements from the Question Settings section
     // And maps to an array of just the values from the inputs
     const configuredOptions = Array.from(
@@ -190,7 +190,6 @@ class PreviewController {
     }
 
     // Reset the option list in the preview.
-    // Remove all of the existing options in the preview
     Array.from(
       previewQuestionOptionContainer.querySelectorAll(
         PreviewController.QUESTION_MULTI_OPTION_SELECTOR,
@@ -200,7 +199,6 @@ class PreviewController {
     })
 
     for (const configuredOption of configuredOptions) {
-      // what is the previewOptionTemplate?
       const newPreviewOption = previewOptionTemplate.cloneNode(
         true,
       ) as HTMLElement
@@ -210,17 +208,15 @@ class PreviewController {
         PreviewController.QUESTION_MULTI_OPTION_VALUE_CLASS,
       )
         ? newPreviewOption
-        // Otherwise select the thing that has that class on it
         : assertNotNull(
             newPreviewOption.querySelector<HTMLElement>(
               `.${PreviewController.QUESTION_MULTI_OPTION_VALUE_CLASS}`,
             ),
           )
 
-      // Objects in javascript are passed by value so editing optionText.innerText
+      // Objects in javascript are passed by value so editing optionText.innerHTML
       // modifies newPreviewOption
-      optionText.innerHTML = formatText(configuredOption)
-
+      optionText.innerHTML = DOMPurify.sanitize(formatText(configuredOption))
 
       previewQuestionOptionContainer.appendChild(newPreviewOption)
     }
@@ -248,7 +244,7 @@ class PreviewController {
   }
 
   private static updateFromNewQuestionHelpText(helpText: string) {
-      if (helpText.length > 0) {
+    if (helpText.length > 0) {
       const contentElement = formatTextHtml(helpText)
       const contentParent = document.querySelector(
         PreviewController.QUESTION_HELP_TEXT_SELECTOR,

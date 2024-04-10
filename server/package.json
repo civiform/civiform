@@ -13,6 +13,7 @@
     "@tailwindcss/line-clamp": "0.4.4",
     "@tsconfig/recommended": "1.0.6",
     "@types/cleave.js": "1.4.12",
+    "@types/dompurify": "^3.0.5",
     "@types/jest": "29.5.12",
     "@types/markdown-it": "^14.0.0",
     "@typescript-eslint/eslint-plugin": "7.6.0",
@@ -39,6 +40,7 @@
   "dependencies": {
     "@uswds/uswds": "^3.6.0",
     "cleave.js": "1.6.0",
+    "dompurify": "^3.1.0",
     "markdown-it": "^14.0.0"
   },
   "browserslist": [
