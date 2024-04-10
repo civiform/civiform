@@ -28,7 +28,7 @@
     th:aria-required="${!question.isOptional()}"
     th:aria-invalid="${!emailQuestion.getValidationErrors().isEmpty()}"
     th:autofocus="${questionRendererParams.autofocusFirstError()}"
-    />
+  />
   <div
     th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${emailQuestion.getValidationErrors().get(emailQuestion.getEmailPath())})}"
   ></div>

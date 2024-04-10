@@ -5,7 +5,6 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -141,13 +140,6 @@ public final class MultiSelectQuestion extends Question {
   /** Get options in the applicant's preferred locale. */
   public ImmutableList<LocalizedQuestionOption> getOptions() {
     return getOptions(applicantQuestion.getApplicantData().preferredLocale());
-  }
-
-  /** Get options in the applicant's preferred locale. */
-  public ImmutableList<LocalizedQuestionOption> getSortedLocalizedOptions() {
-    return getOptions().stream()
-        .sorted(Comparator.comparing(LocalizedQuestionOption::order))
-        .collect(toImmutableList());
   }
 
   /** Get options in the specified locale. */

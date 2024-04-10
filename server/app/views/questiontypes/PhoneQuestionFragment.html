@@ -29,7 +29,7 @@
       th:aria-required="${!question.isOptional()}"
       th:aria-invalid="${!phoneQuestion.getValidationErrors().isEmpty()}"
       th:autofocus="${questionRendererParams.autofocusFirstError()}"
-      />
+    />
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${phoneQuestion.getValidationErrors().get(phoneQuestion.getPhoneNumberPath())})}"
     ></div>
