@@ -539,7 +539,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * The list of URLs CiviForm will use to call Esri’s [findAddressCandidates
    * service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).
    * These are used sequentially and not all of them may need to be used for every correction. If
-   * any results have a scores of 90 or higher lower priority urls will not be called.
+   * any results have a score of 90 or higher, lower priority urls will not be called.
    */
   public Optional<ImmutableList<String>> getEsriFindAddressCandidatesUrl() {
     return getListOfStrings("ESRI_FIND_ADDRESS_CANDIDATES_URL");
@@ -1553,8 +1553,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   + " [findAddressCandidates"
                                   + " service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm)."
                                   + " These are used sequentially and not all of them may need to"
-                                  + " be used for every correction. If any results have a scores of"
-                                  + " 90 or higher lower priority urls will not be called.",
+                                  + " be used for every correction. If any results have a score of"
+                                  + " 90 or higher, lower priority urls will not be called.",
                               /* isRequired= */ false,
                               SettingType.LIST_OF_STRINGS,
                               SettingMode.ADMIN_READABLE),
