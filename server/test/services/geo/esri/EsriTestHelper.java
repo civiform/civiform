@@ -156,8 +156,12 @@ public class EsriTestHelper {
 
     WSClient wsClient = play.test.WSTestClient.newClient(server.httpPort());
 
-    EsriClient esriClient =
+    RealEsriClient esriClient =
         new RealEsriClient(SETTINGS_MANIFEST, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, wsClient);
+
+    // overwrite to not include base URL so it uses the mock service
+    esriClient.ESRI_FIND_ADDRESS_CANDIDATES_URLS =
+        ImmutableList.<String>builder().add("/findAddressCandidates").build();
 
     return new ServerSettings(server, wsClient, esriClient);
   }
@@ -174,8 +178,12 @@ public class EsriTestHelper {
 
     WSClient wsClient = play.test.WSTestClient.newClient(server.httpPort());
 
-    EsriClient esriClient =
+    RealEsriClient esriClient =
         new RealEsriClient(SETTINGS_MANIFEST, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, wsClient);
+
+    // overwrite to not include base URL so it uses the mock service
+    esriClient.ESRI_FIND_ADDRESS_CANDIDATES_URLS =
+        ImmutableList.<String>builder().add("/findAddressCandidates").build();
 
     return new ServerSettings(server, wsClient, esriClient);
   }
