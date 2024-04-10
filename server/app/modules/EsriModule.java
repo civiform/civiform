@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.AbstractModule;
 import com.typesafe.config.Config;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Environment;
@@ -31,8 +30,10 @@ public final class EsriModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    List<String> urls = config.getStringList("esri_find_address_candidates_url");
-    String className = urls.isEmpty() ? FAKE_ESRI_CLIENT_CLASS_NAME : REAL_ESRI_CLIENT_CLASS_NAME;
+    String className =
+        config.getStringList("esri_find_address_candidates_url").isEmpty()
+            ? FAKE_ESRI_CLIENT_CLASS_NAME
+            : REAL_ESRI_CLIENT_CLASS_NAME;
 
     LOGGER.info(String.format("Using %s class for Esri client", className));
 

@@ -61,8 +61,8 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
   @VisibleForTesting ImmutableList<String> ESRI_FIND_ADDRESS_CANDIDATES_URLS;
 
   /**
-   * The lowest score value or of 100 that will preempt loading data from another endpoint. Anything
-   * below this will continue to gather data from the next available endpoint.
+   * The lowest score value out of 100 that will preempt loading data from another endpoint.
+   * Anything below this will continue to gather data from the next available endpoint.
    */
   private static final double SCORE_THRESHOLD = 90.0;
 
@@ -112,15 +112,8 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
   @Override
   @VisibleForTesting
   CompletionStage<Optional<JsonNode>> fetchAddressSuggestions(ObjectNode addressJson) {
-    // Check if the URL list is empty
-    if (ESRI_FIND_ADDRESS_CANDIDATES_URLS.isEmpty()) {
-      return CompletableFuture.completedFuture(Optional.empty());
-    }
-
-    var result =
-        processAddressSuggestionUrlsSequentially(
-            addressJson, ESRI_FIND_ADDRESS_CANDIDATES_URLS, Optional.empty());
-    return result;
+    return processAddressSuggestionUrlsSequentially(
+        addressJson, ESRI_FIND_ADDRESS_CANDIDATES_URLS, Optional.empty());
   }
 
   /**
@@ -178,9 +171,13 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
                               ((ArrayNode) rootNode.get(CANDIDATES_NODE_NAME)).add(candidateNode));
                 }
 
-                // This will check that all results are under the score threshold. Meaning there
-                // are no result of a high even quality we want to expand to the next url to
-                // see if we can find better matches.
+                // This will check that all results are under the score threshold.
+                //
+                // The score threshold is checking to see that we've gotten enough results with a
+                // high enough score to warrant not need to check any other endpoints for results.
+                //
+                // Reason for doing this is to not make more external calls than are needed. This
+                // is both for performance and billing reasons.
                 boolean hasAnyNodesUnderTheScoreThreshold =
                     StreamSupport.stream(rootNode.get(CANDIDATES_NODE_NAME).spliterator(), false)
                         .anyMatch(
