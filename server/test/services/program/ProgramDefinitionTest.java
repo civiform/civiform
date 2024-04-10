@@ -1429,4 +1429,136 @@ public class ProgramDefinitionTest extends ResetPostgres {
     assertThat(result.createTime()).isEmpty();
     assertThat(result.lastModifiedTime()).isEmpty();
   }
+
+  @Test
+  public void serializeThenDeserialize_withEnumeratorQuestion() throws JsonProcessingException {
+    long programDefinitionId = 654L;
+
+    QuestionDefinition mainEnumQ =
+        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+    QuestionDefinition qForMainEnum =
+        testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition();
+    QuestionDefinition nestedEnumQ =
+        testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition();
+    QuestionDefinition qForNestedEnum =
+        testQuestionBank.applicantHouseholdMemberDaysWorked().getQuestionDefinition();
+
+    BlockDefinition blockA =
+        BlockDefinition.builder()
+            .setId(100L)
+            .setName("Block A Name")
+            .setDescription("Block A Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(mainEnumQ, Optional.of(programDefinitionId)))
+            .build();
+    BlockDefinition blockB =
+        BlockDefinition.builder()
+            .setId(200L)
+            .setName("Block B Name")
+            .setDescription("Block B Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(qForMainEnum, Optional.of(programDefinitionId)))
+            .setEnumeratorId(Optional.of(100L))
+            .build();
+    BlockDefinition blockC =
+        BlockDefinition.builder()
+            .setId(300L)
+            .setName("Block C Name")
+            .setDescription("Block C Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(nestedEnumQ, Optional.of(programDefinitionId)))
+            .setEnumeratorId(Optional.of(100L))
+            .build();
+    BlockDefinition blockD =
+        BlockDefinition.builder()
+            .setId(400L)
+            .setName("Block D Name")
+            .setDescription("Block D Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(qForNestedEnum, Optional.of(programDefinitionId)))
+            .setEnumeratorId(Optional.of(300L))
+            .build();
+    ProgramDefinition programDefinition =
+        ProgramDefinition.builder()
+            .setId(programDefinitionId)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(
+                LocalizedStrings.of(Locale.US, "Applicant friendly name", Locale.FRANCE, "test"))
+            .setLocalizedDescription(
+                LocalizedStrings.of(
+                    Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
+            .setExternalLink("")
+            .setStatusDefinitions(new StatusDefinitions())
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .addBlockDefinition(blockA)
+            .addBlockDefinition(blockB)
+            .addBlockDefinition(blockC)
+            .addBlockDefinition(blockD)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
+            .build();
+
+    ObjectMapper objectMapper =
+        instanceOf(ObjectMapper.class)
+            .registerModule(new GuavaModule())
+            .registerModule(new Jdk8Module());
+
+    String serializedProgramDefinition = objectMapper.writeValueAsString(programDefinition);
+    ProgramDefinition result =
+        objectMapper.readValue(serializedProgramDefinition, ProgramDefinition.class);
+
+    // Assert that the block definitions were parsed correctly to include the enumerator IDs.
+    BlockDefinition expectedBlockA =
+        BlockDefinition.builder()
+            .setId(100L)
+            .setName("Block A Name")
+            .setDescription("Block A Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    mainEnumQ.getId(),
+                    /* optional= */ false,
+                    /* addressCorrectionEnabled= */ false))
+            .setEnumeratorId(Optional.empty())
+            .build();
+    BlockDefinition expectedBlockB =
+        BlockDefinition.builder()
+            .setId(200L)
+            .setName("Block B Name")
+            .setDescription("Block B Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    qForMainEnum.getId(),
+                    /* optional= */ false,
+                    /* addressCorrectionEnabled= */ false))
+            .setEnumeratorId(Optional.of(100L))
+            .build();
+    BlockDefinition expectedBlockC =
+        BlockDefinition.builder()
+            .setId(300L)
+            .setName("Block C Name")
+            .setDescription("Block C Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    nestedEnumQ.getId(),
+                    /* optional= */ false,
+                    /* addressCorrectionEnabled= */ false))
+            .setEnumeratorId(Optional.of(100L))
+            .build();
+    BlockDefinition expectedBlockD =
+        BlockDefinition.builder()
+            .setId(400L)
+            .setName("Block D Name")
+            .setDescription("Block D Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    qForNestedEnum.getId(),
+                    /* optional= */ false,
+                    /* addressCorrectionEnabled= */ false))
+            .setEnumeratorId(Optional.of(300L))
+            .build();
+    assertThat(result.blockDefinitions())
+        .containsExactly(expectedBlockA, expectedBlockB, expectedBlockC, expectedBlockD);
+  }
 }

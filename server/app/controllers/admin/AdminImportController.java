@@ -4,10 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
 import org.pac4j.play.java.Secure;
@@ -16,6 +12,8 @@ import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
+import services.ErrorAnd;
+import services.migration.ProgramMigrationService;
 import services.settings.SettingsManifest;
 import views.admin.migration.AdminImportView;
 import views.admin.migration.AdminImportViewPartial;
@@ -37,8 +35,7 @@ public class AdminImportController extends CiviFormController {
   private final AdminImportView adminImportView;
   private final AdminImportViewPartial adminImportViewPartial;
   private final FormFactory formFactory;
-  private final ObjectMapper objectMapper;
-
+  private final ProgramMigrationService programMigrationService;
   private final SettingsManifest settingsManifest;
 
   @Inject
@@ -46,19 +43,15 @@ public class AdminImportController extends CiviFormController {
       AdminImportView adminImportView,
       AdminImportViewPartial adminImportViewPartial,
       FormFactory formFactory,
-      ObjectMapper objectMapper,
       ProfileUtils profileUtils,
+      ProgramMigrationService programMigrationService,
       SettingsManifest settingsManifest,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
     this.adminImportView = checkNotNull(adminImportView);
     this.adminImportViewPartial = checkNotNull(adminImportViewPartial);
     this.formFactory = checkNotNull(formFactory);
-    // These extra modules let ObjectMapper serialize Guava types like ImmutableList.
-    this.objectMapper =
-        checkNotNull(objectMapper)
-            .registerModule(new GuavaModule())
-            .registerModule(new Jdk8Module());
+    this.programMigrationService = checkNotNull(programMigrationService);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
@@ -87,22 +80,23 @@ public class AdminImportController extends CiviFormController {
       return redirect(routes.AdminImportController.index().url());
     }
 
-    ProgramMigration programMigration;
-    try {
-      programMigration = objectMapper.readValue(jsonString, ProgramMigration.class);
-    } catch (RuntimeException | JsonProcessingException e) {
+    ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
+        programMigrationService.deserialize(jsonString);
+
+    if (deserializeResult.isError()) {
       return ok(
           adminImportViewPartial
-              .renderError("JSON is incorrectly formatted: " + e.getMessage())
+              .renderError(deserializeResult.getErrors().stream().findFirst().orElseThrow())
               .render());
     }
 
-    if (programMigration.getProgram() == null) {
+    ProgramMigrationWrapper programMigrationWrapper = deserializeResult.getResult();
+    if (programMigrationWrapper.getProgram() == null) {
       return ok(
           adminImportViewPartial
               .renderError("JSON did not have a top-level \"program\" field")
               .render());
     }
-    return ok(adminImportViewPartial.renderProgramData(programMigration).render());
+    return ok(adminImportViewPartial.renderProgramData(programMigrationWrapper).render());
   }
 }

@@ -10,9 +10,9 @@ import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
+import static services.migration.ProgramMigrationServiceTest.EXAMPLE_PROGRAM_JSON;
 
 import auth.ProfileUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +20,7 @@ import play.data.FormFactory;
 import play.mvc.Result;
 import repository.ResetPostgres;
 import repository.VersionRepository;
+import services.migration.ProgramMigrationService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.migration.AdminImportView;
@@ -36,8 +37,8 @@ public class AdminImportControllerTest extends ResetPostgres {
             instanceOf(AdminImportView.class),
             instanceOf(AdminImportViewPartial.class),
             instanceOf(FormFactory.class),
-            instanceOf(ObjectMapper.class),
             instanceOf(ProfileUtils.class),
+            instanceOf(ProgramMigrationService.class),
             mockSettingsManifest,
             instanceOf(VersionRepository.class));
   }
@@ -154,7 +155,7 @@ public class AdminImportControllerTest extends ResetPostgres {
             addCSRFToken(
                     fakeRequest()
                         .method("POST")
-                        .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON)))
+                        .bodyForm(ImmutableMap.of("programJson", EXAMPLE_PROGRAM_JSON)))
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);
@@ -162,74 +163,4 @@ public class AdminImportControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains("import-program-sample");
     assertThat(contentAsString(result)).contains("Screen 1");
   }
-
-  /**
-   * This contains the bare minimum needed to parse JSON into a program definition. The
-   * admin_program_migration.test.ts browser test has tests for a program with many blocks and
-   * questions.
-   */
-  private static final String PROGRAM_JSON =
-      "{\n"
-          + "  \"program\": {\n"
-          + "    \"id\": 34,\n"
-          + "    \"adminName\": \"import-program-sample\",\n"
-          + "    \"adminDescription\": \"desc\",\n"
-          + "    \"externalLink\": \"https://github.com/civiform/civiform\",\n"
-          + "    \"displayMode\": \"PUBLIC\",\n"
-          + "    \"localizedName\": {\n"
-          + "      \"translations\": {\n"
-          + "        \"en_US\": \"Import Sample Program\"\n"
-          + "      },\n"
-          + "      \"isRequired\": true\n"
-          + "    },\n"
-          + "    \"localizedDescription\": {\n"
-          + "      \"translations\": {\n"
-          + "        \"en_US\": \"A sample program for testing program import\"\n"
-          + "      },\n"
-          + "      \"isRequired\": true\n"
-          + "    },\n"
-          + "    \"localizedConfirmationMessage\": {\n"
-          + "      \"translations\": {\n"
-          + "        \"en_US\": \"\"\n"
-          + "      },\n"
-          + "      \"isRequired\": true\n"
-          + "    },\n"
-          + "    \"programType\": \"DEFAULT\",\n"
-          + "    \"eligibilityIsGating\": true,\n"
-          + "    \"acls\": {\n"
-          + "      \"tiProgramViewAcls\": []\n"
-          + "    },\n"
-          + "    \"localizedSummaryImageDescription\": {\n"
-          + "      \"translations\": {\n"
-          + "        \"en_US\": \"Test summary image description\"\n"
-          + "      },\n"
-          + "      \"isRequired\": true\n"
-          + "    },\n"
-          + "    \"blockDefinitions\": [\n"
-          + "      {\n"
-          + "        \"id\": 1,\n"
-          + "        \"name\": \"Screen 1\",\n"
-          + "        \"description\": \"block 1\",\n"
-          + "        \"repeaterId\": null,\n"
-          + "        \"hidePredicate\": null,\n"
-          + "        \"optionalPredicate\": null,\n"
-          + "        \"questionDefinitions\": [\n"
-          + "          {\n"
-          + "            \"id\": 18,\n"
-          + "            \"optional\": false,\n"
-          + "            \"addressCorrectionEnabled\": false\n"
-          + "          },\n"
-          + "          {\n"
-          + "            \"id\": 5,\n"
-          + "            \"optional\": false,\n"
-          + "            \"addressCorrectionEnabled\": true\n"
-          + "          }\n"
-          + "        ]\n"
-          + "      }\n"
-          + "      ],\n"
-          + "    \"statusDefinitions\" : {\n"
-          + "      \"statuses\" : [ ]\n"
-          + "    }"
-          + "  }\n"
-          + "}\n";
 }

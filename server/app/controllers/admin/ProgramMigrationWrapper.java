@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import services.program.ProgramDefinition;
 
 /**
- * A Jackson serializable class used to migrate programs between instances. {@link
- * AdminExportController} creates an instance of this class and serializes it to JSON. {@link
- * AdminImportController} de-serializes the JSON back into this class.
+ * A Jackson-serializable class used to migrate programs between instances. This wrapper class makes
+ * serialization easier because it keeps all the data that needs to be serialized in one place.
+ *
+ * <p>The serialization and deserialization of this class is done in {@link
+ * services.migration.ProgramMigrationService}.
  */
-public final class ProgramMigration {
+public final class ProgramMigrationWrapper {
   /** The definition of the program being migrated. */
   private ProgramDefinition program;
 
@@ -17,7 +19,7 @@ public final class ProgramMigration {
   // the question definitions themselves. We should also export the question definitions.
 
   @JsonCreator
-  public ProgramMigration(@JsonProperty("program") ProgramDefinition program) {
+  public ProgramMigrationWrapper(@JsonProperty("program") ProgramDefinition program) {
     this.program = program;
   }
 

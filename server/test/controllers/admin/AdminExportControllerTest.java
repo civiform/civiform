@@ -13,7 +13,6 @@ import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
 import auth.ProfileUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import models.ProgramModel;
 import org.junit.Before;
@@ -22,6 +21,7 @@ import play.data.FormFactory;
 import play.mvc.Result;
 import repository.ResetPostgres;
 import repository.VersionRepository;
+import services.migration.ProgramMigrationService;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
@@ -37,8 +37,8 @@ public class AdminExportControllerTest extends ResetPostgres {
         new AdminExportController(
             instanceOf(AdminExportView.class),
             instanceOf(FormFactory.class),
-            instanceOf(ObjectMapper.class),
             instanceOf(ProfileUtils.class),
+            instanceOf(ProgramMigrationService.class),
             instanceOf(ProgramService.class),
             mockSettingsManifest,
             instanceOf(VersionRepository.class));

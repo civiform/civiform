@@ -8,7 +8,7 @@ import static views.ViewUtils.makeAlert;
 import static views.style.BaseStyles.ALERT_ERROR;
 
 import com.google.inject.Inject;
-import controllers.admin.ProgramMigration;
+import controllers.admin.ProgramMigrationWrapper;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
@@ -40,11 +40,14 @@ public final class AdminImportViewPartial {
   }
 
   /** Renders the correctly parsed program data. */
-  public DomContent renderProgramData(ProgramMigration programMigration) {
-    ProgramDefinition program = programMigration.getProgram();
-    DivTag programDiv = div().withId(PROGRAM_DATA_ID);
-    programDiv.with(h3("Program name: " + program.localizedName().getDefault()));
-    programDiv.with(p("Admin name: " + program.adminName()));
+  public DomContent renderProgramData(ProgramMigrationWrapper programMigrationWrapper) {
+    ProgramDefinition program = programMigrationWrapper.getProgram();
+    DivTag programDiv =
+        div()
+            .withId(PROGRAM_DATA_ID)
+            .with(
+                h3("Program name: " + program.localizedName().getDefault()),
+                p("Admin name: " + program.adminName()));
     // TODO(#7087): If the imported program admin name matches an existing program admin name, we
     // should show some kind of error because admin names need to be unique.
 
@@ -55,9 +58,10 @@ public final class AdminImportViewPartial {
   }
 
   private DomContent renderProgramBlock(BlockDefinition block) {
-    DivTag blockDiv = div().withClasses("border", "border-gray-200", "p-2");
-    blockDiv.with(h4(block.name()));
-    blockDiv.with(p(block.description()));
+    DivTag blockDiv =
+        div()
+            .withClasses("border", "border-gray-200", "p-2")
+            .with(h4(block.name()), p(block.description()));
     // TODO(#7087): Display eligibility and visibility predicates.
 
     for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
@@ -67,9 +71,9 @@ public final class AdminImportViewPartial {
   }
 
   private DomContent renderQuestion(ProgramQuestionDefinition question) {
-    DivTag questionDiv = div().withClasses("border", "border-gray-200", "p-2");
-    questionDiv.with(p("Question ID: " + question.id()));
+    return div()
+        .withClasses("border", "border-gray-200", "p-2")
+        .with(p("Question ID: " + question.id()));
     // TODO(#7087): Fetch and display all the question info, not just the ID.
-    return questionDiv;
   }
 }
