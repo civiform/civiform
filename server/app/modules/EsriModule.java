@@ -30,8 +30,10 @@ public final class EsriModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    String url = config.getString("esri_find_address_candidates_url");
-    String className = url.isEmpty() ? FAKE_ESRI_CLIENT_CLASS_NAME : REAL_ESRI_CLIENT_CLASS_NAME;
+    String className =
+        config.getStringList("esri_find_address_candidates_url").isEmpty()
+            ? FAKE_ESRI_CLIENT_CLASS_NAME
+            : REAL_ESRI_CLIENT_CLASS_NAME;
 
     LOGGER.info(String.format("Using %s class for Esri client", className));
 
