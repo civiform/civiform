@@ -187,7 +187,7 @@ public final class QuestionDefinitionBuilder {
             + " predString="
             + validationPredicatesString);
 
-    String type = this.questionType.name().toLowerCase();
+    String type = this.questionType.name().toLowerCase(Locale.getDefault());
     if (this.questionType == QuestionType.CHECKBOX
         || this.questionType == QuestionType.RADIO_BUTTON
         || this.questionType == QuestionType.DROPDOWN) {

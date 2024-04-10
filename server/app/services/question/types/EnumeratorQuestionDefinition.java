@@ -29,10 +29,6 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
     this.entityType = checkNotNull(entityType);
   }
 
-  public EnumeratorValidationPredicates getEnumeratorValidationPredicates() {
-    return (EnumeratorValidationPredicates) getValidationPredicates();
-  }
-
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.ENUMERATOR;

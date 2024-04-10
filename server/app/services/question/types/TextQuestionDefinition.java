@@ -62,7 +62,7 @@ public final class TextQuestionDefinition extends QuestionDefinition {
     }
   }
 
-  public TextValidationPredicates getTextValidationPredicates() {
+  private TextValidationPredicates getTextValidationPredicates() {
     return (TextValidationPredicates) getValidationPredicates();
   }
 

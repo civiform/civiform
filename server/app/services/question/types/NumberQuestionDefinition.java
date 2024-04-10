@@ -64,7 +64,7 @@ public final class NumberQuestionDefinition extends QuestionDefinition {
     }
   }
 
-  public NumberQuestionDefinition.NumberValidationPredicates getNumberValidationPredicates() {
+  private NumberQuestionDefinition.NumberValidationPredicates getNumberValidationPredicates() {
     return (NumberQuestionDefinition.NumberValidationPredicates) getValidationPredicates();
   }
 

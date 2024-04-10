@@ -29,10 +29,6 @@ public final class FileUploadQuestionDefinition extends QuestionDefinition {
     }
   }
 
-  public FileUploadValidationPredicates getFileUploadValidationPredicates() {
-    return (FileUploadValidationPredicates) getValidationPredicates();
-  }
-
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.FILEUPLOAD;

@@ -17,7 +17,7 @@ public final class ProgramMigrationWrapper {
   /** The definition of the program being migrated. */
   private ProgramDefinition program;
 
-  /** The list of questions contained in the {@program}. TODO more */
+  /** The list of questions contained in the {@code program}. TODO more */
   private ImmutableList<QuestionDefinition> questions;
 
   @JsonCreator
