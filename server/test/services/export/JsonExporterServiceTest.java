@@ -3,19 +3,31 @@ package services.export;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Locale;
+import models.ApplicantModel;
 import models.ApplicationModel;
 import models.ProgramModel;
 import org.junit.Test;
 import play.test.Helpers;
+import repository.ProgramRepository;
 import repository.SubmittedApplicationFilter;
+import repository.VersionRepository;
 import services.CfJsonDocumentContext;
 import services.IdentifierBasedPaginationSpec;
+import services.LocalizedStrings;
 import services.Path;
 import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNeedsABlockException;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.question.QuestionOption;
+import services.question.QuestionService;
+import services.question.exceptions.InvalidUpdateException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 
 public class JsonExporterServiceTest extends AbstractExporterTest {
 
@@ -1249,6 +1261,138 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
     assertThat(programDefinitionsForAllVersions).hasSize(2);
   }
 
+  @Test
+  public void
+      export_whenQuestionIsAddedToProgram_exportOnlyIncludesAnswersFromOriginalProgramVersion()
+          throws ProgramNotFoundException {
+    // An exported program should contain questions for all program versions, but
+    // it should only include *answers* to questions that were in the program at the time
+    // the application was submitted, even if the applicant had answered the question
+    // as a part of another program.
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    createFakeQuestions();
+
+    // Create programs A and B
+    ProgramModel fakeProgramA =
+        FakeProgramBuilder.newActiveProgram("fake program A")
+            .withQuestion(testQuestionBank.applicantJugglingNumber())
+            .build();
+    ProgramModel fakeProgramB =
+        FakeProgramBuilder.newActiveProgram("fake program B")
+            .withQuestion(testQuestionBank.applicantEmail())
+            .build();
+
+    // Fill out both programs
+    FakeApplicationFiller.newFillerFor(fakeProgramA, applicant).answerNumberQuestion(3).submit();
+    FakeApplicationFiller.newFillerFor(fakeProgramB, applicant)
+        .answerEmailQuestion("test@test.com")
+        .submit();
+
+    String programBResultJson =
+        exporter.export(
+            fakeProgramB.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY,
+            Helpers.fakeRequest().build());
+    ResultAsserter programBResultAsserter = new ResultAsserter(programBResultJson);
+
+    // Assert application only includes 1 question
+    programBResultAsserter.assertJsonAtApplicationPath(
+        ".applicant_email_address",
+        "{\n" // comment to prevent fmt wrapping
+            + "  \"email\" : \"test@test.com\",\n"
+            + "  \"question_type\" : \"EMAIL\"\n"
+            + "}");
+    programBResultAsserter.assertJsonDoesNotContainApplicationPath(
+        ".number_of_items_applicant_can_juggle");
+
+    // Add question from program A to program B
+    ProgramModel updatedFakeProgramB =
+        FakeProgramBuilder.newDraftOf(fakeProgramB)
+            .withQuestion(testQuestionBank.applicantJugglingNumber())
+            .build();
+
+    // Without updating the application, re-export it
+    String updatedProgramBResultJson =
+        exporter.export(
+            updatedFakeProgramB.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY,
+            Helpers.fakeRequest().build());
+    ResultAsserter updatedProgramBResultAsserter = new ResultAsserter(updatedProgramBResultJson);
+
+    // Assert question from program A is not answered, even though there is an
+    // answer in the applicant data.
+    updatedProgramBResultAsserter.assertJsonAtApplicationPath(
+        ".applicant_email_address",
+        "{\n" // comment to prevent fmt wrapping
+            + "  \"email\" : \"test@test.com\",\n"
+            + "  \"question_type\" : \"EMAIL\"\n"
+            + "}");
+    updatedProgramBResultAsserter.assertJsonAtApplicationPath(
+        ".number_of_items_applicant_can_juggle",
+        "{\n" // comment to prevent fmt wrapping
+            + "  \"number\" : null,\n"
+            + "  \"question_type\" : \"NUMBER\"\n"
+            + "}");
+  }
+
+  @Test
+  public void export_whenOptionIsAddedToMultiOptionQuestion_newOptionSelectionIsExportedCorrectly()
+      throws UnsupportedQuestionTypeException, InvalidUpdateException, ProgramNotFoundException {
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+    QuestionService questionService = instanceOf(QuestionService.class);
+    VersionRepository versionRepository = instanceOf(VersionRepository.class);
+    ProgramRepository programRepository = instanceOf(ProgramRepository.class);
+    createFakeQuestions();
+
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram("test new options")
+            .withQuestion(testQuestionBank.applicantIceCream())
+            .build();
+
+    // Add new question option
+    QuestionDefinition questionDefinition =
+        testQuestionBank.applicantIceCream().getQuestionDefinition();
+    ImmutableList<QuestionOption> newOptions =
+        ImmutableList.<QuestionOption>builder()
+            .addAll(((MultiOptionQuestionDefinition) questionDefinition).getOptions())
+            .add(QuestionOption.create(5L, 5L, "mint", LocalizedStrings.of(Locale.US, "mint")))
+            .build();
+
+    QuestionDefinition updatedQuestionDefinition =
+        new QuestionDefinitionBuilder(questionDefinition).setQuestionOptions(newOptions).build();
+    questionService.update(updatedQuestionDefinition);
+    versionRepository.publishNewSynchronizedVersion();
+
+    // Fill out application and select new option
+    var updatedFakeProgram =
+        programRepository
+            .getActiveProgramFromSlug(fakeProgram.getProgramDefinition().slug())
+            .toCompletableFuture()
+            .join();
+
+    FakeApplicationFiller.newFillerFor(updatedFakeProgram)
+        .answerDropdownQuestion(5L) // new "mint" option
+        .submit();
+
+    String resultJsonString =
+        exporter.export(
+            updatedFakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY,
+            Helpers.fakeRequest().build());
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_ice_cream",
+        "{\n" // comment to prevent fmt wrapping
+            + "  \"question_type\" : \"SINGLE_SELECT\",\n"
+            + "  \"selection\" : \"mint\"\n"
+            + "}");
+  }
+
   private static class ResultAsserter {
     public final CfJsonDocumentContext resultJson;
 
@@ -1299,6 +1443,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
     private void assertNullValueAtApplicationPath(int resultNumber, String innerPath) {
       Path path = Path.create("$[" + resultNumber + "].application" + innerPath);
       assertThat(resultJson.hasNullValueAtPath(path)).isTrue();
+    }
+
+    private void assertJsonDoesNotContainApplicationPath(String innerPath) {
+      Path path = Path.create("$[0].application" + innerPath);
+      assertThat(resultJson.hasPath(path)).isFalse();
     }
 
     private void assertJsonAtApplicationPath(
