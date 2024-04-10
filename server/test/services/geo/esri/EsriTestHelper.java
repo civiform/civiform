@@ -4,7 +4,6 @@
  */
 package services.geo.esri;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.mvc.Results.internalServerError;
@@ -37,9 +36,9 @@ public class EsriTestHelper {
     private final EsriClient esriClient;
 
     public ServerSettings(Server server, WSClient wsClient, EsriClient esriClient) {
-      this.server = checkNotNull(server);
-      this.wsClient = checkNotNull(wsClient);
-      this.esriClient = checkNotNull(esriClient);
+      this.server = server;
+      this.wsClient = wsClient;
+      this.esriClient = esriClient;
     }
 
     public Server getServer() {
