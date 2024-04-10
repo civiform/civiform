@@ -2,17 +2,10 @@ package views.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static views.questiontypes.ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_ERROR;
-import static views.questiontypes.ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD;
 import static views.questiontypes.ApplicantQuestionRendererParams.AutoFocusTarget.NONE;
 
-import controllers.applicant.ApplicantRoutes;
-import java.util.Optional;
 import org.junit.Test;
-import org.mockito.Mockito;
 import repository.ResetPostgres;
-import services.question.types.QuestionDefinition;
-import services.settings.SettingsManifest;
-import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
 public class NorthStarApplicantProgramBlockEditViewTest extends ResetPostgres {
