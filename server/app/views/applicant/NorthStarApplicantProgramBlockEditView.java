@@ -93,7 +93,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
   // user choose a block to answer instead of an individual question, so we leave no focus
   // target to avoid skipping content.
   @VisibleForTesting
-  ApplicantQuestionRendererParams.AutoFocusTarget calculateAutoFocusTarget(
+  static ApplicantQuestionRendererParams.AutoFocusTarget calculateAutoFocusTarget(
       ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode,
       boolean formHasErrors,
       int ordinalErrorCount) {
