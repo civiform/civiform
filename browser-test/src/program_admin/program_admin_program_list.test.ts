@@ -1,4 +1,4 @@
-import {test, expect} from '@playwright/test'
+import {test} from '@playwright/test'
 import {
   createTestContext,
   enableFeatureFlag,
@@ -8,7 +8,6 @@ import {
   validateScreenshot,
 } from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
-import {Page} from 'playwright'
 
 test.describe('Program admin program list', () => {
   const ctx = createTestContext()
