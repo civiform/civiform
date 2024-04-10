@@ -40,6 +40,70 @@ test.describe('program creation', () => {
     await adminProgramImage.expectProgramImagePage()
   })
 
+  test('create program with disabled visibility condition feature enabled', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
+    await loginAsAdmin(page)
+
+    await adminPrograms.addProgram(
+      'program name',
+      'description',
+      'https://usa.gov',
+      ProgramVisibility.DISABLED,
+      'admin description',
+      /* isCommonIntake= */ false,
+      'selectedTI',
+      'confirmationMessage',
+      Eligibility.IS_GATING,
+      /* submitNewProgram= */ false,
+    )
+    await adminPrograms.expectProgramDetailsSaveAndContinueButton()
+    expect(await page.innerText('id=program-details-form')).toContain(
+      'Disabled',
+    )
+    await validateScreenshot(
+      page,
+      'program-creation-page-disabled-visibility-enabled',
+    )
+
+    // When the program submission goes through,
+    // verify we're redirected to the program image upload page.
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminProgramImage.expectProgramImagePage()
+  })
+
+  test('create program with disabled visibility condition feature disabled', async () => {
+    const {page, adminPrograms, adminProgramImage} = ctx
+    await disableFeatureFlag(page, 'disabled_visibility_condition_enabled')
+    await loginAsAdmin(page)
+
+    await adminPrograms.addProgram(
+      'program name',
+      'description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      /* isCommonIntake= */ false,
+      'selectedTI',
+      'confirmationMessage',
+      Eligibility.IS_GATING,
+      /* submitNewProgram= */ false,
+    )
+    await adminPrograms.expectProgramDetailsSaveAndContinueButton()
+    expect(await page.innerText('id=program-details-form')).not.toContain(
+      'Disabled',
+    )
+    await validateScreenshot(
+      page,
+      'program-creation-page-disabled-visibility-disabled',
+    )
+
+    // When the program submission goes through,
+    // verify we're redirected to the program image upload page.
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminProgramImage.expectProgramImagePage()
+  })
+
   test('create program then go back prevents URL edits', async () => {
     const {page, adminPrograms, adminProgramImage} = ctx
     await loginAsAdmin(page)
