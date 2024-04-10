@@ -126,7 +126,7 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
   /**
    * Recursive method to get address correction data from one or more findAddressCandidates
    * endpoints. This will stop when there are no urls in the list to process or we end early because
-   * we have results that are greater than the scoring threashold.
+   * we have results that are greater than the scoring threshold.
    *
    * @param addressJson Uncorrected address
    * @param urls A list of urls that will be processed in order; may stop early if surpassing score
