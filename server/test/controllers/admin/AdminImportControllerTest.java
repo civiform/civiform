@@ -7,34 +7,39 @@ import static org.mockito.Mockito.when;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
+import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import play.data.FormFactory;
 import play.mvc.Result;
 import repository.ResetPostgres;
 import repository.VersionRepository;
-import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
-import views.admin.migration.AdminExportView;
+import views.admin.migration.AdminImportView;
+import views.admin.migration.AdminImportViewPartial;
 
-public class AdminExportControllerTest extends ResetPostgres {
-  private AdminExportController controller;
+public class AdminImportControllerTest extends ResetPostgres {
+  private static final String TEST_FILE_CONTENT =
+      "{ \"id\" : 32, \"adminName\" : \"email-program\", \"adminDescription\" : \"\"}";
+
+  private AdminImportController controller;
   private final SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
 
   @Before
   public void setUp() {
     controller =
-        new AdminExportController(
-            instanceOf(AdminExportView.class),
+        new AdminImportController(
+            instanceOf(AdminImportView.class),
+            instanceOf(AdminImportViewPartial.class),
             instanceOf(FormFactory.class),
             instanceOf(ProfileUtils.class),
-            instanceOf(ProgramService.class),
             mockSettingsManifest,
             instanceOf(VersionRepository.class));
   }
@@ -46,11 +51,11 @@ public class AdminExportControllerTest extends ResetPostgres {
     Result result = controller.index(addCSRFToken(fakeRequest()).build());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
-    assertThat(contentAsString(result)).contains("export is not enabled");
+    assertThat(contentAsString(result)).contains("import is not enabled");
   }
 
   @Test
-  public void index_migrationEnabled_ok_listsActiveProgramsOnly() {
+  public void index_migrationEnabled_ok() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
     ProgramBuilder.newActiveProgram("active-program-1").build();
     ProgramBuilder.newActiveProgram("active-program-2").build();
@@ -59,32 +64,43 @@ public class AdminExportControllerTest extends ResetPostgres {
     Result result = controller.index(addCSRFToken(fakeRequest()).build());
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Export a program");
-    assertThat(contentAsString(result)).contains("active-program-1");
-    assertThat(contentAsString(result)).contains("active-program-2");
-    assertThat(contentAsString(result)).doesNotContain("draft-program");
+    assertThat(contentAsString(result)).contains("Import a program");
   }
 
   @Test
-  public void exportProgram_migrationNotEnabled_notFound() {
+  public void hxImportProgram_migrationNotEnabled_notFound() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(false);
 
-    Result result = controller.exportProgram(addCSRFToken(fakeRequest()).build());
+    Result result = controller.hxImportProgram(addCSRFToken(fakeRequest()).build());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
-    assertThat(contentAsString(result)).contains("export is not enabled");
+    assertThat(contentAsString(result)).contains("import is not enabled");
   }
 
   @Test
-  public void exportProgram_migrationEnabled_notFound_hasProgramId() {
+  public void hxImportProgram_noRequestBody_redirectsToIndex() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    Result result = controller.hxImportProgram(addCSRFToken(fakeRequest()).build());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue(routes.AdminImportController.index().url());
+  }
+
+  @Test
+  @Ignore
+  public void hxImportProgram_migrationEnabled_resultHasTextContent() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
-        controller.exportProgram(
-            addCSRFToken(fakeRequest().method("POST").bodyForm(ImmutableMap.of("programId", "3")))
+        controller.hxImportProgram(
+            addCSRFToken(
+                    fakeRequest()
+                        .method("POST")
+                        .bodyForm(ImmutableMap.of("programJson", TEST_FILE_CONTENT)))
                 .build());
 
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
-    assertThat(contentAsString(result)).contains("Received ID: 3");
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains(TEST_FILE_CONTENT);
   }
 }

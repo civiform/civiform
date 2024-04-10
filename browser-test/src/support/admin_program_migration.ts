@@ -28,4 +28,32 @@ export class AdminProgramMigration {
   async downloadProgram() {
     await this.page.getByRole('button', {name: 'Download program'}).click()
   }
+
+  async goToImportPage() {
+    await this.page.getByRole('link', {name: 'Import'}).click()
+    await waitForPageJsLoad(this.page)
+    await this.expectImportPage()
+  }
+
+  async expectImportPage() {
+    await expect(
+      this.page.getByRole('heading', {name: 'Import a program'}),
+    ).toBeVisible()
+  }
+
+  async submitProgramJson(content: string) {
+    await this.page.getByRole('textbox').fill(content)
+    await this.page
+      .getByRole('button', {name: 'Display program information'})
+      .click()
+    await waitForPageJsLoad(this.page)
+  }
+
+  async expectImportError() {
+    await expect(
+      this.page
+        .getByRole('alert')
+        .getByRole('heading', {name: 'Error processing JSON'}),
+    ).toBeVisible()
+  }
 }
