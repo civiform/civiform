@@ -14,7 +14,7 @@ public class NorthStarApplicantProgramBlockEditViewTest extends ResetPostgres {
   public void
       calculateAutoFocusTarget_formHasErrors_displayErrors_isFirstQuestionWithErrors_shouldAutofocusFirstError() {
     assertThat(
-        NorthStarApplicantProgramBlockEditView.calculateAutoFocusTarget(
+            NorthStarApplicantProgramBlockEditView.calculateAutoFocusTarget(
                 ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
                 /* formHasErrors */ true,
                 /* ordinalErrorCount= */ 1))
@@ -25,7 +25,7 @@ public class NorthStarApplicantProgramBlockEditViewTest extends ResetPostgres {
   public void
       calculateAutoFocusTarget_formHasErrors_displayErrors_isSecondQuestionWithErrors_shouldNotAutofocus() {
     assertThat(
-        NorthStarApplicantProgramBlockEditView.calculateAutoFocusTarget(
+            NorthStarApplicantProgramBlockEditView.calculateAutoFocusTarget(
                 ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
                 /* formHasErrors */ true,
                 /* ordinalErrorCount= */ 2))
@@ -36,7 +36,7 @@ public class NorthStarApplicantProgramBlockEditViewTest extends ResetPostgres {
   public void
       calculateAutoFocusTarget_formHasErrors_hideErrors_isFirstQuestionWithErrors_shouldNotAutofocus() {
     assertThat(
-        NorthStarApplicantProgramBlockEditView.calculateAutoFocusTarget(
+            NorthStarApplicantProgramBlockEditView.calculateAutoFocusTarget(
                 ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
                 /* formHasErrors */ true,
                 /* ordinalErrorCount= */ 1))
@@ -44,10 +44,9 @@ public class NorthStarApplicantProgramBlockEditViewTest extends ResetPostgres {
   }
 
   @Test
-  public void
-      calculateAutoFocusTarget_formHasNoErrors_shouldNotAutofocus() {
+  public void calculateAutoFocusTarget_formHasNoErrors_shouldNotAutofocus() {
     assertThat(
-        NorthStarApplicantProgramBlockEditView.calculateAutoFocusTarget(
+            NorthStarApplicantProgramBlockEditView.calculateAutoFocusTarget(
                 ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
                 /* formHasErrors */ false,
                 /* ordinalErrorCount= */ 1))
