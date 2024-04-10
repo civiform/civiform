@@ -65,7 +65,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
             .with(
                 h1(title).withClasses("my-4"),
                 each(
-                    programs.getActivePrograms().stream()
+                    programs.getNonDisabledActivePrograms().stream()
                         .filter(program -> authorizedPrograms.contains(program.adminName()))
                         .map(p -> buildCardData(request, p, civiformProfile))
                         .sorted(ProgramCardFactory.programTypeThenLastModifiedThenNameComparator())
