@@ -45,18 +45,15 @@ public final class ActiveAndDraftPrograms {
     return new ActiveAndDraftPrograms(repository, Optional.empty());
   }
 
-  public ImmutableMap<String, ProgramDefinition> nameToProgram(
+  private ImmutableMap<String, ProgramDefinition> nameToProgram(
       VersionRepository repository, Optional<ProgramService> service, VersionModel versionModel) {
-    ImmutableMap<String, ProgramDefinition> result =
-        repository.getProgramsForVersion(checkNotNull(versionModel)).stream()
-            .map(
-                program ->
-                    service.isPresent()
-                        ? getFullProgramDefinition(service.get(), program.id)
-                        : program.getProgramDefinition())
-            .collect(
-                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
-    return result;
+    return repository.getProgramsForVersion(checkNotNull(versionModel)).stream()
+        .map(
+            program ->
+                service.isPresent()
+                    ? getFullProgramDefinition(service.get(), program.id)
+                    : program.getProgramDefinition())
+        .collect(ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
   }
 
   private ActiveAndDraftPrograms(VersionRepository repository, Optional<ProgramService> service) {
