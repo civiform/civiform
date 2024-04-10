@@ -20,6 +20,7 @@ test.describe('address correction', () => {
     'Address correction single-block, multi-address program'
   const singleBlockSingleAddressProgram =
     'Address correction single-block, single-address program'
+  const optionalAddressProgram = 'Address correction optional address program'
 
   const addressWithCorrectionQuestionId = 'address-with-correction-q'
   const addressWithoutCorrectionQuestionId = 'address-without-correction-q'
@@ -115,6 +116,28 @@ test.describe('address correction', () => {
 
     await adminPrograms.gotoAdminProgramsPage()
     await adminPrograms.publishProgram(singleBlockSingleAddressProgram)
+
+    // Create optional address program
+    await adminPrograms.addProgram(optionalAddressProgram)
+
+    await adminPrograms.editProgramBlockWithOptional(
+      optionalAddressProgram,
+      'first block',
+      [],
+      addressWithCorrectionQuestionId,
+    )
+
+    await adminPrograms.goToBlockInProgram(
+      optionalAddressProgram,
+      'Screen 1',
+    )
+    await adminPrograms.clickAddressCorrectionToggleByName(
+      addressWithCorrectionQuestionId,
+    )
+
+    await adminPrograms.gotoAdminProgramsPage()
+    await adminPrograms.publishProgram(optionalAddressProgram)
+    
 
     await logout(page)
   })
@@ -222,6 +245,18 @@ test.describe('address correction', () => {
         addressWithCorrectionText,
         'Address In Area',
       )
+      await applicantQuestions.clickSubmit()
+      await logout(page)
+    })
+    
+    test('skips address correction if optional address question is not answered', async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'esri_address_correction_enabled')
+      await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+      await applicantQuestions.clickNext()
+
+      await applicantQuestions.expectReviewPage()
       await applicantQuestions.clickSubmit()
       await logout(page)
     })
