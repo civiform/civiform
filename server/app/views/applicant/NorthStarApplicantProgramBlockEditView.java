@@ -41,7 +41,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
     context.setVariable("applicationParams", applicationParams);
     // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
     context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
-    context.setVariable("questionRendererParams", getApplicantQuestionRendererParams(applicationParams));
+    context.setVariable(
+        "questionRendererParams", getApplicantQuestionRendererParams(applicationParams));
     return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
   }
 
@@ -60,7 +61,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
 
   // Returns a mapping from Question ID to Renderer params for that question.
   private Map<Long, ApplicantQuestionRendererParams> getApplicantQuestionRendererParams(
-      ApplicationBaseView.Params params) {
+      ApplicationBaseViewParams params) {
     AtomicInteger ordinalErrorCount = new AtomicInteger(0);
 
     return params.block().getQuestions().stream()
@@ -86,12 +87,16 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
   // One field at most should be autofocused on the page. If there are errors,
   // it should be the first field with an error of the first question with
   // errors.
+  // Prior to the North Star work, if there were no errors, we would focus on the first field of the
+  // question selected
+  // in the review page. However, the North Star review page has the
+  // user choose a block to answer instead of an individual question, so we leave no focus
+  // target to avoid skipping content.
   @VisibleForTesting
   ApplicantQuestionRendererParams.AutoFocusTarget calculateAutoFocusTarget(
       ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode,
       boolean formHasErrors,
       int ordinalErrorCount) {
-    // TODO: If there are no errors, should we focus on the first question?
     if (formHasErrors
         && ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(errorDisplayMode)
         && ordinalErrorCount == 1) {

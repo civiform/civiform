@@ -1,5 +1,5 @@
 <div
-  th:fragment="currency(question)"
+  th:fragment="currency(question, questionRendererParams)"
   th:with="currencyQuestion=${question.createCurrencyQuestion()},
              questionId=${#strings.randomAlphanumeric(8)},
              inputId=${#strings.randomAlphanumeric(8)}"
@@ -30,6 +30,7 @@
       th:aria-describedby="${questionId} + '-description'"
       th:aria-required="${!question.isOptional()}"
       th:aria-invalid="${!currencyQuestion.getValidationErrors().isEmpty()}"
+      th:autofocus="${questionRendererParams.autofocusFirstError()}"
     />
   </div>
   <!-- Display field specific error messages -->

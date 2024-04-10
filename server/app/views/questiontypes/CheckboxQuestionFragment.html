@@ -32,7 +32,6 @@
       th:each="option,iterator: ${multiSelectQuestion.getOptions()}"
       th:with="inputId='checkbox-' + ${question.getContextualizedPath()} + '-' + ${option.id()}"
     >
-      <!-- TODO(#6903): Add autofocus attribute as appropriate -->
       <input
         class="usa-checkbox__input usa-checkbox__input--tile"
         th:id="${inputId}"
@@ -41,8 +40,8 @@
         th:checked="${multiSelectQuestion.optionIsSelected(option)}"
         type="checkbox"
         th:aria-required="${!question.isOptional()}"
-        th:autofocus="${questionRendererParams.autofocusSingleField() && iterator.index == 0}">
-        />
+        th:autofocus="${questionRendererParams.autofocusFirstError() && iterator.index == 0}"
+      />
       <label
         class="usa-checkbox__label"
         th:for="${inputId}"

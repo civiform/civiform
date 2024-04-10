@@ -123,6 +123,17 @@ public abstract class Question {
   /** Return every path used by this question. */
   public abstract ImmutableList<Path> getAllPaths();
 
+  public Path getFirstPathWithError() {
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
+        getValidationErrors();
+    for (Path path : getAllPaths()) {
+      if (validationErrors.containsKey(path)) {
+        return path;
+      }
+    }
+    return null;
+  }
+
   public final ImmutableMap<Path, String> getFailedUpdates() {
     return applicantQuestion.getApplicantData().getFailedUpdates();
   }
