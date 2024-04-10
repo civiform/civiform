@@ -45,6 +45,20 @@ public final class ActiveAndDraftPrograms {
     return new ActiveAndDraftPrograms(repository, Optional.empty());
   }
 
+  public ImmutableMap<String, ProgramDefinition> nameToProgram(
+      VersionRepository repository, Optional<ProgramService> service, VersionModel versionModel) {
+    ImmutableMap<String, ProgramDefinition> result =
+        repository.getProgramsForVersion(checkNotNull(versionModel)).stream()
+            .map(
+                program ->
+                    service.isPresent()
+                        ? getFullProgramDefinition(service.get(), program.id)
+                        : program.getProgramDefinition())
+            .collect(
+                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+    return result;
+  }
+
   private ActiveAndDraftPrograms(VersionRepository repository, Optional<ProgramService> service) {
     VersionModel active = repository.getActiveVersion();
     VersionModel draft = repository.getDraftVersionOrCreate();
@@ -52,24 +66,10 @@ public final class ActiveAndDraftPrograms {
     // an additional database lookup in order to sync the set of questions associated with the
     // program.
     ImmutableMap<String, ProgramDefinition> activeNameToProgram =
-        repository.getProgramsForVersion(checkNotNull(active)).stream()
-            .map(
-                program ->
-                    service.isPresent()
-                        ? getFullProgramDefinition(service.get(), program.id)
-                        : program.getProgramDefinition())
-            .collect(
-                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+        nameToProgram(repository, service, active);
 
     ImmutableMap<String, ProgramDefinition> draftNameToProgram =
-        repository.getProgramsForVersion(checkNotNull(draft)).stream()
-            .map(
-                program ->
-                    service.isPresent()
-                        ? getFullProgramDefinition(service.get(), program.id)
-                        : program.getProgramDefinition())
-            .collect(
-                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+        nameToProgram(repository, service, draft);
 
     this.activePrograms = activeNameToProgram.values().asList();
     this.draftPrograms = draftNameToProgram.values().asList();
