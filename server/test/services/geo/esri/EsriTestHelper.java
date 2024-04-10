@@ -24,6 +24,11 @@ import play.server.Server;
 import services.geo.AddressLocation;
 import services.settings.SettingsManifest;
 
+/**
+ * This class creates test Play webservers. Each option from the TestType enum corresponds to a
+ * specific setup for an endpoint for either address correction or service area validation, and
+ * returns specific results from files in the test resources directory.
+ */
 public class EsriTestHelper {
   // Basically here because java doesn't have built in tuples
   private static class ServerSettings {
