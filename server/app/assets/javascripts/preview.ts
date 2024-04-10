@@ -216,7 +216,9 @@ class PreviewController {
 
       // Objects in javascript are passed by value so editing optionText.innerHTML
       // modifies newPreviewOption
-      optionText.innerHTML = DOMPurify.sanitize(formatText(configuredOption))
+      optionText.innerHTML = DOMPurify.sanitize(formatText(configuredOption), {
+        ADD_ATTR: ['target'],
+      })
 
       previewQuestionOptionContainer.appendChild(newPreviewOption)
     }

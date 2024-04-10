@@ -88,5 +88,5 @@ export function formatText(text: string): string {
   // Change h1 to h2 (per accessibility standards, there should only ever be one H1 per page)
   parsedHtml = parsedHtml.split('<h1>').join('<h2>')
   parsedHtml = parsedHtml.split('</h1>').join('</h2>')
-  return DOMPurify.sanitize(parsedHtml)
+  return DOMPurify.sanitize(parsedHtml, {ADD_ATTR: ['target']})
 }
