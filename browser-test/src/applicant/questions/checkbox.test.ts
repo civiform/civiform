@@ -140,7 +140,10 @@ test.describe(
         await expect(page.locator(checkBoxError)).toBeVisible()
       })
 
-      test('markdown applied to options shows in preview', async ({page, adminQuestions}) => {
+      test('markdown applied to options shows in preview', async ({
+        page,
+        adminQuestions,
+      }) => {
         await loginAsAdmin(page)
         await adminQuestions.createCheckboxQuestion(
           {
@@ -159,7 +162,7 @@ test.describe(
           },
           /* clickSubmit= */ false,
         )
-  
+
         await adminQuestions.expectPreviewOptionsWithMarkdown([
           '<p><em>red</em></p>\n',
           '<p><strong>green</strong></p>\n',
@@ -168,8 +171,13 @@ test.describe(
         ])
         await validateScreenshot(page, 'checkbox-options-with-markdown')
       })
-  
-      test('options with long text render correctly', async ({page, adminQuestions, adminPrograms, applicantQuestions}) => {
+
+      test('options with long text render correctly', async ({
+        page,
+        adminQuestions,
+        adminPrograms,
+        applicantQuestions,
+      }) => {
         const longTextProgramName = 'Long text program name'
         await loginAsAdmin(page)
         await adminQuestions.createCheckboxQuestion(
@@ -194,7 +202,7 @@ test.describe(
           longTextProgramName,
         )
         await logout(page)
-  
+
         await applicantQuestions.applyProgram(longTextProgramName)
         await validateScreenshot(page, 'checkbox-options-long-text-applicant')
       })

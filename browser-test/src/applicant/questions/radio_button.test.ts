@@ -112,7 +112,10 @@ test.describe(
         )
         expect(await page.innerHTML(radioButtonId)).toContain('autofocus')
       })
-      test('markdown applied to options shows in preview', async ({page, adminQuestions}) => {
+      test('markdown applied to options shows in preview', async ({
+        page,
+        adminQuestions,
+      }) => {
         await loginAsAdmin(page)
         await adminQuestions.createRadioButtonQuestion(
           {
@@ -131,7 +134,7 @@ test.describe(
           },
           /* clickSubmit= */ false,
         )
-  
+
         await adminQuestions.expectPreviewOptionsWithMarkdown([
           '<p><em>red</em></p>\n',
           '<p><strong>green</strong></p>\n',
@@ -140,9 +143,13 @@ test.describe(
         ])
         await validateScreenshot(page, 'radio-button-options-with-markdown')
       })
-  
-      test('options with long text render correctly', async ({page, adminQuestions, adminPrograms, applicantQuestions}) => {
-  
+
+      test('options with long text render correctly', async ({
+        page,
+        adminQuestions,
+        adminPrograms,
+        applicantQuestions,
+      }) => {
         const longTextProgramName = 'Long text program name'
         await loginAsAdmin(page)
         await adminQuestions.createRadioButtonQuestion(
@@ -167,7 +174,7 @@ test.describe(
           longTextProgramName,
         )
         await logout(page)
-  
+
         await applicantQuestions.applyProgram(longTextProgramName)
         await validateScreenshot(page, 'radio-options-long-text-applicant')
       })
