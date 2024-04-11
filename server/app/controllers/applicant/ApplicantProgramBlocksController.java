@@ -441,8 +441,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId, request);
 
+    Optional<String> successBannerMessage = request.flash().get("success-banner");
     Optional<ToastMessage> flashSuccessBanner =
-        request.flash().get("success-banner").map(m -> ToastMessage.success(m));
+        successBannerMessage.map(m -> ToastMessage.success(m));
 
     return applicantStage
         .thenComposeAsync(
@@ -473,7 +474,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             questionName,
                             applicantRoutes,
                             profile)
-                        .setBannerMessage(flashSuccessBanner)
+                        .setBannerToastMessage(flashSuccessBanner)
+                        .setBannerMessage(successBannerMessage)
                         .build();
                 if (settingsManifest.getNorthStarApplicantUi(request)) {
                   return ok(northStarApplicantProgramBlockEditView.render(
