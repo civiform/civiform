@@ -19,34 +19,36 @@ test.describe('End to end enumerator test', {tag: ['@uses-fixtures']}, () => {
       page,
       adminQuestions,
     }) => {
-      await loginAsAdmin(page)
+      await test.step('Load enumerator creation page', async () => {
+        await loginAsAdmin(page)
 
-      await adminQuestions.gotoAdminQuestionsPage()
+        await adminQuestions.gotoAdminQuestionsPage()
 
-      await page.click('#create-question-button')
-      await page.click('#create-enumerator-question')
-      await waitForPageJsLoad(page)
-
-      // Click the add button in the preview to ensure we get an entity row and corresponding delete
-      // button.
-      await page.click('button:text("Add Sample repeated entity type")')
-      // Validate that the field rendered
-      await validateScreenshot(page, 'enumerator-field')
-
-      // Now update the text when configuring the question and ensure that
-      // the preview values update.
-      await page.fill('text=Repeated Entity Type', 'New entity type')
-      await validateScreenshot(page, 'enumerator-type-set')
-
-      // Verify question preview has the default values.
-      await adminQuestions.expectCommonPreviewValues({
-        questionText: 'Sample question text',
-        questionHelpText: '',
+        await page.click('#create-question-button')
+        await page.click('#create-enumerator-question')
+        await waitForPageJsLoad(page)
       })
-      await adminQuestions.expectEnumeratorPreviewValues({
-        entityNameInputLabelText: 'New entity type name #1',
-        addEntityButtonText: 'Add New entity type',
-        deleteEntityButtonText: 'Remove New entity type #1',
+
+      await test.step('Click add button and verify we get entity row and delete button', async () => {
+        await page.click('button:text("Add Sample repeated entity type")')
+        await validateScreenshot(page, 'enumerator-field')
+      })
+
+      await test.step('Update text when configuring question and ensure preview values update', async () => {
+        await page.fill('text=Repeated Entity Type', 'New entity type')
+        await validateScreenshot(page, 'enumerator-type-set')
+      })
+
+      await test.step('Verify question preview has the default values.', async () => {
+        await adminQuestions.expectCommonPreviewValues({
+          questionText: 'Sample question text',
+          questionHelpText: '',
+        })
+        await adminQuestions.expectEnumeratorPreviewValues({
+          entityNameInputLabelText: 'New entity type name #1',
+          addEntityButtonText: 'Add New entity type',
+          deleteEntityButtonText: 'Remove New entity type #1',
+        })
       })
     })
 
@@ -361,24 +363,29 @@ test.describe('End to end enumerator test', {tag: ['@uses-fixtures']}, () => {
       page,
     }) => {
       await loginAsAdmin(page)
+
       const adminQuestions = new AdminQuestions(page)
       const adminPrograms = new AdminPrograms(page)
 
-      await adminQuestions.createNewVersion('enumerator-ete-householdmembers')
+      await test.step('Create new version of enumerator', async () => {
+        await adminQuestions.createNewVersion('enumerator-ete-householdmembers')
+      })
 
-      // Repeated questions are updated.
-      await adminQuestions.expectDraftQuestionExist(
-        'enumerator-ete-repeated-name',
-      )
-      await adminQuestions.expectDraftQuestionExist(
-        'enumerator-ete-repeated-jobs',
-      )
-      await adminQuestions.expectDraftQuestionExist(
-        'enumerator-ete-repeated-jobs-income',
-      )
+      await test.step('Verify repeated questions are updated', async () => {
+        await adminQuestions.expectDraftQuestionExist(
+          'enumerator-ete-repeated-name',
+        )
+        await adminQuestions.expectDraftQuestionExist(
+          'enumerator-ete-repeated-jobs',
+        )
+        await adminQuestions.expectDraftQuestionExist(
+          'enumerator-ete-repeated-jobs-income',
+        )
+      })
 
-      // Assert publish does not cause problem, i.e. no program refers to old questions.
-      await adminPrograms.publishProgram(programName)
+      await test.step('Publish program', async () => {
+        await adminPrograms.publishProgram(programName)
+      })
 
       await logout(page)
     })
@@ -436,115 +443,139 @@ test.describe('End to end enumerator test', {tag: ['@uses-fixtures']}, () => {
   ) {
     await loginAsAdmin(page)
 
-    await adminQuestions.addNameQuestion({
-      questionName: 'enumerator-ete-name',
+    await test.step('Add questions to program', async () => {
+      await adminQuestions.addNameQuestion({
+        questionName: 'enumerator-ete-name',
+      })
+      await adminQuestions.addEnumeratorQuestion({
+        questionName: 'enumerator-ete-householdmembers',
+        description: 'desc',
+        questionText: 'Household members',
+        helpText: 'list household members',
+      })
+      await adminQuestions.addNameQuestion({
+        questionName: 'enumerator-ete-repeated-name',
+        description: 'desc',
+        questionText: 'Name for $this',
+        helpText: 'full name for $this',
+        enumeratorName: 'enumerator-ete-householdmembers',
+      })
+      await adminQuestions.addEnumeratorQuestion({
+        questionName: 'enumerator-ete-repeated-jobs',
+        description: 'desc',
+        questionText: 'Jobs for $this',
+        helpText: "$this's jobs",
+        enumeratorName: 'enumerator-ete-householdmembers',
+      })
+      await adminQuestions.addNumberQuestion({
+        questionName: 'enumerator-ete-repeated-jobs-income',
+        description: 'desc',
+        questionText: "Income for $this.parent's job at $this",
+        helpText: 'Monthly income at $this',
+        enumeratorName: 'enumerator-ete-repeated-jobs',
+      })
     })
-    await adminQuestions.addEnumeratorQuestion({
-      questionName: 'enumerator-ete-householdmembers',
-      description: 'desc',
-      questionText: 'Household members',
-      helpText: 'list household members',
-    })
-    await adminQuestions.addNameQuestion({
-      questionName: 'enumerator-ete-repeated-name',
-      description: 'desc',
-      questionText: 'Name for $this',
-      helpText: 'full name for $this',
-      enumeratorName: 'enumerator-ete-householdmembers',
-    })
-    await adminQuestions.addEnumeratorQuestion({
-      questionName: 'enumerator-ete-repeated-jobs',
-      description: 'desc',
-      questionText: 'Jobs for $this',
-      helpText: "$this's jobs",
-      enumeratorName: 'enumerator-ete-householdmembers',
-    })
-    await adminQuestions.addNumberQuestion({
-      questionName: 'enumerator-ete-repeated-jobs-income',
-      description: 'desc',
-      questionText: "Income for $this.parent's job at $this",
-      helpText: 'Monthly income at $this',
-      enumeratorName: 'enumerator-ete-repeated-jobs',
+
+    await test.step('Create program', async () => {
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlock(
+        programName,
+        'ete enumerator program description',
+      )
     })
 
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(
-      programName,
-      'ete enumerator program description',
+    await test.step('Verify non-repeated questions are available in question bank', async () => {
+      await expect(page.locator('#question-bank-nonuniversal')).toContainText(
+        'enumerator-ete-name',
+      )
+      await expect(page.locator('#question-bank-nonuniversal')).toContainText(
+        'enumerator-ete-householdmembers',
+      )
+    })
+
+    await test.step('Add an enumerator question. All options should go away.', async () => {
+      await adminPrograms.addQuestionFromQuestionBank(
+        'enumerator-ete-householdmembers',
+      )
+      await expect(page.locator('#question-bank-nonuniversal')).toHaveText('')
+    })
+
+    await test.step(
+      'Remove the enumerator question and add a non-enumerator question, and the ' +
+        'enumerator option should not be in the bank.',
+      async () => {
+        // Remove the enumerator question and add a non-enumerator question, and the enumerator option should not be in the bank.
+        await page.click(
+          '.cf-program-question:has-text("enumerator-ete-householdmembers") >> .cf-remove-question-button',
+        )
+        await adminPrograms.addQuestionFromQuestionBank('enumerator-ete-name')
+        await expect(
+          page.locator('#question-bank-nonuniversal'),
+        ).not.toContainText('enumerator-ete-householdmembers')
+      },
     )
 
-    // All non-repeated questions should be available in the question bank.
-    await expect(page.locator('#question-bank-nonuniversal')).toContainText(
-      'enumerator-ete-name',
-    )
-    await expect(page.locator('#question-bank-nonuniversal')).toContainText(
-      'enumerator-ete-householdmembers',
-    )
-
-    // Add an enumerator question. All options should go away.
-    await adminPrograms.addQuestionFromQuestionBank(
-      'enumerator-ete-householdmembers',
-    )
-    await expect(page.locator('#question-bank-nonuniversal')).toHaveText('')
-
-    // Remove the enumerator question and add a non-enumerator question, and the enumerator option should not be in the bank.
-    await page.click(
-      '.cf-program-question:has-text("enumerator-ete-householdmembers") >> .cf-remove-question-button',
-    )
-    await adminPrograms.addQuestionFromQuestionBank('enumerator-ete-name')
-    await expect(page.locator('#question-bank-nonuniversal')).not.toContainText(
-      'enumerator-ete-householdmembers',
-    )
-    // Create a new block with the first enumerator question, and then create a repeated block. The repeated questions should be the only options.
-    await page.click('#add-block-button')
-    await adminPrograms.addQuestionFromQuestionBank(
-      'enumerator-ete-householdmembers',
-    )
-    await page.click('#create-repeated-block-button')
-    await expect(page.locator('#question-bank-nonuniversal')).toContainText(
-      'enumerator-ete-repeated-name',
-    )
-    await expect(page.locator('#question-bank-nonuniversal')).toContainText(
-      'enumerator-ete-repeated-jobs',
+    await test.step(
+      'Create a new block with the first enumerator question, and then create a repeated block. ' +
+        'The repeated questions should be the only options.',
+      async () => {
+        await page.click('#add-block-button')
+        await adminPrograms.addQuestionFromQuestionBank(
+          'enumerator-ete-householdmembers',
+        )
+        await page.click('#create-repeated-block-button')
+        await expect(page.locator('#question-bank-nonuniversal')).toContainText(
+          'enumerator-ete-repeated-name',
+        )
+        await expect(page.locator('#question-bank-nonuniversal')).toContainText(
+          'enumerator-ete-repeated-jobs',
+        )
+      },
     )
 
-    // Go back to the enumerator block, and with a repeated block, it cannot be deleted now. The enumerator question cannot be removed, either.
-    await page.click('p:text("Screen 2")')
-    await expect(page.locator('#block-delete-modal-button')).toHaveAttribute(
-      'disabled',
-    )
-    await expect(
-      page.locator(
-        '.cf-program-question:has-text("enumerator-ete-householdmembers") >> .cf-remove-question-button',
-      ),
-    ).toHaveAttribute('disabled')
+    await test.step('Go back to the enumerator block, and with a repeated block, it cannot be deleted now. The enumerator question cannot be removed, either.', async () => {
+      await page.click('p:text("Screen 2")')
+      await expect(page.locator('#block-delete-modal-button')).toHaveAttribute(
+        'disabled',
+      )
+      await expect(
+        page.locator(
+          '.cf-program-question:has-text("enumerator-ete-householdmembers") >> .cf-remove-question-button',
+        ),
+      ).toHaveAttribute('disabled')
+    })
 
-    // Create the rest of the program.
-    // Add repeated name question
-    await page.click('p:text("Screen 3")')
-    await adminPrograms.addQuestionFromQuestionBank(
-      'enumerator-ete-repeated-name',
-    )
+    await test.step('Create the rest of the program.', async () => {
+      // Create the rest of the program.
+      // Add repeated name question
+      await page.click('p:text("Screen 3")')
+      await adminPrograms.addQuestionFromQuestionBank(
+        'enumerator-ete-repeated-name',
+      )
 
-    // Create another repeated block and add the nested enumerator question
-    await page.click('p:text("Screen 2")')
-    await page.click('#create-repeated-block-button')
-    await adminPrograms.addQuestionFromQuestionBank(
-      'enumerator-ete-repeated-jobs',
-    )
+      // Create another repeated block and add the nested enumerator question
+      await page.click('p:text("Screen 2")')
+      await page.click('#create-repeated-block-button')
+      await adminPrograms.addQuestionFromQuestionBank(
+        'enumerator-ete-repeated-jobs',
+      )
 
-    // Create a nested repeated block and add the nested text question
-    await page.click('#create-repeated-block-button')
+      // Create a nested repeated block and add the nested text question
+      await page.click('#create-repeated-block-button')
+    })
 
-    if (shouldValidateScreenshot) {
-      await validateScreenshot(page, 'programindentation')
-    }
-    await adminPrograms.addQuestionFromQuestionBank(
-      'enumerator-ete-repeated-jobs-income',
-    )
+    await test.step('Maybe validate screenshot of fully created program', async () => {
+      if (shouldValidateScreenshot) {
+        await validateScreenshot(page, 'programindentation')
+      }
+      await adminPrograms.addQuestionFromQuestionBank(
+        'enumerator-ete-repeated-jobs-income',
+      )
+    })
 
-    // Publish!
-    await adminPrograms.publishProgram(programName)
-    await logout(page)
+    await test.step('Publish!', async () => {
+      await adminPrograms.publishProgram(programName)
+      await logout(page)
+    })
   }
 })
