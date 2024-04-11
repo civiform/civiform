@@ -1,6 +1,8 @@
-import {test, expect} from '@playwright/test'
+import {Page} from '@playwright/test'
+import {test, expect} from '../../support/civiform_fixtures'
 import {
-  createTestContext,
+  AdminQuestions,
+  AdminPrograms,
   disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
@@ -9,23 +11,17 @@ import {
   validateScreenshot,
 } from '../../support'
 
-test.describe('Radio button question for applicant flow', () => {
-  const ctx = createTestContext(/* clearDb= */ false)
+test.describe('Radio button question for applicant flow', {tag: ['@uses-fixtures']}, () => {
 
   test.describe('single radio button question with north star flag disabled', () => {
     const programName = 'Test program for single radio button'
 
-    test.beforeAll(async () => {
-      await setUpForSingleQuestion(programName)
-    })
-
-    test.beforeEach(async () => {
-      const {page} = ctx
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await setUpForSingleQuestion(programName, page, adminQuestions, adminPrograms)
       await disableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
-    test('Updates options in preview', async () => {
-      const {page, adminQuestions} = ctx
+    test('Updates options in preview', async ({page, adminQuestions}) => {
       await loginAsAdmin(page)
 
       await adminQuestions.createRadioButtonQuestion(
@@ -68,23 +64,20 @@ test.describe('Radio button question for applicant flow', () => {
       await adminQuestions.expectPreviewOptions(['Sample question option'])
     })
 
-    test('validate screenshot', async () => {
-      const {page, applicantQuestions} = ctx
+    test('validate screenshot', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'radio-button')
     })
 
-    test('validate screenshot with errors', async () => {
-      const {page, applicantQuestions} = ctx
+    test('validate screenshot with errors', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
       await validateScreenshot(page, 'radio-button-errors')
     })
 
-    test('with selection submits successfully', async () => {
-      const {applicantQuestions} = ctx
+    test('with selection submits successfully', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerRadioButtonQuestion('matcha')
       await applicantQuestions.clickNext()
@@ -92,8 +85,7 @@ test.describe('Radio button question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with empty selection does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with empty selection does not submit', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
       // Click next without inputting anything
@@ -110,8 +102,7 @@ test.describe('Radio button question for applicant flow', () => {
   test.describe('multiple radio button questions', () => {
     const programName = 'Test program for multiple radio button qs'
 
-    test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await loginAsAdmin(page)
 
       await adminQuestions.addRadioButtonQuestion({
@@ -145,8 +136,7 @@ test.describe('Radio button question for applicant flow', () => {
       await logout(page)
     })
 
-    test('with both selections submits successfully', async () => {
-      const {applicantQuestions} = ctx
+    test('with both selections submits successfully', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerRadioButtonQuestion('matcha')
       await applicantQuestions.answerRadioButtonQuestion('mountains')
@@ -155,8 +145,7 @@ test.describe('Radio button question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with unanswered optional question submits successfully', async () => {
-      const {applicantQuestions} = ctx
+    test('with unanswered optional question submits successfully', async ({applicantQuestions}) => {
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerRadioButtonQuestion('matcha')
@@ -165,8 +154,7 @@ test.describe('Radio button question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('has no accessiblity violations', async () => {
-      const {page, applicantQuestions} = ctx
+    test('has no accessiblity violations', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
@@ -176,20 +164,15 @@ test.describe('Radio button question for applicant flow', () => {
   test.describe('single radio button question with north star flag enabled', () => {
     const programName = 'Test program for single radio button'
 
-    test.beforeAll(async () => {
-      await setUpForSingleQuestion(programName)
-    })
-
-    test.beforeEach(async () => {
-      const {page} = ctx
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await setUpForSingleQuestion(programName, page, adminQuestions, adminPrograms)
       await enableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
     test(
       'validate screenshot with north star flag enabled',
       {tag: ['@northstar']},
-      async () => {
-        const {page, applicantQuestions} = ctx
+      async ({page, applicantQuestions}) => {
         await applicantQuestions.applyProgram(programName)
 
         await test.step('Screenshot without errors', async () => {
@@ -214,8 +197,7 @@ test.describe('Radio button question for applicant flow', () => {
     )
   })
 
-  async function setUpForSingleQuestion(programName: string) {
-    const {page, adminQuestions, adminPrograms} = ctx
+  async function setUpForSingleQuestion(programName: string, page: Page, adminQuestions: AdminQuestions, adminPrograms: AdminPrograms) {
     // As admin, create program with radio button question.
     await loginAsAdmin(page)
 

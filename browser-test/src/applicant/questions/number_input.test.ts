@@ -1,6 +1,8 @@
-import {test, expect} from '@playwright/test'
+import {Page} from '@playwright/test'
+import {test, expect} from '../../support/civiform_fixtures'
 import {
-  createTestContext,
+  AdminQuestions,
+  AdminPrograms,
   disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
@@ -9,39 +11,31 @@ import {
   validateScreenshot,
 } from '../../support'
 
-test.describe('Number question for applicant flow', () => {
-  const ctx = createTestContext(/* clearDb= */ false)
+test.describe('Number question for applicant flow', {tag: ['@uses-fixtures']}, () => {
   const numberInputError = 'div.cf-question-number-error'
 
   test.describe('single number question', () => {
     const programName = 'Test program for single number'
 
-    test.beforeAll(async () => {
-      await setUpForSingleQuestion(programName)
-    })
-
-    test.beforeEach(async () => {
-      const {page} = ctx
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await setUpForSingleQuestion(programName, page, adminQuestions, adminPrograms)
       await disableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
-    test('validate screenshot', async () => {
-      const {page, applicantQuestions} = ctx
+    test('validate screenshot', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'number')
     })
 
-    test('validate screenshot with errors', async () => {
-      const {page, applicantQuestions} = ctx
+    test('validate screenshot with errors', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
       await validateScreenshot(page, 'number-errors')
     })
 
-    test('with valid number submits successfully', async () => {
-      const {applicantQuestions} = ctx
+    test('with valid number submits successfully', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('8')
       await applicantQuestions.clickNext()
@@ -49,8 +43,7 @@ test.describe('Number question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with no input does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with no input does not submit', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       // Leave field blank.
       await applicantQuestions.clickNext()
@@ -61,8 +54,7 @@ test.describe('Number question for applicant flow', () => {
       )
     })
 
-    test('with non-numeric inputs does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with non-numeric inputs does not submit', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       const testValues = ['12e3', '12E3', '-123', '1.23']
 
@@ -79,8 +71,7 @@ test.describe('Number question for applicant flow', () => {
   test.describe('multiple number questions', () => {
     const programName = 'Test program for multiple numbers'
 
-    test.beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await loginAsAdmin(page)
 
       await adminQuestions.addNumberQuestion({
@@ -102,8 +93,7 @@ test.describe('Number question for applicant flow', () => {
       await logout(page)
     })
 
-    test('with valid numbers submits successfully', async () => {
-      const {applicantQuestions} = ctx
+    test('with valid numbers submits successfully', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('100', 0)
       await applicantQuestions.answerNumberQuestion('33', 1)
@@ -112,8 +102,7 @@ test.describe('Number question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with unanswered optional question submits successfully', async () => {
-      const {applicantQuestions} = ctx
+    test('with unanswered optional question submits successfully', async ({applicantQuestions}) => {
       // Only answer required question.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('33', 1)
@@ -122,8 +111,7 @@ test.describe('Number question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with first invalid does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with first invalid does not submit', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('-10', 0)
       await applicantQuestions.answerNumberQuestion('33', 1)
@@ -139,8 +127,7 @@ test.describe('Number question for applicant flow', () => {
       expect(await page.isHidden(numberInputError)).toEqual(false)
     })
 
-    test('with second invalid does not submit', async () => {
-      const {page, applicantQuestions} = ctx
+    test('with second invalid does not submit', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('10', 0)
       await applicantQuestions.answerNumberQuestion('-5', 1)
@@ -156,8 +143,7 @@ test.describe('Number question for applicant flow', () => {
       expect(await page.isHidden(numberInputError + ' >> nth=1')).toEqual(false)
     })
 
-    test('has no accessiblity violations', async () => {
-      const {page, applicantQuestions} = ctx
+    test('has no accessiblity violations', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
@@ -170,17 +156,12 @@ test.describe('Number question for applicant flow', () => {
     () => {
       const programName = 'Test program for single number'
 
-      test.beforeAll(async () => {
-        await setUpForSingleQuestion(programName)
-      })
-
-      test.beforeEach(async () => {
-        const {page} = ctx
+      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+        await setUpForSingleQuestion(programName, page, adminQuestions, adminPrograms)
         await enableFeatureFlag(page, 'north_star_applicant_ui')
       })
 
-      test('validate screenshot', async () => {
-        const {page, applicantQuestions} = ctx
+      test('validate screenshot', async ({page, applicantQuestions}) => {
         await applicantQuestions.applyProgram(programName)
 
         await test.step('Screenshot without errors', async () => {
@@ -205,8 +186,7 @@ test.describe('Number question for applicant flow', () => {
     },
   )
 
-  async function setUpForSingleQuestion(programName: string) {
-    const {page, adminQuestions, adminPrograms} = ctx
+  async function setUpForSingleQuestion(programName: string, page: Page, adminQuestions: AdminQuestions, adminPrograms: AdminPrograms) {
     // As admin, create program with single number question.
     await loginAsAdmin(page)
 
