@@ -81,8 +81,19 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
     checkNotNull(settingsManifest);
     this.ws = checkNotNull(ws);
 
+    // Default to using the new setting which is a list
     this.ESRI_FIND_ADDRESS_CANDIDATES_URLS =
-        settingsManifest.getEsriFindAddressCandidatesUrl().orElse(ImmutableList.of());
+        settingsManifest.getEsriFindAddressCandidatesUrls().orElse(ImmutableList.of());
+
+    // Fallback to using the old setting if the list is empty
+    if (this.ESRI_FIND_ADDRESS_CANDIDATES_URLS.isEmpty()
+        && !settingsManifest.getEsriFindAddressCandidatesUrl().orElse("").isEmpty()) {
+      this.ESRI_FIND_ADDRESS_CANDIDATES_URLS =
+          ImmutableList.<String>builder()
+              .add(settingsManifest.getEsriFindAddressCandidatesUrl().get())
+              .build();
+    }
+
     this.ESRI_EXTERNAL_CALL_TRIES = settingsManifest.getEsriExternalCallTries().orElse(3);
     this.ESRI_WELLKNOWN_ID_OVERRIDE = settingsManifest.getEsriWellknownIdOverride();
   }
