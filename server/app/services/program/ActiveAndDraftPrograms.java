@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import java.util.*;
 import java.util.Optional;
 import java.util.function.Function;
 import models.DisplayMode;
@@ -65,6 +66,11 @@ public final class ActiveAndDraftPrograms {
         .collect(ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
   }
 
+  private ImmutableMap<String, ProgramDefinition> mapNameToProgram(
+      VersionRepository repository, Optional<ProgramService> service, VersionModel versionModel) {
+    return mapNameToProgramWithFilter(repository, service, versionModel, Optional.empty());
+  }
+
   private ActiveAndDraftPrograms(VersionRepository repository, Optional<ProgramService> service) {
     VersionModel active = repository.getActiveVersion();
     VersionModel draft = repository.getDraftVersionOrCreate();
@@ -72,10 +78,10 @@ public final class ActiveAndDraftPrograms {
     // an additional database lookup in order to sync the set of questions associated with the
     // program.
     ImmutableMap<String, ProgramDefinition> activeNameToProgram =
-        mapNameToProgramWithFilter(repository, service, active, Optional.empty());
+        mapNameToProgram(repository, service, active);
 
     ImmutableMap<String, ProgramDefinition> draftNameToProgram =
-        mapNameToProgramWithFilter(repository, service, draft, Optional.empty());
+        mapNameToProgram(repository, service, draft);
 
     this.activePrograms = activeNameToProgram.values().asList();
     this.draftPrograms = draftNameToProgram.values().asList();
