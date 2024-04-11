@@ -49,10 +49,10 @@ test.describe('Checkbox question for applicant flow', () => {
         questionHelpText: 'Sample question help text',
       })
       await adminQuestions.expectPreviewOptions([
-        '<p>red</p>\n',
-        '<p>green</p>\n',
-        '<p>orange</p>\n',
-        '<p>blue</p>\n',
+        'red',
+        'green',
+        'orange',
+        'blue',
       ])
 
       // Empty options renders default text.
@@ -65,7 +65,7 @@ test.describe('Checkbox question for applicant flow', () => {
         },
         /* clickSubmit= */ false,
       )
-      await adminQuestions.expectPreviewOptions(['<p>Sample question option</p>\n'])
+      await adminQuestions.expectPreviewOptions(['Sample question option'])
     })
 
     test('validate screenshot', async () => {
@@ -148,8 +148,8 @@ test.describe('Checkbox question for applicant flow', () => {
         },
         /* clickSubmit= */ false,
       )
-      
-      await adminQuestions.expectPreviewOptions([
+
+      await adminQuestions.expectPreviewOptionsWithMarkdown([
         '<p><em>red</em></p>\n',
         '<p><strong>green</strong></p>\n',
         '<p><a class=\"text-blue-600 hover:text-blue-500 underline\" target=\"_blank\" href=\"https://www.orange.com\">orange</a></p>\n',
