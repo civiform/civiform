@@ -230,7 +230,7 @@ public final class ApplicantService {
   }
 
   /** Get a {@link ReadOnlyApplicantProgramService} from applicant data and a program definition. */
-  private ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
+  public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
       ApplicantData applicantData, ProgramDefinition programDefinition) {
     return new ReadOnlyApplicantProgramServiceImpl(
         jsonPathPredicateGeneratorFactory, applicantData, programDefinition, baseUrl);

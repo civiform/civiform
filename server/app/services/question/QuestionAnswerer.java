@@ -6,7 +6,11 @@ import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 
-/** A class that has static methods used to answer {@link ApplicantQuestion}s for each type. */
+/**
+ * A class that has static methods used to answer {@link ApplicantQuestion}s for each type.
+ *
+ * <p>Only use in test or demo code. This does not do everything necessary to fully persist answers.
+ */
 public final class QuestionAnswerer {
 
   public static void answerAddressQuestion(

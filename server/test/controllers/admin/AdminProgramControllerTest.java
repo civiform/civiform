@@ -13,7 +13,6 @@ import static support.CfTestHelpers.requestBuilderWithSettings;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import models.DisplayMode;
 import models.ProgramModel;
 import org.junit.Before;
@@ -50,7 +49,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
     versionRepository = instanceOf(VersionRepository.class);
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     when(mockSettingsManifest.getIntakeFormEnabled(any())).thenReturn(true);
-    when(mockSettingsManifest.getProgramCardImages()).thenReturn(false);
 
     controller =
         new AdminProgramController(
@@ -142,43 +140,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void create_programImagesDisabled_redirectsToProgramEditBlocks() {
-    RequestBuilder requestBuilder =
-        addCSRFToken(
-            requestBuilderWithSettings()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "adminName",
-                        "internal-program-name",
-                        "adminDescription",
-                        "Internal program description",
-                        "localizedDisplayName",
-                        "External program name",
-                        "localizedDisplayDescription",
-                        "External program description",
-                        "externalLink",
-                        "https://external.program.link",
-                        "displayMode",
-                        DisplayMode.PUBLIC.getValue())));
-
-    Result result = controller.create(requestBuilder.build());
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    long programId =
-        versionRepository
-            .getDraftVersionOrCreate()
-            .getPrograms()
-            .get(0)
-            .getProgramDefinition()
-            .id();
-    assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.index(programId).url());
-  }
-
-  @Test
-  public void create_programImagesEnabled_redirectsToProgramImage() {
-    when(mockSettingsManifest.getProgramCardImages()).thenReturn(true);
-
+  public void create_redirectsToProgramImage() {
     RequestBuilder requestBuilder =
         addCSRFToken(
             requestBuilderWithSettings()
@@ -246,11 +208,17 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .getProgramDefinition()
             .id();
 
-    assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.index(programId).url());
-    Result redirectResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
-    assertThat(contentAsString(redirectResult)).contains("External program name with acls");
-    assertThat(contentAsString(redirectResult)).contains("External program description with acls");
+    Optional<ProgramModel> newProgram =
+        versionRepository.getProgramByNameForVersion(
+            "internal-program-with-acls", versionRepository.getDraftVersionOrCreate());
+    assertThat(newProgram).isPresent();
+    assertThat(newProgram.get().getProgramDefinition().acls().getTiProgramViewAcls())
+        .containsExactly(1L);
+
+    Result programDashboard = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
+    assertThat(contentAsString(programDashboard)).contains("External program name with acls");
+    assertThat(contentAsString(programDashboard))
+        .contains("External program description with acls");
   }
 
   @Test
@@ -326,8 +294,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void create_includesNewAndExistingProgramsInList()
-      throws ExecutionException, InterruptedException {
+  public void create_includesNewAndExistingProgramsInList() {
     ProgramBuilder.newActiveProgram("Existing One").build();
     RequestBuilder requestBuilder =
         addCSRFToken(
@@ -358,12 +325,14 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .getProgramDefinition()
             .id();
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.index(programId).url());
+        .hasValue(
+            routes.AdminProgramImageController.index(programId, ProgramEditStatus.CREATION.name())
+                .url());
 
-    Result redirectResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
-    assertThat(contentAsString(redirectResult)).contains("Existing One");
-    assertThat(contentAsString(redirectResult)).contains("External program name");
-    assertThat(contentAsString(redirectResult)).contains("External program description");
+    Result programDashboard = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
+    assertThat(contentAsString(programDashboard)).contains("Existing One");
+    assertThat(contentAsString(programDashboard)).contains("External program name");
+    assertThat(contentAsString(programDashboard)).contains("External program description");
   }
 
   @Test
@@ -466,11 +435,13 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .getProgramDefinition()
             .id();
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.index(programId).url());
+        .hasValue(
+            routes.AdminProgramImageController.index(programId, ProgramEditStatus.CREATION.name())
+                .url());
 
-    Result redirectResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
-    assertThat(contentAsString(redirectResult)).contains("External program name");
-    assertThat(contentAsString(redirectResult)).contains("External program description");
+    Result programDashboard = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
+    assertThat(contentAsString(programDashboard)).contains("External program name");
+    assertThat(contentAsString(programDashboard)).contains("External program description");
   }
 
   @Test
@@ -505,19 +476,17 @@ public class AdminProgramControllerTest extends ResetPostgres {
                         "tiGroups[]",
                         "1")));
 
-    Result result = controller.create(requestBuilder.build());
+    controller.create(requestBuilder.build());
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
     Optional<ProgramModel> newProgram =
         versionRepository.getProgramByNameForVersion(
             adminName, versionRepository.getDraftVersionOrCreate());
     assertThat(newProgram).isPresent();
-    assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.index(newProgram.get().id).url());
+    assertThat(newProgram.get().getProgramDefinition().isCommonIntakeForm()).isTrue();
 
-    Result redirectResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
-    assertThat(contentAsString(redirectResult)).contains(programName);
-    assertThat(contentAsString(redirectResult)).contains(programDescription);
+    Result programDashboard = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
+    assertThat(contentAsString(programDashboard)).contains(programName);
+    assertThat(contentAsString(programDashboard)).contains(programDescription);
   }
 
   @Test
@@ -675,8 +644,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void update_statusEdit_redirectsToProgramEditBlocks() throws ProgramNotFoundException {
-    when(mockSettingsManifest.getProgramCardImages()).thenReturn(true);
-
     ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
     RequestBuilder requestBuilder =
         requestBuilderWithSettings()
@@ -707,46 +674,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_statusCreationEdit_programImagesDisabled_redirectsToProgramEditBlocks()
-      throws ProgramNotFoundException {
-    when(mockSettingsManifest.getProgramCardImages()).thenReturn(false);
-
-    ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
-    RequestBuilder requestBuilder =
-        requestBuilderWithSettings()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminDescription",
-                    "adminDescription",
-                    "localizedDisplayName",
-                    "Program",
-                    "localizedDisplayDescription",
-                    "description",
-                    "externalLink",
-                    "https://external.program.link",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "false",
-                    "tiGroups[]",
-                    "1"));
-
-    Result result =
-        controller.update(
-            addCSRFToken(requestBuilder).build(),
-            program.id,
-            ProgramEditStatus.CREATION_EDIT.name());
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.index(program.id).url());
-  }
-
-  @Test
-  public void update_statusCreation_programImagesEnabled_redirectsToProgramImage()
-      throws ProgramNotFoundException {
-    when(mockSettingsManifest.getProgramCardImages()).thenReturn(true);
-
+  public void update_statusCreation_redirectsToProgramImage() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
     RequestBuilder requestBuilder =
         requestBuilderWithSettings()
@@ -779,10 +707,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_statusCreationEdit_programImagesEnabled_redirectsToProgramImage()
-      throws ProgramNotFoundException {
-    when(mockSettingsManifest.getProgramCardImages()).thenReturn(true);
-
+  public void update_statusCreationEdit_redirectsToProgramImage() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
     RequestBuilder requestBuilder =
         requestBuilderWithSettings()
