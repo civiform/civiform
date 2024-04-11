@@ -1,0 +1,105 @@
+<!-- TODO(#7080): Refactor Enumerator question to use HTMX instead of relying on TS and DOM templates. -->
+<div
+  th:fragment="enumerator(question)"
+  th:with="enumeratorQuestion=${question.createEnumeratorQuestion()},
+             questionId=${#strings.randomAlphanumeric(8)}"
+  th:id="${questionId}"
+  class="cf-question-enumerator"
+>
+  <fieldset
+    class="usa-fieldset"
+    th:aria-describedby="${questionId} + '-description'"
+  >
+    <!-- Title and Help Text -->
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
+    ></div>
+
+    <!-- Display question level errors -->
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${enumeratorQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+    ></div>
+
+    <div
+      th:data-label-text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})}"
+      th:data-button-text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})}"
+    >
+      <div th:replace="~{this :: deleteInputTemplate}"></div>
+      <!-- Render each existing enumerator field, including remove button -->
+      <div id="enumerator-fields">
+        <div th:each="option,iterator: ${enumeratorQuestion.getEntityNames()}">
+          <div
+            th:replace="~{this :: enumeratorField(fieldId=${#strings.randomAlphanumeric(8)},
+                                                  inputId=${#strings.randomAlphanumeric(8)},
+                                                  path=${question.getContextualizedPath()},
+                                                  existingEntity=${option},
+                                                  visibleIndex=${iterator.count},
+                                                  deleteButtonId=${iterator.index},
+                                                  hidden=false)}"
+          ></div>
+        </div>
+      </div>
+      <!-- Enumerator field template, used in TS to add another enumerator field -->
+      <div
+        th:replace="~{this :: enumeratorField(fieldId=enumerator-field-template,
+                                              inputId=enumerator-field-template-input,
+                                              path=${question.getContextualizedPath()},
+                                              existingEntity='',
+                                              visibleIndex=-1,
+                                              deleteButtonId=null,
+                                              hidden=true)}"
+      ></div>
+      <!-- Add entity button -->
+      <button
+        th:text="#{button.addEntity(${enumeratorQuestion.getEntityType()})}"
+        id="enumerator-field-add-button"
+        type="button"
+      ></button>
+    </div>
+  </fieldset>
+</div>
+
+<!-- Renders a single enumerator field (label, input, and remove button). This is used to render existing entities, and as a template used in TS to render a newly added entity.  -->
+<div
+  th:fragment="enumeratorField(fieldId, inputId, path, existingEntity, visibleIndex, deleteButtonId, hidden)"
+  class="cf-enumerator-field"
+  th:classappend="${hidden ? 'hidden' : ''}"
+  th:id="${fieldId}"
+  th:with="indexString=${visibleIndex == -1 ? '' : ' #' + visibleIndex}"
+>
+  <div class="cf-entity-name-input">
+    <label th:for="${inputId}">
+      <span
+        th:text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})} + ${indexString}"
+      ></span>
+    </label>
+    <input
+      type="text"
+      class="usa-input"
+      maxlength="10000"
+      th:id="${inputId}"
+      th:value="${existingEntity}"
+      th:name="${path}"
+      th:disabled="${hidden}"
+    />
+    <!-- TODO(#7166): Load the errors for the field properly. For now this is a placeholder div so TS won't error -->
+    <div th:id="${inputId + '-errors'}"></div>
+  </div>
+  <!-- Delete entity button -->
+  <button
+    type="button"
+    class="cf-enumerator-delete-button"
+    th:id="${deleteButtonId}"
+    th:text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})} + ${indexString}"
+    th:attr="onclick='if(confirm(\'' + #{dialog.confirmDelete(${enumeratorQuestion.getEntityType()})} + '\')){ return true; } else { var e = arguments[0] || window.event; e.stopImmediatePropagation(); return false; }'"
+  ></button>
+</div>
+
+<!-- Enumerator delete template, used in TS to remove an existing enumerator field -->
+<input
+  th:fragment="deleteInputTemplate"
+  id="enumerator-delete-template"
+  name="delete_entity[]"
+  disabled
+  class="hidden"
+/>

@@ -26,6 +26,11 @@
         th:replace="~{questiontypes/EmailQuestionFragment :: email(${question})}"
       ></div>
     </th:block>
+    <th:block th:case="'Enumerator'">
+      <div
+        th:replace="~{questiontypes/EnumeratorQuestionFragment :: enumerator(${question})}"
+      ></div>
+    </th:block>
     <th:block th:case="'ID'">
       <div
         th:replace="~{questiontypes/IdQuestionFragment :: id(${question})}"
