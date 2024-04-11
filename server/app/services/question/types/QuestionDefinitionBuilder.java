@@ -1,11 +1,14 @@
 package services.question.types;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import play.libs.Json;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
@@ -177,46 +180,20 @@ public final class QuestionDefinitionBuilder {
   }
 
   public QuestionDefinition build() throws UnsupportedQuestionTypeException {
-    // TODO: Do this so much better :)
-
-    System.out.println(
-        "building "
-            + this.questionType
-            + "Q="
-            + builder.build().questionText().getDefault()
-            + " predString="
-            + validationPredicatesString);
-
-    String type = this.questionType.name().toLowerCase(Locale.getDefault());
-    if (this.questionType == QuestionType.CHECKBOX
-        || this.questionType == QuestionType.RADIO_BUTTON
-        || this.questionType == QuestionType.DROPDOWN) {
-      type = "multioption";
-    }
-
-    // TODO: Helper function
-    // TODO: Check what it looks like in the db now
-    if (validationPredicatesString.equals("{}")) {
-      // validationPredicatesString = "{\"type\": \"" + type + "\"}";
-      validationPredicatesString = "";
-    } else if (validationPredicatesString.startsWith("{")) {
-      validationPredicatesString =
-          validationPredicatesString.replaceFirst("\\{", "\\{\"type\":\"" + type + "\",");
-    }
-    System.out.println("string after replacement: " + validationPredicatesString);
+    String reformattedValidationPredicatesString = createValidationPredicatesWithType();
 
     switch (this.questionType) {
       case ADDRESS:
-        if (!validationPredicatesString.isEmpty()) {
+        if (!reformattedValidationPredicatesString.isEmpty()) {
           builder.setValidationPredicates(
-              AddressValidationPredicates.parse(validationPredicatesString));
+              AddressValidationPredicates.parse(reformattedValidationPredicatesString));
         }
         return new AddressQuestionDefinition(builder.build());
 
       case CHECKBOX:
-        if (!validationPredicatesString.isEmpty()) {
+        if (!reformattedValidationPredicatesString.isEmpty()) {
           builder.setValidationPredicates(
-              MultiOptionValidationPredicates.parse(validationPredicatesString));
+              MultiOptionValidationPredicates.parse(reformattedValidationPredicatesString));
         }
 
         return new MultiOptionQuestionDefinition(
@@ -239,22 +216,23 @@ public final class QuestionDefinitionBuilder {
         return new FileUploadQuestionDefinition(builder.build());
 
       case ID:
-        if (!validationPredicatesString.isEmpty()) {
-          builder.setValidationPredicates(IdValidationPredicates.parse(validationPredicatesString));
+        if (!reformattedValidationPredicatesString.isEmpty()) {
+          builder.setValidationPredicates(
+              IdValidationPredicates.parse(reformattedValidationPredicatesString));
         }
         return new IdQuestionDefinition(builder.build());
 
       case NAME:
-        if (!validationPredicatesString.isEmpty()) {
+        if (!reformattedValidationPredicatesString.isEmpty()) {
           builder.setValidationPredicates(
-              NameValidationPredicates.parse(validationPredicatesString));
+              NameValidationPredicates.parse(reformattedValidationPredicatesString));
         }
         return new NameQuestionDefinition(builder.build());
 
       case NUMBER:
-        if (!validationPredicatesString.isEmpty()) {
+        if (!reformattedValidationPredicatesString.isEmpty()) {
           builder.setValidationPredicates(
-              NumberValidationPredicates.parse(validationPredicatesString));
+              NumberValidationPredicates.parse(reformattedValidationPredicatesString));
         }
         return new NumberQuestionDefinition(builder.build());
 
@@ -275,21 +253,60 @@ public final class QuestionDefinitionBuilder {
         return new StaticContentQuestionDefinition(builder.build());
 
       case TEXT:
-        if (!validationPredicatesString.isEmpty()) {
+        if (!reformattedValidationPredicatesString.isEmpty()) {
           builder.setValidationPredicates(
-              TextValidationPredicates.parse(validationPredicatesString));
+              TextValidationPredicates.parse(reformattedValidationPredicatesString));
         }
         return new TextQuestionDefinition(builder.build());
 
       case PHONE:
-        if (!validationPredicatesString.isEmpty()) {
+        if (!reformattedValidationPredicatesString.isEmpty()) {
           builder.setValidationPredicates(
-              PhoneValidationPredicates.parse(validationPredicatesString));
+              PhoneValidationPredicates.parse(reformattedValidationPredicatesString));
         }
         return new PhoneQuestionDefinition(builder.build());
 
       default:
         throw new UnsupportedQuestionTypeException(this.questionType);
     }
+  }
+
+  private String createValidationPredicatesWithType() {
+    System.out.println("--------------");
+    System.out.println("original=" + validationPredicatesString);
+
+    JsonNode parsed = Json.parse(validationPredicatesString);
+    System.out.println("parsed=" + parsed.toString());
+    System.out.println("maxLength=" + parsed.findPath("maxLength").asText());
+    if (parsed.isEmpty()) {
+      System.out.println("parsed is empty :O");
+      return "";
+    }
+
+    String type = this.questionType.name().toLowerCase(Locale.getDefault());
+    if (this.questionType == QuestionType.CHECKBOX
+        || this.questionType == QuestionType.RADIO_BUTTON
+        || this.questionType == QuestionType.DROPDOWN) {
+      type = "multioption";
+    }
+
+    if (parsed.findPath("type").isEmpty()) {
+      ObjectNode newNode = (ObjectNode) parsed;
+      newNode.put("type", type);
+      System.out.println("new=" + newNode.toString());
+      return newNode.toString();
+    }
+
+    // TODO: Helper function
+    // TODO: Check what it looks like in the db now
+    if (validationPredicatesString.equals("{}")) {
+      // validationPredicatesString = "{\"type\": \"" + type + "\"}";
+      validationPredicatesString = "";
+    } else if (validationPredicatesString.startsWith("{")) {
+      validationPredicatesString =
+          validationPredicatesString.replaceFirst("\\{", "\\{\"type\":\"" + type + "\",");
+    }
+    System.out.println("string after replacement: " + validationPredicatesString);
+    return validationPredicatesString;
   }
 }
