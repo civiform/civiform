@@ -74,6 +74,25 @@ public class RealEsriClientTest {
   }
 
   @Test
+  public void fetchAddressSuggestionsMultipleUrls() throws Exception {
+    // TestType.MULTIPLE_ENDPOINTS configures the test web server with multi endpoints
+    // that each return different numbers of results
+    helper = new EsriTestHelper(TestType.MULTIPLE_ENDPOINTS);
+    ObjectNode addressJson = Json.newObject();
+    addressJson.put("street", "380 New York St");
+    Optional<JsonNode> maybeResp =
+        helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
+    JsonNode resp = maybeResp.get();
+    ArrayNode candidates = (ArrayNode) resp.get("candidates");
+    assertThat(resp.get("spatialReference").get("wkid").asInt()).isEqualTo(4326);
+
+    // For this test this value is the merged combination of candidate results
+    // from multiple endpoints.
+    int expectedNumberOfCandidates = 8;
+    assertThat(candidates).hasSize(expectedNumberOfCandidates);
+  }
+
+  @Test
   public void fetchServiceAreaFeatures() throws Exception {
     helper = new EsriTestHelper(TestType.SERVICE_AREA_VALIDATION);
     Optional<JsonNode> maybeResp =

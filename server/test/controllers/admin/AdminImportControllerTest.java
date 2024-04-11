@@ -10,25 +10,23 @@ import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
+import static services.migration.ProgramMigrationServiceTest.EXAMPLE_PROGRAM_JSON;
 
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import play.data.FormFactory;
 import play.mvc.Result;
 import repository.ResetPostgres;
 import repository.VersionRepository;
+import services.migration.ProgramMigrationService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.migration.AdminImportView;
 import views.admin.migration.AdminImportViewPartial;
 
 public class AdminImportControllerTest extends ResetPostgres {
-  private static final String TEST_FILE_CONTENT =
-      "{ \"id\" : 32, \"adminName\" : \"email-program\", \"adminDescription\" : \"\"}";
-
   private AdminImportController controller;
   private final SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
 
@@ -40,6 +38,7 @@ public class AdminImportControllerTest extends ResetPostgres {
             instanceOf(AdminImportViewPartial.class),
             instanceOf(FormFactory.class),
             instanceOf(ProfileUtils.class),
+            instanceOf(ProgramMigrationService.class),
             mockSettingsManifest,
             instanceOf(VersionRepository.class));
   }
@@ -88,8 +87,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  @Ignore
-  public void hxImportProgram_migrationEnabled_resultHasTextContent() {
+  public void hxImportProgram_malformattedJson_error() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
     Result result =
@@ -97,10 +95,72 @@ public class AdminImportControllerTest extends ResetPostgres {
             addCSRFToken(
                     fakeRequest()
                         .method("POST")
-                        .bodyForm(ImmutableMap.of("programJson", TEST_FILE_CONTENT)))
+                        .bodyForm(ImmutableMap.of("programJson", "{\"adminName : \"admin-name\"}")))
                 .build());
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains(TEST_FILE_CONTENT);
+    assertThat(contentAsString(result)).contains("Error processing JSON");
+    assertThat(contentAsString(result)).contains("JSON is incorrectly formatted");
+  }
+
+  @Test
+  public void hxImportProgram_noTopLevelProgramFieldInJson_error() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    Result result =
+        controller.hxImportProgram(
+            addCSRFToken(
+                    fakeRequest()
+                        .method("POST")
+                        .bodyForm(
+                            ImmutableMap.of(
+                                "programJson",
+                                "{ \"id\" : 32, \"adminName\" : \"admin-name\","
+                                    + " \"adminDescription\" : \"description\"}")))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Error processing JSON");
+    assertThat(contentAsString(result))
+        .containsPattern("JSON did not have a top-level .*program.* field");
+  }
+
+  @Test
+  public void hxImportProgram_notEnoughInfoToCreateProgramDef_error() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    Result result =
+        controller.hxImportProgram(
+            addCSRFToken(
+                    fakeRequest()
+                        .method("POST")
+                        .bodyForm(
+                            ImmutableMap.of(
+                                "programJson",
+                                "{ \"program\": { \"adminName\" : \"admin-name\","
+                                    + " \"adminDescription\" : \"description\"}}")))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Error processing JSON");
+    assertThat(contentAsString(result)).contains("JSON is incorrectly formatted");
+  }
+
+  @Test
+  public void hxImportProgram_jsonHasAllProgramInfo_resultHasProgramInfo() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    Result result =
+        controller.hxImportProgram(
+            addCSRFToken(
+                    fakeRequest()
+                        .method("POST")
+                        .bodyForm(ImmutableMap.of("programJson", EXAMPLE_PROGRAM_JSON)))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Import Sample Program");
+    assertThat(contentAsString(result)).contains("import-program-sample");
+    assertThat(contentAsString(result)).contains("Screen 1");
   }
 }
