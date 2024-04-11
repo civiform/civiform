@@ -90,9 +90,7 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
             .withClasses(
                 ReferenceClasses.RADIO_OPTION,
                 BaseStyles.CHECKBOX_LABEL,
-                isSelected ? BaseStyles.BORDER_CIVIFORM_BLUE : "",
-                "flex",
-                "flex-row")
+                isSelected ? BaseStyles.BORDER_CIVIFORM_BLUE : "")
             .with(
                 input()
                     .withId(id)
@@ -104,10 +102,13 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
                     .condAttr(hasErrors, "aria-invalid", "true")
                     .condAttr(!isOptional, "aria-required", "true")
                     .withClasses(
-                        StyleUtils.joinStyles(
-                            ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX, "self-center")),
+                        StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)),
                 div()
-                    .with(TextFormatter.formatText(option.optionText(), true, false))
+                    .with(
+                        TextFormatter.formatText(
+                            option.optionText(),
+                            /* preserveEmptyLines= */ true,
+                            /* addRequiredIndicator= */ false))
                     .withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
 
     return div()

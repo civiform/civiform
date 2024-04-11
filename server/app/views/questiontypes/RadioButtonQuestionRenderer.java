@@ -3,7 +3,6 @@ package views.questiontypes;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
-import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -19,6 +18,7 @@ import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.SingleSelectQuestion;
 import services.question.LocalizedQuestionOption;
+import views.components.TextFormatter;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -94,18 +94,25 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
     LabelTag labelTag =
         label()
             .withFor(id)
-            .withClasses("inline-block", "w-full", "h-full")
-            .with(inputTag)
-            .with(span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
+            .withClasses(
+                ReferenceClasses.RADIO_OPTION,
+                BaseStyles.RADIO_LABEL,
+                checked ? BaseStyles.BORDER_CIVIFORM_BLUE : "",
+                "inline-block",
+                "w-full",
+                "h-full")
+            .with(
+                inputTag,
+                div()
+                    .with(
+                        TextFormatter.formatText(
+                            option.optionText(),
+                            /* preserveEmptyLines= */ true,
+                            /* addRequiredIndicator= */ false))
+                    .withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
 
     return div()
-        .withClasses(
-            "my-2",
-            "relative",
-            ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
-            ReferenceClasses.RADIO_OPTION,
-            BaseStyles.RADIO_LABEL,
-            checked ? BaseStyles.BORDER_CIVIFORM_BLUE : "")
+        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "my-2", "relative")
         .with(labelTag);
   }
 }
