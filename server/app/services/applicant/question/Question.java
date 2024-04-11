@@ -6,6 +6,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import java.util.HashMap;
+import java.util.Optional;
+import models.ApplicantModel;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -123,15 +125,15 @@ public abstract class Question {
   /** Return every path used by this question. */
   public abstract ImmutableList<Path> getAllPaths();
 
-  public Path getFirstPathWithError() {
+  /** Return the first Path with a validation error, or an empty Optional if no errors */
+  public Optional<Path> getFirstPathWithError() {
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
         getValidationErrors();
-    for (Path path : getAllPaths()) {
-      if (validationErrors.containsKey(path)) {
-        return path;
-      }
-    }
-    return null;
+    return getAllPaths().stream()
+        .filter(validationErrors::containsKey)
+        .findFirst()
+        .map(path -> Optional.of(path))
+        .orElse(Optional.empty());
   }
 
   public final ImmutableMap<Path, String> getFailedUpdates() {

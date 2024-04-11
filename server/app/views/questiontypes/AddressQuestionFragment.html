@@ -36,7 +36,7 @@
         th:aria-invalid="${!addressQuestion.getValidationErrors().isEmpty()}"
         th:aria-required="${!question.isOptional()}"
         autocomplete="address-line1"
-        th:autofocus="${questionRendererParams.autofocusFirstError() && streetPath.equals(firstPathWithError)}"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(streetPath)}"
       />
       <div
         th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(streetPath)})}"
@@ -59,7 +59,7 @@
         th:value="${addressQuestion.getLine2Value().orElse('')}"
         th:aria-invalid="${!addressQuestion.getValidationErrors().isEmpty()}"
         autocomplete="address-line2"
-        th:autofocus="${questionRendererParams.autofocusFirstError() && line2Path.equals(firstPathWithError)}"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(line2Path)}"
       />
       <div
         th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(line2Path)})}"
@@ -83,7 +83,7 @@
         th:aria-invalid="${!addressQuestion.getValidationErrors().isEmpty()}"
         th:aria-required="${!question.isOptional()}"
         autocomplete="address-level2"
-        th:autofocus="${questionRendererParams.autofocusFirstError() && cityPath.equals(firstPathWithError)}"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(cityPath)}"
       />
       <div
         th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(cityPath)})}"
@@ -106,7 +106,7 @@
         th:aria-invalid="${!addressQuestion.getValidationErrors().isEmpty()}"
         th:aria-required="${!question.isOptional()}"
         autocomplete="address-level1"
-        th:autofocus="${questionRendererParams.autofocusFirstError() && statePath.equals(firstPathWithError)}"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(statePath)}"
       >
         <option
           hidden
@@ -142,7 +142,7 @@
         th:aria-invalid="${!addressQuestion.getValidationErrors().isEmpty()}"
         th:aria-required="${!question.isOptional()}"
         autocomplete="postal-code"
-        th:autofocus="${questionRendererParams.autofocusFirstError() && zipPath.equals(firstPathWithError)}"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(zipPath)}"
       />
       <div
         th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(zipPath)})}"

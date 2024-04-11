@@ -2,7 +2,8 @@
   th:fragment="name(question, questionRendererParams)"
   th:with="nameQuestion=${question.createNameQuestion()},
              questionId=${#strings.randomAlphanumeric(8)},
-             maxInputLength=10000"
+             maxInputLength=10000,
+             firstPathWithError=${nameQuestion.getFirstPathWithError()}"
   th:id="${questionId}"
 >
   <!-- Title and Help Text -->
@@ -32,7 +33,7 @@
       autocomplete="given-name"
       th:value="${nameQuestion.getFirstNameValue().orElse('')}"
       th:name="${firstNamePath}"
-      th:autofocus="${questionRendererParams.autofocusFirstError() && firstNamePath.equals(firstPathWithError)}"
+      th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(firstNamePath)}"
     />
   </div>
   <div
@@ -71,7 +72,7 @@
       autocomplete="family-name"
       th:value="${nameQuestion.getLastNameValue().orElse('')}"
       th:name="${lastNamePath}"
-      th:autofocus="${questionRendererParams.autofocusFirstError() && lastNamePath.equals(firstPathWithError)}"
+      th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(lastNamePath)}"
     />
   </div>
 </div>

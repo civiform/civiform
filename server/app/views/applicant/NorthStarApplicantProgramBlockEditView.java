@@ -84,14 +84,11 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarAppli
                 }));
   }
 
-  // One field at most should be autofocused on the page. If there are errors,
-  // it should be the first field with an error of the first question with
-  // errors.
-  // Prior to the North Star work, if there were no errors, we would focus on the first field of the
-  // question selected
-  // in the review page. However, the North Star review page has the
-  // user choose a block to answer instead of an individual question, so we leave no focus
-  // target to avoid skipping content.
+  // One field at most should be autofocused on the page. If there are errors, it should be the
+  // first field with an error of the first question with errors. Prior to the North Star work, if
+  // there were no errors, we would focus on the first field of the question selected in the review
+  // page. However, the North Star review page has the user choose a block to answer instead of an
+  // individual question, so we leave no focus target to avoid skipping content.
   @VisibleForTesting
   static ApplicantQuestionRendererParams.AutoFocusTarget calculateAutoFocusTarget(
       ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode,
