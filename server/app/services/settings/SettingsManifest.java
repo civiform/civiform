@@ -536,13 +536,22 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * [Deprecated: Switch to `ESRI_FIND_ADDRESS_CANDIDATES_URLS`] The URL CiviForm will use to call
+   * Esri’s [findAddressCandidates
+   * service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).
+   */
+  public Optional<String> getEsriFindAddressCandidatesUrl() {
+    return getString("ESRI_FIND_ADDRESS_CANDIDATES_URL");
+  }
+
+  /**
    * The list of URLs CiviForm will use to call Esri’s [findAddressCandidates
    * service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).
    * These are used sequentially and not all of them may need to be used for every correction. If
    * any results have a score of 90 or higher, lower priority urls will not be called.
    */
-  public Optional<ImmutableList<String>> getEsriFindAddressCandidatesUrl() {
-    return getListOfStrings("ESRI_FIND_ADDRESS_CANDIDATES_URL");
+  public Optional<ImmutableList<String>> getEsriFindAddressCandidatesUrls() {
+    return getListOfStrings("ESRI_FIND_ADDRESS_CANDIDATES_URLS");
   }
 
   /**
@@ -1549,6 +1558,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       ImmutableList.of(
                           SettingDescription.create(
                               "ESRI_FIND_ADDRESS_CANDIDATES_URL",
+                              "[Deprecated: Switch to `ESRI_FIND_ADDRESS_CANDIDATES_URLS`] The URL"
+                                  + " CiviForm will use to call Esri’s [findAddressCandidates"
+                                  + " service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.ADMIN_READABLE),
+                          SettingDescription.create(
+                              "ESRI_FIND_ADDRESS_CANDIDATES_URLS",
                               "The list of URLs CiviForm will use to call Esri’s"
                                   + " [findAddressCandidates"
                                   + " service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm)."

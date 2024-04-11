@@ -64,7 +64,8 @@ public class EsriTestHelper {
     SERVICE_AREA_VALIDATION_NOT_INCLUDED,
     SERVICE_AREA_VALIDATION_NO_FEATURES,
     FAKE,
-    MULTIPLE_ENDPOINTS
+    MULTIPLE_ENDPOINTS,
+    LEGACY_SINGLE_URL_CONFIG_SETTING
   }
 
   private static final Clock CLOCK = Clock.system(ZoneId.of("America/Los_Angeles"));
@@ -129,6 +130,9 @@ public class EsriTestHelper {
       case SERVICE_AREA_VALIDATION_ERROR:
         serverSettings = createServerSettingsThatReturnError("/query");
         break;
+      case LEGACY_SINGLE_URL_CONFIG_SETTING:
+        serverSettings = createServerSettingsUsingOldConfigValueThatReturnOk();
+        break;
       case MULTIPLE_ENDPOINTS:
         serverSettings = createServerSettingsThatReturnMultiEndpoints();
         break;
@@ -188,6 +192,30 @@ public class EsriTestHelper {
     return new ServerSettings(server, wsClient, esriClient);
   }
 
+  private static ServerSettings createServerSettingsUsingOldConfigValueThatReturnOk() {
+    Server server =
+        Server.forRouter(
+            (components) ->
+                RoutingDsl.fromComponents(components)
+                    .GET("/findAddressCandidates")
+                    .routingTo(request -> ok().sendResource("esri/findAddressCandidates.json"))
+                    .build());
+
+    WSClient wsClient = play.test.WSTestClient.newClient(server.httpPort());
+
+    SettingsManifest mockSettingsManifest = mock();
+    when(mockSettingsManifest.getEsriFindAddressCandidatesUrls())
+        .thenReturn(Optional.of(ImmutableList.of()));
+    when(mockSettingsManifest.getEsriFindAddressCandidatesUrl())
+        .thenReturn(Optional.of("/findAddressCandidates"));
+
+    RealEsriClient esriClient =
+        new RealEsriClient(
+            mockSettingsManifest, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, wsClient);
+
+    return new ServerSettings(server, wsClient, esriClient);
+  }
+
   private static ServerSettings createServerSettingsThatReturnMultiEndpoints() {
     Server server =
         Server.forRouter(
@@ -210,7 +238,7 @@ public class EsriTestHelper {
     WSClient wsClient = play.test.WSTestClient.newClient(server.httpPort());
 
     SettingsManifest mockSettingsManifest = mock();
-    when(mockSettingsManifest.getEsriFindAddressCandidatesUrl())
+    when(mockSettingsManifest.getEsriFindAddressCandidatesUrls())
         .thenReturn(
             Optional.of(
                 ImmutableList.<String>builder()
