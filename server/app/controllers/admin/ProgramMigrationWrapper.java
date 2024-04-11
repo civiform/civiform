@@ -17,7 +17,29 @@ public final class ProgramMigrationWrapper {
   /** The definition of the program being migrated. */
   private ProgramDefinition program;
 
-  /** The list of questions contained in the {@code program}. TODO more */
+  /**
+   * The list of questions contained in the {@code program}.
+   *
+   * <p>These questions are stored separately from the {@code program} because:
+   *
+   * <p>A {@link ProgramDefinition} object contains a list of {@link
+   * services.program.BlockDefinition} objects, which specify blocks in a program. Each {@link
+   * services.program.BlockDefinition} object includes a list of {@link
+   * services.program.ProgramQuestionDefinition} objects, which specify all the questions in a
+   * block. These {@link services.program.ProgramQuestionDefinition} objects are stored in the
+   * database as a JSON-serialized string that include **only**: 1) The question's ID 2) If it's
+   * optional 3) If it has address correction enabled.
+   *
+   * <p>Because the {@link services.program.ProgramQuestionDefinition}s already specify a
+   * serialization structure, we can't change it: If we did, then we couldn't parse definitions
+   * already stored in the database. However, this existing serialization structure doesn't have
+   * enough information for us to re-create a full question definition.
+   *
+   * <p>In order to do that re-creation, we fetch the question definitions separately from the
+   * program definition. {@link services.migration.ProgramMigrationService} collects IDs of all the
+   * questions in {@code program}, and then fetches the full {@link QuestionDefinition}s to store in
+   * this object for serialization.
+   */
   private ImmutableList<QuestionDefinition> questions;
 
   @JsonCreator

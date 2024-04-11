@@ -28,8 +28,12 @@ import services.export.enums.ApiPathSegment;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
 
-/** Superclass for all question types. */
-// TODO: Explain
+/**
+ * Superclass for all question types.
+ *
+ * <p>The {@link JsonSubTypes} information lets us parse a QuestionDefinition into JSON, and then
+ * deserialize the JSON back into the correct QuestionDefinition subclass.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
   @JsonSubTypes.Type(value = AddressQuestionDefinition.class, name = "address"),
@@ -59,10 +63,7 @@ public abstract class QuestionDefinition {
     this.config = config;
   }
 
-  @JsonTypeInfo(
-      use = JsonTypeInfo.Id.NAME,
-      // include = JsonTypeInfo.As.EXISTING_PROPERTY,
-      property = "type")
+  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
   @JsonSubTypes({
     @JsonSubTypes.Type(
         value = AutoValue_AddressQuestionDefinition_AddressValidationPredicates.class,
@@ -121,7 +122,8 @@ public abstract class QuestionDefinition {
     }
   }
 
-  // TODO: Note on all the JsonIgnores
+  // Note: All the methods below are @JsonIgnore-d because they all pull information from the {@code
+  // config} object, and the config object is already JSON-serialized.
 
   /** Return true if the question is persisted and has an unique identifier. */
   @JsonIgnore

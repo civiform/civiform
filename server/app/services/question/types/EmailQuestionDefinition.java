@@ -2,7 +2,6 @@ package services.question.types;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 
 /** Defines an email question. */
@@ -13,8 +12,6 @@ public final class EmailQuestionDefinition extends QuestionDefinition {
   }
 
   @AutoValue
-  @JsonDeserialize(
-      builder = AutoValue_EmailQuestionDefinition_EmailValidationPredicates.Builder.class)
   public abstract static class EmailValidationPredicates extends ValidationPredicates {
 
     public static EmailQuestionDefinition.EmailValidationPredicates parse(String jsonString) {
@@ -27,18 +24,7 @@ public final class EmailQuestionDefinition extends QuestionDefinition {
     }
 
     public static EmailQuestionDefinition.EmailValidationPredicates create() {
-      return builder().build();
-    }
-
-    public static EmailQuestionDefinition.EmailValidationPredicates.Builder builder() {
-      return new AutoValue_EmailQuestionDefinition_EmailValidationPredicates.Builder();
-    }
-
-    @AutoValue.Builder
-    // @JsonPOJOBuilder
-    public abstract static class Builder {
-
-      public abstract EmailQuestionDefinition.EmailValidationPredicates build();
+      return new AutoValue_EmailQuestionDefinition_EmailValidationPredicates();
     }
   }
 

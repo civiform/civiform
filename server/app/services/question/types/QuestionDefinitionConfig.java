@@ -86,7 +86,6 @@ public abstract class QuestionDefinitionConfig {
   }
 
   @AutoValue.Builder
-  // @JsonPOJOBuilder
   public abstract static class Builder
       implements RequiredName, RequiredDescription, RequiredQuestionText {
     @JsonProperty("id")
