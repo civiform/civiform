@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Optional;
 import java.util.function.Function;
-import models.DisplayMode;
 import models.VersionModel;
 import repository.VersionRepository;
 
@@ -23,7 +22,6 @@ public final class ActiveAndDraftPrograms {
 
   private final ImmutableList<ProgramDefinition> activePrograms;
   private final ImmutableList<ProgramDefinition> draftPrograms;
-  private final ImmutableList<ProgramDefinition> nonDisabledActivePrograms;
   private final ImmutableMap<String, Pair<Optional<ProgramDefinition>, Optional<ProgramDefinition>>>
       versionedByName;
 
@@ -73,19 +71,7 @@ public final class ActiveAndDraftPrograms {
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
-    ImmutableMap<String, ProgramDefinition> nonDisabledActiveNameToProgram =
-        repository.getProgramsForVersion(checkNotNull(active)).stream()
-            .map(
-                program ->
-                    service.isPresent()
-                        ? getFullProgramDefinition(service.get(), program.id)
-                        : program.getProgramDefinition())
-            .filter(program -> program.displayMode() != DisplayMode.DISABLED)
-            .collect(
-                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
-
     this.activePrograms = activeNameToProgram.values().asList();
-    this.nonDisabledActivePrograms = nonDisabledActiveNameToProgram.values().asList();
     this.draftPrograms = draftNameToProgram.values().asList();
     this.versionedByName =
         Sets.union(activeNameToProgram.keySet(), draftNameToProgram.keySet()).stream()
@@ -105,10 +91,6 @@ public final class ActiveAndDraftPrograms {
 
   public ImmutableList<ProgramDefinition> getDraftPrograms() {
     return draftPrograms;
-  }
-
-  public ImmutableList<ProgramDefinition> getNonDisabledActivePrograms() {
-    return nonDisabledActivePrograms;
   }
 
   public ImmutableSet<String> getProgramNames() {
