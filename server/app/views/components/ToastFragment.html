@@ -1,0 +1,30 @@
+public static ToastMessage alert(String message) {
+    return new ToastMessage(message, ToastType.ALERT);
+  }
+
+  public static ToastMessage error(String message, Messages messages) {
+    String errMessageWithPrefix =
+        messages.at(MessageKey.TOAST_ERROR_MSG_OUTLINE.getKeyName(), message);
+    return new ToastMessage(errMessageWithPrefix, ToastType.ERROR);
+  }
+
+  public static ToastMessage errorNonLocalized(String message) {
+    return new ToastMessage("Error: " + message, ToastType.ERROR);
+  }
+
+  public static ToastMessage success(String message) {
+    return new ToastMessage(message, ToastType.SUCCESS);
+  }
+
+  public static ToastMessage warning(String message) {
+    return new ToastMessage(message, ToastType.WARNING);
+  }
+
+<div th:fragment="toast(id, canDismiss, canIgnore, toastDuration, condOnStorageKey, toastType)"
+     class="hidden cf-toast-data"
+     th:id="${id}"
+     th:attr="canDismiss=${canDismiss},canIgnore=${canIgnore},toastDuration=${toastDuration},condOnStorageKey=${condOnStorageKey},toastType=${toastType}"
+     >
+</div>
+
+<div th:fragment="errorToast(id, canDismiss, can)"
