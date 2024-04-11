@@ -107,7 +107,7 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
                     .with(
                         TextFormatter.formatText(
                             option.optionText(),
-                            /* preserveEmptyLines= */ true,
+                            /* preserveEmptyLines= */ false,
                             /* addRequiredIndicator= */ false))
                     .withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
 
