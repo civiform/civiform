@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import models.VersionModel;
 import repository.VersionRepository;
 
@@ -46,14 +47,15 @@ public final class ActiveAndDraftPrograms {
   }
 
   private ImmutableMap<String, ProgramDefinition> nameToProgram(
-      VersionRepository repository, Optional<ProgramService> service, VersionModel versionModel) {
+    VersionRepository repository, Optional<ProgramService> service, VersionModel versionModel,
+    Predicate<ProgramDefinition> filter) {
+
     return repository.getProgramsForVersion(checkNotNull(versionModel)).stream()
-        .map(
-            program ->
-                service.isPresent()
-                    ? getFullProgramDefinition(service.get(), program.id)
-                    : program.getProgramDefinition())
-        .collect(ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+      .map(program -> service.isPresent()
+        ? getFullProgramDefinition(service.get(), program.id)
+        : program.getProgramDefinition())
+      .filter(filter)
+      .collect(ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
   }
 
   private ActiveAndDraftPrograms(VersionRepository repository, Optional<ProgramService> service) {
@@ -63,10 +65,10 @@ public final class ActiveAndDraftPrograms {
     // an additional database lookup in order to sync the set of questions associated with the
     // program.
     ImmutableMap<String, ProgramDefinition> activeNameToProgram =
-        nameToProgram(repository, service, active);
+        nameToProgram(repository, service, active, program -> true);
 
     ImmutableMap<String, ProgramDefinition> draftNameToProgram =
-        nameToProgram(repository, service, draft);
+        nameToProgram(repository, service, draft, program -> true);
 
     this.activePrograms = activeNameToProgram.values().asList();
     this.draftPrograms = draftNameToProgram.values().asList();
