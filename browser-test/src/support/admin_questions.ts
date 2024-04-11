@@ -1401,11 +1401,11 @@ export class AdminQuestions {
 
   async expectPreviewOptions(options: string[]) {
     const optionElements = Array.from(
-      await this.page.$$('#sample-question .cf-multi-option-question-option'),
+      await this.page.$$('#sample-question .cf-multi-option-value'),
     )
     const existingOptions = await Promise.all(
       optionElements.map((el) => {
-        return (el as ElementHandle<HTMLElement>).innerText()
+        return (el as ElementHandle<HTMLElement>).innerHTML()
       }),
     )
     expect(existingOptions).toEqual(options)
