@@ -50,10 +50,10 @@ test.describe(
           questionHelpText: 'Sample question help text',
         })
         await adminQuestions.expectPreviewOptions([
-          'red',
-          'green',
-          'orange',
-          'blue',
+          'red\n',
+          'green\n',
+          'orange\n',
+          'blue\n',
         ])
 
         // Empty options renders default text.
@@ -146,12 +146,6 @@ test.describe(
 
         await logout(page)
       })
-      await adminQuestions.expectPreviewOptions([
-        'red\n',
-        'green\n',
-        'orange\n',
-        'blue\n',
-      ])
 
       test('with selected options submits successfully', async ({
         applicantQuestions,
