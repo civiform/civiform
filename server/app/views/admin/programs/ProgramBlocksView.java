@@ -157,9 +157,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .anyMatch(BlockDefinition::hasNullQuestion);
 
     ArrayList<ProgramHeaderButton> headerButtons =
-        new ArrayList<>(
-            getEditHeaderButtons(
-                settingsManifest, /* isEditingAllowed= */ viewAllowsEditingProgram()));
+        new ArrayList<>(getEditHeaderButtons(/* isEditingAllowed= */ viewAllowsEditingProgram()));
     headerButtons.add(ProgramHeaderButton.PREVIEW_AS_APPLICANT);
     headerButtons.add(ProgramHeaderButton.DOWNLOAD_PDF_PREVIEW);
 
@@ -237,8 +235,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * @param isEditingAllowed true if the view allows editing and false otherwise. (Typically, a view
    *     only allows editing if a program is in draft mode.)
    */
-  private ImmutableList<ProgramHeaderButton> getEditHeaderButtons(
-      SettingsManifest settingsManifest, boolean isEditingAllowed) {
+  private ImmutableList<ProgramHeaderButton> getEditHeaderButtons(boolean isEditingAllowed) {
     if (isEditingAllowed) {
       return ImmutableList.of(
           ProgramHeaderButton.EDIT_PROGRAM_DETAILS, ProgramHeaderButton.EDIT_PROGRAM_IMAGE);
