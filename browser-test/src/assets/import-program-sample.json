@@ -1,6 +1,6 @@
 {
   "program": {
-    "id": 34,
+    "id": 41,
     "adminName": "import-program-sample",
     "adminDescription": "desc",
     "externalLink": "https://github.com/civiform/civiform",
@@ -181,7 +181,7 @@
       {
         "id": 3,
         "name": "Household information",
-        "description": "List all household members",
+        "description": "household information",
         "repeaterId": null,
         "hidePredicate": null,
         "optionalPredicate": null,
@@ -196,7 +196,7 @@
       {
         "id": 4,
         "name": "Household member info",
-        "description": "Collect information about each household member",
+        "description": "household member info",
         "repeaterId": 3,
         "hidePredicate": null,
         "optionalPredicate": null,
@@ -207,7 +207,7 @@
             "addressCorrectionEnabled": false
           },
           {
-            "id": 22,
+            "id": 30,
             "optional": false,
             "addressCorrectionEnabled": false
           },
@@ -221,7 +221,7 @@
       {
         "id": 9,
         "name": "Car information",
-        "description": "Information about an applicant's cars",
+        "description": "Screen 9 description",
         "repeaterId": 3,
         "hidePredicate": null,
         "optionalPredicate": null,
@@ -236,7 +236,7 @@
       {
         "id": 10,
         "name": "Car price per car",
-        "description": "",
+        "description": "car price per car",
         "repeaterId": 9,
         "hidePredicate": null,
         "optionalPredicate": null,
@@ -251,7 +251,7 @@
       {
         "id": 5,
         "name": "Screen 3",
-        "description": "Additional questions",
+        "description": "Random information",
         "repeaterId": null,
         "hidePredicate": null,
         "optionalPredicate": null,
@@ -266,7 +266,7 @@
       {
         "id": 6,
         "name": "Screen only for Spring and Summer",
-        "description": "A screen exercising visibility conditions",
+        "description": "May be hidden",
         "repeaterId": null,
         "hidePredicate": {
           "rootNode": {
@@ -294,8 +294,8 @@
       },
       {
         "id": 7,
-        "name": "File upload",
-        "description": "Upload a file",
+        "name": "file upload",
+        "description": "this is for file upload",
         "repeaterId": null,
         "hidePredicate": {
           "rootNode": {
@@ -349,8 +349,8 @@
       },
       {
         "id": 11,
-        "name": "Just Static Text Screen",
-        "description": "Some final static information",
+        "name": "Screen 11",
+        "description": "Screen 11 description",
         "repeaterId": null,
         "hidePredicate": null,
         "optionalPredicate": null,
@@ -385,9 +385,949 @@
     },
     "localizedSummaryImageDescription": {
       "translations": {
-        "en_US": "Test summary image description"
+        "en_US": "test2"
       },
       "isRequired": true
     }
-  }
+  },
+  "questions": [
+    {
+      "type": "static",
+      "config": {
+        "name": "Sample Static Content Question",
+        "description": "description",
+        "questionText": {
+          "translations": {
+            "en_US": "Hi I'm a block of static text. \n * Welcome to this __test program__.\n * It contains one of every question type. \n\n## What are the eligibility requirements? \nPlease go [here](https://www.example.com) for more information"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {
+            "en_US": ""
+          },
+          "isRequired": true
+        },
+        "validationPredicates": {
+          "type": "static"
+        },
+        "id": 18,
+        "enumeratorId": null,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      }
+    },
+    {
+      "type": "address",
+      "config": {
+        "name": "Sample Address Question",
+        "description": "description",
+        "questionText": {
+          "translations": {
+            "en_US": "What is your address?"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {
+            "en_US": "help text"
+          },
+          "isRequired": true
+        },
+        "validationPredicates": {
+          "type": "address",
+          "disallowPoBox": false
+        },
+        "id": 5,
+        "enumeratorId": null,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      },
+      "addressValidationPredicates": {
+        "type": "address",
+        "disallowPoBox": false
+      },
+      "disallowPoBox": false
+    },
+    {
+      "type": "multioption",
+      "config": {
+        "name": "Sample Checkbox Question",
+        "description": "description",
+        "questionText": {
+          "translations": {
+            "en_US": "Which of the following kitchen instruments do you own?"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {
+            "en_US": "help text"
+          },
+          "isRequired": true
+        },
+        "validationPredicates": {
+          "type": "multioption",
+          "minChoicesRequired": 0,
+          "maxChoicesAllowed": 3
+        },
+        "id": 26,
+        "enumeratorId": null,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      },
+      "questionOptions": [
+        {
+          "id": 1,
+          "adminName": "toaster",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Toaster"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 0
+        },
+        {
+          "id": 2,
+          "adminName": "pepper_grinder",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Pepper Grinder"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 1
+        },
+        {
+          "id": 3,
+          "adminName": "garlic_press",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Garlic Press"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 2
+        }
+      ],
+      "multiOptionQuestionType": "CHECKBOX",
+      "optionAdminNames": ["toaster", "pepper_grinder", "garlic_press"],
+      "options": [
+        {
+          "id": 1,
+          "adminName": "toaster",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Toaster"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 0
+        },
+        {
+          "id": 2,
+          "adminName": "pepper_grinder",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Pepper Grinder"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 1
+        },
+        {
+          "id": 3,
+          "adminName": "garlic_press",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Garlic Press"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 2
+        }
+      ]
+    },
+    {
+      "type": "currency",
+      "config": {
+        "name": "Sample Currency Question",
+        "description": "description",
+        "questionText": {
+          "translations": {
+            "en_US": "How much should a scoop of ice cream cost?"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {
+            "en_US": "help text"
+          },
+          "isRequired": true
+        },
+        "validationPredicates": {
+          "type": "currency"
+        },
+        "id": 7,
+        "enumeratorId": null,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      }
+    },
+    {
+      "type": "date",
+      "config": {
+        "name": "Sample Date Question",
+        "description": "description",
+        "questionText": {
+          "translations": {
+            "en_US": "When is your birthday?"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {
+            "en_US": "help text"
+          },
+          "isRequired": true
+        },
+        "validationPredicates": {
+          "type": "date"
+        },
+        "id": 9,
+        "enumeratorId": null,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      }
+    },
+    {
+      "type": "multioption",
+      "config": {
+        "name": "Sample Dropdown Question",
+        "description": "select your favorite ice cream flavor",
+        "questionText": {
+          "translations": {
+            "en_US": "Select your favorite ice cream flavor from the following"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {
+            "en_US": "this is sample help text"
+          },
+          "isRequired": true
+        },
+        "validationPredicates": {
+          "type": "multioption",
+          "minChoicesRequired": 1,
+          "maxChoicesAllowed": 1
+        },
+        "id": 10,
+        "enumeratorId": null,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      },
+      "questionOptions": [
+        {
+          "id": 1,
+          "adminName": "chocolate",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Chocolate"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 1
+        },
+        {
+          "id": 2,
+          "adminName": "strawberry",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Strawberry"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 2
+        },
+        {
+          "id": 3,
+          "adminName": "vanilla",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Vanilla"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 3
+        },
+        {
+          "id": 4,
+          "adminName": "coffee",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Coffee"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 4
+        }
+      ],
+      "multiOptionQuestionType": "DROPDOWN",
+      "optionAdminNames": ["chocolate", "strawberry", "vanilla", "coffee"],
+      "options": [
+        {
+          "id": 1,
+          "adminName": "chocolate",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Chocolate"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 1
+        },
+        {
+          "id": 2,
+          "adminName": "strawberry",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Strawberry"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 2
+        },
+        {
+          "id": 3,
+          "adminName": "vanilla",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Vanilla"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 3
+        },
+        {
+          "id": 4,
+          "adminName": "coffee",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Coffee"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 4
+        }
+      ]
+    },
+    {
+      "type": "phone",
+      "config": {
+        "name": "Sample Phone Question",
+        "description": "description",
+        "questionText": {
+          "translations": {
+            "en_US": "what is your phone number"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {
+            "en_US": "help text"
+          },
+          "isRequired": true
+        },
+        "validationPredicates": {
+          "type": "phone"
+        },
+        "id": 16,
+        "enumeratorId": null,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      }
+    },
+    {
+      "type": "email",
+      "config": {
+        "name": "Sample Email Question",
+        "description": "description",
+        "questionText": {
+          "translations": {
+            "en_US": "What is your email?"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {
+            "en_US": "help text"
+          },
+          "isRequired": true
+        },
+        "validationPredicates": {
+          "type": "email"
+        },
+        "id": 11,
+        "enumeratorId": null,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      }
+    },
+    {
+      "type": "id",
+      "config": {
+        "name": "Sample ID Question",
+        "description": "description",
+        "questionText": {
+          "translations": {
+            "en_US": "What is your driver's license ID?"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {
+            "en_US": "help text"
+          },
+          "isRequired": true
+        },
+        "validationPredicates": {
+          "type": "id",
+          "minLength": null,
+          "maxLength": null
+        },
+        "id": 14,
+        "enumeratorId": null,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      }
+    },
+    {
+      "type": "name",
+      "config": {
+        "name": "Name",
+        "description": "The applicant's name",
+        "questionText": {
+          "translations": {
+            "am": "ስም (የመጀመሪያ ስም እና የመጨረሻ ስም አህጽሮት ይሆናል)",
+            "ko": "성함 (이름 및 성의 경우 이니셜도 괜찮음)",
+            "lo": "ຊື່ (ນາມສະກຸນ ແລະ ຕົວອັກສອນທຳອິດຂອງນາມສະກຸນແມ່ນຖືກຕ້ອງ)",
+            "so": "Magaca (magaca koowaad iyo kan dambe okay)",
+            "tl": "Pangalan (unang pangalan at ang unang titik ng apilyedo ay okay)",
+            "vi": "Tên (tên và họ viết tắt đều được)",
+            "en_US": "Please enter your first and last name",
+            "es_US": "Nombre (nombre y la inicial del apellido está bien)",
+            "zh_TW": "姓名（名字和姓氏第一個字母便可）"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {},
+          "isRequired": false
+        },
+        "validationPredicates": {
+          "type": "name"
+        },
+        "id": 1,
+        "enumeratorId": null,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      }
+    },
+    {
+      "type": "number",
+      "config": {
+        "name": "Sample Number Question",
+        "description": "description",
+        "questionText": {
+          "translations": {
+            "en_US": "How many pets do you have?"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {
+            "en_US": "help text"
+          },
+          "isRequired": true
+        },
+        "validationPredicates": {
+          "type": "number",
+          "min": null,
+          "max": null
+        },
+        "id": 15,
+        "enumeratorId": null,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      },
+      "max": null,
+      "min": null
+    },
+    {
+      "type": "text",
+      "config": {
+        "name": "Sample Text Question",
+        "description": "description",
+        "questionText": {
+          "translations": {
+            "en_US": "What is your favorite color?"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {
+            "en_US": "help text"
+          },
+          "isRequired": true
+        },
+        "validationPredicates": {
+          "type": "text",
+          "minLength": null,
+          "maxLength": null
+        },
+        "id": 19,
+        "enumeratorId": null,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      },
+      "minLength": null,
+      "maxLength": null
+    },
+    {
+      "type": "enumerator",
+      "config": {
+        "name": "Sample Enumerator Question",
+        "description": "description",
+        "questionText": {
+          "translations": {
+            "en_US": "List all members of your household."
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {
+            "en_US": "help text"
+          },
+          "isRequired": true
+        },
+        "validationPredicates": {
+          "type": "enumerator"
+        },
+        "id": 12,
+        "enumeratorId": null,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      },
+      "entityType": {
+        "translations": {
+          "en_US": "household member"
+        },
+        "isRequired": true
+      }
+    },
+    {
+      "type": "date",
+      "config": {
+        "name": "Sample Enumerated Date Question",
+        "description": "description",
+        "questionText": {
+          "translations": {
+            "en_US": "When is $this's birthday?"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {
+            "en_US": "help text for $this's birthday"
+          },
+          "isRequired": true
+        },
+        "validationPredicates": {
+          "type": "date"
+        },
+        "id": 21,
+        "enumeratorId": 12,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      }
+    },
+    {
+      "type": "name",
+      "config": {
+        "name": "household-member-name",
+        "description": "",
+        "questionText": {
+          "translations": {
+            "en_US": "What is $this's name?"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {
+            "en_US": "This is the name help text heellooooo"
+          },
+          "isRequired": true
+        },
+        "validationPredicates": {
+          "type": "name"
+        },
+        "id": 30,
+        "enumeratorId": 12,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      }
+    },
+    {
+      "type": "multioption",
+      "config": {
+        "name": "color-per-household",
+        "description": "",
+        "questionText": {
+          "translations": {
+            "en_US": "What is $this's favorite color(s)?"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {},
+          "isRequired": false
+        },
+        "validationPredicates": {
+          "type": "multioption",
+          "minChoicesRequired": null,
+          "maxChoicesAllowed": null
+        },
+        "id": 25,
+        "enumeratorId": 12,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      },
+      "questionOptions": [
+        {
+          "id": 3,
+          "adminName": "yellow",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "yellow"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 0
+        },
+        {
+          "id": 4,
+          "adminName": "blue",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "blue"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 1
+        },
+        {
+          "id": 5,
+          "adminName": "green",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "green"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 2
+        }
+      ],
+      "multiOptionQuestionType": "CHECKBOX",
+      "optionAdminNames": ["yellow", "blue", "green"],
+      "options": [
+        {
+          "id": 3,
+          "adminName": "yellow",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "yellow"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 0
+        },
+        {
+          "id": 4,
+          "adminName": "blue",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "blue"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 1
+        },
+        {
+          "id": 5,
+          "adminName": "green",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "green"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 2
+        }
+      ]
+    },
+    {
+      "type": "enumerator",
+      "config": {
+        "name": "cars-for-each-person",
+        "description": "",
+        "questionText": {
+          "translations": {
+            "en_US": "List all cars for $this in your household."
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {},
+          "isRequired": false
+        },
+        "validationPredicates": {
+          "type": "enumerator"
+        },
+        "id": 23,
+        "enumeratorId": 12,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      },
+      "entityType": {
+        "translations": {
+          "en_US": "car"
+        },
+        "isRequired": true
+      }
+    },
+    {
+      "type": "currency",
+      "config": {
+        "name": "price-of-car",
+        "description": "",
+        "questionText": {
+          "translations": {
+            "en_US": "Price of car $this?"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {},
+          "isRequired": false
+        },
+        "validationPredicates": {
+          "type": "currency"
+        },
+        "id": 24,
+        "enumeratorId": 23,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      }
+    },
+    {
+      "type": "multioption",
+      "config": {
+        "name": "Sample Radio Button Question",
+        "description": "favorite season in the year",
+        "questionText": {
+          "translations": {
+            "en_US": "What is your favorite season?"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {
+            "en_US": "this is sample help text"
+          },
+          "isRequired": true
+        },
+        "validationPredicates": {
+          "type": "multioption",
+          "minChoicesRequired": 1,
+          "maxChoicesAllowed": 1
+        },
+        "id": 17,
+        "enumeratorId": null,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      },
+      "questionOptions": [
+        {
+          "id": 1,
+          "adminName": "winter",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Winter (will hide next block)"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 1
+        },
+        {
+          "id": 2,
+          "adminName": "spring",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Spring"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 2
+        },
+        {
+          "id": 3,
+          "adminName": "summer",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Summer"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 3
+        },
+        {
+          "id": 4,
+          "adminName": "fall",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Fall (will hide next block)"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 4
+        }
+      ],
+      "multiOptionQuestionType": "RADIO_BUTTON",
+      "optionAdminNames": ["winter", "spring", "summer", "fall"],
+      "options": [
+        {
+          "id": 1,
+          "adminName": "winter",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Winter (will hide next block)"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 1
+        },
+        {
+          "id": 2,
+          "adminName": "spring",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Spring"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 2
+        },
+        {
+          "id": 3,
+          "adminName": "summer",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Summer"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 3
+        },
+        {
+          "id": 4,
+          "adminName": "fall",
+          "localizedOptionText": {
+            "translations": {
+              "en_US": "Fall (will hide next block)"
+            },
+            "isRequired": true
+          },
+          "displayOrder": 4
+        }
+      ]
+    },
+    {
+      "type": "date",
+      "config": {
+        "name": "Sample Predicate Date Question",
+        "description": "description",
+        "questionText": {
+          "translations": {
+            "en_US": "When is your birthday?"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {
+            "en_US": "help text"
+          },
+          "isRequired": true
+        },
+        "validationPredicates": {
+          "type": "date"
+        },
+        "id": 8,
+        "enumeratorId": null,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      }
+    },
+    {
+      "type": "fileupload",
+      "config": {
+        "name": "Sample File Upload Question",
+        "description": "description",
+        "questionText": {
+          "translations": {
+            "en_US": "Upload anything from your computer"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {
+            "en_US": "help text"
+          },
+          "isRequired": true
+        },
+        "validationPredicates": {
+          "type": "fileupload"
+        },
+        "id": 13,
+        "enumeratorId": null,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      }
+    },
+    {
+      "type": "static",
+      "config": {
+        "name": "static-2",
+        "description": "",
+        "questionText": {
+          "translations": {
+            "en_US": "it's me static text!"
+          },
+          "isRequired": true
+        },
+        "questionHelpText": {
+          "translations": {},
+          "isRequired": false
+        },
+        "validationPredicates": {
+          "type": "static"
+        },
+        "id": 27,
+        "enumeratorId": null,
+        "universal": false,
+        "primaryApplicantInfoTags": []
+      }
+    }
+  ]
 }

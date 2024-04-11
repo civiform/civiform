@@ -87,12 +87,10 @@ public final class AdminImportViewPartial {
     DivTag questionDiv =
         div()
             .withClasses("border", "border-gray-200", "p-2")
-            .with(p(question.getQuestionText().getDefault()));
+            .with(p(question.getQuestionText().getDefault()).withClass("font-bold"));
     if (!question.getQuestionHelpText().isEmpty()) {
       questionDiv.with(p(question.getQuestionHelpText().getDefault()));
     }
-
-    // TODO: Is help text being imported?
 
     questionDiv.with(
         p("Admin name: " + question.getName()),
@@ -102,7 +100,7 @@ public final class AdminImportViewPartial {
     // If a question offers options, show them
     if (question.getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) question;
-      UlTag optionList = ul();
+      UlTag optionList = ul().withClasses("list-disc", "ml-10");
       for (QuestionOption option : multiOption.getOptions()) {
         optionList.with(li(option.optionText().getDefault()));
       }

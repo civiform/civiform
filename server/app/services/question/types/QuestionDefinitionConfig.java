@@ -112,7 +112,7 @@ public abstract class QuestionDefinitionConfig {
       return setQuestionHelpTextInternal(questionHelpText);
     }
 
-    @JsonProperty("questionHelpTextInternal")
+    @JsonProperty("questionHelpText")
     abstract Builder setQuestionHelpTextInternal(LocalizedStrings questionHelpText);
 
     @JsonProperty("universal")

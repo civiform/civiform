@@ -272,41 +272,23 @@ public final class QuestionDefinitionBuilder {
   }
 
   private String createValidationPredicatesWithType() {
-    System.out.println("--------------");
-    System.out.println("original=" + validationPredicatesString);
-
     JsonNode parsed = Json.parse(validationPredicatesString);
-    System.out.println("parsed=" + parsed.toString());
-    System.out.println("maxLength=" + parsed.findPath("maxLength").asText());
     if (parsed.isEmpty()) {
-      System.out.println("parsed is empty :O");
       return "";
     }
 
-    String type = this.questionType.name().toLowerCase(Locale.getDefault());
-    if (this.questionType == QuestionType.CHECKBOX
-        || this.questionType == QuestionType.RADIO_BUTTON
-        || this.questionType == QuestionType.DROPDOWN) {
-      type = "multioption";
-    }
-
     if (parsed.findPath("type").isEmpty()) {
+      String type = this.questionType.name().toLowerCase(Locale.getDefault());
+      if (this.questionType == QuestionType.CHECKBOX
+          || this.questionType == QuestionType.RADIO_BUTTON
+          || this.questionType == QuestionType.DROPDOWN) {
+        type = "multioption";
+      }
       ObjectNode newNode = (ObjectNode) parsed;
       newNode.put("type", type);
-      System.out.println("new=" + newNode.toString());
       return newNode.toString();
     }
 
-    // TODO: Helper function
-    // TODO: Check what it looks like in the db now
-    if (validationPredicatesString.equals("{}")) {
-      // validationPredicatesString = "{\"type\": \"" + type + "\"}";
-      validationPredicatesString = "";
-    } else if (validationPredicatesString.startsWith("{")) {
-      validationPredicatesString =
-          validationPredicatesString.replaceFirst("\\{", "\\{\"type\":\"" + type + "\",");
-    }
-    System.out.println("string after replacement: " + validationPredicatesString);
     return validationPredicatesString;
   }
 }
