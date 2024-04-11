@@ -1410,7 +1410,7 @@ export class AdminQuestions {
     )
     expect(existingOptions).toEqual(options)
   }
-  
+
   async expectPreviewOptionsWithMarkdown(options: string[]) {
     const optionElements = Array.from(
       await this.page.$$('#sample-question .cf-multi-option-value'),

@@ -142,7 +142,10 @@ test.describe('Checkbox question for applicant flow', () => {
           options: [
             {adminName: 'red_markdown_admin', text: '_red_'},
             {adminName: 'green_markdown_admin', text: '__green__'},
-            {adminName: 'orange_markdown_admin', text: '[orange](https://www.orange.com)'},
+            {
+              adminName: 'orange_markdown_admin',
+              text: '[orange](https://www.orange.com)',
+            },
             {adminName: 'blue_markdown_admin', text: 'https://www.blue.com'},
           ],
         },
@@ -152,8 +155,8 @@ test.describe('Checkbox question for applicant flow', () => {
       await adminQuestions.expectPreviewOptionsWithMarkdown([
         '<p><em>red</em></p>\n',
         '<p><strong>green</strong></p>\n',
-        '<p><a class=\"text-blue-600 hover:text-blue-500 underline\" target=\"_blank\" href=\"https://www.orange.com\">orange</a></p>\n',
-        '<p><a class=\"text-blue-600 hover:text-blue-500 underline\" target=\"_blank\" href=\"https://www.blue.com\">https://www.blue.com</a></p>\n',
+        '<p><a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="https://www.orange.com">orange</a></p>\n',
+        '<p><a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="https://www.blue.com">https://www.blue.com</a></p>\n',
       ])
       await validateScreenshot(page, 'checkbox-options-with-markdown')
     })
