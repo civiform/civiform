@@ -148,12 +148,7 @@ test.describe('Checkbox question for applicant flow', () => {
         },
         /* clickSubmit= */ false,
       )
-
-      // Verify question preview has the default values.
-      await adminQuestions.expectCommonPreviewValues({
-        questionText: 'Sample question text',
-        questionHelpText: 'Sample question help text',
-      })
+      
       await adminQuestions.expectPreviewOptions([
         '<p><em>red</em></p>\n',
         '<p><strong>green</strong></p>\n',

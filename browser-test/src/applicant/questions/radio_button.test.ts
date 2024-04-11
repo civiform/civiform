@@ -49,10 +49,10 @@ test.describe('Radio button question for applicant flow', () => {
         questionHelpText: 'Sample question help text',
       })
       await adminQuestions.expectPreviewOptions([
-        'red',
-        'green',
-        'orange',
-        'blue',
+        '<p>red</p>\n',
+        '<p>green</p>\n',
+        '<p>orange</p>\n',
+        '<p>blue</p>\n',
       ])
 
       // Empty options renders default text.
@@ -65,7 +65,7 @@ test.describe('Radio button question for applicant flow', () => {
         },
         /* clickSubmit= */ false,
       )
-      await adminQuestions.expectPreviewOptions(['Sample question option'])
+      await adminQuestions.expectPreviewOptions(['<p>Sample question option</p>\n'])
     })
 
     test('validate screenshot', async () => {
@@ -104,6 +104,33 @@ test.describe('Radio button question for applicant flow', () => {
         'This question is required.',
       )
       expect(await page.innerHTML(radioButtonId)).toContain('autofocus')
+    })
+
+    test('markdown applied to options shows in preview', async () => {
+      const {page, adminQuestions} = ctx
+      await loginAsAdmin(page)
+      await adminQuestions.createRadioButtonQuestion(
+        {
+          questionName: 'markdown-options-test',
+          questionText: 'Sample question text',
+          helpText: 'Sample question help text',
+          options: [
+            {adminName: 'red_markdown_admin', text: '_red_'},
+            {adminName: 'green_markdown_admin', text: '__green__'},
+            {adminName: 'orange_markdown_admin', text: '[orange](https://www.orange.com)'},
+            {adminName: 'blue_markdown_admin', text: 'https://www.blue.com'},
+          ],
+        },
+        /* clickSubmit= */ false,
+      )
+      
+      await adminQuestions.expectPreviewOptions([
+        '<p><em>red</em></p>\n',
+        '<p><strong>green</strong></p>\n',
+        '<p><a class=\"text-blue-600 hover:text-blue-500 underline\" target=\"_blank\" href=\"https://www.orange.com\">orange</a></p>\n',
+        '<p><a class=\"text-blue-600 hover:text-blue-500 underline\" target=\"_blank\" href=\"https://www.blue.com\">https://www.blue.com</a></p>\n',
+      ])
+      await validateScreenshot(page, 'radio-button-options-with-markdown')
     })
   })
 
