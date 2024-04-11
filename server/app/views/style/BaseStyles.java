@@ -92,7 +92,7 @@ public final class BaseStyles {
 
   /** For use on an `input` of type "checkbox". */
   public static final String CHECKBOX =
-      StyleUtils.joinStyles("h-4", "w-4", "mr-4", "align-middle", "self-center");
+      StyleUtils.joinStyles("h-4", "w-4", "mr-4", "align-middle", "self-center", "flex-none");
 
   /** For use on an `input` of type "radio". */
   public static final String RADIO = CHECKBOX;

@@ -135,6 +135,38 @@ test.describe('Radio button question for applicant flow', () => {
       ])
       await validateScreenshot(page, 'radio-button-options-with-markdown')
     })
+
+    test('options with long text render correctly', async () => {
+      const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
+
+      const longTextProgramName = 'Long text program name'
+      await loginAsAdmin(page)
+      await adminQuestions.createRadioButtonQuestion(
+        {
+          questionName: 'long-option-test',
+          questionText: 'Sample question text',
+          helpText: 'Sample question help text',
+          options: [
+            {adminName: 'short_text', text: 'short'},
+            {
+              adminName: 'long_text',
+              text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+            },
+          ],
+        },
+        /* clickSubmit= */ false,
+      )
+      await validateScreenshot(page, 'radio-options-long-text-preview')
+      await adminQuestions.clickSubmitButtonAndNavigate('Create')
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        ['long-option-test'],
+        longTextProgramName,
+      )
+      await logout(page)
+
+      await applicantQuestions.applyProgram(longTextProgramName)
+      await validateScreenshot(page, 'radio-options-long-text-applicant')
+    })
   })
 
   test.describe('multiple radio button questions', () => {
