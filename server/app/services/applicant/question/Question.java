@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.Optional;
-import models.ApplicantModel;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
