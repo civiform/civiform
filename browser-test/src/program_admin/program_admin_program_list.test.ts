@@ -29,7 +29,7 @@ test.describe('Program admin program list', () => {
       await logout(page)
     })
 
-    await test.step('log in as a Program admin and view the program list, verify that the disabled program is shown', async () => {
+    await test.step('log in as a program admin and view the program list, verify that the disabled program is shown', async () => {
       await loginAsProgramAdmin(page)
       await validateScreenshot(
         page,
