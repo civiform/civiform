@@ -372,9 +372,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
 
   private ButtonTag createSubmitButton(ProgramEditStatus programEditStatus) {
     String saveProgramDetailsText;
-    if (settingsManifest.getProgramCardImages()
-        && (programEditStatus == ProgramEditStatus.CREATION
-            || programEditStatus == ProgramEditStatus.CREATION_EDIT)) {
+    if (programEditStatus == ProgramEditStatus.CREATION
+        || programEditStatus == ProgramEditStatus.CREATION_EDIT) {
       // If the admin is in the middle of creating a new program, they'll be redirected to the next
       // step of adding a program image, so we want the save button text to reflect that.
       saveProgramDetailsText = "Save and continue to next step";
