@@ -239,8 +239,6 @@ test.describe('name applicant flow', {tag: ['@uses-fixtures']}, () => {
   test.describe('single required name question with north star flag enabled', () => {
     const programName = 'Test program for single name'
 
-    test.beforeAll(async () => {})
-
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await setUpSingleRequiredQuestion(
         programName,
