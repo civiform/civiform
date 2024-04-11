@@ -15,12 +15,16 @@ const NAME_FIRST = '.cf-name-first'
 const NAME_LAST = '.cf-name-last'
 
 test.describe('name applicant flow', {tag: ['@uses-fixtures']}, () => {
-
   test.describe('single required name question', () => {
     const programName = 'Test program for single name'
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpSingleRequiredQuestion(programName, page, adminQuestions, adminPrograms)
+      await setUpSingleRequiredQuestion(
+        programName,
+        page,
+        adminQuestions,
+        adminPrograms,
+      )
       await disableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
@@ -30,14 +34,20 @@ test.describe('name applicant flow', {tag: ['@uses-fixtures']}, () => {
       await validateScreenshot(page, 'name')
     })
 
-    test('validate screenshot with errors', async ({page, applicantQuestions}) => {
+    test('validate screenshot with errors', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
       await validateScreenshot(page, 'name-errors')
     })
 
-    test('does not show errors initially', async ({page, applicantQuestions}) => {
+    test('does not show errors initially', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '')
       let error = await page.$(`${NAME_FIRST}-error`)
@@ -54,7 +64,10 @@ test.describe('name applicant flow', {tag: ['@uses-fixtures']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with empty name does not submit', async ({page, applicantQuestions}) => {
+    test('with empty name does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '')
       await applicantQuestions.clickNext()
@@ -95,7 +108,10 @@ test.describe('name applicant flow', {tag: ['@uses-fixtures']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with first invalid does not submit', async ({page, applicantQuestions}) => {
+    test('with first invalid does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '', 0)
       await applicantQuestions.answerNameQuestion('Chuckie', 'Finster', '', 1)
@@ -114,7 +130,10 @@ test.describe('name applicant flow', {tag: ['@uses-fixtures']}, () => {
       expect(await error?.isHidden()).toEqual(true)
     })
 
-    test('with second invalid does not submit', async ({page, applicantQuestions}) => {
+    test('with second invalid does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 0)
       await applicantQuestions.answerNameQuestion('', '', '', 1)
@@ -133,7 +152,10 @@ test.describe('name applicant flow', {tag: ['@uses-fixtures']}, () => {
       expect(await error?.isHidden()).toEqual(false)
     })
 
-    test('has no accessiblity violations', async ({page, applicantQuestions}) => {
+    test('has no accessiblity violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
@@ -165,7 +187,9 @@ test.describe('name applicant flow', {tag: ['@uses-fixtures']}, () => {
       await logout(page)
     })
 
-    test('with valid required name does submit', async ({applicantQuestions}) => {
+    test('with valid required name does submit', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 1)
       await applicantQuestions.clickNext()
@@ -173,7 +197,10 @@ test.describe('name applicant flow', {tag: ['@uses-fixtures']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with invalid optional name does not submit', async ({page, applicantQuestions}) => {
+    test('with invalid optional name does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', '', '', 0)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 1)
@@ -212,11 +239,15 @@ test.describe('name applicant flow', {tag: ['@uses-fixtures']}, () => {
   test.describe('single required name question with north star flag enabled', () => {
     const programName = 'Test program for single name'
 
-    test.beforeAll(async () => {
-    })
+    test.beforeAll(async () => {})
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpSingleRequiredQuestion(programName, page, adminQuestions, adminPrograms)
+      await setUpSingleRequiredQuestion(
+        programName,
+        page,
+        adminQuestions,
+        adminPrograms,
+      )
       await enableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
@@ -248,7 +279,12 @@ test.describe('name applicant flow', {tag: ['@uses-fixtures']}, () => {
     )
   })
 
-  async function setUpSingleRequiredQuestion(programName: string, page: Page, adminQuestions: AdminQuestions, adminPrograms: AdminPrograms) {
+  async function setUpSingleRequiredQuestion(
+    programName: string,
+    page: Page,
+    adminQuestions: AdminQuestions,
+    adminPrograms: AdminPrograms,
+  ) {
     await loginAsAdmin(page)
 
     await adminQuestions.addNameQuestion({

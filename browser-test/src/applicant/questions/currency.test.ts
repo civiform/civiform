@@ -19,7 +19,12 @@ test.describe('currency applicant flow', {tag: ['@uses-fixtures']}, () => {
     const programName = 'Test program for single currency'
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpSingleCurrencyQuestion(programName, page, adminQuestions, adminPrograms)
+      await setUpSingleCurrencyQuestion(
+        programName,
+        page,
+        adminQuestions,
+        adminPrograms,
+      )
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
@@ -28,7 +33,10 @@ test.describe('currency applicant flow', {tag: ['@uses-fixtures']}, () => {
       await validateScreenshot(page, 'currency')
     })
 
-    test('validate screenshot with errors', async ({page, applicantQuestions}) => {
+    test('validate screenshot with errors', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
@@ -43,7 +51,10 @@ test.describe('currency applicant flow', {tag: ['@uses-fixtures']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with invalid currency does not submit', async ({page, applicantQuestions}) => {
+    test('with invalid currency does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error'
       // When there are no validation errors, the div still exists but is hidden.
@@ -92,7 +103,9 @@ test.describe('currency applicant flow', {tag: ['@uses-fixtures']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with unanswered optional question submits', async ({applicantQuestions}) => {
+    test('with unanswered optional question submits', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickNext()
@@ -100,7 +113,10 @@ test.describe('currency applicant flow', {tag: ['@uses-fixtures']}, () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with first invalid does not submit', async ({page, applicantQuestions}) => {
+    test('with first invalid does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error >> nth=0'
       // When there are no validation errors, the div still exists but is hidden.
@@ -113,7 +129,10 @@ test.describe('currency applicant flow', {tag: ['@uses-fixtures']}, () => {
       await expect(page.locator(currencyError)).toBeVisible()
     })
 
-    test('with second invalid does not submit', async ({page, applicantQuestions}) => {
+    test('with second invalid does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error >> nth=1'
       // When there are no validation errors, the div still exists but is hidden.
@@ -126,7 +145,10 @@ test.describe('currency applicant flow', {tag: ['@uses-fixtures']}, () => {
       await expect(page.locator(currencyError)).toBeVisible()
     })
 
-    test('has no accessibility violations', async ({page, applicantQuestions}) => {
+    test('has no accessibility violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
@@ -137,35 +159,49 @@ test.describe('currency applicant flow', {tag: ['@uses-fixtures']}, () => {
     const programName = 'Test program for single currency'
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpSingleCurrencyQuestion(programName, page, adminQuestions, adminPrograms)
+      await setUpSingleCurrencyQuestion(
+        programName,
+        page,
+        adminQuestions,
+        adminPrograms,
+      )
       await enableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
-    test('validate screenshot', {tag: ['@northstar']}, async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
+    test(
+      'validate screenshot',
+      {tag: ['@northstar']},
+      async ({page, applicantQuestions}) => {
+        await applicantQuestions.applyProgram(programName)
 
-      await test.step('Screenshot without errors', async () => {
-        await validateScreenshot(
-          page,
-          'currency-north-star',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
-      })
+        await test.step('Screenshot without errors', async () => {
+          await validateScreenshot(
+            page,
+            'currency-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
 
-      await test.step('Screenshot with errors', async () => {
-        await applicantQuestions.clickContinue()
-        await validateScreenshot(
-          page,
-          'currency-errors-north-star',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
-      })
-    })
+        await test.step('Screenshot with errors', async () => {
+          await applicantQuestions.clickContinue()
+          await validateScreenshot(
+            page,
+            'currency-errors-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+      },
+    )
   })
 
-  async function setUpSingleCurrencyQuestion(programName: string, page: Page, adminQuestions: AdminQuestions, adminPrograms: AdminPrograms) {
+  async function setUpSingleCurrencyQuestion(
+    programName: string,
+    page: Page,
+    adminQuestions: AdminQuestions,
+    adminPrograms: AdminPrograms,
+  ) {
     await loginAsAdmin(page)
 
     await adminQuestions.addCurrencyQuestion({questionName: 'currency-q'})
