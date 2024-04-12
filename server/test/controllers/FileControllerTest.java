@@ -187,7 +187,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
-  
+
   @Test
   public void acledAdminShow_redirects() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
