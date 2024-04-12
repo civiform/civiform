@@ -1,6 +1,7 @@
 package controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.mvc.Http.Status.UNAUTHORIZED;
@@ -13,18 +14,22 @@ import models.ProgramModel;
 import models.StoredFileModel;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 
 public class FileControllerTest extends WithMockedProfiles {
 
   private FileController controller;
+  private SettingsManifest mockSettingsManifest;
   private final Request request = fakeRequest().build();
 
   @Before
   public void setUp() {
     resetDatabase();
+    mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     controller = instanceOf(FileController.class);
   }
 
@@ -154,16 +159,35 @@ public class FileControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void acledAdminShow_globalAdmin_returnsUnauthorizedResult() {
+  public void acledAdminShow_globalAdminWithoutPrivledges_returnsUnauthorizedResult() {
+    Request fakeRequest = fakeRequest().build();
+    when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms(fakeRequest)).thenReturn(true);
+
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createGlobalAdminWithMockedProfile();
     String fileKey = fakeFileKey(1L, program.id);
     createStoredFileWithProgramAccess(fileKey, program);
 
-    Result result = controller.acledAdminShow(request, fileKey);
+    Result result = controller.acledAdminShow(fakeRequest, fileKey);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
+  @Test
+  public void acledAdminShow_globalAdminWithPrivledges_redirects() {
+    Request fakeRequest = fakeRequest().build();
+    when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms(fakeRequest)).thenReturn(true);
+
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
+    createProgramAdminWithMockedProfile(program);
+    String fileKey = fakeFileKey(1L, program.id);
+    createStoredFileWithProgramAccess(fileKey, program);
+    String encodedFileKey = encodefakeFileKey(fileKey);
+
+    Result result = controller.acledAdminShow(fakeRequest, encodedFileKey);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+  }
+  
   @Test
   public void acledAdminShow_redirects() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
