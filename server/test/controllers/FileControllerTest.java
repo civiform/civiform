@@ -160,22 +160,20 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void acledAdminShow_globalAdminWithoutPrivledges_returnsUnauthorizedResult() {
-    Request fakeRequest = fakeRequest().build();
-    when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms(fakeRequest)).thenReturn(true);
+    when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms(request)).thenReturn(true);
 
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createGlobalAdminWithMockedProfile();
     String fileKey = fakeFileKey(1L, program.id);
     createStoredFileWithProgramAccess(fileKey, program);
 
-    Result result = controller.acledAdminShow(fakeRequest, fileKey);
+    Result result = controller.acledAdminShow(request, fileKey);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   @Test
   public void acledAdminShow_globalAdminWithPrivledges_redirects() {
-    Request fakeRequest = fakeRequest().build();
-    when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms(fakeRequest)).thenReturn(true);
+    when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms(request)).thenReturn(true);
 
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createProgramAdminWithMockedProfile(program);
@@ -183,7 +181,7 @@ public class FileControllerTest extends WithMockedProfiles {
     createStoredFileWithProgramAccess(fileKey, program);
     String encodedFileKey = encodefakeFileKey(fileKey);
 
-    Result result = controller.acledAdminShow(fakeRequest, encodedFileKey);
+    Result result = controller.acledAdminShow(request, encodedFileKey);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
@@ -196,7 +194,7 @@ public class FileControllerTest extends WithMockedProfiles {
     createStoredFileWithProgramAccess(fileKey, program);
     String encodedFileKey = encodefakeFileKey(fileKey);
 
-    Result result = controller.acledAdminShow(fakeRequest().build(), encodedFileKey);
+    Result result = controller.acledAdminShow(request, encodedFileKey);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
