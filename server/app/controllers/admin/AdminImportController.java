@@ -4,16 +4,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
-import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
+import services.ErrorAnd;
+import services.migration.ProgramMigrationService;
 import services.settings.SettingsManifest;
 import views.admin.migration.AdminImportView;
 import views.admin.migration.AdminImportViewPartial;
@@ -35,7 +35,7 @@ public class AdminImportController extends CiviFormController {
   private final AdminImportView adminImportView;
   private final AdminImportViewPartial adminImportViewPartial;
   private final FormFactory formFactory;
-
+  private final ProgramMigrationService programMigrationService;
   private final SettingsManifest settingsManifest;
 
   @Inject
@@ -44,12 +44,14 @@ public class AdminImportController extends CiviFormController {
       AdminImportViewPartial adminImportViewPartial,
       FormFactory formFactory,
       ProfileUtils profileUtils,
+      ProgramMigrationService programMigrationService,
       SettingsManifest settingsManifest,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
     this.adminImportView = checkNotNull(adminImportView);
     this.adminImportViewPartial = checkNotNull(adminImportViewPartial);
     this.formFactory = checkNotNull(formFactory);
+    this.programMigrationService = checkNotNull(programMigrationService);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
@@ -78,16 +80,23 @@ public class AdminImportController extends CiviFormController {
       return redirect(routes.AdminImportController.index().url());
     }
 
-    JsonNode parsedJson;
-    try {
-      parsedJson = Json.parse(jsonString);
-    } catch (RuntimeException e) {
+    ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
+        programMigrationService.deserialize(jsonString);
+
+    if (deserializeResult.isError()) {
       return ok(
           adminImportViewPartial
-              .renderError("JSON is incorrectly formatted: " + e.getMessage())
+              .renderError(deserializeResult.getErrors().stream().findFirst().orElseThrow())
               .render());
     }
 
-    return ok(adminImportViewPartial.renderProgramData(parsedJson.toPrettyString()).render());
+    ProgramMigrationWrapper programMigrationWrapper = deserializeResult.getResult();
+    if (programMigrationWrapper.getProgram() == null) {
+      return ok(
+          adminImportViewPartial
+              .renderError("JSON did not have a top-level \"program\" field")
+              .render());
+    }
+    return ok(adminImportViewPartial.renderProgramData(programMigrationWrapper).render());
   }
 }

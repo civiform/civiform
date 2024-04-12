@@ -206,10 +206,6 @@ public final class ProgramCardFactory {
   }
 
   private DivTag createImageIcon(ProgramDefinition program, Optional<CiviFormProfile> profile) {
-    if (!settingsManifest.getProgramCardImages()) {
-      // If the program card images feature isn't enabled, don't make any changes to the admin page.
-      return div();
-    }
     boolean isCiviFormAdmin = profile.isPresent() && profile.get().isCiviFormAdmin();
     if (!isCiviFormAdmin) {
       // Only CiviForm admins need the program image preview since they're the only ones that can

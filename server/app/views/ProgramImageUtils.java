@@ -10,20 +10,15 @@ import java.util.Optional;
 import services.cloud.PublicFileNameFormatter;
 import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
-import services.settings.SettingsManifest;
 import views.style.StyleUtils;
 
 /** Utility class for rendering program images. */
 public final class ProgramImageUtils {
   private final PublicStorageClient publicStorageClient;
 
-  private final SettingsManifest settingsManifest;
-
   @Inject
-  public ProgramImageUtils(
-      PublicStorageClient publicStorageClient, SettingsManifest settingsManifest) {
+  public ProgramImageUtils(PublicStorageClient publicStorageClient) {
     this.publicStorageClient = checkNotNull(publicStorageClient);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -35,9 +30,6 @@ public final class ProgramImageUtils {
    */
   public Optional<ImgTag> createProgramImage(
       ProgramDefinition program, Locale preferredLocale, boolean isWithinProgramCard) {
-    if (!settingsManifest.getProgramCardImages()) {
-      return Optional.empty();
-    }
     if (program.summaryImageFileKey().isEmpty()) {
       return Optional.empty();
     }

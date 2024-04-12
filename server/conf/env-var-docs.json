@@ -453,8 +453,13 @@
         "members": {
           "ESRI_FIND_ADDRESS_CANDIDATES_URL": {
             "mode": "ADMIN_READABLE",
-            "description": "The URL CiviForm will use to call Esri’s [findAddressCandidates service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).",
+            "description": "[Deprecated: Switch to `ESRI_FIND_ADDRESS_CANDIDATES_URLS`] The URL CiviForm will use to call Esri’s [findAddressCandidates service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).",
             "type": "string"
+          },
+          "ESRI_FIND_ADDRESS_CANDIDATES_URLS": {
+            "mode": "ADMIN_READABLE",
+            "description": "The list of URLs CiviForm will use to call Esri’s [findAddressCandidates service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm). These are used sequentially and not all of them may need to be used for every correction. If any results have a score of 90 or higher, lower priority urls will not be called.",
+            "type": "index-list"
           },
           "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS": {
             "mode": "ADMIN_READABLE",
@@ -751,11 +756,6 @@
       "PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables setting a universal question as a question representing information about the applicant. The system can then take certain actions based on the answer to this question.",
-        "type": "bool"
-      },
-      "PROGRAM_CARD_IMAGES": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables images on program cards, both for admins to upload them and for applicants to view them.",
         "type": "bool"
       },
       "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE": {
