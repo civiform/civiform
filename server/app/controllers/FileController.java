@@ -121,6 +121,8 @@ public class FileController extends CiviFormController {
     AccountModel adminAccount =
         profileUtils.currentUserProfile(request).orElseThrow().getAccount().join();
 
+    // An admin is eligible if they are a global admin with the program access flag turned on
+    // or if they have been explicitly given read permission to the program.
     return ((adminAccount.getGlobalAdmin()
                 && settingsManifest.getAllowCiviformAdminAccessPrograms(request))
             || maybeFile.get().getAcls().hasProgramReadPermission(adminAccount))
