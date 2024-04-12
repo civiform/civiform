@@ -121,6 +121,10 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
               .setLabelText(name)
               .setId(MainModule.SLUGIFIER.slugify(name))
               .setValue("true")
+              .setChecked(
+                  dynamicForm
+                      .map(form -> form.value(programReadGrantFieldName(name)).isPresent())
+                      .orElse(false))
               .getCheckboxTag());
     }
 
