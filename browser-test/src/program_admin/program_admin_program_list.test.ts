@@ -1,6 +1,5 @@
-import {test} from '@playwright/test'
+import {test} from '../support/civiform_fixtures'
 import {
-  createTestContext,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -10,10 +9,10 @@ import {
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Program admin program list', () => {
-  const ctx = createTestContext()
-  test('shows all the programs that are active', async () => {
-    const {page, adminPrograms} = ctx
-
+  test('shows all the programs that are active', async ({
+    page,
+    adminPrograms,
+  }) => {
     await test.step('log in as a CiviForm admin and publish multiple programs', async () => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram('Program Name One')
@@ -29,8 +28,10 @@ test.describe('Program admin program list', () => {
     })
   })
 
-  test('shows all the programs that are active, including the program with disabled visibility', async () => {
-    const {page, adminPrograms} = ctx
+  test('shows all the programs that are active, including the program with disabled visibility', async ({
+    page,
+    adminPrograms,
+  }) => {
     await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
 
     await test.step('log in as a CiviForm admin and publish multiple programs', async () => {
