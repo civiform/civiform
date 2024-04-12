@@ -32,91 +32,95 @@ test.describe('address correction', () => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
-    // Create all questions
-    await adminQuestions.addAddressQuestion({
-      questionName: addressWithCorrectionQuestionId,
-      questionText: addressWithCorrectionText,
+    await test.step('Create all questions', async () => {
+      await adminQuestions.addAddressQuestion({
+        questionName: addressWithCorrectionQuestionId,
+        questionText: addressWithCorrectionText,
+      })
+
+      await adminQuestions.addAddressQuestion({
+        questionName: addressWithoutCorrectionQuestionId,
+        questionText: 'Without Correction',
+      })
+
+      await adminQuestions.addTextQuestion({
+        questionName: textQuestionId,
+        questionText: 'text',
+      })
     })
 
-    await adminQuestions.addAddressQuestion({
-      questionName: addressWithoutCorrectionQuestionId,
-      questionText: 'Without Correction',
+    await test.step('Create multi-block, multi-address program', async () => {
+      await adminPrograms.addProgram(multiBlockMultiAddressProgram)
+
+      await adminPrograms.editProgramBlockWithOptional(
+        multiBlockMultiAddressProgram,
+        'first block',
+        [addressWithCorrectionQuestionId],
+        addressWithoutCorrectionQuestionId,
+      )
+
+      await adminPrograms.addProgramBlock(
+        multiBlockMultiAddressProgram,
+        'second block',
+        [textQuestionId],
+      )
+
+      await adminPrograms.goToBlockInProgram(
+        multiBlockMultiAddressProgram,
+        'Screen 1',
+      )
+      await adminPrograms.clickAddressCorrectionToggleByName(
+        addressWithCorrectionQuestionId,
+      )
+
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(multiBlockMultiAddressProgram)
     })
 
-    await adminQuestions.addTextQuestion({
-      questionName: textQuestionId,
-      questionText: 'text',
+    await test.step('Create single-block, multi-address program', async () => {
+      await adminPrograms.addProgram(singleBlockMultiAddressProgram)
+
+      await adminPrograms.editProgramBlockWithOptional(
+        singleBlockMultiAddressProgram,
+        'first block',
+        [addressWithCorrectionQuestionId],
+        addressWithoutCorrectionQuestionId,
+      )
+
+      await adminPrograms.goToBlockInProgram(
+        singleBlockMultiAddressProgram,
+        'Screen 1',
+      )
+      await adminPrograms.clickAddressCorrectionToggleByName(
+        addressWithCorrectionQuestionId,
+      )
+
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(singleBlockMultiAddressProgram)
     })
 
-    // Create multi-block, multi-address program
-    await adminPrograms.addProgram(multiBlockMultiAddressProgram)
+    await test.step('Create single-block, single-address program', async () => {
+      await adminPrograms.addProgram(singleBlockSingleAddressProgram)
 
-    await adminPrograms.editProgramBlockWithOptional(
-      multiBlockMultiAddressProgram,
-      'first block',
-      [addressWithCorrectionQuestionId],
-      addressWithoutCorrectionQuestionId,
-    )
+      await adminPrograms.editProgramBlock(
+        singleBlockSingleAddressProgram,
+        'first block',
+        [addressWithCorrectionQuestionId],
+      )
 
-    await adminPrograms.addProgramBlock(
-      multiBlockMultiAddressProgram,
-      'second block',
-      [textQuestionId],
-    )
+      await adminPrograms.goToBlockInProgram(
+        singleBlockSingleAddressProgram,
+        'Screen 1',
+      )
+      await adminPrograms.clickAddressCorrectionToggleByName(
+        addressWithCorrectionQuestionId,
+      )
 
-    await adminPrograms.goToBlockInProgram(
-      multiBlockMultiAddressProgram,
-      'Screen 1',
-    )
-    await adminPrograms.clickAddressCorrectionToggleByName(
-      addressWithCorrectionQuestionId,
-    )
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(singleBlockSingleAddressProgram)
 
-    await adminPrograms.gotoAdminProgramsPage()
-    await adminPrograms.publishProgram(multiBlockMultiAddressProgram)
-
-    // Create single-block, multi-address program
-    await adminPrograms.addProgram(singleBlockMultiAddressProgram)
-
-    await adminPrograms.editProgramBlockWithOptional(
-      singleBlockMultiAddressProgram,
-      'first block',
-      [addressWithCorrectionQuestionId],
-      addressWithoutCorrectionQuestionId,
-    )
-
-    await adminPrograms.goToBlockInProgram(
-      singleBlockMultiAddressProgram,
-      'Screen 1',
-    )
-    await adminPrograms.clickAddressCorrectionToggleByName(
-      addressWithCorrectionQuestionId,
-    )
-
-    await adminPrograms.gotoAdminProgramsPage()
-    await adminPrograms.publishProgram(singleBlockMultiAddressProgram)
-
-    // Create single-block, single-address program
-    await adminPrograms.addProgram(singleBlockSingleAddressProgram)
-
-    await adminPrograms.editProgramBlock(
-      singleBlockSingleAddressProgram,
-      'first block',
-      [addressWithCorrectionQuestionId],
-    )
-
-    await adminPrograms.goToBlockInProgram(
-      singleBlockSingleAddressProgram,
-      'Screen 1',
-    )
-    await adminPrograms.clickAddressCorrectionToggleByName(
-      addressWithCorrectionQuestionId,
-    )
-
-    await adminPrograms.gotoAdminProgramsPage()
-    await adminPrograms.publishProgram(singleBlockSingleAddressProgram)
-
-    await logout(page)
+      await logout(page)
+    })
   })
 
   if (isLocalDevEnvironment()) {
