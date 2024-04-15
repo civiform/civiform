@@ -35,23 +35,16 @@
       th:each="i: ${#numbers.sequence(0, applicationParams.totalBlockCount() - 1)}"
       th:with="block=${applicationParams.blockList().get(i)}"
     >
-      <!-- Only one of these two gets rendered. The first is shown when it is the
-        current step, and the other is shown for all other steps. This is made
-        as two different calls because Thymeleaf does not handle concatenation
-        with two different conditions very well, and we have 2 conditional CSS
-        classes. -->
       <li
-        th:replace="~{this :: segmentWithLabel(${i == applicationParams.blockIndex()},
-                                               ${block},
-                                               ${i},
-                                               usa-step-indicator__segment--current)}"
-      ></li>
-      <li
-        th:replace="~{this :: segmentWithLabel(${i != applicationParams.blockIndex()},
-                                               ${block},
-                                               ${i},
-                                               ${block.isCompletedInProgramWithoutErrors()} ? 'usa-step-indicator__segment--complete' : '')}"
-      ></li>
+        th:class="'usa-step-indicator\_\_segment' +
+                  ${i == applicationParams.blockIndex() ? ' usa-step-indicator\_\_segment--current' : ''} +
+                  ${block.isCompletedInProgramWithoutErrors() ? ' usa-step-indicator\_\_segment--complete' : ''}"
+      >
+        <span
+          class="usa-step-indicator__segment-label"
+          th:text="#{label.blockIndexLabel(${i + 1}, ${block.getName()})}"
+        ></span>
+      </li>
     </th:block>
   </ol>
 
@@ -73,21 +66,3 @@
     </h4>
   </div>
 </div>
-
-<!-- Conditionally renders a segment of the progress bar along with the label.
-  isVisible is present here because a th:if on a element replaced by
-  th:replace is ignored, so this allows this element to be conditionally shown. -->
-<th:block
-  th:fragment="segmentWithLabel(isVisible, block, index, additionalClass)"
->
-  <li
-    th:if="${isVisible}"
-    class="usa-step-indicator__segment"
-    th:classappend="${additionalClass}"
-  >
-    <span
-      class="usa-step-indicator__segment-label"
-      th:text="#{label.blockIndexLabel(${index + 1}, ${block.getName()})}"
-    ></span>
-  </li>
-</th:block>
