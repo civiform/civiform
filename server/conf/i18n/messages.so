@@ -213,9 +213,9 @@ label.nameExample=Tusaale: Gu ama Darren ama Darren Gu
 # Label above the text input field for notes about a client.
 label.notes=Qoraalo
 # Label above the phone number input field when creating or editing a client.
-label.phoneNum=Lambarka Telefoonka
+label.phoneNum=Phone number
 # The label above the Date of Birth search input for the client search.
-label.searchByDob=Ku raadi Taariikhda Dhalashada
+label.searchByDob=Search by date of birth
 # The label above the name search field of the client search.
 label.searchByName=Ku raadi magaca(yada)
 # The label above the input field for the year of the client birth date.
@@ -228,7 +228,7 @@ link.edit=Wax ka beddel
 link.selectNewClient=Dooro macamiil cusub
 
 # This is the header above the list of clients and the client search.
-title.allClients=Dhammaan Macaamiisha
+title.allClients=All clients
 # This is the heading above a new client creation form.
 title.createClient=Abuur macmiil cusub
 # This is the heading above the client editing form.
