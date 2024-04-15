@@ -213,9 +213,9 @@ label.nameExample=Ví dụ: Tuấn hoặc Văn hoặc Văn Nam
 # Label above the text input field for notes about a client.
 label.notes=Ghi chú
 # Label above the phone number input field when creating or editing a client.
-label.phoneNum=Số điện thoại
+label.phoneNum=Phone number
 # The label above the Date of Birth search input for the client search.
-label.searchByDob=Tìm theo ngày sinh
+label.searchByDob=Search by date of birth
 # The label above the name search field of the client search.
 label.searchByName=Tìm theo tên
 # The label above the input field for the year of the client birth date.
@@ -228,7 +228,7 @@ link.edit=Chỉnh sửa
 link.selectNewClient=Chọn một khách hàng mới
 
 # This is the header above the list of clients and the client search.
-title.allClients=Tất cả khách hàng
+title.allClients=All clients
 # This is the heading above a new client creation form.
 title.createClient=Tạo hồ sơ khách hàng mới
 # This is the heading above the client editing form.
