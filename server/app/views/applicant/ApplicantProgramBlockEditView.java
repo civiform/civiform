@@ -110,7 +110,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         .addModals(modals.build())
         .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
-    params.bannerMessage().ifPresent(bundle::addToastMessages);
+    params.bannerToastMessage().ifPresent(bundle::addToastMessages);
 
     if (!params.preferredLanguageSupported()) {
       bundle.addMainContent(
