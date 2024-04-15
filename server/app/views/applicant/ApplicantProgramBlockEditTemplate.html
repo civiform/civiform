@@ -5,9 +5,7 @@
   <body data-load-modal="true">
     <div>
       <header>
-        <div
-          th:replace="~{applicant/ApplicantBaseFragment :: toasts}"
-        ></div>
+        <div th:replace="~{this :: toasts}"></div>
       </header>
       <form id="cf-block-form" th:action="${submitFormAction}" method="POST">
         <input hidden th:value="${csrfToken}" name="csrfToken" />
@@ -55,3 +53,12 @@
     ></footer>
   </body>
 </html>
+
+<div th:fragment="toasts">
+  <th:block th:if="${applicationParams.bannerMessage().isPresent()}" th:with="toastId=${#strings.randomAlphanumeric(8)}">
+    <div th:replace="~{components/ToastFragment :: success(#{toastId}, ${applicationParams.bannerMessage().get()}, true, false, 0, null)}"></div>
+  </th:block>
+  <th:block th:if="${!applicationParams.preferredLanguageSupported()}" th:with="toastId=${'locale-not-supported-'+ applicationParams.applicantId() + '-' + applicationParams.programId()}">
+    <div th:replace="~{components/ToastFragment :: warning(${toastId}, #{toast.localeNotSupported}, true, true, 0, null)}"></div>
+  </th:block>
+</div>

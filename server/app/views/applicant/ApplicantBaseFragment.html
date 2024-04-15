@@ -25,11 +25,3 @@
 <th:block th:fragment="requiredAsterisk">
   <span class="usa-hint--required"> *</span>
 </th:block>
-
-<div th:fragment="toasts">
-  Hello world
-  <div th:if="${applicationParams.bannerMessage().isPresent()}" th:text="${applicationParams.bannerMessage().get()}"></div>
-  <th:block th:if="${!applicationParams.preferredLanguageSupported()}">
-    <div th:replace="~{components/ToastFragment :: warning}"
-  </th:block>
-</div>
