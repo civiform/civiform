@@ -70,5 +70,5 @@
   "postCreateCommand": "echo 'source /usr/share/bash-completion/completions/git' >> ~/.bashrc",
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  "forwardPorts": [9000, 5432, 3390]
+  "forwardPorts": [9000, 5432, 3390, 9999]
 }
