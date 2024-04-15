@@ -213,9 +213,9 @@ label.nameExample=Halimbawa: Gu o Darren o Darren Gu
 # Label above the text input field for notes about a client.
 label.notes=Mga Tala
 # Label above the phone number input field when creating or editing a client.
-label.phoneNum=Numero ng Telepono
+label.phoneNum=Phone number
 # The label above the Date of Birth search input for the client search.
-label.searchByDob=Maghanap ayon sa Petsa ng Kapanganakan
+label.searchByDob=Search by date of birth
 # The label above the name search field of the client search.
 label.searchByName=Maghanap ayon sa (mga) pangalan
 # The label above the input field for the year of the client birth date.
@@ -228,7 +228,7 @@ link.edit=I-edit
 link.selectNewClient=Pumili ng bagong kliyente
 
 # This is the header above the list of clients and the client search.
-title.allClients=Lahat ng Kliyente
+title.allClients=All clients
 # This is the heading above a new client creation form.
 title.createClient=Gumawa ng bagong kliyente
 # This is the heading above the client editing form.
