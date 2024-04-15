@@ -1,15 +1,23 @@
-<div th:fragment="toast(id, message, canDismiss, canIgnore, toastDuration, condOnStorageKey, toastType)"
-     class="hidden cf-toast-data"
-     th:id="${id}"
-     th:attr="canDismiss=${canDismiss},canIgnore=${canIgnore},toastDuration=${toastDuration},condOnStorageKey=${condOnStorageKey},toastType=${toastType}"
-     th:text="${message}"
-     >
+<div
+  th:fragment="toast(id, message, canDismiss, canIgnore, toastDuration, condOnStorageKey, toastType)"
+  class="hidden cf-toast-data"
+  th:id="${id}"
+  th:attr="canDismiss=${canDismiss},canIgnore=${canIgnore},toastDuration=${toastDuration},condOnStorageKey=${condOnStorageKey},toastType=${toastType}"
+  th:text="${message}"
+></div>
+
+<div
+  th:fragment="warning(id, message, canDismiss, canIgnore, toastDuration, condOnStorageKey)"
+>
+  <div
+    th:replace="~{this :: toast(${id}, ${message}, ${canDismiss}, ${canIgnore}, ${toastDuration}, ${condOnStorageKey}, 'warning')}"
+  ></div>
 </div>
 
-<div th:fragment="warning(id, message, canDismiss, canIgnore, toastDuration, condOnStorageKey)">
-  <div th:replace="~{this :: toast(${id}, ${message}, ${canDismiss}, ${canIgnore}, ${toastDuration}, ${condOnStorageKey}, 'warning')}"></div>
-</div>
-
-<div th:fragment="success(id, message, canDismiss, canIgnore, toastDuration, condOnStorageKey)">
-  <div th:replace="~{this :: toast(${id}, ${message}, ${canDismiss}, ${canIgnore}, ${toastDuration}, ${condOnStorageKey}, 'success')}"></div>
+<div
+  th:fragment="success(id, message, canDismiss, canIgnore, toastDuration, condOnStorageKey)"
+>
+  <div
+    th:replace="~{this :: toast(${id}, ${message}, ${canDismiss}, ${canIgnore}, ${toastDuration}, ${condOnStorageKey}, 'success')}"
+  ></div>
 </div>
