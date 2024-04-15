@@ -213,9 +213,9 @@ label.nameExample=Por ejemplo: López o Pablo o Pablo López
 # Label above the text input field for notes about a client.
 label.notes=Notas
 # Label above the phone number input field when creating or editing a client.
-label.phoneNum=Número de teléfono
+label.phoneNum=Phone number
 # The label above the Date of Birth search input for the client search.
-label.searchByDob=Buscar por fecha de nacimiento
+label.searchByDob=Search by date of birth
 # The label above the name search field of the client search.
 label.searchByName=Buscar por nombre(s)
 # The label above the input field for the year of the client birth date.
@@ -228,7 +228,7 @@ link.edit=Editar
 link.selectNewClient=Seleccionar un nuevo cliente
 
 # This is the header above the list of clients and the client search.
-title.allClients=Todos los clientes
+title.allClients=All clients
 # This is the heading above a new client creation form.
 title.createClient=Crea un cliente nuevo
 # This is the heading above the client editing form.
