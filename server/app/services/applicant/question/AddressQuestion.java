@@ -277,11 +277,13 @@ public final class AddressQuestion extends Question {
   }
 
   /**
-   * Returns true if this question has address correction enabled, and it has not yet been through
-   * the correction process.
+   * Returns true if this question has address correction enabled, has been answered, and has not
+   * yet been through the correction process.
    */
   public Boolean needsAddressCorrection() {
-    return applicantQuestion.isAddressCorrectionEnabled() && getCorrectedValue().isEmpty();
+    return applicantQuestion.isAddressCorrectionEnabled()
+        && isAnswered()
+        && getCorrectedValue().isEmpty();
   }
 
   @Override
