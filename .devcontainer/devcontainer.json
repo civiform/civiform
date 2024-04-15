@@ -67,6 +67,7 @@
 
   "onCreateCommand": "npm install -g @withgraphite/graphite-cli@stable && npm install --no-save @playwright/test",
   "updateContentCommand": "bin/vscode-setup",
+  "postCreateCommand": "echo 'source /usr/share/bash-completion/completions/git' >> ~/.bashrc",
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "forwardPorts": [9000, 5432, 3390]
