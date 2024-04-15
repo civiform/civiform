@@ -1,5 +1,5 @@
 <div
-  th:fragment="id(question)"
+  th:fragment="id(question, questionRendererParams)"
   th:with="idQuestion=${question.createIdQuestion()},
               questionId=${#strings.randomAlphanumeric(8)},
               inputId=${#strings.randomAlphanumeric(8)}"
@@ -26,5 +26,6 @@
     th:aria-describedby="${questionId} + '-description'"
     th:aria-required="${!question.isOptional()}"
     th:aria-invalid="${!idQuestion.getValidationErrors().isEmpty()}"
+    th:autofocus="${questionRendererParams.autofocusFirstError()}"
   />
 </div>
