@@ -14,9 +14,9 @@ public final class BaseStyles {
 
   public static final String BG_CIVIFORM_WHITE = "bg-civiform-white";
 
-  public static final String BG_CIVIFORM_BLUE = "bg-seattle-blue";
-  public static final String TEXT_CIVIFORM_BLUE = "text-seattle-blue";
-  public static final String BORDER_CIVIFORM_BLUE = "border-seattle-blue";
+  public static final String BG_CIVIFORM_BLUE = "bg-civiform-blue";
+  public static final String TEXT_CIVIFORM_BLUE = "text-civiform-blue";
+  public static final String BORDER_CIVIFORM_BLUE = "border-civiform-blue";
 
   public static final String TEXT_CIVIFORM_GREEN = "text-civiform-green";
   public static final String BG_CIVIFORM_GREEN_LIGHT = "bg-civiform-green-light";
