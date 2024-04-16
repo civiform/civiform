@@ -97,7 +97,7 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
             .withClasses(
                 ReferenceClasses.RADIO_OPTION,
                 BaseStyles.RADIO_LABEL,
-                checked ? BaseStyles.BORDER_CIVIFORM_BLUE : "",
+                "checked:" + BaseStyles.BORDER_CIVIFORM_BLUE,
                 "inline-block",
                 "w-full",
                 "h-full")
