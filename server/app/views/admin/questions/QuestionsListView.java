@@ -8,10 +8,11 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.li;
+import java.util.Optional;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.ul;
-
+import models.DisplayMode;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -423,15 +424,19 @@ public final class QuestionsListView extends BaseHtmlView {
     } else {
       if (!groupedReferencingPrograms.usedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.usedPrograms().size();
-        tag.with(p(formatReferencingProgramsText("Used in", numPrograms)));
+        tag.with(p(formatReferencingProgramsText("Used in", numPrograms, "program")));
       }
       if (!groupedReferencingPrograms.addedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.addedPrograms().size();
-        tag.with(p(formatReferencingProgramsText("Added to", numPrograms)));
+        tag.with(p(formatReferencingProgramsText("Added to", numPrograms, "program")));
       }
       if (!groupedReferencingPrograms.removedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.removedPrograms().size();
-        tag.with(p(formatReferencingProgramsText("Removed from", numPrograms)));
+        tag.with(p(formatReferencingProgramsText("Removed from", numPrograms, "program")));
+      }
+      if (!groupedReferencingPrograms.disabledPrograms().isEmpty()) {
+        int numPrograms = groupedReferencingPrograms.disabledPrograms().size();
+        tag.with(p(formatReferencingProgramsText("Added to ", numPrograms, "disabled program")));
       }
     }
     if (maybeReferencingProgramsModal.isPresent()) {
@@ -449,8 +454,8 @@ public final class QuestionsListView extends BaseHtmlView {
         tag, maybeReferencingProgramsModal.map(ImmutableList::of).orElse(ImmutableList.of()));
   }
 
-  private static String formatReferencingProgramsText(String prefix, int numPrograms) {
-    return String.format("%s %d program%s.", prefix, numPrograms, (numPrograms > 1 ? "s" : ""));
+  private static String formatReferencingProgramsText(String prefix, int numPrograms, String suffix) {
+    return String.format("%s %d %s%s.", prefix, numPrograms, suffix, (numPrograms > 1 ? "s" : ""));
   }
 
   @AutoValue
@@ -461,12 +466,14 @@ public final class QuestionsListView extends BaseHtmlView {
 
     abstract ImmutableList<ProgramDefinition> removedPrograms();
 
+    abstract ImmutableList<ProgramDefinition> disabledPrograms();
+
     static Builder builder() {
       return new AutoValue_QuestionsListView_GroupedReferencingPrograms.Builder();
     }
 
     boolean isEmpty() {
-      return usedPrograms().isEmpty() && addedPrograms().isEmpty() && removedPrograms().isEmpty();
+      return usedPrograms().isEmpty() && addedPrograms().isEmpty() && removedPrograms().isEmpty() && disabledPrograms().isEmpty();
     }
 
     int getTotalNumReferencingPrograms() {
@@ -481,45 +488,61 @@ public final class QuestionsListView extends BaseHtmlView {
 
       abstract Builder setRemovedPrograms(ImmutableList<ProgramDefinition> removedPrograms);
 
+      abstract Builder setDisabledPrograms(ImmutableList<ProgramDefinition> disabledPrograms);
+
       abstract GroupedReferencingPrograms build();
     }
   }
 
   private GroupedReferencingPrograms createReferencingPrograms(
       Collection<ProgramDefinition> activePrograms, Collection<ProgramDefinition> draftPrograms) {
-    ImmutableMap<String, ProgramDefinition> activeProgramsMap =
+    ImmutableMap<String, ProgramDefinition> activeAllProgramsMap =
         activePrograms.stream()
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
-    ImmutableMap<String, ProgramDefinition> draftProgramsMap =
+
+    ImmutableMap<String, ProgramDefinition> draftDisabledProgramsMap =
+       draftPrograms.stream()
+          .filter(program -> program.displayMode() == DisplayMode.DISABLED)
+          .collect(
+            ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+
+    ImmutableMap<String, ProgramDefinition> draftAllProgramsMap =
         draftPrograms.stream()
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
     // Use set operations to collect programs into 3 sets.
-    Set<String> usedSet = Sets.intersection(activeProgramsMap.keySet(), draftProgramsMap.keySet());
-    Set<String> addedSet = Sets.difference(draftProgramsMap.keySet(), activeProgramsMap.keySet());
-    Set<String> removedSet = Sets.difference(activeProgramsMap.keySet(), draftProgramsMap.keySet());
+    Set<String> usedSet = Sets.intersection(activeAllProgramsMap.keySet(), draftAllProgramsMap.keySet());
+    Set<String> addedSet = Sets.difference(draftAllProgramsMap.keySet(), activeAllProgramsMap.keySet());
+    Set<String> removedSet = Sets.difference(activeAllProgramsMap.keySet(), draftAllProgramsMap.keySet());
+    Set<String> disabledSet = Sets.difference(draftDisabledProgramsMap.keySet(), activeAllProgramsMap.keySet());
 
     ImmutableList<ProgramDefinition> usedPrograms =
         usedSet.stream()
-            .map(draftProgramsMap::get)
+            .map(draftAllProgramsMap::get)
             .sorted(Comparator.comparing(ProgramDefinition::adminName))
             .collect(ImmutableList.toImmutableList());
     ImmutableList<ProgramDefinition> addedPrograms =
         addedSet.stream()
-            .map(draftProgramsMap::get)
+            .map(draftAllProgramsMap::get)
             .sorted(Comparator.comparing(ProgramDefinition::adminName))
             .collect(ImmutableList.toImmutableList());
     ImmutableList<ProgramDefinition> removedPrograms =
         removedSet.stream()
-            .map(activeProgramsMap::get)
+            .map(activeAllProgramsMap::get)
             .sorted(Comparator.comparing(ProgramDefinition::adminName))
             .collect(ImmutableList.toImmutableList());
+    ImmutableList<ProgramDefinition> disabledPrograms =
+        disabledSet.stream()
+          .map(draftDisabledProgramsMap::get)
+          .sorted(Comparator.comparing(ProgramDefinition::adminName))
+          .collect(ImmutableList.toImmutableList());
     return GroupedReferencingPrograms.builder()
         .setUsedPrograms(usedPrograms)
         .setAddedPrograms(addedPrograms)
         .setRemovedPrograms(removedPrograms)
+        .setDisabledPrograms(disabledPrograms)
         .build();
   }
 
@@ -544,7 +567,7 @@ public final class QuestionsListView extends BaseHtmlView {
                         "This question is used in:", referencingPrograms.usedPrograms()))
                 .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_USED))
         .condWith(
-            !referencingPrograms.addedPrograms().isEmpty(),
+            !referencingPrograms.addedPrograms().isEmpty() && !referencingPrograms.disabledPrograms().isEmpty(),
             div()
                 .with(
                     referencingProgramList(
