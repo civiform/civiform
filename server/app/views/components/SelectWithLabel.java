@@ -102,6 +102,12 @@ public final class SelectWithLabel extends FieldWithLabel {
   }
 
   @Override
+  public SelectWithLabel setReadOnly(boolean disabled) {
+    super.setReadOnly(disabled);
+    return this;
+  }
+
+  @Override
   public SelectWithLabel setRequired(boolean isRequired) {
     super.setRequired(isRequired);
     return this;
