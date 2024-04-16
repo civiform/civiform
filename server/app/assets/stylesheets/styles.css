@@ -112,4 +112,8 @@
   #name-search {
     @apply mt-0;
   }
+
+  .ti-header-band {
+    background-color: #f0f0f0;
+  }
 }

@@ -3,6 +3,7 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.h1;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -87,19 +88,23 @@ public class EditTiClientView extends BaseHtmlView {
             .getBundle(request)
             .setTitle(title)
             .addMainContent(
-                renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
-                renderSubHeader(pageHeader).withId(pageId).withClasses("mt-4", "mb-8"),
-                renderBackLink(),
-                renderSuccessAlert(isSuccessfulSave, successToast, optionalSuccessMessage),
-                renderMainContent(
-                    isSuccessfulSave,
-                    applicantIdOfNewlyAddedClient,
-                    messages,
-                    tiGroup,
-                    optionalAccountModel,
-                    request,
-                    tiClientInfoForm))
-            .addMainStyles("px-20", "max-w-screen-xl");
+                h1(tiGroup.getName()).withClasses("py-12", "px-20", "ti-header-band"),
+                renderSubHeader(pageHeader)
+                    .withId(pageId)
+                    .withClasses("mb-10", "ti-header-band", "py-6", "px-20"),
+                div(
+                        renderBackLink(),
+                        renderSuccessAlert(isSuccessfulSave, successToast, optionalSuccessMessage),
+                        renderMainContent(
+                            isSuccessfulSave,
+                            applicantIdOfNewlyAddedClient,
+                            messages,
+                            tiGroup,
+                            optionalAccountModel,
+                            request,
+                            tiClientInfoForm))
+                    .withClasses("px-20"))
+            .addMainStyles("bg-white");
 
     return layout.renderWithNav(request, personalInfo, messages, bundle, applicantIdOfTi);
   }

@@ -41,6 +41,17 @@ export class AdminApiKeys {
     return await this.page.innerText('#api-key-credentials')
   }
 
+  async submitInvalidApiKeyRequest(programSlugs: Array<string>) {
+    await this.gotoNewApiKeyPage()
+
+    for (const slug of programSlugs) {
+      await this.page.check(`#${slug}`)
+    }
+
+    await this.page.click('#apikey-submit-button')
+    await waitForPageJsLoad(this.page)
+  }
+
   async callCheckAuth(credentials: string) {
     return await this.request.get('/api/v1/checkAuth', {
       headers: {

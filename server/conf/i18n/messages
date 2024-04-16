@@ -215,7 +215,7 @@ label.notes=Notes
 # Label above the phone number input field when creating or editing a client.
 label.phoneNum=Phone number
 # The label above the Date of Birth search input for the client search.
-label.searchByDob=Search by Date of Birth
+label.searchByDob=Search by date of birth
 # The label above the name search field of the client search.
 label.searchByName=Search by name(s)
 # The label above the input field for the year of the client birth date.

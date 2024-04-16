@@ -22,6 +22,7 @@ import repository.StoredFileRepository;
 import repository.VersionRepository;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.ApplicantStorageClient;
+import services.settings.SettingsManifest;
 
 /** Controller for handling methods for admins and applicants accessing uploaded files. */
 public class FileController extends CiviFormController {
@@ -30,6 +31,7 @@ public class FileController extends CiviFormController {
   private final HttpExecutionContext classLoaderExecutionContext;
   private final ApplicantStorageClient applicantStorageClient;
   private final StoredFileRepository storedFileRepository;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public FileController(
@@ -37,11 +39,13 @@ public class FileController extends CiviFormController {
       StoredFileRepository storedFileRepository,
       ApplicantStorageClient applicantStorageClient,
       ProfileUtils profileUtils,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantStorageClient = checkNotNull(applicantStorageClient);
     this.storedFileRepository = checkNotNull(storedFileRepository);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   @Secure
@@ -117,7 +121,11 @@ public class FileController extends CiviFormController {
     AccountModel adminAccount =
         profileUtils.currentUserProfile(request).orElseThrow().getAccount().join();
 
-    return maybeFile.get().getAcls().hasProgramReadPermission(adminAccount)
+    // An admin is eligible if they are a global admin with the program access flag turned on
+    // or if they have been explicitly given read permission to the program.
+    return ((adminAccount.getGlobalAdmin()
+                && settingsManifest.getAllowCiviformAdminAccessPrograms(request))
+            || maybeFile.get().getAcls().hasProgramReadPermission(adminAccount))
         ? redirect(applicantStorageClient.getPresignedUrlString(decodedFileKey))
         : unauthorized();
   }

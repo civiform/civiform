@@ -1,5 +1,5 @@
 <div
-  th:fragment="email(question)"
+  th:fragment="email(question, questionRendererParams)"
   th:with="emailQuestion=${question.createEmailQuestion()},
               questionId=${#strings.randomAlphanumeric(8)},
               inputId=${#strings.randomAlphanumeric(8)}"
@@ -27,6 +27,7 @@
     th:aria-describedby="${questionId} + '-description'"
     th:aria-required="${!question.isOptional()}"
     th:aria-invalid="${!emailQuestion.getValidationErrors().isEmpty()}"
+    th:autofocus="${questionRendererParams.autofocusFirstError()}"
   />
   <div
     th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${emailQuestion.getValidationErrors().get(emailQuestion.getEmailPath())})}"
