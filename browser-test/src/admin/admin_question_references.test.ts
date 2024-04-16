@@ -1,5 +1,5 @@
 import {test} from '../support/civiform_fixtures'
-import {loginAsAdmin, validateScreenshot} from '../support'
+import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe(
   'view program references from question view',
@@ -119,6 +119,24 @@ test.describe(
 
         await adminQuestions.clickOnProgramReferencesModal(questionName)
         await validateScreenshot(page, 'question-program-modal')
+      })
+    })
+
+    test('shows disabled programs visibility text when disabled visibility condition flag is enabled', async ({
+      page,
+      adminQuestions,
+      adminPrograms,
+    }) => {
+      await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
+      const firstProgramName = 'First program'
+      const disabledProgramName  = 'Disabled program'
+      const questionName = 'question name'
+
+      await loginAsAdmin(page)
+      await adminQuestions.addAddressQuestion({questionName})
+
+      await test.step(`Create two programs and add ${questionName}`, async () => {
+
       })
     })
   },

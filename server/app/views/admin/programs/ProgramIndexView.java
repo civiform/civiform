@@ -387,6 +387,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       ProgramDefinition program, ImmutableList<Long> universalQuestionIds) {
     String visibilityText = " ";
     switch (program.displayMode()) {
+      case DISABLED:
+        visibilityText = " (Hidden from applicants and TIs)"
       case HIDDEN_IN_INDEX:
         visibilityText = " (Hidden from applicants) ";
         break;
