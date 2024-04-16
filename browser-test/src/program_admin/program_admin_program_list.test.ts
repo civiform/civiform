@@ -1,4 +1,4 @@
-import {test} from '../support/civiform_fixtures'
+import {expect, test} from '../support/civiform_fixtures'
 import {
   enableFeatureFlag,
   loginAsAdmin,
@@ -24,6 +24,9 @@ test.describe('Program admin program list', () => {
 
     await test.step('log in as a program admin and view the program list, verify that all active programs are shown', async () => {
       await loginAsProgramAdmin(page)
+      await expect(page.getByText('Program Name One')).toHaveCount(1)
+      await expect(page.getByText('Program Name Two')).toHaveCount(1)
+      await expect(page.getByText('Program Name Three')).toHaveCount(1)
       await validateScreenshot(page, 'program-admin-program-list')
     })
   })
@@ -50,6 +53,10 @@ test.describe('Program admin program list', () => {
 
     await test.step('log in as a program admin and view the program list, verify that the disabled program is shown', async () => {
       await loginAsProgramAdmin(page)
+      await expect(page.getByText('Disabled Program Name')).toHaveCount(1)
+      await expect(page.getByText('Program Name Two')).toHaveCount(1)
+      await expect(page.getByText('Program Name Three')).toHaveCount(1)
+
       await validateScreenshot(
         page,
         'program-admin-program-list-visible-disabled-program',

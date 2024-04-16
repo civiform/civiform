@@ -3,7 +3,6 @@ package views.questiontypes;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
-import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -17,6 +16,7 @@ import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.question.LocalizedQuestionOption;
+import views.components.TextFormatter;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -90,7 +90,7 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
             .withClasses(
                 ReferenceClasses.RADIO_OPTION,
                 BaseStyles.CHECKBOX_LABEL,
-                isSelected ? BaseStyles.BORDER_CIVIFORM_BLUE : "")
+                "checked:" + BaseStyles.BORDER_CIVIFORM_BLUE)
             .with(
                 input()
                     .withId(id)
@@ -103,7 +103,13 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
                     .condAttr(!isOptional, "aria-required", "true")
                     .withClasses(
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)),
-                span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
+                div()
+                    .with(
+                        TextFormatter.formatText(
+                            option.optionText(),
+                            /* preserveEmptyLines= */ false,
+                            /* addRequiredIndicator= */ false))
+                    .withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
 
     return div()
         .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "my-2", "relative")

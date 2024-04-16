@@ -1,4 +1,5 @@
 import MarkdownIt = require('markdown-it')
+import DOMPurify = require('dompurify')
 
 /** @fileoverview Collection of generic util functions used throughout the
  * codebase.
@@ -63,7 +64,14 @@ const md = new MarkdownIt({
  *
  * @param {string} text The text to parse into HTML.
  */
-export function formatText(text: string): Element {
+export function formatTextHtml(text: string): Element {
+  const parsedHtml = formatText(text)
+  const html = parser.parseFromString(parsedHtml, 'text/html')
+
+  return html.body
+}
+
+export function formatText(text: string): string {
   // Preserve line breaks before parsing the text
   text = text.split('\n').join('<br>')
 
@@ -80,7 +88,5 @@ export function formatText(text: string): Element {
   // Change h1 to h2 (per accessibility standards, there should only ever be one H1 per page)
   parsedHtml = parsedHtml.split('<h1>').join('<h2>')
   parsedHtml = parsedHtml.split('</h1>').join('</h2>')
-
-  const html = parser.parseFromString(parsedHtml, 'text/html')
-  return html.body
+  return DOMPurify.sanitize(parsedHtml, {ADD_ATTR: ['target']})
 }

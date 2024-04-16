@@ -48,11 +48,7 @@ public class WithMockedProfiles {
         new GuiceApplicationBuilder()
             .overrides(bind(ProfileUtils.class).toInstance(MOCK_UTILS))
             .build();
-    injector = app.injector();
-    resourceCreator = new ResourceCreator(injector);
-    Helpers.start(app);
-    profileFactory = injector.instanceOf(ProfileFactory.class);
-    ProgramBuilder.setInjector(injector);
+    setupInjectorForApp(app);
   }
 
   @AfterClass
@@ -61,6 +57,15 @@ public class WithMockedProfiles {
       Helpers.stop(app);
       app = null;
     }
+  }
+
+  public static void setupInjectorWithExtraBinding(play.api.inject.Binding<?> additionalBinding) {
+    stopApp();
+    app =
+        new GuiceApplicationBuilder()
+            .overrides(bind(ProfileUtils.class).toInstance(MOCK_UTILS), additionalBinding)
+            .build();
+    setupInjectorForApp(app);
   }
 
   protected <T> T instanceOf(Class<T> clazz) {
@@ -138,6 +143,14 @@ public class WithMockedProfiles {
     applicant.save();
 
     return adminAccount;
+  }
+
+  private static void setupInjectorForApp(Application app) {
+    injector = app.injector();
+    resourceCreator = new ResourceCreator(injector);
+    Helpers.start(app);
+    profileFactory = injector.instanceOf(ProfileFactory.class);
+    ProgramBuilder.setInjector(injector);
   }
 
   private ArgumentMatcher<Http.Request> skipUserProfile() {

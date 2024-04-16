@@ -1,5 +1,6 @@
 /** The preview controller is responsible for updating question preview text in the question builder. */
-import {assertNotNull, formatText} from './util'
+import {assertNotNull, formatText, formatTextHtml} from './util'
+import * as DOMPurify from 'dompurify'
 
 class PreviewController {
   private static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea'
@@ -175,6 +176,8 @@ class PreviewController {
     previewQuestionOptionContainer: HTMLElement
     previewOptionTemplate: HTMLElement
   }) {
+    // Gets the input elements from the Question Settings section
+    // And maps to an array of just the values from the inputs
     const configuredOptions = Array.from(
       questionSettings.querySelectorAll(
         `${PreviewController.QUESTION_MULTI_OPTION_SELECTOR} ${PreviewController.QUESTION_MULTI_OPTION_INPUT_FIELD_SELECTOR} input`,
@@ -210,17 +213,21 @@ class PreviewController {
               `.${PreviewController.QUESTION_MULTI_OPTION_VALUE_CLASS}`,
             ),
           )
-      optionText.innerText = configuredOption
+
+      // Objects in javascript are passed by value so editing optionText.innerHTML
+      // modifies newPreviewOption
+      optionText.innerHTML = DOMPurify.sanitize(formatText(configuredOption), {
+        ADD_ATTR: ['target'],
+      })
+
       previewQuestionOptionContainer.appendChild(newPreviewOption)
     }
   }
 
   private static updateFromNewQuestionText(text: string) {
     text = text || PreviewController.DEFAULT_QUESTION_TEXT
-    const questionType = document.querySelector('.cf-question-type')
-    const useAdvancedFormatting = questionType
-    if (useAdvancedFormatting) {
-      const contentElement = formatText(text)
+    if (text.length > 0) {
+      const contentElement = formatTextHtml(text)
       contentElement.classList.add('pr-16')
 
       const contentParent = document.querySelector(
@@ -239,12 +246,8 @@ class PreviewController {
   }
 
   private static updateFromNewQuestionHelpText(helpText: string) {
-    const questionHelpText = document.querySelector(
-      '.cf-applicant-question-help-text',
-    )
-    const useAdvancedFormatting = questionHelpText
-    if (useAdvancedFormatting) {
-      const contentElement = formatText(helpText)
+    if (helpText.length > 0) {
+      const contentElement = formatTextHtml(helpText)
       const contentParent = document.querySelector(
         PreviewController.QUESTION_HELP_TEXT_SELECTOR,
       )

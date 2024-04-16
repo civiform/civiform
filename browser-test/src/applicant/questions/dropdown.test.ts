@@ -50,10 +50,10 @@ test.describe(
           questionHelpText: 'Sample question help text',
         })
         await adminQuestions.expectPreviewOptions([
-          'red',
-          'green',
-          'orange',
-          'blue',
+          'red\n',
+          'green\n',
+          'orange\n',
+          'blue\n',
         ])
 
         // Empty options renders default text.
@@ -66,7 +66,7 @@ test.describe(
           },
           /* clickSubmit= */ false,
         )
-        await adminQuestions.expectPreviewOptions(['Sample question option'])
+        await adminQuestions.expectPreviewOptions(['Sample question option\n'])
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {

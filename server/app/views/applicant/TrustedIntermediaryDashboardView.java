@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.hr;
@@ -99,21 +100,32 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .getBundle(request)
             .setTitle("CiviForm")
             .addMainContent(
-                renderHeader(tiGroup.getName(), "py-12", "mb-0", "bg-gray-50"),
-                hr().withClasses("mt-6"),
+                h1(tiGroup.getName()).withClasses("py-12", "px-20", "ti-header-band"),
                 div(
-                        renderSubHeader(messages.at(MessageKey.TITLE_ALL_CLIENTS.getKeyName())),
+                        renderSubHeader(messages.at(MessageKey.TITLE_ALL_CLIENTS.getKeyName()))
+                            .withClass("mb-0"),
                         renderAddNewClientButton(messages, tiGroup.id))
-                    .withClasses("flex", "justify-between", "my-4"),
-                h4("Search"),
-                renderSearchForm(request, searchParameters, messages, managedAccounts.size()),
-                renderTIClientsList(
-                    managedAccounts, searchParameters, page, totalPageCount, messages),
-                hr().withClasses("my-6"),
-                renderSubHeader(messages.at(MessageKey.HEADER_ACCT_SETTING.getKeyName())),
-                h3(messages.at(MessageKey.TITLE_ORG_MEMBERS.getKeyName())).withClass("mt-8"),
-                renderTIMembersTable(tiGroup, messages))
-            .addMainStyles("px-20", "max-w-screen-xl");
+                    .withClasses(
+                        "flex",
+                        "justify-between",
+                        "items-center",
+                        "py-4",
+                        "px-20",
+                        "ti-header-band",
+                        "mb-10"),
+                div(
+                        h4("Search"),
+                        renderSearchForm(
+                            request, searchParameters, messages, managedAccounts.size()),
+                        renderTIClientsList(
+                            managedAccounts, searchParameters, page, totalPageCount, messages),
+                        hr().withClasses("my-6"),
+                        renderSubHeader(messages.at(MessageKey.HEADER_ACCT_SETTING.getKeyName())),
+                        h3(messages.at(MessageKey.TITLE_ORG_MEMBERS.getKeyName()))
+                            .withClass("mt-8"),
+                        renderTIMembersTable(tiGroup, messages))
+                    .withClasses("px-20"))
+            .addMainStyles("bg-white");
 
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
@@ -178,7 +190,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         .withClass("ml-6"),
                     makeCsrfTokenInputTag(request),
                     div(submitButton(messages.at(MessageKey.BUTTON_SEARCH.getKeyName()))
-                            .withClasses("usa-button", "ml-6", "h-11"))
+                            .withClasses("usa-button usa-button--outline", "ml-6", "h-11"))
                         .withClasses("flex", "flex-col", "justify-end"))
                 .withClasses("flex", "my-6"))
         .with(
