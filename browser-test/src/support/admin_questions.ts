@@ -1411,6 +1411,18 @@ export class AdminQuestions {
     expect(existingOptions).toEqual(options)
   }
 
+  async expectPreviewOptionsWithMarkdown(options: string[]) {
+    const optionElements = Array.from(
+      await this.page.$$('#sample-question .cf-multi-option-value'),
+    )
+    const existingOptions = await Promise.all(
+      optionElements.map((el) => {
+        return (el as ElementHandle<HTMLElement>).innerHTML()
+      }),
+    )
+    expect(existingOptions).toEqual(options)
+  }
+
   /**
    * The `enumeratorName` argument is used to make _this_ enumerator question a repeated question.
    */

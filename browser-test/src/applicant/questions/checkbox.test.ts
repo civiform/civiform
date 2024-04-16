@@ -139,6 +139,73 @@ test.describe(
         // Check error is shown.
         await expect(page.locator(checkBoxError)).toBeVisible()
       })
+
+      test('markdown applied to options shows in preview', async ({
+        page,
+        adminQuestions,
+      }) => {
+        await loginAsAdmin(page)
+        await adminQuestions.createCheckboxQuestion(
+          {
+            questionName: 'markdown-options-test',
+            questionText: 'Sample question text',
+            helpText: 'Sample question help text',
+            options: [
+              {adminName: 'red_markdown_admin', text: '_red_'},
+              {adminName: 'green_markdown_admin', text: '__green__'},
+              {
+                adminName: 'orange_markdown_admin',
+                text: '[orange](https://www.orange.com)',
+              },
+              {adminName: 'blue_markdown_admin', text: 'https://www.blue.com'},
+            ],
+          },
+          /* clickSubmit= */ false,
+        )
+
+        await adminQuestions.expectPreviewOptionsWithMarkdown([
+          '<p><em>red</em></p>\n',
+          '<p><strong>green</strong></p>\n',
+          '<p><a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="https://www.orange.com">orange</a></p>\n',
+          '<p><a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="https://www.blue.com">https://www.blue.com</a></p>\n',
+        ])
+        await validateScreenshot(page, 'checkbox-options-with-markdown')
+      })
+
+      test('options with long text render correctly', async ({
+        page,
+        adminQuestions,
+        adminPrograms,
+        applicantQuestions,
+      }) => {
+        const longTextProgramName = 'Long text program name'
+        await loginAsAdmin(page)
+        await adminQuestions.createCheckboxQuestion(
+          {
+            questionName: 'long-option-test',
+            questionText: 'Sample question text',
+            helpText: 'Sample question help text',
+            options: [
+              {adminName: 'short_text', text: 'short'},
+              {
+                adminName: 'long_text',
+                text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+              },
+            ],
+          },
+          /* clickSubmit= */ false,
+        )
+        await validateScreenshot(page, 'checkbox-options-long-text-preview')
+        await adminQuestions.clickSubmitButtonAndNavigate('Create')
+        await adminPrograms.addAndPublishProgramWithQuestions(
+          ['long-option-test'],
+          longTextProgramName,
+        )
+        await logout(page)
+
+        await applicantQuestions.applyProgram(longTextProgramName)
+        await validateScreenshot(page, 'checkbox-options-long-text-applicant')
+      })
     })
 
     test.describe('multiple checkbox questions', () => {
