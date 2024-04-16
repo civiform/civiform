@@ -14,6 +14,7 @@ import {
   validateToastMessage,
   waitForPageJsLoad,
   isLocalDevEnvironment,
+  disableFeatureFlag,
 } from '../support'
 import {Eligibility, ProgramVisibility} from '../support/admin_programs'
 
@@ -1561,6 +1562,24 @@ test.describe('Applicant navigation flow', () => {
         fullProgramName,
         /* isEligible= */ true,
       )
+    })
+
+    test('North Star shows may be eligible toast with an eligible answer', {tag: ['@northstar']}, async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+      await applicantQuestions.applyProgram(fullProgramName)
+
+      // Fill out application and without submitting.
+      await applicantQuestions.answerNumberQuestion('5')
+      await applicantQuestions.clickContinue()
+      await validateToastMessage(page, 'may qualify')
+      await validateScreenshot(
+        page,
+        'north-star-eligible-toast',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
     test('shows not eligible with ineligible answer from another application', async () => {

@@ -21,3 +21,22 @@
     th:replace="~{this :: toast(${id}, ${message}, ${canDismiss}, ${canIgnore}, ${toastDuration}, ${condOnStorageKey}, 'success')}"
   ></div>
 </div>
+
+<div th:fragment="blockEditToasts">
+  <th:block
+    th:if="${applicationParams.bannerMessage().isPresent()}"
+    th:with="toastId=${#strings.randomAlphanumeric(8)}"
+  >
+    <div
+      th:replace="~{this :: success(${toastId}, ${applicationParams.bannerMessage().get()}, true, false, 0, null)}"
+    ></div>
+  </th:block>
+  <th:block
+    th:if="${!applicationParams.preferredLanguageSupported()}"
+    th:with="toastId=${'locale-not-supported-'+ applicationParams.applicantId() + '-' + applicationParams.programId()}"
+  >
+    <div
+      th:replace="~{this:: warning(${toastId}, #{toast.localeNotSupported}, true, true, 0, null)}"
+    ></div>
+  </th:block>
+</div>
