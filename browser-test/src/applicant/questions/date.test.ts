@@ -15,7 +15,12 @@ test.describe('Date question for applicant flow', () => {
     const programName = 'Test program for single date'
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpSingleDateQuestion(programName, page, adminQuestions, adminPrograms)
+      await setUpSingleDateQuestion(
+        programName,
+        page,
+        adminQuestions,
+        adminPrograms,
+      )
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
@@ -24,14 +29,19 @@ test.describe('Date question for applicant flow', () => {
       await validateScreenshot(page, 'date')
     })
 
-    test('validate screenshot with errors', async ({page, applicantQuestions}) => {
+    test('validate screenshot with errors', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
       await validateScreenshot(page, 'date-errors')
     })
 
-    test('with filled in date submits successfully', async ({applicantQuestions}) => {
+    test('with filled in date submits successfully', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDateQuestion('2022-05-02')
       await applicantQuestions.clickNext()
@@ -39,7 +49,10 @@ test.describe('Date question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with no answer does not submit', async ({page, applicantQuestions}) => {
+    test('with no answer does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       // Click next without selecting anything.
       await applicantQuestions.clickNext()
@@ -73,7 +86,9 @@ test.describe('Date question for applicant flow', () => {
       await logout(page)
     })
 
-    test('with valid dates submits successfully', async ({applicantQuestions}) => {
+    test('with valid dates submits successfully', async ({
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDateQuestion('2022-07-04', 0)
       await applicantQuestions.answerDateQuestion('1990-10-10', 1)
@@ -82,7 +97,9 @@ test.describe('Date question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('with unanswered optional question submits successfully', async ({applicantQuestions}) => {
+    test('with unanswered optional question submits successfully', async ({
+      applicantQuestions,
+    }) => {
       // Only answer second question.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDateQuestion('1990-10-10', 1)
@@ -91,52 +108,70 @@ test.describe('Date question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    test('has no accessiblity violations', async ({page, applicantQuestions}) => {
+    test('has no accessiblity violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
   })
 
-  test.describe('single date question with North Star flag enabled', {tag: ['@northstar']}, () => {
-    const programName = 'Test program for single date'
+  test.describe(
+    'single date question with North Star flag enabled',
+    {tag: ['@northstar']},
+    () => {
+      const programName = 'Test program for single date'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpSingleDateQuestion(programName, page, adminQuestions, adminPrograms)
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-    })
-
-    test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-
-      await test.step('Screenshot without errors', async () => {
-        await validateScreenshot(
+      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+        await setUpSingleDateQuestion(
+          programName,
           page,
-          'date-north-star',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
+          adminQuestions,
+          adminPrograms,
         )
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
       })
 
-      await test.step('Screenshot with errors', async () => {
+      test('validate screenshot', async ({page, applicantQuestions}) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('Screenshot without errors', async () => {
+          await validateScreenshot(
+            page,
+            'date-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+
+        await test.step('Screenshot with errors', async () => {
+          await applicantQuestions.clickContinue()
+          await validateScreenshot(
+            page,
+            'date-errors-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+      })
+
+      test('with filled in date submits successfully', async ({
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerMemorableDateQuestion(
+          '2022',
+          '05 - May',
+          '2',
+        )
         await applicantQuestions.clickContinue()
-        await validateScreenshot(
-          page,
-          'date-errors-north-star',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
+
+        await applicantQuestions.submitFromReviewPage()
       })
-    })
-
-    test('with filled in date submits successfully', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerMemorableDateQuestion('2022', '05 - May', '2')
-      await applicantQuestions.clickContinue()
-
-      await applicantQuestions.submitFromReviewPage()
-    })
-  })
+    },
+  )
 
   async function setUpSingleDateQuestion(
     programName: string,
@@ -144,15 +179,15 @@ test.describe('Date question for applicant flow', () => {
     adminQuestions: AdminQuestions,
     adminPrograms: AdminPrograms,
   ) {
-      // As admin, create program with single date question.
-      await loginAsAdmin(page)
+    // As admin, create program with single date question.
+    await loginAsAdmin(page)
 
-      await adminQuestions.addDateQuestion({questionName: 'general-date-q'})
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['general-date-q'],
-        programName,
-      )
+    await adminQuestions.addDateQuestion({questionName: 'general-date-q'})
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['general-date-q'],
+      programName,
+    )
 
-      await logout(page)
+    await logout(page)
   }
 })

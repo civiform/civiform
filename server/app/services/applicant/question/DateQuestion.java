@@ -40,10 +40,9 @@ public final class DateQuestion extends Question {
               ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT)));
     }
     return ImmutableMap.of(
-      getYearPath(), validateYear(),
-      getMonthPath(), validateMonth(),
-      getDayPath(), validateDay()
-    );
+        getYearPath(), validateYear(),
+        getMonthPath(), validateMonth(),
+        getDayPath(), validateDay());
   }
 
   private ImmutableSet<ValidationErrorMessage> validateMonth() {
@@ -61,24 +60,24 @@ public final class DateQuestion extends Question {
     ApplicantData applicantData = applicantQuestion.getApplicantData();
 
     if (applicantData.readString(getYearPath()).isEmpty()) {
-            return ImmutableSet.of(
+      return ImmutableSet.of(
           ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_YEAR_REQUIRED));
     }
 
     return ImmutableSet.of();
   }
 
-
   private ImmutableSet<ValidationErrorMessage> validateDay() {
     ApplicantData applicantData = applicantQuestion.getApplicantData();
 
     if (applicantData.readString(getDayPath()).isEmpty()) {
-            return ImmutableSet.of(
+      return ImmutableSet.of(
           ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_DAY_REQUIRED));
     }
 
     return ImmutableSet.of();
   }
+
   @Override
   public ImmutableList<Path> getAllPaths() {
     return ImmutableList.of(getDatePath(), getMonthPath(), getDayPath(), getYearPath());

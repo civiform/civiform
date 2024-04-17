@@ -141,17 +141,18 @@ export class ApplicantQuestions {
     await this.validateInputValue(date)
   }
 
-  async answerMemorableDateQuestion(year: string, month: string, day: string, index = 0) {
+  async answerMemorableDateQuestion(
+    year: string,
+    month: string,
+    day: string,
+    index = 0,
+  ) {
     await this.page.fill(`.cf-date-year input >> nth=${index}`, year)
-    await this.page.selectOption(
-      `.cf-date-month select >> nth=${index}`,
-      {
-        label: month,
-      },
-    )
+    await this.page.selectOption(`.cf-date-month select >> nth=${index}`, {
+      label: month,
+    })
     await this.page.fill(`.cf-date-day input >> nth=${index}`, day)
   }
-
 
   async answerTextQuestion(text: string, index = 0) {
     await this.page.fill(`input[type="text"] >> nth=${index}`, text)

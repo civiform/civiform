@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 <div
   th:fragment="applicant-question (question, questionRendererParams, stateAbbreviations)"
 >
@@ -9,29 +7,6 @@
       <div
         th:replace="~{questiontypes/AddressQuestionFragment :: address(${question}, ${questionRendererParams}, ${stateAbbreviations})}"
       ></div>
-=======
-<div th:fragment="applicant-question(question)">
-    <!-- TODO(#6910): Investigate why we can't access enum types in Thymeleaf -->
-    <th:block th:switch="${question.getType().getLabel()}">
-        <th:block th:case="'Checkbox'">
-            <div th:replace="~{questiontypes/CheckboxQuestionFragment :: checkbox(${question})}"></div>
-        </th:block>
-        <th:block th:case="'Date'">
-            <div th:replace="~{questiontypes/DateQuestionFragment :: date(${question})}"></div>
-        </th:block>
-        <th:block th:case="'Number'">
-            <div th:replace="~{questiontypes/NumberQuestionFragment :: number(${question})}"></div>
-        </th:block>
-        <th:block th:case="'Radio Button'">
-            <div th:replace="~{questiontypes/RadioButtonQuestionFragment :: radio(${question})}"></div>
-        </th:block>
-        <th:block th:case="'Static Text'">
-            <div th:replace="~{questiontypes/StaticTextQuestionFragment :: static-text(${question})}"></div>
-        </th:block>
-        <th:block th:case="'Text'">
-            <div th:replace="~{questiontypes/TextQuestionFragment :: text(${question})}"></div>
-        </th:block>
->>>>>>> d679a9a3a (remove obsolete references to messages)
     </th:block>
     <th:block th:case="'Checkbox'">
       <div

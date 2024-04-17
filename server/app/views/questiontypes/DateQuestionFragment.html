@@ -1,4 +1,7 @@
-<div th:fragment="date (question, questionRendererParams)" class="cf-question-date">
+<div
+  th:fragment="date (question, questionRendererParams)"
+  class="cf-question-date"
+>
   <fieldset
     class="usa-fieldset"
     th:with="dateQuestion=${question.createDateQuestion()}"
@@ -8,11 +11,15 @@
       th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
     ></div>
 
-     <!-- Display errors -->
-     <div th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(question.getContextualizedPath())})}"></div>
+    <!-- Display errors -->
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${dateQuestion.getValidationErrors().get(question.getContextualizedPath())})}"
+    ></div>
 
     <div class="usa-memorable-date">
-      <div class="usa-form-group usa-form-group--month usa-form-group--select cf-date-month">
+      <div
+        class="usa-form-group usa-form-group--month usa-form-group--select cf-date-month"
+      >
         <label class="usa-label" for="date_of_birth_month">Month</label>
         <select
           class="usa-select"
