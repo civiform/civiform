@@ -46,6 +46,7 @@ import services.application.ApplicationEventDetails.NoteEvent;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.cloud.aws.SimpleEmail;
 import services.program.ProgramDefinition;
+import services.program.ProgramService;
 import services.program.StatusDefinitions;
 import services.program.StatusNotFoundException;
 import support.ProgramBuilder;
@@ -194,7 +195,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             simpleEmail,
             instanceOf(DeploymentType.class),
             messagesApi,
-            instanceOf(ApplicationRepository.class));
+            instanceOf(ApplicationRepository.class),instanceOf(ProgramService.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -256,7 +257,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             simpleEmail,
             instanceOf(DeploymentType.class),
             messagesApi,
-            instanceOf(ApplicationRepository.class));
+            instanceOf(ApplicationRepository.class),instanceOf(ProgramService.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -310,7 +311,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             simpleEmail,
             instanceOf(DeploymentType.class),
             messagesApi,
-            instanceOf(ApplicationRepository.class));
+            instanceOf(ApplicationRepository.class),instanceOf(ProgramService.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -372,7 +373,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             simpleEmail,
             instanceOf(DeploymentType.class),
             messagesApi,
-            instanceOf(ApplicationRepository.class));
+            instanceOf(ApplicationRepository.class),instanceOf(ProgramService.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -514,7 +515,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             simpleEmail,
             instanceOf(DeploymentType.class),
             instanceOf(MessagesApi.class),
-            instanceOf(ApplicationRepository.class));
+            instanceOf(ApplicationRepository.class),instanceOf(ProgramService.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram("some-program")
