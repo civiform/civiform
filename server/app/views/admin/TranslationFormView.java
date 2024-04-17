@@ -28,7 +28,6 @@ import views.style.AdminStyles;
  * a question or program.
  */
 public abstract class TranslationFormView extends BaseHtmlView {
-  
   private final TranslationLocales translationLocales;
 
   public TranslationFormView(TranslationLocales translationLocales) {
