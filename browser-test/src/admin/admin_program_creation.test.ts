@@ -199,6 +199,29 @@ test.describe('program creation', () => {
     )
   })
 
+  test('preserves blank lines in question preview', async () => {
+    const {page, adminQuestions} = ctx
+
+    await loginAsAdmin(page)
+
+    await adminQuestions.createStaticQuestion({
+      questionName: 'static-question',
+      questionText:
+        'Here is the first line\n' +
+        '\n' +
+        'Here is some more text after a blank line\n' +
+        '\n' +
+        '\n' +
+        'Here is more text after more blank lines',
+    })
+
+    await page.waitForTimeout(100) // ms
+    await validateScreenshot(
+      page,
+      'program-creation-static-question-with-blank-lines',
+    )
+  })
+
   test('create program and search for questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
