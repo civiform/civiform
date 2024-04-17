@@ -338,7 +338,14 @@ public final class AdminApplicationController extends CiviFormController {
           StatusEmailNotFoundException,
           StatusNotFoundException,
           AccountHasNoEmailException {
-    ProgramDefinition program = programService.getFullProgramDefinition(programId);
+    String programSlug = programService.getFullProgramDefinition(programId).slug();
+    ProgramDefinition program =
+        programService
+            .getActiveFullProgramDefinitionAsync(programSlug)
+            .toCompletableFuture()
+            .join();
+
+    // ProgramDefinition program = programService.getFullProgramDefinition(programId);
     String programName = program.adminName();
 
     try {

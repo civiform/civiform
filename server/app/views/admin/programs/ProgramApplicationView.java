@@ -39,6 +39,7 @@ import services.DateConverter;
 import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.Block;
+import services.program.ProgramService;
 import services.program.StatusDefinitions;
 import services.settings.SettingsManifest;
 import views.BaseHtmlLayout;
@@ -69,17 +70,20 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private final Messages enUsMessages;
   private final DateConverter dateConverter;
   private final SettingsManifest settingsManifest;
+  private final ProgramService programService;
 
   @Inject
   public ProgramApplicationView(
       BaseHtmlLayout layout,
       @EnUsLang Messages enUsMessages,
       DateConverter dateConverter,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      ProgramService programService) {
     this.layout = checkNotNull(layout);
     this.enUsMessages = checkNotNull(enUsMessages);
     this.dateConverter = checkNotNull(dateConverter);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.programService = checkNotNull(programService);
   }
 
   public Content render(
@@ -103,9 +107,16 @@ public final class ProgramApplicationView extends BaseHtmlView {
               .orElseThrow();
       blockToAnswers.put(answerBlock, answer);
     }
+    String programSlug = application.getProgram().getProgramDefinition().slug();
+    StatusDefinitions statusDefinitions1 =
+        programService
+            .getActiveFullProgramDefinitionAsync(programSlug)
+            .toCompletableFuture()
+            .join()
+            .statusDefinitions();
 
     ImmutableList<Modal> statusUpdateConfirmationModals =
-        statusDefinitions.getStatuses().stream()
+        statusDefinitions1.getStatuses().stream()
             .map(
                 status ->
                     renderStatusUpdateConfirmationModal(
@@ -136,11 +147,12 @@ public final class ProgramApplicationView extends BaseHtmlView {
                             .withClasses("flex", "flex-wrap", "gap-2")
                             // Status options if configured on the program.
                             .condWith(
-                                !statusDefinitions.getStatuses().isEmpty(),
+                                !statusDefinitions1.getStatuses().isEmpty(),
                                 div()
                                     .withClasses("flex", "mr-4", "gap-2")
                                     .with(
-                                        renderStatusOptionsSelector(application, statusDefinitions),
+                                        renderStatusOptionsSelector(
+                                            application, statusDefinitions1),
                                         updateNoteModal.getButton()))
                             .with(renderDownloadButton(programId, application.id))))
             .with(
@@ -263,6 +275,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
   private DivTag renderStatusOptionsSelector(
       ApplicationModel application, StatusDefinitions statusDefinitions) {
+    System.out.println(statusDefinitions);
     final String SELECTOR_ID = RandomStringUtils.randomAlphabetic(8);
     DivTag container =
         div()
@@ -294,8 +307,15 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
     // Add statuses in the order they're provided.
     String latestStatusText = application.getLatestStatus().orElse("");
-    statusDefinitions.getStatuses().stream()
-        .map(StatusDefinitions.Status::statusText)
+    String programSlug = application.getProgram().getProgramDefinition().slug();
+    Long programId =
+        programService
+            .getActiveFullProgramDefinitionAsync(programSlug)
+            .toCompletableFuture()
+            .join()
+            .id();
+
+    getAllApplicationStatusesForProgram(programId).stream()
         .forEach(
             statusText -> {
               boolean isCurrentStatus = statusText.equals(latestStatusText);
@@ -303,6 +323,16 @@ public final class ProgramApplicationView extends BaseHtmlView {
                   option(statusText).withValue(statusText).withCondSelected(isCurrentStatus));
             });
     return container.with(dropdownTag);
+  }
+
+  private ImmutableList<String> getAllApplicationStatusesForProgram(Long programId) {
+    return programService.getAllVersionsFullProgramDefinition(programId).stream()
+        .map(pdef -> pdef.statusDefinitions().getStatuses())
+        .flatMap(ImmutableList::stream)
+        .map(StatusDefinitions.Status::statusText)
+        .distinct()
+        .sorted()
+        .collect(ImmutableList.toImmutableList());
   }
 
   private Modal renderUpdateNoteConfirmationModal(

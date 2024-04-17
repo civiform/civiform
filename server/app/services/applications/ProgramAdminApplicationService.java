@@ -11,7 +11,6 @@ import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationEventModel;
 import models.ApplicationModel;
-import models.ProgramModel;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
@@ -32,6 +31,7 @@ import services.application.ApplicationEventDetails.StatusEvent;
 import services.cloud.aws.SimpleEmail;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 import services.program.StatusDefinitions.Status;
 import services.program.StatusNotFoundException;
 
@@ -50,6 +50,7 @@ public final class ProgramAdminApplicationService {
   private final String stagingTiNotificationMailingList;
   private final MessagesApi messagesApi;
   private final ApplicationRepository applicationRepository;
+  private final ProgramService programService;
 
   @Inject
   ProgramAdminApplicationService(
@@ -61,7 +62,8 @@ public final class ProgramAdminApplicationService {
       SimpleEmail emailClient,
       DeploymentType deploymentType,
       MessagesApi messagesApi,
-      ApplicationRepository applicationRepository) {
+      ApplicationRepository applicationRepository,
+      ProgramService programService) {
     this.applicantService = checkNotNull(applicantService);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.accountRepository = checkNotNull(accountRepository);
@@ -69,6 +71,7 @@ public final class ProgramAdminApplicationService {
     this.eventRepository = checkNotNull(eventRepository);
     this.emailClient = checkNotNull(emailClient);
     this.messagesApi = checkNotNull(messagesApi);
+    this.programService = checkNotNull(programService);
 
     checkNotNull(configuration);
     checkNotNull(deploymentType);
@@ -89,7 +92,14 @@ public final class ProgramAdminApplicationService {
   public void setStatus(
       ApplicationModel application, StatusEvent newStatusEvent, AccountModel admin, Request request)
       throws StatusEmailNotFoundException, StatusNotFoundException, AccountHasNoEmailException {
-    ProgramModel program = application.getProgram();
+    String programSlug = application.getProgram().getProgramDefinition().slug();
+    ProgramDefinition program =
+        programService
+            .getActiveFullProgramDefinitionAsync(programSlug)
+            .toCompletableFuture()
+            .join();
+
+    // ProgramModel program = application.getProgram();
     ApplicantModel applicant = application.getApplicant();
     String newStatusText = newStatusEvent.statusText();
     // The send/sent phrasing is a little weird as the service layer is converting between intent
@@ -97,11 +107,11 @@ public final class ProgramAdminApplicationService {
     boolean sendEmail = newStatusEvent.emailSent();
 
     Optional<Status> statusDefMaybe =
-        program.getStatusDefinitions().getStatuses().stream()
+        program.statusDefinitions().getStatuses().stream()
             .filter(s -> s.statusText().equals(newStatusText))
             .findFirst();
     if (statusDefMaybe.isEmpty()) {
-      throw new StatusNotFoundException(newStatusText, program.id);
+      throw new StatusNotFoundException(newStatusText, program.id());
     }
     Status statusDef = statusDefMaybe.get();
 
@@ -116,16 +126,12 @@ public final class ProgramAdminApplicationService {
     // Send email if requested and present.
     if (sendEmail) {
       if (statusDef.localizedEmailBodyText().isEmpty()) {
-        throw new StatusEmailNotFoundException(newStatusText, program.id);
+        throw new StatusEmailNotFoundException(newStatusText, program.id());
       }
       // Notify an Admin/TI if they applied.
       Optional<String> adminSubmitterEmail = application.getSubmitterEmail();
       if (adminSubmitterEmail.isPresent()) {
-        sendAdminSubmitterEmail(
-            programRepository.getShallowProgramDefinition(program),
-            applicant,
-            statusDef,
-            adminSubmitterEmail);
+        sendAdminSubmitterEmail(program, applicant, statusDef, adminSubmitterEmail);
       }
       // Notify the applicant.
       ApplicantPersonalInfo applicantPersonalInfo =
@@ -136,9 +142,7 @@ public final class ProgramAdminApplicationService {
         applicantEmails
             .get()
             .forEach(
-                email ->
-                    sendApplicantEmail(
-                        program.getProgramDefinition(), applicant, statusDef, Optional.of(email)));
+                email -> sendApplicantEmail(program, applicant, statusDef, Optional.of(email)));
       } else {
         // An email was requested to be sent but the applicant doesn't have one.
         throw new AccountHasNoEmailException(applicant.getAccount().id);
