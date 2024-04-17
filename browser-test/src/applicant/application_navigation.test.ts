@@ -3,8 +3,10 @@ import {
   AdminQuestions,
   ClientInformation,
   createTestContext,
-  enableFeatureFlag,
+  disableFeatureFlag,
   dropTables,
+  enableFeatureFlag,
+  isLocalDevEnvironment,
   loginAsAdmin,
   loginAsTestUser,
   loginAsTrustedIntermediary,
@@ -13,8 +15,6 @@ import {
   validateScreenshot,
   validateToastMessage,
   waitForPageJsLoad,
-  isLocalDevEnvironment,
-  disableFeatureFlag,
 } from '../support'
 import {Eligibility, ProgramVisibility} from '../support/admin_programs'
 
