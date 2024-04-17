@@ -607,6 +607,10 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return new FakeProgramBuilder("Fake Program");
     }
 
+    static FakeProgramBuilder newActiveProgram(String name) {
+      return new FakeProgramBuilder(name);
+    }
+
     static FakeProgramBuilder newDraftOf(ProgramModel program) throws ProgramNotFoundException {
       ProgramDefinition draft = programService.newDraftOf(program.id);
       return new FakeProgramBuilder(ProgramBuilder.newBuilderFor(draft));
@@ -709,14 +713,18 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     Optional<AccountModel> trustedIntermediary = Optional.empty();
     ApplicationModel application;
 
-    private FakeApplicationFiller(ProgramModel program) {
+    private FakeApplicationFiller(ProgramModel program, ApplicantModel applicant) {
       this.program = program;
-      this.applicant = resourceCreator.insertApplicantWithAccount();
+      this.applicant = applicant;
       this.admin = resourceCreator.insertAccount();
     }
 
     static FakeApplicationFiller newFillerFor(ProgramModel program) {
-      return new FakeApplicationFiller(program);
+      return new FakeApplicationFiller(program, resourceCreator.insertApplicantWithAccount());
+    }
+
+    static FakeApplicationFiller newFillerFor(ProgramModel program, ApplicantModel applicant) {
+      return new FakeApplicationFiller(program, applicant);
     }
 
     FakeApplicationFiller byTrustedIntermediary(String tiEmail, String tiOrganization) {

@@ -7,6 +7,7 @@ import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import java.util.Optional;
 import models.AccountModel;
@@ -75,8 +76,14 @@ public class ApplicationRepositoryTest extends ResetPostgres {
         repo.getApplication(appTwoDraft.id).toCompletableFuture().join().get();
     assertThat(appTwoSubmitted.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     assertThat(appTwoSubmitted.getApplicantData().getApplicantName().get()).isEqualTo("Alice");
-    assertThat(repo.getApplication(appOne.id).toCompletableFuture().join().get().getSubmitTime())
-        .isEqualTo(initialSubmitTime);
+    assertThat(
+            repo.getApplication(appOne.id)
+                .toCompletableFuture()
+                .join()
+                .get()
+                .getSubmitTime()
+                .truncatedTo(ChronoUnit.SECONDS))
+        .isEqualTo(initialSubmitTime.truncatedTo(ChronoUnit.SECONDS));
   }
 
   @Test

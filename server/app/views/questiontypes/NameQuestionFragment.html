@@ -1,8 +1,9 @@
 <div
-  th:fragment="name(question)"
+  th:fragment="name(question, questionRendererParams)"
   th:with="nameQuestion=${question.createNameQuestion()},
              questionId=${#strings.randomAlphanumeric(8)},
-             maxInputLength=10000"
+             maxInputLength=10000,
+             firstPathWithError=${nameQuestion.getFirstPathWithError()}"
   th:id="${questionId}"
 >
   <!-- Title and Help Text -->
@@ -11,9 +12,12 @@
   ></div>
 
   <!-- TODO: errors -->
-  <div th:with="firstNameId=${#strings.randomAlphanumeric(8)}">
+  <div
+    th:with="firstNameId=${#strings.randomAlphanumeric(8)},firstNamePath=${nameQuestion.getFirstNamePath()}"
+    class="cf-name-first"
+  >
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(nameQuestion.getFirstNamePath())})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(firstNamePath)})}"
     ></div>
     <label th:for="${firstNameId}">
       <span th:text="#{label.firstName}"></span>
@@ -28,10 +32,14 @@
       th:id="${firstNameId}"
       autocomplete="given-name"
       th:value="${nameQuestion.getFirstNameValue().orElse('')}"
-      th:name="${nameQuestion.getFirstNamePath()}"
+      th:name="${firstNamePath}"
+      th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(firstNamePath)}"
     />
   </div>
-  <div th:with="middleNameId=${#strings.randomAlphanumeric(8)}">
+  <div
+    th:with="middleNameId=${#strings.randomAlphanumeric(8)}"
+    class="cf-name-middle"
+  >
     <label th:for="${middleNameId}" th:text="#{label.middleName}"></label>
     <input
       type="text"
@@ -43,9 +51,12 @@
       th:name="${nameQuestion.getMiddleNamePath()}"
     />
   </div>
-  <div th:with="lastNameId=${#strings.randomAlphanumeric(8)}">
+  <div
+    th:with="lastNameId=${#strings.randomAlphanumeric(8)},lastNamePath=${nameQuestion.getLastNamePath()}"
+    class="cf-name-last"
+  >
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(nameQuestion.getLastNamePath())})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(lastNamePath)})}"
     ></div>
     <label th:for="${lastNameId}">
       <span th:text="#{label.lastName}"></span>
@@ -60,7 +71,8 @@
       th:id="${lastNameId}"
       autocomplete="family-name"
       th:value="${nameQuestion.getLastNameValue().orElse('')}"
-      th:name="${nameQuestion.getLastNamePath()}"
+      th:name="${lastNamePath}"
+      th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(lastNamePath)}"
     />
   </div>
 </div>

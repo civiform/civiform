@@ -157,9 +157,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .anyMatch(BlockDefinition::hasNullQuestion);
 
     ArrayList<ProgramHeaderButton> headerButtons =
-        new ArrayList<>(
-            getEditHeaderButtons(
-                settingsManifest, /* isEditingAllowed= */ viewAllowsEditingProgram()));
+        new ArrayList<>(getEditHeaderButtons(/* isEditingAllowed= */ viewAllowsEditingProgram()));
     headerButtons.add(ProgramHeaderButton.PREVIEW_AS_APPLICANT);
     headerButtons.add(ProgramHeaderButton.DOWNLOAD_PDF_PREVIEW);
 
@@ -237,15 +235,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * @param isEditingAllowed true if the view allows editing and false otherwise. (Typically, a view
    *     only allows editing if a program is in draft mode.)
    */
-  private ImmutableList<ProgramHeaderButton> getEditHeaderButtons(
-      SettingsManifest settingsManifest, boolean isEditingAllowed) {
+  private ImmutableList<ProgramHeaderButton> getEditHeaderButtons(boolean isEditingAllowed) {
     if (isEditingAllowed) {
-      if (settingsManifest.getProgramCardImages()) {
-        return ImmutableList.of(
-            ProgramHeaderButton.EDIT_PROGRAM_DETAILS, ProgramHeaderButton.EDIT_PROGRAM_IMAGE);
-      } else {
-        return ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM_DETAILS);
-      }
+      return ImmutableList.of(
+          ProgramHeaderButton.EDIT_PROGRAM_DETAILS, ProgramHeaderButton.EDIT_PROGRAM_IMAGE);
     } else {
       return ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM);
     }
@@ -710,9 +703,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 "rounded-md",
                 StyleUtils.hover("text-gray-800", "bg-gray-100"));
     ret.condWith(
-        settingsManifest.getUniversalQuestions()
-            && !malformedQuestionDefinition
-            && questionDefinition.isUniversal(),
+        !malformedQuestionDefinition && questionDefinition.isUniversal(),
         ViewUtils.makeUniversalBadge(questionDefinition, "mt-2", "mb-4"));
 
     DivTag row = div().withClasses("flex", "gap-4", "items-center");
@@ -1105,8 +1096,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .setQuestionCreateRedirectUrl(redirectUrl)
                 .build(),
             programBlockValidationFactory);
-    return qb.getContainer(
-        questionBankVisibility, /* showUniversal= */ settingsManifest.getUniversalQuestions());
+    return qb.getContainer(questionBankVisibility);
   }
 
   /** Creates a modal, which allows the admin to confirm that they want to delete a block. */

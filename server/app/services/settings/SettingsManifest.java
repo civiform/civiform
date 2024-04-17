@@ -536,11 +536,22 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * The URL CiviForm will use to call Esri’s [findAddressCandidates
+   * [Deprecated: Switch to `ESRI_FIND_ADDRESS_CANDIDATES_URLS`] The URL CiviForm will use to call
+   * Esri’s [findAddressCandidates
    * service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).
    */
   public Optional<String> getEsriFindAddressCandidatesUrl() {
     return getString("ESRI_FIND_ADDRESS_CANDIDATES_URL");
+  }
+
+  /**
+   * The list of URLs CiviForm will use to call Esri’s [findAddressCandidates
+   * service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).
+   * These are used sequentially and not all of them may need to be used for every correction. If
+   * any results have a score of 90 or higher, lower priority urls will not be called.
+   */
+  public Optional<ImmutableList<String>> getEsriFindAddressCandidatesUrls() {
+    return getListOfStrings("ESRI_FIND_ADDRESS_CANDIDATES_URLS");
   }
 
   /**
@@ -896,23 +907,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Enables setting and displaying the universal question state on questions. These questions are
-   * intended to be used by all programs and will appear at the top of the question bank with a
-   * badge denoting them as universal.
-   */
-  public boolean getUniversalQuestions() {
-    return getBool("UNIVERSAL_QUESTIONS");
-  }
-
-  /**
-   * Enables images on program cards, both for admins to upload them and for applicants to view
-   * them.
-   */
-  public boolean getProgramCardImages() {
-    return getBool("PROGRAM_CARD_IMAGES");
-  }
-
-  /**
    * Add programs cards to the confirmation screen that an applicant sees after finishing an
    * application.
    */
@@ -921,11 +915,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * (NOT FOR PRODUCTION USE) Save an applicant's answers when they take any action
-   * ('Review'/'Previous'/'Save and next') instead of only saving on 'Save and next'.
+   * Save an applicant's answers when they take any action ('Review'/'Previous'/'Save and next')
+   * instead of only saving on 'Save and next'.
    */
-  public boolean getSaveOnAllActions(RequestHeader request) {
-    return getBool("SAVE_ON_ALL_ACTIONS", request);
+  public boolean getSaveOnAllActions() {
+    return getBool("SAVE_ON_ALL_ACTIONS");
   }
 
   /** Enables showing new UI with an updated user experience in Applicant flows */
@@ -1556,10 +1550,22 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       ImmutableList.of(
                           SettingDescription.create(
                               "ESRI_FIND_ADDRESS_CANDIDATES_URL",
-                              "The URL CiviForm will use to call Esri’s [findAddressCandidates"
+                              "[Deprecated: Switch to `ESRI_FIND_ADDRESS_CANDIDATES_URLS`] The URL"
+                                  + " CiviForm will use to call Esri’s [findAddressCandidates"
                                   + " service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).",
                               /* isRequired= */ false,
                               SettingType.STRING,
+                              SettingMode.ADMIN_READABLE),
+                          SettingDescription.create(
+                              "ESRI_FIND_ADDRESS_CANDIDATES_URLS",
+                              "The list of URLs CiviForm will use to call Esri’s"
+                                  + " [findAddressCandidates"
+                                  + " service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm)."
+                                  + " These are used sequentially and not all of them may need to"
+                                  + " be used for every correction. If any results have a score of"
+                                  + " 90 or higher, lower priority urls will not be called.",
+                              /* isRequired= */ false,
+                              SettingType.LIST_OF_STRINGS,
                               SettingMode.ADMIN_READABLE),
                           SettingDescription.create(
                               "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS",
@@ -1899,22 +1905,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "UNIVERSAL_QUESTIONS",
-                      "Enables setting and displaying the universal question state on questions."
-                          + " These questions are intended to be used by all programs and will"
-                          + " appear at the top of the question bank with a badge denoting them as"
-                          + " universal.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
-                  SettingDescription.create(
-                      "PROGRAM_CARD_IMAGES",
-                      "Enables images on program cards, both for admins to upload them and for"
-                          + " applicants to view them.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
-                  SettingDescription.create(
                       "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE",
                       "Add programs cards to the confirmation screen that an applicant sees after"
                           + " finishing an application.",
@@ -1923,12 +1913,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "SAVE_ON_ALL_ACTIONS",
-                      "(NOT FOR PRODUCTION USE) Save an applicant's answers when they take any"
-                          + " action ('Review'/'Previous'/'Save and next') instead of only saving"
-                          + " on 'Save and next'.",
+                      "Save an applicant's answers when they take any action"
+                          + " ('Review'/'Previous'/'Save and next') instead of only saving on 'Save"
+                          + " and next'.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "NORTH_STAR_APPLICANT_UI",
                       "Enables showing new UI with an updated user experience in Applicant flows",

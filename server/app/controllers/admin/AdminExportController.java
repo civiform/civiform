@@ -12,6 +12,10 @@ import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
+import services.ErrorAnd;
+import services.migration.ProgramMigrationService;
+import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.admin.migration.AdminExportView;
@@ -30,6 +34,7 @@ import views.admin.migration.AdminProgramExportForm;
 public class AdminExportController extends CiviFormController {
   private final AdminExportView adminExportView;
   private final FormFactory formFactory;
+  private final ProgramMigrationService programMigrationService;
   private final ProgramService programService;
   private final SettingsManifest settingsManifest;
 
@@ -38,12 +43,14 @@ public class AdminExportController extends CiviFormController {
       AdminExportView adminExportView,
       FormFactory formFactory,
       ProfileUtils profileUtils,
+      ProgramMigrationService programMigrationService,
       ProgramService programService,
       SettingsManifest settingsManifest,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
     this.adminExportView = checkNotNull(adminExportView);
     this.formFactory = checkNotNull(formFactory);
+    this.programMigrationService = checkNotNull(programMigrationService);
     this.programService = checkNotNull(programService);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
@@ -70,10 +77,30 @@ public class AdminExportController extends CiviFormController {
         formFactory
             .form(AdminProgramExportForm.class)
             .bindFromRequest(request, AdminProgramExportForm.FIELD_NAMES.toArray(new String[0]));
-    // TODO(#7087): Show an error if no program was selected.
-    // TODO(#7087): Return JSON representing the exported program.
-    return notFound(
-        String.format(
-            "Received ID: %s. Program export is not yet implemented", form.get().getProgramId()));
+
+    Long programId = form.get().getProgramId();
+    if (programId == null) {
+      // If they didn't select anything, just re-render the main export page.
+      return redirect(routes.AdminExportController.index().url());
+    }
+
+    // TODO(#7087): The export UI only shows active programs. Should we not download the program
+    // JSON here if the programId is actually for a draft program?
+    ProgramDefinition program;
+    try {
+      program = programService.getFullProgramDefinition(programId);
+    } catch (ProgramNotFoundException e) {
+      return badRequest(String.format("Program with ID %s could not be found", programId));
+    }
+
+    ErrorAnd<String, String> serializeResult = programMigrationService.serialize(program);
+    if (serializeResult.isError()) {
+      return badRequest(serializeResult.getErrors().stream().findFirst().orElseThrow());
+    }
+
+    String filename = program.adminName() + "-exported.json";
+    return ok(serializeResult.getResult())
+        .as(Http.MimeTypes.JSON)
+        .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
   }
 }

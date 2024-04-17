@@ -1,0 +1,393 @@
+{
+  "program": {
+    "id": 34,
+    "adminName": "import-program-sample",
+    "adminDescription": "desc",
+    "externalLink": "https://github.com/civiform/civiform",
+    "displayMode": "PUBLIC",
+    "localizedName": {
+      "translations": {
+        "en_US": "Import Sample Program"
+      },
+      "isRequired": true
+    },
+    "localizedDescription": {
+      "translations": {
+        "en_US": "A sample program for testing program import"
+      },
+      "isRequired": true
+    },
+    "localizedConfirmationMessage": {
+      "translations": {
+        "en_US": ""
+      },
+      "isRequired": true
+    },
+    "blockDefinitions": [
+      {
+        "id": 1,
+        "name": "Screen 1",
+        "description": "one of each question type - part 1",
+        "repeaterId": null,
+        "hidePredicate": null,
+        "optionalPredicate": null,
+        "questionDefinitions": [
+          {
+            "id": 18,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          },
+          {
+            "id": 5,
+            "optional": false,
+            "addressCorrectionEnabled": true
+          },
+          {
+            "id": 26,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          },
+          {
+            "id": 7,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          },
+          {
+            "id": 9,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          },
+          {
+            "id": 10,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          },
+          {
+            "id": 16,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Screen 2",
+        "description": "one of each question type - part 2",
+        "repeaterId": null,
+        "hidePredicate": null,
+        "eligibilityDefinition": {
+          "predicate": {
+            "rootNode": {
+              "node": {
+                "type": "or",
+                "children": [
+                  {
+                    "node": {
+                      "type": "and",
+                      "children": [
+                        {
+                          "node": {
+                            "type": "leaf",
+                            "questionId": 19,
+                            "scalar": "TEXT",
+                            "operator": "EQUAL_TO",
+                            "value": {
+                              "value": "\"yellow\"",
+                              "type": "STRING"
+                            }
+                          }
+                        },
+                        {
+                          "node": {
+                            "type": "leaf",
+                            "questionId": 1,
+                            "scalar": "FIRST_NAME",
+                            "operator": "IN",
+                            "value": {
+                              "value": "[\"Yellow1\", \"Yellow2\"]",
+                              "type": "LIST_OF_STRINGS"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "node": {
+                      "type": "and",
+                      "children": [
+                        {
+                          "node": {
+                            "type": "leaf",
+                            "questionId": 1,
+                            "scalar": "FIRST_NAME",
+                            "operator": "IN",
+                            "value": {
+                              "value": "[\"Green3\", \"Green4\"]",
+                              "type": "LIST_OF_STRINGS"
+                            }
+                          }
+                        },
+                        {
+                          "node": {
+                            "type": "leaf",
+                            "questionId": 19,
+                            "scalar": "TEXT",
+                            "operator": "EQUAL_TO",
+                            "value": {
+                              "value": "\"green\"",
+                              "type": "STRING"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "action": "ELIGIBLE_BLOCK"
+          }
+        },
+        "optionalPredicate": null,
+        "questionDefinitions": [
+          {
+            "id": 11,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          },
+          {
+            "id": 14,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          },
+          {
+            "id": 1,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          },
+          {
+            "id": 15,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          },
+          {
+            "id": 19,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "name": "Household information",
+        "description": "List all household members",
+        "repeaterId": null,
+        "hidePredicate": null,
+        "optionalPredicate": null,
+        "questionDefinitions": [
+          {
+            "id": 12,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "name": "Household member info",
+        "description": "Collect information about each household member",
+        "repeaterId": 3,
+        "hidePredicate": null,
+        "optionalPredicate": null,
+        "questionDefinitions": [
+          {
+            "id": 21,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          },
+          {
+            "id": 22,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          },
+          {
+            "id": 25,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "name": "Car information",
+        "description": "Information about an applicant's cars",
+        "repeaterId": 3,
+        "hidePredicate": null,
+        "optionalPredicate": null,
+        "questionDefinitions": [
+          {
+            "id": 23,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "name": "Car price per car",
+        "description": "",
+        "repeaterId": 9,
+        "hidePredicate": null,
+        "optionalPredicate": null,
+        "questionDefinitions": [
+          {
+            "id": 24,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "name": "Screen 3",
+        "description": "Additional questions",
+        "repeaterId": null,
+        "hidePredicate": null,
+        "optionalPredicate": null,
+        "questionDefinitions": [
+          {
+            "id": 17,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "name": "Screen only for Spring and Summer",
+        "description": "A screen exercising visibility conditions",
+        "repeaterId": null,
+        "hidePredicate": {
+          "rootNode": {
+            "node": {
+              "type": "leaf",
+              "questionId": 17,
+              "scalar": "SELECTION",
+              "operator": "IN",
+              "value": {
+                "value": "[\"2\", \"3\"]",
+                "type": "LIST_OF_STRINGS"
+              }
+            }
+          },
+          "action": "SHOW_BLOCK"
+        },
+        "optionalPredicate": null,
+        "questionDefinitions": [
+          {
+            "id": 8,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "name": "File upload",
+        "description": "Upload a file",
+        "repeaterId": null,
+        "hidePredicate": {
+          "rootNode": {
+            "node": {
+              "type": "or",
+              "children": [
+                {
+                  "node": {
+                    "type": "and",
+                    "children": [
+                      {
+                        "node": {
+                          "type": "leaf",
+                          "questionId": 15,
+                          "scalar": "NUMBER",
+                          "operator": "GREATER_THAN_OR_EQUAL_TO",
+                          "value": {
+                            "value": "2",
+                            "type": "LONG"
+                          }
+                        }
+                      },
+                      {
+                        "node": {
+                          "type": "leaf",
+                          "questionId": 10,
+                          "scalar": "SELECTION",
+                          "operator": "IN",
+                          "value": {
+                            "value": "[\"4\"]",
+                            "type": "LIST_OF_STRINGS"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "action": "HIDE_BLOCK"
+        },
+        "optionalPredicate": null,
+        "questionDefinitions": [
+          {
+            "id": 13,
+            "optional": true,
+            "addressCorrectionEnabled": false
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "name": "Just Static Text Screen",
+        "description": "Some final static information",
+        "repeaterId": null,
+        "hidePredicate": null,
+        "optionalPredicate": null,
+        "questionDefinitions": [
+          {
+            "id": 27,
+            "optional": false,
+            "addressCorrectionEnabled": false
+          }
+        ]
+      }
+    ],
+    "statusDefinitions": {
+      "statuses": [
+        {
+          "status": "Pending Review",
+          "status_localized": {
+            "translations": {
+              "en_US": "Pending Review"
+            },
+            "isRequired": true
+          },
+          "email_body_localized": null,
+          "defaultStatus": true
+        }
+      ]
+    },
+    "programType": "DEFAULT",
+    "eligibilityIsGating": true,
+    "acls": {
+      "tiProgramViewAcls": []
+    },
+    "localizedSummaryImageDescription": {
+      "translations": {
+        "en_US": "Test summary image description"
+      },
+      "isRequired": true
+    }
+  }
+}

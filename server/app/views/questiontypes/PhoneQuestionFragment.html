@@ -1,5 +1,5 @@
 <div
-  th:fragment="phone(question)"
+  th:fragment="phone(question, questionRendererParams)"
   th:with="phoneQuestion=${question.createPhoneQuestion()},
              questionId=${#strings.randomAlphanumeric(8)},
              inputId=${'cf-phone-number-' +#strings.randomAlphanumeric(8)}"
@@ -28,6 +28,7 @@
       th:aria-describedby="${questionId} + '-description'"
       th:aria-required="${!question.isOptional()}"
       th:aria-invalid="${!phoneQuestion.getValidationErrors().isEmpty()}"
+      th:autofocus="${questionRendererParams.autofocusFirstError()}"
     />
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${phoneQuestion.getValidationErrors().get(phoneQuestion.getPhoneNumberPath())})}"

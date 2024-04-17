@@ -133,6 +133,8 @@ POST    /admin/apiKeys/:apiKeyId/retire             controllers.admin.AdminApiKe
 # Admin program migration
 GET /admin/export            controllers.admin.AdminExportController.index(request: Request)
 GET /admin/export/program    controllers.admin.AdminExportController.exportProgram(request: Request)
+GET /admin/import            controllers.admin.AdminImportController.index(request: Request)
+POST /admin/import/hx/program   controllers.admin.AdminImportController.hxImportProgram(request: Request)
 
 # Admin settings
 GET      /admin/settings                             controllers.admin.AdminSettingsController.index(request: Request)
@@ -200,7 +202,6 @@ GET     /api/docs/v1/:programSlug/active                    controllers.api.ApiD
 GET     /api/docs/v1/:programSlug/draft                     controllers.api.ApiDocsController.draftDocsForSlug(request: Request, programSlug: String)
 
 # Methods for user support incidents
-GET     /support/unconfirmedIdcsEmail  controllers.SupportController.handleUnconfirmedIdcsEmail(request: Request)
 GET     /support/unsupportedBrowser    controllers.SupportController.handleUnsupportedBrowser(request: Request)
 
 # Methods for program admins

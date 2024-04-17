@@ -37,6 +37,22 @@ public class RealEsriClientTest {
   }
 
   @Test
+  public void fetchAddressSuggestionsWorksUsingOldLegacySingleUrlConfigValue() throws Exception {
+    // This is the same as the fetchAddressSuggestions test but forces use of the old config
+    // setting.
+    // Can do away after the removal of the old config setting.
+    helper = new EsriTestHelper(TestType.LEGACY_SINGLE_URL_CONFIG_SETTING);
+    ObjectNode addressJson = Json.newObject();
+    addressJson.put("street", "380 New York St");
+    Optional<JsonNode> maybeResp =
+        helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
+    JsonNode resp = maybeResp.get();
+    ArrayNode candidates = (ArrayNode) resp.get("candidates");
+    assertThat(resp.get("spatialReference").get("wkid").asInt()).isEqualTo(4326);
+    assertThat(candidates).hasSize(5);
+  }
+
+  @Test
   public void fetchAddressSuggestionsHavingLine2Populated() throws Exception {
     helper = new EsriTestHelper(TestType.STANDARD_WITH_LINE_2);
     ObjectNode addressJson = Json.newObject();
@@ -71,6 +87,25 @@ public class RealEsriClientTest {
     Optional<JsonNode> maybeResp =
         helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
     assertThat(maybeResp.isPresent()).isFalse();
+  }
+
+  @Test
+  public void fetchAddressSuggestionsMultipleUrls() throws Exception {
+    // TestType.MULTIPLE_ENDPOINTS configures the test web server with multi endpoints
+    // that each return different numbers of results
+    helper = new EsriTestHelper(TestType.MULTIPLE_ENDPOINTS);
+    ObjectNode addressJson = Json.newObject();
+    addressJson.put("street", "380 New York St");
+    Optional<JsonNode> maybeResp =
+        helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
+    JsonNode resp = maybeResp.get();
+    ArrayNode candidates = (ArrayNode) resp.get("candidates");
+    assertThat(resp.get("spatialReference").get("wkid").asInt()).isEqualTo(4326);
+
+    // For this test this value is the merged combination of candidate results
+    // from multiple endpoints.
+    int expectedNumberOfCandidates = 8;
+    assertThat(candidates).hasSize(expectedNumberOfCandidates);
   }
 
   @Test

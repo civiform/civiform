@@ -1,6 +1,4 @@
 # Builds on docker-compose.yml
-version: '3.4'
-
 services:
   # Load custom postgres config that disables durability for performance
   # Not for use in a production environment

@@ -858,7 +858,6 @@ test.describe('create and edit predicates', () => {
 
     test('every eligibility right hand type evaluates correctly', async () => {
       const {page, adminPrograms, applicantQuestions, adminPredicates} = ctx
-      await enableFeatureFlag(page, 'save_on_all_actions')
 
       await loginAsAdmin(page)
 

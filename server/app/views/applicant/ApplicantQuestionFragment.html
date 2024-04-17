@@ -1,54 +1,61 @@
-<div th:fragment="applicant-question (question, stateAbbreviations)">
+<div
+  th:fragment="applicant-question (question, questionRendererParams, stateAbbreviations)"
+>
   <!-- TODO(#6910): Investigate why we can't access enum types in Thymeleaf -->
   <th:block th:switch="${question.getType().getLabel()}">
     <th:block th:case="'Address'">
       <div
-        th:replace="~{questiontypes/AddressQuestionFragment :: address(${question}, ${stateAbbreviations})}"
+        th:replace="~{questiontypes/AddressQuestionFragment :: address(${question}, ${questionRendererParams}, ${stateAbbreviations})}"
       ></div>
     </th:block>
     <th:block th:case="'Checkbox'">
       <div
-        th:replace="~{questiontypes/CheckboxQuestionFragment :: checkbox(${question})}"
+        th:replace="~{questiontypes/CheckboxQuestionFragment :: checkbox(${question}, ${questionRendererParams})}"
       ></div>
     </th:block>
     <th:block th:case="'Currency'">
       <div
-        th:replace="~{questiontypes/CurrencyQuestionFragment :: currency(${question})}"
+        th:replace="~{questiontypes/CurrencyQuestionFragment :: currency(${question}, ${questionRendererParams})}"
       ></div>
     </th:block>
     <th:block th:case="'Dropdown'">
       <div
-        th:replace="~{questiontypes/DropdownQuestionFragment :: dropdown(${question})}"
+        th:replace="~{questiontypes/DropdownQuestionFragment :: dropdown(${question}, ${questionRendererParams})}"
       ></div>
     </th:block>
     <th:block th:case="'Email'">
       <div
-        th:replace="~{questiontypes/EmailQuestionFragment :: email(${question})}"
+        th:replace="~{questiontypes/EmailQuestionFragment :: email(${question}, ${questionRendererParams})}"
+      ></div>
+    </th:block>
+    <th:block th:case="'Enumerator'">
+      <div
+        th:replace="~{questiontypes/EnumeratorQuestionFragment :: enumerator(${question})}"
       ></div>
     </th:block>
     <th:block th:case="'ID'">
       <div
-        th:replace="~{questiontypes/IdQuestionFragment :: id(${question})}"
+        th:replace="~{questiontypes/IdQuestionFragment :: id(${question}, ${questionRendererParams})}"
       ></div>
     </th:block>
     <th:block th:case="'Name'">
       <div
-        th:replace="~{questiontypes/NameQuestionFragment :: name(${question})}"
+        th:replace="~{questiontypes/NameQuestionFragment :: name(${question}, ${questionRendererParams})}"
       ></div>
     </th:block>
     <th:block th:case="'Number'">
       <div
-        th:replace="~{questiontypes/NumberQuestionFragment :: number(${question})}"
+        th:replace="~{questiontypes/NumberQuestionFragment :: number(${question}, ${questionRendererParams})}"
       ></div>
     </th:block>
     <th:block th:case="'Phone Number'">
       <div
-        th:replace="~{questiontypes/PhoneQuestionFragment :: phone(${question})}"
+        th:replace="~{questiontypes/PhoneQuestionFragment :: phone(${question}, ${questionRendererParams})}"
       ></div>
     </th:block>
     <th:block th:case="'Radio Button'">
       <div
-        th:replace="~{questiontypes/RadioButtonQuestionFragment :: radio(${question})}"
+        th:replace="~{questiontypes/RadioButtonQuestionFragment :: radio(${question}, ${questionRendererParams})}"
       ></div>
     </th:block>
     <th:block th:case="'Static Text'">
@@ -58,7 +65,7 @@
     </th:block>
     <th:block th:case="'Text'">
       <div
-        th:replace="~{questiontypes/TextQuestionFragment :: text(${question})}"
+        th:replace="~{questiontypes/TextQuestionFragment :: text(${question}, ${questionRendererParams})}"
       ></div>
     </th:block>
   </th:block>

@@ -25,6 +25,7 @@ import services.IdentifierBasedPaginationSpec;
 import services.PaginationResult;
 import services.Path;
 import services.applicant.AnswerData;
+import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
 import services.applicant.JsonPathProvider;
 import services.export.enums.RevisionState;
@@ -86,8 +87,9 @@ public final class JsonExporterService {
       ProgramDefinition programDefinition, PaginationResult<ApplicationModel> paginationResult) {
     ImmutableList<ApplicationModel> applications = paginationResult.getPageContents();
 
-    ImmutableList<ProgramDefinition> programDefinitionsForAllVersions =
-        programService.getAllVersionsFullProgramDefinition(programDefinition.id());
+    ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions =
+        programService.getAllVersionsFullProgramDefinition(programDefinition.id()).stream()
+            .collect(ImmutableMap.toImmutableMap(ProgramDefinition::id, pd -> pd));
 
     DocumentContext jsonData =
         applications.stream()
@@ -119,17 +121,25 @@ public final class JsonExporterService {
 
   private ApplicationExportData buildApplicationExportData(
       ApplicationModel application,
-      ImmutableList<ProgramDefinition> programDefinitionsForAllVersions) {
-
-    // Check the application for an answer for every question from every version
-    // of the program, storing one AnswerData for each unique question path.
-    // (Paths are immutable across versions of a question, so we only need to
-    // get the answer at each question path once and it's ok if it's not the
-    // newest version.)
+      ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions) {
     Map<Path, AnswerData> answersToExport = new HashMap<>();
-    for (ProgramDefinition pd : programDefinitionsForAllVersions) {
+
+    // First retrieve the answers for the program version that aligns with this application
+    ProgramDefinition pdForApplication =
+        programDefinitionsForAllVersions.get(application.getProgram().id);
+    applicantService
+        .getReadOnlyApplicantProgramService(application.getApplicantData(), pdForApplication)
+        .getSummaryDataAllQuestions()
+        .forEach(ad -> answersToExport.putIfAbsent(ad.contextualizedPath(), ad));
+
+    // Then populate the questions that were not in the application's program version. We use an
+    // empty ApplicantData because these should all be exported as unanswered questions.
+    for (ProgramDefinition pd : programDefinitionsForAllVersions.values()) {
+      if (application.getProgram().id == pd.id()) {
+        continue;
+      }
       applicantService
-          .getReadOnlyApplicantProgramService(application, pd)
+          .getReadOnlyApplicantProgramService(new ApplicantData(), pd)
           .getSummaryDataAllQuestions()
           .forEach(ad -> answersToExport.putIfAbsent(ad.contextualizedPath(), ad));
     }
@@ -148,8 +158,7 @@ public final class JsonExporterService {
     }
 
     return ApplicationExportData.builder()
-        // the admin name is immutable across versions
-        .setAdminName(programDefinitionsForAllVersions.get(0).adminName())
+        .setAdminName(programDefinitionsForAllVersions.get(application.getProgram().id).adminName())
         .setApplicantId(application.getApplicant().id)
         .setApplicationId(application.id)
         .setProgramId(application.getProgram().id)

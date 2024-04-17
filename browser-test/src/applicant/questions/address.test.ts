@@ -1,3 +1,4 @@
+import {Page} from '@playwright/test'
 import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminPrograms,
@@ -8,9 +9,8 @@ import {
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
-import {Page} from '@playwright/test'
 
-test.describe('address applicant flow', () => {
+test.describe('address applicant flow', {tag: ['@uses-fixtures']}, () => {
   test.describe('single required address question', () => {
     const programName = 'Test program for single address'
 

@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import models.ApplicantModel;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
@@ -32,11 +31,6 @@ public final class NameQuestion extends Question {
   @Override
   public ImmutableList<Path> getAllPaths() {
     return ImmutableList.of(getFirstNamePath(), getMiddleNamePath(), getLastNamePath());
-  }
-
-  @Override
-  public boolean isAnsweredWithPai(ApplicantModel applicant) {
-    return isPaiQuestion() && applicant.getFirstName().isPresent();
   }
 
   @Override

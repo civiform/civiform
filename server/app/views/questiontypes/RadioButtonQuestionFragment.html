@@ -1,5 +1,5 @@
 <div
-  th:fragment="radio(question)"
+  th:fragment="radio(question, questionRendererParams)"
   th:with="questionId=${#strings.randomAlphanumeric(8)}"
   th:id="${questionId}"
 >
@@ -24,7 +24,6 @@
       th:each="option,iterator: ${singleSelectQuestion.getOptions()}"
       th:with="inputId=${#strings.randomAlphanumeric(8)}"
     >
-      <!-- TODO(#6903): Add autofocus attribute as appropriate -->
       <input
         class="usa-radio__input usa-radio__input--tile"
         th:id="${inputId}"
@@ -33,6 +32,7 @@
         th:checked="${singleSelectQuestion.optionIsSelected(option)}"
         type="radio"
         th:aria-required="${!question.isOptional()}"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && iterator.index == 0}"
       />
       <label
         class="usa-radio__label"

@@ -50,7 +50,6 @@
         "bradlc.vscode-tailwindcss",
         "dbaeumer.vscode-eslint",
         "github.vscode-pull-request-github",
-        "hashicorp.terraform",
         "ms-azuretools.vscode-docker",
         "ms-ossdata.vscode-postgresql",
         "ms-playwright.playwright",
@@ -63,36 +62,10 @@
         "vscode-icons-team.vscode-icons",
         "Graphite.gti-vscode"
       ]
-    },
-    "launch": {
-      "version": "0.2.0",
-      "configurations": [
-        {
-          "type": "java",
-          "name": "Attach to Civiform Browser Tests",
-          "request": "attach",
-          "hostName": "localhost",
-          "port": "9457"
-        },
-        {
-          "type": "java",
-          "name": "Attach to Civiform Unit Tests",
-          "request": "attach",
-          "hostName": "localhost",
-          "port": "8459"
-        },
-        {
-          "type": "java",
-          "name": "Attach to Civiform Dev",
-          "request": "attach",
-          "hostName": "localhost",
-          "port": "8457"
-        }
-      ]
     }
   },
 
-  "onCreateCommand": "npm install -g @withgraphite/graphite-cli@stable",
+  "onCreateCommand": "npm install -g @withgraphite/graphite-cli@stable && npm install --no-save @playwright/test",
   "updateContentCommand": "bin/vscode-setup",
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.

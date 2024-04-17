@@ -39,6 +39,7 @@ export enum ProgramVisibility {
   PUBLIC = 'Publicly visible',
   TI_ONLY = 'Trusted intermediaries only',
   SELECT_TI = 'Visible to selected trusted intermediaries only',
+  DISABLED = 'Disabled',
 }
 
 export enum Eligibility {
@@ -701,7 +702,7 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
-    await this.page.type('textarea', blockDescription)
+    await this.page.fill('textarea', blockDescription)
     await this.page.click('#update-block-button:not([disabled])')
     // Wait for submit and redirect back to this page.
     await this.page.waitForURL(this.page.url())

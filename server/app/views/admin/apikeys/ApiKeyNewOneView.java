@@ -114,13 +114,20 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
 
     formTag.with(h2("Allowed programs"), p("Select the programs this key grants read access to."));
 
-    for (String name : programNames.stream().sorted().collect(ImmutableList.toImmutableList())) {
+    for (String name :
+        programNames.stream()
+            .sorted(String::compareToIgnoreCase)
+            .collect(ImmutableList.toImmutableList())) {
       formTag.with(
           FieldWithLabel.checkbox()
               .setFieldName(programReadGrantFieldName(name))
               .setLabelText(name)
               .setId(MainModule.SLUGIFIER.slugify(name))
               .setValue("true")
+              .setChecked(
+                  dynamicForm
+                      .map(form -> form.value(programReadGrantFieldName(name)).isPresent())
+                      .orElse(false))
               .getCheckboxTag());
     }
 

@@ -3,32 +3,17 @@ package controllers;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import javax.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import views.support.UnconfirmedIdcsEmailBugView;
 import views.support.UnsupportedBrowserView;
 
 public final class SupportController extends Controller {
-  private static final Logger logger = LoggerFactory.getLogger(SupportController.class);
-
-  private final UnconfirmedIdcsEmailBugView unconfirmedIdcsEmailBugView;
   private final UnsupportedBrowserView unsupportedBrowserView;
 
   @Inject
-  public SupportController(
-      UnconfirmedIdcsEmailBugView unconfirmedIdcsEmailBugView,
-      UnsupportedBrowserView unsupportedBrowserView) {
-    this.unconfirmedIdcsEmailBugView = checkNotNull(unconfirmedIdcsEmailBugView);
+  public SupportController(UnsupportedBrowserView unsupportedBrowserView) {
     this.unsupportedBrowserView = checkNotNull(unsupportedBrowserView);
-  }
-
-  public Result handleUnconfirmedIdcsEmail(Http.Request request) {
-    logger.info("UnconfirmedIdcsEmail-Support-Page: " + request.remoteAddress());
-
-    return ok(unconfirmedIdcsEmailBugView.render(request));
   }
 
   public Result handleUnsupportedBrowser(Http.Request request) {

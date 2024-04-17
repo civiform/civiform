@@ -176,16 +176,27 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setLabelText("Trusted intermediaries only")
                     .setValue(DisplayMode.TI_ONLY.getValue())
                     .setChecked(displayMode.equals(DisplayMode.TI_ONLY.getValue()))
-                    .getRadioTag()),
-        FieldWithLabel.radio()
-            .setId("program-display-mode-select-ti-only")
-            .setFieldName("displayMode")
-            .setAriaRequired(true)
-            .setLabelText("Visible to selected trusted intermediaries only")
-            .setValue(DisplayMode.SELECT_TI.getValue())
-            .setChecked(displayMode.equals(DisplayMode.SELECT_TI.getValue()))
-            .getRadioTag(),
-        showTiSelectionList(selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())));
+                    .getRadioTag(),
+                FieldWithLabel.radio()
+                    .setId("program-display-mode-select-ti-only")
+                    .setFieldName("displayMode")
+                    .setAriaRequired(true)
+                    .setLabelText("Visible to selected trusted intermediaries only")
+                    .setValue(DisplayMode.SELECT_TI.getValue())
+                    .setChecked(displayMode.equals(DisplayMode.SELECT_TI.getValue()))
+                    .getRadioTag(),
+                showTiSelectionList(
+                    selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())))
+            .condWith(
+                settingsManifest.getDisabledVisibilityConditionEnabled(request),
+                FieldWithLabel.radio()
+                    .setId("program-display-mode-disabled")
+                    .setFieldName("displayMode")
+                    .setAriaRequired(true)
+                    .setLabelText("Disabled")
+                    .setValue(DisplayMode.DISABLED.getValue())
+                    .setChecked(displayMode.equals(DisplayMode.DISABLED.getValue()))
+                    .getRadioTag()));
 
     formTag.with(
         // TODO(#2618): Consider using helpers for grouping related radio controls.
@@ -361,9 +372,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
 
   private ButtonTag createSubmitButton(ProgramEditStatus programEditStatus) {
     String saveProgramDetailsText;
-    if (settingsManifest.getProgramCardImages()
-        && (programEditStatus == ProgramEditStatus.CREATION
-            || programEditStatus == ProgramEditStatus.CREATION_EDIT)) {
+    if (programEditStatus == ProgramEditStatus.CREATION
+        || programEditStatus == ProgramEditStatus.CREATION_EDIT) {
       // If the admin is in the middle of creating a new program, they'll be redirected to the next
       // step of adding a program image, so we want the save button text to reflect that.
       saveProgramDetailsText = "Save and continue to next step";
