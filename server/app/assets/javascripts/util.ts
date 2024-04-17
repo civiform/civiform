@@ -73,7 +73,6 @@ export function formatTextHtml(text: string): Element {
 
 export function formatText(text: string): string {
   // Preserve line breaks before parsing the text
-  // text = text.split('\n').join('<br>')
   const textArray = text.split('\n')
   for (let i = 0; i < textArray.length; i++) {
     if (!textArray[i]) {
@@ -97,34 +96,3 @@ export function formatText(text: string): string {
   parsedHtml = parsedHtml.split('</h1>').join('</h2>')
   return DOMPurify.sanitize(parsedHtml, {ADD_ATTR: ['target']})
 }
-
-// private static formatText(text: string): Element {
-//   // Preserve line breaks before parsing the text
-//   const textArray = text.split('\n')
-//   for (let i = 0; i < textArray.length; i++) {
-//     if (!textArray[i]) {
-//       textArray[i] = '\n'
-//     }
-//   }
-//   text = textArray.join('\n')
-
-//   let parsedHtml = PreviewController.md.render(text)
-//   // Format lists
-//   parsedHtml = parsedHtml.split('<ul>').join('<ul class="list-disc mx-8">')
-//   parsedHtml = parsedHtml.split('<ol>').join('<ol class="list-decimal mx-8">')
-//   // Format links
-//   parsedHtml = parsedHtml
-//     .split('href')
-//     .join(
-//       'class="text-blue-600 hover:text-blue-500 underline" target="_blank" href',
-//     )
-//   // Change h1 to h2 (per accessibility standards, there should only ever be one H1 per page)
-//   parsedHtml = parsedHtml.split('<h1>').join('<h2>')
-//   parsedHtml = parsedHtml.split('</h1>').join('</h2>')
-
-//   const html = PreviewController.parser.parseFromString(
-//     parsedHtml,
-//     'text/html',
-//   )
-//   return html.body
-// }
