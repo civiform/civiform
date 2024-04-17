@@ -106,7 +106,7 @@ public final class TextFormatter {
       return handleRequiredQuestionsThatEndInAList(markdownText, "<ol");
     }
 
-    // If the question doesn't end with a list, we just add the required indicator on to the end
+    // If the question doesn't end with a list, add the required indicator on to the end
     int indexOfClosingTag = markdownText.lastIndexOf("</");
     return buildStringWithRequiredIndicator(markdownText, indexOfClosingTag);
   }
@@ -120,9 +120,9 @@ public final class TextFormatter {
   private static String handleRequiredQuestionsThatEndInAList(
       String markdownText, String openingListTag) {
     int indexOfOpeningListTag = markdownText.indexOf(openingListTag);
-    // If the question has no text before the list, we want to add the required indicator to the end
+    // If the question has no text before the list, add the required indicator to the end
     // of the list before the closing LI tag
-    // Otherwise, we want to add the required indicator to the paragraph that precedes the list
+    // Otherwise, add the required indicator to the paragraph that precedes the list
     return indexOfOpeningListTag == 0
         ? addRequiredIndicatorAfterList(markdownText)
         : addRequiredIndicatorBeforeList(markdownText, indexOfOpeningListTag);

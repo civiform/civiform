@@ -79,6 +79,7 @@ export function formatText(text: string): string {
       textArray[i] = '\n'
     }
   }
+  // the non-breaking space character (&nbsp;) is required for the markdown parser to respect blank lines
   text = textArray.join('&nbsp;\n')
 
   let parsedHtml = md.render(text)
