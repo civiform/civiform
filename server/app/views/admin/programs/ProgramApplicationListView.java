@@ -8,17 +8,11 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.h2;
 import static j2html.TagCreator.iframe;
 import static j2html.TagCreator.input;
-import static j2html.TagCreator.label;
+import static j2html.TagCreator.legend;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
-import static j2html.TagCreator.table;
-import static j2html.TagCreator.tbody;
-import static j2html.TagCreator.td;
-import static j2html.TagCreator.th;
-import static j2html.TagCreator.thead;
-import static j2html.TagCreator.tr;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
@@ -31,8 +25,6 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.SpanTag;
-import j2html.tags.specialized.TheadTag;
-import j2html.tags.specialized.TrTag;
 import java.util.Optional;
 import models.ApplicationModel;
 import org.slf4j.Logger;
@@ -118,41 +110,32 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     downloadModal.getButton(),
                     filterParams,
                     request),
-                renderApplicationsTable(
-                        paginatedApplications.getPageContents(),
-                        allPossibleProgramApplicationStatuses,
-                        hasEligibilityEnabled,
-                        defaultStatus,
-                        program)
-                    // each(
-                    //     paginatedApplications.getPageContents(),
-                    //     application ->
-                    //         renderApplicationListItem(
-                    //             application,
-                    //             /* displayStatus= */ allPossibleProgramApplicationStatuses.size()
-                    // > 0,
-                    //             hasEligibilityEnabled
-                    //                 ? applicantService.getApplicationEligibilityStatus(
-                    //                     application, program)
-                    //                 : Optional.empty(),
-                    //             defaultStatus)))
-                    .condWith(
-                        paginatedApplications.getNumPages() > 1,
-                        renderPagination(
-                            paginationSpec.getCurrentPage(),
-                            paginatedApplications.getNumPages(),
-                            pageNumber ->
-                                routes.AdminApplicationController.index(
-                                    program.id(),
-                                    filterParams.search(),
-                                    Optional.of(pageNumber),
-                                    filterParams.fromDate(),
-                                    filterParams.untilDate(),
-                                    filterParams.selectedApplicationStatus(),
-                                    /* selectedApplicationUri= */ Optional.empty())))
-                    .withClasses("usa-table-container--scrollable")
-                    .withTabindex(0))
-            .withClasses("flex", "flex-col");
+                each(
+                    paginatedApplications.getPageContents(),
+                    application ->
+                        renderApplicationListItem(
+                            application,
+                            /* displayStatus= */ allPossibleProgramApplicationStatuses.size() > 0,
+                            hasEligibilityEnabled
+                                ? applicantService.getApplicationEligibilityStatus(
+                                    application, program)
+                                : Optional.empty(),
+                            defaultStatus)))
+            .condWith(
+                paginatedApplications.getNumPages() > 1,
+                renderPagination(
+                    paginationSpec.getCurrentPage(),
+                    paginatedApplications.getNumPages(),
+                    pageNumber ->
+                        routes.AdminApplicationController.index(
+                            program.id(),
+                            filterParams.search(),
+                            Optional.of(pageNumber),
+                            filterParams.fromDate(),
+                            filterParams.untilDate(),
+                            filterParams.selectedApplicationStatus(),
+                            /* selectedApplicationUri= */ Optional.empty())))
+            .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2");
 
     DivTag applicationShowDiv =
         div()
@@ -222,71 +205,67 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             fieldset()
                 .withClasses("pt-1")
                 .with(
-                    h2("All submitted applications")
-                        .withClasses("font-bold", "font-sans", "text-black-700", "flex"),
-                    div().withClass("mt-6"),
-                    FieldWithLabel.input()
-                        .setFieldName(SEARCH_PARAM)
-                        .setValue(filterParams.search().orElse(""))
-                        .setLabelText(labelText)
-                        .getInputTag()
-                        .withClasses("w-full", "mt-6"))
-                .condWith(
-                    allPossibleProgramApplicationStatuses.size() > 0,
-                    div().withClass("mt-6"),
-                    new SelectWithLabel()
-                        .setFieldName(APPLICATION_STATUS_PARAM)
-                        .setValue(filterParams.selectedApplicationStatus().orElse(""))
-                        .setOptionGroups(
-                            ImmutableList.of(
-                                SelectWithLabel.OptionGroup.builder()
-                                    .setLabel("General")
-                                    .setOptions(
-                                        ImmutableList.of(
-                                            SelectWithLabel.OptionValue.builder()
-                                                .setLabel("- Filter by status -")
-                                                .setValue("")
-                                                .build(),
-                                            SelectWithLabel.OptionValue.builder()
-                                                .setLabel("Only applications without a status")
-                                                .setValue(
-                                                    SubmittedApplicationFilter
-                                                        .NO_STATUS_FILTERS_OPTION_UUID)
-                                                .build()))
-                                    .build(),
-                                SelectWithLabel.OptionGroup.builder()
-                                    .setLabel("Application statuses")
-                                    .setOptions(
-                                        ImmutableList.<SelectWithLabel.OptionValue>builder()
-                                            .addAll(
-                                                allPossibleProgramApplicationStatuses.stream()
-                                                    .map(
-                                                        status ->
-                                                            SelectWithLabel.OptionValue.builder()
-                                                                .setLabel(status)
-                                                                .setValue(status)
-                                                                .build())
-                                                    .collect(ImmutableList.toImmutableList()))
-                                            .build())
-                                    .build()))
-                        .getSelectTag()),
-            div().withClasses("mt-4"),
-            div(
-                    div(
-                            div(label("Start date").withClass("usa-label")),
+                    legend("Applications submitted").withClasses("ml-1", "text-gray-600"),
+                    div()
+                        .withClasses("flex", "space-x-3")
+                        .with(
                             FieldWithLabel.date()
                                 .setFieldName(FROM_DATE_PARAM)
                                 .setValue(filterParams.fromDate().orElse(""))
-                                .getDateTag())
-                        .withClasses("flex", "flex-col", "justify-between"),
-                    div(
-                            div(label("End date").withClass("usa-label")),
+                                .setLabelText("from:")
+                                .getDateTag()
+                                .withClasses("flex"),
                             FieldWithLabel.date()
                                 .setFieldName(UNTIL_DATE_PARAM)
                                 .setValue(filterParams.untilDate().orElse(""))
-                                .getDateTag())
-                        .withClasses("flex", "flex-col", "justify-between"))
-                .withClasses("flex", "my-6", "gap-6"))
+                                .setLabelText("until:")
+                                .getDateTag()
+                                .withClasses("flex"))),
+            FieldWithLabel.input()
+                .setFieldName(SEARCH_PARAM)
+                .setValue(filterParams.search().orElse(""))
+                .setLabelText(labelText)
+                .getInputTag()
+                .withClasses("w-full", "mt-4"))
+        .condWith(
+            allPossibleProgramApplicationStatuses.size() > 0,
+            new SelectWithLabel()
+                .setFieldName(APPLICATION_STATUS_PARAM)
+                .setLabelText("Application status")
+                .setValue(filterParams.selectedApplicationStatus().orElse(""))
+                .setOptionGroups(
+                    ImmutableList.of(
+                        SelectWithLabel.OptionGroup.builder()
+                            .setLabel("General")
+                            .setOptions(
+                                ImmutableList.of(
+                                    SelectWithLabel.OptionValue.builder()
+                                        .setLabel("Any application status")
+                                        .setValue("")
+                                        .build(),
+                                    SelectWithLabel.OptionValue.builder()
+                                        .setLabel("Only applications without a status")
+                                        .setValue(
+                                            SubmittedApplicationFilter
+                                                .NO_STATUS_FILTERS_OPTION_UUID)
+                                        .build()))
+                            .build(),
+                        SelectWithLabel.OptionGroup.builder()
+                            .setLabel("Application statuses")
+                            .setOptions(
+                                ImmutableList.<SelectWithLabel.OptionValue>builder()
+                                    .addAll(
+                                        allPossibleProgramApplicationStatuses.stream()
+                                            .map(
+                                                status ->
+                                                    SelectWithLabel.OptionValue.builder()
+                                                        .setLabel(status)
+                                                        .setValue(status)
+                                                        .build())
+                                            .collect(ImmutableList.toImmutableList()))
+                                    .build())
+                            .build()))
+                .getSelectTag())
         .with(
             div()
                 .withClasses("mt-6", "mb-8", "flex", "space-x-2")
@@ -383,44 +362,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .build();
   }
 
-  private DivTag renderApplicationsTable(
-      ImmutableList<ApplicationModel> applications,
-      ImmutableList<String> allPossibleProgramApplicationStatuses,
-      boolean hasEligibilityEnabled,
-      Optional<StatusDefinitions.Status> defaultStatus,
-      ProgramDefinition program) {
-    DivTag table =
-        div(
-            table()
-                .withClass("usa-table")
-                .with(renderGroupTableHeader())
-                .with(
-                    tbody(
-                        each(
-                            applications,
-                            application ->
-                                renderApplicationRowItem(
-                                    application,
-                                    /* displayStatus= */ allPossibleProgramApplicationStatuses
-                                            .size()
-                                        > 0,
-                                    hasEligibilityEnabled
-                                        ? applicantService.getApplicationEligibilityStatus(
-                                            application, program)
-                                        : Optional.empty(),
-                                    defaultStatus)))));
-    return table;
-  }
-
-  private TheadTag renderGroupTableHeader() {
-    return thead(
-        tr().with(th("Name").withScope("col"))
-            .with(th("Eligibility").withScope("col"))
-            .with(th("Status").withScope("col"))
-            .with(th("Submission date").withScope("col")));
-  }
-
-  private TrTag renderApplicationRowItem(
+  private DivTag renderApplicationListItem(
       ApplicationModel application,
       boolean displayStatus,
       Optional<Boolean> maybeEligibilityStatus,
@@ -430,8 +372,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             "%s (%d)",
             applicantUtils.getApplicantNameEnUs(application.getApplicantData().getApplicantName()),
             application.id);
+    String viewLinkText = "View →";
 
-    System.out.println(displayStatus);
     String statusString =
         application
             .getLatestStatus()
@@ -444,83 +386,46 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                             ? " (default)"
                             : ""))
             .orElse("None");
-    String eligibility =
-        maybeEligibilityStatus.isPresent() && maybeEligibilityStatus.get()
-            ? "Meets eligibility"
-            : "Doesn't meet eligibility";
-    return tr().with(td(renderApplicationLink(applicantNameWithApplicationId, application)))
-        .with(td(eligibility))
-        .with(td(statusString))
-        .with(td(renderSubmitTime(application)))
-        .withClass(ReferenceClasses.ADMIN_APPLICATION_CARD);
+
+    DivTag cardContent =
+        div()
+            .withClasses("border", "border-gray-300", "bg-white", "rounded", "p-4")
+            .with(
+                p(applicantNameWithApplicationId)
+                    .withClasses(
+                        "text-black",
+                        "font-bold",
+                        "text-xl",
+                        "mb-1",
+                        ReferenceClasses.BT_APPLICATION_ID))
+            .condWith(
+                application.getSubmitterEmail().isPresent(),
+                p(application.getSubmitterEmail().orElse(""))
+                    .withClasses("text-lg", "text-gray-800", "mb-2"))
+            .condWith(
+                displayStatus,
+                p().withClasses("text-sm", "text-gray-700")
+                    .with(span("Status: "), span(statusString).withClass("font-semibold")))
+            .condWith(
+                maybeEligibilityStatus.isPresent(),
+                p().withClasses("text-sm", "text-gray-700")
+                    .with(
+                        span(maybeEligibilityStatus.isPresent() && maybeEligibilityStatus.get()
+                                ? "Meets eligibility"
+                                : "Doesn't meet eligibility")
+                            .withClass("font-semibold")))
+            .with(
+                div()
+                    .withClasses("flex", "text-sm", "w-full")
+                    .with(
+                        p(renderSubmitTime(application))
+                            .withClasses("text-gray-700", "italic", ReferenceClasses.BT_DATE),
+                        div().withClasses("flex-grow"),
+                        renderViewLink(viewLinkText, application)));
+
+    return div(cardContent)
+        .withClasses(ReferenceClasses.ADMIN_APPLICATION_CARD, "w-full", "shadow-lg", "mt-4");
   }
-
-  //   private DivTag renderApplicationListItem(
-  //       ApplicationModel application,
-  //       boolean displayStatus,
-  //       Optional<Boolean> maybeEligibilityStatus,
-  //       Optional<StatusDefinitions.Status> defaultStatus) {
-  //     String applicantNameWithApplicationId =
-  //         String.format(
-  //             "%s (%d)",
-  //
-  // applicantUtils.getApplicantNameEnUs(application.getApplicantData().getApplicantName()),
-  //             application.id);
-  //     String viewLinkText = "View →";
-
-  //     String statusString =
-  //         application
-  //             .getLatestStatus()
-  //             .map(
-  //                 s ->
-  //                     String.format(
-  //                         "%s%s",
-  //                         s,
-  //                         defaultStatus.map(defaultString ->
-  // defaultString.matches(s)).orElse(false)
-  //                             ? " (default)"
-  //                             : ""))
-  //             .orElse("None");
-
-  //     DivTag cardContent =
-  //         div()
-  //             .withClasses("border", "border-gray-300", "bg-white", "rounded", "p-4")
-  //             .with(
-  //                 p(applicantNameWithApplicationId)
-  //                     .withClasses(
-  //                         "text-black",
-  //                         "font-bold",
-  //                         "text-xl",
-  //                         "mb-1",
-  //                         ReferenceClasses.BT_APPLICATION_ID))
-  //             .condWith(
-  //                 application.getSubmitterEmail().isPresent(),
-  //                 p(application.getSubmitterEmail().orElse(""))
-  //                     .withClasses("text-lg", "text-gray-800", "mb-2"))
-  //             .condWith(
-  //                 displayStatus,
-  //                 p().withClasses("text-sm", "text-gray-700")
-  //                     .with(span("Status: "), span(statusString).withClass("font-semibold")))
-  //             .condWith(
-  //                 maybeEligibilityStatus.isPresent(),
-  //                 p().withClasses("text-sm", "text-gray-700")
-  //                     .with(
-  //                         span(maybeEligibilityStatus.isPresent() && maybeEligibilityStatus.get()
-  //                                 ? "Meets eligibility"
-  //                                 : "Doesn't meet eligibility")
-  //                             .withClass("font-semibold")))
-  //             .with(
-  //                 div()
-  //                     .withClasses("flex", "text-sm", "w-full")
-  //                     .with(
-  //                         p(renderSubmitTime(application))
-  //                             .withClasses("text-gray-700", "italic", ReferenceClasses.BT_DATE),
-  //                         div().withClasses("flex-grow"),
-  //                         renderViewLink(viewLinkText, application)));
-
-  //     return div(cardContent)
-  //         .withClasses(ReferenceClasses.ADMIN_APPLICATION_CARD, "w-full", "shadow-lg", "mt-4");
-  //   }
 
   private SpanTag renderSubmitTime(ApplicationModel application) {
     try {
@@ -528,11 +433,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
           .withText(dateConverter.renderDateTimeHumanReadable(application.getSubmitTime()));
     } catch (NullPointerException e) {
       log.error("Application {} submitted without submission time marked.", application.id);
-      return span().withClass(ReferenceClasses.BT_DATE);
+      return span();
     }
   }
 
-  private ATag renderApplicationLink(String text, ApplicationModel application) {
+  private ATag renderViewLink(String text, ApplicationModel application) {
     String viewLink =
         controllers.admin.routes.AdminApplicationController.show(
                 application.getProgram().id, application.id)
@@ -542,8 +447,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .setId("application-view-link-" + application.id)
         .setHref(viewLink)
         .setText(text)
-        .setStyles(
-            "mr-2", ReferenceClasses.VIEW_BUTTON, "underline", ReferenceClasses.BT_APPLICATION_ID)
+        .setStyles("mr-2", ReferenceClasses.VIEW_BUTTON)
         .asAnchorText();
   }
 
