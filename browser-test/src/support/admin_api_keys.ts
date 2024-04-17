@@ -41,15 +41,15 @@ export class AdminApiKeys {
     return await this.page.innerText('#api-key-credentials')
   }
 
-  async submitInvalidApiKeyRequest(programSlugs: Array<string>) {
+  async submitInvalidApiKeyRequest() {
     await this.gotoNewApiKeyPage()
-
-    for (const slug of programSlugs) {
-      await this.page.check(`#${slug}`)
-    }
 
     await this.page.click('#apikey-submit-button')
     await waitForPageJsLoad(this.page)
+  }
+
+  async closeToast() {
+    await this.page.click('#apikey-submit-button')
   }
 
   async callCheckAuth(credentials: string) {

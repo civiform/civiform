@@ -180,6 +180,7 @@ public final class ApiKeyService {
     }
 
     ApiKeyGrants grants = resolveGrants(form);
+
     ApiKeyModel apiKey = new ApiKeyModel(grants);
 
     // apiKey is an ebean entity/model and is mutable. form is play form object and is immutable.
@@ -189,8 +190,13 @@ public final class ApiKeyService {
     form = resolveExpiration(form, apiKey);
     form = resolveSubnet(form, apiKey);
 
-    if (form.hasErrors()) {
-      return ApiKeyCreationResult.failure(form);
+    Optional<String> errorMessage =
+        grants.getProgramGrants().isEmpty()
+            ? Optional.of("Must specify at least one program.")
+            : Optional.empty();
+
+    if (form.hasErrors() || errorMessage.isPresent()) {
+      return ApiKeyCreationResult.failure(form, errorMessage);
     }
 
     String keyId = generateSecret(KEY_ID_LENGTH);

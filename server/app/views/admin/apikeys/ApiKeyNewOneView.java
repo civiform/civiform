@@ -31,6 +31,7 @@ import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
+import views.components.ToastMessage;
 
 /** Renders a page for adding a new ApiKey. */
 public final class ApiKeyNewOneView extends BaseHtmlView {
@@ -69,11 +70,18 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
   }
 
   public Content render(Request request, ImmutableSet<String> programNames) {
-    return render(request, programNames, /* dynamicForm= */ Optional.empty());
+    return render(
+        request,
+        programNames,
+        /* dynamicForm= */ Optional.empty(),
+        /* toastMessage= */ Optional.empty());
   }
 
   public Content render(
-      Request request, ImmutableSet<String> programNames, Optional<DynamicForm> dynamicForm) {
+      Request request,
+      ImmutableSet<String> programNames,
+      Optional<DynamicForm> dynamicForm,
+      Optional<ToastMessage> toastMessage) {
     String title = "Create a new API key";
 
     FormTag formTag =
@@ -144,6 +152,8 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                     .withAction(routes.AdminApiKeysController.create().url()));
 
     HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
+
+    toastMessage.ifPresent(htmlBundle::addToastMessages);
 
     return layout.renderCentered(htmlBundle);
   }

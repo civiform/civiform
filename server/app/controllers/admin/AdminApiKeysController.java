@@ -20,6 +20,7 @@ import services.program.ProgramService;
 import views.admin.apikeys.ApiKeyIndexView;
 import views.admin.apikeys.ApiKeyNewOneView;
 import views.admin.programs.ApiKeyCredentialsView;
+import views.components.ToastMessage;
 
 /** Controller for admins managing ApiKeys. */
 public class AdminApiKeysController extends CiviFormController {
@@ -119,8 +120,16 @@ public class AdminApiKeysController extends CiviFormController {
               result.getKeySecret()));
     }
 
+    Optional<ToastMessage> errorToast =
+        result
+            .getErrorMessage()
+            .flatMap(message -> Optional.of(ToastMessage.errorNonLocalized(message)));
+
     return badRequest(
         newOneView.render(
-            request, programService.getActiveProgramNames(), Optional.of(result.getForm())));
+            request,
+            programService.getActiveProgramNames(),
+            Optional.of(result.getForm()),
+            errorToast));
   }
 }
