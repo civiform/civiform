@@ -82,21 +82,67 @@ public class TextFormatterTest extends ResetPostgres {
   }
 
   @Test
-  public void correctlyInsertsRequiredIndicatorBeforeList() {
-    ImmutableList<DomContent> content =
+  public void insertsRequiredIndicatorBeforeLists() {
+    ImmutableList<DomContent> contentWithUnorderedList =
         TextFormatter.formatText(
             "Here is some text.\n" + "* list item one\n" + "* list item two",
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ true);
-    String htmlContent = content.get(0).render();
+    String htmlContentWithUnorderedList = contentWithUnorderedList.get(0).render();
 
-    assertThat(htmlContent)
+    assertThat(htmlContentWithUnorderedList)
         .contains(
             "<p>Here is some text.<span class=\"text-red-600"
                 + " font-semibold\">\u00a0*</span></p>\n");
-    assertThat(htmlContent).contains("<li>list item one</li>");
-    assertThat(htmlContent).contains("<li>list item two</li>");
-    assertThat(htmlContent).contains("</ul>\n");
+    assertThat(htmlContentWithUnorderedList).contains("<li>list item one</li>");
+    assertThat(htmlContentWithUnorderedList).contains("<li>list item two</li>");
+    assertThat(htmlContentWithUnorderedList).contains("</ul>\n");
+
+    ImmutableList<DomContent> contentWithOrderedList =
+        TextFormatter.formatText(
+            "Here is some text.\n" + "1. list item one\n" + "2. list item two",
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ true);
+    String htmlContentWithOrderedList = contentWithOrderedList.get(0).render();
+
+    assertThat(htmlContentWithOrderedList)
+        .contains(
+            "<p>Here is some text.<span class=\"text-red-600"
+                + " font-semibold\">\u00a0*</span></p>\n");
+    assertThat(htmlContentWithOrderedList).contains("<li>list item one</li>");
+    assertThat(htmlContentWithOrderedList).contains("<li>list item two</li>");
+    assertThat(htmlContentWithOrderedList).contains("</ol>\n");
+  }
+
+  @Test
+  public void insertsRequiredIndicatorAfterLists() {
+    ImmutableList<DomContent> contentWithUnorderedList =
+        TextFormatter.formatText(
+            "- list item one\n" + "- list item two\n" + "- list item three",
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ true);
+    String htmlContentWithUnorderedList = contentWithUnorderedList.get(0).render();
+
+    assertThat(htmlContentWithUnorderedList).contains("<li>list item one</li>");
+    assertThat(htmlContentWithUnorderedList).contains("<li>list item two</li>");
+    assertThat(htmlContentWithUnorderedList)
+        .contains(
+            "<li>list item three<span class=\"text-red-600 font-semibold\">\u00a0*</span></li>");
+    assertThat(htmlContentWithUnorderedList).contains("</ul>\n");
+
+    ImmutableList<DomContent> contentWithOrderedList =
+        TextFormatter.formatText(
+            "1. list item one\n" + "2. list item two\n" + "3. list item three",
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ true);
+    String htmlContentWithOrderedList = contentWithOrderedList.get(0).render();
+
+    assertThat(htmlContentWithOrderedList).contains("<li>list item one</li>");
+    assertThat(htmlContentWithOrderedList).contains("<li>list item two</li>");
+    assertThat(htmlContentWithOrderedList)
+        .contains(
+            "<li>list item three<span class=\"text-red-600 font-semibold\">\u00a0*</span></li>");
+    assertThat(htmlContentWithOrderedList).contains("</ol>\n");
   }
 
   @Test
