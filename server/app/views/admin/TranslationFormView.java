@@ -28,7 +28,7 @@ import views.style.AdminStyles;
  * a question or program.
  */
 public abstract class TranslationFormView extends BaseHtmlView {
-
+  
   private final TranslationLocales translationLocales;
 
   public TranslationFormView(TranslationLocales translationLocales) {
@@ -55,16 +55,22 @@ public abstract class TranslationFormView extends BaseHtmlView {
    */
   protected abstract String languageLinkDestination(String entityName, Locale locale);
 
+  /** Returns the English display text for a locale. */
+  private static String getDisplayLanguage(Locale locale) {
+    return locale.equals(Locale.TRADITIONAL_CHINESE)
+        ? "Traditional Chinese"
+        : locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE);
+  }
+
   /**
    * Renders a single locale as the English version of the language (ex: es-US would read
    * "Spanish"). The text links to a form to translate the entity into that language.
    */
   private ATag renderLanguageLink(
       String linkDestination, Locale locale, boolean isCurrentlySelected) {
+
     LinkElement link =
-        new LinkElement()
-            .setHref(linkDestination)
-            .setText(locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE));
+        new LinkElement().setHref(linkDestination).setText(getDisplayLanguage(locale));
 
     if (isCurrentlySelected) {
       link.setStyles(AdminStyles.LANGUAGE_LINK_SELECTED);
@@ -94,10 +100,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
                 div()
                     .withClasses("flex", "flex-row", "gap-x-2")
                     .with(
-                        submitButton(
-                                String.format(
-                                    "Save %s updates",
-                                    locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE)))
+                        submitButton(String.format("Save %s updates", getDisplayLanguage(locale)))
                             .withId("update-localizations-button")
                             .withClasses(ButtonStyles.SOLID_BLUE)));
     return form;
