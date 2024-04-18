@@ -101,7 +101,7 @@ public class AdminApiKeysController extends CiviFormController {
     if (programNames.isEmpty()) {
       return ok(newOneView.renderNoPrograms(request));
     } else {
-      return ok(newOneView.render(request, programService.getActiveProgramNames()));
+      return ok(newOneView.render(request, programNames));
     }
   }
 
