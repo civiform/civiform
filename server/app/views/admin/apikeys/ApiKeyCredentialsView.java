@@ -1,4 +1,4 @@
-package views.admin.programs;
+package views.admin.apikeys;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
