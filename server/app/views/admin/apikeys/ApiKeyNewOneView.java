@@ -31,6 +31,7 @@ import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
+import views.style.BaseStyles;
 
 /** Renders a page for adding a new ApiKey. */
 public final class ApiKeyNewOneView extends BaseHtmlView {
@@ -70,6 +71,21 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
 
   public Content render(Request request, ImmutableSet<String> programNames) {
     return render(request, programNames, /* dynamicForm= */ Optional.empty());
+  }
+
+  public Content renderNoPrograms(Request request) {
+    String title = "Create a new API key";
+
+    DivTag contentDiv =
+        div()
+            .withClasses("px-20")
+            .with(
+                h1(title).withClasses("my-4"),
+                div("You must create and publish a program before creating an API Key."));
+
+    HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
+
+    return layout.renderCentered(htmlBundle);
   }
 
   public Content render(
@@ -112,7 +128,13 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                         ApiKeyService.FORM_FIELD_NAME_SUBNET)
                     .getInputTag());
 
-    formTag.with(h2("Allowed programs"), p("Select the programs this key grants read access to."));
+    formTag
+        .with(h2("Allowed programs"), p("Select the programs this key grants read access to."))
+        .condWith(
+            dynamicForm.isPresent()
+                && dynamicForm.get().error(ApiKeyService.PROGRAMS_FIELD_GROUP_NAME).isPresent(),
+            p("Error: You must select at least one program.")
+                .withClasses(BaseStyles.FORM_ERROR_TEXT_BASE, BaseStyles.FORM_ERROR_TEXT_XS));
 
     for (String name :
         programNames.stream()

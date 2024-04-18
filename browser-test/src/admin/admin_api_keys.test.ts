@@ -27,8 +27,8 @@ test.describe('Managing API keys', {tag: ['@uses-fixtures']}, () => {
       await validateScreenshot(page, 'new-api-key-page')
     })
 
-    await test.step('Submit key creation request with missing fields', async () => {
-      await adminApiKeys.submitInvalidApiKeyRequest(['api-using-program'])
+    await test.step('Submit key creation request with invalid fields', async () => {
+      await adminApiKeys.submitInvalidApiKeyRequest()
       await validateScreenshot(page, 'api-key-index-page-invalid')
     })
 
