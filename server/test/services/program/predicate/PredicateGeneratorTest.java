@@ -49,6 +49,17 @@ public class PredicateGeneratorTest extends ResetPostgres {
   }
 
   @Test
+  public void testParsePredicateValue_currency() {
+    PredicateValue got =
+        PredicateGenerator.parsePredicateValue(
+            Scalar.CURRENCY_CENTS, Operator.EQUAL_TO, "100.01", ImmutableList.of());
+
+    assertThat(
+            got.toDisplayString(testQuestionBank.applicantMonthlyIncome().getQuestionDefinition()))
+        .isEqualTo("$100.01");
+  }
+
+  @Test
   public void generatePredicateDefinition_singleQuestion_singleValue_ageRange() throws Exception {
     DynamicForm form =
         buildForm(

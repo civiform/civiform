@@ -73,10 +73,10 @@ describe('formatTextHtml', () => {
     )
   })
 
-  it('changes line breaks into <br> tags', () => {
+  it('respects blank lines', () => {
     const text = 'this is some\n text with \n\n line breaks'
     expect(formatTextHtml(text).innerHTML).toContain(
-      '<p>this is some<br> text with <br><br> line breaks</p>',
+      '<p>this is some&nbsp;<br>\ntext with &nbsp;</p>\n<p>&nbsp;<br>\nline breaks</p>\n',
     )
   })
 
@@ -92,7 +92,7 @@ describe('formatTextHtml', () => {
     const olText =
       'here is some markdown with an unordered list:\n - item one\n - item two\n - item 3'
     expect(formatTextHtml(olText).innerHTML).toContain(
-      '<p>here is some markdown with an unordered list:<br> - item one<br> - item two<br> - item 3</p>',
+      '<p>here is some markdown with an unordered list:&nbsp;</p>\n<ul class="list-disc mx-8">\n<li>item one&nbsp;</li>\n<li>item two&nbsp;</li>\n<li>item 3</li>\n</ul>\n',
     )
   })
 

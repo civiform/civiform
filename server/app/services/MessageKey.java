@@ -37,6 +37,7 @@ public enum MessageKey {
   BANNER_LINK("banner.link"),
   BANNER_TITLE("banner.title"),
   BANNER_VIEW_APPLICATION("banner.viewApplication"),
+  BLOCK_INDEX_LABEL("label.blockIndexLabel"),
   BUTTON_ADD_NEW_CLIENT("button.addNewClient"),
   BUTTON_APPLY("button.apply"),
   BUTTON_APPLY_TO_PROGRAMS("button.applyToPrograms"),

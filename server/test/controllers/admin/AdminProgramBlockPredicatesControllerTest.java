@@ -7,7 +7,6 @@ import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.fakeRequest;
 
-import com.google.common.collect.ImmutableList;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,10 +14,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.ResetPostgres;
-import services.applicant.question.Scalar;
-import services.program.predicate.Operator;
-import services.program.predicate.PredicateGenerator;
-import services.program.predicate.PredicateValue;
 import support.ProgramBuilder;
 
 public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
@@ -181,16 +176,5 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(() -> controller.destroyEligibility(programId, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
-  }
-
-  @Test
-  public void testParsePredicateValue_currency() {
-    PredicateValue got =
-        PredicateGenerator.parsePredicateValue(
-            Scalar.CURRENCY_CENTS, Operator.EQUAL_TO, "100.01", ImmutableList.of());
-
-    assertThat(
-            got.toDisplayString(testQuestionBank.applicantMonthlyIncome().getQuestionDefinition()))
-        .isEqualTo("$100.01");
   }
 }

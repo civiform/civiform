@@ -1083,7 +1083,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setErrorDisplayMode(errorDisplayMode)
         .setApplicantSelectedQuestionName(questionName)
         .setApplicantRoutes(applicantRoutes)
-        .setProfile(profile);
+        .setProfile(profile)
+        .setBlockList(roApplicantProgramService.getAllActiveBlocks());
   }
 
   private ApplicationBaseViewParams buildApplicationBaseViewParams(
