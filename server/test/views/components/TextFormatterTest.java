@@ -89,14 +89,11 @@ public class TextFormatterTest extends ResetPostgres {
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ true);
     String htmlContentWithUnorderedList = contentWithUnorderedList.get(0).render();
-
     assertThat(htmlContentWithUnorderedList)
-        .contains(
-            "<p>Here is some text.<span class=\"text-red-600"
-                + " font-semibold\">\u00a0*</span></p>\n");
-    assertThat(htmlContentWithUnorderedList).contains("<li>list item one</li>");
-    assertThat(htmlContentWithUnorderedList).contains("<li>list item two</li>");
-    assertThat(htmlContentWithUnorderedList).contains("</ul>\n");
+        .isEqualTo(
+            "<p>Here is some text.<span class=\"text-red-600 font-semibold\"> *</span></p>\n"
+                + "<ul class=\"list-disc mx-8\"><li>list item one</li><li>list item"
+                + " two</li></ul>\n");
 
     ImmutableList<DomContent> contentWithOrderedList =
         TextFormatter.formatText(
@@ -104,14 +101,11 @@ public class TextFormatterTest extends ResetPostgres {
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ true);
     String htmlContentWithOrderedList = contentWithOrderedList.get(0).render();
-
     assertThat(htmlContentWithOrderedList)
-        .contains(
-            "<p>Here is some text.<span class=\"text-red-600"
-                + " font-semibold\">\u00a0*</span></p>\n");
-    assertThat(htmlContentWithOrderedList).contains("<li>list item one</li>");
-    assertThat(htmlContentWithOrderedList).contains("<li>list item two</li>");
-    assertThat(htmlContentWithOrderedList).contains("</ol>\n");
+        .isEqualTo(
+            "<p>Here is some text.<span class=\"text-red-600 font-semibold\"> *</span></p>\n"
+                + "<ol class=\"list-decimal mx-8\"><li>list item one</li><li>list item"
+                + " two</li></ol>\n");
   }
 
   @Test
@@ -122,13 +116,10 @@ public class TextFormatterTest extends ResetPostgres {
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ true);
     String htmlContentWithUnorderedList = contentWithUnorderedList.get(0).render();
-
-    assertThat(htmlContentWithUnorderedList).contains("<li>list item one</li>");
-    assertThat(htmlContentWithUnorderedList).contains("<li>list item two</li>");
     assertThat(htmlContentWithUnorderedList)
-        .contains(
-            "<li>list item three<span class=\"text-red-600 font-semibold\">\u00a0*</span></li>");
-    assertThat(htmlContentWithUnorderedList).contains("</ul>\n");
+        .isEqualTo(
+            "<ul class=\"list-disc mx-8\"><li>list item one</li><li>list item two</li><li>list item"
+                + " three<span class=\"text-red-600 font-semibold\"> *</span></li></ul>\n");
 
     ImmutableList<DomContent> contentWithOrderedList =
         TextFormatter.formatText(
@@ -136,13 +127,10 @@ public class TextFormatterTest extends ResetPostgres {
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ true);
     String htmlContentWithOrderedList = contentWithOrderedList.get(0).render();
-
-    assertThat(htmlContentWithOrderedList).contains("<li>list item one</li>");
-    assertThat(htmlContentWithOrderedList).contains("<li>list item two</li>");
     assertThat(htmlContentWithOrderedList)
-        .contains(
-            "<li>list item three<span class=\"text-red-600 font-semibold\">\u00a0*</span></li>");
-    assertThat(htmlContentWithOrderedList).contains("</ol>\n");
+        .isEqualTo(
+            "<ol class=\"list-decimal mx-8\"><li>list item one</li><li>list item two</li><li>list"
+                + " item three<span class=\"text-red-600 font-semibold\"> *</span></li></ol>\n");
   }
 
   @Test
@@ -154,13 +142,11 @@ public class TextFormatterTest extends ResetPostgres {
             withList, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
     String htmlContent = content.get(0).render();
 
-    assertThat(htmlContent).contains("<p>This is my list:</p>");
-    assertThat(htmlContent).contains("<ul");
-    assertThat(htmlContent).contains("<li>cream cheese</li>");
-    assertThat(htmlContent).contains("<li>eggs</li>");
-    assertThat(htmlContent).contains("<li>sugar</li>");
-    assertThat(htmlContent).contains("<li>vanilla</li>");
-    assertThat(htmlContent).endsWith("</ul>\n");
+    assertThat(htmlContent)
+        .isEqualTo(
+            "<p>This is my list:</p>\n"
+                + "<ul class=\"list-disc mx-8\"><li>cream"
+                + " cheese</li><li>eggs</li><li>sugar</li><li>vanilla</li></ul>\n");
   }
 
   @Test
@@ -172,22 +158,20 @@ public class TextFormatterTest extends ResetPostgres {
             + "\n"
             + "\n"
             + "This is the third (or sixth) line of content.";
+
     ImmutableList<DomContent> preservedBlanksContent =
         TextFormatter.formatText(
             withBlankLine, /* preserveEmptyLines= */ true, /* addRequiredIndicator= */ false);
     assertThat(preservedBlanksContent.get(0).render())
-        .contains(
-            "<p>This is the first line of content.<br />\u00A0</p>\n"
-                + // u00A0 is a non-breaking whitespace represented by &nbsp; before going through
-                // the parser
-                "<p>This is the second (or third) line of content.<br />\u00A0</p>\n"
-                + "<p>\u00A0</p>\n"
+        .isEqualTo(
+            "<p>This is the first line of content.<br /> </p>\n"
+                + "<p>This is the second (or third) line of content.<br /> </p>\n"
+                + "<p> </p>\n"
                 + "<p>This is the third (or sixth) line of content.</p>\n");
 
     ImmutableList<DomContent> nonPreservedBlanksContent =
         TextFormatter.formatText(
             withBlankLine, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
-
     assertThat(nonPreservedBlanksContent.get(0).render())
         .isEqualTo(
             "<p>This is the first line of content.</p>\n"
