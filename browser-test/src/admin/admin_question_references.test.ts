@@ -1,6 +1,6 @@
 import {test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
-
+import {ProgramVisibility} from '../support/admin_programs'
 test.describe(
   'view program references from question view',
   {tag: ['@uses-fixtures']},
@@ -143,14 +143,12 @@ test.describe(
         await adminPrograms.addDisabledProgram(disabledProgramName)
         await adminPrograms.addProgramBlockUsingSpec(
           disabledProgramName,
-          'block',
-          [
-            {
-              name: questionName,
-              isOptional: false,
-            },
-          ],
-        )
+          'first block', [
+          {
+            name: questionName,
+            isOptional: false,
+          },
+        ])
       })
 
       await adminQuestions.gotoAdminQuestionsPage()
