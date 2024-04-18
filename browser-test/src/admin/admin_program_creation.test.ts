@@ -193,8 +193,9 @@ test.describe('program creation', () => {
     })
 
     await page.waitForTimeout(100) // ms
+    const previewLocator = page.locator('#sample-question')
     await validateScreenshot(
-      page,
+      previewLocator,
       'program-creation-static-question-with-formatting',
     )
   })
@@ -216,8 +217,9 @@ test.describe('program creation', () => {
     })
 
     await page.waitForTimeout(100) // ms
+    const previewLocator = page.locator('#sample-question')
     await validateScreenshot(
-      page,
+      previewLocator,
       'program-creation-static-question-with-blank-lines',
     )
   })
