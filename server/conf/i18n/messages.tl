@@ -61,6 +61,8 @@ button.previousScreen=Nakaraang
 button.review=Pagsusuri
 button.skipFileUpload=Laktawan
 content.blockProgress={0} sa {1}
+# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
+label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=Pasensya na, hindi ganap na nakasalin ang program na ito sa iyong mas gustong wika.
 link.allDone=Ako ay tapos na
 link.applyToAnotherProgram=Mag-aplay sa ibang programa
