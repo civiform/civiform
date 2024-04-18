@@ -98,16 +98,51 @@ public final class TextFormatter {
   }
 
   private static String addRequiredIndicator(String markdownText) {
-    int indexOfClosingTag = markdownText.lastIndexOf("</");
-    String insertTextAfterRequiredIndicator = markdownText.substring(indexOfClosingTag);
-    // For required questions that end in a list, we want the required indicator to show up at
-    // the end of the paragraph that precedes the list
-    if (insertTextAfterRequiredIndicator.contains("ul")) {
-      int indexOfOpeningUlTag = markdownText.lastIndexOf("<ul");
-      String substringWithoutList = markdownText.substring(0, indexOfOpeningUlTag);
-      indexOfClosingTag = substringWithoutList.lastIndexOf("</");
-      insertTextAfterRequiredIndicator = markdownText.substring(indexOfClosingTag);
+    // If the question ends with a list (UL or OL tag), we need to handle the required indicator
+    // differently
+    if (endsWithListTag(markdownText, "</ul>\n")) {
+      return handleRequiredQuestionsThatEndInAList(markdownText, "<ul");
+    } else if (endsWithListTag(markdownText, "</ol>\n")) {
+      return handleRequiredQuestionsThatEndInAList(markdownText, "<ol");
     }
+
+    // If the question doesn't end with a list, add the required indicator on to the end
+    int indexOfClosingTag = markdownText.lastIndexOf("</");
+    return buildStringWithRequiredIndicator(markdownText, indexOfClosingTag);
+  }
+
+  private static boolean endsWithListTag(String markdownText, String closingListTag) {
+    int indexOfClosingListTag = markdownText.lastIndexOf(closingListTag);
+    return indexOfClosingListTag > -1
+        && markdownText.substring(indexOfClosingListTag).equals(closingListTag);
+  }
+
+  private static String handleRequiredQuestionsThatEndInAList(
+      String markdownText, String openingListTag) {
+    int indexOfOpeningListTag = markdownText.indexOf(openingListTag);
+    // If the question has no text before the list, add the required indicator to the end
+    // of the list before the closing LI tag
+    // Otherwise, add the required indicator to the paragraph that precedes the list
+    return indexOfOpeningListTag == 0
+        ? addRequiredIndicatorAfterList(markdownText)
+        : addRequiredIndicatorBeforeList(markdownText, indexOfOpeningListTag);
+  }
+
+  private static String addRequiredIndicatorAfterList(String markdownText) {
+    int indexOfClosingLiTag = markdownText.lastIndexOf("</li");
+    return buildStringWithRequiredIndicator(markdownText, indexOfClosingLiTag);
+  }
+
+  private static String addRequiredIndicatorBeforeList(
+      String markdownText, int indexOfOpeningListTag) {
+    String substringWithoutList = markdownText.substring(0, indexOfOpeningListTag);
+    int indexOfClosingTag = substringWithoutList.lastIndexOf("</");
+    return buildStringWithRequiredIndicator(markdownText, indexOfClosingTag);
+  }
+
+  private static String buildStringWithRequiredIndicator(
+      String markdownText, int indexOfClosingTag) {
+    String insertTextAfterRequiredIndicator = markdownText.substring(indexOfClosingTag);
     String markdownWithRequiredIndicator =
         ViewUtils.requiredQuestionIndicator().toString().concat(insertTextAfterRequiredIndicator);
     return markdownText.substring(0, indexOfClosingTag) + markdownWithRequiredIndicator;

@@ -2,6 +2,7 @@ package views;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
 import play.i18n.Messages;
@@ -48,13 +49,17 @@ public abstract class ApplicationBaseViewParams {
 
   public abstract ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode();
 
-  public abstract Optional<ToastMessage> bannerMessage();
+  public abstract Optional<ToastMessage> bannerToastMessage();
+
+  public abstract Optional<String> bannerMessage();
 
   public abstract Optional<String> applicantSelectedQuestionName();
 
   public abstract ApplicantRoutes applicantRoutes();
 
   public abstract CiviFormProfile profile();
+
+  public abstract ImmutableList<Block> blockList();
 
   @AutoValue.Builder
   public abstract static class Builder {
@@ -86,7 +91,9 @@ public abstract class ApplicationBaseViewParams {
     public abstract Builder setErrorDisplayMode(
         ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode);
 
-    public abstract Builder setBannerMessage(Optional<ToastMessage> banner);
+    public abstract Builder setBannerToastMessage(Optional<ToastMessage> banner);
+
+    public abstract Builder setBannerMessage(Optional<String> bannerMessage);
 
     public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo personalInfo);
 
@@ -95,6 +102,8 @@ public abstract class ApplicationBaseViewParams {
     public abstract Builder setApplicantRoutes(ApplicantRoutes applicantRoutes);
 
     public abstract Builder setProfile(CiviFormProfile profile);
+
+    public abstract Builder setBlockList(ImmutableList<Block> blockList);
 
     public abstract ApplicationBaseViewParams build();
   }
