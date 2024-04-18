@@ -198,4 +198,10 @@ public final class BaseStyles {
   public static String ALERT_ERROR = "usa-alert--error";
   public static String ALERT_SUCCESS = "usa-alert--success";
   public static String ALERT_SLIM = "usa-alert--slim";
+
+  public static final String TI_HEADER_BAND_H1 =
+      StyleUtils.joinStyles("py-16", "px-20", "ti-header-band");
+
+  public static final String TI_HEADER_BAND_H2 =
+      StyleUtils.joinStyles("flex", "items-center", "h-24", "px-20", "ti-header-band", "mb-10");
 }

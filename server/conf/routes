@@ -106,6 +106,7 @@ POST    /admin/tiGroups/:id/addTi          controllers.admin.TrustedIntermediary
 POST    /admin/tiGroups/:id/removeTi       controllers.admin.TrustedIntermediaryManagementController.removeIntermediary(id: Long, request: Request)
 
 GET     /admin/tiDash                                         controllers.ti.TrustedIntermediaryController.dashboard(request: Request, nameQuery: java.util.Optional[String], dayQuery: java.util.Optional[String], monthQuery: java.util.Optional[String], yearQuery: java.util.Optional[String],  page: java.util.Optional[Integer])
+GET     /admin/tiDash/accountSettings                        controllers.ti.TrustedIntermediaryController.accountSettings(request: Request)
 GET     /admin/tiDash/addClientForm/:id                      controllers.ti.TrustedIntermediaryController.showAddClientForm(id: Long, request: Request)
 POST    /admin/tiDash/addClient/:id                         controllers.ti.TrustedIntermediaryController.addClient(id: Long, request: Request)
 GET     /admin/tiDash/editClientForm/:accountId                 controllers.ti.TrustedIntermediaryController.showEditClientForm(accountId: Long, request: Request)

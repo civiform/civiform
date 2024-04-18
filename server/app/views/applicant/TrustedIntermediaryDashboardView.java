@@ -7,35 +7,27 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
-import static j2html.TagCreator.hr;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.li;
+import static j2html.TagCreator.nav;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
-import static j2html.TagCreator.table;
-import static j2html.TagCreator.tbody;
-import static j2html.TagCreator.td;
-import static j2html.TagCreator.th;
-import static j2html.TagCreator.thead;
-import static j2html.TagCreator.tr;
 import static j2html.TagCreator.u;
 import static j2html.TagCreator.ul;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import controllers.ti.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H3Tag;
 import j2html.tags.specialized.LiTag;
-import j2html.tags.specialized.TdTag;
-import j2html.tags.specialized.TheadTag;
-import j2html.tags.specialized.TrTag;
+import j2html.tags.specialized.NavTag;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -66,7 +58,7 @@ import views.admin.ti.TrustedIntermediaryGroupListView;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.ToastMessage;
-import views.style.ReferenceClasses;
+import views.style.BaseStyles;
 
 /** Renders a page for a trusted intermediary to manage their clients. */
 public class TrustedIntermediaryDashboardView extends BaseHtmlView {
@@ -76,13 +68,19 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   private final DateConverter dateConverter;
   private final ProgramService programService;
   private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
+  private final String baseUrl;
+  private static final String CURRENT_TAB_STYLES = "border-b-4 border-blue-600 text-bold";
 
   @Inject
   public TrustedIntermediaryDashboardView(
-      ApplicantLayout layout, DateConverter dateConverter, ProgramService programService) {
+      ApplicantLayout layout,
+      DateConverter dateConverter,
+      ProgramService programService,
+      Config configuration) {
     this.layout = checkNotNull(layout);
     this.dateConverter = checkNotNull(dateConverter);
     this.programService = programService;
+    this.baseUrl = checkNotNull(configuration).getString("base_url");
   }
 
   public Content render(
@@ -100,30 +98,19 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .getBundle(request)
             .setTitle("CiviForm")
             .addMainContent(
-                h1(tiGroup.getName()).withClasses("py-12", "px-20", "ti-header-band"),
+                h1(tiGroup.getName()).withClasses(BaseStyles.TI_HEADER_BAND_H1),
+                renderTabButtons(messages, baseUrl, TabType.CLIENT_LIST),
                 div(
                         renderSubHeader(messages.at(MessageKey.TITLE_ALL_CLIENTS.getKeyName()))
                             .withClass("mb-0"),
                         renderAddNewClientButton(messages, tiGroup.id))
-                    .withClasses(
-                        "flex",
-                        "justify-between",
-                        "items-center",
-                        "py-4",
-                        "px-20",
-                        "ti-header-band",
-                        "mb-10"),
+                    .withClasses(BaseStyles.TI_HEADER_BAND_H2, "justify-between"),
                 div(
-                        h4("Search"),
+                        h4(messages.at(MessageKey.HEADER_SEARCH.getKeyName())),
                         renderSearchForm(
                             request, searchParameters, messages, managedAccounts.size()),
                         renderTIClientsList(
-                            managedAccounts, searchParameters, page, totalPageCount, messages),
-                        hr().withClasses("my-6"),
-                        renderSubHeader(messages.at(MessageKey.HEADER_ACCT_SETTING.getKeyName())),
-                        h3(messages.at(MessageKey.TITLE_ORG_MEMBERS.getKeyName()))
-                            .withClass("mt-8"),
-                        renderTIMembersTable(tiGroup, messages))
+                            managedAccounts, searchParameters, page, totalPageCount, messages))
                     .withClasses("px-20"))
             .addMainStyles("bg-white");
 
@@ -258,28 +245,6 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                     searchParameters.monthQuery(),
                     searchParameters.yearQuery(),
                     Optional.of(pageNumber))));
-  }
-
-  private DivTag renderTIMembersTable(TrustedIntermediaryGroupModel tiGroup, Messages messages) {
-    return div(
-        table()
-            .withData("testid", "org-members-table")
-            .withClasses("usa-table", "usa-table--striped", "w-5/6")
-            .with(renderGroupTableHeader(messages))
-            .with(
-                tbody(
-                    each(
-                        tiGroup.getTrustedIntermediaries().stream()
-                            .sorted(Comparator.comparing(AccountModel::getApplicantName))
-                            .collect(Collectors.toList()),
-                        this::renderTIRow))));
-  }
-
-  private TrTag renderTIRow(AccountModel ti) {
-    return tr().withClass(ReferenceClasses.ADMIN_QUESTION_TABLE_ROW)
-        .with(renderNameCell(ti))
-        .with(renderEmailCell(ti))
-        .with(renderStatusCell(ti));
   }
 
   private LiTag renderClientCard(AccountModel account, Messages messages) {
@@ -447,42 +412,46 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         .url()));
   }
 
-  private TdTag renderNameCell(AccountModel ti) {
-    return td(ti.getApplicantName());
+  private static ATag renderAccountSettingsLink(Messages messages, String baseUrl) {
+    return new ATag()
+        .withId("account-settings-link")
+        .withHref(
+            baseUrl + controllers.ti.routes.TrustedIntermediaryController.accountSettings().url())
+        .withText(messages.at(MessageKey.HEADER_ACCT_SETTING.getKeyName()));
   }
 
-  private TdTag renderEmailCell(AccountModel ti) {
-    String emailField = ti.getEmailAddress();
-    if (Strings.isNullOrEmpty(emailField)) {
-      emailField = "(no email address)";
-    }
-    return td(emailField).withClasses(ReferenceClasses.BT_EMAIL);
+  private static ATag renderClientListLink(Messages messages, String baseUrl) {
+    return new ATag()
+        .withId("client-list-link")
+        .withHref(
+            baseUrl
+                + controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                        /* nameQuery= */ Optional.empty(),
+                        /* dayQuery= */ Optional.empty(),
+                        /* monthQuery= */ Optional.empty(),
+                        /* yearQuery= */ Optional.empty(),
+                        /* page= */ Optional.of(1))
+                    .url())
+        .withText(messages.at(MessageKey.HEADER_CLIENT_LIST.getKeyName()));
   }
 
-  private TdTag renderStatusCell(AccountModel ti) {
-    String accountStatus = "OK";
-    if (ti.ownedApplicantIds().isEmpty()) {
-      accountStatus = "Not yet signed in.";
-    }
-    return td(accountStatus);
+  public enum TabType {
+    CLIENT_LIST,
+    ACCOUNT_SETTINGS
   }
 
-  private TheadTag renderGroupTableHeader(Messages messages) {
-    return thead(
-        tr().with(
-                th(messages.at(MessageKey.NAME_LABEL.getKeyName()))
-                    .withScope("col")
-                    .withData("testid", "org-members-name")
-                    .withClass("w-1/3"))
-            .with(
-                th(messages.at(MessageKey.EMAIL_LABEL.getKeyName()))
-                    .withScope("col")
-                    .withData("testid", "org-members-email")
-                    .withClass("w-2/5"))
-            .with(
-                th(messages.at(MessageKey.ACCT_STATUS_LABEL.getKeyName()))
-                    .withScope("col")
-                    .withData("testid", "org-members-status")
-                    .withClass("w-1/5")));
+  public static NavTag renderTabButtons(Messages messages, String baseUrl, TabType currentTab) {
+    return nav(
+            renderClientListLink(messages, baseUrl)
+                .withClass("mr-10 py-4 hover:text-blue-600 hover:border-b-4 hover:border-blue-600")
+                .withCondClass(
+                    currentTab == TabType.CLIENT_LIST, "mr-10 py-4 " + CURRENT_TAB_STYLES)
+                .condAttr(currentTab == TabType.CLIENT_LIST, "aria-current", "page"),
+            renderAccountSettingsLink(messages, baseUrl)
+                .withClasses("py-4 hover:text-blue-600 hover:border-b-4 hover:border-blue-600")
+                .withCondClass(currentTab == TabType.ACCOUNT_SETTINGS, "py-4 " + CURRENT_TAB_STYLES)
+                .condAttr(currentTab == TabType.ACCOUNT_SETTINGS, "aria-current", "page"))
+        .withClasses("px-20", "text-sm", "tracking-tight", "flex")
+        .attr("aria-label", "Trusted Intermediary");
   }
 }

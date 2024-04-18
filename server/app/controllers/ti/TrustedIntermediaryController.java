@@ -31,6 +31,7 @@ import services.ti.AddNewApplicantReturnObject;
 import services.ti.TrustedIntermediarySearchResult;
 import services.ti.TrustedIntermediaryService;
 import views.applicant.EditTiClientView;
+import views.applicant.TIAccountSettingsView;
 import views.applicant.TrustedIntermediaryDashboardView;
 
 /**
@@ -47,6 +48,7 @@ public final class TrustedIntermediaryController {
   private final FormFactory formFactory;
   private final TrustedIntermediaryService tiService;
   private final EditTiClientView editTiClientView;
+  private final TIAccountSettingsView tiAccountSettingsView;
 
   @Inject
   public TrustedIntermediaryController(
@@ -56,7 +58,8 @@ public final class TrustedIntermediaryController {
       MessagesApi messagesApi,
       TrustedIntermediaryDashboardView trustedIntermediaryDashboardView,
       TrustedIntermediaryService tiService,
-      EditTiClientView editTiClientView) {
+      EditTiClientView editTiClientView,
+      TIAccountSettingsView tiAccountSettingsView) {
     this.profileUtils = Preconditions.checkNotNull(profileUtils);
     this.tiDashboardView = Preconditions.checkNotNull(trustedIntermediaryDashboardView);
     this.accountRepository = Preconditions.checkNotNull(accountRepository);
@@ -64,6 +67,7 @@ public final class TrustedIntermediaryController {
     this.messagesApi = Preconditions.checkNotNull(messagesApi);
     this.tiService = Preconditions.checkNotNull(tiService);
     this.editTiClientView = Preconditions.checkNotNull(editTiClientView);
+    this.tiAccountSettingsView = Preconditions.checkNotNull(tiAccountSettingsView);
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -116,6 +120,35 @@ public final class TrustedIntermediaryController {
             /* totalPageCount= */ pageInfo.getPageCount(),
             /* page= */ pageInfo.getPage(),
             /* searchParameters= */ searchParameters,
+            /* request= */ request,
+            /* messages= */ messagesApi.preferred(request),
+            /* currentTisApplicantId= */ getTiApplicantIdFromCiviformProfile(civiformProfile)));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.TI)
+  public Result accountSettings(Http.Request request) {
+
+    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
+
+    if (civiformProfile.isEmpty()) {
+      return unauthorized();
+    }
+
+    Optional<TrustedIntermediaryGroupModel> trustedIntermediaryGroup =
+        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+
+    if (trustedIntermediaryGroup.isEmpty()) {
+      return notFound();
+    }
+
+    Optional<String> applicantName =
+        civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName();
+
+    return ok(
+        tiAccountSettingsView.render(
+            /* tiGroup= */ trustedIntermediaryGroup.get(),
+            /* personalInfo= */ ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder().setName(applicantName).build()),
             /* request= */ request,
             /* messages= */ messagesApi.preferred(request),
             /* currentTisApplicantId= */ getTiApplicantIdFromCiviformProfile(civiformProfile)));

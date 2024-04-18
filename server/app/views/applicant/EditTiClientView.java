@@ -88,10 +88,12 @@ public class EditTiClientView extends BaseHtmlView {
             .getBundle(request)
             .setTitle(title)
             .addMainContent(
-                h1(tiGroup.getName()).withClasses("py-12", "px-20", "ti-header-band"),
+                h1(tiGroup.getName()).withClasses(BaseStyles.TI_HEADER_BAND_H1),
+                TrustedIntermediaryDashboardView.renderTabButtons(
+                    messages, baseUrl, TrustedIntermediaryDashboardView.TabType.CLIENT_LIST),
                 renderSubHeader(pageHeader)
                     .withId(pageId)
-                    .withClasses("mb-10", "ti-header-band", "py-6", "px-20"),
+                    .withClasses(BaseStyles.TI_HEADER_BAND_H2),
                 div(
                         renderBackLink(),
                         renderSuccessAlert(isSuccessfulSave, successToast, optionalSuccessMessage),
