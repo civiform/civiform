@@ -61,6 +61,8 @@ button.previousScreen=Anterior
 button.review=Revisar
 button.skipFileUpload=Omitir
 content.blockProgress={0} de {1}
+# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
+label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=Lo sentimos, este programa no está traducido por completo a tu idioma preferido.
 link.allDone=Listo
 link.applyToAnotherProgram=Solicitar otro programa
