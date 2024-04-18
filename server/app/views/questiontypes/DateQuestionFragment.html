@@ -4,7 +4,9 @@
 >
   <fieldset
     class="usa-fieldset"
-    th:with="dateQuestion=${question.createDateQuestion()}"
+    th:with="questionId=${#strings.randomAlphanumeric(8)},
+             dateQuestion=${question.createDateQuestion()},
+             firstPathWithError=${dateQuestion.getFirstPathWithError()}"
   >
     <!-- Title and Help Text -->
     <div
@@ -19,53 +21,125 @@
     <div class="usa-memorable-date">
       <div
         class="usa-form-group usa-form-group--month usa-form-group--select cf-date-month"
+        th:with="monthId=${#strings.randomAlphanumeric(8)},monthPath=${dateQuestion.getMonthPath()}"
       >
-        <label class="usa-label" for="date_of_birth_month">Month</label>
+        <label
+          class="usa-label"
+          th:for="${monthId}"
+          th:text="#{label.month}"
+        ></label>
         <select
           class="usa-select"
-          id="date_of_birth_month"
+          th:id="${monthId}"
           th:name="${dateQuestion.getMonthPath()}"
+          th:with="value=${dateQuestion.getMonthValue().orElse('')}"
+          th:aria-describedby="${questionId} + '-description'"
+          th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(monthPath)}"
         >
           <option value>- Select -</option>
-          <option value="1">01 - January</option>
-          <option value="2">02 - February</option>
-          <option value="3">03 - March</option>
-          <option value="4">04 - April</option>
-          <option value="5">05 - May</option>
-          <option value="6">06 - June</option>
-          <option value="7">07 - July</option>
-          <option value="8">08 - August</option>
-          <option value="9">09 - September</option>
-          <option value="10">10 - October</option>
-          <option value="11">11 - November</option>
-          <option value="12">12 - December</option>
+          <option
+            value="1"
+            th:text="#{content.january}"
+            th:selected="${value == 1}"
+          ></option>
+          <option
+            value="2"
+            th:text="#{content.february}"
+            th:selected="${value == 2}"
+          ></option>
+          <option
+            value="3"
+            th:text="#{content.march}"
+            th:selected="${value == 3}"
+          ></option>
+          <option
+            value="4"
+            th:text="#{content.april}"
+            th:selected="${value == 4}"
+          ></option>
+          <option
+            value="5"
+            th:text="#{content.may}"
+            th:selected="${value == 5}"
+          ></option>
+          <option
+            value="6"
+            th:text="#{content.june}"
+            th:selected="${value == 6}"
+          ></option>
+          <option
+            value="7"
+            th:text="#{content.july}"
+            th:selected="${value == 7}"
+          ></option>
+          <option
+            value="8"
+            th:text="#{content.august}"
+            th:selected="${value == 8}"
+          ></option>
+          <option
+            value="9"
+            th:text="#{content.september}"
+            th:selected="${value == 9}"
+          ></option>
+          <option
+            value="10"
+            th:text="#{content.october}"
+            th:selected="${value == 10}"
+          ></option>
+          <option
+            value="11"
+            th:text="#{content.november}"
+            th:selected="${value == 11}"
+          ></option>
+          <option
+            value="12"
+            th:text="#{content.december}"
+            th:selected="${value == 12}"
+          ></option>
         </select>
       </div>
-      <div class="usa-form-group usa-form-group--day cf-date-day">
-        <label class="usa-label" for="date_of_birth_day">Day</label>
+      <div
+        class="usa-form-group usa-form-group--day cf-date-day"
+        th:with="dayId=${#strings.randomAlphanumeric(8)},dayPath=${dateQuestion.getDayPath()}"
+      >
+        <label
+          class="usa-label"
+          th:for="${dayId}"
+          th:text="#{label.dayOfMonth}"
+        ></label>
         <input
           class="usa-input"
-          aria-describedby="mdHint"
-          id="date_of_birth_day"
+          th:aria-describedby="${questionId} + '-description'"
+          th:id="${dayId}"
           th:name="${dateQuestion.getDayPath()}"
           maxlength="2"
           pattern="[0-9]*"
           inputmode="numeric"
-          value=""
+          th:value="${dateQuestion.getDayValue().orElse('')}"
+          th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(dayPath)}"
         />
       </div>
-      <div class="usa-form-group usa-form-group--year cf-date-year">
-        <label class="usa-label" for="date_of_birth_year">Year</label>
+      <div
+        class="usa-form-group usa-form-group--year cf-date-year"
+        th:with="yearId=${#strings.randomAlphanumeric(8)},yearPath=${dateQuestion.getYearPath()}"
+      >
+        <label
+          class="usa-label"
+          th:for="${yearId}"
+          th:text="#{label.year}"
+        ></label>
         <input
           class="usa-input"
-          aria-describedby="mdHint"
-          id="date_of_birth_year"
+          th:aria-describedby="${questionId} + '-description'"
+          th:id="${yearId}"
           th:name="${dateQuestion.getYearPath()}"
           minlength="4"
           maxlength="4"
           pattern="[0-9]*"
           inputmode="numeric"
-          value=""
+          th:value="${dateQuestion.getYearValue().orElse('')}"
+          th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(yearPath)}"
         />
       </div>
     </div>

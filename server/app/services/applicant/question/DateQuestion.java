@@ -21,9 +21,6 @@ import services.question.types.DateQuestionDefinition;
 public final class DateQuestion extends Question {
 
   private Optional<LocalDate> dateValue;
-  private Optional<Long> dayOfMonthValue;
-  private Optional<Long> monthValue;
-  private Optional<Long> yearValue;
 
   DateQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
@@ -40,9 +37,9 @@ public final class DateQuestion extends Question {
               ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT)));
     }
     return ImmutableMap.of(
-        getYearPath(), validateYear(),
         getMonthPath(), validateMonth(),
-        getDayPath(), validateDay());
+        getDayPath(), validateDay(),
+        getYearPath(), validateYear());
   }
 
   private ImmutableSet<ValidationErrorMessage> validateMonth() {
@@ -111,15 +108,16 @@ public final class DateQuestion extends Question {
       return dateValue;
     }
 
-    // TODO (After North Star launch): Clean up this
+    // TODO (#7266): After north star launch, clean up this section so we only read from memorable
+    // date.
     ApplicantData applicantData = applicantQuestion.getApplicantData();
     dateValue = applicantData.readDate(getDatePath());
 
     // In the North Star UI
     if (dateValue.isEmpty()) {
-      Optional<Long> yearValue = applicantData.readLong(getYearPath());
-      Optional<Long> monthValue = applicantData.readLong(getMonthPath());
-      Optional<Long> dayValue = applicantData.readLong(getDayPath());
+      Optional<Long> yearValue = getYearValue();
+      Optional<Long> monthValue = getMonthValue();
+      Optional<Long> dayValue = getDayValue();
       if (yearValue.isPresent() && monthValue.isPresent() && dayValue.isPresent()) {
         dateValue =
             Optional.of(
@@ -134,6 +132,21 @@ public final class DateQuestion extends Question {
       dateValue = applicantData.getDateOfBirth();
     }
     return dateValue;
+  }
+
+  public Optional<Long> getMonthValue() {
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    return applicantData.readLong(getMonthPath());
+  }
+
+  public Optional<Long> getYearValue() {
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    return applicantData.readLong(getYearPath());
+  }
+
+  public Optional<Long> getDayValue() {
+    ApplicantData applicantData = applicantQuestion.getApplicantData();
+    return applicantData.readLong(getDayPath());
   }
 
   public DateQuestionDefinition getQuestionDefinition() {

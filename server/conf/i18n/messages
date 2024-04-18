@@ -392,6 +392,21 @@ validation.phoneMustBeLocalToCountry=The phone you have provided does not belong
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
 
+content.january=01 - January
+content.february=02 - Februrary
+content.march=03 - March
+content.april=04 - April
+content.may=05 - May
+content.june=06 - June
+content.july=07 - July
+content.august=08 - August
+content.september=09 - September
+content.october=10 - October
+content.november=11 - November
+content.december=12 - December
+label.dayOfMonth=Day
+label.month=Month
+label.year=Year
 validation.dayRequired=Day is required
 validation.invalidDateFormat=Please enter a date in the correct format
 <<<<<<< HEAD
