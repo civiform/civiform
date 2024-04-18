@@ -2,6 +2,7 @@ package views;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
 import play.i18n.Messages;
@@ -56,6 +57,8 @@ public abstract class ApplicationBaseViewParams {
 
   public abstract CiviFormProfile profile();
 
+  public abstract ImmutableList<Block> blockList();
+
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setRequest(Http.Request request);
@@ -95,6 +98,8 @@ public abstract class ApplicationBaseViewParams {
     public abstract Builder setApplicantRoutes(ApplicantRoutes applicantRoutes);
 
     public abstract Builder setProfile(CiviFormProfile profile);
+
+    public abstract Builder setBlockList(ImmutableList<Block> blockList);
 
     public abstract ApplicationBaseViewParams build();
   }
