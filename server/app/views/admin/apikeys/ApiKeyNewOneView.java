@@ -134,7 +134,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
             dynamicForm.isPresent()
                 && dynamicForm.get().error(ApiKeyService.PROGRAMS_FIELD_GROUP_NAME).isPresent(),
             p("Error: You must select at least one program.")
-                .withClasses(BaseStyles.FORM_ERROR_TEXT_BASE, BaseStyles.FORM_ERROR_TEXT_XS));
+                .withClasses(BaseStyles.FORM_ERROR_TEXT_XS, "mt-2", "mb-2"));
 
     for (String name :
         programNames.stream()
