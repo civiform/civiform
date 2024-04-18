@@ -416,9 +416,7 @@ class AdminPredicateConfiguration {
     )
     // The first row which is being used as a template cannot be deleted
     // and is rendered with a hidden delete button.
-    assertNotNull(deleteButtonDiv.querySelector('svg')).classList.remove(
-      'hidden',
-    )
+    deleteButtonDiv.classList.remove('hidden')
 
     assertNotNull(
       document.getElementById('predicate-config-value-row-container'),
