@@ -40,7 +40,7 @@ module.exports = {
         'civiform-white': {
           DEFAULT: '#f8f9fa',
         },
-        'seattle-blue': {
+        'civiform-blue': {
           DEFAULT: '#113f9f',
         },
         'civiform-green': {

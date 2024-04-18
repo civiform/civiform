@@ -15,8 +15,7 @@
         ></button>
 
         <div
-          th:text="#{content.blockProgress(${applicationParams.blockIndex() + 1},
-                                                      ${applicationParams.totalBlockCount()})}"
+          th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
         ></div>
 
         <div
