@@ -12,6 +12,11 @@ test.describe('Managing API keys', {tag: ['@uses-fixtures']}, () => {
 
     await loginAsAdmin(page)
 
+    await test.step('Validate new api key page without any programs created', async () => {
+      await adminApiKeys.gotoNewApiKeyPage()
+      await validateScreenshot(page, 'new-api-key-no-programs')
+    })
+
     await test.step('Add and publish program', async () => {
       await adminPrograms.addProgram(
         programName,

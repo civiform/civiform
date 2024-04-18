@@ -244,7 +244,9 @@ public class ApiKeyServiceTest extends ResetPostgres {
                       "expiration",
                       pastExpirationDate,
                       "subnet",
-                      "0.0.0.1/32")),
+                      "0.0.0.1/32",
+                      "grant-program-read[test-program]",
+                      "true")),
               adminProfile)
           .getApiKey();
     }
