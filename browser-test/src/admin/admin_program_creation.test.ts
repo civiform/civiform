@@ -193,9 +193,34 @@ test.describe('program creation', () => {
     })
 
     await page.waitForTimeout(100) // ms
+    const previewLocator = page.locator('#sample-question')
     await validateScreenshot(
-      page,
+      previewLocator,
       'program-creation-static-question-with-formatting',
+    )
+  })
+
+  test('preserves blank lines in question preview', async () => {
+    const {page, adminQuestions} = ctx
+
+    await loginAsAdmin(page)
+
+    await adminQuestions.createStaticQuestion({
+      questionName: 'static-question',
+      questionText:
+        'Here is the first line\n' +
+        '\n' +
+        'Here is some more text after a blank line\n' +
+        '\n' +
+        '\n' +
+        'Here is more text after more blank lines',
+    })
+
+    await page.waitForTimeout(100) // ms
+    const previewLocator = page.locator('#sample-question')
+    await validateScreenshot(
+      previewLocator,
+      'program-creation-static-question-with-blank-lines',
     )
   })
 

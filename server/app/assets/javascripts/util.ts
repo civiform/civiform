@@ -73,7 +73,14 @@ export function formatTextHtml(text: string): Element {
 
 export function formatText(text: string): string {
   // Preserve line breaks before parsing the text
-  text = text.split('\n').join('<br>')
+  const textArray = text.split('\n')
+  for (let i = 0; i < textArray.length; i++) {
+    if (!textArray[i]) {
+      textArray[i] = '\n'
+    }
+  }
+  // the non-breaking space character (&nbsp;) is required for the markdown parser to respect blank lines
+  text = textArray.join('&nbsp;\n')
 
   let parsedHtml = md.render(text)
   // Format lists
