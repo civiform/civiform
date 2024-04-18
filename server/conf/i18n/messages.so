@@ -61,6 +61,8 @@ button.previousScreen=Hore
 button.review=Dib u eeg
 button.skipFileUpload=Ka bood
 content.blockProgress={0} ee {1}
+# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
+label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=Waanu ka xunahay, barnaamijkan si buuxda looguma turjumin luqaddaada aad doorbidayso.
 link.allDone=Waan dhameeyay
 link.applyToAnotherProgram=Codso barnaamij kale
