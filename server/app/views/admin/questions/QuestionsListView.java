@@ -575,8 +575,7 @@ public final class QuestionsListView extends BaseHtmlView {
                         "This question is used in:", referencingPrograms.usedPrograms()))
                 .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_USED))
         .condWith(
-            !referencingPrograms.addedPrograms().isEmpty()
-                && !referencingPrograms.disabledPrograms().isEmpty(),
+            !referencingPrograms.addedPrograms().isEmpty(),
             div()
                 .with(
                     referencingProgramList(
