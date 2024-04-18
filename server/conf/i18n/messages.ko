@@ -61,6 +61,8 @@ button.previousScreen=이전
 button.review=검토
 button.skipFileUpload=건너뛰기
 content.blockProgress={1} 중 {0}
+# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
+label.blockIndexLabel={0}. {1}
 toast.localeNotSupported=죄송합니다. 이 프로그램은 사용자의 선호 언어로 번역되지 않습니다.
 link.allDone=모두 완료했습니다
 link.applyToAnotherProgram=다른 프로그램 신청
