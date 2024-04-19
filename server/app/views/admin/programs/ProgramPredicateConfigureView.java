@@ -441,32 +441,19 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
     DivTag row = div(innerRow).withClasses("flex", "mb-6", "predicate-config-value-row");
     DivTag andText = div("and").withClasses("object-center", "w-16", "p-4", "leading-10");
 
-    if (maybeAndNode.isPresent()) {
-      int columnNumber = 1;
+    ImmutableMap<Long, LeafExpressionNode> questionIdLeafNodeMap =
+        maybeAndNode.map(AndNode::children).orElse(ImmutableList.of()).stream()
+            .map(PredicateExpressionNode::getLeafNode)
+            .collect(
+                ImmutableMap.toImmutableMap(LeafExpressionNode::questionId, Function.identity()));
 
-      ImmutableMap<Long, LeafExpressionNode> questionIdLeafNodeMap =
-          maybeAndNode.get().children().stream()
-              .map(PredicateExpressionNode::getLeafNode)
-              .collect(
-                  ImmutableMap.toImmutableMap(LeafExpressionNode::questionId, Function.identity()));
-
-      for (var qd : questionDefinitions) {
-        var leafNode = questionIdLeafNodeMap.get(qd.getId());
-
-        innerRow
-            .condWith(columnNumber++ != 1, andText)
-            .with(createValueField(qd, groupId, Optional.of(leafNode)));
-      }
-    } else {
-      int columnNumber = 1;
-
-      for (var questionDefinition : questionDefinitions) {
-        innerRow
-            .condWith(columnNumber++ != 1, andText)
-            .with(
-                createValueField(
-                    questionDefinition, groupId, /* maybeLeafNode= */ Optional.empty()));
-      }
+    int columnNumber = 1;
+    for (QuestionDefinition questionDefinition : questionDefinitions) {
+      Optional<LeafExpressionNode> maybeLeafNode =
+          Optional.ofNullable(questionIdLeafNodeMap.get(questionDefinition.getId()));
+      innerRow
+          .condWith(columnNumber++ != 1, andText)
+          .with(createValueField(questionDefinition, groupId, maybeLeafNode));
     }
 
     DivTag delete =
