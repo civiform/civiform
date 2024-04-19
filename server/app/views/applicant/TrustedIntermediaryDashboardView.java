@@ -7,6 +7,8 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
+import static j2html.TagCreator.iff;
+import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.li;
@@ -69,7 +71,6 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   private final ProgramService programService;
   private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
   private final String baseUrl;
-  private static final String CURRENT_TAB_STYLES = "border-b-4 border-blue-600 text-bold";
 
   @Inject
   public TrustedIntermediaryDashboardView(
@@ -441,17 +442,26 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   public static NavTag renderTabButtons(Messages messages, String baseUrl, TabType currentTab) {
+    boolean isClientList = currentTab == TabType.CLIENT_LIST;
+    boolean isAccountSettings = currentTab == TabType.ACCOUNT_SETTINGS;
     return nav(
             renderClientListLink(messages, baseUrl)
-                .withClass("mr-10 py-4 hover:text-blue-600 hover:border-b-4 hover:border-blue-600")
-                .withCondClass(
-                    currentTab == TabType.CLIENT_LIST, "mr-10 py-4 " + CURRENT_TAB_STYLES)
-                .condAttr(currentTab == TabType.CLIENT_LIST, "aria-current", "page"),
+                .withClasses(
+                  "mr-10",
+                  "py-4",
+                  iffElse(isClientList, "border-b-4", "hover:border-b-4"),
+                  iffElse(isClientList, "border-blue-600", "hover:border-blue-600"),
+                  iffElse(isClientList, "text-bold", "hover:text-blue-600"))
+                .condAttr(isClientList, "aria-current", "page"),
             renderAccountSettingsLink(messages, baseUrl)
-                .withClasses("py-4 hover:text-blue-600 hover:border-b-4 hover:border-blue-600")
-                .withCondClass(currentTab == TabType.ACCOUNT_SETTINGS, "py-4 " + CURRENT_TAB_STYLES)
-                .condAttr(currentTab == TabType.ACCOUNT_SETTINGS, "aria-current", "page"))
+              .withClasses(
+                "py-4",
+                iffElse(isAccountSettings, "border-b-4", "hover:border-b-4"),
+                iffElse(isAccountSettings, "border-blue-600", "hover:border-blue-600"),
+                iffElse(isAccountSettings, "text-bold", "hover:text-blue-600"))
+              .condAttr(isAccountSettings, "aria-current", "page"))
         .withClasses("px-20", "text-sm", "tracking-tight", "flex")
-        .attr("aria-label", "Trusted Intermediary");
+        .attr("aria-label", "Trusted Intermediary")
+        .attr("data-testid", "ti-nav");
   }
 }
