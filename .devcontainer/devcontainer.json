@@ -70,5 +70,7 @@
   "postCreateCommand": "echo 'source /usr/share/bash-completion/completions/git' >> ~/.bashrc",
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  "forwardPorts": [3390, 5432, 9000, 9999]
+  // 3390 is for OIDC, 4566 is for localstack (email), 5432 is for postgres, 6645 is for localstack (file uploads), 8888 is for the prod simulator
+  // 8888 is for the prod simulator, 9000 is for the application, 9100 is for unit tests, 9999 is for browser tests, 10000 is for azureite
+  "forwardPorts": [3390, 4566, 5432, 6645, 8888, 9000, 9100, 9999, 10000]
 }
