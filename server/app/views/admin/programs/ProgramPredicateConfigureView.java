@@ -470,10 +470,15 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
     }
 
     DivTag delete =
-        div(Icons.svg(Icons.DELETE).withClasses("w-8", iff(groupId == 1, "hidden")))
+        div(Icons.svg(Icons.DELETE).withClasses("w-8"))
             .attr("role", "button")
             .withClasses(
-                "predicate-config-delete-value-row", "mx-6", "w-12", "pt-2", "cursor-pointer");
+                "predicate-config-delete-value-row",
+                "mx-6",
+                "w-12",
+                "pt-2",
+                "cursor-pointer",
+                iff(groupId == 1, "hidden"));
 
     return row.with(delete);
   }
