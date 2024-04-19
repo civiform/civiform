@@ -121,7 +121,7 @@ test.describe(
       })
     })
 
-    test('disabled programs', async ({page, adminQuestions, adminPrograms}) => {
+    test('shows results for referencing disabled programs', async ({page, adminQuestions, adminPrograms}) => {
       await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
       const programName = 'Program name'
       const disabledProgramName = 'Disabled program name'

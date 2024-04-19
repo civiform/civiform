@@ -160,7 +160,7 @@ test.describe('Admin question list', () => {
     await validateScreenshot(page, 'questions-list-sort-dropdown-lastmodified')
   })
 
-  test('published disabled programs is still under', async () => {
+  test('questions used in published disabled programs is still shown in phrase `used in # program` ', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
     await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await loginAsAdmin(page)
@@ -180,42 +180,41 @@ test.describe('Admin question list', () => {
     })
 
     await adminPrograms.addDisabledProgram('program-disabled')
+    // Add question a and b to the disabled program
     await adminPrograms.editProgramBlock(
       'program-disabled',
       'dummy description',
-      ['a'],
+      ['a', 'b'],
     )
     await adminPrograms.publishProgram('program-disabled')
     await adminPrograms.addAndPublishProgramWithQuestions(
-      ['a', 'c'],
+      ['a','b','c'],
       'program-two',
     )
 
     await adminQuestions.gotoAdminQuestionsPage()
-
-    await adminQuestions.sortQuestions('adminname-asc')
-    expect(await adminQuestions.questionBankNames()).toEqual(['a', 'b', 'c'])
-    await validateScreenshot(
-      page,
-      'questions-list-sort-dropdown-last-adminname-asc-disabled',
-    )
-    await adminQuestions.sortQuestions('adminname-desc')
-    expect(await adminQuestions.questionBankNames()).toEqual(['c', 'b', 'a'])
-
-    // Question 'b' is referenced by 0 programs, 'c' by 1 program, and 'a' by 2 programs.
-    await adminQuestions.sortQuestions('numprograms-asc')
-    expect(await adminQuestions.questionBankNames()).toEqual(['b', 'c', 'a'])
-    await adminQuestions.sortQuestions('numprograms-desc')
-    expect(await adminQuestions.questionBankNames()).toEqual(['a', 'c', 'b'])
-
-    // Question 'c' was modified after question 'a' which was modified after 'b'.
-    await adminQuestions.sortQuestions('lastmodified-desc')
-    expect(await adminQuestions.questionBankNames()).toEqual(['c', 'a', 'b'])
-
     await validateScreenshot(
       page,
       'questions-list-sort-dropdown-disabled-programs',
     )
+    await adminQuestions.expectQuestionProgramReferencesText({
+      questionName: 'a',
+      expectedProgramReferencesText:
+        'Used in 2 programs.',
+      version: 'active',
+    })
+    await adminQuestions.expectQuestionProgramReferencesText({
+      questionName: 'b',
+      expectedProgramReferencesText:
+        'Used in 2 programs.',
+      version: 'active',
+    })
+    await adminQuestions.expectQuestionProgramReferencesText({
+      questionName: 'c',
+      expectedProgramReferencesText:
+        'Used in 1 program.',
+      version: 'active',
+    })
   })
 
   test('shows if questions are marked for archival', async () => {
